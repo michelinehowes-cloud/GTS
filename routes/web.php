@@ -141,6 +141,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         
         // استيراد البيانات
         Route::get('/download-template', [CareerGuidanceController::class, 'downloadTemplate'])->name('admin.career-guidance.download.template');
+        Route::get('/import-graduates/create', [CareerGuidanceController::class, 'showImportForm'])->name('admin.career-guidance.import.graduates.create');
         Route::post('/import-graduates', [CareerGuidanceController::class, 'importGraduates'])->name('admin.career-guidance.import.graduates');
     });
 
@@ -284,6 +285,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/export-reports/pdf', [CareerGuidanceController::class, 'exportReportsPDF'])->name('career-guidance.export-reports.pdf');
         Route::get('/export-reports/excel', [CareerGuidanceController::class, 'exportReportsExcel'])->name('career-guidance.export-reports.excel');
         Route::get('/download-template', [CareerGuidanceController::class, 'downloadTemplate'])->name('career-guidance.download.template');
+        Route::get('/import-graduates/create', [CareerGuidanceController::class, 'showImportForm'])->name('career-guidance.import.graduates.create');
         Route::post('/import-graduates', [CareerGuidanceController::class, 'importGraduates'])->name('career-guidance.import.graduates');
 
         // إدارة الشركات لمسؤول الإرشاد المهني

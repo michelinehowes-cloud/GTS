@@ -155,7 +155,7 @@
                                     <a href="{{ route('career-guidance.graduates.create') }}" class="submenu-item {{ request()->routeIs('career-guidance.graduates.create') ? 'active' : '' }}">
                                         إضافة خريج
                                     </a>
-                                    <a href="{{ route('career-guidance.import.graduates') }}" class="submenu-item {{ request()->routeIs('career-guidance.import.graduates') ? 'active' : '' }}">
+                                    <a href="{{ route('career-guidance.import.graduates.create') }}" class="submenu-item {{ request()->routeIs('career-guidance.import.graduates.create') ? 'active' : '' }}">
                                         استيراد الخريجين
                                     </a>
                                     <a href="{{ route('career-guidance.download.template') }}" class="submenu-item {{ request()->routeIs('career-guidance.download.template') ? 'active' : '' }}">

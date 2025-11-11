@@ -370,6 +370,15 @@ class CareerGuidanceController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
         ]);
     }
+
+    /**
+     * عرض نموذج استيراد الخريجين
+     */
+    public function showImportForm()
+    {
+        return view('career-guidance.graduates.import');
+    }
+
 /**
  * التحقق من صحة بيانات المخططات
  */

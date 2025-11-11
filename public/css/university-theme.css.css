@@ -1,0 +1,132 @@
+/* جامعة طرابلس - نظام تدريب وتوظيف الخريجين */
+:root {
+    --tu-primary: #0B3D91;
+    --tu-gold: #FFD166;
+    --tu-light-blue: #1E6FD9;
+    --tu-dark-blue: #082A5C;
+    --tu-white: #FFFFFF;
+    --tu-light-bg: #F6F8FA;
+}
+
+/* تذييل الصفحات */
+.tu-footer {
+    background: linear-gradient(45deg, var(--tu-dark-blue), var(--tu-primary));
+    color: white;
+    padding: 30px 0;
+    margin-top: 50px;
+    border-top: 4px solid var(--tu-gold);
+}
+
+.tu-footer .university-logo {
+    width: 80px;
+    height: 80px;
+    background: var(--tu-gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    font-weight: bold;
+    color: var(--tu-primary);
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* رأس الصفحات */
+.tu-page-header {
+    background: linear-gradient(135deg, var(--tu-primary) 0%, var(--tu-light-blue) 100%);
+    color: white;
+    padding: 40px 0;
+    margin-bottom: 30px;
+    border-bottom: 4px solid var(--tu-gold);
+}
+
+.tu-page-header .university-logo {
+    width: 100px;
+    height: 100px;
+    background: var(--tu-gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-weight: bold;
+    color: var(--tu-primary);
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+/* بطاقات خاصة بالجامعة */
+.tu-feature-card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(11, 61, 145, 0.1);
+    border-top: 4px solid var(--tu-gold);
+    transition: all 0.3s ease;
+}
+
+.tu-feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(11, 61, 145, 0.2);
+}
+
+.tu-feature-card .icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(45deg, var(--tu-primary), var(--tu-light-blue));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: white;
+    font-size: 2rem;
+}
+
+/* شارات الجامعة */
+.tu-badge {
+    background: linear-gradient(45deg, var(--tu-primary), var(--tu-light-blue));
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.tu-badge-gold {
+    background: linear-gradient(45deg, var(--tu-gold), #FFE082);
+    color: var(--tu-dark-blue);
+}
+
+/* تقدم المهام */
+.tu-progress {
+    height: 8px;
+    border-radius: 10px;
+    background: #e9ecef;
+    overflow: hidden;
+}
+
+.tu-progress-bar {
+    background: linear-gradient(45deg, var(--tu-primary), var(--tu-light-blue));
+    height: 100%;
+    border-radius: 10px;
+}
+
+/* تأثيرات نصية */
+.tu-text-primary {
+    color: var(--tu-primary) !important;
+}
+
+.tu-text-gold {
+    color: var(--tu-gold) !important;
+}
+
+.tu-bg-primary {
+    background: var(--tu-primary) !important;
+}
+
+.tu-bg-gold {
+    background: var(--tu-gold) !important;
+}

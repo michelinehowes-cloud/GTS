@@ -253,7 +253,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
          ->name('export.reports.excel');
 
         // Temporary route for document path testing
-        Route::get('/documents/test-path-by-path/{path}', [PartnershipController::class, 'testDocumentPath'])->name('partnership.documents.test-path');
+        Route::get('/documents/test-path/{path}', [PartnershipController::class, 'testDocumentPath'])->name('partnership.documents.test-path');
     }); // نهاية مجموعة مسارات مسؤول الشراكات
 
     // ==================== 📈 مسارات التقييم والمتابعة ====================

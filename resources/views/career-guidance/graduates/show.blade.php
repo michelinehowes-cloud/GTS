@@ -10,10 +10,10 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3>تفاصيل الخريج</h3>
                     <div class="d-flex gap-2">
-                        <a href="{{ route('admin.career-guidance.graduates.edit', $graduate->id) }}" class="btn btn-warning">
-                            <i class="fas fa-edit me-2"></i>تعديل البيانات
-                        </a>
-                        <a href="{{ route('admin.career-guidance.graduates') }}" class="btn btn-secondary">
+                        <a href="{{ route('career-guidance.graduates.edit', $graduate->id) }}" class="btn btn-warning btn-sm" title="تعديل">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                        <a href="{{ route('career-guidance.graduates.edit', $graduate->id) }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
                         </a>
                     </div>

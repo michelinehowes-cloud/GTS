@@ -14,7 +14,7 @@
                     </a>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('career-guidance.graduates.update', $graduate->id) }}" method="POST">
+<form action="{{ route('admin.career-guidance.graduates.update', $graduate->id) }}" method="POST">
                         @csrf
                         @method('PUT')
                         
@@ -29,9 +29,9 @@
                             </div>
                             
                             <div class="col-md-6 mb-3">
-                                <label for="email" class="form-label">البريد الإلكتروني *</label>
+                                <label for="email" class="form-label">البريد الإلكتروني</label>
                                 <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                                       id="email" name="email" value="{{ old('email', $graduate->email) }}" required>
+                                       id="email" name="email" value="{{ old('email', $graduate->email) }}">
                                 @error('email')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

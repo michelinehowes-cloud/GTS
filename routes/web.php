@@ -260,11 +260,13 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     // ==================== 📈 مسارات التقييم والمتابعة ====================
     Route::prefix('evaluation-followup')->middleware(['auth', 'evaluation_followup'])->group(function () {
         Route::get('/dashboard', [EvaluationFollowupController::class, 'dashboard'])->name('evaluation-followup.dashboard');
-        Route::get('/training-calendar', [TrainingController::class, 'calendar'])->name('evaluation-followup.training-calendar');
+        Route::get('/training-calendar', [EvaluationFollowupController::class, 'trainingCalendarIndex'])->name('evaluation-followup.training-calendar');
         Route::get('/training-programs', [EvaluationFollowupController::class, 'trainingProgramsIndex'])->name('evaluation-followup.training-programs.index');
         Route::get('/training-programs/create', [EvaluationFollowupController::class, 'trainingProgramsCreate'])->name('evaluation-followup.training-programs.create');
         Route::get('/training-applications', [EvaluationFollowupController::class, 'trainingApplicationsIndex'])->name('evaluation-followup.training-applications.index');
         Route::get('/training-statistics', [EvaluationFollowupController::class, 'trainingStatistics'])->name('evaluation-followup.training-statistics');
+        Route::get('/training-reports', [EvaluationFollowupController::class, 'trainingReportsIndex'])->name('evaluation-followup.training-reports');
+        Route::get('/partnership-employment-reports', [EvaluationFollowupController::class, 'partnershipEmploymentReports'])->name('evaluation-followup.partnership-employment-reports');
     });
 
     // ==================== 🎓 مسارات الإرشاد المهني (للمستخدمين غير المدراء) ====================

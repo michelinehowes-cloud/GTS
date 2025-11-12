@@ -15,6 +15,7 @@ use App\Http\Controllers\PartnershipController;
 use App\Http\Controllers\JobOpportunityController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
 
 class EvaluationFollowupController extends Controller
 {
@@ -78,7 +79,7 @@ class EvaluationFollowupController extends Controller
     // You can add other methods here for reports, calendar, etc., if they need specific logic
     // For now, the routes point to existing controllers for reports and calendar.
 
-    public function trainingReports()
+    public function trainingReportsIndex()
     {
         $trainingController = new TrainingController();
         $data = $trainingController->reports()->getData(); // Get data from the reports method
@@ -163,5 +164,82 @@ class EvaluationFollowupController extends Controller
     public function trainingStatistics()
     {
         return view('evaluation-followup.training-statistics', ['pageTitle' => 'التقارير والإحصائيات']);
+    }
+
+    public function trainingCalendarIndex(Request $request)
+    {
+        try {
+            $month = $request->input('month', Carbon::now()->month);
+            $year = $request->input('year', Carbon::now()->year);
+            
+            $month = max(1, min(12, $month));
+            $year = max(2020, min(2030, $year));
+            
+            $startDate = Carbon::create($year, $month, 1);
+            $endDate = $startDate->copy()->endOfMonth();
+            
+            $trainings = Training::where(function($query) use ($startDate, $endDate) {
+                    $query->whereBetween('start_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                          ->orWhereBetween('end_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+                })
+                ->get();
+            
+            // Assuming generateCalendar and getArabicMonthName methods are available or can be made available
+            // For now, we'll call them as if they are part of this controller or a trait.
+            // If they are private methods in TrainingController, we need to refactor.
+            $calendar = $this->generateCalendar($month, $year, $trainings);
+            
+            return view('evaluation-followup.training-calendar.index', compact('calendar', 'trainings', 'month', 'year', 'startDate'));
+            
+        } catch (\Exception $e) {
+            return redirect()->route('evaluation-followup.dashboard')
+                ->with('error', 'حدث خطأ في تحميل التقويم: ' . $e->getMessage());
+        }
+    }
+
+    private function generateCalendar($month, $year, $trainings)
+    {
+        $startDate = Carbon::create($year, $month, 1);
+        $endDate = $startDate->copy()->endOfMonth();
+        
+        $days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+        
+        $calendar = [];
+        $currentDay = $startDate->copy();
+        
+        $firstDayOfWeek = $currentDay->dayOfWeek;
+        for ($i = 0; $i < $firstDayOfWeek; $i++) {
+            $calendar[] = ['day' => null, 'trainings' => []];
+        }
+        
+        while ($currentDay->month == $month) {
+            $dayTrainings = $trainings->filter(function($training) use ($currentDay) {
+                return $currentDay->between(Carbon::parse($training->start_date)->startOfDay(), Carbon::parse($training->end_date)->endOfDay());
+            });
+            
+            $calendar[] = [
+                'day' => $currentDay->copy(),
+                'trainings' => $dayTrainings
+            ];
+            
+            $currentDay->addDay();
+        }
+        
+        return [
+            'days' => $days,
+            'weeks' => array_chunk($calendar, 7),
+            'month_name' => $this->getArabicMonthName($month)
+        ];
+    }
+
+    private function getArabicMonthName($month)
+    {
+        $months = [
+            1 => 'يناير', 2 => 'فبراير', 3 => 'مارس', 4 => 'أبريل',
+            5 => 'مايو', 6 => 'يونيو', 7 => 'يوليو', 8 => 'أغسطس',
+            9 => 'سبتمبر', 10 => 'أكتوبر', 11 => 'نوفمبر', 12 => 'ديسمبر'
+        ];
+        
+        return $months[$month] ?? 'غير معروف';
     }
 }

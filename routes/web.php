@@ -267,6 +267,9 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/training-statistics', [EvaluationFollowupController::class, 'trainingStatistics'])->name('evaluation-followup.training-statistics');
         Route::get('/training-reports', [EvaluationFollowupController::class, 'trainingReportsIndex'])->name('evaluation-followup.training-reports');
         Route::get('/partnership-employment-reports', [EvaluationFollowupController::class, 'partnershipEmploymentReports'])->name('evaluation-followup.partnership-employment-reports');
+        Route::get('/career-guidance-advanced-reports', [EvaluationFollowupController::class, 'careerGuidanceAdvancedReportsIndex'])->name('evaluation-followup.career-guidance-advanced-reports');
+        Route::get('/export-reports/pdf', [EvaluationFollowupController::class, 'exportReportsPDF'])->name('evaluation-followup.export-reports.pdf');
+        Route::get('/export-reports/excel', [EvaluationFollowupController::class, 'exportReportsExcel'])->name('evaluation-followup.export-reports.excel');
     });
 
     // ==================== 🎓 مسارات الإرشاد المهني (للمستخدمين غير المدراء) ====================

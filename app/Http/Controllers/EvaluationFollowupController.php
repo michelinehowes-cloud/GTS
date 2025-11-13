@@ -184,9 +184,6 @@ class EvaluationFollowupController extends Controller
                 })
                 ->get();
             
-            // Assuming generateCalendar and getArabicMonthName methods are available or can be made available
-            // For now, we'll call them as if they are part of this controller or a trait.
-            // If they are private methods in TrainingController, we need to refactor.
             $calendar = $this->generateCalendar($month, $year, $trainings);
             
             return view('evaluation-followup.training-calendar.index', compact('calendar', 'trainings', 'month', 'year', 'startDate'));
@@ -241,5 +238,25 @@ class EvaluationFollowupController extends Controller
         ];
         
         return $months[$month] ?? 'غير معروف';
+    }
+
+    public function careerGuidanceAdvancedReportsIndex()
+    {
+        $careerGuidanceController = new CareerGuidanceController();
+        $data = $careerGuidanceController->advancedReports()->getData();
+
+        return view('evaluation-followup.advanced-reports.index', $data);
+    }
+
+    public function exportReportsPDF(Request $request)
+    {
+        $careerGuidanceController = new CareerGuidanceController();
+        return $careerGuidanceController->exportReportsPDF($request);
+    }
+
+    public function exportReportsExcel(Request $request)
+    {
+        $careerGuidanceController = new CareerGuidanceController();
+        return $careerGuidanceController->exportReportsExcel($request);
     }
 }

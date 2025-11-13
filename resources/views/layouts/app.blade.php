@@ -136,6 +136,12 @@
                                 تقويم التدريبات
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('evaluation-followup.career-guidance-advanced-reports') ? 'active' : '' }}" href="{{ route('evaluation-followup.career-guidance-advanced-reports') }}">
+                                <i class="fas fa-chart-line me-2"></i>
+                                تقارير الإرشاد المهني المتقدمة
+                            </a>
+                        </li>
                         @endif
 
                         <!-- مسؤول الإرشاد المهني -->

@@ -203,14 +203,6 @@
                                 </a>
                             </li>
 
-                            <!-- إدارة الشركات -->
-                            <li class="nav-item menu-group">
-                                <a class="nav-link {{ request()->routeIs('career-guidance.companies*') ? 'active' : '' }}"
-                                   href="{{ route('career-guidance.companies') }}">
-                                    <i class="fas fa-building"></i>
-                                    إدارة الشركات
-                                </a>
-                            </li>
 
                             <!-- التقارير -->
                             <li class="nav-item">

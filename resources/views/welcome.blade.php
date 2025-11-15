@@ -364,7 +364,7 @@
     </section>
     @endif
 
-    <hr>
+    <hr class="my-5 border-gold-accent"> <!-- Enhanced separator -->
 
     <section class="py-6 py-xl-8">
         <div class="container">

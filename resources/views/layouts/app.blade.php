@@ -50,6 +50,8 @@
                                     مسؤول الشراكات والتوظيف
                                 @elseif(auth()->user()->role == 'company')
                                     لوحة تحكم الشركة
+                                @elseif(auth()->user()->role == 'media_officer')
+                                    لوحة تحكم الميديا
                                 @endif
                             @endauth
                         </small>
@@ -118,31 +120,89 @@
 
                         <!-- أقسام التقييم والمتابعة (لمستخدم التقييم والمتابعة فقط) -->
                         @if(auth()->user()->role == 'evaluation_followup')
+                        <!-- إدارة الاستبيانات -->
+                        <li class="nav-item menu-group">
+                            <a class="nav-link {{ request()->routeIs('evaluation-followup.surveys*') ? 'active' : '' }}"
+                               href="#" onclick="toggleSubmenu('surveys-menu')">
+                                <i class="fas fa-poll"></i>
+                                إدارة الاستبيانات
+                                <i class="fas fa-chevron-down menu-arrow"></i>
+                            </a>
+                            <div class="submenu {{ request()->routeIs('evaluation-followup.surveys*') ? 'show' : '' }}" id="surveys-menu">
+                                <a href="{{ route('evaluation-followup.surveys.index') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.surveys.index') ? 'active' : '' }}">
+                                    عرض الاستبيانات
+                                </a>
+                                <a href="{{ route('evaluation-followup.surveys.create') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.surveys.create') ? 'active' : '' }}">
+                                    إضافة استبيان جديد
+                                </a>
+                            </div>
+                        </li>
+
+                        <!-- إدارة التقييمات -->
+                        <li class="nav-item menu-group">
+                            <a class="nav-link {{ request()->routeIs('evaluation-followup.evaluations*') ? 'active' : '' }}"
+                               href="#" onclick="toggleSubmenu('evaluations-menu')">
+                                <i class="fas fa-star"></i>
+                                إدارة التقييمات
+                                <i class="fas fa-chevron-down menu-arrow"></i>
+                            </a>
+                            <div class="submenu {{ request()->routeIs('evaluation-followup.evaluations*') ? 'show' : '' }}" id="evaluations-menu">
+                                <a href="{{ route('evaluation-followup.evaluations.index') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.evaluations.index') ? 'active' : '' }}">
+                                    عرض التقييمات
+                                </a>
+                                <a href="{{ route('evaluation-followup.evaluations.create') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.evaluations.create') ? 'active' : '' }}">
+                                    إضافة تقييم جديد
+                                </a>
+                            </div>
+                        </li>
+
+                        <!-- ردود الاستبيانات -->
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('evaluation-followup.training-reports') ? 'active' : '' }}" href="{{ route('evaluation-followup.training-reports') }}">
+                            <a class="nav-link {{ request()->routeIs('evaluation-followup.survey-responses*') ? 'active' : '' }}"
+                               href="{{ route('evaluation-followup.survey-responses.index') }}">
+                                <i class="fas fa-list"></i>
+                                ردود الاستبيانات
+                            </a>
+                        </li>
+
+                        <!-- التقارير -->
+                        <li class="nav-item menu-group">
+                            <a class="nav-link {{ request()->routeIs('evaluation-followup.*reports') ? 'active' : '' }}"
+                               href="#" onclick="toggleSubmenu('reports-menu')">
                                 <i class="fas fa-chart-bar"></i>
-                                تقارير التدريب
+                                التقارير والإحصائيات
+                                <i class="fas fa-chevron-down menu-arrow"></i>
                             </a>
+                            <div class="submenu {{ request()->routeIs('evaluation-followup.*reports') ? 'show' : '' }}" id="reports-menu">
+                                <a href="{{ route('evaluation-followup.evaluation-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.evaluation-reports') ? 'active' : '' }}">
+                                    تقارير التقييمات
+                                </a>
+                                <a href="{{ route('evaluation-followup.survey-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.survey-reports') ? 'active' : '' }}">
+                                    تقارير الاستبيانات
+                                </a>
+                                <a href="{{ route('evaluation-followup.performance-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.performance-reports') ? 'active' : '' }}">
+                                    تقارير الأداء
+                                </a>
+                                <a href="{{ route('evaluation-followup.training-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.training-reports') ? 'active' : '' }}">
+                                    تقارير التدريب
+                                </a>
+                                <a href="{{ route('evaluation-followup.partnership-employment-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.partnership-employment-reports') ? 'active' : '' }}">
+                                    تقارير الشراكات والتوظيف
+                                </a>
+                                <a href="{{ route('evaluation-followup.career-guidance-advanced-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.career-guidance-advanced-reports') ? 'active' : '' }}">
+                                    تقارير الإرشاد المهني
+                                </a>
+                            </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('evaluation-followup.partnership-employment-reports') ? 'active' : '' }}" href="{{ route('evaluation-followup.partnership-employment-reports') }}">
-                                <i class="fas fa-chart-pie"></i>
-                                تقارير الشراكات والتوظيف المتقدمة
-                            </a>
-                        </li>
+
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('evaluation-followup.training-calendar') ? 'active' : '' }}" href="{{ route('evaluation-followup.training-calendar') }}">
                                 <i class="fas fa-calendar-alt"></i>
                                 تقويم التدريبات
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('evaluation-followup.career-guidance-advanced-reports') ? 'active' : '' }}" href="{{ route('evaluation-followup.career-guidance-advanced-reports') }}">
-                                <i class="fas fa-chart-line me-2"></i>
-                                تقارير الإرشاد المهني المتقدمة
-                            </a>
-                        </li>
                         @endif
+
 
                         <!-- مسؤول الإرشاد المهني -->
                         @if(auth()->user()->role == 'career_guidance_officer')
@@ -263,7 +323,70 @@
                                 </a>
                             </li>
                         @endif
-                        
+
+                        <!-- مسؤول الميديا -->
+                        @if(auth()->user()->role == 'media_officer')
+                            <!-- لوحة التحكم -->
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('media.dashboard') ? 'active' : '' }}" href="{{ route('media.dashboard') }}">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    لوحة التحكم
+                                </a>
+                            </li>
+
+                            <!-- إدارة التدريبات -->
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('media.trainings*') ? 'active' : '' }}" href="{{ route('media.trainings.index') }}">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    إدارة التدريبات
+                                </a>
+                            </li>
+
+                            <!-- إدارة الوسائط -->
+                            <li class="nav-item menu-group">
+                                <a class="nav-link {{ request()->routeIs('media.*') && !request()->routeIs('media.trainings*') && !request()->routeIs('media.news*') && !request()->routeIs('media.announcements*') && !request()->routeIs('media.reports*') ? 'active' : '' }}"
+                                   href="#" onclick="toggleSubmenu('media-menu')">
+                                    <i class="fas fa-images"></i>
+                                    إدارة الوسائط
+                                    <i class="fas fa-chevron-down menu-arrow"></i>
+                                </a>
+                                <div class="submenu {{ request()->routeIs('media.*') && !request()->routeIs('media.trainings*') && !request()->routeIs('media.news*') && !request()->routeIs('media.announcements*') && !request()->routeIs('media.reports*') ? 'show' : '' }}" id="media-menu">
+                                    <a href="{{ route('media.gallery') }}" class="submenu-item {{ request()->routeIs('media.gallery') ? 'active' : '' }}">
+                                        معرض الوسائط
+                                    </a>
+                                    <a href="{{ route('media.upload.form') }}" class="submenu-item {{ request()->routeIs('media.upload.form') ? 'active' : '' }}">
+                                        رفع الوسائط
+                                    </a>
+                                </div>
+                            </li>
+
+                            <!-- إدارة المحتوى -->
+                            <li class="nav-item menu-group">
+                                <a class="nav-link {{ request()->routeIs('media.news*') || request()->routeIs('media.announcements*') ? 'active' : '' }}"
+                                   href="#" onclick="toggleSubmenu('content-menu')">
+                                    <i class="fas fa-newspaper"></i>
+                                    إدارة المحتوى
+                                    <i class="fas fa-chevron-down menu-arrow"></i>
+                                </a>
+                                <div class="submenu {{ request()->routeIs('media.news*') || request()->routeIs('media.announcements*') ? 'show' : '' }}" id="content-menu">
+                                    <a href="{{ route('media.news.index') }}" class="submenu-item {{ request()->routeIs('media.news.index') ? 'active' : '' }}">
+                                        الأخبار
+                                    </a>
+                                    <a href="{{ route('media.announcements.index') }}" class="submenu-item {{ request()->routeIs('media.announcements.index') ? 'active' : '' }}">
+                                        الإعلانات
+                                    </a>
+                                </div>
+                            </li>
+
+                            <!-- التقارير -->
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('media.reports*') ? 'active' : '' }}" href="{{ route('media.reports.coverage') }}">
+                                    <i class="fas fa-chart-bar"></i>
+                                    التقارير
+                                </a>
+                            </li>
+                        @endif
+
                         <!-- تسجيل الخروج -->
                         <li class="nav-item mt-4 pt-3 border-top border-light">
                             <a class="nav-link text-warning fw-bold" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -318,6 +441,8 @@
                                             مسؤول الشراكات والتوظيف
                                         @elseif(auth()->user()->role == 'company')
                                             شركة
+                                        @elseif(auth()->user()->role == 'media_officer')
+                                            مسؤول الميديا
                                         @endif
                                     @endauth
                                 </small>
@@ -433,6 +558,7 @@
         });
     </script>
     
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     @yield('scripts')
     @stack('scripts')
 </body>

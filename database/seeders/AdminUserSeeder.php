@@ -16,7 +16,7 @@ class AdminUserSeeder extends Seeder
             'email' => 'admin@tripoliuniversity.edu.ly',
             'password' => Hash::make('password123'),
             'role' => 'admin',
-            'status' => 'active',
+            'is_active' => true,
             'email_verified_at' => now(),
         ]);
 
@@ -26,17 +26,37 @@ class AdminUserSeeder extends Seeder
             'email' => 'training@tripoliuniversity.edu.ly',
             'password' => Hash::make('password123'),
             'role' => 'training_coordinator',
-            'status' => 'active',
+            'is_active' => true,
             'email_verified_at' => now(),
         ]);
 
-        // إنشاء مستخدم منسق توظيف
+        // إنشاء مستخدم مسؤول الشراكات
         User::create([
-            'name' => 'منسق التوظيف',
-            'email' => 'placement@tripoliuniversity.edu.ly',
+            'name' => 'مسؤول الشراكات',
+            'email' => 'partnership@tripoliuniversity.edu.ly',
             'password' => Hash::make('password123'),
-            'role' => 'placement_coordinator',
-            'status' => 'active',
+            'role' => 'partnership_officer',
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        // إنشاء مستخدم مسؤول الإرشاد المهني
+        User::create([
+            'name' => 'مسؤول الإرشاد المهني',
+            'email' => 'guidance@tripoliuniversity.edu.ly',
+            'password' => Hash::make('password123'),
+            'role' => 'career_guidance_officer',
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        // إنشاء مستخدم مسؤول التقييم والمتابعة
+        User::create([
+            'name' => 'مسؤول التقييم والمتابعة',
+            'email' => 'evaluation@tripoliuniversity.edu.ly',
+            'password' => Hash::make('password123'),
+            'role' => 'evaluation_followup',
+            'is_active' => true,
             'email_verified_at' => now(),
         ]);
 
@@ -46,7 +66,17 @@ class AdminUserSeeder extends Seeder
             'email' => 'graduate@tripoliuniversity.edu.ly',
             'password' => Hash::make('password123'),
             'role' => 'graduate',
-            'status' => 'active',
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        // إنشاء مستخدم شركة
+        User::create([
+            'name' => 'ممثل شركة تجريبية',
+            'email' => 'company@tripoliuniversity.edu.ly',
+            'password' => Hash::make('password123'),
+            'role' => 'company',
+            'is_active' => true,
             'email_verified_at' => now(),
         ]);
 

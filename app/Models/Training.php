@@ -20,8 +20,8 @@ class Training extends Model
         'seats',
         'status',
         'company_id',
-        'coordinator_id'
-    
+        'coordinator_id',
+        'media_coverage_status'
     ];
     public function coordinator()
 {
@@ -93,5 +93,35 @@ class Training extends Model
     {
         $takenSeats = $this->applications()->where('status', 'approved')->count();
         return $this->seats - $takenSeats;
+    }
+
+    /**
+     * العلاقة مع الوسائط
+     */
+    public function media()
+    {
+        return $this->hasMany(TrainingMedia::class);
+    }
+
+    /**
+     * الحصول على حالة التغطية الإعلامية بالعربية
+     */
+    public function getMediaCoverageStatusArabicAttribute()
+    {
+        $statuses = [
+            'pending' => 'تحت التغطية',
+            'covered' => 'تمت التغطية',
+            'not_required' => 'لا يتطلب تغطية'
+        ];
+
+        return $statuses[$this->media_coverage_status] ?? $this->media_coverage_status;
+    }
+
+    /**
+     * الحصول على نص حالة التغطية الإعلامية
+     */
+    public function getMediaCoverageStatusText()
+    {
+        return $this->getMediaCoverageStatusArabicAttribute();
     }
 }

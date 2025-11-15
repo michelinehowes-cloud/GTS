@@ -25,7 +25,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:admin,training_coordinator,graduate,partnership_officer,career_guidance_officer,company,evaluation_followup',
+            'role' => 'required|in:admin,training_coordinator,graduate,partnership_officer,career_guidance_officer,company,evaluation_followup,media_officer',
             'phone' => 'nullable|string|max:20',
         ]);
 
@@ -54,7 +54,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8|confirmed',
-        'role' => 'required|in:admin,training_coordinator,graduate,partnership_officer,career_guidance_officer,company,evaluation_followup', // ✅ تحديث القائمة
+        'role' => 'required|in:admin,training_coordinator,graduate,partnership_officer,career_guidance_officer,company,evaluation_followup,media_officer', // ✅ تحديث القائمة
             'phone' => 'nullable|string|max:20',
         ]);
 

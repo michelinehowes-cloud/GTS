@@ -160,13 +160,134 @@
         </div>
     </section>
 
+    <!-- قسم الصور الترحيبية (Carousel) -->
+    @php
+        $welcomeImages = \App\Models\TrainingMedia::where('is_welcome_page_media', true)
+            ->where('is_active', true)
+            ->orderBy('display_order')
+            ->get();
+    @endphp
+
+    @if($welcomeImages->count() > 0)
+    <section class="py-5">
+        <div class="container">
+            <div id="welcomeCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner rounded-3 overflow-hidden shadow-lg">
+                    @foreach($welcomeImages as $index => $image)
+                    <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
+                        <img src="{{ asset('storage/' . $image->file_path) }}" class="d-block w-100" alt="{{ $image->caption ?? 'صورة ترحيبية' }}" style="height: 400px; object-fit: cover;">
+                        @if($image->caption)
+                        <div class="carousel-caption d-none d-md-block">
+                            <h5 class="text-white shadow-sm">{{ $image->caption }}</h5>
+                        </div>
+                        @endif
+                    </div>
+                    @endforeach
+                </div>
+                @if($welcomeImages->count() > 1)
+                <button class="carousel-control-prev" type="button" data-bs-target="#welcomeCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">السابق</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#welcomeCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">التالي</span>
+                </button>
+                @endif
+            </div>
+        </div>
+    </section>
+    @endif
+
+    <hr>
+
+    <!-- قسم الأخبار والإعلانات -->
+    @php
+        $latestNews = \App\Models\News::where('is_active', true)
+            ->orderBy('published_at', 'desc')
+            ->limit(3)
+            ->get();
+
+        $activeAnnouncements = \App\Models\Announcement::where('is_active', true)
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->orderBy('created_at', 'desc')
+            ->limit(3)
+            ->get();
+    @endphp
+
+    @if($latestNews->count() > 0 || $activeAnnouncements->count() > 0)
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row">
+                <!-- الأخبار -->
+                @if($latestNews->count() > 0)
+                <div class="col-lg-6 mb-4">
+                    <h3 class="text-primary mb-4">
+                        <i class="fas fa-newspaper me-2"></i>
+                        آخر الأخبار
+                    </h3>
+                    <div class="row">
+                        @foreach($latestNews as $news)
+                        <div class="col-12 mb-3">
+                            <div class="card border-0 shadow-sm">
+                                @if($news->thumbnail_path)
+                                <img src="{{ asset('storage/' . $news->thumbnail_path) }}" class="card-img-top" alt="{{ $news->title }}" style="height: 200px; object-fit: cover;">
+                                @endif
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary">{{ $news->title }}</h6>
+                                    <p class="card-text text-muted small">{{ Str::limit(strip_tags($news->content), 100) }}</p>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        {{ \Carbon\Carbon::parse($news->published_at)->format('d/m/Y') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
+                <!-- الإعلانات -->
+                @if($activeAnnouncements->count() > 0)
+                <div class="col-lg-6 mb-4">
+                    <h3 class="text-warning mb-4">
+                        <i class="fas fa-bullhorn me-2"></i>
+                        الإعلانات
+                    </h3>
+                    <div class="row">
+                        @foreach($activeAnnouncements as $announcement)
+                        <div class="col-12 mb-3">
+                            <div class="card border-warning shadow-sm">
+                                <div class="card-body">
+                                    <h6 class="card-title text-warning">{{ $announcement->title }}</h6>
+                                    <p class="card-text">{{ Str::limit(strip_tags($announcement->content), 120) }}</p>
+                                    @if($announcement->link)
+                                    <a href="{{ $announcement->link }}" class="btn btn-warning btn-sm" target="_blank">
+                                        <i class="fas fa-external-link-alt me-1"></i>
+                                        المزيد
+                                    </a>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+    </section>
+    @endif
+
     <hr>
 
     <section class="py-6 py-xl-8">
         <div class="container">
-            
+
             <div class="row justify-content-center">
-                
+
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="card feature-card h-100">
                         <div class="card-body text-center">
@@ -178,7 +299,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="card feature-card h-100">
                         <div class="card-body text-center">
@@ -190,7 +311,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="card feature-card h-100">
                         <div class="card-body text-center">
@@ -202,7 +323,7 @@
                         </div>
                     </div>
                 </div>
-                
+
             </div>
         </div>
     </section>

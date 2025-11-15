@@ -81,6 +81,7 @@
                             <option value="career_guidance_officer" {{ old('role', $user->role ?? '') == 'career_guidance_officer' ? 'selected' : '' }}>مسؤول الإرشاد المهني</option>
                             <option value="company" {{ old('role', $user->role ?? '') == 'company' ? 'selected' : '' }}>شركة</option>
                             <option value="evaluation_followup" {{ old('role', $user->role ?? '') == 'evaluation_followup' ? 'selected' : '' }}>تقييم ومتابعة</option>
+                            <option value="media_officer" {{ old('role', $user->role ?? '') == 'media_officer' ? 'selected' : '' }}>مسؤول الميديا</option>
                         </select>   
                             @error('role')
                                 <div class="invalid-feedback">{{ $message }}</div>

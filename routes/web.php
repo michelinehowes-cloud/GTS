@@ -34,7 +34,7 @@ Route::get('/', function () {
 // أضف هذا السطر لحل المشكلة
 Route::get('/home', function () {
     return redirect()->route('dashboard');
-})->name('home');
+})->name('home_redirect');
 
 // ==================== 🔐 نظام المصادقة ====================
 Route::middleware('guest')->group(function () {
@@ -43,13 +43,20 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 });
 
+// ==================== 📊 الاستبيانات العامة ====================
+Route::prefix('surveys')->group(function () {
+    Route::get('/{slug}', [App\Http\Controllers\PublicSurveyController::class, 'show'])->name('public.survey.show');
+    Route::post('/{slug}', [App\Http\Controllers\PublicSurveyController::class, 'store'])->name('public.survey.store');
+    Route::get('/{slug}/thankyou', [App\Http\Controllers\PublicSurveyController::class, 'thankyou'])->name('public.survey.thankyou');
+});
+
 // ==================== 👥 المسارات للمستخدمين المسجلين ====================
 Route::middleware('auth')->group(function () {
-    
+
     // 🔄 التوجيه التلقائي بعد التسجيل حسب الدور
     Route::get('/dashboard', function () {
         $user = auth()->user();
-        
+
         if ($user->role === 'admin') {
             return redirect()->route('admin.dashboard');
         } elseif ($user->role === 'training_coordinator') {
@@ -66,6 +73,8 @@ Route::middleware('auth')->group(function () {
             return redirect()->route('evaluation-followup.dashboard');
         } elseif ($user->role === 'career_guidance_officer') {
             return redirect()->route('career-guidance.dashboard');
+        } elseif ($user->role === 'media_officer') {
+            return redirect()->route('media.dashboard');
         }
         // إذا لم يكن هناك توجيه، ارجع للصفحة الرئيسية
         return redirect('/');
@@ -73,14 +82,14 @@ Route::middleware('auth')->group(function () {
 
   // ==================== 👑 مسارات المدير (Admin) ====================
 Route::prefix('admin')->middleware('admin')->group(function () {
-    
+
     // 📊 لوحة التحكم والإحصائيات
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
     Route::get('/reports/users', [AdminController::class, 'usersReport'])->name('admin.reports.users');
     Route::get('/reports/companies', [AdminController::class, 'companiesReport'])->name('admin.reports.companies');
     Route::get('/reports/trainings', [AdminController::class, 'trainingsReport'])->name('admin.reports.trainings');
-    
+
     // 👥 إدارة المستخدمين
     Route::get('/users', [UserController::class, 'index'])->name('admin.users');
     Route::get('/users/create', [UserController::class, 'create'])->name('admin.users.create');
@@ -88,7 +97,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
-    
+
     // 🏢 إدارة الشركات
     Route::get('/companies', [CompanyController::class, 'index'])->name('admin.companies');
     Route::get('/companies/create', [CompanyController::class, 'create'])->name('admin.companies.create');
@@ -97,7 +106,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::put('/companies/{company}', [CompanyController::class, 'update'])->name('admin.companies.update');
     Route::delete('/companies/{company}', [CompanyController::class, 'destroy'])->name('admin.companies.destroy');
     Route::patch('/companies/{id}/approve', [AdminController::class, 'approveCompany'])->name('admin.companies.approve');
-    
+
     // 🎯 إدارة برامج التدريب
     Route::resource('trainings', TrainingController::class)->names([
         'index' => 'admin.trainings',
@@ -108,7 +117,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         'update' => 'admin.trainings.update',
         'destroy' => 'admin.trainings.destroy'
     ]);
-    
+
     // 📝 إدارة طلبات التدريب
     Route::get('/applications', [AdminController::class, 'applications'])->name('admin.applications.index');
     Route::post('/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('admin.applications.approve');
@@ -138,7 +147,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/advanced-reports', [CareerGuidanceController::class, 'advancedReports'])->name('admin.career-guidance.advanced-reports');
         Route::get('/export-reports/pdf', [CareerGuidanceController::class, 'exportReportsPDF'])->name('admin.career-guidance.export-reports.pdf');
         Route::get('/export-reports/excel', [CareerGuidanceController::class, 'exportReportsExcel'])->name('admin.career-guidance.export-reports.excel');
-        
+
         // استيراد البيانات
         Route::get('/download-template', [CareerGuidanceController::class, 'downloadTemplate'])->name('admin.career-guidance.download.template');
         Route::get('/import-graduates/create', [CareerGuidanceController::class, 'showImportForm'])->name('admin.career-guidance.import.graduates.create');
@@ -150,13 +159,13 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     // ==================== 📚 مسارات منسق التدريب ====================
     Route::prefix('coordinator')->middleware('training_coordinator')->group(function () {
-        
+
         // 📊 لوحة تحكم منسق التدريب
         Route::get('/dashboard', [TrainingController::class, 'coordinatorDashboard'])->name('training-coordinator.dashboard');
-        
+
         // 📅 التقويم
         Route::get('/calendar', [TrainingController::class, 'calendar'])->name('training-coordinator.calendar');
-        
+
         // 📋 طلبات التدريب الخاصة بالمنسق
         Route::get('/applications', [TrainingController::class, 'coordinatorApplications'])->name('training-coordinator.applications');
         Route::post('/applications/{id}/approve', [TrainingController::class, 'approveApplication'])->name('training-coordinator.applications.approve');
@@ -175,13 +184,13 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             'update' => 'training-coordinator.trainings.update',
             'destroy' => 'training-coordinator.trainings.destroy'
         ]);
-        
+
         // التقارير
         Route::get('/reports', [TrainingController::class, 'reports'])->name('training-coordinator.reports');
         Route::post('/reports/upload', [TrainingController::class, 'uploadReport'])->name('training-coordinator.reports.upload');
         Route::get('/reports/template/{type}', [TrainingController::class, 'downloadTemplate'])->name('training-coordinator.reports.download-template');
         Route::get('/reports/download/{id}', [TrainingController::class, 'downloadReport'])->name('training-coordinator.reports.download');
-        Route::delete('/reports/delete/{id}', [TrainingController::class, 'deleteReport'])->name('training-coordinator.reports.delete'); 
+        Route::delete('/reports/delete/{id}', [TrainingController::class, 'deleteReport'])->name('training-coordinator.reports.delete');
         // معاينة وتحليل التقارير
         Route::get('/reports/preview/{id}', [TrainingController::class, 'previewReport'])->name('training-coordinator.reports.preview');
         Route::get('/reports/analyze/{id}', [TrainingController::class, 'analyzeReport'])->name('training-coordinator.reports.analyze');
@@ -194,29 +203,29 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     // ==================== 🎓 مسارات الخريج ====================
     Route::prefix('graduate')->middleware('graduate')->group(function () {
-        
+
         // 📊 لوحة تحكم الخريج
         Route::get('/dashboard', [GraduateController::class, 'dashboard'])->name('graduate.dashboard');
-        
+
         // 👤 الملف الشخصي للخريج
         Route::get('/profile', [GraduateController::class, 'profile'])->name('graduate.profile');
         Route::put('/profile', [GraduateController::class, 'updateProfile'])->name('graduate.profile.update');
-        
+
         // 🎯 برامج التدريب المتاحة
         Route::get('/trainings', [TrainingController::class, 'availableTrainings'])->name('graduate.trainings');
         Route::get('/trainings/{training}', [TrainingController::class, 'showTraining'])->name('graduate.trainings.show');
-        
+
         // 📝 تقديم طلبات التدريب
         Route::post('/trainings/{training}/apply', [TrainingController::class, 'submitApplication'])->name('graduate.trainings.apply');
-        
+
     }); // نهاية مجموعة مسارات الخريج
 
     // ==================== 🤝 مسارات مسؤول الشراكات والتوظيف ====================
     Route::prefix('partnership')->middleware(['auth', 'partnership_officer'])->group(function () {
-        
+
         // 📊 لوحة التحكم
         Route::get('/dashboard', [PartnershipController::class, 'dashboard'])->name('partnership.dashboard');
-        
+
         // 🏢 إدارة الشركات - كاملة
         Route::get('/companies', [PartnershipController::class, 'companies'])->name('partnership.companies');
         Route::get('/companies/create', [PartnershipController::class, 'createCompany'])->name('partnership.companies.create');
@@ -226,7 +235,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::put('/companies/{company}', [PartnershipController::class, 'updateCompany'])->name('partnership.companies.update');
         Route::delete('/companies/{company}', [PartnershipController::class, 'destroyCompany'])->name('partnership.companies.destroy');
         Route::put('/companies/{id}/partnership', [PartnershipController::class, 'updateCompanyPartnership'])->name('partnership.companies.update-partnership');
-        
+
         // 📎 إدارة الوثائق
         Route::get('/documents', [PartnershipController::class, 'documents'])->name('partnership.documents');
         Route::get('/documents/create', [PartnershipController::class, 'createDocument'])->name('partnership.documents.create');
@@ -249,7 +258,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/reports', [PartnershipController::class, 'reports'])->name('partnership.reports');
          Route::get('/export-reports/pdf', [CareerGuidanceController::class, 'exportReportsPDF'])
          ->name('export.reports.pdf');
-    
+
     Route::get('/export-reports/excel', [CareerGuidanceController::class, 'exportReportsExcel'])
          ->name('export.reports.excel');
 
@@ -270,6 +279,83 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/career-guidance-advanced-reports', [EvaluationFollowupController::class, 'careerGuidanceAdvancedReportsIndex'])->name('evaluation-followup.career-guidance-advanced-reports');
         Route::get('/export-reports/pdf', [EvaluationFollowupController::class, 'exportReportsPDF'])->name('evaluation-followup.export-reports.pdf');
         Route::get('/export-reports/excel', [EvaluationFollowupController::class, 'exportReportsExcel'])->name('evaluation-followup.export-reports.excel');
+
+        // ==================== 📊 إدارة الاستبيانات ====================
+        Route::resource('surveys', App\Http\Controllers\SurveyController::class)->names([
+            'index' => 'evaluation-followup.surveys.index',
+            'create' => 'evaluation-followup.surveys.create',
+            'store' => 'evaluation-followup.surveys.store',
+            'show' => 'evaluation-followup.surveys.show',
+            'edit' => 'evaluation-followup.surveys.edit',
+            'update' => 'evaluation-followup.surveys.update',
+            'destroy' => 'evaluation-followup.surveys.destroy'
+        ]);
+
+        // ==================== 📈 إدارة التقييمات ====================
+        Route::resource('evaluations', App\Http\Controllers\EvaluationController::class)->names([
+            'index' => 'evaluation-followup.evaluations.index',
+            'create' => 'evaluation-followup.evaluations.create',
+            'store' => 'evaluation-followup.evaluations.store',
+            'show' => 'evaluation-followup.evaluations.show',
+            'edit' => 'evaluation-followup.evaluations.edit',
+            'update' => 'evaluation-followup.evaluations.update',
+            'destroy' => 'evaluation-followup.evaluations.destroy'
+        ]);
+
+        // ==================== 📋 إدارة ردود الاستبيانات ====================
+        Route::get('/survey-responses', [App\Http\Controllers\SurveyResponseController::class, 'index'])->name('evaluation-followup.survey-responses.index');
+        Route::get('/survey-responses/{response}', [App\Http\Controllers\SurveyResponseController::class, 'show'])->name('evaluation-followup.survey-responses.show');
+        Route::delete('/survey-responses/{response}', [App\Http\Controllers\SurveyResponseController::class, 'destroy'])->name('evaluation-followup.survey-responses.destroy');
+
+        // ==================== 📊 تقارير التقييم ====================
+        Route::get('/evaluation-reports', [EvaluationFollowupController::class, 'evaluationReports'])->name('evaluation-followup.evaluation-reports');
+        Route::get('/survey-reports', [EvaluationFollowupController::class, 'surveyReports'])->name('evaluation-followup.survey-reports');
+        Route::get('/performance-reports', [EvaluationFollowupController::class, 'performanceReports'])->name('evaluation-followup.performance-reports');
+    });
+
+    // ==================== 📹 مسارات مسؤول الميديا ====================
+    Route::prefix('media')->middleware(['auth', 'media_officer'])->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\MediaController::class, 'dashboard'])->name('media.dashboard');
+
+        // إدارة التدريبات
+        Route::get('/trainings', [App\Http\Controllers\MediaController::class, 'trainingsIndex'])->name('media.trainings.index');
+        Route::get('/trainings/{training}', [App\Http\Controllers\MediaController::class, 'trainingShow'])->name('media.trainings.show');
+        Route::patch('/trainings/{training}/coverage-status', [App\Http\Controllers\MediaController::class, 'updateCoverageStatus'])->name('media.trainings.update-coverage-status');
+
+        // إدارة الوسائط
+        Route::get('/media/gallery', [App\Http\Controllers\MediaController::class, 'mediaGallery'])->name('media.gallery');
+        Route::get('/media/upload', [App\Http\Controllers\MediaController::class, 'uploadForm'])->name('media.upload.form');
+        Route::post('/media/upload', [App\Http\Controllers\MediaController::class, 'upload'])->name('media.upload');
+        Route::patch('/media/{media}', [App\Http\Controllers\MediaController::class, 'update'])->name('media.update');
+        Route::delete('/media/{media}', [App\Http\Controllers\MediaController::class, 'destroy'])->name('media.destroy');
+
+        // إدارة الأخبار
+        Route::resource('news', App\Http\Controllers\NewsController::class)->names([
+            'index' => 'media.news.index',
+            'create' => 'media.news.create',
+            'store' => 'media.news.store',
+            'show' => 'media.news.show',
+            'edit' => 'media.news.edit',
+            'update' => 'media.news.update',
+            'destroy' => 'media.news.destroy'
+        ]);
+        Route::patch('/news/{news}/toggle-status', [App\Http\Controllers\NewsController::class, 'toggleStatus'])->name('media.news.toggle-status');
+
+        // إدارة الإعلانات
+        Route::resource('announcements', App\Http\Controllers\AnnouncementController::class)->names([
+            'index' => 'media.announcements.index',
+            'create' => 'media.announcements.create',
+            'store' => 'media.announcements.store',
+            'show' => 'media.announcements.show',
+            'edit' => 'media.announcements.edit',
+            'update' => 'media.announcements.update',
+            'destroy' => 'media.announcements.destroy'
+        ]);
+        Route::patch('/announcements/{announcement}/toggle-status', [App\Http\Controllers\AnnouncementController::class, 'toggleStatus'])->name('media.announcements.toggle-status');
+
+        // تقارير التغطية
+        Route::get('/reports/coverage', [App\Http\Controllers\MediaController::class, 'reportsIndex'])->name('media.reports.coverage');
+        Route::get('/reports/coverage/{training}', [App\Http\Controllers\MediaController::class, 'createCoverageReport'])->name('media.reports.coverage.show');
     });
 
     // ==================== 🎓 مسارات الإرشاد المهني (للمستخدمين غير المدراء) ====================
@@ -309,7 +395,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/{id}', [JobOpportunityController::class, 'show'])->name('job-opportunities.show');
         Route::get('/{id}/nominations', [JobOpportunityController::class, 'nominations'])->name('job-opportunities.nominations');
         Route::get('/statistics', [JobOpportunityController::class, 'statistics'])->name('job-opportunities.statistics');
-        
+
         // مسارات خاصة بمسؤول الشراكات فقط
         Route::middleware('partnership_officer')->group(function () {
             Route::get('/{id}/edit', [JobOpportunityController::class, 'edit'])->name('job-opportunities.edit');
@@ -329,11 +415,28 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::delete('/{id}', [TrainingController::class, 'destroyApplication'])->name('applications.destroy');
     });
 
+    // ==================== 🔔 نظام الإشعارات ====================
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/{notification}', [App\Http\Controllers\NotificationController::class, 'show'])->name('notifications.show');
+        Route::get('/api/notifications', [App\Http\Controllers\NotificationController::class, 'getNotifications'])->name('notifications.api');
+        Route::patch('/{notification}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+        Route::patch('/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+        Route::delete('/{notification}', [App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
+        Route::delete('/read/delete', [App\Http\Controllers\NotificationController::class, 'destroyRead'])->name('notifications.destroy-read');
+        Route::get('/stats', [App\Http\Controllers\NotificationController::class, 'stats'])->name('notifications.stats');
+
+        // مسارات الإدارة (للمدير فقط)
+        Route::middleware('admin')->group(function () {
+            Route::post('/test', [App\Http\Controllers\NotificationController::class, 'sendTestNotification'])->name('notifications.test');
+        });
+    });
+
     // ==================== 👤 المسارات العامة ====================
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
     // 🚪 تسجيل الخروج
     Route::post('/logout', function () {
         Auth::logout();
@@ -341,7 +444,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         request()->session()->regenerateToken();
         return redirect('/login');
     })->name('logout');
-    
+
 }); // نهاية مجموعة المسارات للمستخدمين المسجلين
 
 // ==================== 🔧 مسارات التطوير والاختبار ====================

@@ -259,4 +259,127 @@ class EvaluationFollowupController extends Controller
         $careerGuidanceController = new CareerGuidanceController();
         return $careerGuidanceController->exportReportsExcel($request);
     }
+
+    public function evaluationReports()
+    {
+        $evaluations = \App\Models\Evaluation::with(['user', 'evaluator', 'training'])
+            ->completed()
+            ->get();
+
+        $stats = [
+            'total_evaluations' => $evaluations->count(),
+            'average_scores' => $evaluations->avg('average_score'),
+            'evaluations_by_type' => $evaluations->groupBy('type')->map->count(),
+            'recent_evaluations' => $evaluations->take(10),
+        ];
+
+        return view('evaluation-followup.evaluation-reports', compact('stats', 'evaluations'));
+    }
+
+    public function surveyReports()
+    {
+        $surveys = \App\Models\Survey::with('responses')->get();
+
+        $stats = [
+            'total_surveys' => $surveys->count(),
+            'active_surveys' => $surveys->where('is_active', true)->count(),
+            'total_responses' => $surveys->sum(function($survey) {
+                return $survey->responses->count();
+            }),
+            'average_completion_rate' => $surveys->avg(function($survey) {
+                $targetCount = $this->getTargetAudienceCount($survey->target_audience);
+                return $targetCount > 0 ? ($survey->responses->count() / $targetCount) * 100 : 0;
+            }),
+        ];
+
+        return view('evaluation-followup.survey-reports', compact('stats', 'surveys'));
+    }
+
+    public function performanceReports()
+    {
+        $evaluations = \App\Models\Evaluation::with(['user', 'training'])
+            ->where('type', 'performance')
+            ->completed()
+            ->get();
+
+        $performanceStats = [
+            'total_performance_evaluations' => $evaluations->count(),
+            'average_performance_score' => $evaluations->avg('average_score'),
+            'performance_distribution' => $this->calculateScoreDistribution($evaluations),
+            'top_performers' => $evaluations->sortByDesc('average_score')->take(10),
+            'areas_for_improvement' => $this->identifyImprovementAreas($evaluations),
+        ];
+
+        return view('evaluation-followup.performance-reports', compact('performanceStats', 'evaluations'));
+    }
+
+    private function getTargetAudienceCount($audience)
+    {
+        switch ($audience) {
+            case 'graduates':
+                return \App\Models\User::where('role', 'graduate')->count();
+            case 'companies':
+                return \App\Models\User::where('role', 'company')->count();
+            case 'training_coordinators':
+                return \App\Models\User::where('role', 'training_coordinator')->count();
+            case 'all':
+            default:
+                return \App\Models\User::whereIn('role', ['graduate', 'company', 'training_coordinator'])->count();
+        }
+    }
+
+    private function calculateScoreDistribution($evaluations)
+    {
+        $distribution = [
+            'excellent' => 0, // 4.5-5
+            'good' => 0,      // 3.5-4.4
+            'average' => 0,   // 2.5-3.4
+            'below_average' => 0, // 1.5-2.4
+            'poor' => 0,      // 0-1.4
+        ];
+
+        foreach ($evaluations as $evaluation) {
+            $score = $evaluation->average_score;
+            if ($score >= 4.5) $distribution['excellent']++;
+            elseif ($score >= 3.5) $distribution['good']++;
+            elseif ($score >= 2.5) $distribution['average']++;
+            elseif ($score >= 1.5) $distribution['below_average']++;
+            else $distribution['poor']++;
+        }
+
+        return $distribution;
+    }
+
+    private function identifyImprovementAreas($evaluations)
+    {
+        $areas = [];
+        $criteria = ['التحصيل الأكاديمي', 'المهارات المهنية', 'السلوك والانضباط', 'التعاون والعمل الجماعي', 'الحضور والالتزام'];
+
+        foreach ($criteria as $criterion) {
+            $scores = $evaluations->pluck('scores')->flatten();
+            $avgScore = $scores->avg();
+            if ($avgScore < 3.0) {
+                $areas[] = [
+                    'area' => $criterion,
+                    'average_score' => round($avgScore, 2),
+                    'recommendation' => $this->getRecommendation($criterion)
+                ];
+            }
+        }
+
+        return $areas;
+    }
+
+    private function getRecommendation($area)
+    {
+        $recommendations = [
+            'التحصيل الأكاديمي' => 'تعزيز الدعم الأكاديمي والتدريب الإضافي',
+            'المهارات المهنية' => 'تطوير برامج تدريب مهني متخصصة',
+            'السلوك والانضباط' => 'تعزيز الإرشاد السلوكي والتوعية',
+            'التعاون والعمل الجماعي' => 'تنظيم أنشطة تعزز العمل الجماعي',
+            'الحضور والالتزام' => 'تحسين سياسات الحضور والمتابعة',
+        ];
+
+        return $recommendations[$area] ?? 'مراجعة وتطوير البرامج ذات الصلة';
+    }
 }

@@ -6,6 +6,8 @@
     <title>نظام تدريب وتوظيف الخريجين - جامعة طرابلس</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
     <style>
         /* الألوان الأساسية */
@@ -19,7 +21,7 @@
 
         body {
             background-color: var(--light-bg);
-            font-family: 'GE SS Unique Bold', Tahoma, sans-serif; /* يمكن استبداله بخط عربي فخم */
+            font-family: 'Cairo', sans-serif; /* استخدام خط القاهرة */
         }
 
         /* تحسينات الشريط العلوي والفقرات */
@@ -150,11 +152,11 @@
     
     <section class="hero-section">
         <div class="container">
-            <img src="{{ asset('storage/logo.jpg') }}" alt="شعار الجامعة" class="university-logo-img mb-5">
+            <img src="{{ asset('storage/logo.jpg') }}" alt="شعار الجامعة" class="university-logo-img mb-5" data-aos="zoom-in">
 
-            <h1 class="display-3 fw-bolder mb-3">مكتب تدريب الخريجين</h1>
+            <h1 class="display-3 fw-bolder mb-3" data-aos="fade-up" data-aos-delay="200">مكتب تدريب الخريجين</h1>
             
-            <a href="{{ route('login') }}" class="btn btn-gold btn-lg">
+            <a href="{{ route('login') }}" class="btn btn-gold btn-lg" data-aos="fade-up" data-aos-delay="400">
                 <i class="fas fa-sign-in-alt me-2"></i>تسجيل الدخول   
             </a>
         </div>
@@ -199,7 +201,88 @@
     </section>
     @endif
 
-    <hr>
+    <hr class="my-5 border-gold-accent"> <!-- Enhanced separator -->
+
+    <!-- قسم "لماذا نحن؟" -->
+    <section class="py-5 bg-white">
+        <div class="container">
+            <h2 class="text-center display-5 fw-bold mb-5 text-primary-blue" data-aos="fade-down">لماذا تختار نظامنا؟</h2>
+            <div class="row text-center">
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="p-4 border rounded-3 shadow-sm h-100">
+                        <div class="feature-icon-circle mb-3 mx-auto">
+                            <i class="fas fa-graduation-cap fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold text-secondary-blue">تطوير مهني مستمر</h5>
+                        <p class="text-muted">نقدم برامج تدريبية متطورة تواكب أحدث متطلبات سوق العمل.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="p-4 border rounded-3 shadow-sm h-100">
+                        <div class="feature-icon-circle mb-3 mx-auto">
+                            <i class="fas fa-handshake fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold text-secondary-blue">شراكات استراتيجية</h5>
+                        <p class="text-muted">نربطك بأفضل الشركات والمؤسسات لفرص توظيف حصرية.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="p-4 border rounded-3 shadow-sm h-100">
+                        <div class="feature-icon-circle mb-3 mx-auto">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold text-secondary-blue">متابعة وتقييم الأداء</h5>
+                        <p class="text-muted">نظام متكامل لمتابعة تقدمك المهني وتقييم أدائك بانتظام.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="my-5 border-gold-accent"> <!-- Enhanced separator -->
+
+    <!-- قسم شهادات الخريجين/الشركاء -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center display-5 fw-bold mb-5 text-primary-blue" data-aos="fade-down">ماذا يقولون عنا؟</h2>
+            <div id="testimonialsCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active" data-aos="fade-up">
+                        <div class="d-flex justify-content-center">
+                            <div class="card shadow-lg p-4 mx-2" style="max-width: 700px;">
+                                <div class="card-body text-center">
+                                    <img src="https://via.placeholder.com/80" class="rounded-circle mb-3 border border-3 border-gold-accent" alt="صورة خريج" style="width: 80px; height: 80px; object-fit: cover;">
+                                    <p class="lead fst-italic">"بفضل هذا النظام، حصلت على تدريب ممتاز وفرصة عمل في شركة رائدة. لقد غير مساري المهني بالكامل!"</p>
+                                    <footer class="blockquote-footer mt-3">أحمد الساعدي <cite title="Source Title">خريج هندسة برمجيات</cite></footer>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" data-aos="fade-up">
+                        <div class="d-flex justify-content-center">
+                            <div class="card shadow-lg p-4 mx-2" style="max-width: 700px;">
+                                <div class="card-body text-center">
+                                    <img src="https://via.placeholder.com/80" class="rounded-circle mb-3 border border-3 border-gold-accent" alt="صورة شريك" style="width: 80px; height: 80px; object-fit: cover;">
+                                    <p class="lead fst-italic">"نظام تدريب الخريجين يوفر لنا كفاءات ممتازة ومدربة جاهزة للانخراط في سوق العمل. شراكة ناجحة بكل المقاييس."</p>
+                                    <footer class="blockquote-footer mt-3">فاطمة الزهراء <cite title="Source Title">مديرة الموارد البشرية، شركة التقنية المتقدمة</cite></footer>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#testimonialsCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">السابق</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#testimonialsCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">التالي</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <hr class="my-5 border-gold-accent"> <!-- Enhanced separator -->
 
     <!-- قسم الأخبار والإعلانات -->
     @php
@@ -288,7 +371,7 @@
 
             <div class="row justify-content-center">
 
-                <div class="col-lg-4 col-md-6 mb-4">
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
                     <div class="card feature-card h-100">
                         <div class="card-body text-center">
                             <div class="feature-icon-circle mb-4">
@@ -300,7 +383,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-4 col-md-6 mb-4">
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="card feature-card h-100">
                         <div class="card-body text-center">
                             <div class="feature-icon-circle mb-4">
@@ -312,7 +395,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-4 col-md-6 mb-4">
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="card feature-card h-100">
                         <div class="card-body text-center">
                             <div class="feature-icon-circle mb-4">
@@ -328,7 +411,7 @@
         </div>
     </section>
 
-    <hr>
+    <hr class="my-5 border-gold-accent"> <!-- Enhanced separator -->
 
     <footer class="footer">
         <div class="container text-center">
@@ -338,5 +421,12 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 1000, // values from 0 to 3000, with step 50ms
+            once: true, // whether animation should happen only once - while scrolling down
+        });
+    </script>
 </body>
 </html>

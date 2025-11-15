@@ -51,8 +51,10 @@ class User extends Authenticatable
         'admin' => 'مدير النظام',
         'graduate' => 'خريج',
         'training_coordinator' => 'منسق التدريب',
-        'partnership_officer' => 'مسؤول الشراكات والتوظيف', // ✅ تم التصحيح
-        'career_guidance_officer' => 'مسؤول الإرشاد المهني', // ✅ تم التصحيح
+        'partnership_officer' => 'مسؤول الشراكات والتوظيف',
+        'career_guidance_officer' => 'مسؤول الإرشاد المهني',
+        'evaluation_followup' => 'مسؤول التقييم والمتابعة',
+        'media_officer' => 'مسؤول الميديا',
         'company' => 'شركة'
         ];
     }
@@ -103,6 +105,14 @@ class User extends Authenticatable
     public function isCompany()
     {
         return $this->role === 'company';
+    }
+
+    /**
+     * التحقق إذا كان المستخدم مسؤول ميديا
+     */
+    public function isMediaOfficer()
+    {
+        return $this->role === 'media_officer';
     }
 
     /**

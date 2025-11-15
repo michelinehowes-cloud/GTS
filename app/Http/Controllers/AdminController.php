@@ -21,7 +21,7 @@ class AdminController extends Controller
         $usersCount = Schema::hasTable('users') ? User::count() : 0;
         $companiesCount = Schema::hasTable('companies') ? Company::count() : 0;
         $trainingsCount = Schema::hasTable('trainings') ? Training::count() : 0;
-        
+
         if (Schema::hasTable('training_applications')) {
             $applicationsCount = TrainingApplication::count();
             $pendingApplicationsCount = TrainingApplication::where('status', 'pending')->count();
@@ -33,7 +33,7 @@ class AdminController extends Controller
         // Fetch additional counts
         $jobOpportunitiesCount = Schema::hasTable('job_opportunities') ? JobOpportunity::count() : 0;
         $activeJobOpportunitiesCount = Schema::hasTable('job_opportunities') ? JobOpportunity::where('status', 'active')->count() : 0;
-        
+
         $graduatesCount = Schema::hasTable('graduates_data') ? GraduateData::count() : 0;
         $employedGraduatesCount = Schema::hasTable('graduates_data') ? GraduateData::where('employment_status', 'employed')->count() : 0;
 
@@ -53,6 +53,8 @@ class AdminController extends Controller
         $recentJobOpportunities = Schema::hasTable('job_opportunities') ? JobOpportunity::latest()->take(5)->get() : collect();
         $recentNominations = Schema::hasTable('nominations') ? Nomination::with('graduate', 'jobOpportunity')->latest()->take(5)->get() : collect();
 
+        // بيانات المخططات للوحة التحكم التفاعلية
+        $chartData = $this->getDashboardChartData();
 
         return view('admin.dashboard', [
             'usersCount' => $usersCount,
@@ -75,7 +77,177 @@ class AdminController extends Controller
             'recentTrainingApplications' => $recentTrainingApplications,
             'recentJobOpportunities' => $recentJobOpportunities,
             'recentNominations' => $recentNominations,
+            'chartData' => $chartData,
         ]);
+    }
+
+    /**
+     * الحصول على بيانات المخططات للوحة التحكم
+     */
+    private function getDashboardChartData()
+    {
+        try {
+            // مخطط توزيع المستخدمين حسب الدور
+            $usersByRole = User::selectRaw('role, COUNT(*) as count')
+                ->groupBy('role')
+                ->pluck('count', 'role')
+                ->toArray();
+
+            $userRoleLabels = [];
+            $userRoleData = [];
+            foreach ($usersByRole as $role => $count) {
+                $userRoleLabels[] = __('roles.' . $role, [], 'en') ?: ucfirst(str_replace('_', ' ', $role));
+                $userRoleData[] = $count;
+            }
+
+            // مخطط حالة الشركات
+            $companiesByStatus = Company::selectRaw('is_approved, COUNT(*) as count')
+                ->groupBy('is_approved')
+                ->pluck('count', 'is_approved')
+                ->toArray();
+
+            $companyStatusLabels = [];
+            $companyStatusData = [];
+            foreach ($companiesByStatus as $approved => $count) {
+                $companyStatusLabels[] = $approved ? 'معتمدة' : 'قيد الانتظار';
+                $companyStatusData[] = $count;
+            }
+
+            // مخطط حالة التوظيف للخريجين
+            $employmentStatus = GraduateData::selectRaw('employment_status, COUNT(*) as count')
+                ->whereNotNull('employment_status')
+                ->groupBy('employment_status')
+                ->pluck('count', 'employment_status')
+                ->toArray();
+
+            $employmentLabels = [];
+            $employmentData = [];
+            foreach ($employmentStatus as $status => $count) {
+                $employmentLabels[] = $this->getEmploymentStatusLabel($status);
+                $employmentData[] = $count;
+            }
+
+            // مخطط النشاط الشهري (طلبات التدريب)
+            $monthlyActivity = TrainingApplication::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+                ->whereYear('created_at', date('Y'))
+                ->groupBy('month')
+                ->orderBy('month')
+                ->pluck('count', 'month')
+                ->toArray();
+
+            $monthlyLabels = [];
+            $monthlyData = [];
+            for ($i = 1; $i <= 12; $i++) {
+                $monthlyLabels[] = date('M', mktime(0, 0, 0, $i, 1));
+                $monthlyData[] = $monthlyActivity[$i] ?? 0;
+            }
+
+            return [
+                'usersByRole' => [
+                    'labels' => $userRoleLabels,
+                    'datasets' => [[
+                        'label' => 'عدد المستخدمين',
+                        'data' => $userRoleData,
+                        'backgroundColor' => [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 205, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(153, 102, 255, 0.8)',
+                            'rgba(255, 159, 64, 0.8)',
+                        ],
+                    ]]
+                ],
+                'companiesByStatus' => [
+                    'labels' => $companyStatusLabels,
+                    'datasets' => [[
+                        'label' => 'عدد الشركات',
+                        'data' => $companyStatusData,
+                        'backgroundColor' => [
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(255, 99, 132, 0.8)',
+                        ],
+                    ]]
+                ],
+                'employmentStatus' => [
+                    'labels' => $employmentLabels,
+                    'datasets' => [[
+                        'label' => 'عدد الخريجين',
+                        'data' => $employmentData,
+                        'backgroundColor' => [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 205, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                        ],
+                    ]]
+                ],
+                'monthlyActivity' => [
+                    'labels' => $monthlyLabels,
+                    'datasets' => [[
+                        'label' => 'طلبات التدريب',
+                        'data' => $monthlyData,
+                        'borderColor' => 'rgba(75, 192, 192, 1)',
+                        'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
+                        'tension' => 0.4,
+                    ]]
+                ],
+            ];
+        } catch (\Exception $e) {
+            // في حالة الخطأ، إرجاع بيانات افتراضية
+            return [
+                'usersByRole' => [
+                    'labels' => ['مدير', 'منسق تدريب', 'خريج', 'شركة'],
+                    'datasets' => [[
+                        'label' => 'عدد المستخدمين',
+                        'data' => [1, 0, 0, 0],
+                        'backgroundColor' => ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 205, 86, 0.8)', 'rgba(75, 192, 192, 0.8)'],
+                    ]]
+                ],
+                'companiesByStatus' => [
+                    'labels' => ['معتمدة', 'قيد الانتظار'],
+                    'datasets' => [[
+                        'label' => 'عدد الشركات',
+                        'data' => [0, 0],
+                        'backgroundColor' => ['rgba(75, 192, 192, 0.8)', 'rgba(255, 99, 132, 0.8)'],
+                    ]]
+                ],
+                'employmentStatus' => [
+                    'labels' => ['موظف', 'غير موظف', 'باحث عن عمل'],
+                    'datasets' => [[
+                        'label' => 'عدد الخريجين',
+                        'data' => [0, 0, 0],
+                        'backgroundColor' => ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 205, 86, 0.8)'],
+                    ]]
+                ],
+                'monthlyActivity' => [
+                    'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    'datasets' => [[
+                        'label' => 'طلبات التدريب',
+                        'data' => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        'borderColor' => 'rgba(75, 192, 192, 1)',
+                        'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
+                        'tension' => 0.4,
+                    ]]
+                ],
+            ];
+        }
+    }
+
+    /**
+     * الحصول على تسمية حالة التوظيف
+     */
+    private function getEmploymentStatusLabel($status)
+    {
+        $labels = [
+            'employed' => 'موظف',
+            'unemployed' => 'غير موظف',
+            'seeking' => 'باحث عن عمل',
+            'student' => 'طالب',
+            'other' => 'أخرى',
+        ];
+
+        return $labels[$status] ?? ucfirst($status);
     }
 
     public function users()

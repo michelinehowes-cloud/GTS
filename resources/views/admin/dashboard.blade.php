@@ -10,6 +10,68 @@
         <h2 class="text-primary fw-bold mb-4">نظرة عامة على النظام</h2>
     </div>
 
+    <!-- Charts Section -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>إحصائيات تفاعلية
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- مخطط توزيع المستخدمين حسب الدور -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">توزيع المستخدمين حسب الدور</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="usersByRoleChart" style="max-height: 300px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- مخطط حالة الشركات -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">حالة الشركات</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="companiesByStatusChart" style="max-height: 300px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- مخطط حالة التوظيف -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">حالة توظيف الخريجين</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="employmentStatusChart" style="max-height: 300px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- مخطط النشاط الشهري -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">النشاط الشهري لطلبات التدريب</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="monthlyActivityChart" style="max-height: 300px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Row 1: Core Statistics -->
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card stat-card">
@@ -461,4 +523,110 @@
     </div>
 </div>
 
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // بيانات المخططات من PHP
+    const chartData = @json($chartData);
+
+    // تهيئة المخططات
+    initDashboardCharts(chartData);
+});
+
+function initDashboardCharts(chartData) {
+    // مخطط توزيع المستخدمين حسب الدور
+    const usersByRoleCtx = document.getElementById('usersByRoleChart');
+    if (usersByRoleCtx && chartData.usersByRole) {
+        new Chart(usersByRoleCtx, {
+            type: 'bar',
+            data: chartData.usersByRole,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'عدد المستخدمين'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // مخطط حالة الشركات
+    const companiesByStatusCtx = document.getElementById('companiesByStatusChart');
+    if (companiesByStatusCtx && chartData.companiesByStatus) {
+        new Chart(companiesByStatusCtx, {
+            type: 'doughnut',
+            data: chartData.companiesByStatus,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+    }
+
+    // مخطط حالة التوظيف
+    const employmentStatusCtx = document.getElementById('employmentStatusChart');
+    if (employmentStatusCtx && chartData.employmentStatus) {
+        new Chart(employmentStatusCtx, {
+            type: 'pie',
+            data: chartData.employmentStatus,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    }
+
+    // مخطط النشاط الشهري
+    const monthlyActivityCtx = document.getElementById('monthlyActivityChart');
+    if (monthlyActivityCtx && chartData.monthlyActivity) {
+        new Chart(monthlyActivityCtx, {
+            type: 'line',
+            data: chartData.monthlyActivity,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'عدد الطلبات'
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+</script>
 @endsection

@@ -71,5 +71,6 @@ class Kernel extends HttpKernel
         'can_add_graduates' => \App\Http\Middleware\CanAddGraduates::class,
         'evaluation_followup' => \App\Http\Middleware\EvaluationFollowupMiddleware::class,
         'career_guidance_officer' => \App\Http\Middleware\CareerGuidanceOfficerMiddleware::class,
+        'media_officer' => \App\Http\Middleware\MediaOfficerMiddleware::class,
     ];
 }

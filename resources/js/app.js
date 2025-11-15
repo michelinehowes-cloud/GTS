@@ -1,4 +1,11 @@
 import './bootstrap';
+import Chart from 'chart.js/auto';
+import Sortable from 'sortablejs';
+import './dark-mode';
+
+// Make Sortable globally available for inline scripts
+window.Sortable = Sortable;
+
 
 // Advanced Reports Specific Scripts (from admin/career-guidance/advanced-reports.blade.php)
 
@@ -28,12 +35,37 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing charts...');
     setTimeout(() => {
         try {
-            initMajorsChart();
-            initEmploymentChart();
-            initNominationsChart();
-            initMonthlyPerformanceChart();
-            initSuccessByMajorChart();
-            initOpportunitiesChart();
+            // Conditionally initialize charts
+            if (document.getElementById('majorsChart')) {
+                initMajorsChart();
+            } else {
+                checkAllChartsLoaded(); // Increment count even if chart element not found
+            }
+            if (document.getElementById('employmentChart')) {
+                initEmploymentChart();
+            } else {
+                checkAllChartsLoaded();
+            }
+            if (document.getElementById('nominationsChart')) {
+                initNominationsChart();
+            } else {
+                checkAllChartsLoaded();
+            }
+            if (document.getElementById('monthlyPerformanceChart')) {
+                initMonthlyPerformanceChart();
+            } else {
+                checkAllChartsLoaded();
+            }
+            if (document.getElementById('successByMajorChart')) {
+                initSuccessByMajorChart();
+            } else {
+                checkAllChartsLoaded();
+            }
+            if (document.getElementById('opportunitiesChart')) {
+                initOpportunitiesChart();
+            } else {
+                checkAllChartsLoaded();
+            }
         } catch (error) {
             console.error('Error initializing charts:', error);
         }
@@ -46,18 +78,18 @@ function validateChartData(chartData, chartName) {
         console.warn(`Invalid data for ${chartName}:`, chartData);
         return false;
     }
-    
+
     if (chartData.labels.length === 0 || chartData.datasets.length === 0) {
         console.warn(`Empty data for ${chartName}`);
         return false;
     }
-    
+
     const hasData = chartData.datasets.some(dataset => dataset.data && dataset.data.length > 0);
     if (!hasData) {
         console.warn(`No data values for ${chartName}`);
         return false;
     }
-    
+
     return true;
 }
 
@@ -74,9 +106,12 @@ function showFallbackMessage(chartId, chartName) {
 function checkAllChartsLoaded() {
     chartsLoaded++;
     console.log(`Chart loaded: ${chartsLoaded}/${totalCharts}`);
-    
+
     if (chartsLoaded === totalCharts) {
-        document.getElementById('loadingIndicator').style.display = 'none';
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
         console.log('All charts loaded successfully');
     }
 }
@@ -89,13 +124,13 @@ function initMajorsChart() {
         checkAllChartsLoaded();
         return;
     }
-    
+
     if (!validateChartData(window.chartData.majorsDistribution, 'majorsChart')) {
         showFallbackMessage('majors', 'توزيع التخصصات');
         checkAllChartsLoaded();
         return;
     }
-    
+
     try {
         charts.majorsChart = new Chart(ctx, {
             type: 'bar',
@@ -146,13 +181,13 @@ function initEmploymentChart() {
         checkAllChartsLoaded();
         return;
     }
-    
+
     if (!validateChartData(window.chartData.employmentStatus, 'employmentChart')) {
         showFallbackMessage('employment', 'حالة التوظيف');
         checkAllChartsLoaded();
         return;
     }
-    
+
     try {
         charts.employmentChart = new Chart(ctx, {
             type: 'doughnut',
@@ -184,13 +219,13 @@ function initNominationsChart() {
         checkAllChartsLoaded();
         return;
     }
-    
+
     if (!validateChartData(window.chartData.nominationsStatus, 'nominationsChart')) {
         showFallbackMessage('nominations', 'حالة الترشيحات');
         checkAllChartsLoaded();
         return;
     }
-    
+
     try {
         charts.nominationsChart = new Chart(ctx, {
             type: 'pie',
@@ -221,13 +256,13 @@ function initMonthlyPerformanceChart() {
         checkAllChartsLoaded();
         return;
     }
-    
+
     if (!validateChartData(window.chartData.monthlyPerformance, 'monthlyPerformanceChart')) {
         showFallbackMessage('monthlyPerformance', 'الأداء الشهري');
         checkAllChartsLoaded();
         return;
     }
-    
+
     try {
         charts.monthlyPerformanceChart = new Chart(ctx, {
             type: 'line',
@@ -267,13 +302,13 @@ function initSuccessByMajorChart() {
         checkAllChartsLoaded();
         return;
     }
-    
+
     if (!validateChartData(window.chartData.successByMajor, 'successByMajorChart')) {
         showFallbackMessage('successByMajor', 'النجاح حسب التخصص');
         checkAllChartsLoaded();
         return;
     }
-    
+
     try {
         charts.successByMajorChart = new Chart(ctx, {
             type: 'radar',
@@ -310,13 +345,13 @@ function initOpportunitiesChart() {
         checkAllChartsLoaded();
         return;
     }
-    
+
     if (!validateChartData(window.chartData.opportunitiesDistribution, 'opportunitiesChart')) {
         showFallbackMessage('opportunities', 'توزيع فرص العمل');
         checkAllChartsLoaded();
         return;
     }
-    
+
     try {
         charts.opportunitiesChart = new Chart(ctx, {
             type: 'polarArea',
@@ -347,7 +382,7 @@ function downloadChart(chartId) {
         alert('المخطط غير متاح للتحميل');
         return;
     }
-    
+
     const link = document.createElement('a');
     link.download = `${chartId}_${new Date().toISOString().split('T')[0]}.png`;
     link.href = chart.toBase64Image();
@@ -355,16 +390,19 @@ function downloadChart(chartId) {
 }
 
 // تحديث البيانات
-document.getElementById('refreshBtn').addEventListener('click', function() {
+document.getElementById('refreshBtn')?.addEventListener('click', function() {
     const btn = this;
     const originalText = btn.innerHTML;
-    
+
     btn.innerHTML = '<i class="bi bi-arrow-clockwise me-2 spin"></i>جاري التحديث...';
     btn.disabled = true;
-    
-    document.getElementById('loadingIndicator').style.display = 'block';
+
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    if (loadingIndicator) {
+        loadingIndicator.style.display = 'block';
+    }
     chartsLoaded = 0;
-    
+
     setTimeout(() => {
         location.reload();
     }, 1500);
@@ -374,7 +412,7 @@ document.getElementById('refreshBtn').addEventListener('click', function() {
 function exportReport() {
     try {
         const exportType = confirm('هل تريد تصدير التقرير كـ PDF؟\n\nموافق: تصدير PDF\nإلغاء: تصدير Excel');
-        
+
         if (exportType) {
             if (routes.pdf && routes.pdf !== '') {
                 window.open(routes.pdf, '_blank');
@@ -433,13 +471,14 @@ function safeExport() {
             </div>
         </div>
     `;
-    
+
     if (!document.getElementById('exportModal')) {
         document.body.insertAdjacentHTML('beforeend', modalHtml);
     }
-    
+
     const modal = new bootstrap.Modal(document.getElementById('exportModal'));
     modal.show();
 }
 
-document.querySelector('.btn-outline-primary').addEventListener('click', safeExport);
+// Commenting out this line to prevent conflict with "Add Question" button
+// document.querySelector('.btn-outline-primary').addEventListener('click', safeExport);

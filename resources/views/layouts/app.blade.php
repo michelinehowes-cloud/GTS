@@ -108,26 +108,23 @@
                             </a>
                         </li>
 
-                        <!-- إدارة الإرشاد المهني (للمسؤول فقط) -->
+                        <!-- ادارة الارشاد المهني -->
                         <li class="nav-item menu-group">
-                            <a class="nav-link {{ request()->routeIs('admin.career-guidance*') || request()->routeIs('admin.job-opportunities*') ? 'active' : '' }}"
-                               href="#" onclick="toggleSubmenu('career-guidance-menu')">
-                                <i class="fas fa-compass"></i>
-                                إدارة الإرشاد المهني
+                            <a class="nav-link {{ request()->routeIs('admin.career-guidance.graduates.create') || request()->routeIs('job-opportunities.create') ? 'active' : '' }}"
+                               href="#" onclick="toggleSubmenu('quick-actions-menu')">
+                                <i class="fas fa-bolt"></i>
+                              ادارة الارشاد المهني
                                 <i class="fas fa-chevron-down menu-arrow"></i>
                             </a>
-                            <div class="submenu {{ request()->routeIs('admin.career-guidance*') || request()->routeIs('admin.job-opportunities*') ? 'show' : '' }}" id="career-guidance-menu">
-                                <a href="{{ route('admin.career-guidance.graduates') }}" class="submenu-item {{ request()->routeIs('admin.career-guidance.graduates*') ? 'active' : '' }}">
-                                    إدارة الخريجين
+                            <div class="submenu {{ request()->routeIs('admin.career-guidance.graduates.create') || request()->routeIs('job-opportunities.create') ? 'show' : '' }}" id="quick-actions-menu">
+                                <a href="{{ route('admin.career-guidance.graduates.create') }}" class="submenu-item {{ request()->routeIs('admin.career-guidance.graduates.create') ? 'active' : '' }}">
+                                    إضافة خريج
                                 </a>
                                 <a href="{{ route('admin.career-guidance.nominations') }}" class="submenu-item {{ request()->routeIs('admin.career-guidance.nominations*') ? 'active' : '' }}">
                                     الترشيحات
                                 </a>
                                 <a href="{{ route('job-opportunities.index') }}" class="submenu-item {{ request()->routeIs('job-opportunities*') ? 'active' : '' }}">
                                     فرص العمل
-                                </a>
-                                <a href="{{ route('admin.career-guidance.advanced-reports') }}" class="submenu-item {{ request()->routeIs('admin.career-guidance.advanced-reports') ? 'active' : '' }}">
-                                    التقارير والإحصائيات
                                 </a>
                             </div>
                         </li>

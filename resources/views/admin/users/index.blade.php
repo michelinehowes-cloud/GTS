@@ -49,15 +49,39 @@
                         <td>{{ $user->email }}</td>
                         <td>{{ $user->phone ?? 'غير محدد' }}</td>
                         <td>
-                            @if($user->role == 'admin')
-                                <span class="custom-badge badge-danger">مدير النظام</span>
-                            @elseif($user->role == 'training_coordinator')
-                                <span class="custom-badge badge-warning">منسق التدريب</span>
-                            @elseif($user->role == 'placement_coordinator')
-                                <span class="custom-badge badge-primary">منسق التوظيف</span>
-                            @else
-                                <span class="custom-badge badge-success">خريج</span>
-                            @endif
+                            @php
+                                $roleClass = 'badge-secondary'; // Default class
+                                switch ($user->role) {
+                                    case 'admin':
+                                        $roleClass = 'badge-danger';
+                                        break;
+                                    case 'training_coordinator':
+                                        $roleClass = 'badge-warning';
+                                        break;
+                                    case 'placement_coordinator':
+                                        $roleClass = 'badge-primary';
+                                        break;
+                                    case 'company':
+                                        $roleClass = 'badge-info';
+                                        break;
+                                    case 'graduate':
+                                        $roleClass = 'badge-success';
+                                        break;
+                                    case 'partnership_officer':
+                                        $roleClass = 'badge-dark';
+                                        break;
+                                    case 'career_guidance_officer':
+                                        $roleClass = 'badge-secondary'; // Choose an appropriate color
+                                        break;
+                                    case 'evaluation_followup':
+                                        $roleClass = 'badge-secondary'; // Choose an appropriate color
+                                        break;
+                                    case 'media_officer':
+                                        $roleClass = 'badge-secondary'; // Choose an appropriate color
+                                        break;
+                                }
+                            @endphp
+                            <span class="custom-badge {{ $roleClass }}">{{ $user->role_name }}</span>
                         </td>
                         <td>{{ $user->created_at->format('Y-m-d') }}</td>
                         <td>

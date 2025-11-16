@@ -173,14 +173,11 @@
                                 <label for="required_specializations" class="form-label">التخصصات المطلوبة</label>
                                 <select name="required_specializations[]" id="required_specializations" 
                                         class="form-select @error('required_specializations') is-invalid @enderror" multiple>
-                                    <option value="هندسة">هندسة</option>
-                                    <option value="طب">طب</option>
-                                    <option value="علوم حاسب">علوم حاسب</option>
-                                    <option value="إدارة أعمال">إدارة أعمال</option>
-                                    <option value="محاسبة">محاسبة</option>
-                                    <option value="تسويق">تسويق</option>
-                                    <option value="تصميم">تصميم</option>
-                                    <option value="تعليم">تعليم</option>
+                                    @foreach($specializations as $specialization)
+                                        <option value="{{ $specialization }}" {{ in_array($specialization, old('required_specializations', [])) ? 'selected' : '' }}>
+                                            {{ $specialization }}
+                                        </option>
+                                    @endforeach
                                 </select>
                                 <div class="form-text">اضغط Ctrl لاختيار أكثر من تخصص</div>
                                 @error('required_specializations')
@@ -192,14 +189,11 @@
                                 <label for="required_skills" class="form-label">المهارات المطلوبة</label>
                                 <select name="required_skills[]" id="required_skills" 
                                         class="form-select @error('required_skills') is-invalid @enderror" multiple>
-                                    <option value="برمجة">برمجة</option>
-                                    <option value="تصميم">تصميم</option>
-                                    <option value="اتصال">اتصال</option>
-                                    <option value="قيادة">قيادة</option>
-                                    <option value="إدارة مشاريع">إدارة مشاريع</option>
-                                    <option value="تحليل بيانات">تحليل بيانات</option>
-                                    <option value="لغة إنجليزية">لغة إنجليزية</option>
-                                    <option value="تفكير إبداعي">تفكير إبداعي</option>
+                                    @foreach($skills as $skill)
+                                        <option value="{{ $skill }}" {{ in_array($skill, old('required_skills', [])) ? 'selected' : '' }}>
+                                            {{ $skill }}
+                                        </option>
+                                    @endforeach
                                 </select>
                                 <div class="form-text">اضغط Ctrl لاختيار أكثر من مهارة</div>
                                 @error('required_skills')

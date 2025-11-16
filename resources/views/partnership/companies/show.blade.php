@@ -100,6 +100,7 @@
                                                     <option value="training" {{ $company->partnership_type == 'training' ? 'selected' : '' }}>تدريب</option>
                                                     <option value="logistic_support" {{ $company->partnership_type == 'logistic_support' ? 'selected' : '' }}>دعم لوجستي</option>
                                                     <option value="academic" {{ $company->partnership_type == 'academic' ? 'selected' : '' }}>أكاديمي</option>
+                                                    <option value="training_employment" {{ $company->partnership_type == 'training_employment' ? 'selected' : '' }}>تدريب + توظيف</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-6">

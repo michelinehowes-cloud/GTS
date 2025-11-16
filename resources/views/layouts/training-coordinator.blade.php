@@ -303,7 +303,7 @@
                         </button>
                         <div class="logo-container">
                             <div class="logo-img-placeholder university-logo d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px; border-radius: 10px; background: white; margin-bottom: 10px;">
-                                <img src="http://localhost:8000/storage/logo.png" alt="شعار مكتب تدريب الخريجين" class="logo-img" 
+                                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب الخريجين" class="logo-img" 
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                 <div class="d-none align-items-center justify-content-center w-100 h-100">
                                     <i class="fas fa-graduation-cap" style="font-size: 2rem; color: #1e3a8a;"></i>
@@ -394,7 +394,7 @@
                                 <i class="fas fa-bars"></i>
                             </button>
                             <h4 class="navbar-brand mb-0 ms-3">
-                                <img src="http://localhost:8000/storage/logo.png" alt="شعار مكتب تدريب الخريجين" 
+                                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب الخريجين" 
                                      style="height: 40px; margin-left: 10px; display: inline-block;"
                                      onerror="this.style.display='none'">
                                 <i class="fas fa-graduation-cap me-2"></i>

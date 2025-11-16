@@ -171,12 +171,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::post('/applications/{id}/approve', [TrainingController::class, 'approveApplication'])->name('training-coordinator.applications.approve');
         Route::post('/applications/{id}/reject', [TrainingController::class, 'rejectApplication'])->name('training-coordinator.applications.reject');
         Route::post('/applications/{id}/pending', [TrainingController::class, 'pendingApplication'])->name('training-coordinator.applications.pending');
-        Route::get('/trainings', [TrainingController::class, 'coordinatorTrainings'])->name('training-coordinator.trainings');
-        Route::get('/trainings/create', [TrainingController::class, 'create'])->name('training-coordinator.trainings.create');
-
         // 🎯 إدارة التدريبات لمنسق التدريب
-        Route::resource('trainings', TrainingController::class)->names([
-            'index' => 'training-coordinator.trainings',
+        // تم استبعاد طريقة index من مسار الموارد وتحديدها بشكل منفصل
+        // لضمان استخدام طريقة coordinatorTrainings الصحيحة
+        Route::resource('trainings', TrainingController::class)->except(['index'])->names([
             'create' => 'training-coordinator.trainings.create',
             'store' => 'training-coordinator.trainings.store',
             'show' => 'training-coordinator.trainings.show',
@@ -184,6 +182,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
             'update' => 'training-coordinator.trainings.update',
             'destroy' => 'training-coordinator.trainings.destroy'
         ]);
+        // مسار index مخصص لمنسق التدريب
+        Route::get('/trainings', [TrainingController::class, 'coordinatorTrainings'])->name('training-coordinator.trainings');
 
         // التقارير
         Route::get('/reports', [TrainingController::class, 'reports'])->name('training-coordinator.reports');

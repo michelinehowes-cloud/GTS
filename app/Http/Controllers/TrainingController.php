@@ -25,7 +25,9 @@ class TrainingController extends Controller
     
     public function create()
     {
-        $companies = Company::where('is_approved', true)->get();
+        $companies = Company::where('is_approved', true)
+                            ->where('partnership_status', 'active')
+                            ->get();
         
         if (auth()->user()->role == 'training_coordinator') {
             return view('training-coordinator.trainings.create', compact('companies'));
@@ -80,7 +82,9 @@ class TrainingController extends Controller
     public function edit($id)
     {
         $training = Training::findOrFail($id);
-        $companies = Company::where('is_approved', true)->get();
+        $companies = Company::where('is_approved', true)
+                            ->where('partnership_status', 'active')
+                            ->get();
         
         if (auth()->user()->role == 'training_coordinator') {
             return view('training-coordinator.trainings.edit', compact('training', 'companies'));

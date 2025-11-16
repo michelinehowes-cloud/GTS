@@ -36,7 +36,9 @@ class JobOpportunityController extends Controller
             ->latest()
             ->get();
 
-        $companies = Company::where('partnership_status', 'active')->get();
+        $companies = Company::where('is_approved', true)
+                            ->where('partnership_status', 'active')
+                            ->get();
 
         return view('job-opportunities.index', compact('opportunities', 'companies'));
     }
@@ -46,7 +48,9 @@ class JobOpportunityController extends Controller
      */
     public function create()
     {
-        $companies = Company::where('partnership_status', 'active')->get();
+        $companies = Company::where('is_approved', true)
+                            ->where('partnership_status', 'active')
+                            ->get();
         return view('job-opportunities.create', compact('companies'));
     }
 
@@ -132,7 +136,9 @@ class JobOpportunityController extends Controller
     public function edit($id)
     {
         $opportunity = JobOpportunity::findOrFail($id);
-        $companies = Company::where('partnership_status', 'active')->get();
+        $companies = Company::where('is_approved', true)
+                            ->where('partnership_status', 'active')
+                            ->get();
 
         return view('job-opportunities.edit', compact('opportunity', 'companies'));
     }

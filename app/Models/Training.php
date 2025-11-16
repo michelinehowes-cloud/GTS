@@ -21,7 +21,8 @@ class Training extends Model
         'status',
         'company_id',
         'coordinator_id',
-        'media_coverage_status'
+        'media_coverage_status',
+        'is_advertised'
     ];
     public function coordinator()
 {

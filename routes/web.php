@@ -317,8 +317,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::prefix('media')->middleware(['auth', 'media_officer'])->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\MediaController::class, 'dashboard'])->name('media.dashboard');
 
-        // إدارة التدريبات
-        Route::get('/trainings', [App\Http\Controllers\MediaController::class, 'trainingsIndex'])->name('media.trainings.index');
+        // إدارة التدريبات (فهرس التدريبات)
+        Route::get('/trainings', [App\Http\Controllers\TrainingController::class, 'coordinatorTrainings'])->name('media.trainings.index');
         Route::get('/trainings/{training}', [App\Http\Controllers\MediaController::class, 'trainingShow'])->name('media.trainings.show');
         Route::patch('/trainings/{training}/coverage-status', [App\Http\Controllers\MediaController::class, 'updateCoverageStatus'])->name('media.trainings.update-coverage-status');
 

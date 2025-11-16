@@ -57,6 +57,7 @@
                                                 <option value="training" {{ request('partnership_type') == 'training' ? 'selected' : '' }}>تدريب</option>
                                                 <option value="logistic_support" {{ request('partnership_type') == 'logistic_support' ? 'selected' : '' }}>دعم لوجستي</option>
                                                 <option value="academic" {{ request('partnership_type') == 'academic' ? 'selected' : '' }}>شراكة أكاديمية</option>
+                                                <option value="training_employment" {{ request('partnership_type') == 'training_employment' ? 'selected' : '' }}>تدريب + توظيف</option>
                                             </select>
                                         </div>
                                         <div class="col-md-3">
@@ -133,7 +134,8 @@
                                                         'employment' => ['label' => 'توظيف', 'color' => 'success'],
                                                         'training' => ['label' => 'تدريب', 'color' => 'info'],
                                                         'logistic_support' => ['label' => 'دعم لوجستي', 'color' => 'warning'],
-                                                        'academic' => ['label' => 'أكاديمية', 'color' => 'primary']
+                                                        'academic' => ['label' => 'أكاديمية', 'color' => 'primary'],
+                                                        'training_employment' => ['label' => 'تدريب + توظيف', 'color' => 'dark']
                                                     ];
                                                     $type = $partnershipTypes[$company->partnership_type] ?? ['label' => $company->partnership_type, 'color' => 'secondary'];
                                                 @endphp

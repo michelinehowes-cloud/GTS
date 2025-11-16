@@ -135,6 +135,7 @@
                                             <option value="training" {{ old('partnership_type', $company->partnership_type) == 'training' ? 'selected' : '' }}>تدريب</option>
                                             <option value="logistic_support" {{ old('partnership_type', $company->partnership_type) == 'logistic_support' ? 'selected' : '' }}>دعم لوجستي</option>
                                             <option value="academic" {{ old('partnership_type', $company->partnership_type) == 'academic' ? 'selected' : '' }}>أكاديمي</option>
+                                            <option value="training_employment" {{ old('partnership_type', $company->partnership_type) == 'training_employment' ? 'selected' : '' }}>تدريب + توظيف</option>
                                         </select>
                                         @error('partnership_type')
                                             <div class="invalid-feedback">{{ $message }}</div>

@@ -31,6 +31,8 @@ class CompanyController extends Controller
             'address' => 'required|string|max:500',
             'description' => 'nullable|string',
             'password' => 'required|min:8|confirmed',
+            'partnership_type' => 'required|in:employment,training,logistic_support,academic,training_employment',
+            'partnership_status' => 'required|in:active,expired,under_review',
         ]);
 
         // إنشاء المستخدم أولاً
@@ -51,6 +53,8 @@ class CompanyController extends Controller
             'address' => $request->address,
             'description' => $request->description,
             'is_approved' => true, // الموافقة تلقائياً عند الإنشاء من قبل المدير
+            'partnership_type' => $request->partnership_type,
+            'partnership_status' => $request->partnership_status,
         ]);
 
         return redirect()->route('admin.companies')
@@ -74,9 +78,16 @@ class CompanyController extends Controller
             'industry' => 'required|string|max:255',
             'address' => 'required|string|max:500',
             'description' => 'nullable|string',
+            'partnership_type' => 'required|in:employment,training,logistic_support,academic,training_employment',
+            'partnership_status' => 'required|in:active,expired,under_review',
         ]);
 
-        $company->update($request->all());
+        $company->update($request->only([
+            'name', 'email', 'phone', 'industry', 'address', 'description',
+            'partnership_type', 'partnership_status', 'partnership_notes',
+            'partnership_start_date', 'partnership_end_date', 'contact_person',
+            'contact_position', 'contact_phone', 'contact_email'
+        ]));
 
         // تحديث بيانات المستخدم المرتبط
         if ($company->user) {

@@ -6,7 +6,7 @@ class DarkModeManager {
             enableSystemPreference: true,
             enableTransitions: true,
             enableKeyboardShortcut: true,
-            debug: false,
+            debug: true, // Force debug mode here
             ...options
         };
 
@@ -16,7 +16,7 @@ class DarkModeManager {
         this.mediaQuery = null;
         this.components = new Map();
         
-        this.log('DarkModeManager initialized');
+        this.log('DarkModeManager initialized with theme:', this.theme);
         this.init();
     }
 
@@ -56,6 +56,8 @@ class DarkModeManager {
         const root = document.documentElement;
         const currentTheme = root.getAttribute('data-theme') || 'light';
         
+        this.log(`Applying theme: ${this.theme}, current DOM theme: ${currentTheme}`);
+
         if (currentTheme !== this.theme || force) {
             this.startThemeTransition(currentTheme, this.theme);
         } else {
@@ -103,10 +105,12 @@ class DarkModeManager {
             root.setAttribute('data-theme', 'dark');
             root.classList.add('dark-theme');
             root.classList.remove('light-theme');
+            this.log('HTML data-theme set to dark.');
         } else {
             root.removeAttribute('data-theme');
             root.classList.add('light-theme');
             root.classList.remove('dark-theme');
+            this.log('HTML data-theme removed (set to light).');
         }
 
         // Update various theme-dependent elements
@@ -654,7 +658,7 @@ const darkModeOptions = {
     enableSystemPreference: true,
     enableTransitions: true,
     enableKeyboardShortcut: true,
-    debug: false
+    // debug: true // Debug is now forced in constructor
 };
 
 // Initialize automatically

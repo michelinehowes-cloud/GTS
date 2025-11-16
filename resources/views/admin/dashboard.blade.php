@@ -495,10 +495,10 @@
                     </div>
                     <!-- إدارة الإرشاد المهني -->
                     <div class="col-md-3 mb-3">
-                        <a href="{{ route('admin.career-guidance.dashboard') }}" class="btn btn-info w-100">
-                            <i class="fas fa-compass me-2"></i>إدارة الإرشاد المهني
-                        </a>
-                    </div>
+                        <a href="{{ route('admin.career-guidance.graduates.create') }}"" class="btn btn-info w-100">
+                            <i class="fas fa-compass me-2"></i>اضافة خريج 
+                     </a>
+                        </div>
                     <!-- إدارة المستخدمين -->
                     <div class="col-md-3 mb-3">
                         <a href="{{ route('admin.users') }}" class="btn btn-outline-primary w-100">

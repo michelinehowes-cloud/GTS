@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 checkAllChartsLoaded(); // Increment count even if chart element not found
             }
+            
             if (document.getElementById('employmentChart')) {
                 initEmploymentChart();
             } else {

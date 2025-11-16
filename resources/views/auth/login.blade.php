@@ -86,7 +86,7 @@
         <div class="login-header">
             <!-- اللوقو في صفحة تسجيل الدخول -->
             <div class="login-logo">
-                <img src="{{ asset('storage/logo.png') }}" alt="شعار مكتب تدريب الخريجين" 
+                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب الخريجين" 
                      style="max-width: 100%; max-height: 100%; border-radius: 8px;"
                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="d-none align-items-center justify-content-center w-100 h-100">

@@ -22,7 +22,7 @@
                         </button>
                         <div class="logo-container">
                             <div class="logo-img-placeholder university-logo d-flex align-items-center justify-content-center mx-auto">
-                                <img src="{{ asset('storage/logo.png') }}" alt="شعار مكتب تدريب الخريجين" class="logo-img"
+                                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب الخريجين" class="logo-img"
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                 <div class="d-none align-items-center justify-content-center w-100 h-100">
                                     <i class="fas fa-graduation-cap" style="font-size: 2rem; color: #1e3a8a;"></i>
@@ -335,11 +335,11 @@
                                 </a>
                             </li>
 
-                            <!-- إدارة التدريبات -->
+                            <!-- فهرس التدريبات للميديا -->
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('media.trainings*') ? 'active' : '' }}" href="{{ route('media.trainings.index') }}">
+                                <a class="nav-link {{ request()->routeIs('media.trainings*') ? 'active' : '' }}" href="{{ route('training-coordinator.trainings') }}">
                                     <i class="fas fa-graduation-cap"></i>
-                                    إدارة التدريبات
+                                    فهرس التدريبات
                                 </a>
                             </li>
 
@@ -413,7 +413,7 @@
                                 <i class="fas fa-bars"></i>
                             </button>
                             <h4 class="navbar-brand mb-0 ms-3">
-                                <img src="{{ asset('storage/logo.png') }}" alt="شعار مكتب تدريب الخريجين" 
+                                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب الخريجين" 
                                      style="height: 40px; margin-left: 10px; display: inline-block;"
                                      onerror="this.style.display='none'">
                                 <i class="fas fa-graduation-cap me-2"></i>
@@ -481,6 +481,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        console.log('Script started.');
+
         // التحكم في إظهار/إخفاء الشريط الجانبي
         const sidebar = document.getElementById('sidebar');
         const mainContent = document.getElementById('mainContent');
@@ -488,30 +490,40 @@
         const toggleSidebar = document.getElementById('toggleSidebar');
         const toggleSidebarMain = document.getElementById('toggleSidebarMain');
 
+        console.log('Elements found:', { sidebar, mainContent, navbarMain, toggleSidebar, toggleSidebarMain });
+
         function toggleSidebarFunc() {
+            console.log('toggleSidebarFunc called.');
             sidebar.classList.toggle('collapsed');
             mainContent.classList.toggle('expanded');
             navbarMain.classList.toggle('expanded'); // Toggle navbarMain as well
             
             // تغيير الأيقونة
             const icon = toggleSidebar.querySelector('i');
-            if (sidebar.classList.contains('collapsed')) {
-                icon.className = 'fas fa-chevron-left';
-            } else {
-                icon.className = 'fas fa-chevron-right';
+            if (icon) {
+                if (sidebar.classList.contains('collapsed')) {
+                    icon.className = 'fas fa-chevron-left';
+                } else {
+                    icon.className = 'fas fa-chevron-right';
+                }
             }
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            console.log('Sidebar collapsed state saved:', sidebar.classList.contains('collapsed'));
         }
 
         if (toggleSidebar) {
             toggleSidebar.addEventListener('click', toggleSidebarFunc);
+            console.log('toggleSidebar event listener attached.');
         }
         
         if (toggleSidebarMain) {
             toggleSidebarMain.addEventListener('click', toggleSidebarFunc);
+            console.log('toggleSidebarMain event listener attached.');
         }
 
         // تبديل القوائم الفرعية
         function toggleSubmenu(menuId) {
+            console.log('toggleSubmenu called for:', menuId);
             const submenu = document.getElementById(menuId);
             const menuGroup = submenu.closest('.menu-group');
             
@@ -521,25 +533,51 @@
 
         // إغلاق الشريط الجانبي تلقائياً على الشاشات الصغيرة
         function setSidebarState() {
-            if (window.innerWidth < 768) {
+            console.log('setSidebarState called.');
+            // Check if a state is saved in localStorage
+            const savedState = localStorage.getItem('sidebarCollapsed');
+            console.log('Saved sidebar state from localStorage:', savedState);
+
+            if (savedState === 'true') {
                 if (sidebar) sidebar.classList.add('collapsed');
                 if (mainContent) mainContent.classList.add('expanded');
-                if (navbarMain) navbarMain.classList.add('expanded'); // Also collapse navbarMain
-            } else {
+                if (navbarMain) navbarMain.classList.add('expanded');
+            } else if (savedState === 'false') {
                 if (sidebar) sidebar.classList.remove('collapsed');
                 if (mainContent) mainContent.classList.remove('expanded');
-                if (navbarMain) navbarMain.classList.remove('expanded'); // Also expand navbarMain
+                if (navbarMain) navbarMain.classList.remove('expanded');
+            } else {
+                // Default behavior based on screen size if no state is saved
+                if (window.innerWidth < 768) {
+                    if (sidebar) sidebar.classList.add('collapsed');
+                    if (mainContent) mainContent.classList.add('expanded');
+                    if (navbarMain) navbarMain.classList.add('expanded');
+                } else {
+                    if (sidebar) sidebar.classList.remove('collapsed');
+                    if (mainContent) mainContent.classList.remove('expanded');
+                    if (navbarMain) navbarMain.classList.remove('expanded');
+                }
+            }
+            
+            // Update the icon based on the final state, only if toggleSidebar exists
+            if (toggleSidebar) {
+                const icon = toggleSidebar.querySelector('i');
+                if (icon) {
+                    if (sidebar.classList.contains('collapsed')) {
+                        icon.className = 'fas fa-chevron-left';
+                    } else {
+                        icon.className = 'fas fa-chevron-right';
+                    }
+                }
             }
         }
 
         // تعيين الحالة الأولية عند تحميل الصفحة
-        setSidebarState();
-
-        // إعادة الضبط عند تغيير حجم النافذة
-        window.addEventListener('resize', setSidebarState);
-
-        // تحديد العنصر النشط تلقائياً
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded fired.');
+            setSidebarState(); // Call on DOMContentLoaded to ensure elements are available
+            window.addEventListener('resize', setSidebarState); // Re-evaluate on resize
+
             const currentPath = window.location.pathname;
             
             // تحديث القوائم الفرعية النشطة

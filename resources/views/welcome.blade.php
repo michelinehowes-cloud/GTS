@@ -146,6 +146,115 @@
             font-size: 0.9rem;
             margin-bottom: 0;
         }
+
+        /* تحسينات بطاقات التدريبات والإعلانات */
+        .ad-card, .news-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .ad-card:hover, .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .ad-card .card-header {
+            background: linear-gradient(45deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+            font-weight: bold;
+            border-bottom: none;
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ad-card .card-header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+            transition: all 0.5s ease;
+        }
+
+        .ad-card:hover .card-header::before {
+            transform: rotate(0deg);
+            opacity: 0;
+        }
+
+        .ad-card .card-body {
+            padding: 1.5rem;
+            background-color: white;
+        }
+
+        .ad-card .list-group-item {
+            border-color: #eee;
+            font-size: 0.95rem;
+        }
+
+        .ad-card .btn-gold {
+            background-color: var(--gold-accent);
+            border-color: var(--gold-accent);
+            color: var(--primary-blue);
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .ad-card .btn-gold:hover {
+            background-color: #FFD740;
+            border-color: #FFD740;
+            color: var(--secondary-blue);
+            transform: translateY(-1px);
+        }
+
+        .news-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .news-card .card-title {
+            color: var(--primary-blue);
+            font-weight: bold;
+        }
+
+        .announcement-card {
+            border: 2px solid var(--gold-accent);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(255, 195, 0, 0.2);
+        }
+
+        .announcement-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 195, 0, 0.3);
+        }
+
+        .announcement-card .card-title {
+            color: var(--secondary-blue);
+            font-weight: bold;
+        }
+
+        .announcement-card .btn-warning {
+            background-color: var(--gold-accent);
+            border-color: var(--gold-accent);
+            color: var(--primary-blue);
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .announcement-card .btn-warning:hover {
+            background-color: #FFD740;
+            border-color: #FFD740;
+            color: var(--secondary-blue);
+        }
     </style>
 </head>
 <body>
@@ -167,6 +276,14 @@
         $welcomeImages = \App\Models\TrainingMedia::where('is_welcome_page_media', true)
             ->where('is_active', true)
             ->orderBy('display_order')
+            ->get();
+
+        $advertisedTrainings = \App\Models\Training::where('is_advertised', true)
+            ->where('status', 'active')
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->orderBy('start_date', 'asc')
+            ->limit(3)
             ->get();
     @endphp
 
@@ -201,88 +318,44 @@
     </section>
     @endif
 
-    <hr class="my-5 border-gold-accent"> <!-- Enhanced separator -->
-
-    <!-- قسم "لماذا نحن؟" -->
-    <section class="py-5 bg-white">
-        <div class="container">
-            <h2 class="text-center display-5 fw-bold mb-5 text-primary-blue" data-aos="fade-down">لماذا تختار نظامنا؟</h2>
-            <div class="row text-center">
-                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
-                    <div class="p-4 border rounded-3 shadow-sm h-100">
-                        <div class="feature-icon-circle mb-3 mx-auto">
-                            <i class="fas fa-graduation-cap fa-2x"></i>
-                        </div>
-                        <h5 class="fw-bold text-secondary-blue">تطوير مهني مستمر</h5>
-                        <p class="text-muted">نقدم برامج تدريبية متطورة تواكب أحدث متطلبات سوق العمل.</p>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
-                    <div class="p-4 border rounded-3 shadow-sm h-100">
-                        <div class="feature-icon-circle mb-3 mx-auto">
-                            <i class="fas fa-handshake fa-2x"></i>
-                        </div>
-                        <h5 class="fw-bold text-secondary-blue">شراكات استراتيجية</h5>
-                        <p class="text-muted">نربطك بأفضل الشركات والمؤسسات لفرص توظيف حصرية.</p>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
-                    <div class="p-4 border rounded-3 shadow-sm h-100">
-                        <div class="feature-icon-circle mb-3 mx-auto">
-                            <i class="fas fa-chart-line fa-2x"></i>
-                        </div>
-                        <h5 class="fw-bold text-secondary-blue">متابعة وتقييم الأداء</h5>
-                        <p class="text-muted">نظام متكامل لمتابعة تقدمك المهني وتقييم أدائك بانتظام.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <hr class="my-5 border-gold-accent"> <!-- Enhanced separator -->
-
-    <!-- قسم شهادات الخريجين/الشركاء -->
+    @if($advertisedTrainings->count() > 0)
     <section class="py-5 bg-light">
         <div class="container">
-            <h2 class="text-center display-5 fw-bold mb-5 text-primary-blue" data-aos="fade-down">ماذا يقولون عنا؟</h2>
-            <div id="testimonialsCarousel" class="carousel slide" data-bs-ride="carousel">
-                <div class="carousel-inner">
-                    <div class="carousel-item active" data-aos="fade-up">
-                        <div class="d-flex justify-content-center">
-                            <div class="card shadow-lg p-4 mx-2" style="max-width: 700px;">
-                                <div class="card-body text-center">
-                                    <img src="https://via.placeholder.com/80" class="rounded-circle mb-3 border border-3 border-gold-accent" alt="صورة خريج" style="width: 80px; height: 80px; object-fit: cover;">
-                                    <p class="lead fst-italic">"بفضل هذا النظام، حصلت على تدريب ممتاز وفرصة عمل في شركة رائدة. لقد غير مساري المهني بالكامل!"</p>
-                                    <footer class="blockquote-footer mt-3">أحمد الساعدي <cite title="Source Title">خريج هندسة برمجيات</cite></footer>
-                                </div>
-                            </div>
+            <h2 class="text-center display-5 fw-bold mb-5 text-primary-blue" data-aos="fade-down">تدريبات مميزة</h2>
+            <div class="row">
+                @foreach($advertisedTrainings as $training)
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up">
+                    <div class="ad-card h-100">
+                        <div class="card-header text-center py-3">
+                            <h5 class="mb-0">{{ $training->title }}</h5>
                         </div>
-                    </div>
-                    <div class="carousel-item" data-aos="fade-up">
-                        <div class="d-flex justify-content-center">
-                            <div class="card shadow-lg p-4 mx-2" style="max-width: 700px;">
-                                <div class="card-body text-center">
-                                    <img src="https://via.placeholder.com/80" class="rounded-circle mb-3 border border-3 border-gold-accent" alt="صورة شريك" style="width: 80px; height: 80px; object-fit: cover;">
-                                    <p class="lead fst-italic">"نظام تدريب الخريجين يوفر لنا كفاءات ممتازة ومدربة جاهزة للانخراط في سوق العمل. شراكة ناجحة بكل المقاييس."</p>
-                                    <footer class="blockquote-footer mt-3">فاطمة الزهراء <cite title="Source Title">مديرة الموارد البشرية، شركة التقنية المتقدمة</cite></footer>
-                                </div>
-                            </div>
+                        <div class="card-body">
+                            <p class="card-text text-muted">{{ Str::limit($training->description, 150) }}</p>
+                            <ul class="list-group list-group-flush mb-3">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <i class="fas fa-calendar-alt me-2 text-gold-accent"></i> تاريخ البدء:
+                                    <span class="badge bg-secondary-blue">{{ \Carbon\Carbon::parse($training->start_date)->format('d/m/Y') }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <i class="fas fa-clock me-2 text-gold-accent"></i> المدة:
+                                    <span class="badge bg-secondary-blue">{{ $training->duration }} أيام</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <i class="fas fa-map-marker-alt me-2 text-gold-accent"></i> المكان:
+                                    <span class="badge bg-secondary-blue">{{ $training->location }}</span>
+                                </li>
+                            </ul>
+                            <a href="#" class="btn btn-gold w-100 mt-2">
+                                <i class="fas fa-info-circle me-2"></i> تفاصيل التدريب
+                            </a>
                         </div>
                     </div>
                 </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#testimonialsCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">السابق</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#testimonialsCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">التالي</span>
-                </button>
+                @endforeach
             </div>
         </div>
     </section>
-
-    <hr class="my-5 border-gold-accent"> <!-- Enhanced separator -->
+    @endif
 
     <!-- قسم الأخبار والإعلانات -->
     @php
@@ -313,12 +386,12 @@
                     <div class="row">
                         @foreach($latestNews as $news)
                         <div class="col-12 mb-3">
-                            <div class="card border-0 shadow-sm">
+                            <div class="news-card h-100">
                                 @if($news->thumbnail_path)
                                 <img src="{{ asset('storage/' . $news->thumbnail_path) }}" class="card-img-top" alt="{{ $news->title }}" style="height: 200px; object-fit: cover;">
                                 @endif
                                 <div class="card-body">
-                                    <h6 class="card-title text-primary">{{ $news->title }}</h6>
+                                    <h6 class="card-title">{{ $news->title }}</h6>
                                     <p class="card-text text-muted small">{{ Str::limit(strip_tags($news->content), 100) }}</p>
                                     <small class="text-muted">
                                         <i class="fas fa-calendar-alt me-1"></i>
@@ -342,12 +415,12 @@
                     <div class="row">
                         @foreach($activeAnnouncements as $announcement)
                         <div class="col-12 mb-3">
-                            <div class="card border-warning shadow-sm">
+                            <div class="announcement-card h-100">
                                 <div class="card-body">
-                                    <h6 class="card-title text-warning">{{ $announcement->title }}</h6>
-                                    <p class="card-text">{{ Str::limit(strip_tags($announcement->content), 120) }}</p>
+                                    <h6 class="card-title">{{ $announcement->title }}</h6>
+                                    <p class="card-text text-muted">{{ Str::limit(strip_tags($announcement->content), 120) }}</p>
                                     @if($announcement->link)
-                                    <a href="{{ $announcement->link }}" class="btn btn-warning btn-sm" target="_blank">
+                                    <a href="{{ $announcement->link }}" class="btn btn-warning btn-sm mt-3 w-100" target="_blank">
                                         <i class="fas fa-external-link-alt me-1"></i>
                                         المزيد
                                     </a>
@@ -363,6 +436,45 @@
         </div>
     </section>
     @endif
+
+    <hr class="my-5 border-gold-accent"> <!-- Enhanced separator -->
+
+    <!-- قسم "لماذا نحن؟" -->
+    <section class="py-5 bg-white">
+        <div class="container">
+            <h2 class="text-center display-5 fw-bold mb-5 text-primary-blue" data-aos="fade-down">أهداف  مكتبنا</h2>
+            <div class="row text-center">
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="p-4 border rounded-3 shadow-sm h-100">
+                        <div class="feature-icon-circle mb-3 mx-auto">
+                            <i class="fas fa-graduation-cap fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold text-secondary-blue">تطوير مهني مستمر</h5>
+                        <p class="text-muted">نقدم برامج تدريبية متطورة تواكب أحدث متطلبات سوق العمل.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="p-4 border rounded-3 shadow-sm h-100">
+                        <div class="feature-icon-circle mb-3 mx-auto">
+                            <i class="fas fa-handshake fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold text-secondary-blue">شراكات استراتيجية</h5>
+                        <p class="text-muted">لإدماج الخريجين  بأفضل الشركات والمؤسسات للتدريب.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="p-4 border rounded-3 shadow-sm h-100">
+                        <div class="feature-icon-circle mb-3 mx-auto">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold text-secondary-blue">متابعة وتقييم الأداء</h5>
+                        <p class="text-muted">نظام متكامل لمتابعة تقدمك المهني وتقييم أدائك بانتظام.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
 
     <hr class="my-5 border-gold-accent"> <!-- Enhanced separator -->
 

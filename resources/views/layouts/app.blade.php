@@ -426,31 +426,29 @@
                                 <div class="fw-bold text-dark fs-6">{{ auth()->user()->name ?? 'مستخدم' }}</div>
                                 <small class="text-muted">
                                     @auth
-                                        @if(auth()->user()->role == 'admin')
-                                            مدير النظام
-                                        @elseif(auth()->user()->role == 'training_coordinator')
-                                            منسق التدريب
-                                        @elseif(auth()->user()->role == 'placement_coordinator')
-                                            منسق التوظيف
-                                        @elseif(auth()->user()->role == 'graduate')
-                                            خريج
-                                        @elseif(auth()->user()->role == 'evaluation_followup')
-                                            مسؤول التقييم والمتابعة
-                                        @elseif(auth()->user()->role == 'career_guidance_officer')
-                                            مسؤول الإرشاد المهني
-                                        @elseif(auth()->user()->role == 'partnership_officer')
-                                            مسؤول الشراكات والتوظيف
-                                        @elseif(auth()->user()->role == 'company')
-                                            شركة
-                                        @elseif(auth()->user()->role == 'media_officer')
-                                            مسؤول الميديا
-                                        @endif
+                                        {{ auth()->user()->role_name }}
                                     @endauth
                                 </small>
                             </div>
-                            <div class="user-avatar pulse-animation">
-                                {{ substr(auth()->user()->name ?? 'م', 0, 1) }}
-                            </div>
+                            @auth
+                                @php
+                                    $roleIcons = [
+                                        'admin' => 'fas fa-user-shield',
+                                        'training_coordinator' => 'fas fa-chalkboard-teacher',
+                                        'placement_coordinator' => 'fas fa-briefcase',
+                                        'company' => 'fas fa-building',
+                                        'graduate' => 'fas fa-user-graduate',
+                                        'partnership_officer' => 'fas fa-handshake',
+                                        'career_guidance_officer' => 'fas fa-compass',
+                                        'evaluation_followup' => 'fas fa-chart-line',
+                                        'media_officer' => 'fas fa-camera',
+                                    ];
+                                    $userIcon = $roleIcons[auth()->user()->role] ?? 'fas fa-user'; // Default icon
+                                @endphp
+                                <div class="user-avatar pulse-animation">
+                                    <i class="{{ $userIcon }}"></i>
+                                </div>
+                            @endauth
                         </div>
                     </div>
                 </nav>

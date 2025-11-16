@@ -37,8 +37,22 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td>
+                            @php
+                                $roleIcons = [
+                                    'admin' => 'fas fa-user-shield',
+                                    'training_coordinator' => 'fas fa-chalkboard-teacher',
+                                    'placement_coordinator' => 'fas fa-briefcase',
+                                    'company' => 'fas fa-building',
+                                    'graduate' => 'fas fa-user-graduate',
+                                    'partnership_officer' => 'fas fa-handshake',
+                                    'career_guidance_officer' => 'fas fa-compass',
+                                    'evaluation_followup' => 'fas fa-chart-line',
+                                    'media_officer' => 'fas fa-camera',
+                                ];
+                                $userIcon = $roleIcons[$user->role] ?? 'fas fa-user'; // Default icon
+                            @endphp
                             <div class="user-avatar-sm">
-                                {{ substr($user->name, 0, 1) }}
+                                <i class="{{ $userIcon }}"></i>
                             </div>
                         </td>
                         <td>

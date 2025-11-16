@@ -101,12 +101,7 @@
                                 إدارة المستخدمين
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}" href="{{ route('admin.reports') }}">
-                                <i class="fas fa-chart-bar"></i>
-                                التقارير والإحصائيات
-                            </a>
-                        </li>
+                        
 
                         <!-- ادارة الارشاد المهني -->
                         <li class="nav-item menu-group">
@@ -142,6 +137,14 @@
 
                         <!-- أقسام التقييم والمتابعة (لمستخدم التقييم والمتابعة فقط) -->
                         @if(auth()->user()->role == 'evaluation_followup')
+                        
+                        
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('evaluation-followup.training-calendar') ? 'active' : '' }}" href="{{ route('evaluation-followup.training-calendar') }}">
+                                <i class="fas fa-calendar-alt"></i>
+                                تقويم التدريبات
+                            </a>
+                        </li>
                         <!-- إدارة الاستبيانات -->
                         <li class="nav-item menu-group">
                             <a class="nav-link {{ request()->routeIs('evaluation-followup.surveys*') ? 'active' : '' }}"
@@ -154,9 +157,7 @@
                                 <a href="{{ route('evaluation-followup.surveys.index') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.surveys.index') ? 'active' : '' }}">
                                     عرض الاستبيانات
                                 </a>
-                                <a href="{{ route('evaluation-followup.surveys.create') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.surveys.create') ? 'active' : '' }}">
-                                    إضافة استبيان جديد
-                                </a>
+                              
                             </div>
                         </li>
 
@@ -217,12 +218,7 @@
                             </div>
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('evaluation-followup.training-calendar') ? 'active' : '' }}" href="{{ route('evaluation-followup.training-calendar') }}">
-                                <i class="fas fa-calendar-alt"></i>
-                                تقويم التدريبات
-                            </a>
-                        </li>
+                        
                         @endif
 
 
@@ -348,21 +344,15 @@
 
                         <!-- مسؤول الميديا -->
                         @if(auth()->user()->role == 'media_officer')
-                            <!-- لوحة التحكم -->
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('media.dashboard') ? 'active' : '' }}" href="{{ route('media.dashboard') }}">
-                                    <i class="fas fa-tachometer-alt"></i>
-                                    لوحة التحكم
-                                </a>
-                            </li>
+                        
 
                             <!-- فهرس التدريبات للميديا -->
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('media.trainings*') ? 'active' : '' }}" href="{{ route('training-coordinator.trainings') }}">
-                                    <i class="fas fa-graduation-cap"></i>
-                                    فهرس التدريبات
-                                </a>
-                            </li>
+                           <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('evaluation-followup.training-calendar') ? 'active' : '' }}" href="{{ route('evaluation-followup.training-calendar') }}">
+                                <i class="fas fa-calendar-alt"></i>
+                                تقويم التدريبات
+                            </a>
+                        </li>
 
                             <!-- إدارة الوسائط -->
                             <li class="nav-item menu-group">

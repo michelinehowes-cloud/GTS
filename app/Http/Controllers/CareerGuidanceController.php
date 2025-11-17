@@ -93,12 +93,34 @@ class CareerGuidanceController extends Controller
     public function showNomination($id)
     {
         $nomination = Nomination::with([
-            'graduate', 
-            'jobOpportunity.company', 
+            'graduate',
+            'jobOpportunity.company',
             'nominator'
         ])->findOrFail($id);
 
         return view('career-guidance.nominations.show', compact('nomination'));
+    }
+
+    /**
+     * تحديث حالة الترشيح
+     */
+    public function editNominationStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,sent_to_company,interview_scheduled,accepted,rejected,withdrawn',
+            'final_status' => 'nullable|in:hired,rejected,withdrawn',
+            'notes' => 'nullable|string',
+        ]);
+
+        $nomination = Nomination::findOrFail($id);
+
+        $nomination->update([
+            'status' => $request->status,
+            'final_status' => $request->final_status,
+            'nomination_notes' => $request->notes,
+        ]);
+
+        return redirect()->back()->with('success', 'تم تحديث حالة الترشيح بنجاح');
     }
 
     /**

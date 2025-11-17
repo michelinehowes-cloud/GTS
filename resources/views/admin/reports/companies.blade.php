@@ -1,198 +1,108 @@
-{{-- ملف: resources/views/admin/reports/ --}}
 @extends('layouts.app')
 
-@section('title', 'تقرير الشركات التفصيلي')
-
-@section('page-title', 'تقرير الشركات التفصيلي')
+@section('title', 'تقارير الشركات')
 
 @section('content')
-<!-- إحصائيات التقرير -->
-<div class="row mb-4">
-    <div class="col-xl-3 col-md-6 mb-3">
-        <div class="card stat-card">
-            <div class="card-body text-center">
-                <h3 class="text-primary">{{ $reportStats['total'] }}</h3>
-                <small class="text-muted">إجمالي الشركات</small>
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">تقارير الشركات</h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">قائمة الشركات</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="companiesTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>اسم الشركة</th>
+                            <th>البريد الإلكتروني</th>
+                            <th>حالة الشراكة</th>
+                            <th>تاريخ الإنشاء</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($companies as $company)
+                        <tr>
+                            <td>{{ $company->name }}</td>
+                            <td>{{ $company->email }}</td>
+                            <td>{{ $company->partnership_status ?? 'N/A' }}</td>
+                            <td>{{ $company->created_at->format('Y-m-d H:i:s') }}</td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4">لا توجد شركات لعرضها.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-    <div class="col-xl-3 col-md-6 mb-3">
-        <div class="card stat-card">
-            <div class="card-body text-center">
-                <h3 class="text-success">{{ $reportStats['recent'] }}</h3>
-                <small class="text-muted">جديدة (30 يوم)</small>
-            </div>
+
+    <!-- Placeholder for Company Charts -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">رسوم بيانية للشركات</h6>
         </div>
-    </div>
-    <div class="col-xl-3 col-md-6 mb-3">
-        <div class="card stat-card">
-            <div class="card-body text-center">
-                <h3 class="text-warning">{{ $reportStats['by_industry']->count() }}</h3>
-                <small class="text-muted">مجالات صناعية</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-3 col-md-6 mb-3">
-        <div class="card stat-card">
-            <div class="card-body text-center">
-                <h3 class="text-info">{{ $companies->count() }}</h3>
-                <small class="text-muted">في التقرير</small>
-            </div>
+        <div class="card-body">
+            <p>هنا يمكن إضافة رسوم بيانية تفاعلية تعرض إحصائيات الشركات (مثل عدد الشركات حسب حالة الشراكة، القطاع، إلخ).</p>
+            <!-- Example Chart Placeholder -->
+            <canvas id="companiesChart"></canvas>
         </div>
     </div>
 </div>
-
-<div class="row">
-    <!-- توزيع الشركات حسب المجال -->
-    <div class="col-lg-4 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-chart-bar me-2"></i>توزيع الشركات حسب المجال
-                </h5>
-            </div>
-            <div class="card-body">
-                @if($reportStats['by_industry']->count() > 0)
-                <div class="list-group list-group-flush">
-                    @foreach($reportStats['by_industry'] as $industry)
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>{{ $industry->industry ?: 'غير محدد' }}</span>
-                        <span class="custom-badge badge-primary">{{ $industry->count }}</span>
-                    </div>
-                    @endforeach
-                </div>
-                @else
-                <p class="text-muted text-center mb-0">لا توجد بيانات</p>
-                @endif
-            </div>
-        </div>
-    </div>
-
-    <!-- التقرير التفصيلي -->
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-building me-2"></i>التقرير التفصيلي للشركات
-                </h5>
-                <div>
-                    <button class="btn btn-success me-2" onclick="window.print()">
-                        <i class="fas fa-print me-2"></i>طباعة التقرير
-                    </button>
-                    <a href="{{ route('admin.reports') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-right me-2"></i>رجوع
-                    </a>
-                </div>
-            </div>
-            <div class="card-body">
-                @if($companies->count() > 0)
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>اسم الشركة</th>
-                                <th>المجال الصناعي</th>
-                                <th>البريد الإلكتروني</th>
-                                <th>رقم الهاتف</th>
-                                <th>العنوان</th>
-                                <th>تاريخ التسجيل</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($companies as $company)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>
-                                    <strong>{{ $company->name }}</strong>
-                                </td>
-                                <td>
-                                    <span class="custom-badge badge-primary">{{ $company->industry ?: 'غير محدد' }}</span>
-                                </td>
-                                <td>{{ $company->email }}</td>
-                                <td>{{ $company->phone }}</td>
-                                <td>{{ Str::limit($company->address, 30) }}</td>
-                                <td>{{ $company->created_at->format('Y-m-d') }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                @else
-                <div class="text-center py-4">
-                    <i class="fas fa-building fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">لا توجد بيانات للشركات</h5>
-                </div>
-                @endif
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ملخص التقرير -->
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">ملخص تقرير الشركات</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6>الإحصائيات العامة:</h6>
-                        <ul class="list-unstyled">
-                            <li class="mb-2">
-                                <i class="fas fa-building text-primary me-2"></i>
-                                إجمالي الشركات: <strong>{{ $reportStats['total'] }}</strong>
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-calendar-plus text-success me-2"></i>
-                                شركات جديدة (30 يوم): <strong>{{ $reportStats['recent'] }}</strong>
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-industry text-warning me-2"></i>
-                                عدد المجالات الصناعية: <strong>{{ $reportStats['by_industry']->count() }}</strong>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <h6>معلومات التقرير:</h6>
-                        <ul class="list-unstyled">
-                            <li class="mb-2">
-                                <i class="fas fa-calendar text-primary me-2"></i>
-                                تاريخ التقرير: <strong>{{ now()->format('Y-m-d') }}</strong>
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-user text-success me-2"></i>
-                                مولد التقرير: <strong>{{ auth()->user()->name }}</strong>
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-database text-warning me-2"></i>
-                                عدد السجلات: <strong>{{ $companies->count() }}</strong>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-@media print {
-    .navbar-main, .card-header .btn, .sidebar {
-        display: none !important;
-    }
-    
-    .card {
-        border: none !important;
-        box-shadow: none !important;
-    }
-    
-    .main-content {
-        margin-right: 0 !important;
-        width: 100% !important;
-    }
-}
-</style>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Example Chart Data (replace with actual data from your controller)
+        const companyStatuses = @json($companies->groupBy('partnership_status')->map->count());
+        const labels = Object.keys(companyStatuses);
+        const data = Object.values(companyStatuses);
+
+        const ctx = document.getElementById('companiesChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'عدد الشركات حسب حالة الشراكة',
+                    data: data,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'توزيع الشركات حسب حالة الشراكة'
+                    }
+                }
+            }
+        });
+    });
+</script>
+@endpush

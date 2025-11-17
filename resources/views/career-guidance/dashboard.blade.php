@@ -210,7 +210,7 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-3 mb-3">\
+                        <div class="col-md-3 mb-3">
                             <a href="{{ route('career-guidance.graduates') }}" class="btn btn-outline-primary w-100">
                                 <i class="fas fa-users me-2"></i>
                                 إدارة الخريجين
@@ -223,9 +223,9 @@
                             </a>
                         </div>
                         <div class="col-md-3 mb-3">
-<a href="{{ route('career-guidance.nominations') }}" class="btn btn-outline-success w-100">
-                                <i class="fas fa-paper-plane me-2"></i>
-                                الترشيحات
+<a href="{{ route('career-guidance.import.graduates.create') }}" class="btn btn-outline-success w-100">
+                                <i class="fas fa-user-plus me-2"></i>
+                     استيراد بيانات  خريجين
                             </a>
                         </div>
                         <div class="col-md-3 mb-3">

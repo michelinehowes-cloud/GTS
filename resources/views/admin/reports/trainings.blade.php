@@ -1,37 +1,39 @@
 @extends('layouts.app')
 
-@section('title', 'تقارير الشركات')
+@section('title', 'تقارير التدريبات')
 
 @section('content')
 <div class="container-fluid">
-    <h1 class="h3 mb-4 text-gray-800">تقارير الشركات</h1>
+    <h1 class="h3 mb-4 text-gray-800">تقارير التدريبات</h1>
 
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">قائمة الشركات</h6>
+            <h6 class="m-0 font-weight-bold text-primary">قائمة التدريبات</h6>
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered" id="companiesTable" width="100%" cellspacing="0">
+                <table class="table table-bordered" id="trainingsTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
-                            <th>اسم الشركة</th>
-                            <th>البريد الإلكتروني</th>
-                            <th>حالة الشراكة</th>
-                            <th>تاريخ الإنشاء</th>
+                            <th>اسم التدريب</th>
+                            <th>الشركة</th>
+                            <th>تاريخ البدء</th>
+                            <th>تاريخ الانتهاء</th>
+                            <th>الحالة</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($companies as $company)
+                        @forelse ($trainings as $training)
                         <tr>
-                            <td>{{ $company->name }}</td>
-                            <td>{{ $company->email }}</td>
-                            <td>{{ $company->partnership_status ?? 'N/A' }}</td>
-                            <td>{{ $company->created_at->format('Y-m-d H:i:s') }}</td>
+                            <td>{{ $training->name }}</td>
+                            <td>{{ $training->company->name ?? 'N/A' }}</td>
+                            <td>{{ $training->start_date->format('Y-m-d') }}</td>
+                            <td>{{ $training->end_date->format('Y-m-d') }}</td>
+                            <td>{{ $training->status }}</td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4">لا توجد شركات لعرضها.</td>
+                            <td colspan="5">لا توجد تدريبات لعرضها.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -40,15 +42,15 @@
         </div>
     </div>
 
-    <!-- Placeholder for Company Charts -->
+    <!-- Placeholder for Training Charts -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">رسوم بيانية للشركات</h6>
+            <h6 class="m-0 font-weight-bold text-primary">رسوم بيانية للتدريبات</h6>
         </div>
         <div class="card-body">
-            <p>هنا يمكن إضافة رسوم بيانية تفاعلية تعرض إحصائيات الشركات (مثل عدد الشركات حسب حالة الشراكة، القطاع، إلخ).</p>
+            <p>هنا يمكن إضافة رسوم بيانية تفاعلية تعرض إحصائيات التدريبات (مثل عدد التدريبات حسب الحالة، الفئة، إلخ).</p>
             <!-- Example Chart Placeholder -->
-            <canvas id="companiesChart"></canvas>
+            <canvas id="trainingsChart"></canvas>
         </div>
     </div>
 </div>
@@ -59,17 +61,17 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Example Chart Data (replace with actual data from your controller)
-        const companyStatuses = @json($companies->groupBy('partnership_status')->map->count());
-        const labels = Object.keys(companyStatuses);
-        const data = Object.values(companyStatuses);
+        const trainingStatuses = @json($trainings->groupBy('status')->map->count());
+        const labels = Object.keys(trainingStatuses);
+        const data = Object.values(trainingStatuses);
 
-        const ctx = document.getElementById('companiesChart').getContext('2d');
+        const ctx = document.getElementById('trainingsChart').getContext('2d');
         new Chart(ctx, {
-            type: 'pie',
+            type: 'doughnut',
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'عدد الشركات حسب حالة الشراكة',
+                    label: 'عدد التدريبات حسب الحالة',
                     data: data,
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.2)',
@@ -98,7 +100,7 @@
                     },
                     title: {
                         display: true,
-                        text: 'توزيع الشركات حسب حالة الشراكة'
+                        text: 'توزيع التدريبات حسب الحالة'
                     }
                 }
             }

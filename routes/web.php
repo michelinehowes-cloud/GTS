@@ -13,7 +13,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\PartnershipController;
 use App\Http\Controllers\CareerGuidanceController;
 use App\Http\Controllers\JobOpportunityController;
-use App\Http\Controllers\EvaluationFollowupController; // Add this line
+use App\Http\Controllers\EvaluationFollowupController;
+use App\Http\Controllers\AdminReportController; // Add this line
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
@@ -85,10 +86,15 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
     // 📊 لوحة التحكم والإحصائيات
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
-    Route::get('/reports/users', [AdminController::class, 'usersReport'])->name('admin.reports.users');
-    Route::get('/reports/companies', [AdminController::class, 'companiesReport'])->name('admin.reports.companies');
-    Route::get('/reports/trainings', [AdminController::class, 'trainingsReport'])->name('admin.reports.trainings');
+
+    // 📈 التقارير والإحصائيات
+    Route::prefix('reports')->group(function () {
+        Route::get('/', [AdminReportController::class, 'index'])->name('admin.reports.index');
+        Route::get('/users', [AdminReportController::class, 'usersReport'])->name('admin.reports.users');
+        Route::get('/companies', [AdminReportController::class, 'companiesReport'])->name('admin.reports.companies');
+        Route::get('/trainings', [AdminReportController::class, 'trainingsReport'])->name('admin.reports.trainings');
+        Route::get('/audit-logs', [AdminReportController::class, 'auditLogs'])->name('admin.reports.audit-logs');
+    });
 
     // 👥 إدارة المستخدمين
     Route::get('/users', [UserController::class, 'index'])->name('admin.users');

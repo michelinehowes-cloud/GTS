@@ -183,7 +183,7 @@
 
                         <div class="d-flex justify-content-between align-items-center">
                             <a href="{{ route('career-guidance.graduates') }}" class="btn btn-secondary">
-                                <i class="fas fa-times me-2"></i>إلغاء
+                                <i class="fas fa-times me-2"> إلغاء</i>
                             </a>
                             <button type="submit" class="btn btn-success">
                                 <i class="fas fa-user-plus me-2"></i>إضافة الخريج

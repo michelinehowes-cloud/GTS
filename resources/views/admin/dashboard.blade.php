@@ -507,7 +507,7 @@
                     </div>
                     <!-- التقارير -->
                     <div class="col-md-3 mb-3">
-                        <a href="{{ route('admin.reports') }}" class="btn btn-outline-warning w-100">
+                        <a href="{{ route('admin.reports.index') }}" class="btn btn-outline-warning w-100">
                             <i class="fas fa-chart-bar me-2"></i>التقارير والإحصائيات
                         </a>
                     </div>

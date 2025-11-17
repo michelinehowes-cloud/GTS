@@ -262,6 +262,13 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/templates/job_opportunities_template', function () {
             return response()->download(storage_path('app/templates/job_opportunities_template.xlsx'));
         })->name('templates.job-opportunities');
+
+        // 📨 إدارة الترشيحات
+        Route::get('/nominations', [CareerGuidanceController::class, 'nominations'])->name('partnership.nominations');
+        Route::get('/nominations/{id}', [CareerGuidanceController::class, 'showNomination'])->name('partnership.nominations.show');
+        Route::get('/nominations/{id}/edit-status', [CareerGuidanceController::class, 'editNominationStatus'])->name('partnership.nominations.edit-status');
+        Route::post('/nominations/{id}/status', [CareerGuidanceController::class, 'updateNominationStatus'])->name('partnership.nominations.update-status');
+
         // 📈 التقارير
         Route::get('/reports', [PartnershipController::class, 'reports'])->name('partnership.reports');
          Route::get('/export-reports/pdf', [CareerGuidanceController::class, 'exportReportsPDF'])

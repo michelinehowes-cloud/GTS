@@ -148,6 +148,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::post('/nominations', [CareerGuidanceController::class, 'nominateGraduate'])->name('admin.career-guidance.nominations.store');
         Route::get('/nominations/{id}', [CareerGuidanceController::class, 'showNomination'])->name('admin.career-guidance.nominations.show');
         Route::post('/nominations/{id}/status', [CareerGuidanceController::class, 'updateNominationStatus'])->name('admin.career-guidance.nominations.update-status');
+        Route::get('/nominations/{id}/edit-status', [CareerGuidanceController::class, 'editNominationStatus'])->name('admin.career-guidance.nominations.edit-status');
+        Route::put('/nominations/{id}/status-fullpage', [CareerGuidanceController::class, 'updateNominationStatusFullPage'])->name('admin.career-guidance.nominations.update-status-fullpage');
 
         // 📈 التقارير المتقدمة
         Route::get('/advanced-reports', [CareerGuidanceController::class, 'advancedReports'])->name('admin.career-guidance.advanced-reports');
@@ -372,6 +374,8 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::post('/nominations', [CareerGuidanceController::class, 'nominateGraduate'])->name('career-guidance.nominations.store');
         Route::get('/nominations/{id}', [CareerGuidanceController::class, 'showNomination'])->name('career-guidance.nominations.show');
         Route::post('/nominations/{id}/status', [CareerGuidanceController::class, 'updateNominationStatus'])->name('career-guidance.nominations.update-status');
+        Route::get('/nominations/{id}/edit-status', [CareerGuidanceController::class, 'editNominationStatus'])->name('career-guidance.nominations.edit-status');
+        Route::put('/nominations/{id}/status-fullpage', [CareerGuidanceController::class, 'updateNominationStatusFullPage'])->name('career-guidance.nominations.update-status-fullpage');
         Route::get('/graduates', [CareerGuidanceController::class, 'graduates'])->name('career-guidance.graduates');
         Route::get('/graduates/create', [CareerGuidanceController::class, 'createGraduate'])->name('career-guidance.graduates.create');
         Route::post('/graduates', [CareerGuidanceController::class, 'storeGraduate'])->name('career-guidance.graduates.store');

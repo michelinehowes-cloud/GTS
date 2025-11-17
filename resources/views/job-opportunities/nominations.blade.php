@@ -193,52 +193,13 @@
                                                    style="background-color: #2c5aa0; color: white; border: none;">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <button type="button" 
-                                                        class="btn btn-sm rounded-pill"
-                                                        data-bs-toggle="modal" 
-                                                        data-bs-target="#statusModal{{ $nomination->id }}"
-                                                        title="تغيير الحالة"
-                                                        style="background-color: #f59e0b; color: white; border: none;">
+                                                <a href="{{ route('career-guidance.nominations.edit-status', $nomination->id) }}" 
+                                                   class="btn btn-outline-primary btn-sm" 
+                                                   title="تحديث الحالة">
                                                     <i class="fas fa-edit"></i>
-                                                </button>
+                                                </a>
                                             </div>
 
-                                            <!-- Modal لتغيير الحالة -->
-                                            <div class="modal fade" id="statusModal{{ $nomination->id }}" tabindex="-1">
-                                                <div class="modal-dialog modal-dialog-centered">
-                                                    <div class="modal-content border-0 shadow" style="border-radius: 15px;">
-                                                        <div class="modal-header text-white border-0" style="background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%); border-radius: 15px 15px 0 0;">
-                                                            <h5 class="modal-title">
-                                                                <i class="fas fa-edit me-2"></i>تغيير حالة الترشيح
-                                                            </h5>
-                                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                                            </div>
-                                                            <form action="{{ route('admin.career-guidance.nominations.update-status', $nomination->id) }}" method="POST">
-                                                                @csrf
-                                                                @method('PUT')
-                                                                <div class="modal-body">
-                                                                <div class="mb-3">
-                                                                    <label for="status" class="form-label fw-bold" style="color: #2c5aa0;">اختر الحالة الجديدة</label>
-                                                                    <select name="status" id="status" class="form-select form-select-lg" required style="border-color: #2c5aa0;">
-                                                                        <option value="pending" {{ $nomination->status == 'pending' ? 'selected' : '' }}>🕒 قيد المراجعة</option>
-                                                                        <option value="sent_to_company" {{ $nomination->status == 'sent_to_company' ? 'selected' : '' }}>📨 مرسل للشركة</option>
-                                                                        <option value="under_review" {{ $nomination->status == 'under_review' ? 'selected' : '' }}>🔍 قيد الدراسة</option>
-                                                                        <option value="interview_scheduled" {{ $nomination->status == 'interview_scheduled' ? 'selected' : '' }}>✅ مقابلة مجدولة</option>
-                                                                        <option value="accepted" {{ $nomination->status == 'accepted' ? 'selected' : '' }}>🎉 مقبول</option>
-                                                                        <option value="rejected" {{ $nomination->status == 'rejected' ? 'selected' : '' }}>❌ مرفوض</option>
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer border-0">
-                                                                <button type="button" class="btn rounded-pill" data-bs-dismiss="modal" style="background-color: #6b7280; color: white;">إلغاء</button>
-                                                                <button type="submit" class="btn rounded-pill text-white" style="background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);">
-                                                                    <i class="fas fa-save me-2"></i>حفظ التغيير
-                                                                </button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -317,4 +278,7 @@
     --danger-color: #ef4444;
 }
 </style>
+@endsection
+
+@section('scripts')
 @endsection

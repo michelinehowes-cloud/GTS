@@ -69,139 +69,19 @@ class CareerGuidanceController extends Controller
     }
 
     /**
-     * عرض تفاصيل خريج
-     */
-    public function showGraduate($id)
-    {
-        $graduate = GraduateData::with(['nominations.jobOpportunity'])->findOrFail($id);
-        return view('career-guidance.graduates.show', compact('graduate'));
-    }
-    
-    /**
-     * عرض نموذج تعديل خريج
-     */
-    public function editGraduate($id)
-    {
-        $graduate = GraduateData::findOrFail($id);
-        return view('career-guidance.graduates.edit', compact('graduate'));
-    }
-
-    /**
-     * تحديث بيانات خريج
-     */
-    public function updateGraduate(Request $request, $id)
-    {
-        $graduate = GraduateData::findOrFail($id);
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|email|unique:graduates_data,email,' . $id,
-            'phone' => 'nullable|string|max:20',
-            'major' => 'required|string|max:255',
-            'graduation_year' => 'required|integer|min:2000|max:' . date('Y'),
-            'gpa' => 'nullable|numeric|min:0|max:4',
-            'degree' => 'nullable|string|max:255',
-            'employment_status' => 'required|in:employed,unemployed,seeking_opportunities,continuing_education',
-            'work_experience' => 'nullable|string',
-            'address' => 'nullable|string',
-            'linkedin_url' => 'nullable|url',
-        ]);
-
-        // معالجة المهارات واللغات إذا كانت موجودة
-        $skills = $request->skills ? (is_array($request->skills) ? $request->skills : array_map('trim', explode(',', $request->skills))) : [];
-        $languages = $request->languages ? (is_array($request->languages) ? $request->languages : array_map('trim', explode(',', $request->languages))) : [];
-
-        $graduate->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'major' => $request->major,
-            'graduation_year' => $request->graduation_year,
-            'gpa' => $request->gpa,
-            'degree' => $request->degree ?: 'بكالوريوس',
-            'employment_status' => $request->employment_status,
-            'skills' => $skills,
-            'languages' => $languages,
-            'work_experience' => $request->work_experience,
-            'address' => $request->address,
-            'linkedin_url' => $request->linkedin_url,
-        ]);
-
-        return redirect()->route('admin.career-guidance.graduates.show', $graduate->id)
-            ->with('success', 'تم تحديث بيانات الخريج بنجاح');
-    }
-
-    /**
-     * عرض نموذج إضافة خريج جديد
-     */
-    public function createGraduate()
-    {
-        return view('career-guidance.graduates.create');
-    }
-
-    /**
-     * حفظ خريج جديد
-     */
-    public function storeGraduate(Request $request)
-    {
-        if (!auth()->user()->canAddGraduates()) {
-            abort(403, 'ليس لديك صلاحية لإضافة خريجين');
-        }
-        
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|email|unique:graduates_data,email',
-            'phone' => 'nullable|string|max:20',
-            'major' => 'required|string|max:255',
-            'graduation_year' => 'required|integer|min:2000|max:' . date('Y'),
-            'gpa' => 'nullable|numeric|min:0|max:4',
-            'degree' => 'nullable|string|max:255',
-            'employment_status' => 'required|in:employed,unemployed,seeking_opportunities,continuing_education',
-            'work_experience' => 'nullable|string',
-            'address' => 'nullable|string',
-            'linkedin_url' => 'nullable|url',
-        ]);
-
-        // معالجة المهارات واللغات
-        $skills = $request->skills ? (is_array($request->skills) ? $request->skills : array_map('trim', explode(',', $request->skills))) : [];
-        $languages = $request->languages ? (is_array($request->languages) ? $request->languages : array_map('trim', explode(',', $request->languages))) : [];
-
-        GraduateData::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'major' => $request->major,
-            'graduation_year' => $request->graduation_year,
-            'gpa' => $request->gpa,
-            'degree' => $request->degree ?: 'بكالوريوس',
-            'employment_status' => $request->employment_status,
-            'skills' => $skills,
-            'languages' => $languages,
-            'work_experience' => $request->work_experience,
-            'address' => $request->address,
-            'linkedin_url' => $request->linkedin_url,
-            'added_by' => Auth::id(),
-            'data_source' => 'manual',
-            'is_active' => true,
-        ]);
-
-        return redirect()->route('career-guidance.graduates')
-                       ->with('success', 'تم إضافة الخريج بنجاح');
-    }
-
-    /**
-     * إدارة الترشيحات
+     * عرض قائمة الترشيحات
      */
     public function nominations(Request $request)
     {
-        $query = Nomination::with(['graduate', 'jobOpportunity.company']);
+        $query = Nomination::query();
 
+        // تطبيق الفلاتر
         if ($request->has('status') && $request->status) {
             $query->where('status', $request->status);
         }
 
-        if ($request->has('opportunity_id') && $request->opportunity_id) {
-            $query->where('job_opportunity_id', $request->opportunity_id);
+        if ($request->has('final_status') && $request->final_status) {
+            $query->where('final_status', $request->final_status);
         }
 
         $nominations = $query->latest()->get();
@@ -273,36 +153,6 @@ class CareerGuidanceController extends Controller
             ->with('success', 'تم ترشيح الخريج بنجاح');
     }
 
-    /**
-     * تحديث حالة الترشيح
-     */
-    public function updateNominationStatus(Request $request, $id)
-    {
-        $nomination = Nomination::findOrFail($id);
-
-        $request->validate([
-            'status' => 'required|in:pending,sent_to_company,under_review,interview_scheduled,accepted,rejected,withdrawn',
-            'interview_date' => 'nullable|date',
-            'interview_time' => 'nullable',
-            'interview_location' => 'nullable|string',
-        ]);
-
-        $updateData = ['status' => $request->status];
-
-        if ($request->status === 'interview_scheduled' && $request->interview_date) {
-            $updateData['interview_date'] = $request->interview_date;
-            $updateData['interview_time'] = $request->interview_time;
-            $updateData['interview_location'] = $request->interview_location;
-        }
-
-        if ($request->status === 'sent_to_company') {
-            $updateData['sent_to_company_at'] = now();
-        }
-
-        $nomination->update($updateData);
-
-        return redirect()->back()->with('success', 'تم تحديث حالة الترشيح بنجاح');
-    }
 
     /**
      * إشعار الخريجين بفرص جديدة
@@ -379,81 +229,63 @@ class CareerGuidanceController extends Controller
         return view('career-guidance.graduates.import');
     }
 
-/**
- * التحقق من صحة بيانات المخططات
- */
-private function validateChartData($chartData)
-{
-    if (!is_array($chartData)) {
-        return false;
-    }
-    // Add more specific validation for chartData structure if needed
-    // For now, a simple array check is sufficient.
-    
-    return true;
-}
+
     /**
-     * استيراد بيانات الخريجين من Excel
+     * استيراد الخريجين من ملف Excel/CSV
      */
     public function importGraduates(Request $request)
     {
         $request->validate([
-            'excel_file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+            'file' => 'required|file|mimes:csv,txt|max:2048',
         ]);
 
-        try {
-            $file = $request->file('excel_file');
-            $importedCount = $this->processExcelImport($file);
+        $path = $request->file('file')->getRealPath();
+        $data = $this->readCSV($path);
 
-            return redirect()->route('career-guidance.graduates')
-                ->with('success', "تم استيراد {$importedCount} خريج بنجاح");
+        $headers = array_map('trim', array_shift($data)); // Get headers and remove from data
+        $expectedHeaders = [
+            'name', 'email', 'phone', 'major', 
+            'graduation_year', 'gpa', 'degree', 'skills', 
+            'languages', 'employment_status', 'work_experience', 
+            'address', 'linkedin_url'
+        ];
 
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'حدث خطأ أثناء الاستيراد: ' . $e->getMessage())
-                ->withInput();
+        // Validate headers
+        if (array_diff($expectedHeaders, $headers) || array_diff($headers, $expectedHeaders)) {
+            return redirect()->back()->with('error', 'تنسيق الملف غير صحيح. يرجى استخدام النموذج المرفق.');
         }
-    }
 
-    private function processExcelImport($file)
-    {
-        $path = $file->getRealPath();
-        
-        // استخدام مكتبة Excel لقراءة الملف
-        try {
-            $data = \Maatwebsite\Excel\Facades\Excel::toArray([], $file)[0];
-        } catch (\Exception $e) {
-            // إذا فشل استخدام Excel، حاول استخدام CSV العادي
-            $data = $this->readCSV($path);
-        }
-        
         $importedCount = 0;
         $errors = [];
 
-        // تخطي الصف الأول (العناوين)
-        for ($i = 1; $i < count($data); $i++) {
+        foreach ($data as $rowNumber => $row) {
             try {
-                $row = $data[$i];
-                
-                // تخطي الصفوف الفارغة
-                if (empty(trim($row[0] ?? ''))) {
-                    continue;
-                }
-
-                $this->createGraduateFromRow($row, $i + 1);
+                // Map row data to an associative array using headers
+                $rowData = array_combine($headers, $row);
+                $this->createGraduateFromRow($rowData, $rowNumber + 2); // +2 for 0-indexed array and header row
                 $importedCount++;
-
             } catch (\Exception $e) {
-                $errors[] = "الصف " . ($i + 1) . ": " . $e->getMessage();
+                $errors[] = "السطر " . ($rowNumber + 2) . ": " . $e->getMessage();
             }
         }
 
-        // عرض الأخطاء إذا وجدت
         if (!empty($errors)) {
             session()->flash('import_errors', $errors);
+            return redirect()->back()->with('warning', 'تم استيراد بعض البيانات مع وجود أخطاء.');
         }
 
-        return $importedCount;
+        return redirect()->back()->with('success', 'تم استيراد الخريجين بنجاح: ' . $importedCount . ' سجلات.');
+    }
+
+    private function validateChartData($chartData)
+    {
+        // بسيطة للتحقق من أن بيانات المخطط ليست فارغة
+        foreach ($chartData as $key => $data) {
+            if (empty($data['labels']) || empty($data['datasets'][0]['data'])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private function readCSV($path)
@@ -471,19 +303,19 @@ private function validateChartData($chartData)
     private function createGraduateFromRow($row, $rowNumber)
     {
         // تنظيف البيانات
-        $name = trim($row[0] ?? '');
-        $email = trim($row[1] ?? '');
-        $phone = trim($row[2] ?? '');
-        $major = trim($row[3] ?? '');
-        $graduationYear = intval($row[4] ?? 0);
-        $gpa = !empty($row[5]) ? floatval($row[5]) : null;
-        $degree = trim($row[6] ?? 'بكالوريوس');
-        $skills = !empty($row[7]) ? array_map('trim', explode(',', $row[7])) : [];
-        $languages = !empty($row[8]) ? array_map('trim', explode(',', $row[8])) : [];
-        $employmentStatus = trim($row[9] ?? 'seeking_opportunities');
-        $workExperience = trim($row[10] ?? '');
-        $address = trim($row[11] ?? '');
-        $linkedinUrl = trim($row[12] ?? '');
+        $name = trim($row['name'] ?? '');
+        $email = trim($row['email'] ?? '');
+        $phone = trim($row['phone'] ?? '');
+        $major = trim($row['major'] ?? '');
+        $graduationYear = intval($row['graduation_year'] ?? 0);
+        $gpa = !empty($row['gpa']) ? floatval($row['gpa']) : null;
+        $degree = trim($row['degree'] ?? 'بكالوريوس');
+        $skills = !empty($row['skills']) ? array_map('trim', explode(',', $row['skills'])) : [];
+        $languages = !empty($row['languages']) ? array_map('trim', explode(',', $row['languages'])) : [];
+        $employmentStatus = trim($row['employment_status'] ?? 'seeking_opportunities');
+        $workExperience = trim($row['work_experience'] ?? '');
+        $address = trim($row['address'] ?? '');
+        $linkedinUrl = trim($row['linkedin_url'] ?? '');
 
         // التحقق من البيانات الأساسية (المطلوبة فقط)
         if (empty($name)) {
@@ -529,46 +361,49 @@ private function validateChartData($chartData)
         ]);
     }
 
+
+
     /**
      * التقارير المتقدمة مع المخططات البيانية
-     */public function advancedReports()
-{
-    try {
-        // الإحصائيات الأساسية
-        $stats = $this->getAdvancedStats();
-        
-        // بيانات المخططات مع التحقق من الصحة
-        $chartData = $this->getChartData();
-        
-        // إذا لم تكن هناك بيانات كافية، استخدم بيانات نموذجية
-        if ($stats['totalGraduates'] == 0 || !$this->validateChartData($chartData)) {
-            $chartData = $this->getSampleChartData();
-            \Log::info('Using sample chart data - no real data available');
-        }
-        
-        // استنتاجات ذكية
-        $insights = $this->getAIInsights($stats);
-        
-        \Log::info('Advanced Reports Loaded', [
-            'graduates' => $stats['totalGraduates'],
-            'charts' => count($chartData),
-            'insights' => count($insights)
-        ]);
+     */
+    public function advancedReports()
+    {
+        try {
+            // الإحصائيات الأساسية
+            $stats = $this->getAdvancedStats();
+            
+            // بيانات المخططات مع التحقق من الصحة
+            $chartData = $this->getChartData();
+            
+            // إذا لم تكن هناك بيانات كافية، استخدم بيانات نموذجية
+            if ($stats['totalGraduates'] == 0 || !$this->validateChartData($chartData)) {
+                $chartData = $this->getSampleChartData();
+                \Log::info('Using sample chart data - no real data available');
+            }
+            
+            // استنتاجات ذكية
+            $insights = $this->getAIInsights($stats);
+            
+            \Log::info('Advanced Reports Loaded', [
+                'graduates' => $stats['totalGraduates'],
+                'charts' => count($chartData),
+                'insights' => count($insights)
+            ]);
 
-        return view('career-guidance.advanced-reports', compact('stats', 'chartData', 'insights'));
-    
-    } catch (\Exception $e) {
-        \Log::error('Advanced Reports Error: ' . $e->getMessage());
+            return view('career-guidance.advanced-reports', compact('stats', 'chartData', 'insights'));
         
-        // في حالة الخطأ، عرض بيانات نموذجية
-        $stats = $this->getAdvancedStats();
-        $chartData = $this->getSampleChartData();
-        $insights = $this->getAIInsights($stats);
-        
-        return view('career-guidance.advanced-reports', compact('stats', 'chartData', 'insights'))
-            ->with('error', 'تم تحميل التقارير ببيانات نموذجية بسبب وجود خطأ في البيانات الفعلية');
+        } catch (\Exception $e) {
+            \Log::error('Advanced Reports Error: ' . $e->getMessage());
+            
+            // في حالة الخطأ، عرض بيانات نموذجية
+            $stats = $this->getAdvancedStats();
+            $chartData = $this->getSampleChartData();
+            $insights = $this->getAIInsights($stats);
+            
+            return view('career-guidance.advanced-reports', compact('stats', 'chartData', 'insights'))
+                ->with('error', 'تم تحميل التقارير ببيانات نموذجية بسبب وجود خطأ في البيانات الفعلية');
+        }
     }
-}
 
     /**
      * تصدير التقرير كـ PDF
@@ -903,86 +738,6 @@ private function validateChartData($chartData)
         ];
     }
 
-    /**
-     * حالة التوظيف للخريجين
-     */
-    private function getEmploymentStatus()
-    {
-        $statusCounts = GraduateData::select('employment_status')
-            ->selectRaw('COUNT(*) as count')
-            ->groupBy('employment_status')
-            ->get();
-
-        $statusLabels = [
-            'employed' => 'موظف',
-            'unemployed' => 'غير موظف', 
-            'seeking_opportunities' => 'باحث عن عمل',
-            'continuing_education' => 'مستكمل للدراسة'
-        ];
-
-        $labels = [];
-        $data = [];
-        $backgroundColors = ['#1cc88a', '#e74a3b', '#f6c23e', '#36b9cc'];
-
-        foreach ($statusCounts as $status) {
-            $labels[] = $statusLabels[$status->employment_status] ?? $status->employment_status;
-            $data[] = $status->count;
-        }
-
-        return [
-            'labels' => $labels,
-            'datasets' => [
-                [
-                    'data' => $data,
-                    'backgroundColor' => $backgroundColors,
-                    'borderWidth' => 2,
-                    'borderColor' => '#fff'
-                ]
-            ]
-        ];
-    }
-
-    /**
-     * توزيع الترشيحات حسب الحالة
-     */
-    private function getNominationsStatus()
-    {
-        $statusCounts = Nomination::select('status')
-            ->selectRaw('COUNT(*) as count')
-            ->groupBy('status')
-            ->get();
-
-        $statusLabels = [
-            'pending' => 'قيد المراجعة',
-            'sent_to_company' => 'مرسل للشركة',
-            'under_review' => 'قيد الدراسة',
-            'interview_scheduled' => 'مقابلة مجدولة',
-            'accepted' => 'مقبول',
-            'rejected' => 'مرفوض',
-            'withdrawn' => 'ملغي'
-        ];
-
-        $labels = [];
-        $data = [];
-        $backgroundColors = ['#f6c23e', '#36b9cc', '#4e73df', '#858796', '#1cc88a', '#e74a3b', '#5a5c69'];
-
-        foreach ($statusCounts as $status) {
-            $labels[] = $statusLabels[$status->status] ?? $status->status;
-            $data[] = $status->count;
-        }
-
-        return [
-            'labels' => $labels,
-            'datasets' => [
-                [
-                    'data' => $data,
-                    'backgroundColor' => $backgroundColors,
-                    'borderWidth' => 2,
-                    'borderColor' => '#fff'
-                ]
-            ]
-        ];
-    }
 
     /**
      * الأداء الشهري للترشيحات

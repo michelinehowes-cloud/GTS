@@ -519,7 +519,16 @@ class JobOpportunityController extends Controller
         $opportunity = JobOpportunity::with(['nominations.graduate'])->findOrFail($id);
         $nominations = $opportunity->nominations()->latest()->get();
 
-        return view('job-opportunities.nominations', compact('opportunity', 'nominations'));
+        $statuses = [
+            'pending' => 'قيد المراجعة',
+            'accepted' => 'مقبول',
+            'rejected' => 'مرفوض',
+            'hired' => 'تم التوظيف',
+            'interview' => 'مقابلة',
+            'offered' => 'تم تقديم عرض',
+        ];
+
+        return view('job-opportunities.nominations', compact('opportunity', 'nominations', 'statuses'));
     }
 
     /**

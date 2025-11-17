@@ -38,10 +38,16 @@
                         </div>
                         <div class="col-md-4 text-end">
                             <div class="btn-group-vertical w-100">
-                                <a href="{{ route('job-opportunities.nominations', $opportunity->id) }}" 
+                                <a href="{{ route('job-opportunities.nominations', $opportunity->id) }}"
                                    class="btn btn-light btn-lg mb-2 text-primary fw-bold">
                                     <i class="fas fa-users me-2"></i>الترشيحات ({{ $nominationsCount['total'] }})
                                 </a>
+                                @if(auth()->user()->role === 'partnership_officer')
+                                <a href="{{ route('partnership.nominations') }}"
+                                   class="btn btn-info btn-lg mb-2 fw-bold">
+                                    <i class="fas fa-list me-2"></i>جميع الترشيحات
+                                </a>
+                                @endif
                                 <a href="{{ route('job-opportunities.edit', $opportunity->id) }}" 
                                    class="btn btn-warning btn-lg mb-2 fw-bold">
                                     <i class="fas fa-edit me-2"></i>تعديل الفرصة

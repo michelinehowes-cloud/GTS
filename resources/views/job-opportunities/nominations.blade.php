@@ -187,14 +187,14 @@
                                         </td>
                                         <td>
                                             <div class="d-flex justify-content-center gap-2">
-                                                <a href="{{ route('admin.career-guidance.graduates.show', $nomination->graduate->id) }}" 
-                                                   class="btn btn-sm rounded-pill" 
-                                                   title="عرض ملف الخريج"
+                                                <a href="{{ route('partnership.nominations.show', $nomination->id) }}"
+                                                   class="btn btn-sm rounded-pill"
+                                                   title="عرض تفاصيل الترشيح"
                                                    style="background-color: #2c5aa0; color: white; border: none;">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <a href="{{ route('career-guidance.nominations.edit-status', $nomination->id) }}" 
-                                                   class="btn btn-outline-primary btn-sm" 
+                                                <a href="{{ route('partnership.nominations.edit-status', $nomination->id) }}"
+                                                   class="btn btn-outline-primary btn-sm"
                                                    title="تحديث الحالة">
                                                     <i class="fas fa-edit"></i>
                                                 </a>

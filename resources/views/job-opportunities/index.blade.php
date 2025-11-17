@@ -331,12 +331,20 @@
                                                    title="تعديل">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="{{ route('job-opportunities.nominations', $opportunity->id) }}" 
+                                                <a href="{{ route('job-opportunities.nominations', $opportunity->id) }}"
                                                    class="btn btn-sm btn-outline-success"
-                                                   data-bs-toggle="tooltip" 
+                                                   data-bs-toggle="tooltip"
                                                    title="الترشيحات">
                                                     <i class="fas fa-users"></i>
                                                 </a>
+                                                @if(auth()->user()->role === 'partnership_officer')
+                                                <a href="{{ route('partnership.nominations') }}"
+                                                   class="btn btn-sm btn-outline-info"
+                                                   data-bs-toggle="tooltip"
+                                                   title="جميع الترشيحات">
+                                                    <i class="fas fa-list"></i>
+                                                </a>
+                                                @endif
                                                 <div class="dropdown">
                                                     <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
                                                             type="button" 

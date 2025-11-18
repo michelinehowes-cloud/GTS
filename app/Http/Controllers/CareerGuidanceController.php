@@ -69,6 +69,66 @@ class CareerGuidanceController extends Controller
     }
 
     /**
+     * عرض نموذج تعديل بيانات الخريج
+     */
+    public function editGraduate($id)
+    {
+        $graduate = GraduateData::findOrFail($id);
+        $this->authorize('update', $graduate); // Authorize editing the graduate details
+
+        $majors = GraduateData::distinct()->pluck('major');
+        $graduationYears = GraduateData::distinct()->pluck('graduation_year');
+        $employmentStatuses = ['employed', 'seeking_opportunities', 'unemployed', 'further_study'];
+        $degrees = ['بكالوريوس', 'ماجستير', 'دكتوراه', 'دبلوم'];
+
+        return view('career-guidance.graduates.edit', compact('graduate', 'majors', 'graduationYears', 'employmentStatuses', 'degrees'));
+    }
+
+    /**
+     * تحديث بيانات الخريج
+     */
+    public function updateGraduate(Request $request, $id)
+    {
+        $graduate = GraduateData::findOrFail($id);
+        $this->authorize('update', $graduate); // Authorize updating the graduate details
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255|unique:graduates_data,email,' . $graduate->id,
+            'phone' => 'nullable|string|max:255',
+            'major' => 'required|string|max:255',
+            'graduation_year' => 'required|integer|min:2000|max:' . date('Y'),
+            'gpa' => 'nullable|numeric|min:0|max:4',
+            'degree' => 'required|string|max:255',
+            'skills' => 'nullable|string', // Will be converted to array
+            'languages' => 'nullable|string', // Will be converted to array
+            'employment_status' => 'required|in:employed,seeking_opportunities,unemployed,further_study',
+            'work_experience' => 'nullable|string',
+            'address' => 'nullable|string|max:255',
+            'linkedin_url' => 'nullable|url|max:255',
+        ]);
+
+        $graduate->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'major' => $request->major,
+            'graduation_year' => $request->graduation_year,
+            'gpa' => $request->gpa,
+            'degree' => $request->degree,
+            'skills' => $request->skills ? array_map('trim', explode(',', $request->skills)) : null,
+            'languages' => $request->languages ? array_map('trim', explode(',', $request->languages)) : null,
+            'employment_status' => $request->employment_status,
+            'work_experience' => $request->work_experience,
+            'address' => $request->address,
+            'linkedin_url' => $request->linkedin_url,
+        ]);
+
+        return redirect()->route('career-guidance.graduates.show', $graduate->id)
+            ->with('success', 'تم تحديث بيانات الخريج بنجاح.');
+    }
+
+    /**
      * عرض تفاصيل الخريج
      */
     public function showGraduate($id)

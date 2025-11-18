@@ -147,8 +147,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/nominations/create', [CareerGuidanceController::class, 'createNomination'])->name('admin.career-guidance.nominations.create');
         Route::post('/nominations', [CareerGuidanceController::class, 'nominateGraduate'])->name('admin.career-guidance.nominations.store');
         Route::get('/nominations/{id}', [CareerGuidanceController::class, 'showNomination'])->name('admin.career-guidance.nominations.show');
-        Route::post('/nominations/{id}/status', [CareerGuidanceController::class, 'updateNominationStatus'])->name('admin.career-guidance.nominations.update-status');
-        Route::get('/nominations/{id}/edit-status', [CareerGuidanceController::class, 'editNominationStatus'])->name('admin.career-guidance.nominations.edit-status');
+        // Route for updating the status - using PUT/PATCH for RESTful consistency
+        Route::put('/nominations/{id}/status', [CareerGuidanceController::class, 'updateNominationStatus'])->name('admin.career-guidance.nominations.update-status');
+        // Route for displaying the edit form (if any) - assuming it's a GET request
+        Route::get('/nominations/{id}/edit-status', [CareerGuidanceController::class, 'editNominationStatusForm'])->name('admin.career-guidance.nominations.edit-status');
         Route::put('/nominations/{id}/status-fullpage', [CareerGuidanceController::class, 'updateNominationStatusFullPage'])->name('admin.career-guidance.nominations.update-status-fullpage');
 
         // 📈 التقارير المتقدمة
@@ -266,8 +268,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         // 📨 إدارة الترشيحات
         Route::get('/nominations', [CareerGuidanceController::class, 'nominations'])->name('partnership.nominations');
         Route::get('/nominations/{id}', [CareerGuidanceController::class, 'showNomination'])->name('partnership.nominations.show');
-        Route::get('/nominations/{id}/edit-status', [CareerGuidanceController::class, 'editNominationStatus'])->name('partnership.nominations.edit-status');
-        Route::post('/nominations/{id}/status', [CareerGuidanceController::class, 'updateNominationStatus'])->name('partnership.nominations.update-status');
+        // Route for displaying the edit form (if any) - assuming it's a GET request
+        Route::get('/nominations/{id}/edit-status', [CareerGuidanceController::class, 'editNominationStatusForm'])->name('partnership.nominations.edit-status');
+        // Route for updating the status - using PUT/PATCH for RESTful consistency
+        Route::put('/nominations/{id}/status', [CareerGuidanceController::class, 'updateNominationStatus'])->name('partnership.nominations.update-status');
 
         // 📈 التقارير
         Route::get('/reports', [PartnershipController::class, 'reports'])->name('partnership.reports');
@@ -410,7 +414,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         // مسارات متاحة لمسؤول الشراكات والإرشاد
         Route::get('/search', [JobOpportunityController::class, 'search'])->name('job-opportunities.search');
         Route::get('/{id}', [JobOpportunityController::class, 'show'])->name('job-opportunities.show');
-        Route::get('/{id}/nominations', [JobOpportunityController::class, 'nominations'])->name('job-opportunities.nominations');
+        Route::get('/{id}/nominations', [JobOpportunityController::class, 'nominations'])->name('job-opportunities.nominations')->middleware('can:manage-nominations');
         Route::get('/statistics', [JobOpportunityController::class, 'statistics'])->name('job-opportunities.statistics');
 
         // مسارات خاصة بمسؤول الشراكات فقط

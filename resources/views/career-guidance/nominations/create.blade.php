@@ -32,7 +32,7 @@
                                                 <option value="">اختر الخريج</option>
                                                 @foreach($graduates as $graduate)
                                                     <option value="{{ $graduate->id }}" 
-                                                            {{ old('graduate_id') == $graduate->id ? 'selected' : '' }}>
+                                                            {{ (old('graduate_id') == $graduate->id || request('graduate_id') == $graduate->id) ? 'selected' : '' }}>
                                                         {{ $graduate->name }} - {{ $graduate->major }} ({{ $graduate->graduation_year }})
                                                     </option>
                                                 @endforeach

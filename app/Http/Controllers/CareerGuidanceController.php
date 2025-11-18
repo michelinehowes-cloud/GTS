@@ -223,7 +223,7 @@ class CareerGuidanceController extends Controller
     public function createNomination()
     {
         $graduates = GraduateData::where('is_active', true)
-            ->where('employment_status', 'seeking_opportunities')
+            // ->where('employment_status', 'seeking_opportunities') // Temporarily remove this filter for debugging
             ->get();
 
         $opportunities = JobOpportunity::where('status', 'open')

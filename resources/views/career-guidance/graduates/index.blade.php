@@ -195,7 +195,7 @@
                                         <a href="{{ route('career-guidance.graduates.edit', $graduate->id) }}" class="btn btn-warning btn-sm" title="تعديل">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="#" class="btn btn-success btn-sm" title="ترشيح لفرصة">
+                                        <a href="{{ route('career-guidance.nominations.create', ['graduate_id' => $graduate->id]) }}" class="btn btn-success btn-sm" title="ترشيح لفرصة">
                                             <i class="fas fa-paper-plane"></i>
                                         </a>
                                     </div>

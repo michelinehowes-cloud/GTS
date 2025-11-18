@@ -75,6 +75,8 @@
                                 <th>الشركة</th>
                                 <th>الحالة</th>
                                 <th>الحالة النهائية</th>
+                                <th>ملاحظات الشركة</th>
+                                <th>ملاحظات الخريج</th>
                                 <th>تاريخ الترشيح</th>
                                 <th>المرشح بواسطة</th>
                                 <th>الإجراءات</th>
@@ -87,6 +89,8 @@
                                     <td>{{ $nomination->jobOpportunity->company->name ?? 'N/A' }}</td>
                                     <td>{{ $nomination->status }}</td>
                                     <td>{{ $nomination->final_status ?? 'N/A' }}</td>
+                                    <td>{{ $nomination->company_feedback ?? 'لا يوجد' }}</td>
+                                    <td>{{ $nomination->graduate_feedback ?? 'لا يوجد' }}</td>
                                     <td>{{ $nomination->nominated_at->format('Y-m-d') }}</td>
                                     <td>{{ $nomination->nominator->name ?? 'N/A' }}</td>
                                     <td>

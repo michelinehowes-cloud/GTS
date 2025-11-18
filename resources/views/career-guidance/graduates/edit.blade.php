@@ -6,7 +6,7 @@
         <h1 class="h3 mb-0 text-gray-800">تعديل بيانات الخريج: {{ $graduate->name }}</h1>
         <a href="{{ route('career-guidance.graduates.show', $graduate->id) }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
             <i class="fas fa-arrow-right fa-sm text-white-50"></i> العودة لتفاصيل الخريج
-        </a>
+        </a>17/
     </div>
 
     <div class="card shadow mb-4">
@@ -127,8 +127,18 @@
                     <label for="employment_status">حالة التوظيف:</label>
                     <select class="form-control @error('employment_status') is-invalid @enderror" id="employment_status" name="employment_status" required>
                         <option value="">اختر حالة التوظيف</option>
+                        @php
+                            $arabicEmploymentStatuses = [
+                                'employed' => 'موظف',
+                                'seeking_opportunities' => 'باحث عن عمل',
+                                'unemployed' => 'غير موظف',
+                                'further_study' => 'مستكمل للدراسة',
+                            ];
+                        @endphp
                         @foreach($employmentStatuses as $status)
-                            <option value="{{ $status }}" {{ old('employment_status', $graduate->employment_status) == $status ? 'selected' : '' }}>{{ $status }}</option>
+                            <option value="{{ $status }}" {{ old('employment_status', $graduate->employment_status) == $status ? 'selected' : '' }}>
+                                {{ $arabicEmploymentStatuses[$status] ?? $status }}
+                            </option>
                         @endforeach
                     </select>
                     @error('employment_status')

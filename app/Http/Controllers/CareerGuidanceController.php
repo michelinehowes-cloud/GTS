@@ -155,6 +155,14 @@ class CareerGuidanceController extends Controller
             $query->where('final_status', $request->final_status);
         }
 
+        if ($request->has('from_date') && $request->from_date) {
+            $query->whereDate('nominated_at', '>=', $request->from_date);
+        }
+
+        if ($request->has('to_date') && $request->to_date) {
+            $query->whereDate('nominated_at', '<=', $request->to_date);
+        }
+
         $nominations = $query->latest()->get();
         $opportunities = JobOpportunity::where('status', 'open')->get();
 

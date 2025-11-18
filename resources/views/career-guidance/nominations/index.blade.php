@@ -52,6 +52,21 @@
                             </select>
                         </div>
                     </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label for="from_date">من تاريخ الترشيح:</label>
+                            <input type="date" id="from_date" name="from_date" class="form-control" 
+                                   value="{{ request('from_date') }}" 
+                                   onchange="applyDateFilter()">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="to_date">إلى تاريخ الترشيح:</label>
+                            <input type="date" id="to_date" name="to_date" class="form-control" 
+                                   value="{{ request('to_date') }}" 
+                                   onchange="applyDateFilter()">
+                        </div>
+                    </div>
 
                     @if(session('success'))
                         <div class="alert alert-success">
@@ -194,6 +209,29 @@
 
 @section('scripts')
 <script>
+function applyDateFilter() {
+    const fromDate = document.getElementById('from_date').value;
+    const toDate = document.getElementById('to_date').value;
+    let url = "{{ route('career-guidance.nominations') }}";
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.has('status')) {
+        url += `?status=${params.get('status')}`;
+    } else if (params.has('opportunity_id')) {
+        url += `?opportunity_id=${params.get('opportunity_id')}`;
+    } else {
+        url += `?`;
+    }
+
+    if (fromDate) {
+        url += `${url.includes('?') ? '&' : '?'}from_date=${fromDate}`;
+    }
+    if (toDate) {
+        url += `${url.includes('?') ? '&' : '?'}to_date=${toDate}`;
+    }
+    window.location.href = url;
+}
+
 // دالة بسيطة لإظهار/إخفاء حقول المقابلة
 function toggleInterviewFields(nominationId) {
     const statusSelect = document.querySelector(`#updateStatusModal${nominationId} select[name="status"]`);

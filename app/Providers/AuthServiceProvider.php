@@ -14,6 +14,8 @@ use App\Policies\CompanyPolicy;
 use App\Policies\TrainingPolicy;
 use App\Policies\JobOpportunityPolicy;
 use App\Policies\GraduateDataPolicy;
+use App\Models\Nomination;
+use App\Policies\NominationPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -28,6 +30,7 @@ class AuthServiceProvider extends ServiceProvider
         Training::class => TrainingPolicy::class,
         JobOpportunity::class => JobOpportunityPolicy::class,
         GraduateData::class => GraduateDataPolicy::class,
+        Nomination::class => NominationPolicy::class,
     ];
 
     /**
@@ -58,6 +61,10 @@ class AuthServiceProvider extends ServiceProvider
 
         \Gate::define('manage-graduates', function ($user) {
             return in_array($user->role, ['admin', 'career_guidance_officer']);
+        });
+
+        \Gate::define('manage-nominations', function ($user) {
+            return in_array($user->role, ['admin', 'partnership_officer', 'career_guidance_officer']);
         });
 
         \Gate::define('view-reports', function ($user) {

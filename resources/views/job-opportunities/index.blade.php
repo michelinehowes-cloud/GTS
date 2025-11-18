@@ -324,6 +324,13 @@
                                                    data-bs-toggle="tooltip" 
                                                    title="عرض التفاصيل">
                                                     <i class="fas fa-eye"></i>
+                                               
+                                                  </a>
+                                                 <a href="{{ route('job-opportunities.nominations', $opportunity->id) }}"
+                                                   class="btn btn-sm btn-outline-success"
+                                                   data-bs-toggle="tooltip"
+                                                   title="الترشيحات">
+                                                    <i class="fas fa-users"></i>
                                                 </a>
                                                 <a href="{{ route('job-opportunities.edit', $opportunity->id) }}" 
                                                    class="btn btn-sm btn-outline-warning"
@@ -331,20 +338,14 @@
                                                    title="تعديل">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="{{ route('job-opportunities.nominations', $opportunity->id) }}"
-                                                   class="btn btn-sm btn-outline-success"
-                                                   data-bs-toggle="tooltip"
-                                                   title="الترشيحات">
-                                                    <i class="fas fa-users"></i>
-                                                </a>
-                                                @if(auth()->user()->role === 'partnership_officer')
                                                 <a href="{{ route('partnership.nominations') }}"
                                                    class="btn btn-sm btn-outline-info"
                                                    data-bs-toggle="tooltip"
                                                    title="جميع الترشيحات">
                                                     <i class="fas fa-list"></i>
-                                                </a>
-                                                @endif
+                                               </a>
+                                            
+                                
                                                 <div class="dropdown">
                                                     <button class="btn btn-sm btn-outline-secondary dropdown-toggle" 
                                                             type="button" 
@@ -354,12 +355,7 @@
                                                         <i class="fas fa-ellipsis-v"></i>
                                                     </button>
                                                     <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <a class="dropdown-item" href="#" 
-                                                               onclick="duplicateOpportunity({{ $opportunity->id }})">
-                                                                <i class="fas fa-copy me-2"></i>نسخ الفرصة
-                                                            </a>
-                                                        </li>
+                                                       
                                                         <li><hr class="dropdown-divider"></li>
                                                         <li>
                                                             <form action="{{ route('job-opportunities.destroy', $opportunity->id) }}" 

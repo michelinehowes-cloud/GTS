@@ -187,17 +187,31 @@
                                         </td>
                                         <td>
                                             <div class="d-flex justify-content-center gap-2">
-                                                <a href="{{ route('partnership.nominations.show', $nomination->id) }}"
-                                                   class="btn btn-sm rounded-pill"
-                                                   title="عرض تفاصيل الترشيح"
-                                                   style="background-color: #2c5aa0; color: white; border: none;">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="{{ route('partnership.nominations.edit-status', $nomination->id) }}"
-                                                   class="btn btn-outline-primary btn-sm"
-                                                   title="تحديث الحالة">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
+                                                @if(auth()->user()->role === 'partnership_officer')
+                                                    <a href="{{ route('partnership.nominations.show', $nomination->id) }}"
+                                                       class="btn btn-sm rounded-pill"
+                                                       title="عرض تفاصيل الترشيح"
+                                                       style="background-color: #2c5aa0; color: white; border: none;">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{{ route('partnership.nominations.edit-status', $nomination->id) }}"
+                                                       class="btn btn-outline-primary btn-sm"
+                                                       title="تحديث الحالة">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                @elseif(auth()->user()->role === 'career_guidance_officer')
+                                                    <a href="{{ route('partnership.nominations.show', $nomination->id) }}"
+                                                       class="btn btn-sm rounded-pill"
+                                                       title="عرض تفاصيل الترشيح"
+                                                       style="background-color: #2c5aa0; color: white; border: none;">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{{ route('partnership.nominations.edit-status', $nomination->id) }}"
+                                                       class="btn btn-outline-primary btn-sm"
+                                                       title="تحديث الحالة">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                @endif
                                             </div>
 
                                         </td>
@@ -213,9 +227,15 @@
                             </div>
                             <h4 class="mb-3" style="color: #64748b;">لا توجد ترشيحات</h4>
                             <p class="mb-4" style="color: #94a3b8;">لم يتم ترشيح أي خريج لهذه الفرصة بعد</p>
-                            <a href="{{ route('admin.career-guidance.nominations.create') }}" class="btn btn-lg rounded-pill text-white" style="background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);">
-                                <i class="fas fa-plus me-2"></i>ترشيح خريج جديد
-                            </a>
+                            @if(auth()->user()->role === 'admin')
+                                <a href="{{ route('admin.career-guidance.nominations.create') }}" class="btn btn-lg rounded-pill text-white" style="background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);">
+                                    <i class="fas fa-plus me-2"></i>ترشيح خريج جديد
+                                </a>
+                            @elseif(auth()->user()->role === 'career_guidance_officer')
+                                <a href="{{ route('admin.career-guidance.nominations.create') }}" class="btn btn-lg rounded-pill text-white" style="background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);">
+                                    <i class="fas fa-plus me-2"></i>ترشيح خريج جديد
+                                </a>
+                            @endif
                         </div>
                     @endif
                 </div>

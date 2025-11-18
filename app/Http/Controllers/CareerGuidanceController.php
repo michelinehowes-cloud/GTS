@@ -69,6 +69,17 @@ class CareerGuidanceController extends Controller
     }
 
     /**
+     * عرض تفاصيل الخريج
+     */
+    public function showGraduate($id)
+    {
+        $graduate = GraduateData::with(['nominations.jobOpportunity.company', 'nominations.nominator'])->findOrFail($id);
+        $this->authorize('view', $graduate); // Authorize viewing the graduate details
+
+        return view('career-guidance.graduates.show', compact('graduate'));
+    }
+
+    /**
      * عرض قائمة الترشيحات
      */
     public function nominations(Request $request)
@@ -98,26 +109,49 @@ class CareerGuidanceController extends Controller
             'nominator'
         ])->findOrFail($id);
 
+        $this->authorize('view', $nomination); // Authorize viewing the nomination
+
         return view('career-guidance.nominations.show', compact('nomination'));
     }
 
     /**
      * تحديث حالة الترشيح
      */
-    public function editNominationStatus(Request $request, $id)
+    public function updateNominationStatus(Request $request, $id)
     {
-        $request->validate([
-            'status' => 'required|in:pending,sent_to_company,interview_scheduled,accepted,rejected,withdrawn',
-            'final_status' => 'nullable|in:hired,rejected,withdrawn',
-            'notes' => 'nullable|string',
-        ]);
-
         $nomination = Nomination::findOrFail($id);
+
+        // Authorize the action using the NominationPolicy
+        $this->authorize('updateStatus', $nomination);
+
+        $request->validate([
+            'status' => 'required|in:pending,sent_to_company,under_review,interview_scheduled,accepted,rejected,withdrawn',
+            'final_status' => 'nullable|in:hired,not_hired,in_progress',
+            'nomination_notes' => 'nullable|string',
+            'matching_reasons' => 'nullable|string',
+            'interview_date' => 'nullable|date',
+            'interview_time' => 'nullable|string',
+            'interview_location' => 'nullable|string',
+            'interview_notes' => 'nullable|string',
+            'company_feedback' => 'nullable|string',
+            'graduate_feedback' => 'nullable|string',
+        ]);
 
         $nomination->update([
             'status' => $request->status,
             'final_status' => $request->final_status,
-            'nomination_notes' => $request->notes,
+            'nomination_notes' => $request->nomination_notes,
+            'matching_reasons' => $request->matching_reasons,
+            'interview_date' => $request->interview_date,
+            'interview_time' => $request->interview_time,
+            'interview_location' => $request->interview_location,
+            'interview_notes' => $request->interview_notes,
+            'company_feedback' => $request->company_feedback,
+            'graduate_feedback' => $request->graduate_feedback,
+            // Update timestamps based on status changes
+            'sent_to_company_at' => ($request->status === 'sent_to_company' && !$nomination->sent_to_company_at) ? now() : $nomination->sent_to_company_at,
+            'interview_at' => ($request->status === 'interview_scheduled' && !$nomination->interview_at) ? now() : $nomination->interview_at,
+            'final_decision_at' => ($request->final_status && !$nomination->final_decision_at) ? now() : $nomination->final_decision_at,
         ]);
 
         return redirect()->back()->with('success', 'تم تحديث حالة الترشيح بنجاح');
@@ -141,10 +175,23 @@ class CareerGuidanceController extends Controller
     }
 
     /**
+     * عرض نموذج تعديل حالة الترشيح
+     */
+    public function editNominationStatusForm($id)
+    {
+        $nomination = Nomination::with(['graduate', 'jobOpportunity.company'])->findOrFail($id);
+        $this->authorize('updateStatus', $nomination); // Use the same policy for viewing the edit form
+
+        return view('career-guidance.nominations.edit-status', compact('nomination'));
+    }
+
+    /**
      * ترشيح خريج لفرصة عمل
      */
     public function nominateGraduate(Request $request)
     {
+        $this->authorize('create', Nomination::class); // Authorize creation of nominations
+
         $request->validate([
             'graduate_id' => 'required|exists:graduates_data,id',
             'job_opportunity_id' => 'required|exists:job_opportunities,id',

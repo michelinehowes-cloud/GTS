@@ -46,9 +46,7 @@ class JobOpportunityController extends Controller
      */
     public function create()
     {
-        $companies = Company::where('is_approved', true)
-                            ->whereIn('partnership_status', ['active', 'pending'])
-                            ->get();
+        $companies = Company::all(); // Fetches all companies
 
         $specializations = [
             'هندسة برمجيات', 'علوم حاسب', 'هندسة كهربائية', 'هندسة ميكانيكية',

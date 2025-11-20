@@ -41,8 +41,8 @@
             </div>
             <hr>
             <p><strong>المهارات:</strong>
-                @if($graduate->skills)
-                    @foreach($graduate->skills as $skill)
+                @if(!empty($graduate->skills))
+                    @foreach((array)$graduate->skills as $skill)
                         <span class="badge badge-info">{{ $skill }}</span>
                     @endforeach
                 @else
@@ -50,8 +50,8 @@
                 @endif
             </p>
             <p><strong>اللغات:</strong>
-                @if($graduate->languages)
-                    @foreach($graduate->languages as $lang)
+                @if(!empty($graduate->languages))
+                    @foreach((array)$graduate->languages as $lang)
                         <span class="badge badge-secondary">{{ $lang }}</span>
                     @endforeach
                 @else

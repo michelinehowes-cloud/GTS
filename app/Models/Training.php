@@ -22,7 +22,9 @@ class Training extends Model
         'company_id',
         'coordinator_id',
         'media_coverage_status',
-        'is_advertised'
+        'is_advertised',
+        'category',
+        'instructor_name'
     ];
     public function coordinator()
 {

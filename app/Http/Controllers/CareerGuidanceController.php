@@ -10,6 +10,7 @@ use App\Models\Company;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 
 class CareerGuidanceController extends Controller
@@ -36,6 +37,103 @@ class CareerGuidanceController extends Controller
             ->get();
 
         return view('career-guidance.dashboard', compact('stats', 'recentGraduates', 'recentNominations'));
+    }
+
+    /**
+     * عرض نموذج إضافة خريج جديد
+     */
+    public function createGraduate()
+    {
+        $this->authorize('create', GraduateData::class);
+        
+        $majors = GraduateData::distinct()->pluck('major');
+        $graduationYears = range(date('Y') - 5, date('Y') + 1);
+        $employmentStatuses = [
+            'employed' => 'موظف',
+            'seeking_opportunities' => 'يبحث عن فرصة عمل',
+            'unemployed' => 'عاطل عن العمل',
+            'further_study' => 'يكمل دراسته'
+        ];
+        $degrees = [
+            'بكالوريوس' => 'بكالوريوس',
+            'ماجستير' => 'ماجستير',
+            'دكتوراه' => 'دكتوراه',
+            'دبلوم' => 'دبلوم'
+        ];
+
+        return view('career-guidance.graduates.create', compact('majors', 'graduationYears', 'employmentStatuses', 'degrees'));
+    }
+
+    /**
+     * حفظ بيانات الخريج الجديد
+     */
+    public function storeGraduate(Request $request)
+    {
+        $this->authorize('create', GraduateData::class);
+        
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:graduates_data,email',
+                'phone' => 'nullable|string|max:20',
+                'national_id' => 'nullable|string|max:50|unique:graduates_data,national_id',
+                'major' => 'required|string|max:255',
+                'graduation_year' => 'required|integer|min:2000|max:' . (date('Y') + 1),
+                'gpa' => 'nullable|numeric|min:0|max:4',
+                'employment_status' => 'required|in:employed,seeking_opportunities,unemployed,further_study',
+                'current_job_title' => 'nullable|string|max:255',
+                'current_company' => 'nullable|string|max:255',
+                'skills' => 'nullable|string',
+                'experiences' => 'nullable|string',
+                'education' => 'nullable|string',
+                'address' => 'nullable|string|max:500',
+                'notes' => 'nullable|string',
+            ]);
+
+            // Ensure the user is authenticated before attempting to get Auth::id()
+            if (!Auth::check()) {
+                Log::error('فشل إضافة خريج جديد: المستخدم غير مصادق عليه.', [
+                    'request_ip' => $request->ip(),
+                ]);
+                return back()
+                    ->withInput()
+                    ->with('error', 'يجب أن تكون مسجل الدخول لإضافة خريج جديد.');
+            }
+
+            $validated['added_by'] = Auth::id(); // Add the authenticated user's ID
+            $graduate = GraduateData::create($validated);
+            Log::info('تمت إضافة خريج جديد', [
+                'user_id' => Auth::id(),
+                'graduate_id' => $graduate->id,
+                'graduate_name' => $graduate->name
+            ]);
+            
+            return redirect()
+                ->route('career-guidance.graduates.show', $graduate->id)
+                ->with('success', 'تمت إضافة بيانات الخريج بنجاح');
+                
+        } catch (ValidationException $e) {
+            Log::warning('فشل التحقق من صحة البيانات عند إضافة خريج جديد: ' . $e->getMessage(), [
+                'errors' => $e->errors()
+            ]);
+            
+            return back()
+                ->withInput()
+                ->withErrors($e->errors())
+                ->with('error', 'الرجاء التحقق من البيانات المدخلة. ربما البريد الإلكتروني أو الرقم الوطني مسجل مسبقاً.');
+        } catch (\Exception $e) {
+            Log::error('فشل إضافة خريج جديد: ' . $e->getMessage(), [
+                'error_class' => get_class($e),
+                'error_message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return back()
+                ->withInput()
+                ->with('error', 'حدث خطأ غير متوقع أثناء محاولة إضافة الخريج. الرجاء المحاولة مرة أخرى.');
+        }
     }
 
     /**

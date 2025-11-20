@@ -25,14 +25,13 @@ class TrainingController extends Controller
     
     public function create()
     {
-        $companies = Company::where('is_approved', true)
-                            ->where('partnership_status', 'active')
-                            ->get();
-        
+        $companies = Company::all();
+        $categories = ['برمجة', 'تصميم', 'شبكات', 'إدارة', 'لغات', 'أخرى']; // مثال للفئات
+
         if (auth()->user()->role == 'training_coordinator') {
-            return view('training-coordinator.trainings.create', compact('companies'));
+            return view('training-coordinator.trainings.create', compact('companies', 'categories'));
         } else {
-            return view('admin.trainings.create', compact('companies'));
+            return view('admin.trainings.create', compact('companies', 'categories'));
         }
     }
 
@@ -49,6 +48,8 @@ class TrainingController extends Controller
             'seats' => 'required|integer|min:1',
             'status' => 'required|in:active,inactive,completed',
             'company_id' => 'required|exists:companies,id',
+            'category' => 'required|string|max:255',
+            'instructor_name' => 'required|string|max:255',
         ]);
 
         $data = $request->all();
@@ -82,14 +83,13 @@ class TrainingController extends Controller
     public function edit($id)
     {
         $training = Training::findOrFail($id);
-        $companies = Company::where('is_approved', true)
-                            ->where('partnership_status', 'active')
-                            ->get();
+        $companies = Company::all();
+        $categories = ['برمجة', 'تصميم', 'شبكات', 'إدارة', 'لغات', 'أخرى']; // مثال للفئات
         
         if (auth()->user()->role == 'training_coordinator') {
-            return view('training-coordinator.trainings.edit', compact('training', 'companies'));
+            return view('training-coordinator.trainings.edit', compact('training', 'companies', 'categories'));
         } else {
-            return view('admin.trainings.edit', compact('training', 'companies'));
+            return view('admin.trainings.edit', compact('training', 'companies', 'categories'));
         }
     }
 

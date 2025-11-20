@@ -48,9 +48,24 @@
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-3">
+                                <label for="category" class="form-label">الفئة *</label>
+                                <select class="form-control @error('category') is-invalid @enderror" 
+                                        id="category" name="category" required>
+                                    <option value="">اختر الفئة</option>
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category }}" {{ old('category') == $category ? 'selected' : '' }}>
+                                            {{ $category }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('category')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
                                 <label for="company_id" class="form-label">الشركة</label>
                                 <select class="form-control @error('company_id') is-invalid @enderror" 
-                                        id="company_id" name="company_id">
+                                        id="company_id" name="company_id" required>
                                     <option value="">اختر الشركة</option>
                                     @foreach($companies as $company)
                                         <option value="{{ $company->id }}" {{ old('company_id') == $company->id ? 'selected' : '' }}>
@@ -72,6 +87,14 @@
                                     <option value="completed" {{ old('status') == 'completed' ? 'selected' : '' }}>مكتمل</option>
                                 </select>
                                 @error('status')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="instructor_name" class="form-label">اسم المدرب *</label>
+                                <input type="text" class="form-control @error('instructor_name') is-invalid @enderror" 
+                                       id="instructor_name" name="instructor_name" value="{{ old('instructor_name') }}" required>
+                                @error('instructor_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

@@ -95,12 +95,7 @@
                                 إدارة المستخدمين
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}" href="{{ route('admin.reports.index') }}">
-                                <i class="fas fa-chart-bar"></i>
-                                التقارير والإحصائيات
-                            </a>
-                        </li>
+                     
                         
                         <!-- ادارة الشراكات والتوظيف -->
                         <li class="nav-item menu-group">
@@ -134,6 +129,36 @@
                                 </a>
                                 <a href="{{ route('admin.career-guidance.graduates.create') }}" class="submenu-item {{ request()->routeIs('admin.career-guidance.graduates.create') ? 'active' : '' }}">
                                     إضافة خريج
+                                </a>
+                            </div>
+                        </li>
+                        
+                        <!-- أقسام التقييم والمتابعة (للمدير فقط) -->
+                        <li class="nav-item menu-group">
+                            <a class="nav-link {{ request()->routeIs('evaluation-followup*') ? 'active' : '' }}"
+                               href="#" onclick="toggleSubmenu('admin-evaluation-menu')">
+                                <i class="fas fa-chart-line"></i>
+                                إدارة التقييم والمتابعة
+                                <i class="fas fa-chevron-down menu-arrow"></i>
+                            </a>
+                            <div class="submenu {{ request()->routeIs('evaluation-followup*') ? 'show' : '' }}" id="admin-evaluation-menu">
+                                <a href="{{ route('evaluation-followup.dashboard') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.dashboard') ? 'active' : '' }}">
+                                    لوحة التحكم
+                                </a>
+                                <a href="{{ route('evaluation-followup.training-calendar') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.training-calendar') ? 'active' : '' }}">
+                                    تقويم التدريبات
+                                </a>
+                                <a href="{{ route('evaluation-followup.surveys.index') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.surveys*') ? 'active' : '' }}">
+                                    إدارة الاستبيانات
+                                </a>
+                                <a href="{{ route('evaluation-followup.evaluations.index') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.evaluations*') ? 'active' : '' }}">
+                                    إدارة التقييمات
+                                </a>
+                                <a href="{{ route('evaluation-followup.survey-responses.index') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.survey-responses*') ? 'active' : '' }}">
+                                    ردود الاستبيانات
+                                </a>
+                                <a href="{{ route('evaluation-followup.evaluation-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.*reports') ? 'active' : '' }}">
+                                    التقارير والإحصائيات
                                 </a>
                             </div>
                         </li>
@@ -233,95 +258,6 @@
                         </li>
 
                         
-                        @endif
-
-
-                        <!-- مسؤول الإرشاد المهني -->
-                        @if(auth()->user()->role == 'career_guidance_officer')
-                            <!-- إدارة الخريجين -->
-                            <li class="nav-item menu-group">
-                                <a class="nav-link {{ request()->routeIs('career-guidance.graduates*') ? 'active' : '' }}"
-                                   href="#" onclick="toggleSubmenu('graduates-menu')">
-                                    <i class="fas fa-users"></i>
-                                    إدارة الخريجين
-                                    <i class="fas fa-chevron-down menu-arrow"></i>
-                                </a>
-                                <div class="submenu {{ request()->routeIs('career-guidance.graduates*') ? 'show' : '' }}" id="graduates-menu">
-                                    <a href="{{ route('career-guidance.graduates') }}" class="submenu-item {{ request()->routeIs('career-guidance.graduates') ? 'active' : '' }}">
-                                        عرض الخريجين
-                                    </a>
-                                    <a href="{{ route('career-guidance.graduates.create') }}" class="submenu-item {{ request()->routeIs('career-guidance.graduates.create') ? 'active' : '' }}">
-                                        إضافة خريج
-                                    </a>
-                                    <a href="{{ route('career-guidance.import.graduates.create') }}" class="submenu-item {{ request()->routeIs('career-guidance.import.graduates.create') ? 'active' : '' }}">
-                                        استيراد الخريجين
-                                    </a>
-                                    <a href="{{ route('career-guidance.download.template') }}" class="submenu-item {{ request()->routeIs('career-guidance.download.template') ? 'active' : '' }}">
-                                        تنزيل قالب الخريجين
-                                    </a>
-                                </div>
-                            </li>
-
-                            <!-- الترشيحات -->
-                            <li class="nav-item menu-group">
-                                <a class="nav-link {{ request()->routeIs('career-guidance.nominations*') ? 'active' : '' }}"
-                                   href="#" onclick="toggleSubmenu('nominations-menu')">
-                                    <i class="fas fa-paper-plane"></i>
-                                    الترشيحات
-                                    @php
-                                        $pendingNominations = \App\Models\Nomination::where('status', 'pending')->count();
-                                    @endphp
-                                    @if($pendingNominations > 0)
-                                        <span class="nav-badge">{{ $pendingNominations }}</span>
-                                    @endif
-                                    <i class="fas fa-chevron-down menu-arrow"></i>
-                                </a>
-                                <div class="submenu {{ request()->routeIs('career-guidance.nominations*') ? 'show' : '' }}" id="nominations-menu">
-                                    <a href="{{ route('career-guidance.nominations') }}" class="submenu-item {{ request()->routeIs('career-guidance.nominations') ? 'active' : '' }}">
-                                        عرض الترشيحات
-                                    </a>
-                                    <a href="{{ route('career-guidance.nominations.create') }}" class="submenu-item {{ request()->routeIs('career-guidance.nominations.create') ? 'active' : '' }}">
-                                        ترشيح جديد
-                                    </a>
-                                </div>
-                            </li>
-
-                            <!-- فرص العمل -->
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('job-opportunities*') ? 'active' : '' }}"
-                                   href="{{ route('job-opportunities.index') }}">
-                                    <i class="fas fa-briefcase"></i>
-                                    فرص العمل
-                                </a>
-                            </li>
-
-
-                            <!-- التقارير -->
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('career-guidance.advanced-reports') ? 'active' : '' }}"
-                                   href="{{ route('career-guidance.advanced-reports') }}">
-                                    <i class="fas fa-chart-line me-2"></i>
-                                    التقارير والإحصائيات
-                                </a>
-                            </li>
-                        @endif
-
-                        <!-- مسؤول الشراكات والتوظيف -->
-                        @if(auth()->user()->role == 'partnership_officer')
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('partnership.companies*') ? 'active' : '' }}" href="{{ route('partnership.companies') }}">
-                                    <i class="fas fa-building"></i>
-                                    إدارة الشركات
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('job-opportunities*') ? 'active' : '' }}" href="{{ route('job-opportunities.index') }}">
-                                    <i class="fas fa-briefcase"></i>
-                                    فرص العمل
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('partnership.documents*') ? 'active' : '' }}" href="{{ route('partnership.documents') }}">
                                     <i class="fas fa-file-alt"></i>
                                     وثائق الشراكة
                                 </a>

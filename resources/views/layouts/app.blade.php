@@ -142,11 +142,17 @@
                                 <i class="fas fa-chevron-down menu-arrow"></i>
                             </a>
                             <div class="submenu {{ request()->routeIs('evaluation-followup*') ? 'show' : '' }}" id="admin-evaluation-menu">
-                                <a href="{{ route('evaluation-followup.dashboard') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.dashboard') ? 'active' : '' }}">
-                                    لوحة التحكم
-                                </a>
                                 <a href="{{ route('evaluation-followup.training-calendar') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.training-calendar') ? 'active' : '' }}">
                                     تقويم التدريبات
+                                </a>
+                                  <a href="{{ route('evaluation-followup.training-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.training-reports') ? 'active' : '' }}">
+                                    تقارير التدريب
+                                </a>
+                                <a href="{{ route('evaluation-followup.partnership-employment-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.partnership-employment-reports') ? 'active' : '' }}">
+                                    تقارير الشراكات والتوظيف
+                                </a>
+                                <a href="{{ route('evaluation-followup.career-guidance-advanced-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.career-guidance-advanced-reports') ? 'active' : '' }}">
+                                    تقارير الإرشاد المهني
                                 </a>
                                 <a href="{{ route('evaluation-followup.surveys.index') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.surveys*') ? 'active' : '' }}">
                                     إدارة الاستبيانات
@@ -154,12 +160,11 @@
                                 <a href="{{ route('evaluation-followup.evaluations.index') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.evaluations*') ? 'active' : '' }}">
                                     إدارة التقييمات
                                 </a>
-                                <a href="{{ route('evaluation-followup.survey-responses.index') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.survey-responses*') ? 'active' : '' }}">
-                                    ردود الاستبيانات
+                             
+                                <a href="{{ route('evaluation-followup.performance-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.performance-reports') ? 'active' : '' }}">
+                                    تقارير الأداء
                                 </a>
-                                <a href="{{ route('evaluation-followup.evaluation-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.*reports') ? 'active' : '' }}">
-                                    التقارير والإحصائيات
-                                </a>
+                              
                             </div>
                         </li>
                         @endif

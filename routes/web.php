@@ -64,11 +64,9 @@ Route::middleware('auth')->group(function () {
             return redirect()->route('training-coordinator.dashboard');
         } elseif ($user->role === 'graduate') {
             return redirect()->route('graduate.dashboard');
-        }
-        elseif ($user->role === 'partnership_officer') {
+        } elseif ($user->role === 'partnership_officer') {
             return redirect()->route('partnership.dashboard');
-        }
-        elseif ($user->role === 'company') {
+        } elseif ($user->role === 'company') {
             return redirect()->route('company.dashboard');
         } elseif ($user->role === 'evaluation_followup') {
             return redirect()->route('evaluation-followup.dashboard');
@@ -81,91 +79,91 @@ Route::middleware('auth')->group(function () {
         return redirect('/');
     })->name('dashboard');
 
-  // ==================== 👑 مسارات المدير (Admin) ====================
-Route::prefix('admin')->middleware('admin')->group(function () {
+    // ==================== 👑 مسارات المدير (Admin) ====================
+    Route::prefix('admin')->middleware('admin')->group(function () {
 
-    // 📊 لوحة التحكم والإحصائيات
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        // 📊 لوحة التحكم والإحصائيات
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
-    // 📈 التقارير والإحصائيات
-    Route::prefix('reports')->group(function () {
-        Route::get('/', [AdminReportController::class, 'index'])->name('admin.reports.index');
-        Route::get('/users', [AdminReportController::class, 'usersReport'])->name('admin.reports.users');
-        Route::get('/companies', [AdminReportController::class, 'companiesReport'])->name('admin.reports.companies');
-        Route::get('/trainings', [AdminReportController::class, 'trainingsReport'])->name('admin.reports.trainings');
-        Route::get('/audit-logs', [AdminReportController::class, 'auditLogs'])->name('admin.reports.audit-logs');
-    });
+        // 📈 التقارير والإحصائيات
+        Route::prefix('reports')->group(function () {
+            Route::get('/', [AdminReportController::class, 'index'])->name('admin.reports.index');
+            Route::get('/users', [AdminReportController::class, 'usersReport'])->name('admin.reports.users');
+            Route::get('/companies', [AdminReportController::class, 'companiesReport'])->name('admin.reports.companies');
+            Route::get('/trainings', [AdminReportController::class, 'trainingsReport'])->name('admin.reports.trainings');
+            Route::get('/audit-logs', [AdminReportController::class, 'auditLogs'])->name('admin.reports.audit-logs');
+        });
 
-    // 👥 إدارة المستخدمين
-    Route::get('/users', [UserController::class, 'index'])->name('admin.users');
-    Route::get('/users/create', [UserController::class, 'create'])->name('admin.users.create');
-    Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
-    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
-    Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
-    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+        // 👥 إدارة المستخدمين
+        Route::get('/users', [UserController::class, 'index'])->name('admin.users');
+        Route::get('/users/create', [UserController::class, 'create'])->name('admin.users.create');
+        Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
+        Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+        Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 
-    // 🏢 إدارة الشركات
-    Route::get('/companies', [CompanyController::class, 'index'])->name('admin.companies');
-    Route::get('/companies/create', [CompanyController::class, 'create'])->name('admin.companies.create');
-    Route::post('/companies', [CompanyController::class, 'store'])->name('admin.companies.store');
-    Route::get('/companies/{company}/edit', [CompanyController::class, 'edit'])->name('admin.companies.edit');
-    Route::put('/companies/{company}', [CompanyController::class, 'update'])->name('admin.companies.update');
-    Route::delete('/companies/{company}', [CompanyController::class, 'destroy'])->name('admin.companies.destroy');
-    Route::patch('/companies/{id}/approve', [AdminController::class, 'approveCompany'])->name('admin.companies.approve');
+        // 🏢 إدارة الشركات
+        Route::get('/companies', [CompanyController::class, 'index'])->name('admin.companies');
+        Route::get('/companies/create', [CompanyController::class, 'create'])->name('admin.companies.create');
+        Route::post('/companies', [CompanyController::class, 'store'])->name('admin.companies.store');
+        Route::get('/companies/{company}/edit', [CompanyController::class, 'edit'])->name('admin.companies.edit');
+        Route::put('/companies/{company}', [CompanyController::class, 'update'])->name('admin.companies.update');
+        Route::delete('/companies/{company}', [CompanyController::class, 'destroy'])->name('admin.companies.destroy');
+        Route::patch('/companies/{id}/approve', [AdminController::class, 'approveCompany'])->name('admin.companies.approve');
 
-    // 🎯 إدارة برامج التدريب
-    Route::resource('trainings', TrainingController::class)->names([
-        'index' => 'admin.trainings',
-        'create' => 'admin.trainings.create',
-        'store' => 'admin.trainings.store',
-        'show' => 'admin.trainings.show',
-        'edit' => 'admin.trainings.edit',
-        'update' => 'admin.trainings.update',
-        'destroy' => 'admin.trainings.destroy'
-    ]);
+        // 🎯 إدارة برامج التدريب
+        Route::resource('trainings', TrainingController::class)->names([
+            'index' => 'admin.trainings',
+            'create' => 'admin.trainings.create',
+            'store' => 'admin.trainings.store',
+            'show' => 'admin.trainings.show',
+            'edit' => 'admin.trainings.edit',
+            'update' => 'admin.trainings.update',
+            'destroy' => 'admin.trainings.destroy'
+        ]);
 
-    // 📝 إدارة طلبات التدريب
-    Route::get('/applications', [AdminController::class, 'applications'])->name('admin.applications.index');
-    Route::post('/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('admin.applications.approve');
-    Route::post('/applications/{id}/reject', [AdminController::class, 'rejectApplication'])->name('admin.applications.reject');
-    Route::post('/applications/{id}/pending', [AdminController::class, 'pendingApplication'])->name('admin.applications.pending');
+        // 📝 إدارة طلبات التدريب
+        Route::get('/applications', [AdminController::class, 'applications'])->name('admin.applications.index');
+        Route::post('/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('admin.applications.approve');
+        Route::post('/applications/{id}/reject', [AdminController::class, 'rejectApplication'])->name('admin.applications.reject');
+        Route::post('/applications/{id}/pending', [AdminController::class, 'pendingApplication'])->name('admin.applications.pending');
 
-    // ==================== 🎓 إدارة الإرشاد المهني للمدير ====================
-    Route::prefix('career-guidance')->group(function () {
-        // 📊 لوحة التحكم والإحصائيات للإرشاد المهني
-        Route::get('/dashboard', [CareerGuidanceController::class, 'dashboard'])->name('admin.career-guidance.dashboard');
-        //  إدارة الخريجين
-        Route::get('/graduates', [CareerGuidanceController::class, 'graduates'])->name('admin.career-guidance.graduates');
-        Route::get('/graduates/create', [CareerGuidanceController::class, 'createGraduate'])->name('admin.career-guidance.graduates.create');
-        Route::post('/graduates', [CareerGuidanceController::class, 'storeGraduate'])->name('admin.career-guidance.graduates.store');
-        Route::get('/graduates/{id}', [CareerGuidanceController::class, 'showGraduate'])->name('admin.career-guidance.graduates.show');
-        Route::get('/graduates/{id}/edit', [CareerGuidanceController::class, 'editGraduate'])->name('admin.career-guidance.graduates.edit');
-        Route::put('/graduates/{id}', [CareerGuidanceController::class, 'updateGraduate'])->name('admin.career-guidance.graduates.update');
+        // ==================== 🎓 إدارة الإرشاد المهني للمدير ====================
+        Route::prefix('career-guidance')->group(function () {
+            // 📊 لوحة التحكم والإحصائيات للإرشاد المهني
+            Route::get('/dashboard', [CareerGuidanceController::class, 'dashboard'])->name('admin.career-guidance.dashboard');
+            //  إدارة الخريجين
+            Route::get('/graduates', [CareerGuidanceController::class, 'graduates'])->name('admin.career-guidance.graduates');
+            Route::get('/graduates/create', [CareerGuidanceController::class, 'createGraduate'])->name('admin.career-guidance.graduates.create');
+            Route::post('/graduates', [CareerGuidanceController::class, 'storeGraduate'])->name('admin.career-guidance.graduates.store');
+            Route::get('/graduates/{id}', [CareerGuidanceController::class, 'showGraduate'])->name('admin.career-guidance.graduates.show');
+            Route::get('/graduates/{id}/edit', [CareerGuidanceController::class, 'editGraduate'])->name('admin.career-guidance.graduates.edit');
+            Route::put('/graduates/{id}', [CareerGuidanceController::class, 'updateGraduate'])->name('admin.career-guidance.graduates.update');
 
-        // 📨 إدارة الترشيحات
-        Route::get('/nominations', [CareerGuidanceController::class, 'nominations'])->name('admin.career-guidance.nominations');
-        Route::get('/nominations/create', [CareerGuidanceController::class, 'createNomination'])->name('admin.career-guidance.nominations.create');
-        Route::post('/nominations', [CareerGuidanceController::class, 'nominateGraduate'])->name('admin.career-guidance.nominations.store');
-        Route::get('/nominations/{id}', [CareerGuidanceController::class, 'showNomination'])->name('admin.career-guidance.nominations.show');
-        // Route for updating the status - using PUT/PATCH for RESTful consistency
-        Route::put('/nominations/{id}/status', [CareerGuidanceController::class, 'updateNominationStatus'])->name('admin.career-guidance.nominations.update-status');
-        // Route for displaying the edit form (if any) - assuming it's a GET request
-        Route::get('/nominations/{id}/edit-status', [CareerGuidanceController::class, 'editNominationStatusForm'])->name('admin.career-guidance.nominations.edit-status');
-        Route::put('/nominations/{id}/status-fullpage', [CareerGuidanceController::class, 'updateNominationStatusFullPage'])->name('admin.career-guidance.nominations.update-status-fullpage');
+            // 📨 إدارة الترشيحات
+            Route::get('/nominations', [CareerGuidanceController::class, 'nominations'])->name('admin.career-guidance.nominations');
+            Route::get('/nominations/create', [CareerGuidanceController::class, 'createNomination'])->name('admin.career-guidance.nominations.create');
+            Route::post('/nominations', [CareerGuidanceController::class, 'nominateGraduate'])->name('admin.career-guidance.nominations.store');
+            Route::get('/nominations/{id}', [CareerGuidanceController::class, 'showNomination'])->name('admin.career-guidance.nominations.show');
+            // Route for updating the status - using PUT/PATCH for RESTful consistency
+            Route::put('/nominations/{id}/status', [CareerGuidanceController::class, 'updateNominationStatus'])->name('admin.career-guidance.nominations.update-status');
+            // Route for displaying the edit form (if any) - assuming it's a GET request
+            Route::get('/nominations/{id}/edit-status', [CareerGuidanceController::class, 'editNominationStatusForm'])->name('admin.career-guidance.nominations.edit-status');
+            Route::put('/nominations/{id}/status-fullpage', [CareerGuidanceController::class, 'updateNominationStatusFullPage'])->name('admin.career-guidance.nominations.update-status-fullpage');
 
-        // 📈 التقارير المتقدمة
-        Route::get('/advanced-reports', [CareerGuidanceController::class, 'advancedReports'])->name('admin.career-guidance.advanced-reports');
-        Route::get('/export-reports/pdf', [CareerGuidanceController::class, 'exportReportsPDF'])->name('admin.career-guidance.export-reports.pdf');
-        Route::get('/export-reports/excel', [CareerGuidanceController::class, 'exportReportsExcel'])->name('admin.career-guidance.export-reports.excel');
+            // 📈 التقارير المتقدمة
+            Route::get('/advanced-reports', [CareerGuidanceController::class, 'advancedReports'])->name('admin.career-guidance.advanced-reports');
+            Route::get('/export-reports/pdf', [CareerGuidanceController::class, 'exportReportsPDF'])->name('admin.career-guidance.export-reports.pdf');
+            Route::get('/export-reports/excel', [CareerGuidanceController::class, 'exportReportsExcel'])->name('admin.career-guidance.export-reports.excel');
 
-        // استيراد البيانات
-        Route::get('/download-template', [CareerGuidanceController::class, 'downloadTemplate'])->name('admin.career-guidance.download.template');
-        Route::get('/import-graduates/create', [CareerGuidanceController::class, 'showImportForm'])->name('admin.career-guidance.import.graduates.create');
-        Route::post('/import-graduates', [CareerGuidanceController::class, 'importGraduates'])->name('admin.career-guidance.import.graduates');
-    });
+            // استيراد البيانات
+            Route::get('/download-template', [CareerGuidanceController::class, 'downloadTemplate'])->name('admin.career-guidance.download.template');
+            Route::get('/import-graduates/create', [CareerGuidanceController::class, 'showImportForm'])->name('admin.career-guidance.import.graduates.create');
+            Route::post('/import-graduates', [CareerGuidanceController::class, 'importGraduates'])->name('admin.career-guidance.import.graduates');
+        });
 
-}); // نهاية مجموعة مسارات المدير
-     // نهاية مجموعة مسارات المدير
+    }); // نهاية مجموعة مسارات المدير
+    // نهاية مجموعة مسارات المدير
 
     // ==================== 📚 مسارات منسق التدريب ====================
     Route::prefix('coordinator')->middleware('training_coordinator')->group(function () {
@@ -275,11 +273,11 @@ Route::prefix('admin')->middleware('admin')->group(function () {
 
         // 📈 التقارير
         Route::get('/reports', [PartnershipController::class, 'reports'])->name('partnership.reports');
-         Route::get('/export-reports/pdf', [CareerGuidanceController::class, 'exportReportsPDF'])
-         ->name('export.reports.pdf');
+        Route::get('/export-reports/pdf', [CareerGuidanceController::class, 'exportReportsPDF'])
+            ->name('export.reports.pdf');
 
-    Route::get('/export-reports/excel', [CareerGuidanceController::class, 'exportReportsExcel'])
-         ->name('export.reports.excel');
+        Route::get('/export-reports/excel', [CareerGuidanceController::class, 'exportReportsExcel'])
+            ->name('export.reports.excel');
 
         // Temporary route for document path testing
         Route::get('/documents/test-path/{path}', [PartnershipController::class, 'testDocumentPath'])->name('partnership.documents.test-path');
@@ -478,4 +476,9 @@ if (app()->environment('local')) {
 // ✅ Routes للاختبار - احتفظ بها خارج مجموعة auth
 Route::get('/test-graduate-create', [CareerGuidanceController::class, 'createGraduate']);
 
-require __DIR__.'/auth.php';
+// صفحة اختبار جديدة
+Route::get('/new_test', function () {
+    return view('new_test');
+});
+
+require __DIR__ . '/auth.php';

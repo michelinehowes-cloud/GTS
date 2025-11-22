@@ -64,7 +64,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="company_id" class="form-label">الشركة</label>
                                 <select class="form-control @error('company_id') is-invalid @enderror" 
-                                        id="company_id" name="company_id" required>
+                                        id="company_id" name="company_id">
                                     <option value="">اختر الشركة</option>
                                     @foreach($companies as $company)
                                         <option value="{{ $company->id }}" {{ old('company_id') == $company->id ? 'selected' : '' }}>

@@ -47,7 +47,7 @@ class TrainingController extends Controller
             'location' => 'required|string|max:255',
             'seats' => 'required|integer|min:1',
             'status' => 'required|in:active,inactive,completed',
-            'company_id' => 'required|exists:companies,id',
+            'company_id' => 'nullable|exists:companies,id',
             'category' => 'required|string|max:255',
             'instructor_name' => 'required|string|max:255',
         ]);
@@ -107,7 +107,7 @@ class TrainingController extends Controller
             'location' => 'required|string|max:255',
             'seats' => 'required|integer|min:1',
             'status' => 'required|in:active,inactive,completed',
-            'company_id' => 'required|exists:companies,id',
+            'company_id' => 'nullable|exists:companies,id',
         ]);
 
         $training->update($request->all());

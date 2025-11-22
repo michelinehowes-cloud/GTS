@@ -436,7 +436,8 @@ html[data-theme='dark'] {
 }
 
 .submenu.show {
-    max-height: 200px;
+    max-height: 500px; /* Increased to accommodate more content */
+    overflow-y: auto; /* Ensure scrolling is enabled for the submenu itself */
 }
 
 .submenu-item {

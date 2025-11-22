@@ -263,7 +263,6 @@ class EvaluationFollowupController extends Controller
     public function evaluationReports()
     {
         $evaluations = \App\Models\Evaluation::with(['user', 'evaluator', 'training'])
-            ->completed()
             ->get();
 
         $stats = [
@@ -299,7 +298,6 @@ class EvaluationFollowupController extends Controller
     {
         $evaluations = \App\Models\Evaluation::with(['user', 'training'])
             ->where('type', 'performance')
-            ->completed()
             ->get();
 
         $performanceStats = [

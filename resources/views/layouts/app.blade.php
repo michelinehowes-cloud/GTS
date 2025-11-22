@@ -90,12 +90,6 @@
                         <!-- الأقسام الإدارية (للمسؤول فقط) -->
                         @if(auth()->user()->role == 'admin')
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.companies*') ? 'active' : '' }}" href="{{ route('admin.companies') }}">
-                                <i class="fas fa-building"></i>
-                                إدارة الشركات
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}" href="{{ route('admin.users') }}">
                                 <i class="fas fa-users-cog"></i>
                                 إدارة المستخدمين
@@ -106,6 +100,24 @@
                                 <i class="fas fa-chart-bar"></i>
                                 التقارير والإحصائيات
                             </a>
+                        </li>
+                        
+                        <!-- ادارة الشراكات والتوظيف -->
+                        <li class="nav-item menu-group">
+                            <a class="nav-link {{ request()->routeIs('admin.companies*') || request()->routeIs('job-opportunities*') ? 'active' : '' }}"
+                               href="#" onclick="toggleSubmenu('partnership-employment-menu')">
+                                <i class="fas fa-handshake"></i>
+                                ادارة الشراكات والتوظيف
+                                <i class="fas fa-chevron-down menu-arrow"></i>
+                            </a>
+                            <div class="submenu {{ request()->routeIs('admin.companies*') || request()->routeIs('job-opportunities*') ? 'show' : '' }}" id="partnership-employment-menu">
+                                <a href="{{ route('admin.companies') }}" class="submenu-item {{ request()->routeIs('admin.companies*') ? 'active' : '' }}">
+                                    إدارة الشركات
+                                </a>
+                                <a href="{{ route('job-opportunities.index') }}" class="submenu-item {{ request()->routeIs('job-opportunities*') ? 'active' : '' }}">
+                                    إدارة فرص العمل
+                                </a>
+                            </div>
                         </li>
 
                         <!-- ادارة الارشاد المهني -->
@@ -122,9 +134,6 @@
                                 </a>
                                 <a href="{{ route('admin.career-guidance.graduates.create') }}" class="submenu-item {{ request()->routeIs('admin.career-guidance.graduates.create') ? 'active' : '' }}">
                                     إضافة خريج
-                                </a>
-                                <a href="{{ route('job-opportunities.index') }}" class="submenu-item {{ request()->routeIs('job-opportunities*') ? 'active' : '' }}">
-                                    فرص العمل
                                 </a>
                             </div>
                         </li>

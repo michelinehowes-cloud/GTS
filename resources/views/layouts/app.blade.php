@@ -117,11 +117,11 @@
                                 <i class="fas fa-chevron-down menu-arrow"></i>
                             </a>
                             <div class="submenu {{ request()->routeIs('admin.career-guidance.graduates.create') || request()->routeIs('job-opportunities.create') ? 'show' : '' }}" id="quick-actions-menu">
+                                <a href="{{ route('admin.career-guidance.graduates') }}" class="submenu-item {{ request()->routeIs('admin.career-guidance.graduates') ? 'active' : '' }}">
+                                    إدارة بيانات الخريجين
+                                </a>
                                 <a href="{{ route('admin.career-guidance.graduates.create') }}" class="submenu-item {{ request()->routeIs('admin.career-guidance.graduates.create') ? 'active' : '' }}">
                                     إضافة خريج
-                                </a>
-                                <a href="{{ route('admin.career-guidance.nominations') }}" class="submenu-item {{ request()->routeIs('admin.career-guidance.nominations*') ? 'active' : '' }}">
-                                    الترشيحات
                                 </a>
                                 <a href="{{ route('job-opportunities.index') }}" class="submenu-item {{ request()->routeIs('job-opportunities*') ? 'active' : '' }}">
                                     فرص العمل

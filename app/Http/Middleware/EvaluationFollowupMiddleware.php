@@ -13,7 +13,7 @@ class EvaluationFollowupMiddleware
             return redirect()->route('login');
         }
 
-        if (auth()->user()->role !== 'evaluation_followup') {
+        if (!in_array(auth()->user()->role, ['evaluation_followup', 'admin'])) {
             return redirect('/dashboard')->with('error', 'ليس لديك صلاحية للوصول إلى هذه الصفحة');
         }
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +8,11 @@
     <title>@yield('title', 'نظام إدارة الخريجين')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap"
+        rel="stylesheet">
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
+
 <body>
     <div class="container-fluid">
         <div class="row g-0">
@@ -21,9 +24,11 @@
                             <i class="fas fa-chevron-right"></i>
                         </button>
                         <div class="logo-container">
-                            <div class="logo-img-placeholder university-logo d-flex align-items-center justify-content-center mx-auto">
-                                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب الخريجين" class="logo-img"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div
+                                class="logo-img-placeholder university-logo d-flex align-items-center justify-content-center mx-auto">
+                                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب الخريجين"
+                                    class="logo-img"
+                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                 <div class="d-none align-items-center justify-content-center w-100 h-100">
                                     <i class="fas fa-graduation-cap" style="font-size: 2rem; color: #1e3a8a;"></i>
                                 </div>
@@ -31,7 +36,7 @@
                             <div class="logo-text">مكتب تدريب الخريجين</div>
                             <div class="logo-subtext">جامعة طرابلس</div>
                         </div>
-                        
+
                         <!-- عرض نوع لوحة التحكم -->
                         <small class="text-light opacity-85 mt-2 d-block">
                             @auth
@@ -61,214 +66,308 @@
                     <ul class="nav flex-column mt-3">
                         <!-- لوحة التحكم لجميع المستخدمين -->
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}" 
-                               href="{{ 
-                                    auth()->user()->role == 'graduate' ? route('graduate.dashboard') : 
-                                    (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') : 
-                                    (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') : 
-                                    (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
-                                    (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
-                                    (auth()->user()->role == 'company' ? route('company.dashboard') :
-                                    route('admin.dashboard')))))) 
+                            <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}" href="{{ 
+                                    auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
+    (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') :
+        (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') :
+            (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
+                (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
+                    (auth()->user()->role == 'company' ? route('company.dashboard') :
+                        route('admin.dashboard')))))) 
                                 }}">
                                 <i class="fas fa-tachometer-alt"></i>
                                 لوحة التحكم
                             </a>
                         </li>
-                        
+
                         <!-- إدارة التدريب (للمسؤول ومنسق التدريب) -->
                         @if(in_array(auth()->user()->role, ['admin', 'training_coordinator']))
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::is('*trainings*') ? 'active' : '' }}" 
-                               href="{{ auth()->user()->role == 'training_coordinator' ? route('training-coordinator.trainings') : route('admin.trainings') }}">
-                                <i class="fas fa-graduation-cap"></i>
-                                إدارة التدريب
-                            </a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::is('*trainings*') ? 'active' : '' }}"
+                                    href="{{ auth()->user()->role == 'training_coordinator' ? route('training-coordinator.trainings') : route('admin.trainings') }}">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    إدارة التدريب
+                                </a>
+                            </li>
                         @endif
 
                         <!-- الأقسام الإدارية (للمسؤول فقط) -->
                         @if(auth()->user()->role == 'admin')
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}" href="{{ route('admin.users') }}">
-                                <i class="fas fa-users-cog"></i>
-                                إدارة المستخدمين
-                            </a>
-                        </li>
-                     
-                        
-                        <!-- ادارة الشراكات والتوظيف -->
-                        <li class="nav-item menu-group">
-                            <a class="nav-link {{ request()->routeIs('admin.companies*') || request()->routeIs('job-opportunities*') ? 'active' : '' }}"
-                               href="#" onclick="toggleSubmenu('partnership-employment-menu')">
-                                <i class="fas fa-handshake"></i>
-                                ادارة الشراكات والتوظيف
-                                <i class="fas fa-chevron-down menu-arrow"></i>
-                            </a>
-                            <div class="submenu {{ request()->routeIs('admin.companies*') || request()->routeIs('job-opportunities*') ? 'show' : '' }}" id="partnership-employment-menu">
-                                <a href="{{ route('admin.companies') }}" class="submenu-item {{ request()->routeIs('admin.companies*') ? 'active' : '' }}">
-                                    إدارة الشركات
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}"
+                                    href="{{ route('admin.users') }}">
+                                    <i class="fas fa-users-cog"></i>
+                                    إدارة المستخدمين
                                 </a>
-                                <a href="{{ route('job-opportunities.index') }}" class="submenu-item {{ request()->routeIs('job-opportunities*') ? 'active' : '' }}">
-                                    إدارة فرص العمل
-                                </a>
-                            </div>
-                        </li>
+                            </li>
 
-                        <!-- ادارة الارشاد المهني -->
-                        <li class="nav-item menu-group">
-                            <a class="nav-link {{ request()->routeIs('admin.career-guidance.graduates.create') || request()->routeIs('job-opportunities.create') ? 'active' : '' }}"
-                               href="#" onclick="toggleSubmenu('quick-actions-menu')">
-                                <i class="fas fa-bolt"></i>
-                              ادارة الارشاد المهني
-                                <i class="fas fa-chevron-down menu-arrow"></i>
-                            </a>
-                            <div class="submenu {{ request()->routeIs('admin.career-guidance.graduates.create') || request()->routeIs('job-opportunities.create') ? 'show' : '' }}" id="quick-actions-menu">
-                                <a href="{{ route('admin.career-guidance.graduates') }}" class="submenu-item {{ request()->routeIs('admin.career-guidance.graduates') ? 'active' : '' }}">
-                                    إدارة بيانات الخريجين
+
+                            <!-- ادارة الشراكات والتوظيف -->
+                            <li class="nav-item menu-group">
+                                <a class="nav-link {{ request()->routeIs('admin.companies*') || request()->routeIs('job-opportunities*') ? 'active' : '' }}"
+                                    href="#" onclick="toggleSubmenu('partnership-employment-menu')">
+                                    <i class="fas fa-handshake"></i>
+                                    ادارة الشراكات والتوظيف
+                                    <i class="fas fa-chevron-down menu-arrow"></i>
                                 </a>
-                                <a href="{{ route('admin.career-guidance.graduates.create') }}" class="submenu-item {{ request()->routeIs('admin.career-guidance.graduates.create') ? 'active' : '' }}">
-                                    إضافة خريج
+                                <div class="submenu {{ request()->routeIs('admin.companies*') || request()->routeIs('job-opportunities*') ? 'show' : '' }}"
+                                    id="partnership-employment-menu">
+                                    <a href="{{ route('admin.companies') }}"
+                                        class="submenu-item {{ request()->routeIs('admin.companies*') ? 'active' : '' }}">
+                                        إدارة الشركات
+                                    </a>
+                                    <a href="{{ route('job-opportunities.index') }}"
+                                        class="submenu-item {{ request()->routeIs('job-opportunities*') ? 'active' : '' }}">
+                                        إدارة فرص العمل
+                                    </a>
+                                </div>
+                            </li>
+
+                            <!-- ادارة الارشاد المهني -->
+                            <li class="nav-item menu-group">
+                                <a class="nav-link {{ request()->routeIs('admin.career-guidance.graduates.create') || request()->routeIs('job-opportunities.create') ? 'active' : '' }}"
+                                    href="#" onclick="toggleSubmenu('quick-actions-menu')">
+                                    <i class="fas fa-bolt"></i>
+                                    ادارة الارشاد المهني
+                                    <i class="fas fa-chevron-down menu-arrow"></i>
                                 </a>
-                            </div>
-                        </li>
-                        
-                        <!-- أقسام التقييم والمتابعة (للمدير فقط) -->
-                        <li class="nav-item menu-group">
-                            <a class="nav-link {{ request()->routeIs('evaluation-followup*') ? 'active' : '' }}"
-                               href="#" onclick="toggleSubmenu('admin-evaluation-menu')">
-                                <i class="fas fa-chart-line"></i>
-                                إدارة التقييم والمتابعة
-                                <i class="fas fa-chevron-down menu-arrow"></i>
-                            </a>
-                            <div class="submenu {{ request()->routeIs('evaluation-followup*') ? 'show' : '' }}" id="admin-evaluation-menu">
-                                <a href="{{ route('evaluation-followup.training-calendar') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.training-calendar') ? 'active' : '' }}">
-                                    تقويم التدريبات
+                                <div class="submenu {{ request()->routeIs('admin.career-guidance.graduates.create') || request()->routeIs('job-opportunities.create') ? 'show' : '' }}"
+                                    id="quick-actions-menu">
+                                    <a href="{{ route('admin.career-guidance.graduates') }}"
+                                        class="submenu-item {{ request()->routeIs('admin.career-guidance.graduates') ? 'active' : '' }}">
+                                        إدارة بيانات الخريجين
+                                    </a>
+                                    <a href="{{ route('admin.career-guidance.graduates.create') }}"
+                                        class="submenu-item {{ request()->routeIs('admin.career-guidance.graduates.create') ? 'active' : '' }}">
+                                        إضافة خريج
+                                    </a>
+                                </div>
+                            </li>
+
+                            <!-- أقسام التقييم والمتابعة (للمدير فقط) -->
+                            <li class="nav-item menu-group">
+                                <a class="nav-link {{ request()->routeIs('evaluation-followup*') ? 'active' : '' }}"
+                                    href="#" onclick="toggleSubmenu('admin-evaluation-menu')">
+                                    <i class="fas fa-chart-line"></i>
+                                    إدارة التقييم والمتابعة
+                                    <i class="fas fa-chevron-down menu-arrow"></i>
                                 </a>
-                                  <a href="{{ route('evaluation-followup.training-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.training-reports') ? 'active' : '' }}">
-                                    تقارير التدريب
-                                </a>
-                                <a href="{{ route('evaluation-followup.partnership-employment-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.partnership-employment-reports') ? 'active' : '' }}">
-                                    تقارير الشراكات والتوظيف
-                                </a>
-                                <a href="{{ route('evaluation-followup.career-guidance-advanced-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.career-guidance-advanced-reports') ? 'active' : '' }}">
-                                    تقارير الإرشاد المهني
-                                </a>
-                                <a href="{{ route('evaluation-followup.surveys.index') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.surveys*') ? 'active' : '' }}">
-                                    إدارة الاستبيانات
-                                </a>
-                                <a href="{{ route('evaluation-followup.evaluations.index') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.evaluations*') ? 'active' : '' }}">
-                                    إدارة التقييمات
-                                </a>
-                             
-                                <a href="{{ route('evaluation-followup.performance-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.performance-reports') ? 'active' : '' }}">
-                                    تقارير الأداء
-                                </a>
-                              
-                            </div>
-                        </li>
+                                <div class="submenu {{ request()->routeIs('evaluation-followup*') ? 'show' : '' }}"
+                                    id="admin-evaluation-menu">
+                                    <a href="{{ route('evaluation-followup.training-calendar') }}"
+                                        class="submenu-item {{ request()->routeIs('evaluation-followup.training-calendar') ? 'active' : '' }}">
+                                        تقويم التدريبات
+                                    </a>
+                                    <a href="{{ route('evaluation-followup.training-reports') }}"
+                                        class="submenu-item {{ request()->routeIs('evaluation-followup.training-reports') ? 'active' : '' }}">
+                                        تقارير التدريب
+                                    </a>
+                                    <a href="{{ route('evaluation-followup.partnership-employment-reports') }}"
+                                        class="submenu-item {{ request()->routeIs('evaluation-followup.partnership-employment-reports') ? 'active' : '' }}">
+                                        تقارير الشراكات والتوظيف
+                                    </a>
+                                    <a href="{{ route('evaluation-followup.career-guidance-advanced-reports') }}"
+                                        class="submenu-item {{ request()->routeIs('evaluation-followup.career-guidance-advanced-reports') ? 'active' : '' }}">
+                                        تقارير الإرشاد المهني
+                                    </a>
+                                    <a href="{{ route('evaluation-followup.surveys.index') }}"
+                                        class="submenu-item {{ request()->routeIs('evaluation-followup.surveys*') ? 'active' : '' }}">
+                                        إدارة الاستبيانات
+                                    </a>
+                                    <a href="{{ route('evaluation-followup.evaluations.index') }}"
+                                        class="submenu-item {{ request()->routeIs('evaluation-followup.evaluations*') ? 'active' : '' }}">
+                                        إدارة التقييمات
+                                    </a>
+
+                                    <a href="{{ route('evaluation-followup.performance-reports') }}"
+                                        class="submenu-item {{ request()->routeIs('evaluation-followup.performance-reports') ? 'active' : '' }}">
+                                        تقارير الأداء
+                                    </a>
+
+                                </div>
+                            </li>
                         @endif
 
                         <!-- التدريبات المتاحة (للخريج فقط) -->
                         @if(auth()->user()->role == 'graduate')
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('graduate.trainings*') ? 'active' : '' }}" href="{{ route('graduate.trainings') }}">
-                                <i class="fas fa-graduation-cap"></i>
-                                التدريبات المتاحة
-                            </a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('graduate.trainings*') ? 'active' : '' }}"
+                                    href="{{ route('graduate.trainings') }}">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    التدريبات المتاحة
+                                </a>
+                            </li>
+                        @endif
+
+                        <!-- أقسام الإرشاد المهني (لمستخدم الإرشاد المهني فقط) -->
+                        @if(auth()->user()->role == 'career_guidance_officer')
+
+                            <!-- إدارة بيانات الخريجين -->
+                            <li class="nav-item menu-group">
+                                <a class="nav-link {{ request()->routeIs('career-guidance.graduates*') ? 'active' : '' }}"
+                                    href="#" onclick="toggleSubmenu('cg-graduates-menu')">
+                                    <i class="fas fa-user-graduate"></i>
+                                    إدارة بيانات الخريجين
+                                    <i class="fas fa-chevron-down menu-arrow"></i>
+                                </a>
+                                <div class="submenu {{ request()->routeIs('career-guidance.graduates*') ? 'show' : '' }}"
+                                    id="cg-graduates-menu">
+                                    <a href="{{ route('career-guidance.graduates') }}"
+                                        class="submenu-item {{ request()->routeIs('career-guidance.graduates') && !request()->routeIs('career-guidance.graduates.create') ? 'active' : '' }}">
+                                        عرض الخريجين
+                                    </a>
+                                    <a href="{{ route('career-guidance.graduates.create') }}"
+                                        class="submenu-item {{ request()->routeIs('career-guidance.graduates.create') ? 'active' : '' }}">
+                                        إضافة خريج جديد
+                                    </a>
+                                </div>
+                            </li>
+
+                            <!-- إدارة الترشيحات -->
+                            <li class="nav-item menu-group">
+                                <a class="nav-link {{ request()->routeIs('career-guidance.nominations*') ? 'active' : '' }}"
+                                    href="#" onclick="toggleSubmenu('cg-nominations-menu')">
+                                    <i class="fas fa-user-check"></i>
+                                    إدارة الترشيحات
+                                    <i class="fas fa-chevron-down menu-arrow"></i>
+                                </a>
+                                <div class="submenu {{ request()->routeIs('career-guidance.nominations*') ? 'show' : '' }}"
+                                    id="cg-nominations-menu">
+                                    <a href="{{ route('career-guidance.nominations') }}"
+                                        class="submenu-item {{ request()->routeIs('career-guidance.nominations') && !request()->routeIs('career-guidance.nominations.create') ? 'active' : '' }}">
+                                        عرض الترشيحات
+                                    </a>
+                                    <a href="{{ route('career-guidance.nominations.create') }}"
+                                        class="submenu-item {{ request()->routeIs('career-guidance.nominations.create') ? 'active' : '' }}">
+                                        ترشيح جديد
+                                    </a>
+                                </div>
+                            </li>
+
+                            <!-- الشركات -->
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('career-guidance.companies*') ? 'active' : '' }}"
+                                    href="{{ route('career-guidance.companies') }}">
+                                    <i class="fas fa-building"></i>
+                                    الشركات
+                                </a>
+                            </li>
+
+                            <!-- التقارير -->
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('career-guidance.advanced-reports') ? 'active' : '' }}"
+                                    href="{{ route('career-guidance.advanced-reports') }}">
+                                    <i class="fas fa-chart-bar"></i>
+                                    التقارير المتقدمة
+                                </a>
+                            </li>
+
                         @endif
 
                         <!-- أقسام التقييم والمتابعة (لمستخدم التقييم والمتابعة فقط) -->
                         @if(auth()->user()->role == 'evaluation_followup')
-                        
-                        
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('evaluation-followup.training-calendar') ? 'active' : '' }}" href="{{ route('evaluation-followup.training-calendar') }}">
-                                <i class="fas fa-calendar-alt"></i>
-                                تقويم التدريبات
-                            </a>
-                        </li>
-                        <!-- إدارة الاستبيانات -->
-                        <li class="nav-item menu-group">
-                            <a class="nav-link {{ request()->routeIs('evaluation-followup.surveys*') ? 'active' : '' }}"
-                               href="#" onclick="toggleSubmenu('surveys-menu')">
-                                <i class="fas fa-poll"></i>
-                                إدارة الاستبيانات
-                                <i class="fas fa-chevron-down menu-arrow"></i>
-                            </a>
-                            <div class="submenu {{ request()->routeIs('evaluation-followup.surveys*') ? 'show' : '' }}" id="surveys-menu">
-                                <a href="{{ route('evaluation-followup.surveys.index') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.surveys.index') ? 'active' : '' }}">
-                                    عرض الاستبيانات
-                                </a>
-                              
-                            </div>
-                        </li>
 
-                        <!-- إدارة التقييمات -->
-                        <li class="nav-item menu-group">
-                            <a class="nav-link {{ request()->routeIs('evaluation-followup.evaluations*') ? 'active' : '' }}"
-                               href="#" onclick="toggleSubmenu('evaluations-menu')">
-                                <i class="fas fa-star"></i>
-                                إدارة التقييمات
-                                <i class="fas fa-chevron-down menu-arrow"></i>
-                            </a>
-                            <div class="submenu {{ request()->routeIs('evaluation-followup.evaluations*') ? 'show' : '' }}" id="evaluations-menu">
-                                <a href="{{ route('evaluation-followup.evaluations.index') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.evaluations.index') ? 'active' : '' }}">
-                                    عرض التقييمات
-                                </a>
-                                <a href="{{ route('evaluation-followup.evaluations.create') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.evaluations.create') ? 'active' : '' }}">
-                                    إضافة تقييم جديد
-                                </a>
-                            </div>
-                        </li>
 
-                        <!-- ردود الاستبيانات -->
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('evaluation-followup.survey-responses*') ? 'active' : '' }}"
-                               href="{{ route('evaluation-followup.survey-responses.index') }}">
-                                <i class="fas fa-list"></i>
-                                ردود الاستبيانات
-                            </a>
-                        </li>
-
-                        <!-- التقارير -->
-                        <li class="nav-item menu-group">
-                            <a class="nav-link {{ request()->routeIs('evaluation-followup.*reports') ? 'active' : '' }}"
-                               href="#" onclick="toggleSubmenu('reports-menu')">
-                                <i class="fas fa-chart-bar"></i>
-                                التقارير والإحصائيات
-                                <i class="fas fa-chevron-down menu-arrow"></i>
-                            </a>
-                            <div class="submenu {{ request()->routeIs('evaluation-followup.*reports') ? 'show' : '' }}" id="reports-menu">
-                                <a href="{{ route('evaluation-followup.evaluation-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.evaluation-reports') ? 'active' : '' }}">
-                                    تقارير التقييمات
-                                </a>
-                                <a href="{{ route('evaluation-followup.survey-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.survey-reports') ? 'active' : '' }}">
-                                    تقارير الاستبيانات
-                                </a>
-                                <a href="{{ route('evaluation-followup.performance-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.performance-reports') ? 'active' : '' }}">
-                                    تقارير الأداء
-                                </a>
-                                <a href="{{ route('evaluation-followup.training-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.training-reports') ? 'active' : '' }}">
-                                    تقارير التدريب
-                                </a>
-                                <a href="{{ route('evaluation-followup.partnership-employment-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.partnership-employment-reports') ? 'active' : '' }}">
-                                    تقارير الشراكات والتوظيف
-                                </a>
-                                <a href="{{ route('evaluation-followup.career-guidance-advanced-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.career-guidance-advanced-reports') ? 'active' : '' }}">
-                                    تقارير الإرشاد المهني
-                                </a>
-                            </div>
-                        </li>
-
-                        
-                                    <i class="fas fa-file-alt"></i>
-                                    وثائق الشراكة
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('evaluation-followup.training-calendar') ? 'active' : '' }}"
+                                    href="{{ route('evaluation-followup.training-calendar') }}">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    تقويم التدريبات
                                 </a>
                             </li>
+                            <!-- إدارة الاستبيانات -->
+                            <li class="nav-item menu-group">
+                                <a class="nav-link {{ request()->routeIs('evaluation-followup.surveys*') ? 'active' : '' }}"
+                                    href="#" onclick="toggleSubmenu('surveys-menu')">
+                                    <i class="fas fa-poll"></i>
+                                    إدارة الاستبيانات
+                                    <i class="fas fa-chevron-down menu-arrow"></i>
+                                </a>
+                                <div class="submenu {{ request()->routeIs('evaluation-followup.surveys*') ? 'show' : '' }}"
+                                    id="surveys-menu">
+                                    <a href="{{ route('evaluation-followup.surveys.index') }}"
+                                        class="submenu-item {{ request()->routeIs('evaluation-followup.surveys.index') ? 'active' : '' }}">
+                                        عرض الاستبيانات
+                                    </a>
+
+                                </div>
+                            </li>
+
+                            <!-- إدارة التقييمات -->
+                            <li class="nav-item menu-group">
+                                <a class="nav-link {{ request()->routeIs('evaluation-followup.evaluations*') ? 'active' : '' }}"
+                                    href="#" onclick="toggleSubmenu('evaluations-menu')">
+                                    <i class="fas fa-star"></i>
+                                    إدارة التقييمات
+                                    <i class="fas fa-chevron-down menu-arrow"></i>
+                                </a>
+                                <div class="submenu {{ request()->routeIs('evaluation-followup.evaluations*') ? 'show' : '' }}"
+                                    id="evaluations-menu">
+                                    <a href="{{ route('evaluation-followup.evaluations.index') }}"
+                                        class="submenu-item {{ request()->routeIs('evaluation-followup.evaluations.index') ? 'active' : '' }}">
+                                        عرض التقييمات
+                                    </a>
+                                    <a href="{{ route('evaluation-followup.evaluations.create') }}"
+                                        class="submenu-item {{ request()->routeIs('evaluation-followup.evaluations.create') ? 'active' : '' }}">
+                                        إضافة تقييم جديد
+                                    </a>
+                                </div>
+                            </li>
+
+                            <!-- ردود الاستبيانات -->
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('partnership.reports*') ? 'active' : '' }}" href="{{ route('partnership.reports') }}">
+                                <a class="nav-link {{ request()->routeIs('evaluation-followup.survey-responses*') ? 'active' : '' }}"
+                                    href="{{ route('evaluation-followup.survey-responses.index') }}">
+                                    <i class="fas fa-list"></i>
+                                    ردود الاستبيانات
+                                </a>
+                            </li>
+
+                            <!-- التقارير -->
+                            <li class="nav-item menu-group">
+                                <a class="nav-link {{ request()->routeIs('evaluation-followup.*reports') ? 'active' : '' }}"
+                                    href="#" onclick="toggleSubmenu('reports-menu')">
+                                    <i class="fas fa-chart-bar"></i>
+                                    التقارير والإحصائيات
+                                    <i class="fas fa-chevron-down menu-arrow"></i>
+                                </a>
+                                <div class="submenu {{ request()->routeIs('evaluation-followup.*reports') ? 'show' : '' }}"
+                                    id="reports-menu">
+                                    <a href="{{ route('evaluation-followup.evaluation-reports') }}"
+                                        class="submenu-item {{ request()->routeIs('evaluation-followup.evaluation-reports') ? 'active' : '' }}">
+                                        تقارير التقييمات
+                                    </a>
+                                    <a href="{{ route('evaluation-followup.survey-reports') }}"
+                                        class="submenu-item {{ request()->routeIs('evaluation-followup.survey-reports') ? 'active' : '' }}">
+                                        تقارير الاستبيانات
+                                    </a>
+                                    <a href="{{ route('evaluation-followup.performance-reports') }}"
+                                        class="submenu-item {{ request()->routeIs('evaluation-followup.performance-reports') ? 'active' : '' }}">
+                                        تقارير الأداء
+                                    </a>
+                                    <a href="{{ route('evaluation-followup.training-reports') }}"
+                                        class="submenu-item {{ request()->routeIs('evaluation-followup.training-reports') ? 'active' : '' }}">
+                                        تقارير التدريب
+                                    </a>
+                                    <a href="{{ route('evaluation-followup.partnership-employment-reports') }}"
+                                        class="submenu-item {{ request()->routeIs('evaluation-followup.partnership-employment-reports') ? 'active' : '' }}">
+                                        تقارير الشراكات والتوظيف
+                                    </a>
+                                    <a href="{{ route('evaluation-followup.career-guidance-advanced-reports') }}"
+                                        class="submenu-item {{ request()->routeIs('evaluation-followup.career-guidance-advanced-reports') ? 'active' : '' }}">
+                                        تقارير الإرشاد المهني
+                                    </a>
+                                </div>
+                            </li>
+
+
+                            <i class="fas fa-file-alt"></i>
+                            وثائق الشراكة
+                            </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('partnership.reports*') ? 'active' : '' }}"
+                                    href="{{ route('partnership.reports') }}">
                                     <i class="fas fa-chart-line"></i>
                                     التقارير
                                 </a>
@@ -278,19 +377,22 @@
                         <!-- لوحة تحكم الشركة -->
                         @if(auth()->user()->role == 'company')
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('company.profile') ? 'active' : '' }}" href="{{ route('company.profile') }}">
+                                <a class="nav-link {{ request()->routeIs('company.profile') ? 'active' : '' }}"
+                                    href="{{ route('company.profile') }}">
                                     <i class="fas fa-building"></i>
                                     ملف الشركة
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('company.job-opportunities*') ? 'active' : '' }}" href="{{ route('company.job-opportunities') }}">
+                                <a class="nav-link {{ request()->routeIs('company.job-opportunities*') ? 'active' : '' }}"
+                                    href="{{ route('company.job-opportunities') }}">
                                     <i class="fas fa-briefcase"></i>
                                     فرص العمل
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('company.applications*') ? 'active' : '' }}" href="{{ route('company.applications') }}">
+                                <a class="nav-link {{ request()->routeIs('company.applications*') ? 'active' : '' }}"
+                                    href="{{ route('company.applications') }}">
                                     <i class="fas fa-file-alt"></i>
                                     الطلبات
                                 </a>
@@ -299,29 +401,33 @@
 
                         <!-- مسؤول الميديا -->
                         @if(auth()->user()->role == 'media_officer')
-                        
+
 
                             <!-- فهرس التدريبات للميديا -->
-                           <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('evaluation-followup.training-calendar') ? 'active' : '' }}" href="{{ route('evaluation-followup.training-calendar') }}">
-                                <i class="fas fa-calendar-alt"></i>
-                                تقويم التدريبات
-                            </a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('evaluation-followup.training-calendar') ? 'active' : '' }}"
+                                    href="{{ route('evaluation-followup.training-calendar') }}">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    تقويم التدريبات
+                                </a>
+                            </li>
 
                             <!-- إدارة الوسائط -->
                             <li class="nav-item menu-group">
                                 <a class="nav-link {{ request()->routeIs('media.*') && !request()->routeIs('media.trainings*') && !request()->routeIs('media.news*') && !request()->routeIs('media.announcements*') && !request()->routeIs('media.reports*') ? 'active' : '' }}"
-                                   href="#" onclick="toggleSubmenu('media-menu')">
+                                    href="#" onclick="toggleSubmenu('media-menu')">
                                     <i class="fas fa-images"></i>
                                     إدارة الوسائط
                                     <i class="fas fa-chevron-down menu-arrow"></i>
                                 </a>
-                                <div class="submenu {{ request()->routeIs('media.*') && !request()->routeIs('media.trainings*') && !request()->routeIs('media.news*') && !request()->routeIs('media.announcements*') && !request()->routeIs('media.reports*') ? 'show' : '' }}" id="media-menu">
-                                    <a href="{{ route('media.gallery') }}" class="submenu-item {{ request()->routeIs('media.gallery') ? 'active' : '' }}">
+                                <div class="submenu {{ request()->routeIs('media.*') && !request()->routeIs('media.trainings*') && !request()->routeIs('media.news*') && !request()->routeIs('media.announcements*') && !request()->routeIs('media.reports*') ? 'show' : '' }}"
+                                    id="media-menu">
+                                    <a href="{{ route('media.gallery') }}"
+                                        class="submenu-item {{ request()->routeIs('media.gallery') ? 'active' : '' }}">
                                         معرض الوسائط
                                     </a>
-                                    <a href="{{ route('media.upload.form') }}" class="submenu-item {{ request()->routeIs('media.upload.form') ? 'active' : '' }}">
+                                    <a href="{{ route('media.upload.form') }}"
+                                        class="submenu-item {{ request()->routeIs('media.upload.form') ? 'active' : '' }}">
                                         رفع الوسائط
                                     </a>
                                 </div>
@@ -330,16 +436,19 @@
                             <!-- إدارة المحتوى -->
                             <li class="nav-item menu-group">
                                 <a class="nav-link {{ request()->routeIs('media.news*') || request()->routeIs('media.announcements*') ? 'active' : '' }}"
-                                   href="#" onclick="toggleSubmenu('content-menu')">
+                                    href="#" onclick="toggleSubmenu('content-menu')">
                                     <i class="fas fa-newspaper"></i>
                                     إدارة المحتوى
                                     <i class="fas fa-chevron-down menu-arrow"></i>
                                 </a>
-                                <div class="submenu {{ request()->routeIs('media.news*') || request()->routeIs('media.announcements*') ? 'show' : '' }}" id="content-menu">
-                                    <a href="{{ route('media.news.index') }}" class="submenu-item {{ request()->routeIs('media.news.index') ? 'active' : '' }}">
+                                <div class="submenu {{ request()->routeIs('media.news*') || request()->routeIs('media.announcements*') ? 'show' : '' }}"
+                                    id="content-menu">
+                                    <a href="{{ route('media.news.index') }}"
+                                        class="submenu-item {{ request()->routeIs('media.news.index') ? 'active' : '' }}">
                                         الأخبار
                                     </a>
-                                    <a href="{{ route('media.announcements.index') }}" class="submenu-item {{ request()->routeIs('media.announcements.index') ? 'active' : '' }}">
+                                    <a href="{{ route('media.announcements.index') }}"
+                                        class="submenu-item {{ request()->routeIs('media.announcements.index') ? 'active' : '' }}">
                                         الإعلانات
                                     </a>
                                 </div>
@@ -347,7 +456,8 @@
 
                             <!-- التقارير -->
                             <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('media.reports*') ? 'active' : '' }}" href="{{ route('media.reports.coverage') }}">
+                                <a class="nav-link {{ request()->routeIs('media.reports*') ? 'active' : '' }}"
+                                    href="{{ route('media.reports.coverage') }}">
                                     <i class="fas fa-chart-bar"></i>
                                     التقارير
                                 </a>
@@ -356,7 +466,8 @@
 
                         <!-- تسجيل الخروج -->
                         <li class="nav-item mt-4 pt-3 border-top border-light">
-                            <a class="nav-link text-warning fw-bold" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <a class="nav-link text-warning fw-bold" href="#"
+                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                 <i class="fas fa-sign-out-alt"></i>
                                 تسجيل الخروج
                             </a>
@@ -370,7 +481,7 @@
 
             <!-- المحتوى الرئيسي -->
             <div class="col-md-9 ms-sm-auto col-lg-10 main-content" id="mainContent">
-                
+
                 <!-- الشريط العلوي -->
                 <nav class="navbar navbar-expand-lg navbar-main" id="navbarMain">
                     <div class="container-fluid px-4">
@@ -379,14 +490,14 @@
                                 <i class="fas fa-bars"></i>
                             </button>
                             <h4 class="navbar-brand mb-0 ms-3">
-                                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب الخريجين" 
-                                     style="height: 40px; margin-left: 10px; display: inline-block;"
-                                     onerror="this.style.display='none'">
+                                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب الخريجين"
+                                    style="height: 40px; margin-left: 10px; display: inline-block;"
+                                    onerror="this.style.display='none'">
                                 <i class="fas fa-graduation-cap me-2"></i>
                                 @yield('page-title', 'لوحة التحكم الرئيسية')
                             </h4>
                         </div>
-                        
+
                         <div class="d-flex align-items-center">
                             <div class="me-3 text-end">
                                 <div class="fw-bold text-dark fs-6">{{ auth()->user()->name ?? 'مستخدم' }}</div>
@@ -461,7 +572,7 @@
             sidebar.classList.toggle('collapsed');
             mainContent.classList.toggle('expanded');
             navbarMain.classList.toggle('expanded'); // Toggle navbarMain as well
-            
+
             // تغيير الأيقونة
             const icon = toggleSidebar.querySelector('i');
             if (icon) {
@@ -479,7 +590,7 @@
             toggleSidebar.addEventListener('click', toggleSidebarFunc);
             console.log('toggleSidebar event listener attached.');
         }
-        
+
         if (toggleSidebarMain) {
             toggleSidebarMain.addEventListener('click', toggleSidebarFunc);
             console.log('toggleSidebarMain event listener attached.');
@@ -490,7 +601,7 @@
             console.log('toggleSubmenu called for:', menuId);
             const submenu = document.getElementById(menuId);
             const menuGroup = submenu.closest('.menu-group');
-            
+
             submenu.classList.toggle('show');
             menuGroup.classList.toggle('active');
         }
@@ -522,7 +633,7 @@
                     if (navbarMain) navbarMain.classList.remove('expanded');
                 }
             }
-            
+
             // Update the icon based on the final state, only if toggleSidebar exists
             if (toggleSidebar) {
                 const icon = toggleSidebar.querySelector('i');
@@ -537,13 +648,13 @@
         }
 
         // تعيين الحالة الأولية عند تحميل الصفحة
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             console.log('DOMContentLoaded fired.');
             setSidebarState(); // Call on DOMContentLoaded to ensure elements are available
             window.addEventListener('resize', setSidebarState); // Re-evaluate on resize
 
             const currentPath = window.location.pathname;
-            
+
             // تحديث القوائم الفرعية النشطة
             document.querySelectorAll('.submenu-item').forEach(item => {
                 if (item.href && currentPath.includes(new URL(item.href).pathname)) {
@@ -560,9 +671,10 @@
             });
         });
     </script>
-    
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     @yield('scripts')
     @stack('scripts')
 </body>
+
 </html>

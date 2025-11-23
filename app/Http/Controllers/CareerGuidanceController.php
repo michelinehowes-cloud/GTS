@@ -12,6 +12,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
+
 
 class CareerGuidanceController extends Controller
 {
@@ -45,7 +47,7 @@ class CareerGuidanceController extends Controller
     public function createGraduate()
     {
         $this->authorize('create', GraduateData::class);
-        
+
         $majors = GraduateData::distinct()->pluck('major');
         $graduationYears = range(date('Y') - 5, date('Y') + 1);
         $employmentStatuses = [
@@ -70,7 +72,7 @@ class CareerGuidanceController extends Controller
     public function storeGraduate(Request $request)
     {
         $this->authorize('create', GraduateData::class);
-        
+
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
@@ -107,16 +109,16 @@ class CareerGuidanceController extends Controller
                 'graduate_id' => $graduate->id,
                 'graduate_name' => $graduate->name
             ]);
-            
+
             return redirect()
                 ->route('career-guidance.graduates.show', $graduate->id)
                 ->with('success', 'تمت إضافة بيانات الخريج بنجاح');
-                
+
         } catch (ValidationException $e) {
             Log::warning('فشل التحقق من صحة البيانات عند إضافة خريج جديد: ' . $e->getMessage(), [
                 'errors' => $e->errors()
             ]);
-            
+
             return back()
                 ->withInput()
                 ->withErrors($e->errors())
@@ -129,7 +131,7 @@ class CareerGuidanceController extends Controller
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return back()
                 ->withInput()
                 ->with('error', 'حدث خطأ غير متوقع أثناء محاولة إضافة الخريج. الرجاء المحاولة مرة أخرى.');
@@ -156,9 +158,12 @@ class CareerGuidanceController extends Controller
             $query->where('employment_status', $request->employment_status);
         }
 
-        $graduates = $query->withCount(['nominations', 'nominations as accepted_nominations_count' => function($q) {
-            $q->where('final_status', 'hired');
-        }])->latest()->get();
+        $graduates = $query->withCount([
+            'nominations',
+            'nominations as accepted_nominations_count' => function ($q) {
+                $q->where('final_status', 'hired');
+            }
+        ])->latest()->get();
 
         $majors = GraduateData::distinct()->pluck('major');
         $graduationYears = GraduateData::distinct()->pluck('graduation_year');
@@ -412,43 +417,70 @@ class CareerGuidanceController extends Controller
     public function downloadTemplate()
     {
         $fileName = 'graduates_template.csv';
-        
+
         $headers = [
-            'name', 'email', 'phone', 'major', 
-            'graduation_year', 'gpa', 'degree', 'skills', 
-            'languages', 'employment_status', 'work_experience', 
-            'address', 'linkedin_url'
+            'name',
+            'email',
+            'phone',
+            'major',
+            'graduation_year',
+            'gpa',
+            'degree',
+            'skills',
+            'languages',
+            'employment_status',
+            'work_experience',
+            'address',
+            'linkedin_url'
         ];
 
         $sampleData = [
             [
-                'أحمد محمد', 'ahmed@example.com', '0912345678',
-                'هندسة حاسوب', '2023', '3.75', 'بكالوريوس', 'برمجة,تصميم,إدارة',
-                'عربية,إنجليزية', 'seeking_opportunities', '2 سنوات في شركة X',
-                'طرابلس - الحي القديم', 'linkedin.com/in/ahmed'
+                'أحمد محمد',
+                'ahmed@example.com',
+                '0912345678',
+                'هندسة حاسوب',
+                '2023',
+                '3.75',
+                'بكالوريوس',
+                'برمجة,تصميم,إدارة',
+                'عربية,إنجليزية',
+                'seeking_opportunities',
+                '2 سنوات في شركة X',
+                'طرابلس - الحي القديم',
+                'linkedin.com/in/ahmed'
             ],
             [
-                'فاطمة علي', '', '0923456789',
-                'علوم حاسوب', '2022', '', 'بكالوريوس', 'تحليل بيانات,ذكاء اصطناعي',
-                'عربية,إنجليزية,فرنسية', 'employed', 'مطور برمجيات في شركة Y',
-                'بنغازي - المدينة الجامعية', 'linkedin.com/in/fatima'
+                'فاطمة علي',
+                '',
+                '0923456789',
+                'علوم حاسوب',
+                '2022',
+                '',
+                'بكالوريوس',
+                'تحليل بيانات,ذكاء اصطناعي',
+                'عربية,إنجليزية,فرنسية',
+                'employed',
+                'مطور برمجيات في شركة Y',
+                'بنغازي - المدينة الجامعية',
+                'linkedin.com/in/fatima'
             ]
         ];
 
-        return response()->streamDownload(function() use ($headers, $sampleData) {
+        return response()->streamDownload(function () use ($headers, $sampleData) {
             $file = fopen('php://output', 'w');
-            
+
             // إضافة BOM للحروف العربية
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
             // كتابة العناوين
             fputcsv($file, $headers);
-            
+
             // كتابة البيانات النموذجية
             foreach ($sampleData as $row) {
                 fputcsv($file, $row);
             }
-            
+
             fclose($file);
         }, $fileName, [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -479,10 +511,19 @@ class CareerGuidanceController extends Controller
 
         $headers = array_map('trim', array_shift($data)); // Get headers and remove from data
         $expectedHeaders = [
-            'name', 'email', 'phone', 'major', 
-            'graduation_year', 'gpa', 'degree', 'skills', 
-            'languages', 'employment_status', 'work_experience', 
-            'address', 'linkedin_url'
+            'name',
+            'email',
+            'phone',
+            'major',
+            'graduation_year',
+            'gpa',
+            'degree',
+            'skills',
+            'languages',
+            'employment_status',
+            'work_experience',
+            'address',
+            'linkedin_url'
         ];
 
         // Validate headers
@@ -601,41 +642,48 @@ class CareerGuidanceController extends Controller
     /**
      * التقارير المتقدمة مع المخططات البيانية
      */
-    public function advancedReports()
+    public function advancedReports(Request $request)
     {
         try {
-            // الإحصائيات الأساسية
-            $stats = $this->getAdvancedStats();
-            
+            // جلب البيانات للفلاتر
+            $majors = GraduateData::distinct()->pluck('major');
+            $years = GraduateData::distinct()->orderBy('graduation_year', 'desc')->pluck('graduation_year');
+
+            // الإحصائيات الأساسية مع تطبيق الفلاتر
+            $filters = $request->only(['major', 'year', 'status']);
+            $stats = $this->getAdvancedStats($filters);
+
             // بيانات المخططات مع التحقق من الصحة
-            $chartData = $this->getChartData();
-            
+            $chartData = $this->getChartData($filters);
+
             // إذا لم تكن هناك بيانات كافية، استخدم بيانات نموذجية
             if ($stats['totalGraduates'] == 0 || !$this->validateChartData($chartData)) {
                 $chartData = $this->getSampleChartData();
                 \Log::info('Using sample chart data - no real data available');
             }
-            
+
             // استنتاجات ذكية
             $insights = $this->getAIInsights($stats);
-            
+
             \Log::info('Advanced Reports Loaded', [
                 'graduates' => $stats['totalGraduates'],
                 'charts' => count($chartData),
                 'insights' => count($insights)
             ]);
 
-            return view('career-guidance.advanced-reports', compact('stats', 'chartData', 'insights'));
-        
+            return view('career-guidance.advanced-reports', compact('stats', 'chartData', 'insights', 'majors', 'years'));
+
         } catch (\Exception $e) {
             \Log::error('Advanced Reports Error: ' . $e->getMessage());
-            
+
             // في حالة الخطأ، عرض بيانات نموذجية
             $stats = $this->getAdvancedStats();
             $chartData = $this->getSampleChartData();
             $insights = $this->getAIInsights($stats);
-            
-            return view('career-guidance.advanced-reports', compact('stats', 'chartData', 'insights'))
+            $majors = [];
+            $years = [];
+
+            return view('career-guidance.advanced-reports', compact('stats', 'chartData', 'insights', 'majors', 'years'))
                 ->with('error', 'تم تحميل التقارير ببيانات نموذجية بسبب وجود خطأ في البيانات الفعلية');
         }
     }
@@ -647,28 +695,49 @@ class CareerGuidanceController extends Controller
     {
         try {
             $type = $request->get('type', 'full');
-            
-            $stats = $this->getAdvancedStats();
-            $chartData = $this->getChartData();
+
+            // تطبيق الفلاتر الحالية إذا وجدت
+            $filters = $request->only(['major', 'year', 'status']);
+            $stats = $this->getAdvancedStats($filters);
             $insights = $this->getAIInsights($stats);
-            
+
             if ($stats['totalGraduates'] == 0) {
-                return redirect()->route('career-guidance.advanced-reports')
+                return redirect()->back()
                     ->with('warning', 'لا توجد بيانات كافية لتصدير التقرير');
             }
-            
-            $fileName = "التقارير_المتقدمة_" . date('Y-m-d') . ".pdf";
-            
-            // إذا كان لديك مكتبة PDF مثبتة
-            $pdf = \PDF::loadView('career-guidance.reports-pdf', compact('stats', 'chartData', 'insights', 'type'));
+
+            // معالجة النصوص العربية
+            // نقوم بتحويل النصوص الثابتة المهمة أو البيانات التي ستظهر في PDF
+            // ملاحظة: هذا حل مؤقت، الأفضل استخدام مكتبة ArPHP
+
+            // مثال على استخدام Helper (إذا تم تفعيله)
+            // $stats['totalGraduates'] = \App\Helpers\Arabic::reshape($stats['totalGraduates']);
+
+            $fileName = "تقرير_الارشاد_المهني_" . date('Y-m-d') . ".pdf";
+
+            // استخدام مكتبة PDF مع إعدادات مناسبة
+            $pdf = \PDF::loadView('career-guidance.reports-pdf', compact('stats', 'insights', 'type'))
+                ->setPaper('a4', 'portrait')
+                ->setOption('enable_remote', false)
+                ->setOption('enable_php', false)
+                ->setOption('isHtml5ParserEnabled', true)
+                ->setOption('isRemoteEnabled', false)
+                ->setOption('defaultFont', 'dejavu sans'); // استخدام خط يدعم العربية
+
             return $pdf->download($fileName);
-            
+
         } catch (\Exception $e) {
-            Log::error('PDF Export Error: ' . $e->getMessage());
-            return redirect()->route('career-guidance.advanced-reports')
+            Log::error('PDF Export Error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()
                 ->with('error', 'حدث خطأ أثناء تصدير التقرير: ' . $e->getMessage());
         }
     }
+
 
     /**
      * تصدير التقرير كـ Excel
@@ -676,20 +745,28 @@ class CareerGuidanceController extends Controller
     public function exportReportsExcel(Request $request)
     {
         try {
-            $stats = $this->getAdvancedStats();
-            
+            // تعطيل مؤقت: المكتبة المثبتة قديمة ولا تدعم الواجهات الحديثة
+            // يمكن تفعيلها بعد تحديث maatwebsite/excel إلى الإصدار 3.x
+
+            return redirect()->back()
+                ->with('info', 'تصدير Excel غير متاح حالياً. يرجى استخدام تصدير PDF بدلاً من ذلك.');
+
+            /* الكود الأصلي - سيتم تفعيله بعد تحديث المكتبة
+            $filters = $request->only(['major', 'year', 'status']);
+            $stats = $this->getAdvancedStats($filters);
+
             if ($stats['totalGraduates'] == 0) {
                 return redirect()->route('career-guidance.advanced-reports')
                     ->with('warning', 'لا توجد بيانات كافية لتصدير التقرير');
             }
-            
-            // إذا كان لديك مكتبة Excel مثبتة
-            $insights = $this->getAIInsights($stats); // Get insights for Excel export
+
+            $insights = $this->getAIInsights($stats);
             return Excel::download(new \App\Exports\AdvancedReportsExport($stats, $insights), 'التقارير_المتقدمة.xlsx');
-            
+            */
+
         } catch (\Exception $e) {
             Log::error('Excel Export Error: ' . $e->getMessage());
-            return redirect()->route('admin.career-guidance.advanced-reports')
+            return redirect()->back()
                 ->with('error', 'حدث خطأ أثناء تصدير التقرير: ' . $e->getMessage());
         }
     }
@@ -697,25 +774,33 @@ class CareerGuidanceController extends Controller
     /**
      * جمع الإحصائيات المتقدمة
      */
-    private function getAdvancedStats()
+    private function getAdvancedStats($filters = [])
     {
-        // استخدام استعلامات أكثر كفاءة
-        $graduateStats = GraduateData::selectRaw('
-            COUNT(*) as total,
-            SUM(CASE WHEN employment_status = "employed" THEN 1 ELSE 0 END) as employed,
-            SUM(CASE WHEN employment_status = "seeking_opportunities" THEN 1 ELSE 0 END) as seeking
-        ')->first();
+        // بناء الاستعلام الأساسي مع الفلاتر
+        $graduateQuery = GraduateData::query();
 
+        if (!empty($filters['major'])) {
+            $graduateQuery->where('major', $filters['major']);
+        }
+        if (!empty($filters['year'])) {
+            $graduateQuery->where('graduation_year', $filters['year']);
+        }
+        if (!empty($filters['status'])) {
+            $graduateQuery->where('employment_status', $filters['status']);
+        }
+
+        // حساب الإحصائيات بناءً على الفلاتر
+        $totalGraduates = $graduateQuery->count();
+        $employedGraduates = (clone $graduateQuery)->where('employment_status', 'employed')->count();
+        $seekingOpportunities = (clone $graduateQuery)->where('employment_status', 'seeking_opportunities')->count();
+
+        // إحصائيات الترشيحات (يمكن تطبيق فلاتر مماثلة إذا لزم الأمر)
         $nominationStats = Nomination::selectRaw('
             COUNT(*) as total,
             SUM(CASE WHEN final_status = "hired" THEN 1 ELSE 0 END) as successful,
             SUM(CASE WHEN status NOT IN ("rejected", "withdrawn") THEN 1 ELSE 0 END) as active
         ')->first();
 
-        $totalGraduates = $graduateStats->total ?? 0;
-        $employedGraduates = $graduateStats->employed ?? 0;
-        $seekingOpportunities = $graduateStats->seeking ?? 0;
-        
         return [
             'totalGraduates' => $totalGraduates,
             'employedGraduates' => $employedGraduates,
@@ -723,7 +808,7 @@ class CareerGuidanceController extends Controller
             'employmentRate' => $totalGraduates > 0 ? round(($employedGraduates / $totalGraduates) * 100, 1) : 0,
             'seekingRate' => $totalGraduates > 0 ? round(($seekingOpportunities / $totalGraduates) * 100, 1) : 0,
             'activeNominations' => $nominationStats->active ?? 0,
-            'successRate' => $this->calculateSuccessRate(),
+            'successRate' => $this->calculateSuccessRate(), // يمكن تحديث هذه الدالة لتقبل فلاتر أيضاً
             'availableOpportunities' => JobOpportunity::where('status', 'open')->count(),
             'newGraduatesThisMonth' => GraduateData::whereMonth('created_at', now()->month)->count(),
             'newOpportunitiesThisWeek' => JobOpportunity::where('created_at', '>=', now()->subWeek())->count(),
@@ -734,27 +819,27 @@ class CareerGuidanceController extends Controller
     /**
      * بيانات المخططات البيانية
      */
-    private function getChartData()
+    private function getChartData($filters = [])
     {
         try {
             // توزيع الخريجين حسب التخصص
-            $majorsDistribution = $this->getMajorsDistribution();
-            
+            $majorsDistribution = $this->getMajorsDistribution($filters);
+
             // حالة التوظيف
-            $employmentStatus = $this->getEmploymentStatus();
-            
+            $employmentStatus = $this->getEmploymentStatus($filters);
+
             // حالة الترشيحات
-            $nominationsStatus = $this->getNominationsStatus();
-            
+            $nominationsStatus = $this->getNominationsStatus(); // يمكن إضافة الفلاتر هنا أيضاً إذا لزم الأمر
+
             // الأداء الشهري
             $monthlyPerformance = $this->getMonthlyPerformance();
-            
+
             // النجاح حسب التخصص
             $successByMajor = $this->getSuccessByMajor();
-            
+
             // توزيع فرص العمل
             $opportunitiesDistribution = $this->getOpportunitiesDistribution();
-            
+
             return [
                 'majorsDistribution' => $majorsDistribution,
                 'employmentStatus' => $employmentStatus,
@@ -763,7 +848,7 @@ class CareerGuidanceController extends Controller
                 'successByMajor' => $successByMajor,
                 'opportunitiesDistribution' => $opportunitiesDistribution,
             ];
-            
+
         } catch (\Exception $e) {
             Log::error('Chart Data Error: ' . $e->getMessage());
             return $this->getSampleChartData();
@@ -778,31 +863,37 @@ class CareerGuidanceController extends Controller
         return [
             'majorsDistribution' => [
                 'labels' => ['هندسة حاسوب', 'إدارة أعمال', 'طب', 'هندسة مدنية', 'صيدلة'],
-                'datasets' => [[
-                    'label' => 'عدد الخريجين',
-                    'data' => [25, 18, 12, 8, 6],
-                    'backgroundColor' => ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
-                    'borderColor' => ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
-                    'borderWidth' => 2
-                ]]
+                'datasets' => [
+                    [
+                        'label' => 'عدد الخريجين',
+                        'data' => [25, 18, 12, 8, 6],
+                        'backgroundColor' => ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
+                        'borderColor' => ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
+                        'borderWidth' => 2
+                    ]
+                ]
             ],
             'employmentStatus' => [
                 'labels' => ['موظف', 'باحث عن عمل', 'غير موظف', 'مستكمل للدراسة'],
-                'datasets' => [[
-                    'data' => [45, 30, 15, 10],
-                    'backgroundColor' => ['#1cc88a', '#f6c23e', '#e74a3b', '#36b9cc'],
-                    'borderWidth' => 2,
-                    'borderColor' => '#fff'
-                ]]
+                'datasets' => [
+                    [
+                        'data' => [45, 30, 15, 10],
+                        'backgroundColor' => ['#1cc88a', '#f6c23e', '#e74a3b', '#36b9cc'],
+                        'borderWidth' => 2,
+                        'borderColor' => '#fff'
+                    ]
+                ]
             ],
             'nominationsStatus' => [
                 'labels' => ['قيد المراجعة', 'مرسل للشركة', 'مقابلة مجدولة', 'مقبول', 'مرفوض'],
-                'datasets' => [[
-                    'data' => [20, 15, 10, 8, 5],
-                    'backgroundColor' => ['#f6c23e', '#36b9cc', '#858796', '#1cc88a', '#e74a3b'],
-                    'borderWidth' => 2,
-                    'borderColor' => '#fff'
-                ]]
+                'datasets' => [
+                    [
+                        'data' => [20, 15, 10, 8, 5],
+                        'backgroundColor' => ['#f6c23e', '#36b9cc', '#858796', '#1cc88a', '#e74a3b'],
+                        'borderWidth' => 2,
+                        'borderColor' => '#fff'
+                    ]
+                ]
             ],
             'monthlyPerformance' => [
                 'labels' => ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
@@ -825,23 +916,27 @@ class CareerGuidanceController extends Controller
             ],
             'successByMajor' => [
                 'labels' => ['هندسة حاسوب', 'إدارة أعمال', 'طب', 'هندسة مدنية'],
-                'datasets' => [[
-                    'label' => 'معدل النجاح %',
-                    'data' => [75, 60, 80, 55],
-                    'backgroundColor' => 'rgba(78, 115, 223, 0.2)',
-                    'borderColor' => '#4e73df',
-                    'pointBackgroundColor' => '#4e73df',
-                    'pointBorderColor' => '#fff'
-                ]]
+                'datasets' => [
+                    [
+                        'label' => 'معدل النجاح %',
+                        'data' => [75, 60, 80, 55],
+                        'backgroundColor' => 'rgba(78, 115, 223, 0.2)',
+                        'borderColor' => '#4e73df',
+                        'pointBackgroundColor' => '#4e73df',
+                        'pointBorderColor' => '#fff'
+                    ]
+                ]
             ],
             'opportunitiesDistribution' => [
                 'labels' => ['وظائف', 'تدريبات', 'تدريب عملي'],
-                'datasets' => [[
-                    'data' => [35, 25, 15],
-                    'backgroundColor' => ['#4e73df', '#1cc88a', '#36b9cc'],
-                    'borderWidth' => 2,
-                    'borderColor' => '#fff'
-                ]]
+                'datasets' => [
+                    [
+                        'data' => [35, 25, 15],
+                        'backgroundColor' => ['#4e73df', '#1cc88a', '#36b9cc'],
+                        'borderWidth' => 2,
+                        'borderColor' => '#fff'
+                    ]
+                ]
             ]
         ];
     }
@@ -852,7 +947,7 @@ class CareerGuidanceController extends Controller
     private function getAIInsights($stats)
     {
         $insights = [];
-        
+
         if ($stats['employmentRate'] > 70) {
             $insights[] = [
                 'icon' => 'trophy',
@@ -868,7 +963,7 @@ class CareerGuidanceController extends Controller
                 'description' => 'معدل التوظيف منخفض، يحتاج إلى تحسين استراتيجيات التوظيف'
             ];
         }
-        
+
         if ($stats['successRate'] < 30) {
             $insights[] = [
                 'icon' => 'exclamation-triangle',
@@ -884,7 +979,7 @@ class CareerGuidanceController extends Controller
                 'description' => 'نسبة نجاح الترشيحات ممتازة، استمر في النهج الحالي'
             ];
         }
-        
+
         if ($stats['seekingRate'] > 50) {
             $insights[] = [
                 'icon' => 'people',
@@ -893,7 +988,7 @@ class CareerGuidanceController extends Controller
                 'description' => 'هناك عدد كبير من الخريجين الباحثين عن عمل، ركز على توفير فرص مناسبة'
             ];
         }
-        
+
         if ($stats['availableOpportunities'] < 10) {
             $insights[] = [
                 'icon' => 'briefcase',
@@ -912,7 +1007,7 @@ class CareerGuidanceController extends Controller
                 'description' => 'جميع المؤشرات ضمن المعدلات المتوقعة، استمر في المتابعة'
             ];
         }
-        
+
         return $insights;
     }
 
@@ -923,7 +1018,7 @@ class CareerGuidanceController extends Controller
     {
         $totalNominations = Nomination::count();
         $successfulNominations = Nomination::where('final_status', 'hired')->count();
-        
+
         return $totalNominations > 0 ? round(($successfulNominations / $totalNominations) * 100, 1) : 0;
     }
 
@@ -934,18 +1029,26 @@ class CareerGuidanceController extends Controller
     {
         $employmentRate = GraduateData::where('employment_status', 'employed')->count() / max(GraduateData::count(), 1) * 100;
         $nominationSuccessRate = $this->calculateSuccessRate();
-        
+
         return round(($employmentRate + $nominationSuccessRate) / 2, 1);
     }
 
     /**
      * توزيع الخريجين حسب التخصص
      */
-    private function getMajorsDistribution()
+    private function getMajorsDistribution($filters = [])
     {
-        $majors = GraduateData::select('major')
-            ->selectRaw('COUNT(*) as count')
-            ->groupBy('major')
+        $query = GraduateData::select('major')
+            ->selectRaw('COUNT(*) as count');
+
+        if (!empty($filters['year'])) {
+            $query->where('graduation_year', $filters['year']);
+        }
+        if (!empty($filters['status'])) {
+            $query->where('employment_status', $filters['status']);
+        }
+
+        $majors = $query->groupBy('major')
             ->orderBy('count', 'desc')
             ->limit(8)
             ->get();
@@ -953,8 +1056,14 @@ class CareerGuidanceController extends Controller
         $labels = $majors->pluck('major')->toArray();
         $data = $majors->pluck('count')->toArray();
         $backgroundColors = [
-            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
-            '#858796', '#5a5c69', '#6f42c1'
+            '#4e73df',
+            '#1cc88a',
+            '#36b9cc',
+            '#f6c23e',
+            '#e74a3b',
+            '#858796',
+            '#5a5c69',
+            '#6f42c1'
         ];
 
         return [
@@ -963,11 +1072,99 @@ class CareerGuidanceController extends Controller
                 [
                     'label' => 'عدد الخريجين',
                     'data' => $data,
-                    'backgroundColor' => $backgroundColors,
-                    'borderColor' => array_map(function($color) {
-                        return $color;
-                    }, $backgroundColors),
-                    'borderWidth' => 2
+                    'backgroundColor' => array_slice($backgroundColors, 0, count($data)),
+                    'borderWidth' => 1
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * حالة التوظيف
+     */
+    private function getEmploymentStatus($filters = [])
+    {
+        $query = GraduateData::select('employment_status')
+            ->selectRaw('COUNT(*) as count');
+
+        if (!empty($filters['major'])) {
+            $query->where('major', $filters['major']);
+        }
+        if (!empty($filters['year'])) {
+            $query->where('graduation_year', $filters['year']);
+        }
+
+        $statuses = $query->groupBy('employment_status')->get();
+
+        $labels = [];
+        $data = [];
+        $statusLabels = [
+            'employed' => 'موظف',
+            'seeking_opportunities' => 'باحث عن عمل',
+            'unemployed' => 'عاطل عن العمل',
+            'further_study' => 'يكمل دراسته'
+        ];
+        $colors = [
+            'employed' => '#1cc88a',
+            'seeking_opportunities' => '#f6c23e',
+            'unemployed' => '#e74a3b',
+            'further_study' => '#36b9cc'
+        ];
+        $bgColors = [];
+
+        foreach ($statuses as $status) {
+            $labels[] = $statusLabels[$status->employment_status] ?? $status->employment_status;
+            $data[] = $status->count;
+            $bgColors[] = $colors[$status->employment_status] ?? '#858796';
+        }
+
+        return [
+            'labels' => $labels,
+            'datasets' => [
+                [
+                    'data' => $data,
+                    'backgroundColor' => $bgColors,
+                    'borderWidth' => 2,
+                    'borderColor' => '#fff'
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * حالة الترشيحات
+     */
+    private function getNominationsStatus()
+    {
+        $statuses = Nomination::select('status')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('status')
+            ->get();
+
+        $labels = [];
+        $data = [];
+        $statusLabels = [
+            'pending' => 'قيد المراجعة',
+            'sent_to_company' => 'مرسل للشركة',
+            'interview_scheduled' => 'مقابلة مجدولة',
+            'accepted' => 'مقبول',
+            'rejected' => 'مرفوض',
+            'withdrawn' => 'منسحب'
+        ];
+
+        foreach ($statuses as $status) {
+            $labels[] = $statusLabels[$status->status] ?? $status->status;
+            $data[] = $status->count;
+        }
+
+        return [
+            'labels' => $labels,
+            'datasets' => [
+                [
+                    'data' => $data,
+                    'backgroundColor' => ['#f6c23e', '#36b9cc', '#858796', '#1cc88a', '#e74a3b', '#5a5c69'],
+                    'borderWidth' => 2,
+                    'borderColor' => '#fff'
                 ]
             ]
         ];
@@ -985,11 +1182,11 @@ class CareerGuidanceController extends Controller
             COUNT(*) as total,
             SUM(CASE WHEN final_status = "hired" THEN 1 ELSE 0 END) as successful
         ')
-        ->where('created_at', '>=', now()->subMonths(6))
-        ->groupBy('year', 'month')
-        ->orderBy('year', 'desc')
-        ->orderBy('month', 'desc')
-        ->get();
+            ->where('created_at', '>=', now()->subMonths(6))
+            ->groupBy('year', 'month')
+            ->orderBy('year', 'desc')
+            ->orderBy('month', 'desc')
+            ->get();
 
         $labels = [];
         $totalData = [];
@@ -1050,7 +1247,7 @@ class CareerGuidanceController extends Controller
         $successRates = [];
 
         foreach ($successByMajor as $item) {
-            $successRate = $item->total_nominations > 0 ? 
+            $successRate = $item->total_nominations > 0 ?
                 round(($item->successful_nominations / $item->total_nominations) * 100, 1) : 0;
             $successRates[] = $successRate;
         }
@@ -1084,7 +1281,7 @@ class CareerGuidanceController extends Controller
 
         $labels = [];
         $data = [];
-        
+
         $typeLabels = [
             'job' => 'وظائف',
             'training' => 'تدريبات',
@@ -1117,11 +1314,20 @@ class CareerGuidanceController extends Controller
     private function getArabicMonthName($month)
     {
         $months = [
-            1 => 'يناير', 2 => 'فبراير', 3 => 'مارس', 4 => 'أبريل',
-            5 => 'مايو', 6 => 'يونيو', 7 => 'يوليو', 8 => 'أغسطس',
-            9 => 'سبتمبر', 10 => 'أكتوبر', 11 => 'نوفمبر', 12 => 'ديسمبر'
+            1 => 'يناير',
+            2 => 'فبراير',
+            3 => 'مارس',
+            4 => 'أبريل',
+            5 => 'مايو',
+            6 => 'يونيو',
+            7 => 'يوليو',
+            8 => 'أغسطس',
+            9 => 'سبتمبر',
+            10 => 'أكتوبر',
+            11 => 'نوفمبر',
+            12 => 'ديسمبر'
         ];
-        
+
         return $months[$month] ?? 'غير معروف';
     }
 
@@ -1164,7 +1370,7 @@ class CareerGuidanceController extends Controller
         // المهارات المطلوبة في فرص العمل
         $requiredSkills = JobOpportunity::whereNotNull('required_skills')
             ->get()
-            ->flatMap(function($job) {
+            ->flatMap(function ($job) {
                 return $job->required_skills ?? [];
             })
             ->countBy()
@@ -1174,7 +1380,7 @@ class CareerGuidanceController extends Controller
         // المهارات المتاحة لدى الخريجين
         $availableSkills = GraduateData::whereNotNull('skills')
             ->get()
-            ->flatMap(function($grad) {
+            ->flatMap(function ($grad) {
                 return $grad->skills ?? [];
             })
             ->countBy()

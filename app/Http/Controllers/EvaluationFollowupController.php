@@ -25,7 +25,7 @@ class EvaluationFollowupController extends Controller
         $usersCount = Schema::hasTable('users') ? User::count() : 0;
         $companiesCount = Schema::hasTable('companies') ? Company::count() : 0;
         $trainingsCount = Schema::hasTable('trainings') ? Training::count() : 0;
-        
+
         if (Schema::hasTable('training_applications')) {
             $applicationsCount = TrainingApplication::count();
             $pendingApplicationsCount = TrainingApplication::where('status', 'pending')->count();
@@ -70,9 +70,18 @@ class EvaluationFollowupController extends Controller
         // Add more job opportunity specific stats if needed
 
         return view('evaluation-followup.dashboard', compact(
-            'usersCount', 'companiesCount', 'trainingsCount', 'applicationsCount', 'pendingApplicationsCount',
-            'stats', 'usersByRole', 'recentUsers', 'recentCompanies',
-            'graduatesCount', 'partnershipDocumentsCount', 'jobOpportunitiesCount'
+            'usersCount',
+            'companiesCount',
+            'trainingsCount',
+            'applicationsCount',
+            'pendingApplicationsCount',
+            'stats',
+            'usersByRole',
+            'recentUsers',
+            'recentCompanies',
+            'graduatesCount',
+            'partnershipDocumentsCount',
+            'jobOpportunitiesCount'
         ));
     }
 
@@ -87,10 +96,10 @@ class EvaluationFollowupController extends Controller
         return view('evaluation-followup.training-reports', $data);
     }
 
-    public function careerGuidanceReports()
+    public function careerGuidanceReports(Request $request)
     {
         $careerGuidanceController = new CareerGuidanceController();
-        $data = $careerGuidanceController->advancedReports()->getData(); // Get data from the advancedReports method
+        $data = $careerGuidanceController->advancedReports($request)->getData(); // Get data from the advancedReports method
 
         return view('evaluation-followup.career-guidance-reports', $data);
     }
@@ -140,9 +149,9 @@ class EvaluationFollowupController extends Controller
             'totalCompaniesCount' => $totalCompaniesCount,
             'totalJobOpportunitiesCount' => $totalJobOpportunitiesCount,
             'jobOpportunityTrends' => JobOpportunity::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, count(*) as count')
-                                        ->groupBy('month')
-                                        ->orderBy('month')
-                                        ->get(),
+                ->groupBy('month')
+                ->orderBy('month')
+                ->get(),
         ]);
     }
 
@@ -171,23 +180,23 @@ class EvaluationFollowupController extends Controller
         try {
             $month = $request->input('month', Carbon::now()->month);
             $year = $request->input('year', Carbon::now()->year);
-            
+
             $month = max(1, min(12, $month));
             $year = max(2020, min(2030, $year));
-            
+
             $startDate = Carbon::create($year, $month, 1);
             $endDate = $startDate->copy()->endOfMonth();
-            
-            $trainings = Training::where(function($query) use ($startDate, $endDate) {
-                    $query->whereBetween('start_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
-                          ->orWhereBetween('end_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
-                })
+
+            $trainings = Training::where(function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('start_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                    ->orWhereBetween('end_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+            })
                 ->get();
-            
+
             $calendar = $this->generateCalendar($month, $year, $trainings);
-            
+
             return view('evaluation-followup.training-calendar.index', compact('calendar', 'trainings', 'month', 'year', 'startDate'));
-            
+
         } catch (\Exception $e) {
             return redirect()->route('evaluation-followup.dashboard')
                 ->with('error', 'حدث خطأ في تحميل التقويم: ' . $e->getMessage());
@@ -198,30 +207,30 @@ class EvaluationFollowupController extends Controller
     {
         $startDate = Carbon::create($year, $month, 1);
         $endDate = $startDate->copy()->endOfMonth();
-        
+
         $days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-        
+
         $calendar = [];
         $currentDay = $startDate->copy();
-        
+
         $firstDayOfWeek = $currentDay->dayOfWeek;
         for ($i = 0; $i < $firstDayOfWeek; $i++) {
             $calendar[] = ['day' => null, 'trainings' => []];
         }
-        
+
         while ($currentDay->month == $month) {
-            $dayTrainings = $trainings->filter(function($training) use ($currentDay) {
+            $dayTrainings = $trainings->filter(function ($training) use ($currentDay) {
                 return $currentDay->between(Carbon::parse($training->start_date)->startOfDay(), Carbon::parse($training->end_date)->endOfDay());
             });
-            
+
             $calendar[] = [
                 'day' => $currentDay->copy(),
                 'trainings' => $dayTrainings
             ];
-            
+
             $currentDay->addDay();
         }
-        
+
         return [
             'days' => $days,
             'weeks' => array_chunk($calendar, 7),
@@ -232,18 +241,27 @@ class EvaluationFollowupController extends Controller
     private function getArabicMonthName($month)
     {
         $months = [
-            1 => 'يناير', 2 => 'فبراير', 3 => 'مارس', 4 => 'أبريل',
-            5 => 'مايو', 6 => 'يونيو', 7 => 'يوليو', 8 => 'أغسطس',
-            9 => 'سبتمبر', 10 => 'أكتوبر', 11 => 'نوفمبر', 12 => 'ديسمبر'
+            1 => 'يناير',
+            2 => 'فبراير',
+            3 => 'مارس',
+            4 => 'أبريل',
+            5 => 'مايو',
+            6 => 'يونيو',
+            7 => 'يوليو',
+            8 => 'أغسطس',
+            9 => 'سبتمبر',
+            10 => 'أكتوبر',
+            11 => 'نوفمبر',
+            12 => 'ديسمبر'
         ];
-        
+
         return $months[$month] ?? 'غير معروف';
     }
 
-    public function careerGuidanceAdvancedReportsIndex()
+    public function careerGuidanceAdvancedReportsIndex(Request $request)
     {
         $careerGuidanceController = new CareerGuidanceController();
-        $data = $careerGuidanceController->advancedReports()->getData();
+        $data = $careerGuidanceController->advancedReports($request)->getData();
 
         return view('evaluation-followup.advanced-reports.index', $data);
     }
@@ -282,10 +300,10 @@ class EvaluationFollowupController extends Controller
         $stats = [
             'total_surveys' => $surveys->count(),
             'active_surveys' => $surveys->where('is_active', true)->count(),
-            'total_responses' => $surveys->sum(function($survey) {
+            'total_responses' => $surveys->sum(function ($survey) {
                 return $survey->responses->count();
             }),
-            'average_completion_rate' => $surveys->avg(function($survey) {
+            'average_completion_rate' => $surveys->avg(function ($survey) {
                 $targetCount = $this->getTargetAudienceCount($survey->target_audience);
                 return $targetCount > 0 ? ($survey->responses->count() / $targetCount) * 100 : 0;
             }),
@@ -338,11 +356,16 @@ class EvaluationFollowupController extends Controller
 
         foreach ($evaluations as $evaluation) {
             $score = $evaluation->average_score;
-            if ($score >= 4.5) $distribution['excellent']++;
-            elseif ($score >= 3.5) $distribution['good']++;
-            elseif ($score >= 2.5) $distribution['average']++;
-            elseif ($score >= 1.5) $distribution['below_average']++;
-            else $distribution['poor']++;
+            if ($score >= 4.5)
+                $distribution['excellent']++;
+            elseif ($score >= 3.5)
+                $distribution['good']++;
+            elseif ($score >= 2.5)
+                $distribution['average']++;
+            elseif ($score >= 1.5)
+                $distribution['below_average']++;
+            else
+                $distribution['poor']++;
         }
 
         return $distribution;

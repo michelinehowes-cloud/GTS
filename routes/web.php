@@ -218,6 +218,7 @@ Route::middleware('auth')->group(function () {
         // 👤 الملف الشخصي للخريج
         Route::get('/profile', [GraduateController::class, 'profile'])->name('graduate.profile');
         Route::put('/profile', [GraduateController::class, 'updateProfile'])->name('graduate.profile.update');
+        Route::put('/profile/password', [GraduateController::class, 'updatePassword'])->name('graduate.password.update');
 
         // 🎯 برامج التدريب المتاحة
         Route::get('/trainings', [TrainingController::class, 'availableTrainings'])->name('graduate.trainings');

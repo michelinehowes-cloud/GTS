@@ -146,15 +146,26 @@
                 </h1>
                 <p class="mb-0 text-muted">نظرة شاملة وتحليلات دقيقة لأداء نظام الإرشاد المهني</p>
             </div>
-            <div class="d-flex gap-2">
-                <a href="{{ route('career-guidance.export-reports.pdf') }}" target="_blank"
-                    class="btn btn-danger btn-action shadow-sm">
-                    <i class="bi bi-file-earmark-pdf-fill me-2"></i>تصدير PDF
-                </a>
-                <a href="{{ route('career-guidance.export-reports.excel') }}" target="_blank"
-                    class="btn btn-success btn-action shadow-sm">
-                    <i class="bi bi-file-earmark-excel-fill me-2"></i>تصدير Excel
-                </a>
+            <div class="d-flex gap-2 flex-wrap">
+                @if(auth()->user()->role == 'career_guidance_officer')
+                    <a href="{{ route('career-guidance.export-reports.pdf', request()->all()) }}" target="_blank"
+                        class="btn btn-danger btn-action shadow-sm">
+                        <i class="bi bi-file-earmark-pdf-fill me-2"></i>تصدير PDF
+                    </a>
+                    <a href="{{ route('career-guidance.export-reports.excel', request()->all()) }}" target="_blank"
+                        class="btn btn-success btn-action shadow-sm">
+                        <i class="bi bi-file-earmark-excel-fill me-2"></i>تصدير Excel
+                    </a>
+                @else
+                    <a href="{{ route('evaluation-followup.export-reports.pdf', request()->all()) }}" target="_blank"
+                        class="btn btn-danger btn-action shadow-sm">
+                        <i class="bi bi-file-earmark-pdf-fill me-2"></i>تصدير PDF
+                    </a>
+                    <a href="{{ route('evaluation-followup.export-reports.excel', request()->all()) }}" target="_blank"
+                        class="btn btn-success btn-action shadow-sm">
+                        <i class="bi bi-file-earmark-excel-fill me-2"></i>تصدير Excel
+                    </a>
+                @endif
                 <button class="btn btn-primary btn-action shadow-sm" id="refreshBtn" onclick="location.reload()">
                     <i class="bi bi-arrow-clockwise me-2"></i>تحديث
                 </button>
@@ -169,8 +180,9 @@
                 </h6>
             </div>
             <div class="card-body">
-                <form action="{{ route('evaluation-followup.career-guidance-advanced-reports') }}" method="GET"
-                    id="filterForm">
+                <form
+                    action="{{ auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.advanced-reports') : route('evaluation-followup.career-guidance-advanced-reports') }}"
+                    method="GET" id="filterForm">
                     <div class="row g-3">
                         <div class="col-md-3">
                             <label for="major" class="form-label small text-muted fw-bold">التخصص</label>
@@ -463,10 +475,11 @@
                     display: true,
                     position: 'bottom',
                     labels: {
-                        padding: 20
+                        fontColor: '#333',
+                        usePointStyle: true
                     }
                 },
-                cutout: '70%',
+                cutoutPercentage: 80,
             },
         });
 
@@ -475,61 +488,33 @@
         new Chart(ctxPerformance, {
             type: 'bar',
             data: {
-                labels: ['معدل التوظيف', 'معدل النجاح', 'معدل البحث'],
+                labels: ['معدل التوظيف', 'نسبة النجاح'],
                 datasets: [{
                     label: 'النسبة المئوية',
-                    data: [
-                        stats.employmentRate,
-                        stats.successRate,
-                        stats.seekingRate
-                    ],
-                    backgroundColor: ['#1cc88a', '#36b9cc', '#f6c23e'],
-                    hoverBackgroundColor: ['#17a673', '#2c9faf', '#dda20a'],
+                    data: [stats.employmentRate, stats.successRate],
+                    backgroundColor: ['#1cc88a', '#36b9cc'],
+                    hoverBackgroundColor: ['#17a673', '#2c9faf'],
                     borderColor: "#4e73df",
-                    borderRadius: 5,
+                    maxBarThickness: 50,
                 }],
             },
             options: {
                 maintainAspectRatio: false,
-                layout: {
-                    padding: {
-                        left: 10,
-                        right: 25,
-                        top: 25,
-                        bottom: 0
-                    }
-                },
                 scales: {
-                    x: {
-                        grid: {
-                            display: false,
-                            drawBorder: false
-                        },
-                        ticks: {
-                            maxTicksLimit: 6
-                        },
-                    },
                     y: {
+                        beginAtZero: true,
+                        max: 100,
                         ticks: {
-                            maxTicksLimit: 5,
-                            padding: 10,
-                            callback: function (value, index, values) {
+                            callback: function (value) {
                                 return value + '%';
                             }
-                        },
-                        grid: {
-                            color: "rgb(234, 236, 244)",
-                            zeroLineColor: "rgb(234, 236, 244)",
-                            drawBorder: false,
-                            borderDash: [2],
-                            zeroLineBorderDash: [2]
                         }
-                    },
+                    }
                 },
                 plugins: {
                     legend: {
                         display: false
-                    },
+                    }
                 }
             },
         });

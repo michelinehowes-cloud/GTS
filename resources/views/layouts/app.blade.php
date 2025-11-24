@@ -361,17 +361,6 @@
                             </li>
 
 
-                            <i class="fas fa-file-alt"></i>
-                            وثائق الشراكة
-                            </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->routeIs('partnership.reports*') ? 'active' : '' }}"
-                                    href="{{ route('partnership.reports') }}">
-                                    <i class="fas fa-chart-line"></i>
-                                    التقارير
-                                </a>
-                            </li>
                         @endif
 
                         <!-- لوحة تحكم الشركة -->

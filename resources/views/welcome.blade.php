@@ -289,10 +289,11 @@
             ->where('is_active', true)
             ->orderBy('display_order')
             ->get();
+        $totalTrainings = \App\Models\Training::where('status', 'active')->count();
 
         $advertisedTrainings = \App\Models\Training::where('status', 'active')
             ->orderBy('created_at', 'desc')
-            ->limit(6)
+            ->limit(3)
             ->get();
     @endphp
 
@@ -333,7 +334,8 @@
     @if($advertisedTrainings->count() > 0)
         <section class="py-5 bg-light">
             <div class="container">
-                <h2 class="text-center display-5 fw-bold mb-5 text-primary-blue" data-aos="fade-down">تدريبات مميزة</h2>
+                <h2 class="text-center display-5 fw-bold mb-5 text-primary-blue" data-aos="fade-down">تدريبات مميزة
+                </h2>
                 <div class="row">
                     @foreach($advertisedTrainings as $training)
                         <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up">
@@ -364,7 +366,16 @@
                                 </div>
                             </div>
                         </div>
+
                     @endforeach
+                    @if($totalTrainings > 3)
+                        <div class="text-center mt-4">
+                            <a href="{{ route('login') }}" class="btn btn-gold btn-lg">
+                                <i class="fas fa-plus-circle me-2"></i>
+                                عرض المزيد من التدريبات ({{ $totalTrainings - 3 }} تدريب إضافي)
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
         </section>
@@ -407,7 +418,8 @@
                                             <div class="card-body">
                                                 <h6 class="card-title">{{ $news->title }}</h6>
                                                 <p class="card-text text-muted small">
-                                                    {{ Str::limit(strip_tags($news->content), 100) }}</p>
+                                                    {{ Str::limit(strip_tags($news->content), 100) }}
+                                                </p>
                                                 <small class="text-muted">
                                                     <i class="fas fa-calendar-alt me-1"></i>
                                                     {{ \Carbon\Carbon::parse($news->published_at)->format('d/m/Y') }}
@@ -434,7 +446,8 @@
                                             <div class="card-body">
                                                 <h6 class="card-title">{{ $announcement->title }}</h6>
                                                 <p class="card-text text-muted">
-                                                    {{ Str::limit(strip_tags($announcement->content), 120) }}</p>
+                                                    {{ Str::limit(strip_tags($announcement->content), 120) }}
+                                                </p>
                                                 @if($announcement->link)
                                                     <a href="{{ $announcement->link }}" class="btn btn-warning btn-sm mt-3 w-100"
                                                         target="_blank">
@@ -459,7 +472,8 @@
     <!-- قسم "لماذا نحن؟" -->
     <section class="py-5 bg-white">
         <div class="container">
-            <h2 class="text-center display-5 fw-bold mb-5 text-primary-blue" data-aos="fade-down">أهداف مكتبنا</h2>
+            <h2 class="text-center display-5 fw-bold mb-5 text-primary-blue" data-aos="fade-down">أهداف مكتبنا
+            </h2>
             <div class="row text-center">
                 <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="100">
                     <div class="p-4 border rounded-3 shadow-sm h-100">
@@ -507,7 +521,8 @@
                                 <i class="fas fa-chalkboard-teacher fa-2x"></i>
                             </div>
                             <h4 class="card-title fw-bold text-secondary-blue">برامج تدريب النخبة</h4>
-                            <p class="card-text text-muted">مسارات تدريبية مكثفة مصممة بالشراكة مع قادة الصناعة لصقل
+                            <p class="card-text text-muted">مسارات تدريبية مكثفة مصممة بالشراكة مع قادة الصناعة
+                                لصقل
                                 المهارات العملية.</p>
                         </div>
                     </div>
@@ -520,7 +535,8 @@
                                 <i class="fas fa-award fa-2x"></i>
                             </div>
                             <h4 class="card-title fw-bold text-secondary-blue">فرص عمل مرموقة</h4>
-                            <p class="card-text text-muted">وصول حصري لأفضل فرص التوظيف في كبرى الشركات والمؤسسات
+                            <p class="card-text text-muted">وصول حصري لأفضل فرص التوظيف في كبرى الشركات
+                                والمؤسسات
                                 الوطنية.</p>
                         </div>
                     </div>
@@ -533,7 +549,8 @@
                                 <i class="fas fa-shield-alt fa-2x"></i>
                             </div>
                             <h4 class="card-title fw-bold text-secondary-blue">منصة آمنة وموثوقة</h4>
-                            <p class="card-text text-muted">نظام متكامل لمتابعة وتقييم التقدم المهني للخريجين بشكل مستمر
+                            <p class="card-text text-muted">نظام متكامل لمتابعة وتقييم التقدم المهني للخريجين
+                                بشكل مستمر
                                 وفعال.</p>
                         </div>
                     </div>

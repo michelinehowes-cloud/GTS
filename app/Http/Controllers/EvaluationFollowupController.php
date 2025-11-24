@@ -261,9 +261,7 @@ class EvaluationFollowupController extends Controller
     public function careerGuidanceAdvancedReportsIndex(Request $request)
     {
         $careerGuidanceController = new CareerGuidanceController();
-        $data = $careerGuidanceController->advancedReports($request)->getData();
-
-        return view('evaluation-followup.advanced-reports.index', $data);
+        return $careerGuidanceController->advancedReports($request);
     }
 
     public function exportReportsPDF(Request $request)

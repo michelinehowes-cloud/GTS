@@ -289,12 +289,10 @@
             ->where('is_active', true)
             ->orderBy('display_order')
             ->get();
-        $totalTrainings = \App\Models\Training::where('status', 'active')->count();
-
         $advertisedTrainings = \App\Models\Training::where('status', 'active')
             ->orderBy('created_at', 'desc')
-            ->limit(3)
             ->get();
+        $totalTrainings = $advertisedTrainings->count();
     @endphp
 
     @if($welcomeImages->count() > 0)
@@ -337,8 +335,9 @@
                 <h2 class="text-center display-5 fw-bold mb-5 text-primary-blue" data-aos="fade-down">تدريبات مميزة
                 </h2>
                 <div class="row">
-                    @foreach($advertisedTrainings as $training)
-                        <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up">
+                    @foreach($advertisedTrainings as $index => $training)
+                        <div class="col-lg-4 col-md-6 mb-4 training-card {{ $index >= 3 ? 'hidden-training' : '' }}"
+                            data-aos="fade-up" style="{{ $index >= 3 ? 'display: none;' : '' }}">
                             <div class="ad-card h-100">
                                 <div class="card-header text-center py-3">
                                     <h5 class="mb-0">{{ $training->title }}</h5>
@@ -370,10 +369,12 @@
                     @endforeach
                     @if($totalTrainings > 3)
                         <div class="text-center mt-4">
-                            <a href="{{ route('login') }}" class="btn btn-gold btn-lg">
-                                <i class="fas fa-plus-circle me-2"></i>
-                                عرض المزيد من التدريبات ({{ $totalTrainings - 3 }} تدريب إضافي)
-                            </a>
+                            <button id="showMoreBtn" class="btn btn-gold btn-lg" onclick="showMoreTrainings()">
+                                <span id="btnText">
+                                    <i class="fas fa-plus-circle me-2"></i>
+                                    عرض المزيد من التدريبات ({{ $totalTrainings - 3 }} تدريب إضافي)
+                                </span>
+                            </button>
                         </div>
                     @endif
                 </div>
@@ -573,9 +574,65 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init({
-            duration: 1000, // values from 0 to 3000, with step 50ms
-            once: true, // whether animation should happen only once - while scrolling down
+            duration: 1000,
+            once: true,
         });
+        // دالة لعرض/إخفاء التدريبات الإضافية
+        let trainingsExpanded = false;
+
+        function showMoreTrainings() {
+            const hiddenTrainings = document.querySelectorAll('.hidden-training');
+            const btnText = document.getElementById('btnText');
+
+            if (!trainingsExpanded) {
+                // عرض التدريبات المخفية
+                hiddenTrainings.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.display = 'block';
+                        // إضافة تأثير الظهور التدريجي
+                        setTimeout(() => {
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(20px)';
+                            card.style.transition = 'all 0.5s ease';
+                            setTimeout(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            }, 10);
+                        }, 10);
+                    }, index * 100);
+                });
+
+                btnText.innerHTML = '<i class="fas fa-minus-circle me-2"></i>إخفاء التدريبات الإضافية';
+                trainingsExpanded = true;
+            } else {
+                // إخفاء التدريبات
+                hiddenTrainings.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            card.style.display = 'none';
+                        }, 500);
+                    }, index * 50);
+                });
+
+                const totalTrainings = {{ $totalTrainings ?? 0 }};
+                const hiddenCount = totalTrainings - 3;
+                btnText.innerHTML = `<i class="fas fa-plus-circle me-2"></i>عرض المزيد من التدريبات (${hiddenCount} تدريب إضافي)`;
+                trainingsExpanded = false;
+
+                // التمرير إلى قسم التدريبات
+                setTimeout(() => {
+                    const firstCard = document.querySelector('.training-card');
+                    if (firstCard) {
+                        firstCard.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }, 100);
+            }
+        }
     </script>
 </body>
 

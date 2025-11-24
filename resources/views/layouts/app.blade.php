@@ -187,14 +187,44 @@
                                 </div>
                             </li>
                         @endif
-
                         <!-- التدريبات المتاحة (للخريج فقط) -->
                         @if(auth()->user()->role == 'graduate')
+                            <!-- فاصل -->
+                            <hr class="sidebar-divider my-3">
+                            <div class="sidebar-heading">
+                                التدريب والتوظيف
+                            </div>
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('graduate.trainings*') ? 'active' : '' }}"
                                     href="{{ route('graduate.trainings') }}">
                                     <i class="fas fa-graduation-cap"></i>
-                                    التدريبات المتاحة
+                                    برامج التدريب
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('job-opportunities.index') ? 'active' : '' }}"
+                                    href="{{ route('job-opportunities.index') }}">
+                                    <i class="fas fa-briefcase"></i>
+                                    فرص العمل
+                                </a>
+                            </li>
+                            <!-- فاصل -->
+                            <hr class="sidebar-divider my-3">
+                            <div class="sidebar-heading">
+                                الملف الشخصي
+                            </div>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('graduate.profile') ? 'active' : '' }}"
+                                    href="{{ route('graduate.profile') }}">
+                                    <i class="fas fa-user"></i>
+                                    بياناتي
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}"
+                                    href="{{ route('notifications.index') }}">
+                                    <i class="fas fa-bell"></i>
+                                    الإشعارات
                                 </a>
                             </li>
                         @endif

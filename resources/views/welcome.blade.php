@@ -277,9 +277,14 @@
 
             <h1 class="display-3 fw-bolder mb-3" data-aos="fade-up" data-aos-delay="200">مكتب تدريب الخريجين</h1>
 
-            <a href="{{ route('login') }}" class="btn btn-gold btn-lg" data-aos="fade-up" data-aos-delay="400">
-                <i class="fas fa-sign-in-alt me-2"></i>تسجيل الدخول
-            </a>
+            <div class="d-flex justify-content-center gap-3" data-aos="fade-up" data-aos-delay="400">
+                <a href="{{ route('login') }}" class="btn btn-gold btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>تسجيل الدخول
+                </a>
+                <a href="{{ route('graduate.register') }}" class="btn btn-outline-light btn-lg fw-bold">
+                    <i class="fas fa-user-plus me-2"></i>تسجيل خريج جديد
+                </a>
+            </div>
         </div>
     </section>
 

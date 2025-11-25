@@ -13,7 +13,9 @@ class Nomination extends Model
         'job_opportunity_id',
         'graduate_id',
         'nominated_by',
+        'nomination_type',
         'status',
+        'notes',
         'nomination_notes',
         'matching_reasons',
         'interview_date',
@@ -63,6 +65,14 @@ class Nomination extends Model
      * العلاقة مع مسؤول الإرشاد المهني الذي رشح
      */
     public function nominator()
+    {
+        return $this->belongsTo(User::class, 'nominated_by');
+    }
+
+    /**
+     * العلاقة مع المستخدم الذي رشح
+     */
+    public function nominatedBy()
     {
         return $this->belongsTo(User::class, 'nominated_by');
     }

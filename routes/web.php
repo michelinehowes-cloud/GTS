@@ -491,4 +491,16 @@ Route::get('/new_test', function () {
     return view('new_test');
 });
 
+// ==================== 🎓 مسارات الخريجين - فرص العمل ====================
+Route::middleware(['auth'])->prefix('graduate')->name('graduate.')->group(function () {
+    // فرص العمل
+    Route::get('/job-opportunities', [App\Http\Controllers\GraduateJobController::class, 'index'])->name('job-opportunities.index');
+    Route::get('/job-opportunities/{id}', [App\Http\Controllers\GraduateJobController::class, 'show'])->name('job-opportunities.show');
+    Route::post('/job-opportunities/{id}/apply', [App\Http\Controllers\GraduateJobController::class, 'apply'])->name('job-opportunities.apply');
+
+    // ترشيحاتي ومقابلاتي
+    Route::get('/my-applications', [App\Http\Controllers\GraduateJobController::class, 'myApplications'])->name('my-applications');
+    Route::delete('/my-applications/{id}/cancel', [App\Http\Controllers\GraduateJobController::class, 'cancelApplication'])->name('my-applications.cancel');
+});
+
 require __DIR__ . '/auth.php';

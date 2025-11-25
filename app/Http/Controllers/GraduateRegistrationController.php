@@ -105,13 +105,57 @@ class GraduateRegistrationController extends Controller
             return back()->withErrors(['error' => 'هذا المستخدم ليس خريجاً']);
         }
 
+        // التحقق من عدم وجود سجل مكرر في graduates_data
+        $existingGraduate = \App\Models\GraduateData::where('email', $user->email)
+            ->orWhere(function ($query) use ($user) {
+                if ($user->national_id) {
+                    $query->where('national_id', $user->national_id);
+                }
+            })
+            ->first();
+
+        if ($existingGraduate) {
+            // الموافقة على الحساب فقط بدون إنشاء سجل جديد
+            $user->update([
+                'is_approved' => true,
+                'approved_at' => now(),
+                'approved_by' => auth()->id(),
+            ]);
+
+            return back()->with('success', 'تمت الموافقة على الحساب بنجاح (الخريج موجود مسبقاً في قاعدة البيانات)');
+        }
+
+        // الموافقة على الحساب
         $user->update([
             'is_approved' => true,
             'approved_at' => now(),
             'approved_by' => auth()->id(),
         ]);
 
-        return back()->with('success', 'تمت الموافقة على الحساب بنجاح');
+        // إنشاء سجل في جدول graduates_data تلقائياً
+        try {
+            \App\Models\GraduateData::create([
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'national_id' => $user->national_id ?? null,
+                'major' => $user->specialization ?? 'غير محدد',
+                'university' => $user->university ?? 'جامعة طرابلس',
+                'graduation_year' => $user->graduation_year ?? date('Y'),
+                'gpa' => $user->gpa ?? null,
+                'degree' => $user->qualification ?? 'بكالوريوس',
+                'address' => $user->address ?? null,
+                'employment_status' => 'seeking_opportunities',
+                'added_by' => auth()->id(),
+                'data_source' => 'system_sync',
+                'is_active' => true,
+                'notes' => 'تم الإنشاء تلقائياً عند الموافقة على طلب التسجيل',
+            ]);
+
+            return back()->with('success', 'تمت الموافقة على الحساب بنجاح وتم إضافة الخريج إلى قاعدة البيانات');
+        } catch (\Exception $e) {
+            return back()->with('warning', 'تمت الموافقة على الحساب بنجاح ولكن حدث خطأ أثناء إضافة الخريج إلى قاعدة البيانات: ' . $e->getMessage());
+        }
     }
 
     /**

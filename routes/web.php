@@ -42,6 +42,10 @@ Route::middleware('guest')->group(function () {
     // صفحة تسجيل الدخول
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+
+    // تسجيل خريج جديد
+    Route::get('/register/graduate', [App\Http\Controllers\GraduateRegistrationController::class, 'showRegistrationForm'])->name('graduate.register');
+    Route::post('/register/graduate', [App\Http\Controllers\GraduateRegistrationController::class, 'register'])->name('graduate.register.store');
 });
 
 // ==================== 📊 الاستبيانات العامة ====================
@@ -402,6 +406,11 @@ Route::middleware('auth')->group(function () {
         // إدارة الشركات لمسؤول الإرشاد المهني
         Route::get('/companies', [CompanyController::class, 'index'])->name('career-guidance.companies');
         Route::get('/companies/{company}', [CompanyController::class, 'show'])->name('career-guidance.companies.show');
+
+        // الموافقة على حسابات الخريجين
+        Route::get('/pending-approvals', [App\Http\Controllers\GraduateRegistrationController::class, 'pendingApprovals'])->name('career-guidance.pending-approvals');
+        Route::post('/pending-approvals/{id}/approve', [App\Http\Controllers\GraduateRegistrationController::class, 'approve'])->name('career-guidance.approve-graduate');
+        Route::post('/pending-approvals/{id}/reject', [App\Http\Controllers\GraduateRegistrationController::class, 'reject'])->name('career-guidance.reject-graduate');
     });
 
     // ==================== 💼 مسارات فرص العمل والتدريب ====================

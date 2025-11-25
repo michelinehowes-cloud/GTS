@@ -26,7 +26,16 @@ class User extends Authenticatable
         'experiences',
         'education',
         'resume_path',
-        'is_active'
+        'is_active',
+        'national_id',
+        'date_of_birth',
+        'gender',
+        'city',
+        'qualification',
+        'specialization',
+        'is_approved',
+        'approved_at',
+        'approved_by'
     ];
 
     protected $hidden = [
@@ -40,6 +49,9 @@ class User extends Authenticatable
         'graduation_year' => 'integer',
         'gpa' => 'decimal:2',
         'skills' => 'array',
+        'is_approved' => 'boolean',
+        'approved_at' => 'datetime',
+        'date_of_birth' => 'date',
     ];
 
     /**
@@ -48,14 +60,14 @@ class User extends Authenticatable
     public static function getAvailableRoles()
     {
         return [
-        'admin' => 'مدير النظام',
-        'graduate' => 'خريج',
-        'training_coordinator' => 'منسق التدريب',
-        'partnership_officer' => 'مسؤول الشراكات والتوظيف',
-        'career_guidance_officer' => 'مسؤول الإرشاد المهني',
-        'evaluation_followup' => 'مسؤول التقييم والمتابعة',
-        'media_officer' => 'مسؤول الميديا',
-        'company' => 'شركة'
+            'admin' => 'مدير النظام',
+            'graduate' => 'خريج',
+            'training_coordinator' => 'منسق التدريب',
+            'partnership_officer' => 'مسؤول الشراكات والتوظيف',
+            'career_guidance_officer' => 'مسؤول الإرشاد المهني',
+            'evaluation_followup' => 'مسؤول التقييم والمتابعة',
+            'media_officer' => 'مسؤول الميديا',
+            'company' => 'شركة'
         ];
     }
 
@@ -277,11 +289,11 @@ class User extends Authenticatable
     }
     // app/Models/User.php
 
-/**
- * التحقق إذا كان المستخدم يمكنه إضافة خريجين
- */
-public function canAddGraduates()
-{
-    return in_array($this->role, ['admin', 'career_guidance_officer']);
-}
+    /**
+     * التحقق إذا كان المستخدم يمكنه إضافة خريجين
+     */
+    public function canAddGraduates()
+    {
+        return in_array($this->role, ['admin', 'career_guidance_officer']);
+    }
 }

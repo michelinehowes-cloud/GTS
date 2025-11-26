@@ -104,13 +104,14 @@ class GraduateJobController extends Controller
         }
 
         // إنشاء ترشيح جديد
+        // إنشاء ترشيح جديد
         Nomination::create([
             'graduate_id' => $graduateData->id,
             'job_opportunity_id' => $id,
             'nominated_by' => auth()->id(), // الخريج رشح نفسه
             'nomination_type' => 'self', // ترشيح ذاتي
             'status' => 'pending',
-            'notes' => $request->notes ?? 'ترشيح ذاتي من الخريج',
+            'nomination_notes' => $request->notes ?? 'ترشيح ذاتي من الخريج',
         ]);
 
         return back()->with('success', 'تم تقديم طلبك بنجاح! سيتم مراجعته قريباً.');

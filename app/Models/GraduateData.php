@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class GraduateData extends Model
 {
     use HasFactory;
-        protected $table = 'graduates_data';
+    protected $table = 'graduates_data';
 
     protected $fillable = [
         'name',
@@ -51,7 +51,15 @@ class GraduateData extends Model
     }
 
     /**
-     * العلاقة مع الترشيحات (سيتم إنشاؤها لاحقاً)
+     * العلاقة مع حساب المستخدم للخريج
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'email', 'email');
+    }
+
+    /**
+     * العلاقة مع الترشيحات
      */
     public function nominations()
     {

@@ -99,12 +99,13 @@ Route::middleware('auth')->group(function () {
         });
 
         // 👥 إدارة المستخدمين
-        Route::get('/users', [UserController::class, 'index'])->name('admin.users');
+        Route::get('/users', [App\Http\Controllers\AdminUserController::class, 'index'])->name('admin.users');
         Route::get('/users/create', [UserController::class, 'create'])->name('admin.users.create');
         Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
         Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+        Route::patch('/users/{id}/toggle-status', [App\Http\Controllers\AdminUserController::class, 'toggleStatus'])->name('admin.users.toggle-status');
 
         // 🏢 إدارة الشركات
         Route::get('/companies', [CompanyController::class, 'index'])->name('admin.companies');
@@ -396,6 +397,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/graduates/{id}', [CareerGuidanceController::class, 'showGraduate'])->name('career-guidance.graduates.show');
         Route::get('/graduates/{id}/edit', [CareerGuidanceController::class, 'editGraduate'])->name('career-guidance.graduates.edit');
         Route::put('/graduates/{id}', [CareerGuidanceController::class, 'updateGraduate'])->name('career-guidance.graduates.update');
+        Route::patch('/graduates/{id}/toggle-status', [CareerGuidanceController::class, 'toggleGraduateStatus'])->name('career-guidance.graduates.toggle-status');
         Route::get('/advanced-reports', [CareerGuidanceController::class, 'advancedReports'])->name('career-guidance.advanced-reports');
         Route::get('/export-reports/pdf', [CareerGuidanceController::class, 'exportReportsPDF'])->name('career-guidance.export-reports.pdf');
         Route::get('/export-reports/excel', [CareerGuidanceController::class, 'exportReportsExcel'])->name('career-guidance.export-reports.excel');

@@ -17,7 +17,7 @@ class AuthenticatedSessionController extends Controller
         if (Auth::check()) {
             return redirect('/dashboard');
         }
-        
+
         return view('auth.login');
     }
 
@@ -33,7 +33,21 @@ class AuthenticatedSessionController extends Controller
         ]);
 
         // محاولة تسجيل الدخول
-        if (Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+        $credentials = $request->only('email', 'password');
+
+        // التحقق من صحة البيانات أولاً
+        if (Auth::validate($credentials)) {
+            $user = Auth::getProvider()->retrieveByCredentials($credentials);
+
+            // التحقق من حالة الحساب
+            if (!$user->is_active) {
+                return back()->withErrors([
+                    'email' => 'تم تجميد هذا الحساب. يرجى التواصل مع الإدارة.',
+                ]);
+            }
+
+            // إتمام تسجيل الدخول
+            Auth::login($user, $request->boolean('remember'));
             $request->session()->regenerate();
             return redirect()->intended('/dashboard');
         }

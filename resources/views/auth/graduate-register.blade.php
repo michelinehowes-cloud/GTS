@@ -44,11 +44,11 @@
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="national_id" class="form-label">رقم الهوية الوطنية <span
+                                    <label for="national_id" class="form-label">رقم القيد <span
                                             class="text-danger">*</span></label>
                                     <input id="national_id" type="text"
                                         class="form-control @error('national_id') is-invalid @enderror" name="national_id"
-                                        value="{{ old('national_id') }}" required placeholder="رقم الهوية الوطنية">
+                                        value="{{ old('national_id') }}" required placeholder="رقم القيد بالجامعة">
                                     @error('national_id')
                                         <span class="invalid-feedback" role="alert">
                                             <strong>{{ $message }}</strong>

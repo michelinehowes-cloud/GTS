@@ -67,15 +67,16 @@
                         @auth
                                             <!-- لوحة التحكم لجميع المستخدمين -->
                                             <li class="nav-item">
-                                                <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}" href="{{ 
-                                                                                                                    auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
+                                                <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}"
+                                                    href="{{ 
+                                                                                                                                                            auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
                             (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') :
                                 (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') :
                                     (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
                                         (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
                                             (auth()->user()->role == 'company' ? route('company.dashboard') :
                                                 route('admin.dashboard')))))) 
-                                                                                                                }}">
+                                                                                                                                                        }}">
                                                     <i class="fas fa-tachometer-alt"></i>
                                                     لوحة التحكم
                                                 </a>
@@ -304,6 +305,52 @@
                                                     </a>
                                                 </li>
 
+                                            @endif
+
+
+
+                                            <!-- أقسام مسؤول الشراكات والتوظيف -->
+                                            @if(auth()->user()->role == 'partnership_officer')
+                                                <li class="nav-item">
+                                                    <a class="nav-link {{ request()->routeIs('partnership.companies*') ? 'active' : '' }}"
+                                                        href="{{ route('partnership.companies') }}">
+                                                        <i class="fas fa-building"></i>
+                                                        إدارة الشركات
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a class="nav-link {{ request()->routeIs('partnership.documents*') ? 'active' : '' }}"
+                                                        href="{{ route('partnership.documents') }}">
+                                                        <i class="fas fa-file-contract"></i>
+                                                        إدارة الوثائق
+                                                    </a>
+                                                </li>
+
+
+
+                                                <li class="nav-item">
+                                                    <a class="nav-link {{ request()->routeIs('job-opportunities.index') ? 'active' : '' }}"
+                                                        href="{{ route('job-opportunities.index') }}">
+                                                        <i class="fas fa-briefcase"></i>
+                                                        فرص العمل
+                                                    </a>
+                                                </li>
+
+                                                <li class="nav-item">
+                                                    <a class="nav-link {{ request()->routeIs('partnership.nominations*') ? 'active' : '' }}"
+                                                        href="{{ route('partnership.nominations') }}">
+                                                        <i class="fas fa-user-check"></i>
+                                                        إدارة الترشيحات
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link {{ request()->routeIs('partnership.reports') ? 'active' : '' }}"
+                                                        href="{{ route('partnership.reports') }}">
+                                                        <i class="fas fa-chart-bar"></i>
+                                                        التقارير
+                                                    </a>
+                                                </li>
                                             @endif
 
                                             <!-- أقسام التقييم والمتابعة (لمستخدم التقييم والمتابعة فقط) -->

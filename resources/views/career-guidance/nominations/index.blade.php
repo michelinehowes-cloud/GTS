@@ -3,6 +3,15 @@
 @section('title', 'إدارة الترشيحات')
 
 @section('content')
+@php
+    if (request()->routeIs('admin.*')) {
+        $routePrefix = 'admin.career-guidance';
+    } elseif (request()->routeIs('partnership.*')) {
+        $routePrefix = 'partnership';
+    } else {
+        $routePrefix = 'career-guidance';
+    }
+@endphp
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -19,9 +28,9 @@
                         <div class="col-md-4">
                             <label>فلترة حسب الفرصة:</label>
                             <select class="form-select" onchange="window.location.href = this.value">
-    <option value="{{ route('career-guidance.nominations') }}">جميع الفرص</option>
+    <option value="{{ route($routePrefix . '.nominations') }}">جميع الفرص</option>
                                 @foreach($opportunities as $opportunity)
-                                    <option value="{{ route('career-guidance.nominations', ['opportunity_id' => $opportunity->id]) }}" 
+                                    <option value="{{ route($routePrefix . '.nominations', ['opportunity_id' => $opportunity->id]) }}" 
                                         {{ request('opportunity_id') == $opportunity->id ? 'selected' : '' }}>
                                         {{ $opportunity->title }}
                                     </option>
@@ -31,7 +40,7 @@
                         <div class="col-md-4">
                             <label>فلترة حسب الحالة:</label>
                             <select class="form-select" onchange="window.location.href = this.value">
-                                <option value="{{ route('career-guidance.nominations') }}">جميع الحالات</option>
+                                <option value="{{ route($routePrefix . '.nominations') }}">جميع الحالات</option>
                                 @php
                                     $statuses = [
                                         'pending' => 'قيد المراجعة',
@@ -44,7 +53,7 @@
                                     ];
                                 @endphp
                                 @foreach($statuses as $value => $text)
-                                    <option value="{{ route('career-guidance.nominations', ['status' => $value]) }}" 
+                                    <option value="{{ route($routePrefix . '.nominations', ['status' => $value]) }}" 
                                         {{ request('status') == $value ? 'selected' : '' }}>
                                         {{ $text }}
                                     </option>
@@ -126,7 +135,7 @@
                                                 </button>
 
                                                 <!-- زر عرض التفاصيل -->
-<a href="{{ route('career-guidance.nominations.show', $nomination->id) }}" class="btn btn-outline-info btn-sm" title="عرض التفاصيل">
+<a href="{{ route($routePrefix . '.nominations.show', $nomination->id) }}" class="btn btn-outline-info btn-sm" title="عرض التفاصيل">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                             </div>
@@ -139,12 +148,12 @@
                                                             <h5 class="modal-title">تحديث حالة الترشيح</h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                         </div>
-                                                       <form action="{{ route('career-guidance.nominations.update-status', $nomination->id) }}" method="POST">
-    @csrf
+                                                        <form action="{{ route($routePrefix . '.nominations.update-status', $nomination->id) }}" method="POST">
+                                                            @csrf
                                                             <div class="modal-body">
                                                                 <div class="mb-3">
-                                                                    <label>الحالة:</label>
-                                                                    <select name="status" class="form-select" required>
+                                                                    <label class="form-label">الحالة:</label>
+                                                                    <select name="status" class="form-select" required onchange="toggleFields('{{ $nomination->id }}', this.value)">
                                                                         @foreach($statuses as $value => $text)
                                                                             <option value="{{ $value }}" {{ $nomination->status == $value ? 'selected' : '' }}>
                                                                                 {{ $text }}
@@ -152,29 +161,48 @@
                                                                         @endforeach
                                                                     </select>
                                                                 </div>
+
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">النتيجة النهائية (اختياري):</label>
+                                                                    <select name="final_status" class="form-select">
+                                                                        <option value="">-- اختر النتيجة --</option>
+                                                                        <option value="hired" {{ $nomination->final_status == 'hired' ? 'selected' : '' }}>تم التوظيف</option>
+                                                                        <option value="not_hired" {{ $nomination->final_status == 'not_hired' ? 'selected' : '' }}>لم يتم التوظيف</option>
+                                                                        <option value="in_progress" {{ $nomination->final_status == 'in_progress' ? 'selected' : '' }}>قيد الإجراء</option>
+                                                                    </select>
+                                                                </div>
                                                                 
-                                                                <div id="interviewFields{{ $nomination->id }}" style="display: none;">
-                                                                    <div class="border-top pt-3 mt-3">
-                                                                        <h6>تفاصيل المقابلة:</h6>
-                                                                        <div class="row">
+                                                                <div id="interviewFields{{ $nomination->id }}" style="display: {{ $nomination->status == 'interview_scheduled' ? 'block' : 'none' }};">
+                                                                    <div class="border-top pt-3 mt-3 mb-3">
+                                                                        <h6 class="text-primary"><i class="fas fa-calendar-alt"></i> تفاصيل المقابلة</h6>
+                                                                        <div class="row g-2">
                                                                             <div class="col-md-6">
-                                                                                <label>تاريخ المقابلة:</label>
+                                                                                <label class="form-label">التاريخ:</label>
                                                                                 <input type="date" name="interview_date" class="form-control" 
                                                                                        value="{{ $nomination->interview_date ? $nomination->interview_date->format('Y-m-d') : '' }}">
                                                                             </div>
                                                                             <div class="col-md-6">
-                                                                                <label>وقت المقابلة:</label>
+                                                                                <label class="form-label">الوقت:</label>
                                                                                 <input type="time" name="interview_time" class="form-control" 
                                                                                        value="{{ $nomination->interview_time }}">
                                                                             </div>
-                                                                            <div class="col-12 mt-2">
-                                                                                <label>مكان المقابلة:</label>
+                                                                            <div class="col-12">
+                                                                                <label class="form-label">المكان:</label>
                                                                                 <input type="text" name="interview_location" class="form-control" 
                                                                                        value="{{ $nomination->interview_location }}" 
-                                                                                       placeholder="مكان المقابلة">
+                                                                                       placeholder="رابط الاجتماع أو العنوان">
+                                                                            </div>
+                                                                            <div class="col-12">
+                                                                                <label class="form-label">ملاحظات المقابلة:</label>
+                                                                                <textarea name="interview_notes" class="form-control" rows="2">{{ $nomination->interview_notes }}</textarea>
                                                                             </div>
                                                                         </div>
                                                                     </div>
+                                                                </div>
+
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">ملاحظات عامة:</label>
+                                                                    <textarea name="nomination_notes" class="form-control" rows="3" placeholder="أضف أي ملاحظات إضافية هنا...">{{ $nomination->nomination_notes }}</textarea>
                                                                 </div>
                                                             </div>
                                                             <div class="modal-footer">
@@ -212,7 +240,7 @@
 function applyDateFilter() {
     const fromDate = document.getElementById('from_date').value;
     const toDate = document.getElementById('to_date').value;
-    let url = "{{ route('career-guidance.nominations') }}";
+    let url = "{{ route($routePrefix . '.nominations') }}";
     const params = new URLSearchParams(window.location.search);
 
     if (params.has('status')) {
@@ -232,16 +260,14 @@ function applyDateFilter() {
     window.location.href = url;
 }
 
-// دالة بسيطة لإظهار/إخفاء حقول المقابلة
-function toggleInterviewFields(nominationId) {
-    const statusSelect = document.querySelector(`#updateStatusModal${nominationId} select[name="status"]`);
+function toggleFields(nominationId, status) {
     const interviewFields = document.getElementById(`interviewFields${nominationId}`);
     
-    if (statusSelect && interviewFields) {
-        if (statusSelect.value === 'interview_scheduled') {
+    if (interviewFields) {
+        if (status === 'interview_scheduled') {
             interviewFields.style.display = 'block';
             // جعل الحقول مطلوبة
-            interviewFields.querySelectorAll('input').forEach(input => {
+            interviewFields.querySelectorAll('input[type="date"], input[type="time"]').forEach(input => {
                 input.required = true;
             });
         } else {
@@ -253,68 +279,5 @@ function toggleInterviewFields(nominationId) {
         }
     }
 }
-
-// تفعيل عند فتح كل مودال
-document.addEventListener('DOMContentLoaded', function() {
-    // إضافة event listener لكل زر تحديث
-    document.querySelectorAll('[data-bs-target^="#updateStatusModal"]').forEach(button => {
-        button.addEventListener('click', function() {
-            const modalId = this.getAttribute('data-bs-target').replace('#', '');
-            const nominationId = modalId.replace('updateStatusModal', '');
-            
-            // تأخير بسيط لضمان تحميل المودال
-            setTimeout(() => {
-                // تفعيل عند تغيير الحالة
-                const statusSelect = document.querySelector(`#${modalId} select[name="status"]`);
-                if (statusSelect) {
-                    statusSelect.addEventListener('change', function() {
-                        toggleInterviewFields(nominationId);
-                    });
-                    
-                    // التهيئة الأولية
-                    toggleInterviewFields(nominationId);
-                }
-            }, 100);
-        });
-    });
-});
-
-// تحقق قبل الإرسال
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            const statusSelect = this.querySelector('select[name="status"]');
-            const interviewFields = this.querySelector('[id^="interviewFields"]');
-            
-            if (statusSelect && statusSelect.value === 'interview_scheduled' && interviewFields) {
-                const requiredFields = interviewFields.querySelectorAll('input[required]');
-                let isValid = true;
-                let firstInvalidField = null;
-                
-                requiredFields.forEach(field => {
-                    if (!field.value.trim()) {
-                        isValid = false;
-                        if (!firstInvalidField) {
-                            firstInvalidField = field;
-                        }
-                        field.classList.add('is-invalid');
-                    } else {
-                        field.classList.remove('is-invalid');
-                    }
-                });
-                
-                if (!isValid) {
-                    e.preventDefault();
-                    alert('يرجى ملء جميع حقول المقابلة المطلوبة');
-                    if (firstInvalidField) {
-                        firstInvalidField.focus();
-                    }
-                    return false;
-                }
-            }
-            return true;
-        });
-    });
-});
 </script>
 @endsection

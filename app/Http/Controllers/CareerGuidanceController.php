@@ -1363,6 +1363,32 @@ class CareerGuidanceController extends Controller
     }
 
     /**
+     * تجميد/تنشيط حساب الخريج
+     */
+    public function toggleGraduateStatus($id)
+    {
+        $graduate = GraduateData::findOrFail($id);
+
+        // البحث عن حساب المستخدم المرتبط
+        $user = \App\Models\User::where('email', $graduate->email)->first();
+
+        if (!$user) {
+            return back()->with('error', 'لم يتم العثور على حساب مستخدم لهذا الخريج');
+        }
+
+        // التأكد من أن المستخدم خريج فقط
+        if ($user->role !== 'graduate') {
+            return back()->with('error', 'لا يمكنك تعديل حالة هذا المستخدم');
+        }
+
+        $user->is_active = !$user->is_active;
+        $user->save();
+
+        $status = $user->is_active ? 'تنشيط' : 'تجميد';
+        return back()->with('success', "تم {$status} حساب الخريج بنجاح");
+    }
+
+    /**
      * تحليل المهارات المطلوبة مقابل المتاحة
      */
     private function getSkillsAnalysis()

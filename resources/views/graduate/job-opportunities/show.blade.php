@@ -1,7 +1,5 @@
 @extends('layouts.app')
-
 @section('title', $jobOpportunity->title)
-
 @section('content')
     <div class="container-fluid px-4">
         <div class="mb-4">
@@ -9,7 +7,6 @@
                 <i class="fas fa-arrow-right"></i> العودة إلى القائمة
             </a>
         </div>
-
         <div class="row">
             <div class="col-lg-8">
                 <div class="card shadow mb-4">
@@ -29,7 +26,6 @@
                                 <p class="lead">{{ $jobOpportunity->company->name }}</p>
                             </div>
                         @endif
-
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <p><strong><i class="fas fa-map-marker-alt text-danger"></i> الموقع:</strong>
@@ -37,45 +33,49 @@
                             </div>
                             <div class="col-md-6">
                                 <p><strong><i class="fas fa-clock text-info"></i> نوع الوظيفة:</strong>
-                                    {{ $jobOpportunity->job_type == 'full_time' ? 'دوام كامل' : ($jobOpportunity->job_type == 'part_time' ? 'دوام جزئي' : ($jobOpportunity->job_type == 'contract' ? 'عقد' : 'تدريب')) }}
+                                    @if($jobOpportunity->contract_type == 'full_time')
+                                        دوام كامل
+                                    @elseif($jobOpportunity->contract_type == 'part_time')
+                                        دوام جزئي
+                                    @elseif($jobOpportunity->contract_type == 'contract')
+                                        عقد
+                                    @else
+                                        عمل حر
+                                    @endif
                                 </p>
                             </div>
                             <div class="col-md-6">
                                 <p><strong><i class="fas fa-calendar text-warning"></i> آخر موعد للتقديم:</strong>
-                                    {{ $jobOpportunity->deadline->format('Y-m-d') }}</p>
+                                    {{ $jobOpportunity->application_deadline ? $jobOpportunity->application_deadline->format('Y-m-d') : 'غير محدد' }}
+                                </p>
                             </div>
-                            @if($jobOpportunity->salary_range)
+                            @if($jobOpportunity->salary)
                                 <div class="col-md-6">
                                     <p><strong><i class="fas fa-money-bill text-success"></i> الراتب:</strong>
-                                        {{ $jobOpportunity->salary_range }}</p>
+                                        {{ $jobOpportunity->salary }}</p>
                                 </div>
                             @endif
                         </div>
-
                         <hr>
-
                         <div class="mb-4">
                             <h5><i class="fas fa-align-left text-primary"></i> الوصف الوظيفي</h5>
                             <p class="text-justify">{!! nl2br(e($jobOpportunity->description)) !!}</p>
                         </div>
-
                         @if($jobOpportunity->requirements)
                             <div class="mb-4">
                                 <h5><i class="fas fa-list-check text-primary"></i> المتطلبات</h5>
                                 <p class="text-justify">{!! nl2br(e($jobOpportunity->requirements)) !!}</p>
                             </div>
                         @endif
-
-                        @if($jobOpportunity->responsibilities)
+                        @if($jobOpportunity->benefits)
                             <div class="mb-4">
-                                <h5><i class="fas fa-tasks text-primary"></i> المسؤوليات</h5>
-                                <p class="text-justify">{!! nl2br(e($jobOpportunity->responsibilities)) !!}</p>
+                                <h5><i class="fas fa-gift text-primary"></i> المزايا</h5>
+                                <p class="text-justify">{!! nl2br(e($jobOpportunity->benefits)) !!}</p>
                             </div>
                         @endif
                     </div>
                 </div>
             </div>
-
             <div class="col-lg-4">
                 <!-- حالة الترشيح -->
                 @if($nomination)
@@ -93,7 +93,6 @@
                                     {{ $nomination->status_text }}
                                 </span>
                             </div>
-
                             @if($nomination->nomination_type == 'self')
                                 <div class="alert alert-info">
                                     <i class="fas fa-info-circle"></i>
@@ -105,7 +104,6 @@
                                     تم ترشيحك من قبل مسؤول الإرشاد المهني
                                 </div>
                             @endif
-
                             @if($nomination->interview_date)
                                 <div class="alert alert-warning">
                                     <h6><i class="fas fa-calendar-check"></i> موعد المقابلة</h6>
@@ -118,14 +116,12 @@
                                     @endif
                                 </div>
                             @endif
-
                             @if($nomination->notes)
                                 <div class="mt-3">
                                     <strong>ملاحظات:</strong>
                                     <p class="text-muted">{{ $nomination->notes }}</p>
                                 </div>
                             @endif
-
                             @if($nomination->status == 'pending')
                                 <form action="{{ route('graduate.my-applications.cancel', $nomination->id) }}" method="POST"
                                     onsubmit="return confirm('هل أنت متأكد من إلغاء هذا الترشيح؟')">
@@ -152,7 +148,7 @@
                                     <i class="fas fa-exclamation-triangle"></i>
                                     يجب إكمال بياناتك الشخصية أولاً قبل التقديم
                                 </div>
-                            @elseif($jobOpportunity->deadline < now())
+                            @elseif($jobOpportunity->application_deadline && $jobOpportunity->application_deadline < now())
                                 <div class="alert alert-danger">
                                     <i class="fas fa-times-circle"></i>
                                     انتهى موعد التقديم لهذه الفرصة
@@ -173,7 +169,6 @@
                         </div>
                     </div>
                 @endif
-
                 <!-- معلومات إضافية -->
                 <div class="card shadow">
                     <div class="card-header py-3">
@@ -188,8 +183,8 @@
                         </p>
                         <p class="mb-0">
                             <strong>الحالة:</strong><br>
-                            <span class="badge bg-{{ $jobOpportunity->status == 'active' ? 'success' : 'secondary' }}">
-                                {{ $jobOpportunity->status == 'active' ? 'نشط' : 'غير نشط' }}
+                            <span class="badge bg-{{ $jobOpportunity->status == 'open' ? 'success' : 'secondary' }}">
+                                {{ $jobOpportunity->status == 'open' ? 'نشط' : 'غير نشط' }}
                             </span>
                         </p>
                     </div>
@@ -197,7 +192,6 @@
             </div>
         </div>
     </div>
-
     @if(session('success'))
         <script>
             Swal.fire({
@@ -208,7 +202,6 @@
             });
         </script>
     @endif
-
     @if($errors->any())
         <script>
             Swal.fire({

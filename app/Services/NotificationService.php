@@ -113,6 +113,30 @@ class NotificationService
             'model_type' => get_class($jobOpportunity),
             'model_id' => $jobOpportunity->id,
         ]);
+
+        // إشعار لمدير النظام
+        $this->sendToRole('admin', "فرصة عمل جديدة: {$jobOpportunity->title}", $message, $type, [
+            'model_type' => get_class($jobOpportunity),
+            'model_id' => $jobOpportunity->id,
+        ]);
+    }
+
+    /**
+     * إرسال إشعار إجراء نظامي عام
+     */
+    public function notifySystemAction(string $title, string $message, array $roles = [], string $type = 'info', $model = null): void
+    {
+        $options = [];
+        if ($model) {
+            $options['model_type'] = get_class($model);
+            $options['model_id'] = $model->id;
+        }
+
+        if (empty($roles)) {
+            $roles = ['graduate', 'company', 'training_coordinator', 'partnership_officer', 'career_guidance_officer'];
+        }
+
+        $this->sendToRoles($roles, $title, $message, $type, $options);
     }
 
     /**
@@ -204,7 +228,7 @@ class NotificationService
     public function cleanupOldNotifications(int $days = 30): int
     {
         return Notification::where('created_at', '<', now()->subDays($days))
-                          ->where('is_read', true)
-                          ->delete();
+            ->where('is_read', true)
+            ->delete();
     }
 }

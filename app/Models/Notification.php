@@ -31,6 +31,8 @@ class Notification extends Model
         'sent_at' => 'datetime',
     ];
 
+    protected $appends = ['icon'];
+
     /**
      * العلاقة مع المستخدم المستلم
      */
@@ -114,7 +116,7 @@ class Notification extends Model
      */
     public function getIconAttribute(): string
     {
-        return match($this->type) {
+        return match ($this->type) {
             'success' => 'check-circle',
             'warning' => 'exclamation-triangle',
             'danger' => 'times-circle',
@@ -128,7 +130,7 @@ class Notification extends Model
      */
     public function getColorAttribute(): string
     {
-        return match($this->type) {
+        return match ($this->type) {
             'success' => 'green',
             'warning' => 'yellow',
             'danger' => 'red',

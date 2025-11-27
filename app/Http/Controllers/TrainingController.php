@@ -10,19 +10,27 @@ use App\Models\TrainingReport;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use App\Services\NotificationService;
 
 class TrainingController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     // ========== 🎯 الدوال الأساسية ==========
-    
+
     public function index()
     {
         $trainings = Training::with('company')->latest()->get();
         $applications = TrainingApplication::with(['user', 'training'])->latest()->get();
-        
+
         return view('admin.trainings.index', compact('trainings', 'applications'));
     }
-    
+
     public function create()
     {
         $companies = Company::all();
@@ -53,26 +61,33 @@ class TrainingController extends Controller
         ]);
 
         $data = $request->all();
-        
+
         if (auth()->user()->role == 'training_coordinator') {
             $data['coordinator_id'] = auth()->id();
         }
 
-        Training::create($data);
+        $training = Training::create($data);
+
+        // إرسال إشعار
+        try {
+            $this->notificationService->notifyNewTraining($training);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send training notification: ' . $e->getMessage());
+        }
 
         if (auth()->user()->role == 'training_coordinator') {
             return redirect()->route('training-coordinator.trainings')
-                         ->with('success', 'تم إضافة برنامج التدريب بنجاح');
+                ->with('success', 'تم إضافة برنامج التدريب بنجاح');
         } else {
             return redirect()->route('admin.trainings')
-                         ->with('success', 'تم إضافة برنامج التدريب بنجاح');
+                ->with('success', 'تم إضافة برنامج التدريب بنجاح');
         }
     }
 
     public function show($id)
     {
         $training = Training::with('company')->findOrFail($id);
-        
+
         if (auth()->user()->role == 'training_coordinator') {
             return view('training-coordinator.trainings.show', compact('training'));
         } else {
@@ -85,7 +100,7 @@ class TrainingController extends Controller
         $training = Training::findOrFail($id);
         $companies = Company::all();
         $categories = ['برمجة', 'تصميم', 'شبكات', 'إدارة', 'لغات', 'أخرى']; // مثال للفئات
-        
+
         if (auth()->user()->role == 'training_coordinator') {
             return view('training-coordinator.trainings.edit', compact('training', 'companies', 'categories'));
         } else {
@@ -96,7 +111,7 @@ class TrainingController extends Controller
     public function update(Request $request, $id)
     {
         $training = Training::findOrFail($id);
-        
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -114,10 +129,10 @@ class TrainingController extends Controller
 
         if (auth()->user()->role == 'training_coordinator') {
             return redirect()->route('training-coordinator.trainings')
-                         ->with('success', 'تم تحديث برنامج التدريب بنجاح');
+                ->with('success', 'تم تحديث برنامج التدريب بنجاح');
         } else {
             return redirect()->route('admin.trainings')
-                         ->with('success', 'تم تحديث برنامج التدريب بنجاح');
+                ->with('success', 'تم تحديث برنامج التدريب بنجاح');
         }
     }
 
@@ -128,15 +143,15 @@ class TrainingController extends Controller
 
         if (auth()->user()->role == 'training_coordinator') {
             return redirect()->route('training-coordinator.trainings')
-                         ->with('success', 'تم حذف برنامج التدريب بنجاح');
+                ->with('success', 'تم حذف برنامج التدريب بنجاح');
         } else {
             return redirect()->route('admin.trainings')
-                         ->with('success', 'تم حذف برنامج التدريب بنجاح');
+                ->with('success', 'تم حذف برنامج التدريب بنجاح');
         }
     }
 
     // ========== 📊 لوحة تحكم منسق التدريب ==========
-    
+
     public function coordinatorDashboard()
     {
         $stats = [
@@ -163,36 +178,39 @@ class TrainingController extends Controller
 
         return view('training-coordinator.dashboard', compact('stats', 'recentApplications', 'recentTrainings'));
     }
-    
+
     public function coordinatorTrainings()
     {
         $trainings = Training::with(['company', 'coordinator'])
-            ->withCount(['applications', 'applications as pending_applications_count' => function($query) {
-                $query->where('status', 'pending');
-            }])
+            ->withCount([
+                'applications',
+                'applications as pending_applications_count' => function ($query) {
+                    $query->where('status', 'pending');
+                }
+            ])
             ->latest()
             ->get();
-        
+
         $myTrainingsCount = $trainings->count();
         $activeTrainingsCount = $trainings->where('status', 'active')->count();
         $inactiveTrainingsCount = $trainings->where('status', 'inactive')->count();
         $completedTrainingsCount = $trainings->where('status', 'completed')->count();
-            
+
         return view('training-coordinator.trainings.index', compact(
-            'trainings', 
+            'trainings',
             'myTrainingsCount',
-            'activeTrainingsCount', 
+            'activeTrainingsCount',
             'inactiveTrainingsCount',
             'completedTrainingsCount'
         ));
     }
-    
+
     public function availableTrainings()
     {
         $trainings = Training::where('status', 'active')
             ->latest()
             ->get();
-            
+
         return view('graduate.trainings.index', compact('trainings'));
     }
 
@@ -203,9 +221,9 @@ class TrainingController extends Controller
         $applications = TrainingApplication::with(['user', 'training.coordinator'])
             ->latest()
             ->get();
-        
+
         $pendingCount = $applications->where('status', 'pending')->count();
-            
+
         return view('training-coordinator.applications.index', compact('applications', 'pendingCount'));
     }
 
@@ -213,7 +231,7 @@ class TrainingController extends Controller
     {
         $application = TrainingApplication::findOrFail($id);
         $application->update(['status' => 'approved']);
-        
+
         return redirect()->back()->with('success', 'تم الموافقة على طلب التدريب بنجاح');
     }
 
@@ -221,15 +239,15 @@ class TrainingController extends Controller
     {
         $application = TrainingApplication::findOrFail($id);
         $application->update(['status' => 'rejected']);
-        
+
         return redirect()->back()->with('success', 'تم رفض طلب التدريب بنجاح');
     }
-    
+
     public function pendingApplication($id)
     {
         $application = TrainingApplication::findOrFail($id);
         $application->update(['status' => 'pending']);
-        
+
         return redirect()->back()->with('success', 'تم إعادة الطلب إلى قيد المراجعة');
     }
 
@@ -237,7 +255,7 @@ class TrainingController extends Controller
     {
         $application = TrainingApplication::findOrFail($id);
         $application->delete();
-        
+
         return redirect()->back()->with('success', 'تم حذف طلب التدريب بنجاح');
     }
 
@@ -248,23 +266,23 @@ class TrainingController extends Controller
         try {
             $month = $request->input('month', Carbon::now()->month);
             $year = $request->input('year', Carbon::now()->year);
-            
+
             $month = max(1, min(12, $month));
             $year = max(2020, min(2030, $year));
-            
+
             $startDate = Carbon::create($year, $month, 1);
             $endDate = $startDate->copy()->endOfMonth();
-            
-            $trainings = Training::where(function($query) use ($startDate, $endDate) {
-                    $query->whereBetween('start_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
-                          ->orWhereBetween('end_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
-                })
+
+            $trainings = Training::where(function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('start_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                    ->orWhereBetween('end_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+            })
                 ->get();
-            
+
             $calendar = $this->generateCalendar($month, $year, $trainings);
-            
+
             return view('training-coordinator.calendar', compact('calendar', 'trainings', 'month', 'year', 'startDate'));
-            
+
         } catch (\Exception $e) {
             return redirect()->route('training-coordinator.dashboard')
                 ->with('error', 'حدث خطأ في تحميل التقويم: ' . $e->getMessage());
@@ -275,30 +293,30 @@ class TrainingController extends Controller
     {
         $startDate = Carbon::create($year, $month, 1);
         $endDate = $startDate->copy()->endOfMonth();
-        
+
         $days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-        
+
         $calendar = [];
         $currentDay = $startDate->copy();
-        
+
         $firstDayOfWeek = $currentDay->dayOfWeek;
         for ($i = 0; $i < $firstDayOfWeek; $i++) {
             $calendar[] = ['day' => null, 'trainings' => []];
         }
-        
+
         while ($currentDay->month == $month) {
-            $dayTrainings = $trainings->filter(function($training) use ($currentDay) {
+            $dayTrainings = $trainings->filter(function ($training) use ($currentDay) {
                 return $currentDay->between(Carbon::parse($training->start_date)->startOfDay(), Carbon::parse($training->end_date)->endOfDay());
             });
-            
+
             $calendar[] = [
                 'day' => $currentDay->copy(),
                 'trainings' => $dayTrainings
             ];
-            
+
             $currentDay->addDay();
         }
-        
+
         return [
             'days' => $days,
             'weeks' => array_chunk($calendar, 7),
@@ -309,11 +327,20 @@ class TrainingController extends Controller
     private function getArabicMonthName($month)
     {
         $months = [
-            1 => 'يناير', 2 => 'فبراير', 3 => 'مارس', 4 => 'أبريل',
-            5 => 'مايو', 6 => 'يونيو', 7 => 'يوليو', 8 => 'أغسطس',
-            9 => 'سبتمبر', 10 => 'أكتوبر', 11 => 'نوفمبر', 12 => 'ديسمبر'
+            1 => 'يناير',
+            2 => 'فبراير',
+            3 => 'مارس',
+            4 => 'أبريل',
+            5 => 'مايو',
+            6 => 'يونيو',
+            7 => 'يوليو',
+            8 => 'أغسطس',
+            9 => 'سبتمبر',
+            10 => 'أكتوبر',
+            11 => 'نوفمبر',
+            12 => 'ديسمبر'
         ];
-        
+
         return $months[$month] ?? 'غير معروف';
     }
 
@@ -329,40 +356,40 @@ class TrainingController extends Controller
         $training = Training::with(['company', 'coordinator'])->findOrFail($id);
         return view('graduate.trainings.show', compact('training'));
     }
-    
+
     public function submitApplication(Request $request)
     {
         try {
             $user = Auth::user();
             $trainingId = $request->training_id;
-            
+
             if (!$trainingId) {
                 return redirect()->back()->with('error', 'معرف التدريب مطلوب');
             }
-            
+
             $training = Training::find($trainingId);
-            
+
             if (!$training) {
                 return redirect()->back()->with('error', 'التدريب غير موجود');
             }
-            
+
             $existingApplication = TrainingApplication::where('user_id', $user->id)
                 ->where('training_id', $trainingId)
                 ->first();
-                
+
             if ($existingApplication) {
                 return redirect()->back()->with('error', 'لقد قدمت طلباً لهذا التدريب مسبقاً');
             }
-            
+
             TrainingApplication::create([
                 'user_id' => $user->id,
                 'training_id' => $trainingId,
                 'status' => 'pending',
                 'applied_at' => now(),
             ]);
-            
+
             return redirect()->back()->with('success', 'تم تقديم طلب التدريب بنجاح، جاري المراجعة');
-            
+
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'حدث خطأ: ' . $e->getMessage());
         }
@@ -395,8 +422,8 @@ class TrainingController extends Controller
             ->get();
 
         return view('training-coordinator.reports', compact(
-            'basicStats', 
-            'advancedCharts', 
+            'basicStats',
+            'advancedCharts',
             'advancedAnalytics',
             'reports'
         ));
@@ -460,7 +487,7 @@ class TrainingController extends Controller
         $companyDistribution = Training::with('company')
             ->get()
             ->groupBy('company.name')
-            ->map(function($trainings) {
+            ->map(function ($trainings) {
                 return $trainings->count();
             })
             ->sortDesc()
@@ -504,19 +531,19 @@ class TrainingController extends Controller
     {
         $totalTrainings = Training::count();
         $totalApplications = TrainingApplication::count();
-        
+
         // معدل القبول
-        $approvalRate = $totalApplications > 0 ? 
+        $approvalRate = $totalApplications > 0 ?
             (TrainingApplication::where('status', 'approved')->count() / $totalApplications) * 100 : 0;
 
         // متوسط عدد المتقدمين لكل تدريب
-        $avgApplicants = $totalTrainings > 0 ? 
+        $avgApplicants = $totalTrainings > 0 ?
             round($totalApplications / $totalTrainings, 1) : 0;
 
         // نسبة الإشغال الإجمالية
         $totalSeats = Training::sum('seats');
         $totalOccupied = TrainingApplication::where('status', 'approved')->count();
-        $overallOccupancy = $totalSeats > 0 ? 
+        $overallOccupancy = $totalSeats > 0 ?
             round(($totalOccupied / $totalSeats) * 100, 1) : 0;
 
         // أكثر التدريبات طلباً
@@ -524,11 +551,11 @@ class TrainingController extends Controller
             ->orderBy('applications_count', 'desc')
             ->take(5)
             ->get()
-            ->map(function($training) {
+            ->map(function ($training) {
                 return [
                     'name' => $training->title,
                     'applications' => $training->applications_count,
-                    'occupancy_rate' => $training->seats > 0 ? 
+                    'occupancy_rate' => $training->seats > 0 ?
                         round(($training->applications_count / $training->seats) * 100, 1) : 0
                 ];
             });
@@ -659,9 +686,9 @@ class TrainingController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
         ];
 
-        $callback = function() use ($templates, $type) {
+        $callback = function () use ($templates, $type) {
             $file = fopen('php://output', 'w');
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
             fputcsv($file, $templates[$type][0]);
             fclose($file);
         };
@@ -672,7 +699,7 @@ class TrainingController extends Controller
     public function downloadReport($id)
     {
         $report = TrainingReport::where('user_id', auth()->id())->findOrFail($id);
-        
+
         if (!Storage::disk('public')->exists($report->file_path)) {
             return redirect()->back()->with('error', 'الملف غير موجود');
         }
@@ -683,7 +710,7 @@ class TrainingController extends Controller
     public function deleteReport($id)
     {
         $report = TrainingReport::where('user_id', auth()->id())->findOrFail($id);
-        
+
         Storage::disk('public')->delete($report->file_path);
         $report->delete();
 

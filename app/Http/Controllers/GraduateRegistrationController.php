@@ -37,6 +37,9 @@ class GraduateRegistrationController extends Controller
             'graduation_year' => 'required|integer|min:1950|max:' . (date('Y') + 1),
             'university' => 'required|string|max:255',
             'gpa' => 'nullable|numeric|min:0|max:4',
+            'experiences' => 'nullable|string',
+            'skills' => 'nullable|string',
+            'languages' => 'nullable|string',
         ], [
             'name.required' => 'الاسم الكامل مطلوب',
             'email.required' => 'البريد الإلكتروني مطلوب',
@@ -45,8 +48,8 @@ class GraduateRegistrationController extends Controller
             'password.min' => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
             'password.confirmed' => 'كلمة المرور غير متطابقة',
             'phone.required' => 'رقم الهاتف مطلوب',
-            'national_id.required' => 'رقم الهوية الوطنية مطلوب',
-            'national_id.unique' => 'رقم الهوية مستخدم بالفعل',
+            'national_id.required' => 'رقم القيد مطلوب',
+            'national_id.unique' => 'رقم القيد موجود بالفعل',
             'date_of_birth.required' => 'تاريخ الميلاد مطلوب',
             'gender.required' => 'الجنس مطلوب',
             'address.required' => 'العنوان مطلوب',
@@ -56,6 +59,10 @@ class GraduateRegistrationController extends Controller
             'graduation_year.required' => 'سنة التخرج مطلوبة',
             'university.required' => 'الجامعة مطلوبة',
         ]);
+
+        // معالجة المهارات واللغات (تحويل النص إلى مصفوفة)
+        $skills = $request->filled('skills') ? array_filter(array_map('trim', explode(',', $request->skills))) : [];
+        $languages = $request->filled('languages') ? array_filter(array_map('trim', explode(',', $request->languages))) : [];
 
         // إنشاء حساب جديد بحالة غير موافق عليه
         $user = User::create([
@@ -74,6 +81,9 @@ class GraduateRegistrationController extends Controller
             'graduation_year' => $request->graduation_year,
             'university' => $request->university,
             'gpa' => $request->gpa,
+            'experiences' => $request->experiences,
+            'skills' => $skills,
+            'languages' => $languages,
             'is_approved' => false, // في انتظار الموافقة
         ]);
 
@@ -145,6 +155,9 @@ class GraduateRegistrationController extends Controller
                 'gpa' => $user->gpa ?? null,
                 'degree' => $user->qualification ?? 'بكالوريوس',
                 'address' => $user->address ?? null,
+                'skills' => $user->skills ?? [],
+                'languages' => $user->languages ?? [],
+                'work_experience' => $user->experiences ?? null,
                 'employment_status' => 'seeking_opportunities',
                 'added_by' => auth()->id(),
                 'data_source' => 'system_sync',

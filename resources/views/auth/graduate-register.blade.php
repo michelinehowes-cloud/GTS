@@ -230,14 +230,61 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-0 mt-4">
-                                <div class="col-md-12 text-center">
-                                    <button type="submit" class="btn btn-primary btn-lg px-5">
-                                        <i class="fas fa-user-plus me-2"></i>
-                                        تسجيل حساب جديد
-                                    </button>
+                            <h5 class="text-primary mb-4 mt-5 border-bottom pb-2">
+                                <i class="fas fa-briefcase me-2"></i>
+                                المهارات والخبرات
+                            </h5>
+
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label for="experiences" class="form-label">الخبرة العملية</label>
+                                    <textarea id="experiences"
+                                        class="form-control @error('experiences') is-invalid @enderror" name="experiences"
+                                        rows="3"
+                                        placeholder="اذكر خبراتك العملية السابقة إن وجدت...">{{ old('experiences') }}</textarea>
+                                    @error('experiences')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
                                 </div>
                             </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="skills" class="form-label">المهارات</label>
+                                    <input id="skills" type="text"
+                                        class="form-control @error('skills') is-invalid @enderror" name="skills"
+                                        value="{{ old('skills') }}"
+                                        placeholder="مثال: برمجة، تصميم، إدارة وقت (افصل بينها بفاصلة)">
+                                    <small class="text-muted">افصل بين المهارات بفاصلة (,)</small>
+                                    @error('skills')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="languages" class="form-label">اللغات</label>
+                                    <input id="languages" type="text"
+                                        class="form-control @error('languages') is-invalid @enderror" name="languages"
+                                        value="{{ old('languages') }}" placeholder="مثال: العربية، الإنجليزية">
+                                    <small class="text-muted">افصل بين اللغات بفاصلة (,)</small>
+                                    @error('languages')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+
+                                <div class="row mb-0 mt-4">
+                                    <div class="col-md-12 text-center">
+                                        <button type="submit" class="btn btn-primary btn-lg px-5">
+                                            <i class="fas fa-user-plus me-2"></i>
+                                            تسجيل حساب جديد
+                                        </button>
+                                    </div>
+                                </div>
                         </form>
                     </div>
                     <div class="card-footer text-center py-3 bg-light">

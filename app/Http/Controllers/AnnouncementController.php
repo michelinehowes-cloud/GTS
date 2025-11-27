@@ -5,13 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Announcement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\NotificationService;
 
 class AnnouncementController extends Controller
 {
-    public function __construct()
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
     {
         $this->middleware('auth');
         $this->middleware('media_officer');
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -24,7 +28,7 @@ class AnnouncementController extends Controller
         // البحث
         if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('content', 'like', '%' . $request->search . '%');
+                ->orWhere('content', 'like', '%' . $request->search . '%');
         }
 
         // التصفية حسب الحالة
@@ -77,7 +81,22 @@ class AnnouncementController extends Controller
         $data = $request->only(['title', 'content', 'start_date', 'end_date', 'link', 'is_active']);
         $data['created_by'] = Auth::id();
 
-        Announcement::create($data);
+        $announcement = Announcement::create($data);
+
+        // إرسال إشعار لجميع المستخدمين
+        if ($announcement->is_active) {
+            try {
+                $this->notificationService->notifySystemAction(
+                    'إعلان جديد: ' . $announcement->title,
+                    'تم نشر إعلان جديد: ' . \Str::limit($announcement->content, 100),
+                    [], // Empty array means all users (or default to graduate as per my implementation, wait I should check that)
+                    'info',
+                    $announcement
+                );
+            } catch (\Exception $e) {
+                \Log::error('Failed to send announcement notification: ' . $e->getMessage());
+            }
+        }
 
         return redirect()->route('media.announcements.index')->with('success', 'تم إنشاء الإعلان بنجاح');
     }

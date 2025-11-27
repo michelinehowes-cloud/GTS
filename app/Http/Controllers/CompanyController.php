@@ -7,9 +7,17 @@ use App\Models\Company;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Services\NotificationService;
 
 class CompanyController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     public function index()
     {
         $companies = Company::latest()->get();
@@ -53,12 +61,34 @@ class CompanyController extends Controller
             'address' => $request->address,
             'description' => $request->description,
             'is_approved' => true, // الموافقة تلقائياً عند الإنشاء من قبل المدير
-            'partnership_type' => $request->partnership_type,
             'partnership_status' => $request->partnership_status,
         ]);
 
+        // إرسال إشعارات
+        try {
+            // إشعار للشركة
+            $this->notificationService->sendToUser(
+                $user,
+                'تم إنشاء حساب شركتك',
+                'تم إنشاء حساب لشركتك بنجاح. يمكنك الآن الدخول وتحديث بياناتك.',
+                'success'
+            );
+
+            // إشعار لمسؤول الشراكات
+            $this->notificationService->sendToRole(
+                'partnership_officer',
+                'شركة جديدة: ' . $request->name,
+                "تم إضافة شركة جديدة: {$request->name} ({$request->industry})",
+                'info',
+                ['model_type' => get_class($user), 'model_id' => $user->id]
+            );
+
+        } catch (\Exception $e) {
+            \Log::error('Failed to send company notifications: ' . $e->getMessage());
+        }
+
         return redirect()->route('admin.companies')
-               ->with('success', 'تم إضافة الشركة بنجاح');
+            ->with('success', 'تم إضافة الشركة بنجاح');
     }
 
     public function edit($id)
@@ -70,7 +100,7 @@ class CompanyController extends Controller
     public function update(Request $request, $id)
     {
         $company = Company::findOrFail($id);
-        
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:companies,email,' . $id,
@@ -83,10 +113,21 @@ class CompanyController extends Controller
         ]);
 
         $company->update($request->only([
-            'name', 'email', 'phone', 'industry', 'address', 'description',
-            'partnership_type', 'partnership_status', 'partnership_notes',
-            'partnership_start_date', 'partnership_end_date', 'contact_person',
-            'contact_position', 'contact_phone', 'contact_email'
+            'name',
+            'email',
+            'phone',
+            'industry',
+            'address',
+            'description',
+            'partnership_type',
+            'partnership_status',
+            'partnership_notes',
+            'partnership_start_date',
+            'partnership_end_date',
+            'contact_person',
+            'contact_position',
+            'contact_phone',
+            'contact_email'
         ]));
 
         // تحديث بيانات المستخدم المرتبط
@@ -98,22 +139,22 @@ class CompanyController extends Controller
         }
 
         return redirect()->route('admin.companies')
-               ->with('success', 'تم تحديث بيانات الشركة بنجاح');
+            ->with('success', 'تم تحديث بيانات الشركة بنجاح');
     }
 
     public function destroy($id)
     {
         $company = Company::findOrFail($id);
-        
+
         // حذف المستخدم المرتبط أولاً
         if ($company->user) {
             $company->user->delete();
         }
-        
+
         // ثم حذف الشركة
         $company->delete();
 
         return redirect()->route('admin.companies')
-               ->with('success', 'تم حذف الشركة بنجاح');
+            ->with('success', 'تم حذف الشركة بنجاح');
     }
 }

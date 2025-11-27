@@ -9,9 +9,17 @@ use App\Models\Nomination;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
+use App\Services\NotificationService;
 
 class JobOpportunityController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     /**
      * عرض قائمة فرص العمل والتدريب
      */
@@ -49,38 +57,135 @@ class JobOpportunityController extends Controller
         $companies = Company::all(); // Fetches all companies
 
         $specializations = [
-            'هندسة برمجيات', 'علوم حاسب', 'هندسة كهربائية', 'هندسة ميكانيكية',
-            'هندسة مدنية', 'هندسة معمارية', 'طب بشري', 'طب أسنان', 'صيدلة',
-            'علوم طبية مساعدة', 'إدارة أعمال', 'محاسبة', 'اقتصاد', 'تسويق',
-            'موارد بشرية', 'قانون', 'إعلام', 'لغات', 'آداب', 'تاريخ',
-            'جغرافيا', 'علوم سياسية', 'علم نفس', 'علم اجتماع', 'تربية',
-            'فنون جميلة', 'علوم بحرية', 'علوم بيئية', 'تقنية معلومات', 'شبكات حاسوب',
-            'أمن سيبراني', 'ذكاء اصطناعي', 'علم البيانات', 'تصميم جرافيك', 'تصميم داخلي',
-            'هندسة نفط', 'هندسة كيميائية', 'هندسة طيران', 'هندسة اتصالات', 'هندسة إلكترونية',
-            'هندسة مواد', 'هندسة صناعية', 'هندسة زراعية', 'علوم أغذية', 'تغذية',
-            'رياضيات', 'فيزياء', 'كيمياء', 'علوم حياة', 'جيولوجيا', 'إحصاء',
-            'إدارة مشاريع', 'تحليل نظم', 'دعم فني', 'خدمة عملاء', 'مبيعات',
-            'علاقات عامة', 'ترجمة', 'كتابة محتوى', 'تحرير', 'تصوير', 'مونتاج',
-            'صيانة', 'فني مختبر', 'تمريض', 'علاج طبيعي', 'تكنولوجيا حيوية',
-            'إدارة مستشفيات', 'إدارة فنادق', 'سياحة', 'آثار', 'مكتبات ومعلومات',
-            'أرشيف', 'تخطيط حضري', '' // Add more specializations as needed
+            'هندسة برمجيات',
+            'علوم حاسب',
+            'هندسة كهربائية',
+            'هندسة ميكانيكية',
+            'هندسة مدنية',
+            'هندسة معمارية',
+            'طب بشري',
+            'طب أسنان',
+            'صيدلة',
+            'علوم طبية مساعدة',
+            'إدارة أعمال',
+            'محاسبة',
+            'اقتصاد',
+            'تسويق',
+            'موارد بشرية',
+            'قانون',
+            'إعلام',
+            'لغات',
+            'آداب',
+            'تاريخ',
+            'جغرافيا',
+            'علوم سياسية',
+            'علم نفس',
+            'علم اجتماع',
+            'تربية',
+            'فنون جميلة',
+            'علوم بحرية',
+            'علوم بيئية',
+            'تقنية معلومات',
+            'شبكات حاسوب',
+            'أمن سيبراني',
+            'ذكاء اصطناعي',
+            'علم البيانات',
+            'تصميم جرافيك',
+            'تصميم داخلي',
+            'هندسة نفط',
+            'هندسة كيميائية',
+            'هندسة طيران',
+            'هندسة اتصالات',
+            'هندسة إلكترونية',
+            'هندسة مواد',
+            'هندسة صناعية',
+            'هندسة زراعية',
+            'علوم أغذية',
+            'تغذية',
+            'رياضيات',
+            'فيزياء',
+            'كيمياء',
+            'علوم حياة',
+            'جيولوجيا',
+            'إحصاء',
+            'إدارة مشاريع',
+            'تحليل نظم',
+            'دعم فني',
+            'خدمة عملاء',
+            'مبيعات',
+            'علاقات عامة',
+            'ترجمة',
+            'كتابة محتوى',
+            'تحرير',
+            'تصوير',
+            'مونتاج',
+            'صيانة',
+            'فني مختبر',
+            'تمريض',
+            'علاج طبيعي',
+            'تكنولوجيا حيوية',
+            'إدارة مستشفيات',
+            'إدارة فنادق',
+            'سياحة',
+            'آثار',
+            'مكتبات ومعلومات',
+            'أرشيف',
+            'تخطيط حضري',
+            '' // Add more specializations as needed
         ];
 
         $skills = [
-            'برمجة (عام)', 'تطوير الويب (Frontend)', 'تطوير الويب (Backend)', 'تطوير تطبيقات الجوال',
-            'إدارة قواعد البيانات', 'أمن الشبكات', 'تحليل البيانات', 'الذكاء الاصطناعي',
-            'تعلم الآلة', 'الحوسبة السحابية (AWS, Azure, GCP)', 'إدارة المشاريع (Agile, Scrum)',
-            'التفكير النقدي', 'حل المشكلات', 'التواصل الفعال', 'العمل الجماعي',
-            'القيادة', 'التكيف والمرونة', 'الإبداع والابتكار', 'إدارة الوقت',
-            'اتخاذ القرار', 'التفاوض', 'العرض والتقديم', 'اللغة الإنجليزية (تحدثًا وكتابة)',
-            'اللغة الفرنسية', 'اللغة الألمانية', 'التصميم الجرافيكي', 'تحرير الفيديو',
-            'التسويق الرقمي', 'تحسين محركات البحث (SEO)', 'التسويق عبر وسائل التواصل الاجتماعي',
-            'كتابة المحتوى', 'تحليل الأعمال', 'خدمة العملاء', 'المبيعات',
-            'المحاسبة المالية', 'المحاسبة الإدارية', 'التدقيق', 'التحليل المالي',
-            'إدارة الموارد البشرية', 'التدريب والتطوير', 'التوظيف', 'العلاقات العامة',
-            'البحث العلمي', 'التحليل الإحصائي', 'استخدام برامج Office (Word, Excel, PowerPoint)',
-            'استخدام Google Workspace (Docs, Sheets, Slides)', 'التفكير التصميمي', 'التعلم الذاتي',
-            'التعامل مع الضغط', 'الاهتمام بالتفاصيل', '' // Add more skills as needed
+            'برمجة (عام)',
+            'تطوير الويب (Frontend)',
+            'تطوير الويب (Backend)',
+            'تطوير تطبيقات الجوال',
+            'إدارة قواعد البيانات',
+            'أمن الشبكات',
+            'تحليل البيانات',
+            'الذكاء الاصطناعي',
+            'تعلم الآلة',
+            'الحوسبة السحابية (AWS, Azure, GCP)',
+            'إدارة المشاريع (Agile, Scrum)',
+            'التفكير النقدي',
+            'حل المشكلات',
+            'التواصل الفعال',
+            'العمل الجماعي',
+            'القيادة',
+            'التكيف والمرونة',
+            'الإبداع والابتكار',
+            'إدارة الوقت',
+            'اتخاذ القرار',
+            'التفاوض',
+            'العرض والتقديم',
+            'اللغة الإنجليزية (تحدثًا وكتابة)',
+            'اللغة الفرنسية',
+            'اللغة الألمانية',
+            'التصميم الجرافيكي',
+            'تحرير الفيديو',
+            'التسويق الرقمي',
+            'تحسين محركات البحث (SEO)',
+            'التسويق عبر وسائل التواصل الاجتماعي',
+            'كتابة المحتوى',
+            'تحليل الأعمال',
+            'خدمة العملاء',
+            'المبيعات',
+            'المحاسبة المالية',
+            'المحاسبة الإدارية',
+            'التدقيق',
+            'التحليل المالي',
+            'إدارة الموارد البشرية',
+            'التدريب والتطوير',
+            'التوظيف',
+            'العلاقات العامة',
+            'البحث العلمي',
+            'التحليل الإحصائي',
+            'استخدام برامج Office (Word, Excel, PowerPoint)',
+            'استخدام Google Workspace (Docs, Sheets, Slides)',
+            'التفكير التصميمي',
+            'التعلم الذاتي',
+            'التعامل مع الضغط',
+            'الاهتمام بالتفاصيل',
+            '' // Add more skills as needed
         ];
 
         return view('job-opportunities.create', compact('companies', 'specializations', 'skills'));
@@ -116,7 +221,7 @@ class JobOpportunityController extends Controller
                 ->withInput();
         }
 
-        JobOpportunity::create([
+        $jobOpportunity = JobOpportunity::create([
             'title' => $request->title,
             'description' => $request->description,
             'type' => $request->type,
@@ -137,6 +242,13 @@ class JobOpportunityController extends Controller
             'created_by' => Auth::id(),
         ]);
 
+        // إرسال إشعار
+        try {
+            $this->notificationService->notifyNewJobOpportunity($jobOpportunity);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send job opportunity notification: ' . $e->getMessage());
+        }
+
         return redirect()->route('job-opportunities.index')
             ->with('success', 'تم إنشاء فرصة العمل بنجاح');
     }
@@ -147,7 +259,7 @@ class JobOpportunityController extends Controller
     public function show($id)
     {
         $opportunity = JobOpportunity::with([
-            'company', 
+            'company',
             'creator',
             'nominations.graduate'
         ])->findOrFail($id);
@@ -284,25 +396,25 @@ class JobOpportunityController extends Controller
     {
         $path = $file->getPathname();
         $handle = fopen($path, 'r');
-        
+
         if (!$handle) {
             throw new \Exception('لا يمكن فتح الملف');
         }
-        
+
         // تخطي الصف الأول (العناوين)
         $headers = fgetcsv($handle);
-        
+
         $importedCount = 0;
         $rowNumber = 1;
-        
+
         while (($row = fgetcsv($handle)) !== FALSE) {
             $rowNumber++;
-            
+
             // تخطي الصفوف الفارغة
             if (count($row) < 3 || empty(trim($row[0]))) {
                 continue;
             }
-            
+
             try {
                 $this->createJobOpportunityFromRow($row, $companyId, $rowNumber);
                 $importedCount++;
@@ -311,7 +423,7 @@ class JobOpportunityController extends Controller
                 continue;
             }
         }
-        
+
         fclose($handle);
         return $importedCount;
     }
@@ -410,7 +522,7 @@ class JobOpportunityController extends Controller
     private function mapType($type)
     {
         $type = strtolower(trim($type));
-        
+
         $typeMap = [
             'وظيفة' => 'job',
             'job' => 'job',
@@ -425,7 +537,7 @@ class JobOpportunityController extends Controller
             'تدريبات عملية' => 'internship',
             'internships' => 'internship',
         ];
-        
+
         return $typeMap[$type] ?? 'job';
     }
 
@@ -435,7 +547,7 @@ class JobOpportunityController extends Controller
     private function mapContractType($type)
     {
         $type = strtolower(trim($type));
-        
+
         $contractMap = [
             'دوام كامل' => 'full_time',
             'full_time' => 'full_time',
@@ -448,7 +560,7 @@ class JobOpportunityController extends Controller
             'عمل حر' => 'freelance',
             'freelance' => 'freelance',
         ];
-        
+
         return $contractMap[$type] ?? 'full_time';
     }
 
@@ -462,10 +574,10 @@ class JobOpportunityController extends Controller
         }
 
         $value = trim($value);
-        
+
         // تحويل النص إلى مصفوفة باستخدام الفواصل
         $items = array_map('trim', explode(',', $value));
-        
+
         // إزالة القيم الفارغة
         return array_filter($items);
     }
@@ -479,13 +591,13 @@ class JobOpportunityController extends Controller
 
         if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', '%' . $search . '%')
-                  ->orWhere('description', 'like', '%' . $search . '%')
-                  ->orWhere('location', 'like', '%' . $search . '%')
-                  ->orWhereHas('company', function($q) use ($search) {
-                      $q->where('name', 'like', '%' . $search . '%');
-                  });
+                    ->orWhere('description', 'like', '%' . $search . '%')
+                    ->orWhere('location', 'like', '%' . $search . '%')
+                    ->orWhereHas('company', function ($q) use ($search) {
+                        $q->where('name', 'like', '%' . $search . '%');
+                    });
             });
         }
 
@@ -534,11 +646,11 @@ class JobOpportunityController extends Controller
             'byType' => JobOpportunity::selectRaw('type, count(*) as count')
                 ->groupBy('type')
                 ->get(),
-            
+
             'byStatus' => JobOpportunity::selectRaw('status, count(*) as count')
                 ->groupBy('status')
                 ->get(),
-            
+
             'byCompany' => JobOpportunity::selectRaw('company_id, companies.name, count(*) as count')
                 ->join('companies', 'job_opportunities.company_id', '=', 'companies.id')
                 ->groupBy('company_id', 'companies.name')

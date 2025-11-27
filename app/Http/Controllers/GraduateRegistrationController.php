@@ -6,9 +6,17 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use App\Services\NotificationService;
 
 class GraduateRegistrationController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     /**
      * عرض صفحة التسجيل
      */
@@ -87,6 +95,19 @@ class GraduateRegistrationController extends Controller
             'is_approved' => false, // في انتظار الموافقة
         ]);
 
+        // إشعار لمسؤول الإرشاد المهني ومدير النظام
+        try {
+            $this->notificationService->sendToRoles(
+                ['career_guidance_officer', 'admin'],
+                'طلب تسجيل خريج جديد',
+                "قام {$user->name} بالتسجيل وينتظر الموافقة.",
+                'info',
+                ['model_type' => get_class($user), 'model_id' => $user->id]
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to send registration notification: ' . $e->getMessage());
+        }
+
         return redirect()->route('login')
             ->with('success', 'تم إرسال طلب التسجيل بنجاح! سيتم مراجعته من قبل الإدارة قريباً.');
     }
@@ -141,6 +162,18 @@ class GraduateRegistrationController extends Controller
             'approved_at' => now(),
             'approved_by' => auth()->id(),
         ]);
+
+        // إشعار للخريج
+        try {
+            $this->notificationService->sendToUser(
+                $user,
+                'تمت الموافقة على حسابك',
+                'تمت الموافقة على حسابك بنجاح. يمكنك الآن الدخول إلى النظام.',
+                'success'
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to send approval notification: ' . $e->getMessage());
+        }
 
         // إنشاء سجل في جدول graduates_data تلقائياً
         try {

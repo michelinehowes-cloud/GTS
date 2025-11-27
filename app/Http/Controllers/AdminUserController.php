@@ -4,9 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Services\NotificationService;
 
 class AdminUserController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     /**
      * عرض قائمة المستخدمين
      */
@@ -55,6 +63,19 @@ class AdminUserController extends Controller
 
         $user->is_active = !$user->is_active;
         $user->save();
+
+        // إرسال إشعار للمستخدم
+        try {
+            $statusMsg = $user->is_active ? 'تنشيط' : 'تجميد';
+            $this->notificationService->sendToUser(
+                $user,
+                "تم {$statusMsg} حسابك",
+                "تم {$statusMsg} حسابك من قبل إدارة النظام.",
+                $user->is_active ? 'success' : 'warning'
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to send user status notification: ' . $e->getMessage());
+        }
 
         $status = $user->is_active ? 'تنشيط' : 'تجميد';
         return back()->with('success', "تم {$status} حساب المستخدم بنجاح");

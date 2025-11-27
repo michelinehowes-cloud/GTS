@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
+use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -50,7 +51,10 @@ class NotificationController extends Controller
     /**
      * عرض إشعار واحد
      */
-    public function show(Notification $notification): View
+    /**
+     * عرض إشعار واحد والتوجيه
+     */
+    public function show(Notification $notification)
     {
         // التحقق من الصلاحية
         if ($notification->user_id !== auth()->id()) {
@@ -62,6 +66,61 @@ class NotificationController extends Controller
             $notification->markAsRead();
         }
 
+        // منطق التوجيه بناءً على نوع النموذج والدور
+        $redirectUrl = null;
+        $user = auth()->user();
+
+        if ($notification->model_type && $notification->model_id) {
+            // 1. تسجيل خريج جديد
+            if ($notification->model_type === 'App\Models\User' || $notification->model_type === 'App\Models\GraduateData') {
+                if ($user->role === 'career_guidance_officer') {
+                    $redirectUrl = route('career-guidance.pending-approvals');
+                } elseif ($user->role === 'admin') {
+                    $redirectUrl = route('admin.career-guidance.graduates.show', $notification->model_id);
+                }
+            }
+            // 2. تدريب جديد
+            elseif (str_contains($notification->model_type, 'Training') && !str_contains($notification->model_type, 'Application')) {
+                if ($user->role === 'graduate') {
+                    $redirectUrl = route('graduate.trainings.show', $notification->model_id);
+                } elseif ($user->role === 'admin') {
+                    $redirectUrl = route('admin.trainings.show', $notification->model_id);
+                } elseif ($user->role === 'training_coordinator') {
+                    $redirectUrl = route('training-coordinator.trainings.show', $notification->model_id);
+                }
+            }
+            // 2.5. طلب تدريب جديد
+            elseif (str_contains($notification->model_type, 'TrainingApplication')) {
+                if ($user->role === 'training_coordinator') {
+                    $redirectUrl = route('training-coordinator.applications');
+                } elseif ($user->role === 'admin') {
+                    $redirectUrl = route('admin.trainings.applications');
+                }
+            }
+            // 3. فرصة عمل جديدة
+            elseif (str_contains($notification->model_type, 'JobOpportunity')) {
+                if ($user->role === 'graduate') {
+                    $redirectUrl = route('graduate.job-opportunities.show', $notification->model_id);
+                } elseif ($user->role === 'partnership_officer') {
+                    $redirectUrl = route('job-opportunities.show', $notification->model_id);
+                }
+            }
+            // 4. شركة جديدة
+            elseif (str_contains($notification->model_type, 'Company')) {
+                if ($user->role === 'partnership_officer') {
+                    $redirectUrl = route('partnership.companies.show', $notification->model_id);
+                } elseif ($user->role === 'admin') {
+                    $redirectUrl = route('admin.companies.edit', $notification->model_id);
+                }
+            }
+        }
+
+        // إذا تم تحديد رابط توجيه، قم بالتوجيه إليه
+        if ($redirectUrl) {
+            return redirect($redirectUrl);
+        }
+
+        // وإلا اعرض صفحة التفاصيل الافتراضية
         return view('notifications.show', compact('notification'));
     }
 

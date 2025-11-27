@@ -35,7 +35,8 @@ class User extends Authenticatable
         'specialization',
         'is_approved',
         'approved_at',
-        'approved_by'
+        'approved_by',
+        'languages',
     ];
 
     protected $hidden = [
@@ -49,6 +50,7 @@ class User extends Authenticatable
         'graduation_year' => 'integer',
         'gpa' => 'decimal:2',
         'skills' => 'array',
+        'languages' => 'array',
         'is_approved' => 'boolean',
         'approved_at' => 'datetime',
         'date_of_birth' => 'date',

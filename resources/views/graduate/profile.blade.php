@@ -66,133 +66,120 @@
                                 <div class="col-md-6 mb-3">
                                     <label for="phone" class="form-label">رقم الهاتف</label>
                                     <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone"
-                                        name="phone" value="{{ old('phone', $user->phone) }}">
-                                    @error('phone')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                        @enderror </div>
+
+                                    <!-- تاريخ الميلاد -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="date_of_birth" class="form-label">تاريخ الميلاد</label>
+                                        <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror"
+                                            id="date_of_birth" name="date_of_birth"
+                                            value="{{ old('date_of_birth', $user->date_of_birth) }}">
+                                        @error('date_of_birth')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <!-- الجنس -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="gender" class="form-label">الجنس</label>
+                                        <select class="form-select @error('gender') is-invalid @enderror" id="gender"
+                                            name="gender">
+                                            <option value="">-- اختر --</option>
+                                            <option value="male" {{ old('gender', $user->gender) == 'male' ? 'selected' : '' }}>
+                                                ذكر</option>
+                                            <option value="female" {{ old('gender', $user->gender) == 'female' ? 'selected' : '' }}>أنثى</option>
+                                        </select>
+                                        @error('gender')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <!-- المدينة -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="city" class="form-label">المدينة</label>
+                                        <input type="text" class="form-control @error('city') is-invalid @enderror"
+                                            id="city" name="city" value="{{ old('city', $user->city) }}">
+                                        @error('city')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <!-- العنوان -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="address" class="form-label">العنوان</label>
+                                        <textarea class="form-control @error('address') is-invalid @enderror" id="address"
+                                            name="address" rows="2">{{ old('address', $user->address) }}</textarea>
+                                        @error('address')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <!-- المؤهل العلمي -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="qualification" class="form-label">المؤهل العلمي</label>
+                                        <input type="text" class="form-control @error('qualification') is-invalid @enderror"
+                                            id="qualification" name="qualification"
+                                            value="{{ old('qualification', $user->qualification) }}"
+                                            placeholder="بكالوريوس، ماجستير، إلخ...">
+                                        @error('qualification')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <!-- التخصص -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="specialization" class="form-label">التخصص</label>
+                                        <input type="text"
+                                            class="form-control @error('specialization') is-invalid @enderror"
+                                            id="specialization" name="specialization"
+                                            value="{{ old('specialization', $user->specialization) }}">
+                                        @error('specialization')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <!-- الجامعة -->
+                                    <div class="col-md-6 mb-3">
+                                        <label for="university" class="form-label">الجامعة</label>
+                                        <input type="text" class="form-control @error('university') is-invalid @enderror"
+                                            id="university" name="university"
+                                            value="{{ old('university', $user->university) }}">
+                                        @error('university')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <!-- سنة التخرج -->
+                                    <div class="col-md-3 mb-3">
+                                        <label for="graduation_year" class="form-label">سنة التخرج</label>
+                                        <input type="number"
+                                            class="form-control @error('graduation_year') is-invalid @enderror"
+                                            id="graduation_year" name="graduation_year"
+                                            value="{{ old('graduation_year', $user->graduation_year) }}" min="1950"
+                                            max="{{ date('Y') + 1 }}">
+                                        @error('graduation_year')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <!-- المعدل التراكمي -->
+                                    <div class="col-md-3 mb-3">
+                                        <label for="gpa" class="form-label">المعدل التراكمي</label>
+                                        <input type="number" class="form-control @error('gpa') is-invalid @enderror"
+                                            id="gpa" name="gpa" value="{{ old('gpa', $user->gpa) }}" min="0" max="4"
+                                            step="0.01" placeholder="من 4.00">
+                                        @error('gpa')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
 
-                                <!-- رقم الهوية -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="national_id" class="form-label">رقم الهوية الوطنية</label>
-                                    <input type="text" class="form-control @error('national_id') is-invalid @enderror"
-                                        id="national_id" name="national_id"
-                                        value="{{ old('national_id', $user->national_id) }}">
-                                    @error('national_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>
+                                        حفظ التغييرات
+                                    </button>
                                 </div>
-
-                                <!-- تاريخ الميلاد -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="date_of_birth" class="form-label">تاريخ الميلاد</label>
-                                    <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror"
-                                        id="date_of_birth" name="date_of_birth"
-                                        value="{{ old('date_of_birth', $user->date_of_birth) }}">
-                                    @error('date_of_birth')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- الجنس -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="gender" class="form-label">الجنس</label>
-                                    <select class="form-select @error('gender') is-invalid @enderror" id="gender"
-                                        name="gender">
-                                        <option value="">-- اختر --</option>
-                                        <option value="male" {{ old('gender', $user->gender) == 'male' ? 'selected' : '' }}>
-                                            ذكر</option>
-                                        <option value="female" {{ old('gender', $user->gender) == 'female' ? 'selected' : '' }}>أنثى</option>
-                                    </select>
-                                    @error('gender')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- المدينة -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="city" class="form-label">المدينة</label>
-                                    <input type="text" class="form-control @error('city') is-invalid @enderror" id="city"
-                                        name="city" value="{{ old('city', $user->city) }}">
-                                    @error('city')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- العنوان -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="address" class="form-label">العنوان</label>
-                                    <textarea class="form-control @error('address') is-invalid @enderror" id="address"
-                                        name="address" rows="2">{{ old('address', $user->address) }}</textarea>
-                                    @error('address')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- المؤهل العلمي -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="qualification" class="form-label">المؤهل العلمي</label>
-                                    <input type="text" class="form-control @error('qualification') is-invalid @enderror"
-                                        id="qualification" name="qualification"
-                                        value="{{ old('qualification', $user->qualification) }}"
-                                        placeholder="بكالوريوس، ماجستير، إلخ...">
-                                    @error('qualification')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- التخصص -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="specialization" class="form-label">التخصص</label>
-                                    <input type="text" class="form-control @error('specialization') is-invalid @enderror"
-                                        id="specialization" name="specialization"
-                                        value="{{ old('specialization', $user->specialization) }}">
-                                    @error('specialization')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- الجامعة -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="university" class="form-label">الجامعة</label>
-                                    <input type="text" class="form-control @error('university') is-invalid @enderror"
-                                        id="university" name="university"
-                                        value="{{ old('university', $user->university) }}">
-                                    @error('university')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- سنة التخرج -->
-                                <div class="col-md-3 mb-3">
-                                    <label for="graduation_year" class="form-label">سنة التخرج</label>
-                                    <input type="number" class="form-control @error('graduation_year') is-invalid @enderror"
-                                        id="graduation_year" name="graduation_year"
-                                        value="{{ old('graduation_year', $user->graduation_year) }}" min="1950"
-                                        max="{{ date('Y') + 1 }}">
-                                    @error('graduation_year')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- المعدل التراكمي -->
-                                <div class="col-md-3 mb-3">
-                                    <label for="gpa" class="form-label">المعدل التراكمي</label>
-                                    <input type="number" class="form-control @error('gpa') is-invalid @enderror" id="gpa"
-                                        name="gpa" value="{{ old('gpa', $user->gpa) }}" min="0" max="4" step="0.01"
-                                        placeholder="من 4.00">
-                                    @error('gpa')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="text-end">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-2"></i>
-                                    حفظ التغييرات
-                                </button>
-                            </div>
                         </form>
                     </div>
                 </div>

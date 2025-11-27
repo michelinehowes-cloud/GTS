@@ -111,7 +111,7 @@
                                                                     <strong>الاسم الكامل:</strong> {{ $user->name }}
                                                                 </div>
                                                                 <div class="col-md-6 mb-3">
-                                                                    <strong>رقم الهوية:</strong> {{ $user->national_id }}
+                                                                    <strong>رقم القيد:</strong> {{ $user->national_id }}
                                                                 </div>
                                                                 <div class="col-md-6 mb-3">
                                                                     <strong>البريد الإلكتروني:</strong> {{ $user->email }}

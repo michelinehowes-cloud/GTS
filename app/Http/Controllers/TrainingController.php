@@ -381,12 +381,24 @@ class TrainingController extends Controller
                 return redirect()->back()->with('error', 'لقد قدمت طلباً لهذا التدريب مسبقاً');
             }
 
-            TrainingApplication::create([
+            $application = TrainingApplication::create([
                 'user_id' => $user->id,
                 'training_id' => $trainingId,
                 'status' => 'pending',
                 'applied_at' => now(),
             ]);
+
+            // Send notification to training coordinator and admin
+            $this->notificationService->sendToRoles(
+                ['training_coordinator', 'admin'],
+                'طلب تدريب جديد',
+                "تقدم {$user->name} بطلب للتسجيل في برنامج التدريب: {$training->title}",
+                'training_application',
+                [
+                    'model_type' => 'App\Models\TrainingApplication',
+                    'model_id' => $application->id
+                ]
+            );
 
             return redirect()->back()->with('success', 'تم تقديم طلب التدريب بنجاح، جاري المراجعة');
 

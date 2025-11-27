@@ -26,7 +26,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        View::composer('layouts.app', function ($view) {
+        // Share unread notifications count with all layouts
+        View::composer(['layouts.app', 'layouts.training-coordinator', 'layouts.*'], function ($view) {
             if (Auth::check()) {
                 $unreadCount = Notification::where('user_id', Auth::id())
                     ->where('is_read', false)

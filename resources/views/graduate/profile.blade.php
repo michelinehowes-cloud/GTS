@@ -66,9 +66,13 @@
                                 <div class="col-md-6 mb-3">
                                     <label for="phone" class="form-label">رقم الهاتف</label>
                                     <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone"
-                                        @enderror </div>
+                                        name="phone" value="{{ old('phone', $user->phone) }}">
+                                    @error('phone')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-                                    <!-- تاريخ الميلاد -->
+                                <!-- تاريخ الميلاد -->
                                     <div class="col-md-6 mb-3">
                                         <label for="date_of_birth" class="form-label">تاريخ الميلاد</label>
                                         <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror"

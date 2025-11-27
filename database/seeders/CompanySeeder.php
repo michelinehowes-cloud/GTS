@@ -51,7 +51,7 @@ class CompanySeeder extends Seeder
             'address' => 'مصراتة، ليبيا',
             'website' => 'https://www.futureconsulting.com',
             'description' => 'تقديم استشارات إدارية ومالية للشركات.',
-            'partnership_status' => 'inactive',
+            'partnership_status' => 'expired',
             'partnership_start_date' => now(),
             'partnership_end_date' => now()->addYears(1),
             'contact_person' => 'سالم محمود',

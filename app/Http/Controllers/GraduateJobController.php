@@ -5,10 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\JobOpportunity;
 use App\Models\Nomination;
 use App\Models\GraduateData;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class GraduateJobController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * عرض فرص العمل المتاحة للخريج
      */
@@ -104,8 +111,7 @@ class GraduateJobController extends Controller
         }
 
         // إنشاء ترشيح جديد
-        // إنشاء ترشيح جديد
-        Nomination::create([
+        $nomination = Nomination::create([
             'graduate_id' => $graduateData->id,
             'job_opportunity_id' => $id,
             'nominated_by' => auth()->id(), // الخريج رشح نفسه
@@ -113,6 +119,14 @@ class GraduateJobController extends Controller
             'status' => 'pending',
             'nomination_notes' => $request->notes ?? 'ترشيح ذاتي من الخريج',
         ]);
+
+        // إرسال إشعار بطلب التوظيف
+        try {
+            $nomination->load(['user', 'jobOpportunity']);
+            $this->notificationService->notifyJobApplication($nomination);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send job application notification: ' . $e->getMessage());
+        }
 
         return back()->with('success', 'تم تقديم طلبك بنجاح! سيتم مراجعته قريباً.');
     }

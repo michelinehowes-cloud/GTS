@@ -90,6 +90,18 @@ class NotificationService
             'model_type' => get_class($training),
             'model_id' => $training->id,
         ]);
+
+        // إشعار للتقييم والمتابعة
+        $this->sendToRole('evaluation_followup', "تدريب جديد: {$training->title}", $message, $type, [
+            'model_type' => get_class($training),
+            'model_id' => $training->id,
+        ]);
+
+        // إشعار لمسؤول الميديا
+        $this->sendToRole('media_officer', "تدريب جديد: {$training->title}", $message, $type, [
+            'model_type' => get_class($training),
+            'model_id' => $training->id,
+        ]);
     }
 
     /**
@@ -230,5 +242,89 @@ class NotificationService
         return Notification::where('created_at', '<', now()->subDays($days))
             ->where('is_read', true)
             ->delete();
+    }
+
+    /**
+     * إرسال إشعار عند تقديم طلب توظيف
+     */
+    public function notifyJobApplication($jobApplication): void
+    {
+        $title = 'طلب توظيف جديد';
+        $message = "تقدم {$jobApplication->user->name} بطلب للوظيفة: {$jobApplication->jobOpportunity->title}";
+        $type = 'info';
+
+        // إشعار لمسؤول الإرشاد المهني
+        $this->sendToRole('career_guidance_officer', $title, $message, $type, [
+            'model_type' => get_class($jobApplication),
+            'model_id' => $jobApplication->id,
+        ]);
+
+        // إشعار لمسؤول الشراكات والتوظيف
+        $this->sendToRole('partnership_officer', $title, $message, $type, [
+            'model_type' => get_class($jobApplication),
+            'model_id' => $jobApplication->id,
+        ]);
+
+        // إشعار للمدير
+        $this->sendToRole('admin', $title, $message, $type, [
+            'model_type' => get_class($jobApplication),
+            'model_id' => $jobApplication->id,
+        ]);
+    }
+
+    /**
+     * إرسال إشعار عند ترشيح خريج لوظيفة
+     */
+    public function notifyJobNomination($nomination, $nominatedBy = null): void
+    {
+        $title = 'تم ترشيحك لوظيفة';
+        $message = "تم ترشيحك للوظيفة: {$nomination->jobOpportunity->title}";
+        if ($nominatedBy) {
+            $message .= " من قبل {$nominatedBy->name}";
+        }
+        $type = 'success';
+
+        // إشعار للخريج المرشح
+        $this->sendToUser($nomination->user, $title, $message, $type, [
+            'model_type' => get_class($nomination),
+            'model_id' => $nomination->id,
+            'send_email' => true,
+        ]);
+
+        // إشعار لمسؤول الشراكات والتوظيف
+        $this->sendToRole(
+            'partnership_officer',
+            "ترشيح جديد: {$nomination->user->name}",
+            "تم ترشيح {$nomination->user->name} للوظيفة: {$nomination->jobOpportunity->title}",
+            $type,
+            [
+                'model_type' => get_class($nomination),
+                'model_id' => $nomination->id,
+            ]
+        );
+    }
+
+    /**
+     * إرسال إشعار عند تحديث حالة الترشيح
+     */
+    public function notifyNominationStatusUpdate($nomination, $status): void
+    {
+        $statusText = [
+            'pending' => 'قيد المراجعة',
+            'approved' => 'مقبول',
+            'rejected' => 'مرفوض',
+            'interview' => 'تم تحديد موعد مقابلة',
+        ];
+
+        $title = 'تحديث حالة الترشيح';
+        $message = "تم تحديث حالة ترشيحك للوظيفة: {$nomination->jobOpportunity->title} إلى: {$statusText[$status]}";
+        $type = $status === 'approved' ? 'success' : ($status === 'rejected' ? 'warning' : 'info');
+
+        // إشعار للخريج
+        $this->sendToUser($nomination->user, $title, $message, $type, [
+            'model_type' => get_class($nomination),
+            'model_id' => $nomination->id,
+            'send_email' => true,
+        ]);
     }
 }

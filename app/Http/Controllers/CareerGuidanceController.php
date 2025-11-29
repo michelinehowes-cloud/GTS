@@ -7,6 +7,7 @@ use App\Models\GraduateData;
 use App\Models\JobOpportunity;
 use App\Models\Nomination;
 use App\Models\Company;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +18,12 @@ use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 class CareerGuidanceController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * عرض لوحة تحكم مسؤول الإرشاد المهني
      */
@@ -325,6 +332,14 @@ class CareerGuidanceController extends Controller
             'final_decision_at' => ($request->final_status && !$nomination->final_decision_at) ? now() : $nomination->final_decision_at,
         ]);
 
+        // إرسال إشعار بتحديث حالة الترشيح
+        try {
+            $nomination->load(['user', 'jobOpportunity']);
+            $this->notificationService->notifyNominationStatusUpdate($nomination, $request->status);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send nomination status update notification: ' . $e->getMessage());
+        }
+
         return redirect()->back()->with('success', 'تم تحديث حالة الترشيح بنجاح');
     }
 
@@ -379,7 +394,7 @@ class CareerGuidanceController extends Controller
             return redirect()->back()->with('error', 'تم ترشيح هذا الخريج لهذه الفرصة مسبقاً');
         }
 
-        Nomination::create([
+        $nomination = Nomination::create([
             'graduate_id' => $request->graduate_id,
             'job_opportunity_id' => $request->job_opportunity_id,
             'nominated_by' => Auth::id(),
@@ -388,6 +403,14 @@ class CareerGuidanceController extends Controller
             'status' => 'pending',
             'nominated_at' => now(),
         ]);
+
+        // إرسال إشعار بالترشيح
+        try {
+            $nomination->load(['user', 'jobOpportunity']);
+            $this->notificationService->notifyJobNomination($nomination, Auth::user());
+        } catch (\Exception $e) {
+            \Log::error('Failed to send job nomination notification: ' . $e->getMessage());
+        }
 
         return redirect()->route('career-guidance.nominations')
             ->with('success', 'تم ترشيح الخريج بنجاح');

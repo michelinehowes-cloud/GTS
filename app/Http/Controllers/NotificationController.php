@@ -95,6 +95,9 @@ class NotificationController extends Controller
                     $redirectUrl = route('training-coordinator.applications');
                 } elseif ($user->role === 'admin') {
                     $redirectUrl = route('admin.trainings.applications');
+                } elseif ($user->role === 'graduate') {
+                    // للخريج: توجيهه إلى صفحة التدريبات المتاحة
+                    $redirectUrl = route('graduate.trainings');
                 }
             }
             // 3. فرصة عمل جديدة

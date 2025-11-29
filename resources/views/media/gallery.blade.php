@@ -265,10 +265,25 @@
 
 @push('scripts')
 <script>
+// تحديد المسار الأساسي
+const baseUrl = "{{ url('/') }}";
+
 function editMedia(mediaId) {
     // جلب بيانات الوسيط
-    fetch(`/media/media/${mediaId}`)
-        .then(response => response.json())
+    fetch(`${baseUrl}/media/media-item/${mediaId}`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(`Network response was not ok: ${response.status} - ${text}`);
+                });
+            }
+            return response.json();
+        })
         .then(data => {
             document.getElementById('editCaption').value = data.caption || '';
             document.getElementById('editIsActive').checked = data.is_active;
@@ -280,12 +295,12 @@ function editMedia(mediaId) {
                 document.getElementById('displayOrderGroup').style.display = 'none';
             }
 
-            document.getElementById('editMediaForm').action = `/media/media/${mediaId}`;
+            document.getElementById('editMediaForm').action = `${baseUrl}/media/media-item/${mediaId}`;
             new bootstrap.Modal(document.getElementById('editMediaModal')).show();
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('حدث خطأ في جلب بيانات الوسيط');
+            alert('حدث خطأ في جلب بيانات الوسيط: ' + error.message);
         });
 }
 
@@ -293,7 +308,7 @@ function deleteMedia(mediaId, mediaName) {
     if (confirm(`هل أنت متأكد من حذف "${mediaName}"؟`)) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/media/media/${mediaId}`;
+        form.action = `${baseUrl}/media/media-item/${mediaId}`;
 
         const methodField = document.createElement('input');
         methodField.type = 'hidden';

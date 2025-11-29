@@ -69,14 +69,14 @@
                                             <li class="nav-item">
                                                 <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}"
                                                     href="{{ 
-                                                                                                                                                                                                                                                                auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
+                                                                                                                                                                                                                                                                                    auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
                             (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') :
                                 (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') :
                                     (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
                                         (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
                                             (auth()->user()->role == 'company' ? route('company.dashboard') :
                                                 route('admin.dashboard')))))) 
-                                                                                                                                                                                                                                                            }}">
+                                                                                                                                                                                                                                                                                }}">
                                                     <i class="fas fa-tachometer-alt"></i>
                                                     لوحة التحكم
                                                 </a>
@@ -851,7 +851,7 @@
                             @endphp
                             < div class="user-avatar pulse-animation" >
                                 <i class="{{ $userIcon }}"></i>
-                                        </div >
+                                            </div >
                         @endauth
                         </div >
                     </div >
@@ -862,7 +862,7 @@
                             @if(session('success'))
                                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                                     <i class="fas fa-check-circle me-2"></i>
-                                    {{ session('success') }}
+                                        {{ session('success') }}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                 </div>
                             @endif
@@ -870,7 +870,7 @@
                             @if(session('error'))
                                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                     <i class="fas fa-exclamation-circle me-2"></i>
-                                    {{ session('error') }}
+                                        {{ session('error') }}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                 </div>
                             @endif
@@ -1068,6 +1068,7 @@
         });
     </script>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     @yield('scripts')
     @stack('scripts')

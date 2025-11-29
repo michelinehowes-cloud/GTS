@@ -66,7 +66,7 @@ class MediaController extends Controller
         // البحث والتصفية
         if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('description', 'like', '%' . $request->search . '%');
+                ->orWhere('description', 'like', '%' . $request->search . '%');
         }
 
         if ($request->filled('status')) {
@@ -196,6 +196,14 @@ class MediaController extends Controller
         $message = count($uploadedFiles) > 1 ? 'تم رفع ' . count($uploadedFiles) . ' ملف بنجاح' : 'تم رفع الملف بنجاح';
 
         return redirect()->back()->with('success', $message);
+    }
+
+    /**
+     * عرض بيانات وسيط واحد (JSON)
+     */
+    public function show(TrainingMedia $media)
+    {
+        return response()->json($media);
     }
 
     /**

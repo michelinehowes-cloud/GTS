@@ -232,6 +232,18 @@ class TrainingController extends Controller
         $application = TrainingApplication::findOrFail($id);
         $application->update(['status' => 'approved']);
 
+        // Send notification to the graduate
+        $this->notificationService->sendToUser(
+            $application->user,
+            'تم قبول طلب التدريب',
+            "تم قبول طلبك للتسجيل في برنامج التدريب: {$application->training->title}. يمكنك الآن البدء في التدريب.",
+            'success',
+            [
+                'model_type' => 'App\Models\TrainingApplication',
+                'model_id' => $application->id
+            ]
+        );
+
         return redirect()->back()->with('success', 'تم الموافقة على طلب التدريب بنجاح');
     }
 
@@ -239,6 +251,18 @@ class TrainingController extends Controller
     {
         $application = TrainingApplication::findOrFail($id);
         $application->update(['status' => 'rejected']);
+
+        // Send notification to the graduate
+        $this->notificationService->sendToUser(
+            $application->user,
+            'تم رفض طلب التدريب',
+            "نأسف لإبلاغك بأنه تم رفض طلبك للتسجيل في برنامج التدريب: {$application->training->title}. يمكنك التقديم على برامج تدريب أخرى.",
+            'warning',
+            [
+                'model_type' => 'App\Models\TrainingApplication',
+                'model_id' => $application->id
+            ]
+        );
 
         return redirect()->back()->with('success', 'تم رفض طلب التدريب بنجاح');
     }

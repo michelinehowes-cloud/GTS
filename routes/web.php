@@ -349,8 +349,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/media/gallery', [App\Http\Controllers\MediaController::class, 'mediaGallery'])->name('media.gallery');
         Route::get('/media/upload', [App\Http\Controllers\MediaController::class, 'uploadForm'])->name('media.upload.form');
         Route::post('/media/upload', [App\Http\Controllers\MediaController::class, 'upload'])->name('media.upload');
-        Route::patch('/media/{media}', [App\Http\Controllers\MediaController::class, 'update'])->name('media.update');
-        Route::delete('/media/{media}', [App\Http\Controllers\MediaController::class, 'destroy'])->name('media.destroy');
+        Route::get('/media-item/{media}', [App\Http\Controllers\MediaController::class, 'show'])->name('media.show');
+        Route::patch('/media-item/{media}', [App\Http\Controllers\MediaController::class, 'update'])->name('media.update');
+        Route::delete('/media-item/{media}', [App\Http\Controllers\MediaController::class, 'destroy'])->name('media.destroy');
 
         // إدارة الأخبار
         Route::resource('news', App\Http\Controllers\NewsController::class)->names([

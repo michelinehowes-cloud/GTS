@@ -344,6 +344,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/trainings', [App\Http\Controllers\TrainingController::class, 'coordinatorTrainings'])->name('media.trainings.index');
         Route::get('/trainings/{training}', [App\Http\Controllers\MediaController::class, 'trainingShow'])->name('media.trainings.show');
         Route::patch('/trainings/{training}/coverage-status', [App\Http\Controllers\MediaController::class, 'updateCoverageStatus'])->name('media.trainings.update-coverage-status');
+        Route::get('/training-calendar', [App\Http\Controllers\MediaController::class, 'trainingCalendarIndex'])->name('media.training-calendar');
 
         // إدارة الوسائط
         Route::get('/media/gallery', [App\Http\Controllers\MediaController::class, 'mediaGallery'])->name('media.gallery');

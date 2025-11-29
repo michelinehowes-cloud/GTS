@@ -265,4 +265,91 @@ class MediaController extends Controller
 
         return view('media.reports.coverage', compact('training', 'media'));
     }
+
+    /**
+     * عرض تقويم التدريبات
+     */
+    public function trainingCalendarIndex(Request $request)
+    {
+        try {
+            $month = $request->input('month', \Carbon\Carbon::now()->month);
+            $year = $request->input('year', \Carbon\Carbon::now()->year);
+
+            $month = max(1, min(12, $month));
+            $year = max(2020, min(2030, $year));
+
+            $startDate = \Carbon\Carbon::create($year, $month, 1);
+            $endDate = $startDate->copy()->endOfMonth();
+
+            $trainings = Training::where(function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('start_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                    ->orWhereBetween('end_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+            })
+                ->get();
+
+            $calendar = $this->generateCalendar($month, $year, $trainings);
+
+            // استخدام نفس العرض الخاص بالتقييم والمتابعة لأنه عام
+            return view('evaluation-followup.training-calendar.index', compact('calendar', 'trainings', 'month', 'year', 'startDate'));
+
+        } catch (\Exception $e) {
+            return redirect()->route('media.dashboard')
+                ->with('error', 'حدث خطأ في تحميل التقويم: ' . $e->getMessage());
+        }
+    }
+
+    private function generateCalendar($month, $year, $trainings)
+    {
+        $startDate = \Carbon\Carbon::create($year, $month, 1);
+        $endDate = $startDate->copy()->endOfMonth();
+
+        $days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+        $calendar = [];
+        $currentDay = $startDate->copy();
+
+        $firstDayOfWeek = $currentDay->dayOfWeek;
+        for ($i = 0; $i < $firstDayOfWeek; $i++) {
+            $calendar[] = ['day' => null, 'trainings' => []];
+        }
+
+        while ($currentDay->month == $month) {
+            $dayTrainings = $trainings->filter(function ($training) use ($currentDay) {
+                return $currentDay->between(\Carbon\Carbon::parse($training->start_date)->startOfDay(), \Carbon\Carbon::parse($training->end_date)->endOfDay());
+            });
+
+            $calendar[] = [
+                'day' => $currentDay->copy(),
+                'trainings' => $dayTrainings
+            ];
+
+            $currentDay->addDay();
+        }
+
+        return [
+            'days' => $days,
+            'weeks' => array_chunk($calendar, 7),
+            'month_name' => $this->getArabicMonthName($month)
+        ];
+    }
+
+    private function getArabicMonthName($month)
+    {
+        $months = [
+            1 => 'يناير',
+            2 => 'فبراير',
+            3 => 'مارس',
+            4 => 'أبريل',
+            5 => 'مايو',
+            6 => 'يونيو',
+            7 => 'يوليو',
+            8 => 'أغسطس',
+            9 => 'سبتمبر',
+            10 => 'أكتوبر',
+            11 => 'نوفمبر',
+            12 => 'ديسمبر'
+        ];
+
+        return $months[$month] ?? 'غير معروف';
+    }
 }

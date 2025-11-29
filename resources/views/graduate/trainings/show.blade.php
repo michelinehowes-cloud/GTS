@@ -67,16 +67,31 @@
                                     <p class="text-muted">يمكنك التقديم لهذا البرنامج إذا كنت مهتماً</p>
                                     
                                     @php
-                                        $hasApplied = \App\Models\TrainingApplication::where('user_id', auth()->id())
+                                        $application = \App\Models\TrainingApplication::where('user_id', auth()->id())
                                             ->where('training_id', $training->id)
-                                            ->exists();
+                                            ->first();
                                     @endphp
                                     
-                                    @if($hasApplied)
-                                        <div class="alert alert-info">
-                                            <i class="fas fa-check-circle me-2"></i>
-                                            لقد قدمت طلباً لهذا البرنامج مسبقاً
-                                        </div>
+                                    @if($application)
+                                        @if($application->status === 'approved')
+                                            <div class="alert alert-success">
+                                                <i class="fas fa-check-circle me-2"></i>
+                                                <strong>تم قبول طلبك!</strong><br>
+                                                <small>تهانينا! تم قبولك في برنامج التدريب. يمكنك البدء في التدريب.</small>
+                                            </div>
+                                        @elseif($application->status === 'rejected')
+                                            <div class="alert alert-danger">
+                                                <i class="fas fa-times-circle me-2"></i>
+                                                <strong>تم رفض طلبك</strong><br>
+                                                <small>نأسف لإبلاغك بأنه تم رفض طلبك لهذا البرنامج. يمكنك التقديم على برامج أخرى.</small>
+                                            </div>
+                                        @else
+                                            <div class="alert alert-info">
+                                                <i class="fas fa-clock me-2"></i>
+                                                <strong>لقد قدمت طلباً لهذا البرنامج</strong><br>
+                                                <small>طلبك قيد المراجعة من قبل المسؤول</small>
+                                            </div>
+                                        @endif
                                     @else
                                         <form action="{{ route('graduate.trainings.apply', $training->id) }}" method="POST">
                                             @csrf
@@ -85,14 +100,14 @@
                                                 تقديم طلب التسجيل
                                             </button>
                                         </form>
+                                        
+                                        <div class="mt-3">
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                سيتم مراجعة طلبك من قبل المسؤول
+                                            </small>
+                                        </div>
                                     @endif
-                                    
-                                    <div class="mt-3">
-                                        <small class="text-muted">
-                                            <i class="fas fa-info-circle me-1"></i>
-                                            سيتم مراجعة طلبك من قبل المسؤول
-                                        </small>
-                                    </div>
                                 </div>
                             </div>
                         </div>

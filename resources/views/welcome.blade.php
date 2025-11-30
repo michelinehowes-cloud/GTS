@@ -290,13 +290,6 @@
 
     <!-- قسم الصور الترحيبية (Carousel) -->
     @php
-        $welcomeImages = \App\Models\TrainingMedia::where('is_welcome_page_media', true)
-            ->where('is_active', true)
-            ->orderBy('display_order')
-            ->get();
-        $advertisedTrainings = \App\Models\Training::where('status', 'active')
-            ->orderBy('created_at', 'desc')
-            ->get();
         $totalTrainings = $advertisedTrainings->count();
     @endphp
 
@@ -386,21 +379,6 @@
             </div>
         </section>
     @endif
-
-    <!-- قسم الأخبار والإعلانات -->
-    @php
-        $latestNews = \App\Models\News::where('is_active', true)
-            ->orderBy('published_at', 'desc')
-            ->limit(3)
-            ->get();
-
-        $activeAnnouncements = \App\Models\Announcement::where('is_active', true)
-            ->where('start_date', '<=', now())
-            ->where('end_date', '>=', now())
-            ->orderBy('created_at', 'desc')
-            ->limit(3)
-            ->get();
-    @endphp
 
     @if($latestNews->count() > 0 || $activeAnnouncements->count() > 0)
         <section class="py-5 bg-light">

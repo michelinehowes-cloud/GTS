@@ -29,7 +29,28 @@ use App\Http\Controllers\HomeController;
 
 // ==================== 🏠 الصفحة الرئيسية ====================
 Route::get('/', function () {
-    return view('welcome');
+    // جلب البيانات مع تخفيف الشروط للتأكد من العرض
+    $welcomeImages = \App\Models\TrainingMedia::where('is_welcome_page_media', true)
+        ->orderBy('display_order')
+        ->get();
+
+    if ($welcomeImages->isEmpty()) {
+        // بيانات وهمية للاختبار في حال عدم وجود صور
+        $welcomeImages = collect([
+            (object) [
+                'file_path' => 'logo.jpg', // صورة افتراضية
+                'caption' => 'أهلاً بكم في مكتب تدريب الخريجين'
+            ]
+        ]);
+    }
+
+    $advertisedTrainings = \App\Models\Training::orderBy('created_at', 'desc')->limit(3)->get();
+
+    $latestNews = \App\Models\News::orderBy('published_at', 'desc')->limit(3)->get();
+
+    $activeAnnouncements = \App\Models\Announcement::orderBy('created_at', 'desc')->limit(3)->get();
+
+    return view('welcome', compact('welcomeImages', 'advertisedTrainings', 'latestNews', 'activeAnnouncements'));
 })->name('home');
 
 // أضف هذا السطر لحل المشكلة

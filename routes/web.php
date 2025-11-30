@@ -526,6 +526,11 @@ Route::middleware(['auth'])->prefix('graduate')->name('graduate.')->group(functi
     // ترشيحاتي ومقابلاتي
     Route::get('/my-applications', [App\Http\Controllers\GraduateJobController::class, 'myApplications'])->name('my-applications');
     Route::delete('/my-applications/{id}/cancel', [App\Http\Controllers\GraduateJobController::class, 'cancelApplication'])->name('my-applications.cancel');
+
+    // الاستبيانات
+    Route::get('/surveys', [App\Http\Controllers\Graduate\GraduateSurveyController::class, 'index'])->name('surveys.index');
+    Route::get('/surveys/{survey}', [App\Http\Controllers\Graduate\GraduateSurveyController::class, 'show'])->name('surveys.show');
+    Route::post('/surveys/{survey}', [App\Http\Controllers\Graduate\GraduateSurveyController::class, 'store'])->name('surveys.store');
 });
 
 require __DIR__ . '/auth.php';

@@ -69,14 +69,14 @@
                                             <li class="nav-item">
                                                 <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}"
                                                     href="{{ 
-                                                                                                                                                                                                                                                                                                                            auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
+                                                                                                                                                                                                                                                                                                                                                auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
                             (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') :
                                 (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') :
                                     (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
                                         (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
                                             (auth()->user()->role == 'company' ? route('company.dashboard') :
                                                 route('admin.dashboard')))))) 
-                                                                                                                                                                                                                                                                                                                        }}">
+                                                                                                                                                                                                                                                                                                                                            }}">
                                                     <i class="fas fa-tachometer-alt"></i>
                                                     لوحة التحكم
                                                 </a>
@@ -215,6 +215,13 @@
                                                         href="{{ route('graduate.my-applications') }}">
                                                         <i class="fas fa-clipboard-list"></i>
                                                         ترشيحاتي
+                                                    </a>
+                                                </li>
+                                                <li class="nav-item">
+                                                    <a class="nav-link {{ request()->routeIs('graduate.surveys*') ? 'active' : '' }}"
+                                                        href="{{ route('graduate.surveys.index') }}">
+                                                        <i class="fas fa-poll"></i>
+                                                        الاستبيانات
                                                     </a>
                                                 </li>
                                                 <!-- فاصل -->

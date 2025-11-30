@@ -19,6 +19,8 @@ class Survey extends Model
         'start_date',
         'end_date',
         'is_active',
+        'type', // Added
+        'related_id', // Added
         'slug',
         'is_public',
     ];
@@ -28,12 +30,32 @@ class Survey extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'is_active' => 'boolean',
-        'is_public' => 'boolean',
     ];
 
-    public function responses(): HasMany
+    // Relationships
+    public function responses()
     {
         return $this->hasMany(SurveyResponse::class);
+    }
+
+    public function training()
+    {
+        return $this->belongsTo(Training::class, 'related_id')->where('type', 'training');
+    }
+
+    public function jobOpportunity()
+    {
+        return $this->belongsTo(JobOpportunity::class, 'related_id')->where('type', 'job_opportunity');
+    }
+
+    public function getRelatedEntityAttribute()
+    {
+        if ($this->type === 'training') {
+            return \App\Models\Training::find($this->related_id);
+        } elseif ($this->type === 'job_opportunity') {
+            return \App\Models\JobOpportunity::find($this->related_id); // Adjust model name if needed
+        }
+        return null;
     }
 
     public function isActive(): bool
@@ -44,8 +66,8 @@ class Survey extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true)
-                    ->where('start_date', '<=', now())
-                    ->where('end_date', '>=', now());
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now());
     }
 
     public function scopePublic($query)

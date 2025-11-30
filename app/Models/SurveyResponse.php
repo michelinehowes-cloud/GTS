@@ -13,7 +13,7 @@ class SurveyResponse extends Model
     protected $fillable = [
         'survey_id',
         'user_id',
-        'responses',
+        'answers',  // Changed from 'responses'
         'submitted_at',
         'participant_email',
         'participant_name',
@@ -21,7 +21,7 @@ class SurveyResponse extends Model
     ];
 
     protected $casts = [
-        'responses' => 'array',
+        'answers' => 'array',  // Changed from 'responses'
         'submitted_at' => 'datetime',
         'is_external' => 'boolean',
     ];

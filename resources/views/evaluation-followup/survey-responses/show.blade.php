@@ -71,18 +71,40 @@
                                         @foreach($response->answers as $index => $answer)
                                             <div class="response-item border rounded p-3 mb-3">
                                                 <div class="question mb-2">
-                                                    <strong>{{ $index + 1 }}. {{ $answer['question'] }}</strong>
+                                                    <strong>{{ $index + 1 }}. 
+                                                        @if(is_array($answer) && isset($answer['question']))
+                                                            {{-- Old format with question in answer --}}
+                                                            {{ $answer['question'] }}
+                                                        @elseif(isset($response->survey->questions[$index]['question']))
+                                                            {{-- New format - get question from survey --}}
+                                                            {{ $response->survey->questions[$index]['question'] }}
+                                                        @else
+                                                            السؤال {{ $index + 1 }}
+                                                        @endif
+                                                    </strong>
                                                 </div>
                                                 <div class="answer">
-                                                    @if(is_array($answer['answer']))
+                                                    @php
+                                                        // Handle different answer formats
+                                                        $answerValue = null;
+                                                        if(is_array($answer) && isset($answer['answer'])) {
+                                                            // Old format
+                                                            $answerValue = $answer['answer'];
+                                                        } else {
+                                                            // New format - answer is the value itself
+                                                            $answerValue = $answer;
+                                                        }
+                                                    @endphp
+                                                    
+                                                    @if(is_array($answerValue))
                                                         <ul class="list-unstyled">
-                                                            @foreach($answer['answer'] as $item)
+                                                            @foreach($answerValue as $item)
                                                                 <li><i class="fas fa-check-circle text-success mr-2"></i> {{ $item }}</li>
                                                             @endforeach
                                                         </ul>
                                                     @else
                                                         <div class="alert alert-light">
-                                                            {{ $answer['answer'] ?: 'لم يتم الإجابة' }}
+                                                            {{ $answerValue ?: 'لم يتم الإجابة' }}
                                                         </div>
                                                     @endif
                                                 </div>

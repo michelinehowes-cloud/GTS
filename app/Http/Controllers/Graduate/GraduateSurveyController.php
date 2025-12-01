@@ -65,16 +65,18 @@ class GraduateSurveyController extends Controller
 
     public function show(Survey $survey)
     {
-        // التحقق مما إذا كان قد أجاب مسبقاً
+        // التحقق من وجود رد سابق
         $existingResponse = SurveyResponse::where('survey_id', $survey->id)
             ->where('user_id', Auth::id())
             ->first();
 
-        if ($existingResponse) {
-            return redirect()->route('graduate.surveys.index')->with('info', 'لقد قمت بالإجابة على هذا الاستبيان مسبقاً.');
+        // إذا كان هناك رد سابق والاستبيان منتهي، منع التعديل
+        if ($existingResponse && now()->isAfter($survey->end_date)) {
+            return redirect()->route('graduate.surveys.index')
+                ->with('info', 'لقد انتهت مدة هذا الاستبيان ولا يمكن تعديل الإجابات.');
         }
 
-        return view('graduate.surveys.show', compact('survey'));
+        return view('graduate.surveys.show', compact('survey', 'existingResponse'));
     }
 
     public function store(Request $request, Survey $survey)
@@ -83,13 +85,31 @@ class GraduateSurveyController extends Controller
             'answers' => 'required|array',
         ]);
 
-        SurveyResponse::create([
-            'survey_id' => $survey->id,
-            'user_id' => Auth::id(),
-            'answers' => $request->answers,
-            'submitted_at' => now(),
-        ]);
+        // البحث عن رد سابق
+        $existingResponse = SurveyResponse::where('survey_id', $survey->id)
+            ->where('user_id', Auth::id())
+            ->first();
 
-        return redirect()->route('graduate.surveys.index')->with('success', 'تم إرسال إجاباتك بنجاح. شكراً لمشاركتك!');
+        if ($existingResponse) {
+            // تحديث الرد الموجود
+            $existingResponse->update([
+                'answers' => $request->answers,
+                'submitted_at' => now(),
+            ]);
+
+            return redirect()->route('graduate.surveys.index')
+                ->with('success', 'تم تحديث إجاباتك بنجاح. شكراً لمشاركتك!');
+        } else {
+            // إنشاء رد جديد
+            SurveyResponse::create([
+                'survey_id' => $survey->id,
+                'user_id' => Auth::id(),
+                'answers' => $request->answers,
+                'submitted_at' => now(),
+            ]);
+
+            return redirect()->route('graduate.surveys.index')
+                ->with('success', 'تم إرسال إجاباتك بنجاح. شكراً لمشاركتك!');
+        }
     }
 }

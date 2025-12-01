@@ -64,9 +64,21 @@
 
                                 <div class="mt-3">
                                     @if(in_array($survey->id, $answeredSurveyIds))
-                                        <button class="btn btn-outline-success w-100" disabled>
-                                            <i class="fas fa-check-circle me-2"></i> تم الإجابة
-                                        </button>
+                                        @if(now()->isBefore($survey->end_date))
+                                            <a href="{{ route('graduate.surveys.show', $survey->id) }}" class="btn btn-warning w-100">
+                                                <i class="fas fa-edit me-2"></i> تعديل الإجابات
+                                            </a>
+                                            <small class="text-muted d-block mt-2 text-center">
+                                                <i class="fas fa-check-circle me-1"></i> تم الإجابة مسبقاً
+                                            </small>
+                                        @else
+                                            <button class="btn btn-outline-success w-100" disabled>
+                                                <i class="fas fa-check-circle me-2"></i> تم الإجابة
+                                            </button>
+                                            <small class="text-muted d-block mt-2 text-center">
+                                                انتهى زمن التعديل
+                                            </small>
+                                        @endif
                                     @else
                                         <a href="{{ route('graduate.surveys.show', $survey->id) }}" class="btn btn-primary w-100">
                                             <i class="fas fa-edit me-2"></i> بدء الاستبيان

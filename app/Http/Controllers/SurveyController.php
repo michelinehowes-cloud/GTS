@@ -29,20 +29,62 @@ class SurveyController extends Controller
 
     public function store(Request $request)
     {
+        // تنظيف البيانات - إزالة الخيارات الفارغة
+        if ($request->has('questions')) {
+            $questions = $request->questions;
+            foreach ($questions as $index => $question) {
+                if (isset($question['options']) && is_array($question['options'])) {
+                    // إزالة الخيارات الفارغة
+                    $questions[$index]['options'] = array_values(array_filter($question['options'], function ($option) {
+                        return !empty(trim($option));
+                    }));
+                }
+            }
+            $request->merge(['questions' => $questions]);
+        }
+
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'questions' => 'required|array|min:1',
             'questions.*.question' => 'required|string',
-            'questions.*.type' => 'required|in:text,radio,checkbox,select,rating,date,email,number',
+            'questions.*.type' => 'required|in:text,textarea,radio,checkbox,select,rating,date,email,number',
             'questions.*.required' => 'boolean',
             'questions.*.description' => 'nullable|string',
-            'questions.*.options' => 'required_if:questions.*.type,radio,checkbox,select|array',
-            'questions.*.max_rating' => 'required_if:questions.*.type,rating|in:5,10',
+            'questions.*.options' => 'nullable|array',  // Changed to nullable
+            'questions.*.options.*' => 'nullable|string',  // Each option should be string
+            'questions.*.max_rating' => 'nullable|in:5,10',
             'target_audience' => 'required|in:all,graduates,companies,training_coordinators',
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after:start_date',
         ]);
+
+        // Custom validation for options based on question type
+        $validator->after(function ($validator) use ($request) {
+            if ($request->has('questions')) {
+                foreach ($request->questions as $index => $question) {
+                    $type = $question['type'] ?? '';
+
+                    // Options are required for radio, checkbox, and select
+                    if (in_array($type, ['radio', 'checkbox', 'select'])) {
+                        if (empty($question['options']) || !is_array($question['options'])) {
+                            $validator->errors()->add(
+                                "questions.$index.options",
+                                "يجب إضافة خيارات للسؤال رقم " . ($index + 1)
+                            );
+                        }
+                    }
+
+                    // Max rating is required for rating type
+                    if ($type === 'rating' && empty($question['max_rating'])) {
+                        $validator->errors()->add(
+                            "questions.$index.max_rating",
+                            "يجب تحديد عدد النجوم للسؤال رقم " . ($index + 1)
+                        );
+                    }
+                }
+            }
+        });
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -82,20 +124,62 @@ class SurveyController extends Controller
 
     public function update(Request $request, Survey $survey)
     {
+        // تنظيف البيانات - إزالة الخيارات الفارغة
+        if ($request->has('questions')) {
+            $questions = $request->questions;
+            foreach ($questions as $index => $question) {
+                if (isset($question['options']) && is_array($question['options'])) {
+                    // إزالة الخيارات الفارغة
+                    $questions[$index]['options'] = array_values(array_filter($question['options'], function ($option) {
+                        return !empty(trim($option));
+                    }));
+                }
+            }
+            $request->merge(['questions' => $questions]);
+        }
+
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'questions' => 'required|array|min:1',
             'questions.*.question' => 'required|string',
-            'questions.*.type' => 'required|in:text,radio,checkbox,select,rating,date,email,number',
+            'questions.*.type' => 'required|in:text,textarea,radio,checkbox,select,rating,date,email,number',
             'questions.*.required' => 'boolean',
             'questions.*.description' => 'nullable|string',
-            'questions.*.options' => 'required_if:questions.*.type,radio,checkbox,select|array',
-            'questions.*.max_rating' => 'required_if:questions.*.type,rating|in:5,10',
+            'questions.*.options' => 'nullable|array',  // Changed to nullable
+            'questions.*.options.*' => 'nullable|string',  // Each option should be string
+            'questions.*.max_rating' => 'nullable|in:5,10',
             'target_audience' => 'required|in:all,graduates,companies,training_coordinators',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
         ]);
+
+        // Custom validation for options based on question type
+        $validator->after(function ($validator) use ($request) {
+            if ($request->has('questions')) {
+                foreach ($request->questions as $index => $question) {
+                    $type = $question['type'] ?? '';
+
+                    // Options are required for radio, checkbox, and select
+                    if (in_array($type, ['radio', 'checkbox', 'select'])) {
+                        if (empty($question['options']) || !is_array($question['options'])) {
+                            $validator->errors()->add(
+                                "questions.$index.options",
+                                "يجب إضافة خيارات للسؤال رقم " . ($index + 1)
+                            );
+                        }
+                    }
+
+                    // Max rating is required for rating type
+                    if ($type === 'rating' && empty($question['max_rating'])) {
+                        $validator->errors()->add(
+                            "questions.$index.max_rating",
+                            "يجب تحديد عدد النجوم للسؤال رقم " . ($index + 1)
+                        );
+                    }
+                }
+            }
+        });
 
         if ($validator->fails()) {
             return redirect()->back()
@@ -139,7 +223,8 @@ class SurveyController extends Controller
         $totalPossibleResponses = $this->getTargetAudienceCount($survey->target_audience);
         $actualResponses = $survey->responses()->count();
 
-        if ($totalPossibleResponses == 0) return 0;
+        if ($totalPossibleResponses == 0)
+            return 0;
 
         return round(($actualResponses / $totalPossibleResponses) * 100, 2);
     }

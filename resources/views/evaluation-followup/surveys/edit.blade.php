@@ -126,13 +126,13 @@
                                 <div id="questions-container">
                                     @if($survey->questions && count($survey->questions) > 0)
                                         @foreach($survey->questions as $index => $question)
-                                            <div class="question-item border rounded p-3 mb-3" data-question-id="{{ $index + 1 }}">
+                                            <div class="question-item border rounded p-3 mb-3" data-question-id="{{ $index }}">
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <div class="form-group">
-                                                            <label>السؤال {{ $index + 1 }}</label>
-                                                            <input type="text" class="form-control"
-                                                                   name="questions[{{ $index + 1 }}][question]"
+                                                            <label class="question-label">السؤال {{ $index + 1 }}</label>
+                                                            <input type="text" class="form-control question-text"
+                                                                   name="questions[{{ $index }}][question]"
                                                                    value="{{ $question['question'] }}"
                                                                    placeholder="أدخل نص السؤال" required>
                                                         </div>
@@ -141,11 +141,15 @@
                                                         <div class="form-group">
                                                             <label>نوع السؤال</label>
                                                             <select class="form-control question-type"
-                                                                    name="questions[{{ $index + 1 }}][type]" required>
+                                                                    name="questions[{{ $index }}][type]" required>
                                                                 <option value="text" {{ $question['type'] == 'text' ? 'selected' : '' }}>نص حر</option>
                                                                 <option value="radio" {{ $question['type'] == 'radio' ? 'selected' : '' }}>اختيار واحد</option>
                                                                 <option value="checkbox" {{ $question['type'] == 'checkbox' ? 'selected' : '' }}>اختيار متعدد</option>
                                                                 <option value="select" {{ $question['type'] == 'select' ? 'selected' : '' }}>قائمة منسدلة</option>
+                                                                <option value="rating" {{ $question['type'] == 'rating' ? 'selected' : '' }}>تقييم (نجوم)</option>
+                                                                <option value="date" {{ $question['type'] == 'date' ? 'selected' : '' }}>تاريخ</option>
+                                                                <option value="email" {{ $question['type'] == 'email' ? 'selected' : '' }}>بريد إلكتروني</option>
+                                                                <option value="number" {{ $question['type'] == 'number' ? 'selected' : '' }}>رقم</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -154,10 +158,10 @@
                                                             <label>مطلوب</label>
                                                             <div class="custom-control custom-switch">
                                                                 <input type="checkbox" class="custom-control-input"
-                                                                       id="required_{{ $index + 1 }}"
-                                                                       name="questions[{{ $index + 1 }}][required]"
+                                                                       id="required_{{ $index }}"
+                                                                       name="questions[{{ $index }}][required]"
                                                                        value="1" {{ isset($question['required']) && $question['required'] ? 'checked' : '' }}>
-                                                                <label class="custom-control-label" for="required_{{ $index + 1 }}"></label>
+                                                                <label class="custom-control-label" for="required_{{ $index }}"></label>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -169,12 +173,51 @@
                                                 </div>
                                                 <div class="options-container" style="{{ in_array($question['type'], ['radio', 'checkbox', 'select']) ? '' : 'display: none;' }}">
                                                     <div class="form-group">
-                                                        <label>الخيارات (كل خيار في سطر منفصل)</label>
-                                                        <textarea class="form-control" name="questions[{{ $index + 1 }}][options]" rows="3"
-                                                                  placeholder="الخيار الأول&#10;الخيار الثاني&#10;الخيار الثالث">{{ isset($question['options']) ? implode("\n", $question['options']) : '' }}</textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                        <label>الخيارات</label>
+                                                        <div class="options-list">
+                                                            @if(isset($question['options']) && is_array($question['options']))
+                                                                @foreach($question['options'] as $optIndex => $option)
+                                                                    <div class="input-group mb-2">
+                                                                        <input type="text" class="form-control" 
+                                                                               name="questions[{{ $index }}][options][{{ $optIndex }}]" 
+                                                                               value="{{ $option }}" 
+                                                                               placeholder="الخيار {{ $optIndex + 1 }}">
+                                                                        <div class="input-group-append">
+                                                                            <button type="button" class="btn btn-outline-danger remove-option">
+                                                                                <i class="fas fa-times"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            @else
+                                                                <div class="input-group mb-2">
+                                                                    <input type="text" class="form-control" 
+                                                                           name="questions[{{ $index }}][options][0]" 
+                                                                           placeholder="الخيار 1">
+                                                                    <div class="input-group-append">
+                                                                        <button type="button" class="btn btn-outline-danger remove-option">
+                                                                            <i class="fas fa-times"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            @endif
+                                                                        </div>
+                                                                        <button type="button" class="btn btn-outline-primary btn-sm add-option">
+                                                                            <i class="fas fa-plus"></i> إضافة خيار
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <div class="rating-container" style="{{ $question['type'] == 'rating' ? '' : 'display: none;' }}">
+                                                                    <div class="form-group">
+                                                                        <label>عدد النجوم</label>
+                                                                        <select class="form-control" name="questions[{{ $index }}][max_rating]">
+                                                                            <option value="5" {{ (isset($question['max_rating']) && $question['max_rating'] == 5) || !isset($question['max_rating']) ? 'selected' : '' }}>5 نجوم</option>
+                                                                            <option value="10" {{ isset($question['max_rating']) && $question['max_rating'] == 10 ? 'selected' : '' }}>10 نجوم</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                         @endforeach
                                     @endif
                                 </div>
@@ -224,8 +267,8 @@ $(document).ready(function() {
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>السؤال ${questionId}</label>
-                            <input type="text" class="form-control" name="questions[${questionId}][question]"
+                            <label class="question-label">السؤال ${questionId + 1}</label>
+                            <input type="text" class="form-control question-text" name="questions[${questionId}][question]"
                                    placeholder="أدخل نص السؤال" required>
                         </div>
                     </div>
@@ -237,6 +280,10 @@ $(document).ready(function() {
                                 <option value="radio">اختيار واحد</option>
                                 <option value="checkbox">اختيار متعدد</option>
                                 <option value="select">قائمة منسدلة</option>
+                                <option value="rating">تقييم (نجوم)</option>
+                                <option value="date">تاريخ</option>
+                                <option value="email">بريد إلكتروني</option>
+                                <option value="number">رقم</option>
                             </select>
                         </div>
                     </div>
@@ -258,9 +305,29 @@ $(document).ready(function() {
                 </div>
                 <div class="options-container" style="display: none;">
                     <div class="form-group">
-                        <label>الخيارات (كل خيار في سطر منفصل)</label>
-                        <textarea class="form-control" name="questions[${questionId}][options]" rows="3"
-                                  placeholder="الخيار الأول\nالخيار الثاني\nالخيار الثالث"></textarea>
+                        <label>الخيارات</label>
+                        <div class="options-list">
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" name="questions[${questionId}][options][0]" placeholder="الخيار 1">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger remove-option">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm add-option">
+                            <i class="fas fa-plus"></i> إضافة خيار
+                        </button>
+                    </div>
+                </div>
+                <div class="rating-container" style="display: none;">
+                    <div class="form-group">
+                        <label>عدد النجوم</label>
+                        <select class="form-control" name="questions[${questionId}][max_rating]">
+                            <option value="5" selected>5 نجوم</option>
+                            <option value="10">10 نجوم</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -274,11 +341,49 @@ $(document).ready(function() {
         const $container = $(this).closest('.question-item');
         const type = $(this).val();
         const $optionsContainer = $container.find('.options-container');
+        const $ratingContainer = $container.find('.rating-container');
 
         if (['radio', 'checkbox', 'select'].includes(type)) {
             $optionsContainer.show();
+            $ratingContainer.hide();
+        } else if (type === 'rating') {
+            $optionsContainer.hide();
+            $ratingContainer.show();
         } else {
             $optionsContainer.hide();
+            $ratingContainer.hide();
+        }
+    });
+
+    // إضافة خيار جديد
+    $(document).on('click', '.add-option', function() {
+        const $optionsList = $(this).closest('.form-group').find('.options-list');
+        const questionId = $(this).closest('.question-item').data('question-id');
+        const optionCount = $optionsList.find('.input-group').length;
+
+        const optionHtml = `
+            <div class="input-group mb-2">
+                <input type="text" class="form-control" name="questions[${questionId}][options][${optionCount}]" placeholder="الخيار ${optionCount + 1}">
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-outline-danger remove-option">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        $optionsList.append(optionHtml);
+    });
+
+    // حذف خيار
+    $(document).on('click', '.remove-option', function() {
+        const $optionsList = $(this).closest('.options-list');
+        if ($optionsList.find('.input-group').length > 1) {
+            $(this).closest('.input-group').remove();
+            // إعادة ترقيم الخيارات
+            updateOptionNumbers($optionsList);
+        } else {
+            alert('يجب أن يحتوي السؤال على خيار واحد على الأقل');
         }
     });
 
@@ -292,11 +397,53 @@ $(document).ready(function() {
         }
     });
 
+    // إعادة ترقيم الخيارات
+    function updateOptionNumbers($optionsList) {
+        const questionId = $optionsList.closest('.question-item').data('question-id');
+        $optionsList.find('.input-group').each(function(index) {
+            $(this).find('input').attr('name', `questions[${questionId}][options][${index}]`);
+            $(this).find('input').attr('placeholder', `الخيار ${index + 1}`);
+        });
+    }
+
     function updateQuestionNumbers() {
         $('.question-item').each(function(index) {
-            const newNumber = index + 1;
-            $(this).find('label:first').text(`السؤال ${newNumber}`);
-            $(this).attr('data-question-id', newNumber);
+            const displayNumber = index + 1;
+            const arrayIndex = index;
+            
+            // Update data attribute
+            $(this).attr('data-question-id', arrayIndex);
+            
+            // Update display label
+            $(this).find('.question-label').text(`السؤال ${displayNumber}`);
+            
+            // Update all field names
+            $(this).find('input, select, textarea').each(function() {
+                const name = $(this).attr('name');
+                if (name) {
+                    // Don't update option names here, they'll be updated separately
+                    if (!name.includes('[options]')) {
+                        const newName = name.replace(/questions\[\d+\]/, `questions[${arrayIndex}]`);
+                        $(this).attr('name', newName);
+                    }
+                }
+                
+                // Update required checkbox id
+                const id = $(this).attr('id');
+                if (id && id.startsWith('required_')) {
+                    $(this).attr('id', `required_${arrayIndex}`);
+                    $(this).siblings('label').attr('for', `required_${arrayIndex}`);
+                }
+            });
+            
+            // Update options for this question
+            const $optionsList = $(this).find('.options-list');
+            if ($optionsList.length) {
+                $optionsList.find('.input-group').each(function(optIndex) {
+                    $(this).find('input').attr('name', `questions[${arrayIndex}][options][${optIndex}]`);
+                    $(this).find('input').attr('placeholder', `الخيار ${optIndex + 1}`);
+                });
+            }
         });
         questionCount = $('.question-item').length;
     }

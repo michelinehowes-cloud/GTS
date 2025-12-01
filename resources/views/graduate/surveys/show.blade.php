@@ -62,6 +62,36 @@
                                             <option value="{{ $option }}">{{ $option }}</option>
                                         @endforeach
                                     </select>
+                                
+                                @elseif($question['type'] === 'rating')
+                                    @php
+                                        $maxRating = $question['max_rating'] ?? 5;
+                                    @endphp
+                                    <div class="rating-stars" data-question-index="{{ $index }}">
+                                        <input type="hidden" name="answers[{{ $index }}]" id="rating_{{ $index }}" value="" 
+                                            {{ isset($question['required']) && $question['required'] ? 'required' : '' }}>
+                                        <div class="d-flex gap-2 align-items-center">
+                                            @for($i = 1; $i <= $maxRating; $i++)
+                                                <span class="star" data-rating="{{ $i }}" style="font-size: 2rem; cursor: pointer; color: #ddd;">
+                                                    ★
+                                                </span>
+                                            @endfor
+                                            <span class="rating-display ms-3 fw-bold text-muted">لم يتم التقييم</span>
+                                        </div>
+                                    </div>
+                                
+                                @elseif($question['type'] === 'date')
+                                    <input type="date" name="answers[{{ $index }}]" class="form-control" 
+                                        {{ isset($question['required']) && $question['required'] ? 'required' : '' }}>
+                                
+                                @elseif($question['type'] === 'email')
+                                    <input type="email" name="answers[{{ $index }}]" class="form-control" 
+                                        placeholder="example@email.com"
+                                        {{ isset($question['required']) && $question['required'] ? 'required' : '' }}>
+                                
+                                @elseif($question['type'] === 'number')
+                                    <input type="number" name="answers[{{ $index }}]" class="form-control" 
+                                        {{ isset($question['required']) && $question['required'] ? 'required' : '' }}>
                                 @endif
                             </div>
                         @endforeach
@@ -80,4 +110,59 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+$(document).ready(function() {
+    // معالجة النقر على النجوم
+    $('.star').on('click', function() {
+        const $container = $(this).closest('.rating-stars');
+        const questionIndex = $container.data('question-index');
+        const rating = $(this).data('rating');
+        
+        // تحديث القيمة المخفية
+        $container.find('input[type="hidden"]').val(rating);
+        
+        // تحديث مظهر النجوم
+        $container.find('.star').each(function(index) {
+            if (index < rating) {
+                $(this).css('color', '#ffc107'); // ذهبي للنجوم المحددة
+            } else {
+                $(this).css('color', '#ddd'); // رمادي للنجوم غير المحددة
+            }
+        });
+        
+        // تحديث النص المعروض
+        $container.find('.rating-display').text(`${rating} ${rating === 1 ? 'نجمة' : 'نجوم'}`).removeClass('text-muted').addClass('text-warning');
+    });
+    
+    // تأثير hover على النجوم
+    $('.star').on('mouseenter', function() {
+        const $container = $(this).closest('.rating-stars');
+        const rating = $(this).data('rating');
+        
+        $container.find('.star').each(function(index) {
+            if (index < rating) {
+                $(this).css('color', '#ffdb4d'); // لون أفتح عند التحويم
+            } else {
+                $(this).css('color', '#ddd');
+            }
+        });
+    });
+    
+    // إعادة تعيين اللون عند مغادرة المؤشر
+    $('.rating-stars').on('mouseleave', function() {
+        const currentRating = $(this).find('input[type="hidden"]').val();
+        
+        $(this).find('.star').each(function(index) {
+            if (currentRating && index < currentRating) {
+                $(this).css('color', '#ffc107');
+            } else {
+                $(this).css('color', '#ddd');
+            }
+        });
+    });
+});
+</script>
 @endsection

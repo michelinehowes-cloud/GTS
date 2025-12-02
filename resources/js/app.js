@@ -2,6 +2,7 @@ import './bootstrap';
 import Chart from 'chart.js/auto';
 import Sortable from 'sortablejs';
 import './dark-mode';
+import './notification-handler'; // Import the new notification handler
 
 // Make Sortable globally available for inline scripts
 window.Sortable = Sortable;

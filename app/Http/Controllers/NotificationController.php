@@ -94,7 +94,7 @@ class NotificationController extends Controller
                 if ($user->role === 'training_coordinator') {
                     $redirectUrl = route('training-coordinator.applications');
                 } elseif ($user->role === 'admin') {
-                    $redirectUrl = route('admin.trainings.applications');
+                    $redirectUrl = route('admin.applications.index');
                 } elseif ($user->role === 'graduate') {
                     // للخريج: توجيهه إلى صفحة التدريبات المتاحة
                     $redirectUrl = route('graduate.trainings');
@@ -118,13 +118,18 @@ class NotificationController extends Controller
             }
         }
 
+        // حذف الإشعار بعد عرضه
+        $notificationId = $notification->id; // Store ID before deletion
+        $notification->delete();
+
         // إذا تم تحديد رابط توجيه، قم بالتوجيه إليه
         if ($redirectUrl) {
             return redirect($redirectUrl);
         }
 
-        // وإلا اعرض صفحة التفاصيل الافتراضية
-        return view('notifications.show', compact('notification'));
+        // وإلا اعرض صفحة التفاصيل الافتراضية (مع ملاحظة أن الإشعار قد تم حذفه)
+        // يمكنك اختيار إعادة التوجيه إلى صفحة الإشعارات الرئيسية بدلاً من عرض صفحة تفاصيل إشعار محذوف
+        return redirect()->route('notifications.index')->with('success', 'تم مسح الإشعار بنجاح بعد الاطلاع عليه.');
     }
 
     /**
@@ -203,6 +208,27 @@ class NotificationController extends Controller
         Notification::forUser($user->id)
             ->where('is_read', true)
             ->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * مسح الاشعار بعد الاطلاع عليه (Mark as Read and Delete)
+     */
+    public function markAsReadAndDestroy(Notification $notification): JsonResponse
+    {
+        // التحقق من الصلاحية
+        if ($notification->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // تحديث حالة القراءة
+        if (!$notification->is_read) {
+            $notification->markAsRead();
+        }
+
+        // حذف الإشعار
+        $notification->delete();
 
         return response()->json(['success' => true]);
     }

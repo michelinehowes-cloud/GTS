@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                        href="/notifications/${notification.id}" 
                                        style="cursor: pointer;">
                                         <div class="me-3 mt-1">
-                                            <div class="icon-circle bg-${notification.type || 'primary'} rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                            <div class="icon-circle bg-${notification.type || 'primary'} rounded-circle d-flex align-items-center justify-content->
                                                 <i class="fas fa-${notification.icon || 'bell'} text-white small"></i>
                                             </div>
                                         </div>

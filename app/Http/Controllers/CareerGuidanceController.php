@@ -216,9 +216,10 @@ class CareerGuidanceController extends Controller
             'work_experience' => 'nullable|string',
             'address' => 'nullable|string|max:255',
             'linkedin_url' => 'nullable|url|max:255',
+            'cv' => 'nullable|file|mimes:pdf|max:5120', // 5MB max
         ]);
 
-        $graduate->update([
+        $data = [
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
@@ -232,7 +233,48 @@ class CareerGuidanceController extends Controller
             'work_experience' => $request->work_experience,
             'address' => $request->address,
             'linkedin_url' => $request->linkedin_url,
-        ]);
+        ];
+
+        // معالجة رفع السيرة الذاتية
+        if ($request->hasFile('cv')) {
+            // حذف السيرة الذاتية القديمة إن وجدت
+            if ($graduate->cv_path && \Storage::exists('public/' . $graduate->cv_path)) {
+                \Storage::delete('public/' . $graduate->cv_path);
+            }
+
+            // رفع السيرة الذاتية الجديدة
+            $fileName = 'cv_' . $graduate->id . '_' . time() . '.pdf';
+            $path = $request->file('cv')->storeAs('cvs', $fileName, 'public');
+            $data['cv_path'] = $path;
+        }
+
+        $graduate->update($data);
+
+        // تحديث بيانات المستخدم المقابل إذا وجد (Reverse Sync)
+        if ($graduate->email) {
+            $user = \App\Models\User::where('email', $graduate->email)->first();
+            if ($user) {
+                $userData = [
+                    'name' => $data['name'],
+                    'phone' => $data['phone'],
+                    'major' => $data['major'],
+                    'specialization' => $data['major'],
+                    'graduation_year' => $data['graduation_year'],
+                    'gpa' => $data['gpa'],
+                    'degree' => $data['degree'],
+                    'qualification' => $data['degree'],
+                    'skills' => $data['skills'],
+                    'languages' => $data['languages'],
+                    'address' => $data['address'],
+                ];
+
+                if (isset($data['cv_path'])) {
+                    $userData['cv_path'] = $data['cv_path'];
+                }
+
+                $user->update($userData);
+            }
+        }
 
         return redirect()->route('career-guidance.graduates.show', $graduate->id)
             ->with('success', 'تم تحديث بيانات الخريج بنجاح.');

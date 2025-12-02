@@ -7,7 +7,7 @@
             <a href="{{ route('career-guidance.graduates.show', $graduate->id) }}"
                 class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
                 <i class="fas fa-arrow-right fa-sm text-white-50"></i> العودة لتفاصيل الخريج
-            </a>17/
+            </a>
         </div>
 
         <div class="card shadow mb-4">
@@ -15,7 +15,7 @@
                 <h6 class="m-0 font-weight-bold text-primary">نموذج تعديل بيانات الخريج</h6>
             </div>
             <div class="card-body">
-                <form action="{{ route('career-guidance.graduates.update', $graduate->id) }}" method="POST">
+                <form action="{{ route('career-guidance.graduates.update', $graduate->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -191,6 +191,23 @@
                             name="linkedin_url" value="{{ old('linkedin_url', $graduate->linkedin_url) }}">
                         @error('linkedin_url')
                             <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cv">السيرة الذاتية (PDF):</label>
+                        @if($graduate->cv_path)
+                            <div class="mb-2">
+                                <span class="text-success"><i class="fas fa-check-circle"></i> يوجد ملف حالي: </span>
+                                <a href="{{ Storage::url($graduate->cv_path) }}" target="_blank">{{ basename($graduate->cv_path) }}</a>
+                            </div>
+                        @endif
+                        <input type="file" class="form-control-file @error('cv') is-invalid @enderror" id="cv" name="cv" accept=".pdf">
+                        <small class="form-text text-muted">اترك هذا الحقل فارغاً إذا كنت لا تريد تغيير الملف الحالي. (الحد الأقصى: 5 ميجابايت)</small>
+                        @error('cv')
+                            <span class="invalid-feedback d-block" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
                         @enderror

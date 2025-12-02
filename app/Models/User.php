@@ -37,6 +37,7 @@ class User extends Authenticatable
         'approved_at',
         'approved_by',
         'languages',
+        'cv_path',
     ];
 
     protected $hidden = [

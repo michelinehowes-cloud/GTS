@@ -246,6 +246,12 @@ Route::middleware('auth')->group(function () {
         Route::put('/profile', [GraduateController::class, 'updateProfile'])->name('graduate.profile.update');
         Route::put('/profile/password', [GraduateController::class, 'updatePassword'])->name('graduate.password.update');
 
+        // 📄 إدارة السيرة الذاتية
+        Route::post('/cv/upload', [GraduateController::class, 'uploadCV'])->name('graduate.cv.upload');
+        Route::get('/cv/download', [GraduateController::class, 'downloadCV'])->name('graduate.cv.download');
+        Route::get('/cv/view', [GraduateController::class, 'viewCV'])->name('graduate.cv.view');
+
+
         // 🎯 برامج التدريب المتاحة
         Route::get('/trainings', [TrainingController::class, 'availableTrainings'])->name('graduate.trainings');
         Route::get('/trainings/{training}', [TrainingController::class, 'showTraining'])->name('graduate.trainings.show');

@@ -133,6 +133,9 @@ class GraduateController extends Controller
     /**
      * تحديث الملف الشخصي للخريج
      */
+    /**
+     * تحديث الملف الشخصي للخريج
+     */
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
@@ -151,9 +154,10 @@ class GraduateController extends Controller
             'graduation_year' => 'nullable|integer|min:1950|max:' . (date('Y') + 1),
             'university' => 'nullable|string|max:255',
             'gpa' => 'nullable|numeric|min:0|max:4',
+            'languages' => 'nullable|string|max:500',
         ]);
 
-        $user->update($request->only([
+        $data = $request->only([
             'name',
             'email',
             'phone',
@@ -167,7 +171,32 @@ class GraduateController extends Controller
             'graduation_year',
             'university',
             'gpa',
-        ]));
+            'languages',
+        ]);
+
+        $user->update($data);
+
+        // تحديث البيانات في جدول graduates_data إذا وجد
+        // نقوم بتعيين الحقول المتطابقة
+        $graduateData = [
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'] ?? null,
+            'national_id' => $data['national_id'] ?? null,
+            'address' => ($data['city'] ?? '') . ' - ' . ($data['address'] ?? ''),
+            'major' => $data['specialization'] ?? null,
+            'graduation_year' => $data['graduation_year'] ?? null,
+            'university' => $data['university'] ?? 'جامعة طرابلس',
+            'gpa' => $data['gpa'] ?? null,
+            'degree' => $data['qualification'] ?? 'بكالوريوس',
+            'languages' => $data['languages'] ? array_map('trim', explode(',', $data['languages'])) : null,
+        ];
+
+        // إزالة القيم الفارغة (null) التي لا نريد تحديثها إذا لم تكن موجودة في الطلب
+        // لكن هنا نريد تحديثها لتطابق ملف المستخدم
+
+        \App\Models\GraduateData::where('email', $user->email)->update(array_filter($graduateData, function ($v) {
+            return !is_null($v); }));
 
         return redirect()->route('graduate.profile')
             ->with('success', 'تم تحديث البيانات الشخصية بنجاح');
@@ -194,5 +223,73 @@ class GraduateController extends Controller
         ]);
 
         return back()->with('success', 'تم تحديث كلمة المرور بنجاح');
+    }
+
+    /**
+     * رفع السيرة الذاتية
+     */
+    /**
+     * رفع السيرة الذاتية
+     */
+    public function uploadCV(Request $request)
+    {
+        $request->validate([
+            'cv' => 'required|file|mimes:pdf|max:5120', // 5MB max
+        ], [
+            'cv.required' => 'يرجى اختيار ملف السيرة الذاتية',
+            'cv.mimes' => 'يجب أن يكون الملف بصيغة PDF',
+            'cv.max' => 'حجم الملف يجب أن لا يتجاوز 5 ميجابايت',
+        ]);
+
+        $user = Auth::user();
+
+        // حذف السيرة الذاتية القديمة إن وجدت
+        if ($user->cv_path && \Storage::exists('public/' . $user->cv_path)) {
+            \Storage::delete('public/' . $user->cv_path);
+        }
+
+        // رفع السيرة الذاتية الجديدة
+        $fileName = 'cv_' . $user->id . '_' . time() . '.pdf';
+        $path = $request->file('cv')->storeAs('cvs', $fileName, 'public');
+
+        // تحديث المسار في قاعدة البيانات (جدول users)
+        $user->update([
+            'cv_path' => $path
+        ]);
+
+        // تحديث المسار في جدول graduates_data إذا وجد
+        \App\Models\GraduateData::where('email', $user->email)->update([
+            'cv_path' => $path
+        ]);
+
+        return back()->with('success', 'تم رفع السيرة الذاتية بنجاح');
+    }
+
+    /**
+     * تحميل السيرة الذاتية
+     */
+    public function downloadCV()
+    {
+        $user = Auth::user();
+
+        if (!$user->cv_path || !\Storage::exists('public/' . $user->cv_path)) {
+            return back()->with('error', 'السيرة الذاتية غير موجودة');
+        }
+
+        return \Storage::download('public/' . $user->cv_path, 'CV_' . $user->name . '.pdf');
+    }
+
+    /**
+     * عرض السيرة الذاتية
+     */
+    public function viewCV()
+    {
+        $user = Auth::user();
+
+        if (!$user->cv_path || !\Storage::exists('public/' . $user->cv_path)) {
+            abort(404, 'السيرة الذاتية غير موجودة');
+        }
+
+        return response()->file(storage_path('app/public/' . $user->cv_path));
     }
 }

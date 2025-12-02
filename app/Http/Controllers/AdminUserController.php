@@ -69,8 +69,8 @@ class AdminUserController extends Controller
             $statusMsg = $user->is_active ? 'تنشيط' : 'تجميد';
             $this->notificationService->sendToUser(
                 $user,
-                "تم {$statusMsg} حسابك",
-                "تم {$statusMsg} حسابك من قبل إدارة النظام.",
+                "تحديث حالة الحساب", // Changed to a generic title
+                "تم {$statusMsg} حسابك من قبل إدارة النظام.", // Dynamic message as body
                 $user->is_active ? 'success' : 'warning'
             );
         } catch (\Exception $e) {

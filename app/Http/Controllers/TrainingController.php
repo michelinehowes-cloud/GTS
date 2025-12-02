@@ -381,11 +381,11 @@ class TrainingController extends Controller
         return view('graduate.trainings.show', compact('training'));
     }
 
-    public function submitApplication(Request $request)
+    public function submitApplication(Request $request, $id = null)
     {
         try {
             $user = Auth::user();
-            $trainingId = $request->training_id;
+            $trainingId = $id ?? $request->training_id;
 
             if (!$trainingId) {
                 return redirect()->back()->with('error', 'معرف التدريب مطلوب');

@@ -6,25 +6,26 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3>تفاصيل برنامج التدريب</h3>
-                    <a href="{{ route('admin.trainings') }}" class="btn btn-secondary">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">تفاصيل برنامج التدريب: {{ $training->title }}</h6>
+                    <a href="{{ route('admin.trainings') }}" class="btn btn-secondary btn-sm">
                         <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
                     </a>
                 </div>
                 <div class="card-body">
                     <div class="row">
+                        <!-- المعلومات الأساسية -->
                         <div class="col-md-6">
-                            <h5>معلومات البرنامج</h5>
-                            <table class="table table-bordered">
+                            <h5 class="text-primary mb-3 border-bottom pb-2">المعلومات الأساسية</h5>
+                            <table class="table table-bordered table-striped">
                                 <tr>
-                                    <th width="30%">اسم البرنامج</th>
+                                    <th width="35%">اسم البرنامج</th>
                                     <td>{{ $training->title }}</td>
                                 </tr>
                                 <tr>
-                                    <th>الشركة</th>
-                                    <td>{{ $training->company->name ?? 'غير محدد' }}</td>
+                                    <th>الفئة</th>
+                                    <td>{{ $training->category ?? 'غير محدد' }}</td>
                                 </tr>
                                 <tr>
                                     <th>نوع البرنامج</th>
@@ -34,33 +35,21 @@
                                             @case('course') دورة @break
                                             @case('seminar') ندوة @break
                                             @case('internship') تدريب عملي @break
+                                            @default {{ $training->type }}
                                         @endswitch
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th>المدة</th>
-                                    <td>{{ $training->duration }}</td>
+                                    <th>الشركة المنظمة</th>
+                                    <td>{{ $training->company->name ?? 'غير محدد' }}</td>
                                 </tr>
                                 <tr>
-                                    <th>تاريخ البدء</th>
-                                    <td>{{ $training->start_date->format('Y-m-d') }}</td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="col-md-6">
-                            <h5>التفاصيل الإضافية</h5>
-                            <table class="table table-bordered">
-                                <tr>
-                                    <th width="30%">تاريخ الانتهاء</th>
-                                    <td>{{ $training->end_date->format('Y-m-d') }}</td>
+                                    <th>منسق التدريب</th>
+                                    <td>{{ $training->coordinator->name ?? 'غير محدد' }}</td>
                                 </tr>
                                 <tr>
-                                    <th>المكان</th>
-                                    <td>{{ $training->location }}</td>
-                                </tr>
-                                <tr>
-                                    <th>عدد المقاعد</th>
-                                    <td>{{ $training->seats }}</td>
+                                    <th>اسم المدرب</th>
+                                    <td>{{ $training->instructor_name ?? 'غير محدد' }}</td>
                                 </tr>
                                 <tr>
                                     <th>الحالة</th>
@@ -73,31 +62,98 @@
                                         </span>
                                     </td>
                                 </tr>
+                            </table>
+                        </div>
+
+                        <!-- تفاصيل التوقيت والمكان -->
+                        <div class="col-md-6">
+                            <h5 class="text-primary mb-3 border-bottom pb-2">التوقيت والمكان</h5>
+                            <table class="table table-bordered table-striped">
                                 <tr>
-                                    <th>الوصف</th>
-                                    <td>{{ $training->description }}</td>
+                                    <th width="35%">المدة</th>
+                                    <td>{{ $training->duration }}</td>
+                                </tr>
+                                <tr>
+                                    <th>تاريخ البدء</th>
+                                    <td>{{ \Carbon\Carbon::parse($training->start_date)->format('Y-m-d') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>تاريخ الانتهاء</th>
+                                    <td>{{ \Carbon\Carbon::parse($training->end_date)->format('Y-m-d') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>المكان</th>
+                                    <td>{{ $training->location }}</td>
+                                </tr>
+                                <tr>
+                                    <th>عدد المقاعد</th>
+                                    <td>{{ $training->seats }}</td>
+                                </tr>
+                                <tr>
+                                    <th>تاريخ الإنشاء</th>
+                                    <td>{{ $training->created_at->format('Y-m-d H:i') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>آخر تحديث</th>
+                                    <td>{{ $training->updated_at->format('Y-m-d H:i') }}</td>
                                 </tr>
                             </table>
                         </div>
                     </div>
 
                     <div class="row mt-4">
+                        <!-- الوصف والأهداف -->
                         <div class="col-12">
-                            <div class="d-flex gap-2">
-<a href="/admin/trainings/{{ $training->id }}/edit" class="btn btn-warning">
-                                    <i class="fas fa-edit me-2"></i>تعديل البرنامج
-                                </a>
-<form action="/admin/trainings/{{ $training->id }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger" onclick="return confirm('هل أنت متأكد من الحذف؟')">
-                                        <i class="fas fa-trash me-2"></i>حذف البرنامج
-                                    </button>
-                                </form>
-                                <a href="{{ route('admin.trainings') }}" class="btn btn-secondary">
-                                    <i class="fas fa-list me-2"></i>عرض جميع البرامج
-                                </a>
+                            <h5 class="text-primary mb-3 border-bottom pb-2">تفاصيل المحتوى</h5>
+                            
+                            <div class="mb-4">
+                                <h6 class="font-weight-bold">وصف البرنامج:</h6>
+                                <div class="p-3 bg-light rounded border">
+                                    {{ $training->description }}
+                                </div>
                             </div>
+
+                            @if($training->objectives)
+                            <div class="mb-4">
+                                <h6 class="font-weight-bold">أهداف البرنامج:</h6>
+                                <div class="p-3 bg-light rounded border">
+                                    {{ $training->objectives }}
+                                </div>
+                            </div>
+                            @endif
+
+                            @if($training->requirements)
+                            <div class="mb-4">
+                                <h6 class="font-weight-bold">متطلبات البرنامج:</h6>
+                                <div class="p-3 bg-light rounded border">
+                                    {{ $training->requirements }}
+                                </div>
+                            </div>
+                            @endif
+
+                            @if($training->instructor_qualifications)
+                            <div class="mb-4">
+                                <h6 class="font-weight-bold">مؤهلات المدرب:</h6>
+                                <div class="p-3 bg-light rounded border">
+                                    {{ $training->instructor_qualifications }}
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="row mt-4 border-top pt-3">
+                        <div class="col-12 d-flex justify-content-end gap-2">
+                            <a href="{{ route('admin.trainings.edit', $training->id) }}" class="btn btn-warning">
+                                <i class="fas fa-edit me-2"></i>تعديل البرنامج
+                            </a>
+                            <form action="{{ route('admin.trainings.destroy', $training->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('هل أنت متأكد من الحذف؟')">
+                                    <i class="fas fa-trash me-2"></i>حذف البرنامج
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>

@@ -19,6 +19,13 @@ use Carbon\Carbon;
 
 class EvaluationFollowupController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(\App\Services\NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     public function dashboard()
     {
         // General Statistics (from AdminController::dashboard)
@@ -90,7 +97,7 @@ class EvaluationFollowupController extends Controller
 
     public function trainingReportsIndex()
     {
-        $trainingController = new TrainingController();
+        $trainingController = new TrainingController($this->notificationService);
         $data = $trainingController->reports()->getData(); // Get data from the reports method
 
         return view('evaluation-followup.training-reports', $data);
@@ -98,7 +105,7 @@ class EvaluationFollowupController extends Controller
 
     public function careerGuidanceReports(Request $request)
     {
-        $careerGuidanceController = new CareerGuidanceController();
+        $careerGuidanceController = new CareerGuidanceController($this->notificationService);
         $data = $careerGuidanceController->advancedReports($request)->getData(); // Get data from the advancedReports method
 
         return view('evaluation-followup.career-guidance-reports', $data);
@@ -114,7 +121,7 @@ class EvaluationFollowupController extends Controller
 
     public function employmentReports()
     {
-        $jobOpportunityController = new JobOpportunityController();
+        $jobOpportunityController = new JobOpportunityController($this->notificationService);
         $data = $jobOpportunityController->statistics()->getData(); // Get data from the statistics method
 
         return view('evaluation-followup.employment-reports', $data);
@@ -123,10 +130,9 @@ class EvaluationFollowupController extends Controller
     public function partnershipEmploymentReports()
     {
         $partnershipController = new PartnershipController();
-        $partnershipController = new PartnershipController();
         $partnershipReportsData = $partnershipController->reports()->getData();
 
-        $jobOpportunityController = new JobOpportunityController();
+        $jobOpportunityController = new JobOpportunityController($this->notificationService);
         $employmentReportsData = $jobOpportunityController->statistics()->getData();
 
         // Extract specific data for clarity and to avoid key conflicts
@@ -260,19 +266,19 @@ class EvaluationFollowupController extends Controller
 
     public function careerGuidanceAdvancedReportsIndex(Request $request)
     {
-        $careerGuidanceController = new CareerGuidanceController();
+        $careerGuidanceController = new CareerGuidanceController($this->notificationService);
         return $careerGuidanceController->advancedReports($request);
     }
 
     public function exportReportsPDF(Request $request)
     {
-        $careerGuidanceController = new CareerGuidanceController();
+        $careerGuidanceController = new CareerGuidanceController($this->notificationService);
         return $careerGuidanceController->exportReportsPDF($request);
     }
 
     public function exportReportsExcel(Request $request)
     {
-        $careerGuidanceController = new CareerGuidanceController();
+        $careerGuidanceController = new CareerGuidanceController($this->notificationService);
         return $careerGuidanceController->exportReportsExcel($request);
     }
 

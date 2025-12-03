@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Notification;
 use App\Models\User;
+use App\Mail\NotificationMail;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 
@@ -19,6 +20,11 @@ class NotificationService
         // إرسال البريد الإلكتروني إذا كان مطلوباً
         if (isset($data['send_email']) && $data['send_email']) {
             $this->sendEmailNotification($notification);
+        }
+
+        // إرسال إشعار الواتساب إذا كان مطلوباً
+        if (isset($data['send_whatsapp']) && $data['send_whatsapp']) {
+            $this->sendWhatsappNotification($notification);
         }
 
         return $notification;
@@ -207,11 +213,11 @@ class NotificationService
     private function sendEmailNotification(Notification $notification): void
     {
         try {
-            // يمكن إضافة إرسال بريد إلكتروني هنا
-            // Mail::to($notification->user->email)->send(new NotificationMail($notification));
-            $notification->markAsSent();
+            if ($notification->user && $notification->user->email) {
+                Mail::to($notification->user->email)->send(new NotificationMail($notification));
+                $notification->markAsSent();
+            }
         } catch (\Exception $e) {
-            // تسجيل الخطأ
             \Log::error('Failed to send email notification: ' . $e->getMessage());
         }
     }
@@ -326,5 +332,31 @@ class NotificationService
             'model_id' => $nomination->id,
             'send_email' => true,
         ]);
+    }
+
+    /**
+     * إرسال إشعار الواتساب
+     */
+    private function sendWhatsappNotification(Notification $notification): void
+    {
+        try {
+            // هنا يجب إضافة منطق إرسال إشعار الواتساب
+            // ستحتاج إلى دمج مع API مزود خدمة الواتساب (مثل Twilio, Meta for Developers, الخ)
+            // مثال:
+            // if ($notification->user && $notification->user->phone_number) {
+            //     $client = new \Twilio\Rest\Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
+            //     $client->messages->create(
+            //         "whatsapp:{$notification->user->phone_number}",
+            //         [
+            //             'from' => 'whatsapp:' . env('TWILIO_WHATSAPP_FROM'),
+            //             'body' => "إشعار جديد: {$notification->title}\n{$notification->message}",
+            //         ]
+            //     );
+            // }
+            \Log::info('WhatsApp notification placeholder triggered for: ' . $notification->id);
+            // قد تحتاج إلى تحديث حالة الإشعار هنا لتشير إلى إرسال الواتساب
+        } catch (\Exception $e) {
+            \Log::error('Failed to send WhatsApp notification: ' . $e->getMessage());
+        }
     }
 }

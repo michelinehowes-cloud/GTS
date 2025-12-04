@@ -1,4 +1,4 @@
-@extends('layouts.training-coordinator')
+@extends('layouts.app')
 
 @section('title', 'لوحة تحكم منسق التدريب')
 @section('page-title', 'لوحة تحكم منسق التدريب')

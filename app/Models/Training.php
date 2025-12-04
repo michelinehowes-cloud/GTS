@@ -24,12 +24,14 @@ class Training extends Model
         'media_coverage_status',
         'is_advertised',
         'category',
-        'instructor_name'
+        'category',
+        'instructor_name',
+        'trainer_id',
     ];
     public function coordinator()
-{
-    return $this->belongsTo(User::class, 'coordinator_id');
-}
+    {
+        return $this->belongsTo(User::class, 'coordinator_id');
+    }
 
     protected $casts = [
         'start_date' => 'date',
@@ -126,5 +128,13 @@ class Training extends Model
     public function getMediaCoverageStatusText()
     {
         return $this->getMediaCoverageStatusArabicAttribute();
+    }
+
+    /**
+     * العلاقة مع المدرب
+     */
+    public function trainer()
+    {
+        return $this->belongsTo(Trainer::class);
     }
 }

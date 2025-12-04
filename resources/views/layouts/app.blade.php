@@ -68,14 +68,14 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}"
                                     href="{{ 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
                     (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') :
                         (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') :
                             (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
                                 (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
                                     (auth()->user()->role == 'company' ? route('company.dashboard') :
                                         route('admin.dashboard')))))) 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }}">
                                     <i class="fas fa-tachometer-alt"></i>
                                     لوحة التحكم
                                 </a>
@@ -90,6 +90,49 @@
                                         إدارة التدريب
                                     </a>
                                 </li>
+                                @if(auth()->user()->role == 'training_coordinator')
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('training-coordinator.calendar') ? 'active' : '' }}"
+                                            href="{{ route('training-coordinator.calendar') }}">
+                                            <i class="fas fa-calendar-alt"></i>
+                                            تقويم التدريبات
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('training-coordinator.applications*') ? 'active' : '' }}"
+                                            href="{{ route('training-coordinator.applications') }}">
+                                            <i class="fas fa-users"></i>
+                                            طلبات التدريب
+                                            @php
+                                                $pendingCount = \App\Models\TrainingApplication::where('status', 'pending')->count();
+                                            @endphp
+                                            @if($pendingCount > 0)
+                                                <span class="badge bg-warning text-dark ms-auto">{{ $pendingCount }}</span>
+                                            @endif
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('training-coordinator.trainings.create') ? 'active' : '' }}"
+                                            href="{{ route('training-coordinator.trainings.create') }}">
+                                            <i class="fas fa-plus-circle"></i>
+                                            إضافة برنامج تدريب
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ Request::is('*trainers*') ? 'active' : '' }}"
+                                            href="{{ route('training-coordinator.trainers.index') }}">
+                                            <i class="fas fa-chalkboard-teacher"></i>
+                                            إدارة المدربين
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('training-coordinator.reports') ? 'active' : '' }}"
+                                            href="{{ route('training-coordinator.reports') }}">
+                                            <i class="fas fa-chart-bar"></i>
+                                            التقارير والإحصائيات
+                                        </a>
+                                    </li>
+                                @endif
                             @endif
 
                             <!-- الأقسام الإدارية (للمسؤول فقط) -->

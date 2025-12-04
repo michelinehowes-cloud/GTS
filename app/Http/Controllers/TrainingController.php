@@ -34,12 +34,12 @@ class TrainingController extends Controller
     public function create()
     {
         $companies = Company::all();
-        $categories = ['برمجة', 'تصميم', 'شبكات', 'إدارة', 'لغات', 'أخرى']; // مثال للفئات
-
+        $trainers = \App\Models\Trainer::all();
+        $categories = ['برمجة', 'تصميم', 'شبكات', 'إدارة', 'لغات', 'أخرى'];
         if (auth()->user()->role == 'training_coordinator') {
-            return view('training-coordinator.trainings.create', compact('companies', 'categories'));
+            return view('training-coordinator.trainings.create', compact('companies', 'trainers', 'categories'));
         } else {
-            return view('admin.trainings.create', compact('companies', 'categories'));
+            return view('admin.trainings.create', compact('companies', 'trainers', 'categories'));
         }
     }
 
@@ -56,6 +56,7 @@ class TrainingController extends Controller
             'seats' => 'required|integer|min:1',
             'status' => 'required|in:active,inactive,completed',
             'company_id' => 'nullable|exists:companies,id',
+            'trainer_id' => 'nullable|exists:trainers,id',
             'category' => 'required|string|max:255',
             'instructor_name' => 'required|string|max:255',
         ]);
@@ -99,19 +100,18 @@ class TrainingController extends Controller
     {
         $training = Training::findOrFail($id);
         $companies = Company::all();
+        $trainers = \App\Models\Trainer::all();
         $categories = ['برمجة', 'تصميم', 'شبكات', 'إدارة', 'لغات', 'أخرى']; // مثال للفئات
 
         if (auth()->user()->role == 'training_coordinator') {
-            return view('training-coordinator.trainings.edit', compact('training', 'companies', 'categories'));
+            return view('training-coordinator.trainings.edit', compact('training', 'companies', 'trainers', 'categories'));
         } else {
-            return view('admin.trainings.edit', compact('training', 'companies', 'categories'));
+            return view('admin.trainings.edit', compact('training', 'companies', 'trainers', 'categories'));
         }
     }
-
     public function update(Request $request, $id)
     {
         $training = Training::findOrFail($id);
-
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -123,10 +123,9 @@ class TrainingController extends Controller
             'seats' => 'required|integer|min:1',
             'status' => 'required|in:active,inactive,completed',
             'company_id' => 'nullable|exists:companies,id',
+            'trainer_id' => 'nullable|exists:trainers,id',
         ]);
-
         $training->update($request->all());
-
         if (auth()->user()->role == 'training_coordinator') {
             return redirect()->route('training-coordinator.trainings')
                 ->with('success', 'تم تحديث برنامج التدريب بنجاح');

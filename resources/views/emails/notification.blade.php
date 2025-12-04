@@ -6,157 +6,162 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $notificationTitle }}</title>
     <style>
+        /* إعدادات الخطوط والأساسيات */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7fa;
+            background-color: #f5f5f5;
             margin: 0;
             padding: 0;
             direction: rtl;
+            color: #333333;
         }
 
-        .email-container {
+        /* الحاوية الرئيسية */
+        .email-wrapper {
+            width: 100%;
+            background-color: #f5f5f5;
+            padding: 40px 0;
+        }
+
+        .email-card {
             max-width: 600px;
-            margin: 40px auto;
+            margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 12px;
+            border: 1px solid #dddddd;
+            border-radius: 4px;
+            /* زوايا أقل حدة لتصميم رسمي */
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
+        /* الترويسة (Header) */
         .email-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #ffffff;
+            background-color: #ffffff;
             padding: 30px;
             text-align: center;
+            border-bottom: 3px solid #0056b3;
+            /* خط ملون بسيط يمثل الهوية */
         }
 
-        .email-header h1 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 600;
+        .logo {
+            max-height: 80px;
+            width: auto;
         }
 
+        /* المحتوى (Body) */
         .email-body {
             padding: 40px 30px;
-            color: #333333;
             line-height: 1.8;
-        }
-
-        .notification-icon {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 20px;
-            background-color: #667eea;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-        }
-
-        .notification-message {
             font-size: 16px;
-            color: #555555;
-            margin: 20px 0;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-right: 4px solid #667eea;
-            border-radius: 6px;
         }
 
-        .email-footer {
-            background-color: #f8f9fa;
-            padding: 25px 30px;
-            text-align: center;
-            font-size: 13px;
-            color: #888888;
-            border-top: 1px solid #e9ecef;
+        .email-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0056b3;
+            margin-bottom: 20px;
+            text-align: right;
         }
 
-        .button {
+        .message-content {
+            color: #444444;
+            margin-bottom: 30px;
+        }
+
+        /* الزر (Button) */
+        .action-button {
             display: inline-block;
-            padding: 12px 30px;
-            margin: 20px 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: #0056b3;
+            /* لون أزرق رسمي */
             color: #ffffff;
+            padding: 12px 25px;
             text-decoration: none;
-            border-radius: 6px;
-            font-weight: 600;
-            transition: transform 0.2s;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 14px;
         }
 
-        .button:hover {
-            transform: translateY(-2px);
-        }
-
-        .divider {
-            height: 1px;
-            background-color: #e9ecef;
+        .action-container {
+            text-align: center;
             margin: 30px 0;
         }
 
-        .info-box {
-            background-color: #e7f3ff;
-            border: 1px solid #b3d9ff;
-            border-radius: 6px;
-            padding: 15px;
-            margin: 20px 0;
-            color: #004085;
+        /* التذييل (Footer) */
+        .email-footer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #777777;
+            border-top: 1px solid #eeeeee;
         }
 
-        @media only screen and (max-width: 600px) {
-            .email-container {
-                margin: 20px;
-            }
-
-            .email-body {
-                padding: 30px 20px;
-            }
+        .footer-note {
+            margin-top: 10px;
+            font-size: 11px;
+            color: #999999;
         }
     </style>
 </head>
 
 <body>
-    <div class="email-container">
-        <!-- Header -->
-        <div class="email-header">
-            <div class="notification-icon">
-                🔔
-            </div>
-            <h1>{{ $notificationTitle }}</h1>
-        </div>
-
-        <!-- Body -->
-        <div class="email-body">
-            <div class="notification-message">
-                {{ $notificationMessage }}
+    <div class="email-wrapper">
+        <div class="email-card">
+            <!-- الترويسة مع الشعار -->
+            <div class="email-header">
+                <img src="{{ $message->embed(public_path('images/logo.jpg')) }}" alt="شعار المكتب" class="logo">
             </div>
 
-            <div class="divider"></div>
-
-            <div class="info-box">
-                <strong>ℹ️ ملاحظة:</strong> هذا إشعار تلقائي من نظام التدريب والتوظيف للخريجين. يرجى عدم الرد على هذا
-                البريد الإلكتروني.
-            </div>
-
-            @if(isset($actionUrl))
-                <div style="text-align: center;">
-                    <a href="{{ $actionUrl }}" class="button">عرض التفاصيل</a>
+            <!-- محتوى الرسالة -->
+            <div class="email-body">
+                <div class="email-title">
+                    {{ $notificationTitle }}
                 </div>
-            @endif
-        </div>
 
-        <!-- Footer -->
-        <div class="email-footer">
-            <p style="margin: 0 0 10px 0;">
-                <strong>نظام التدريب والتوظيف للخريجين</strong>
-            </p>
-            <p style="margin: 0; color: #aaaaaa;">
-                © {{ date('Y') }} جميع الحقوق محفوظة
-            </p>
-            <p style="margin: 10px 0 0 0; font-size: 12px;">
-                تم الإرسال في: {{ now()->format('Y-m-d H:i:s') }}
-            </p>
+                <div class="message-content">
+                    مرحباً،<br><br>
+                    {{ $notificationMessage }}
+                </div>
+
+                <!-- قسم التفاصيل الإضافية -->
+                @if(isset($notificationData['details']) && is_array($notificationData['details']))
+                    <div
+                        style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px; padding: 15px; margin-bottom: 20px;">
+                        <h3
+                            style="margin-top: 0; color: #0056b3; font-size: 16px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+                            تفاصيل إضافية:</h3>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                            @foreach($notificationData['details'] as $label => $value)
+                                <tr>
+                                    <td
+                                        style="padding: 8px 0; border-bottom: 1px solid #eee; font-weight: bold; color: #555; width: 40%;">
+                                        {{ $label }}:</td>
+                                    <td style="padding: 8px 0; border-bottom: 1px solid #eee; color: #333;">{{ $value }}</td>
+                                </tr>
+                            @endforeach
+                        </table>
+                    </div>
+                @endif
+
+                @if(isset($actionUrl))
+                    <div class="action-container">
+                        <a href="{{ $actionUrl }}" class="action-button">عرض التفاصيل</a>
+                    </div>
+                @endif
+
+                <br>
+                <p style="font-size: 14px; color: #666;">
+                    مع تحيات،<br>
+                    <strong>مكتب الخريجين والتدريب المهني</strong>
+                </p>
+            </div>
+
+            <!-- التذييل -->
+            <div class="email-footer">
+                <p>&copy; {{ date('Y') }} جميع الحقوق محفوظة.</p>
+                <div class="footer-note">
+                    هذا البريد تم إرساله تلقائياً من النظام. يرجى عدم الرد عليه.
+                </div>
+            </div>
         </div>
     </div>
 </body>

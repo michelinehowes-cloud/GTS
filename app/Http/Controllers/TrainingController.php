@@ -232,7 +232,7 @@ class TrainingController extends Controller
         $application = TrainingApplication::findOrFail($id);
         $application->update(['status' => 'approved']);
 
-        // Send notification to the graduate
+        // Send notification to the graduate with email
         $this->notificationService->sendToUser(
             $application->user,
             'تم قبول طلب التدريب',
@@ -240,7 +240,8 @@ class TrainingController extends Controller
             'success',
             [
                 'model_type' => 'App\Models\TrainingApplication',
-                'model_id' => $application->id
+                'model_id' => $application->id,
+                'send_email' => true  // ✅ إرسال بريد إلكتروني
             ]
         );
 
@@ -252,7 +253,7 @@ class TrainingController extends Controller
         $application = TrainingApplication::findOrFail($id);
         $application->update(['status' => 'rejected']);
 
-        // Send notification to the graduate
+        // Send notification to the graduate with email
         $this->notificationService->sendToUser(
             $application->user,
             'تم رفض طلب التدريب',
@@ -260,7 +261,8 @@ class TrainingController extends Controller
             'warning',
             [
                 'model_type' => 'App\Models\TrainingApplication',
-                'model_id' => $application->id
+                'model_id' => $application->id,
+                'send_email' => true  // ✅ إرسال بريد إلكتروني
             ]
         );
 

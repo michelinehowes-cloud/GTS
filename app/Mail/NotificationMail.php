@@ -55,6 +55,7 @@ class NotificationMail extends Mailable
             with: [
                 'notificationTitle' => $this->notification->title,
                 'notificationMessage' => $this->notification->message,
+                'notificationData' => $this->notification->data,
             ],
         );
     }

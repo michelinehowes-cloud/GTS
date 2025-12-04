@@ -232,7 +232,7 @@ class TrainingController extends Controller
         $application = TrainingApplication::findOrFail($id);
         $application->update(['status' => 'approved']);
 
-        // Send notification to the graduate with email
+        // Send notification to the graduate with email and details
         $this->notificationService->sendToUser(
             $application->user,
             'تم قبول طلب التدريب',
@@ -241,7 +241,16 @@ class TrainingController extends Controller
             [
                 'model_type' => 'App\Models\TrainingApplication',
                 'model_id' => $application->id,
-                'send_email' => true  // ✅ إرسال بريد إلكتروني
+                'send_email' => true,
+                'data' => [
+                    'details' => [
+                        'البرنامج التدريبي' => $application->training->title,
+                        'الشركة المقدمة' => $application->training->company->name ?? 'غير محدد',
+                        'الموقع' => $application->training->location,
+                        'تاريخ البدء' => $application->training->start_date,
+                        'المدة' => $application->training->duration,
+                    ]
+                ]
             ]
         );
 

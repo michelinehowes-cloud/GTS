@@ -80,4 +80,32 @@ class AdminUserController extends Controller
         $status = $user->is_active ? 'تنشيط' : 'تجميد';
         return back()->with('success', "تم {$status} حساب المستخدم بنجاح");
     }
+    /**
+     * تغيير كلمة مرور المستخدم من قبل المدير
+     */
+    public function updatePassword(Request $request, $id)
+    {
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        $user->save();
+
+        // إرسال إشعار للمستخدم
+        try {
+            $this->notificationService->sendToUser(
+                $user,
+                'تغيير كلمة المرور',
+                'تم تغيير كلمة المرور الخاصة بك من قبل إدارة النظام.',
+                'info',
+                ['send_email' => true]
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to send password change notification: ' . $e->getMessage());
+        }
+
+        return back()->with('success', 'تم تغيير كلمة المرور بنجاح');
+    }
 }

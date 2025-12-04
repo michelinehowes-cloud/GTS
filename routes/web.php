@@ -127,6 +127,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
         Route::patch('/users/{id}/toggle-status', [App\Http\Controllers\AdminUserController::class, 'toggleStatus'])->name('admin.users.toggle-status');
+        Route::put('/users/{id}/password', [App\Http\Controllers\AdminUserController::class, 'updatePassword'])->name('admin.users.password.update');
 
         // 🏢 إدارة الشركات
         Route::get('/companies', [CompanyController::class, 'index'])->name('admin.companies');

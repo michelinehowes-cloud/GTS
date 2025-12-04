@@ -18,11 +18,16 @@ Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+    // Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
+    // Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+    // Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+    // Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
 
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.store');
+    // مسارات استعادة كلمة المرور عبر الرمز (OTP)
+    Route::get('forgot-password', [App\Http\Controllers\Auth\CodePasswordResetController::class, 'create'])->name('password.request');
+    Route::post('forgot-password', [App\Http\Controllers\Auth\CodePasswordResetController::class, 'store'])->name('password.code.store');
+    Route::get('verify-code', [App\Http\Controllers\Auth\CodePasswordResetController::class, 'verify'])->name('password.code.verify');
+    Route::post('verify-code', [App\Http\Controllers\Auth\CodePasswordResetController::class, 'update'])->name('password.code.update');
 });
 
 Route::middleware('auth')->group(function () {

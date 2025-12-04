@@ -84,6 +84,11 @@
                                                 <i class="fas fa-edit"></i>
                                             </a>
 
+                                            <button type="button" class="btn btn-sm btn-secondary" title="تغيير كلمة المرور"
+                                                data-bs-toggle="modal" data-bs-target="#changePasswordModal{{ $user->id }}">
+                                                <i class="fas fa-key"></i>
+                                            </button>
+
                                             @if($user->id !== auth()->id())
                                                 <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST"
                                                     class="d-inline">
@@ -130,4 +135,37 @@
             </div>
         </div>
     </div>
+
+    <!-- Modals for Password Change -->
+    @foreach($users as $user)
+        <div class="modal fade" id="changePasswordModal{{ $user->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">تغيير كلمة المرور للمستخدم: {{ $user->name }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('admin.users.password.update', $user->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">كلمة المرور الجديدة</label>
+                                <input type="password" name="password" class="form-control" required minlength="8">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">تأكيد كلمة المرور</label>
+                                <input type="password" name="password_confirmation" class="form-control" required minlength="8">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                            <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
 @endsection

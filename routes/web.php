@@ -234,6 +234,17 @@ Route::middleware('auth')->group(function () {
         // تصدير نتائج التحليل
         Route::get('/reports/export/{id}/{format}', [TrainingController::class, 'exportAnalysis'])->name('training-coordinator.reports.export');
 
+        // 👨‍🏫 إدارة المدربين
+        Route::resource('trainers', App\Http\Controllers\TrainerController::class)->names([
+            'index' => 'training-coordinator.trainers.index',
+            'create' => 'training-coordinator.trainers.create',
+            'store' => 'training-coordinator.trainers.store',
+            'show' => 'training-coordinator.trainers.show',
+            'edit' => 'training-coordinator.trainers.edit',
+            'update' => 'training-coordinator.trainers.update',
+            'destroy' => 'training-coordinator.trainers.destroy'
+        ]);
+
     }); // نهاية مجموعة مسارات منسق التدريب
 
     // ==================== 🎓 مسارات الخريج ====================

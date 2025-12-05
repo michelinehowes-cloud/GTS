@@ -39,7 +39,7 @@ class EvaluationController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'training_id' => 'required|exists:trainings,id',
+            'training_id' => 'required_if:type,training|nullable|exists:trainings,id',
             'type' => 'required|in:training,employment,performance',
             'evaluation_date' => 'required|date|before_or_equal:today',
             'status' => 'required|in:draft,completed,reviewed',
@@ -78,7 +78,7 @@ class EvaluationController extends Controller
             'training_id' => $request->training_id,
             'user_id' => null, // Requirement to remove user field
             'evaluator_id' => auth()->id(),
-            'evaluatable_type' => 'App\Models\Training',
+            'evaluatable_type' => $request->training_id ? 'App\Models\Training' : null,
             'evaluatable_id' => $request->training_id,
             'evaluation_type' => $request->type,
             'type' => $request->type,
@@ -141,7 +141,7 @@ class EvaluationController extends Controller
     public function update(Request $request, Evaluation $evaluation)
     {
         $validator = Validator::make($request->all(), [
-            'training_id' => 'required|exists:trainings,id',
+            'training_id' => 'required_if:type,training|nullable|exists:trainings,id',
             'type' => 'required|in:training,employment,performance',
             'evaluation_date' => 'required|date|before_or_equal:today',
             'status' => 'required|in:draft,completed,reviewed',

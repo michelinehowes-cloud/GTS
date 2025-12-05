@@ -41,10 +41,15 @@
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label fw-bold">التدريب <span class="text-danger">*</span></label>
-                                    <select class="form-select form-select-lg" name="training_id" required>
+                                    <select class="form-select form-select-lg" id="training_id" name="training_id" required>
                                         <option value="">-- اختر --</option>
                                         @foreach($trainings as $training)
-                                            <option value="{{ $training->id }}" {{ old('training_id', $evaluation->evaluatable_id) == $training->id ? 'selected' : '' }}>{{ $training->title }}</option>
+                                            <option value="{{ $training->id }}" 
+                                                data-start="{{ $training->start_date }}" 
+                                                data-end="{{ $training->end_date }}"
+                                                {{ old('training_id', $evaluation->training_id) == $training->id ? 'selected' : '' }}>
+                                                {{ $training->title }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -90,66 +95,104 @@
                             </div>
                         </div>
 
-                        <!-- المحتوى -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-success text-white"><i class="fas fa-book-open"></i> تقييم المحتوى التدريبي</div>
-                            <div class="card-body">
-                                <div class="row">
-                                    @php
-                                        $content = [
-                                            'relevance' => 'ملاءمة المحتوى للأهداف',
-                                            'quality' => 'جودة المواد التدريبية',
-                                            'organization' => 'تنظيم المحتوى',
-                                            'practical' => 'التطبيقات العملية',
-                                            'updated' => 'حداثة المعلومات'
-                                        ];
-                                        $currentContent = old('content', $evaluation->content_evaluation ?? []);
-                                    @endphp
-                                    @foreach($content as $key => $label)
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ $label }}</label>
-                                            <select name="content[{{ $key }}]" class="form-select">
-                                                <option value="">-- اختر --</option>
-                                                <option value="5" {{ ($currentContent[$key] ?? '') == '5' ? 'selected' : '' }}>⭐⭐⭐⭐⭐ ممتاز</option>
-                                                <option value="4" {{ ($currentContent[$key] ?? '') == '4' ? 'selected' : '' }}>⭐⭐⭐⭐ جيد جداً</option>
-                                                <option value="3" {{ ($currentContent[$key] ?? '') == '3' ? 'selected' : '' }}>⭐⭐⭐ جيد</option>
-                                                <option value="2" {{ ($currentContent[$key] ?? '') == '2' ? 'selected' : '' }}>⭐⭐ مقبول</option>
-                                                <option value="1" {{ ($currentContent[$key] ?? '') == '1' ? 'selected' : '' }}>⭐ ضعيف</option>
-                                            </select>
-                                        </div>
-                                    @endforeach
+                        <!-- تقييمات الأيام (للتدريبات متعددة الأيام) -->
+                        <div id="day-evaluations-section">
+                             <div class="card mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <i class="fas fa-calendar-day"></i> تقييمات الأيام
+                                </div>
+                                <div class="card-body">
+                                    <div id="day-evaluations-container">
+                                        @php
+                                            $contentData = old('daily_content', $evaluation->content_evaluation ?? []);
+                                            // Fallback calculation if empty but training exists
+                                            if (empty($contentData) && $evaluation->training) {
+                                                $start = \Carbon\Carbon::parse($evaluation->training->start_date);
+                                                $end = \Carbon\Carbon::parse($evaluation->training->end_date);
+                                                $diffDays = $start->diffInDays($end) + 1;
+                                                if ($diffDays > 1) {
+                                                    for($i=1; $i<=$diffDays; $i++) {
+                                                        $contentData["day_$i"] = [];
+                                                    }
+                                                }
+                                            }
+                                        @endphp
+                                        
+                                        @foreach($contentData as $dayKey => $values)
+                                             @php 
+                                                 $dayIndex = str_replace('day_', '', $dayKey);
+                                                 $dayLabels = [
+                                                    'clarity' => 'وضوح المحتوى',
+                                                    'relevance' => 'الارتباط بالأهداف',
+                                                    'engagement' => 'التفاعل والمشاركة'
+                                                 ];
+                                             @endphp
+                                             <div class="card mb-3 border-light">
+                                                <div class="card-header bg-light">
+                                                    <strong>اليوم {{ $dayIndex }}</strong>
+                                                </div>
+                                                <div class="card-body">
+                                                    <h6 class="card-subtitle mb-2 text-muted">تقييم محاور اليوم</h6>
+                                                    <div class="row">
+                                                        @foreach($dayLabels as $k => $l)
+                                                            <div class="col-md-4 mb-2">
+                                                                <label class="form-label small">{{ $l }}</label>
+                                                                <select name="daily_content[{{ $dayKey }}][{{ $k }}]" class="form-select form-select-sm">
+                                                                    <option value="">-- اختر --</option>
+                                                                    <option value="5" {{ ($values[$k] ?? '') == '5' ? 'selected' : '' }}>⭐⭐⭐⭐⭐ ممتاز</option>
+                                                                    <option value="4" {{ ($values[$k] ?? '') == '4' ? 'selected' : '' }}>⭐⭐⭐⭐ جيد جداً</option>
+                                                                    <option value="3" {{ ($values[$k] ?? '') == '3' ? 'selected' : '' }}>⭐⭐⭐ جيد</option>
+                                                                    <option value="2" {{ ($values[$k] ?? '') == '2' ? 'selected' : '' }}>⭐⭐ مقبول</option>
+                                                                    <option value="1" {{ ($values[$k] ?? '') == '1' ? 'selected' : '' }}>⭐ ضعيف</option>
+                                                                </select>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- أداء المدرب -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-warning text-dark"><i class="fas fa-chalkboard-teacher"></i> تقييم أداء المدرب</div>
-                            <div class="card-body">
-                                <div class="row">
-                                    @php
-                                        $trainer = [
-                                            'knowledge' => 'المعرفة والخبرة',
-                                            'communication' => 'مهارات التواصل',
-                                            'interaction' => 'التفاعل مع المتدربين',
-                                            'time_management' => 'إدارة الوقت',
-                                            'motivation' => 'القدرة على التحفيز'
-                                        ];
-                                        $currentTrainer = old('trainer', $evaluation->trainer_evaluation ?? []);
-                                    @endphp
-                                    @foreach($trainer as $key => $label)
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ $label }}</label>
-                                            <select name="trainer[{{ $key }}]" class="form-select">
-                                                <option value="">-- اختر --</option>
-                                                <option value="5" {{ ($currentTrainer[$key] ?? '') == '5' ? 'selected' : '' }}>⭐⭐⭐⭐⭐ ممتاز</option>
-                                                <option value="4" {{ ($currentTrainer[$key] ?? '') == '4' ? 'selected' : '' }}>⭐⭐⭐⭐ جيد جداً</option>
-                                                <option value="3" {{ ($currentTrainer[$key] ?? '') == '3' ? 'selected' : '' }}>⭐⭐⭐ جيد</option>
-                                                <option value="2" {{ ($currentTrainer[$key] ?? '') == '2' ? 'selected' : '' }}>⭐⭐ مقبول</option>
-                                                <option value="1" {{ ($currentTrainer[$key] ?? '') == '1' ? 'selected' : '' }}>⭐ ضعيف</option>
-                                            </select>
-                                        </div>
-                                    @endforeach
+                         <!-- تقييمات المدربين -->
+                        <div id="trainer-evaluations-section" style="display: block;">
+                            <div class="card mb-4">
+                                <div class="card-header bg-warning text-dark">
+                                    <i class="fas fa-chalkboard-teacher"></i> تقييمات المدربين
+                                </div>
+                                <div class="card-body">
+                                    <button type="button" id="add-trainer-btn" class="btn btn-sm btn-outline-primary mb-3"><i class="fas fa-plus"></i> إضافة مدرب للتقييم</button>
+                                    <div id="trainer-evaluations-container">
+                                        @foreach($evaluation->trainerEvaluations as $index => $trainerEval)
+                                            <div class="row mb-3 border-bottom pb-3">
+                                                <div class="col-md-4">
+                                                    <label class="form-label">المدرب</label>
+                                                    <select name="instructors[{{ $index }}][id]" class="form-select" required>
+                                                        <option value="">-- اختر المدرب --</option>
+                                                        @foreach($trainers as $trainer)
+                                                            <option value="{{ $trainer->id }}" {{ $trainerEval->trainer_id == $trainer->id ? 'selected' : '' }}>{{ $trainer->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">التقييم العام</label>
+                                                     <select name="instructors[{{ $index }}][rating]" class="form-select" required>
+                                                        <option value="5" {{ $trainerEval->rating == 5 ? 'selected' : '' }}>⭐⭐⭐⭐⭐ ممتاز</option>
+                                                        <option value="4" {{ $trainerEval->rating == 4 ? 'selected' : '' }}>⭐⭐⭐⭐ جيد جداً</option>
+                                                        <option value="3" {{ $trainerEval->rating == 3 ? 'selected' : '' }}>⭐⭐⭐ جيد</option>
+                                                        <option value="2" {{ $trainerEval->rating == 2 ? 'selected' : '' }}>⭐⭐ مقبول</option>
+                                                        <option value="1" {{ $trainerEval->rating == 1 ? 'selected' : '' }}>⭐ ضعيف</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-5">
+                                                     <label class="form-label">ملاحظات</label>
+                                                     <input type="text" name="instructors[{{ $index }}][comments]" class="form-control" value="{{ $trainerEval->comments }}" placeholder="ملاحظات حول المدرب">
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -295,15 +338,152 @@
     </div>
 
     <script>
-    document.getElementById('type').addEventListener('change', function() {
-        document.getElementById('training-section').style.display = 'none';
-        document.getElementById('employment-section').style.display = 'none';
+    document.addEventListener('DOMContentLoaded', function() {
+        const trainingSelect = document.getElementById('training_id');
+        const typeSelect = document.getElementById('type');
+        const dayContainer = document.getElementById('day-evaluations-container');
+        const daySection = document.getElementById('day-evaluations-section');
+        const trainerContainer = document.getElementById('trainer-evaluations-container');
+        const addTrainerBtn = document.getElementById('add-trainer-btn');
 
-        if (this.value === 'training') {
-            document.getElementById('training-section').style.display = 'block';
-        } else if (this.value === 'employment') {
-            document.getElementById('employment-section').style.display = 'block';
+        // Initial setup for trainers (if any)
+        if (addTrainerBtn) {
+            addTrainerBtn.addEventListener('click', renderTrainerRow);
         }
+
+        // Only attach change listener to Training if we want dynamic updates on change
+        if (trainingSelect) {
+            trainingSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (!selectedOption.value) return;
+
+                const startDateStr = selectedOption.getAttribute('data-start');
+                const endDateStr = selectedOption.getAttribute('data-end');
+
+                // If training changed, we might want to reset/re-calculate days
+                // Only do this if it's a NEW selection (user interaction), not initial load
+                // Since this runs on 'change', it is fine
+                
+                dayContainer.innerHTML = ''; // Clear previous
+                
+                if (startDateStr && endDateStr) {
+                    const start = new Date(startDateStr);
+                    const end = new Date(endDateStr);
+                    const diffTime = Math.abs(end - start);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; 
+
+                    if (diffDays > 1) {
+                         daySection.style.display = 'block';
+                         for (let i = 1; i <= diffDays; i++) {
+                             renderDayRow(i);
+                         }
+                    } else {
+                        daySection.style.display = 'none';
+                    }
+                }
+            });
+        }
+        
+        // Handle Type Change
+        if (typeSelect) {
+            typeSelect.addEventListener('change', function() {
+                document.getElementById('training-section').style.display = 'none';
+                document.getElementById('employment-section').style.display = 'none';
+
+                if (this.value === 'training') {
+                    document.getElementById('training-section').style.display = 'block';
+                } else if (this.value === 'employment') {
+                    document.getElementById('employment-section').style.display = 'block';
+                }
+            });
+        }
+
+        function renderDayRow(i) {
+             const dayContent = {
+                'clarity': 'وضوح المحتوى',
+                'relevance': 'الارتباط بالأهداف',
+                'engagement': 'التفاعل والمشاركة'
+             };
+             
+             let optionsHtml = '';
+             for (const [key, label] of Object.entries(dayContent)) {
+                 optionsHtml += `
+                    <div class="col-md-4 mb-2">
+                        <label class="form-label small">${label}</label>
+                        <select name="daily_content[day_${i}][${key}]" class="form-select form-select-sm">
+                            <option value="">-- اختر --</option>
+                            <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
+                            <option value="4">⭐⭐⭐⭐ جيد جداً</option>
+                            <option value="3">⭐⭐⭐ جيد</option>
+                            <option value="2">⭐⭐ مقبول</option>
+                            <option value="1">⭐ ضعيف</option>
+                        </select>
+                    </div>
+                 `;
+             }
+
+             const dayHtml = `
+                <div class="card mb-3 border-light">
+                    <div class="card-header bg-light">
+                        <strong>اليوم ${i}</strong>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">تقييم محاور اليوم</h6>
+                        <div class="row">
+                            ${optionsHtml}
+                        </div>
+                    </div>
+                </div>
+             `;
+             dayContainer.insertAdjacentHTML('beforeend', dayHtml);
+        }
+
+        function renderTrainerRow() {
+            const index = Date.now(); // Use timestamp for unique index in JS added rows
+            const trainersOptions = `
+                <option value="">-- اختر المدرب --</option>
+                @foreach($trainers as $trainer)
+                    <option value="{{ $trainer->id }}">{{ $trainer->name }}</option>
+                @endforeach
+            `;
+            
+            const html = `
+                <div class="row mb-3 border-bottom pb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">المدرب</label>
+                        <select name="instructors[${index}][id]" class="form-select" required>
+                            ${trainersOptions}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">التقييم العام</label>
+                         <select name="instructors[${index}][rating]" class="form-select" required>
+                            <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
+                            <option value="4">⭐⭐⭐⭐ جيد جداً</option>
+                            <option value="3">⭐⭐⭐ جيد</option>
+                            <option value="2">⭐⭐ مقبول</option>
+                            <option value="1">⭐ ضعيف</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                         <label class="form-label">ملاحظات</label>
+                         <input type="text" name="instructors[${index}][comments]" class="form-control" placeholder="ملاحظات حول المدرب">
+                    </div>
+                    <div class="col-12 text-end">
+                         <button type="button" class="btn btn-sm btn-danger remove-trainer-btn">حذف</button>
+                    </div>
+                </div>
+            `;
+            trainerContainer.insertAdjacentHTML('beforeend', html);
+            
+            // Re-attach delete listener
+            const deleteBtns = document.querySelectorAll('.remove-trainer-btn');
+            deleteBtns.forEach(btn => {
+                btn.onclick = function() { this.closest('.row').remove(); };
+            });
+        }
+        
+        // Initial delete buttons for existing trainers (if we add them)
     });
     </script>
 @endsection

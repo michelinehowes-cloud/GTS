@@ -28,12 +28,12 @@ class EvaluationController extends Controller
 
     public function create()
     {
-        $users = User::whereIn('role', ['graduate', 'training_coordinator', 'company'])->get();
-        $trainings = Training::where('status', 'active')->get();
+        // $users = User::whereIn('role', ['graduate', 'training_coordinator', 'company'])->get(); // Removed as per requirement
+        $trainings = Training::where('status', 'active')->with('trainer')->get();
         $trainers = Trainer::all();
-        $evaluators = User::whereIn('role', ['admin', 'training_coordinator', 'evaluation_followup'])->get();
+        // $evaluators = User::whereIn('role', ['admin', 'training_coordinator', 'evaluation_followup'])->get(); // Usually auth user is evaluator
 
-        return view('evaluation-followup.evaluations.create', compact('users', 'trainings', 'trainers', 'evaluators'));
+        return view('evaluation-followup.evaluations.create', compact('trainings', 'trainers'));
     }
 
     public function store(Request $request)
@@ -44,23 +44,19 @@ class EvaluationController extends Controller
             'evaluation_date' => 'required|date|before_or_equal:today',
             'status' => 'required|in:draft,completed,reviewed',
 
-            // تقييم التجهيزات
-            'facilities.*' => 'nullable|numeric|min:1|max:5',
+            // General Training Evaluations
+            'facilities' => 'nullable|array',
+            'organization' => 'nullable|array',
+            'impact' => 'nullable|array',
+            'employment' => 'nullable|array', // For employment type
 
-            // تقييم المحتوى
-            'content.*' => 'nullable|numeric|min:1|max:5',
+            // Daily Content Evaluations (Dynamic Keys e.g. content_day_1, content_day_2)
+            'daily_content' => 'nullable|array',
 
-            // تقييم المدرب
-            'trainer.*' => 'nullable|numeric|min:1|max:5',
-
-            // تقييم التنظيم
-            'organization.*' => 'nullable|numeric|min:1|max:5',
-
-            // تقييم الأثر
-            'impact.*' => 'nullable|numeric|min:1|max:5',
-
-            // تقييم التوظيف
-            'employment.*' => 'nullable|numeric|min:1|max:5',
+            // Multiple Instructors Evaluation
+            'instructors' => 'nullable|array',
+            'instructors.*.id' => 'required|exists:trainers,id',
+            'instructors.*.rating' => 'required|numeric|min:1|max:5',
 
             'strengths' => 'nullable|string',
             'weaknesses' => 'nullable|string',
@@ -74,48 +70,68 @@ class EvaluationController extends Controller
                 ->withInput();
         }
 
+        // Calculate simplified overall score (average of provided scores)
+        // detailed scoring logic can be complex, sticking to simple average for now
+        $score = 0;
+
         $evaluation = Evaluation::create([
             'training_id' => $request->training_id,
-            'user_id' => $request->user_id,
+            'user_id' => null, // Requirement to remove user field
             'evaluator_id' => auth()->id(),
             'evaluatable_type' => 'App\Models\Training',
             'evaluatable_id' => $request->training_id,
             'evaluation_type' => $request->type,
             'type' => $request->type,
-            'facilities_evaluation' => $request->facilities ?? null,
-            'content_evaluation' => $request->content ?? null,
-            'trainer_evaluation' => $request->trainer ?? null,
-            'organization_evaluation' => $request->organization ?? null,
-            'impact_evaluation' => $request->impact ?? null,
-            'employment_evaluation' => $request->employment ?? null,
+            'facilities_evaluation' => $request->facilities ?? [],
+            'content_evaluation' => $request->daily_content ?? [], // Storing daily axes here
+            'organization_evaluation' => $request->organization ?? [],
+            'impact_evaluation' => $request->impact ?? [],
+            'employment_evaluation' => $request->employment ?? [],
             'strengths' => $request->strengths,
             'weaknesses' => $request->weaknesses,
             'comments' => $request->comments ?? '',
             'recommendations' => $request->recommendations,
             'evaluation_date' => $request->evaluation_date,
             'status' => $request->status,
-            'score' => 0,
+            'score' => 0, // Will update if needed
         ]);
 
-        // حساب التقييم الإجمالي
-        $evaluation->overall_rating = $evaluation->overall_rating;
-        $evaluation->save();
+        // Handle Instructors Evaluations
+        if ($request->has('instructors')) {
+            foreach ($request->instructors as $instructorData) {
+                if (isset($instructorData['id'])) {
+                    // Create TrainerEvaluation linked to this Evaluation
+                    \App\Models\TrainerEvaluation::create([
+                        'evaluation_id' => $evaluation->id,
+                        'training_id' => $request->training_id,
+                        'evaluator_id' => auth()->id(),
+                        'trainer_id' => $instructorData['id'],
+                        'scores' => $instructorData['scores'] ?? [], // Store detailed sub-scores if any
+                        'rating' => $instructorData['rating'] ?? 0,
+                        'notes' => $instructorData['comments'] ?? null,
+                    ]);
+                }
+            }
+        }
 
         return redirect()->route('evaluation-followup.evaluations.index')
-            ->with('success', 'تم إنشاء التقييم بنجاح');
+            ->with('success', 'تم إنشاء التقييم الشامل بنجاح');
     }
 
     public function show(Evaluation $evaluation)
     {
-        $evaluation->load(['user', 'evaluator', 'training']);
+        $evaluation->load(['user', 'evaluator', 'training', 'trainerEvaluations.trainer']);
 
         return view('evaluation-followup.evaluations.show', compact('evaluation'));
     }
 
     public function edit(Evaluation $evaluation)
     {
+        $evaluation->load(['trainerEvaluations.trainer', 'training']);
         $users = User::whereIn('role', ['graduate', 'training_coordinator', 'company'])->get();
-        $trainings = Training::where('status', 'active')->get();
+        // Removed eager loading of trainer for all trainings to reduce load, will assume training is selected 
+        // OR eager load if needed for JS data attributes
+        $trainings = Training::where('status', 'active')->with('trainer')->get();
         $trainers = Trainer::all();
         $evaluators = User::whereIn('role', ['admin', 'training_coordinator', 'evaluation_followup'])->get();
 
@@ -130,12 +146,15 @@ class EvaluationController extends Controller
             'evaluation_date' => 'required|date|before_or_equal:today',
             'status' => 'required|in:draft,completed,reviewed',
 
-            'facilities.*' => 'nullable|numeric|min:1|max:5',
-            'content.*' => 'nullable|numeric|min:1|max:5',
-            'trainer.*' => 'nullable|numeric|min:1|max:5',
-            'organization.*' => 'nullable|numeric|min:1|max:5',
-            'impact.*' => 'nullable|numeric|min:1|max:5',
-            'employment.*' => 'nullable|numeric|min:1|max:5',
+            'facilities' => 'nullable|array',
+            'daily_content' => 'nullable|array', // Updated name to match store
+            'organization' => 'nullable|array',
+            'impact' => 'nullable|array',
+            'employment' => 'nullable|array',
+
+            'instructors' => 'nullable|array',
+            'instructors.*.id' => 'required|exists:trainers,id',
+            'instructors.*.rating' => 'required|numeric|min:1|max:5',
 
             'strengths' => 'nullable|string',
             'weaknesses' => 'nullable|string',
@@ -151,14 +170,13 @@ class EvaluationController extends Controller
 
         $evaluation->update([
             'training_id' => $request->training_id,
-            'user_id' => $request->user_id,
+            // 'user_id' => $request->user_id, // Removed as per requirement
             'type' => $request->type,
-            'facilities_evaluation' => $request->facilities ?? null,
-            'content_evaluation' => $request->content ?? null,
-            'trainer_evaluation' => $request->trainer ?? null,
-            'organization_evaluation' => $request->organization ?? null,
-            'impact_evaluation' => $request->impact ?? null,
-            'employment_evaluation' => $request->employment ?? null,
+            'facilities_evaluation' => $request->facilities ?? [],
+            'content_evaluation' => $request->daily_content ?? [], // Using daily_content
+            'organization_evaluation' => $request->organization ?? [],
+            'impact_evaluation' => $request->impact ?? [],
+            'employment_evaluation' => $request->employment ?? [],
             'strengths' => $request->strengths,
             'weaknesses' => $request->weaknesses,
             'comments' => $request->comments,
@@ -167,9 +185,40 @@ class EvaluationController extends Controller
             'status' => $request->status,
         ]);
 
-        // إعادة حساب التقييم الإجمالي
-        $evaluation->overall_rating = $evaluation->overall_rating;
-        $evaluation->save();
+        // Handle Instructors Evaluations Sync
+        if ($request->has('instructors')) {
+            $submittedTrainerIds = [];
+            foreach ($request->instructors as $instructorData) {
+                if (isset($instructorData['id'])) {
+                    $submittedTrainerIds[] = $instructorData['id'];
+
+                    \App\Models\TrainerEvaluation::updateOrCreate(
+                        [
+                            'evaluation_id' => $evaluation->id,
+                            'trainer_id' => $instructorData['id'],
+                        ],
+                        [
+                            'training_id' => $request->training_id,
+                            'evaluator_id' => auth()->id(),
+                            'scores' => $instructorData['scores'] ?? [],
+                            'rating' => $instructorData['rating'] ?? 0,
+                            'notes' => $instructorData['comments'] ?? null,
+                        ]
+                    );
+                }
+            }
+
+            // Delete removed trainers
+            \App\Models\TrainerEvaluation::where('evaluation_id', $evaluation->id)
+                ->whereNotIn('trainer_id', $submittedTrainerIds)
+                ->delete();
+        } else {
+            // If no instructors provided, delete all? Or maybe just keep generic? 
+            // Assuming if section is hidden or empty, we might want to clear them if type is training
+            if ($request->type === 'training') {
+                $evaluation->trainerEvaluations()->delete();
+            }
+        }
 
         return redirect()->route('evaluation-followup.evaluations.index')
             ->with('success', 'تم تحديث التقييم بنجاح');

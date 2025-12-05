@@ -30,9 +30,17 @@ class Trainer extends Model
     /**
      * العلاقة مع التقييمات
      */
-    public function evaluations()
+    public function trainerEvaluations()
     {
         return $this->hasMany(TrainerEvaluation::class);
+    }
+
+    /**
+     * العلاقة مع التقييمات من خلال جدول trainer_evaluations
+     */
+    public function evaluations()
+    {
+        return $this->belongsToMany(Evaluation::class, 'trainer_evaluations');
     }
 
     /**
@@ -40,6 +48,6 @@ class Trainer extends Model
      */
     public function averageRating()
     {
-        return $this->evaluations()->avg('rating');
+        return $this->trainerEvaluations()->avg('rating');
     }
 }

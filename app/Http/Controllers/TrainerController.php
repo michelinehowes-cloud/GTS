@@ -58,7 +58,7 @@ class TrainerController extends Controller
     public function show(Trainer $trainer)
     {
         // جلب التدريبات والتقييمات المرتبطة بالمدرب
-        $trainer->load(['trainings', 'evaluations.training', 'evaluations.evaluator']);
+        $trainer->load(['trainings', 'trainerEvaluations.evaluation.training', 'trainerEvaluations.evaluation.evaluator']);
 
         // حساب متوسط التقييم
         $averageRating = $trainer->averageRating();
@@ -134,7 +134,7 @@ class TrainerController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $trainer->evaluations()->create([
+        $trainer->trainerEvaluations()->create([
             'training_id' => $request->training_id,
             'evaluator_id' => auth()->id(),
             'rating' => $request->rating,

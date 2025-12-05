@@ -80,8 +80,6 @@
                                 @php
                                     $sections = [
                                         'facilities_evaluation' => ['title' => 'التجهيزات والمرافق', 'icon' => 'building', 'color' => 'info'],
-                                        'content_evaluation' => ['title' => 'المحتوى التدريبي', 'icon' => 'book-open', 'color' => 'success'],
-                                        'trainer_evaluation' => ['title' => 'أداء المدرب', 'icon' => 'chalkboard-teacher', 'color' => 'warning'],
                                         'organization_evaluation' => ['title' => 'التنظيم والإدارة', 'icon' => 'tasks', 'color' => 'secondary'],
                                         'impact_evaluation' => ['title' => 'الأثر والاستفادة', 'icon' => 'chart-line', 'color' => 'primary'],
                                     ];
@@ -91,16 +89,6 @@
                                         'equipment' => 'التجهيزات',
                                         'comfort' => 'الراحة',
                                         'cleanliness' => 'النظافة',
-                                        'relevance' => 'الملاءمة',
-                                        'quality' => 'الجودة',
-                                        'organization' => 'التنظيم',
-                                        'practical' => 'التطبيق العملي',
-                                        'updated' => 'الحداثة',
-                                        'knowledge' => 'المعرفة',
-                                        'communication' => 'التواصل',
-                                        'interaction' => 'التفاعل',
-                                        'time_management' => 'إدارة الوقت',
-                                        'motivation' => 'التحفيز',
                                         'scheduling' => 'الجدول الزمني',
                                         'coordination' => 'التنسيق',
                                         'support' => 'الدعم',
@@ -109,10 +97,15 @@
                                         'knowledge_gained' => 'المعرفة المكتسبة',
                                         'practical_application' => 'إمكانية التطبيق',
                                         'career_impact' => 'الأثر المهني',
-                                        'overall_satisfaction' => 'الرضا العام'
+                                        'overall_satisfaction' => 'الرضا العام',
+                                        // Daily labels
+                                        'clarity' => 'وضوح المحتوى',
+                                        'relevance' => 'الارتباط بالأهداف',
+                                        'engagement' => 'التفاعل والمشاركة'
                                     ];
                                 @endphp
 
+                                <!-- Other Sections -->
                                 @foreach($sections as $field => $config)
                                     @if($evaluation->$field)
                                         <div class="col-md-6 mb-4">
@@ -138,6 +131,81 @@
                                         </div>
                                     @endif
                                 @endforeach
+                            </div>
+
+                            <!-- Daily and Trainer Evaluations Row -->
+                            <div class="row">
+                                <!-- Daily Content Evaluation -->
+                                @if($evaluation->content_evaluation)
+                                    <div class="col-12 mb-4">
+                                        <div class="card border-0 shadow-sm">
+                                            <div class="card-header bg-success text-white">
+                                                <i class="fas fa-book-open me-2"></i> المحتوى التدريبي (تقييم يومي)
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    @foreach($evaluation->content_evaluation as $dayKey => $values)
+                                                        <div class="col-md-4 mb-3">
+                                                            <div class="card h-100 border-light">
+                                                                <div class="card-header bg-light">
+                                                                    <strong>{{ str_replace('_', ' ', $dayKey) }}</strong>
+                                                                </div>
+                                                                <ul class="list-group list-group-flush">
+                                                                    @if(is_array($values))
+                                                                        @foreach($values as $k => $v)
+                                                                            <li
+                                                                                class="list-group-item d-flex justify-content-between align-items-center">
+                                                                                <small>{{ $labels[$k] ?? $k }}</small>
+                                                                                <span class="badge bg-success rounded-pill">{{ $v }}/5</span>
+                                                                            </li>
+                                                                        @endforeach
+                                                                    @endif
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <!-- Trainer Evaluations -->
+                                @if($evaluation->trainerEvaluations->count() > 0)
+                                    <div class="col-12 mb-4">
+                                        <div class="card border-0 shadow-sm">
+                                            <div class="card-header bg-warning text-dark">
+                                                <i class="fas fa-chalkboard-teacher me-2"></i> أداء المدربين
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    @foreach($evaluation->trainerEvaluations as $trainerEval)
+                                                        <div class="col-md-6 mb-3">
+                                                            <div class="card h-100">
+                                                                <div class="card-body">
+                                                                    <h6 class="card-title fw-bold">
+                                                                        {{ $trainerEval->trainer->name ?? 'مدرب غير معروف' }}
+                                                                    </h6>
+                                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                        <span>التقييم العام</span>
+                                                                        <span
+                                                                            class="badge bg-warning text-dark fs-6">{{ $trainerEval->rating }}/5
+                                                                            <i class="fas fa-star"></i></span>
+                                                                    </div>
+                                                                    @if($trainerEval->comments)
+                                                                        <p class="card-text small text-muted bg-light p-2 rounded">
+                                                                            <i class="fas fa-comment me-1"></i> {{ $trainerEval->comments }}
+                                                                        </p>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         @elseif($evaluation->type == 'employment')
                             <!-- تقييم التوظيف -->
@@ -196,7 +264,8 @@
                                 <div class="row">
                                     @if($evaluation->strengths)
                                         <div class="col-md-6 mb-3">
-                                            <h6 class="fw-bold text-success"><i class="fas fa-plus-circle me-1"></i> نقاط القوة
+                                            <h6 class="fw-bold text-success"><i class="fas fa-plus-circle me-1"></i> نقاط
+                                                القوة
                                             </h6>
                                             <p class="bg-light p-3 rounded">{{ $evaluation->strengths }}</p>
                                         </div>
@@ -204,7 +273,8 @@
 
                                     @if($evaluation->weaknesses)
                                         <div class="col-md-6 mb-3">
-                                            <h6 class="fw-bold text-danger"><i class="fas fa-minus-circle me-1"></i> نقاط الضعف
+                                            <h6 class="fw-bold text-danger"><i class="fas fa-minus-circle me-1"></i> نقاط
+                                                الضعف
                                             </h6>
                                             <p class="bg-light p-3 rounded">{{ $evaluation->weaknesses }}</p>
                                         </div>
@@ -212,7 +282,8 @@
 
                                     @if($evaluation->comments)
                                         <div class="col-md-6 mb-3">
-                                            <h6 class="fw-bold text-primary"><i class="fas fa-comment me-1"></i> تعليقات عامة
+                                            <h6 class="fw-bold text-primary"><i class="fas fa-comment me-1"></i> تعليقات
+                                                عامة
                                             </h6>
                                             <p class="bg-light p-3 rounded">{{ $evaluation->comments }}</p>
                                         </div>
@@ -220,7 +291,8 @@
 
                                     @if($evaluation->recommendations)
                                         <div class="col-md-6 mb-3">
-                                            <h6 class="fw-bold text-info"><i class="fas fa-lightbulb me-1"></i> التوصيات</h6>
+                                            <h6 class="fw-bold text-info"><i class="fas fa-lightbulb me-1"></i> التوصيات
+                                            </h6>
                                             <p class="bg-light p-3 rounded">{{ $evaluation->recommendations }}</p>
                                         </div>
                                     @endif

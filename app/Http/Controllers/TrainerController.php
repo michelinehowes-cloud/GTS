@@ -57,9 +57,13 @@ class TrainerController extends Controller
      */
     public function show(Trainer $trainer)
     {
-        // جلب التدريبات المرتبطة بالمدرب
-        $trainer->load('trainings');
-        return view('training_coordinator.trainers.show', compact('trainer'));
+        // جلب التدريبات والتقييمات المرتبطة بالمدرب
+        $trainer->load(['trainings', 'evaluations.training', 'evaluations.evaluator']);
+
+        // حساب متوسط التقييم
+        $averageRating = $trainer->averageRating();
+
+        return view('training_coordinator.trainers.show', compact('trainer', 'averageRating'));
     }
 
     /**
@@ -114,5 +118,33 @@ class TrainerController extends Controller
 
         return redirect()->route('training-coordinator.trainers.index')
             ->with('success', 'تم حذف المدرب بنجاح');
+    }
+
+    /**
+     * حفظ تقييم جديد للمدرب
+     */
+    public function storeEvaluation(Request $request, Trainer $trainer)
+    {
+        $request->validate([
+            'training_id' => 'required|exists:trainings,id',
+            'rating' => 'required|integer|min:1|max:5',
+            'strengths' => 'nullable|string',
+            'weaknesses' => 'nullable|string',
+            'recommendations' => 'nullable|string',
+            'notes' => 'nullable|string',
+        ]);
+
+        $trainer->evaluations()->create([
+            'training_id' => $request->training_id,
+            'evaluator_id' => auth()->id(),
+            'rating' => $request->rating,
+            'strengths' => $request->strengths,
+            'weaknesses' => $request->weaknesses,
+            'recommendations' => $request->recommendations,
+            'notes' => $request->notes,
+        ]);
+
+        return redirect()->route('training-coordinator.trainers.show', $trainer)
+            ->with('success', 'تم إضافة التقييم بنجاح');
     }
 }

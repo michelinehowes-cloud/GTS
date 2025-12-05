@@ -102,14 +102,162 @@
                                             </tr>
                                         @endforeach
                                     </tbody>
-                                </table>
-                            </div>
+                                    </table>
+                                    </div>
                         @else
-                            <p class="text-muted text-center">لا توجد تدريبات مرتبطة بهذا المدرب حالياً</p>
-                        @endif
+                                <p class="text-muted text-center">لا توجد تدريبات مرتبطة بهذا المدرب حالياً</p>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- قسم التقييمات --}}
+                    <div class="card shadow mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-star text-warning"></i>
+                                تقييمات المدرب
+                            </h5>
+                            @if($averageRating)
+                                <div class="text-end">
+                                    <span class="badge bg-warning text-dark fs-5">
+                                        <i class="fas fa-star"></i>
+                                        {{ number_format($averageRating, 1) }} / 5
+                                    </span>
+                                    <small class="text-muted d-block">من {{ $trainer->evaluations->count() }} تقييم</small>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="card-body">
+                            {{-- نموذج إضافة تقييم جديد (للمستخدمين الذين لديهم صلاحية) --}}
+                            @if(auth()->user()->role == 'evaluation_followup')
+                                <div class="alert alert-info">
+                                    <h6><i class="fas fa-plus-circle"></i> إضافة تقييم جديد</h6>
+                                    <form action="{{ route('training-coordinator.trainers.evaluate', $trainer) }}" method="POST">
+                                        @csrf
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">التدريب المرتبط <span class="text-danger">*</span></label>
+                                                <select name="training_id" class="form-select" required>
+                                                    <option value="">-- اختر التدريب --</option>
+                                                    @foreach($trainer->trainings as $training)
+                                                        <option value="{{ $training->id }}">{{ $training->title }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">التقييم <span class="text-danger">*</span></label>
+                                                <select name="rating" class="form-select" required>
+                                                    <option value="">-- اختر التقييم --</option>
+                                                    <option value="5">⭐⭐⭐⭐⭐ ممتاز (5)</option>
+                                                    <option value="4">⭐⭐⭐⭐ جيد جداً (4)</option>
+                                                    <option value="3">⭐⭐⭐ جيد (3)</option>
+                                                    <option value="2">⭐⭐ مقبول (2)</option>
+                                                    <option value="1">⭐ ضعيف (1)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">نقاط القوة</label>
+                                                <textarea name="strengths" class="form-control" rows="3" placeholder="اذكر نقاط القوة..."></textarea>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">نقاط الضعف</label>
+                                                <textarea name="weaknesses" class="form-control" rows="3" placeholder="اذكر نقاط الضعف..."></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">التوصيات</label>
+                                                <textarea name="recommendations" class="form-control" rows="3" placeholder="اذكر التوصيات..."></textarea>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">ملاحظات إضافية</label>
+                                                <textarea name="notes" class="form-control" rows="3" placeholder="ملاحظات أخرى..."></textarea>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> حفظ التقييم
+                                        </button>
+                                    </form>
+                                </div>
+                                <hr>
+                            @endif
+
+                            {{-- قائمة التقييمات السابقة --}}
+                            @if($trainer->evaluations->count() > 0)
+                                <h6 class="mb-3">التقييمات السابقة ({{ $trainer->evaluations->count() }})</h6>
+                                @foreach($trainer->evaluations as $evaluation)
+                                    <div class="card mb-3 border-start border-4 border-{{ $evaluation->rating >= 4 ? 'success' : ($evaluation->rating >= 3 ? 'warning' : 'danger') }}">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <h6 class="mb-1">
+                                                        <i class="fas fa-graduation-cap text-primary"></i>
+                                                        {{ $evaluation->training->title ?? 'تدريب محذوف' }}
+                                                    </h6>
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-user"></i>
+                                                        بواسطة: {{ $evaluation->evaluator->name ?? 'غير معروف' }}
+                                                        |
+                                                        <i class="fas fa-calendar"></i>
+                                                        {{ $evaluation->created_at->format('Y-m-d') }}
+                                                    </small>
+                                                </div>
+                                                <div class="text-end">
+                                                    <span class="badge bg-{{ $evaluation->rating >= 4 ? 'success' : ($evaluation->rating >= 3 ? 'warning' : 'danger') }} fs-6">
+                                                        @for($i = 1; $i <= 5; $i++)
+                                                            @if($i <= $evaluation->rating)
+                                                                <i class="fas fa-star"></i>
+                                                            @else
+                                                                <i class="far fa-star"></i>
+                                                            @endif
+                                                        @endfor
+                                                        ({{ $evaluation->rating }}/5)
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mt-3">
+                                                @if($evaluation->strengths)
+                                                    <div class="col-md-6 mb-2">
+                                                        <strong class="text-success"><i class="fas fa-check-circle"></i> نقاط القوة:</strong>
+                                                        <p class="mb-0 ms-3">{{ $evaluation->strengths }}</p>
+                                                    </div>
+                                                @endif
+                                                @if($evaluation->weaknesses)
+                                                    <div class="col-md-6 mb-2">
+                                                        <strong class="text-danger"><i class="fas fa-times-circle"></i> نقاط الضعف:</strong>
+                                                        <p class="mb-0 ms-3">{{ $evaluation->weaknesses }}</p>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            @if($evaluation->recommendations)
+                                                <div class="mt-2">
+                                                    <strong class="text-info"><i class="fas fa-lightbulb"></i> التوصيات:</strong>
+                                                    <p class="mb-0 ms-3">{{ $evaluation->recommendations }}</p>
+                                                </div>
+                                            @endif
+
+                                            @if($evaluation->notes)
+                                                <div class="mt-2">
+                                                    <strong class="text-secondary"><i class="fas fa-sticky-note"></i> ملاحظات:</strong>
+                                                    <p class="mb-0 ms-3">{{ $evaluation->notes }}</p>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="alert alert-light text-center">
+                                    <i class="fas fa-info-circle"></i>
+                                    لا توجد تقييمات لهذا المدرب حتى الآن
+                                </div>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 @endsection

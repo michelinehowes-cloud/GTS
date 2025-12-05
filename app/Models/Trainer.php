@@ -26,4 +26,20 @@ class Trainer extends Model
     {
         return $this->hasMany(Training::class);
     }
+
+    /**
+     * العلاقة مع التقييمات
+     */
+    public function evaluations()
+    {
+        return $this->hasMany(TrainerEvaluation::class);
+    }
+
+    /**
+     * حساب متوسط التقييم
+     */
+    public function averageRating()
+    {
+        return $this->evaluations()->avg('rating');
+    }
 }

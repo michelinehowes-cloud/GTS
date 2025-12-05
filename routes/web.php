@@ -244,6 +244,9 @@ Route::middleware('auth')->group(function () {
             'update' => 'training-coordinator.trainers.update',
             'destroy' => 'training-coordinator.trainers.destroy'
         ]);
+        // تقييم المدربين
+        Route::post('trainers/{trainer}/evaluate', [App\Http\Controllers\TrainerController::class, 'storeEvaluation'])
+            ->name('training-coordinator.trainers.evaluate');
 
     }); // نهاية مجموعة مسارات منسق التدريب
 

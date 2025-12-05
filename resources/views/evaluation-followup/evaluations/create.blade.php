@@ -1,317 +1,302 @@
 @extends('layouts.app')
 
-@section('title', 'إضافة تقييم جديد - نظام إدارة الخريجين')
-@section('page-title', 'إضافة تقييم جديد')
+@section('title', 'إضافة تقييم شامل')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-plus me-2"></i>
-                        إضافة تقييم جديد
-                    </h5>
-                </div>
+    <div class="container-fluid">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i> نموذج التقييم الشامل</h5>
+            </div>
 
-                <div class="card-body">
-                    <form action="{{ route('evaluation-followup.evaluations.store') }}" method="POST" id="evaluationForm">
-                        @csrf
+            <div class="card-body p-4">
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-                        <div class="row">
-                            <!-- نوع التقييم -->
-                            <div class="col-md-6 mb-3">
-                                <label for="type" class="form-label fw-bold">
-                                    نوع التقييم <span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select @error('type') is-invalid @enderror"
-                                        id="type" name="type" required>
-                                    <option value="">اختر نوع التقييم</option>
-                                    <option value="performance" {{ old('type') == 'performance' ? 'selected' : '' }}>
-                                        تقييم الأداء
-                                    </option>
-                                    <option value="training" {{ old('type') == 'training' ? 'selected' : '' }}>
-                                        تقييم التدريب
-                                    </option>
-                                    <option value="company" {{ old('type') == 'company' ? 'selected' : '' }}>
-                                        تقييم الشركة
-                                    </option>
-                                </select>
-                                @error('type')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                <form action="{{ route('evaluation-followup.evaluations.store') }}" method="POST">
+                    @csrf
 
-                            <!-- تاريخ التقييم -->
-                            <div class="col-md-6 mb-3">
-                                <label for="evaluation_date" class="form-label fw-bold">
-                                    تاريخ التقييم <span class="text-danger">*</span>
-                                </label>
-                                <input type="date" class="form-control @error('evaluation_date') is-invalid @enderror"
-                                       id="evaluation_date" name="evaluation_date"
-                                       value="{{ old('evaluation_date', date('Y-m-d')) }}" required>
-                                @error('evaluation_date')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                    <!-- المعلومات الأساسية -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-secondary text-white">
+                            <i class="fas fa-info-circle"></i> المعلومات الأساسية
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">نوع التقييم <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-lg" id="type" name="type" required>
+                                        <option value="">-- اختر --</option>
+                                        <option value="training">📚 تقييم تدريب</option>
+                                        <option value="employment">💼 تقييم توظيف</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">التدريب <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-lg" name="training_id" required>
+                                        <option value="">-- اختر --</option>
+                                        @foreach($trainings as $training)
+                                            <option value="{{ $training->id }}">{{ $training->title }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">تاريخ التقييم <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control form-control-lg" name="evaluation_date" value="{{ date('Y-m-d') }}" required>
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="row">
-                            <!-- المستخدم المقيم -->
-                            <div class="col-md-6 mb-3">
-                                <label for="user_id" class="form-label fw-bold">
-                                    المستخدم المقيم <span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select @error('user_id') is-invalid @enderror"
-                                        id="user_id" name="user_id" required>
-                                    <option value="">اختر المستخدم</option>
-                                    @foreach($users as $user)
-                                    <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
-                                        {{ $user->name }} ({{ $user->email }})
-                                    </option>
+                    <!-- تقييم التدريب -->
+                    <div id="training-section" style="display: none;">
+
+                        <!-- التجهيزات -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-info text-white"><i class="fas fa-building"></i> تقييم التجهيزات والمرافق</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @php
+                                        $facilities = [
+                                            'room_quality' => 'جودة القاعة التدريبية',
+                                            'equipment' => 'التجهيزات والأدوات',
+                                            'comfort' => 'الراحة والإضاءة',
+                                            'cleanliness' => 'النظافة والترتيب'
+                                        ];
+                                    @endphp
+                                    @foreach($facilities as $key => $label)
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">{{ $label }}</label>
+                                            <select name="facilities[{{ $key }}]" class="form-select">
+                                                <option value="">-- اختر --</option>
+                                                <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
+                                                <option value="4">⭐⭐⭐⭐ جيد جداً</option>
+                                                <option value="3">⭐⭐⭐ جيد</option>
+                                                <option value="2">⭐⭐ مقبول</option>
+                                                <option value="1">⭐ ضعيف</option>
+                                            </select>
+                                        </div>
                                     @endforeach
-                                </select>
-                                @error('user_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                </div>
                             </div>
+                        </div>
 
-                            <!-- المقيم -->
-                            <div class="col-md-6 mb-3">
-                                <label for="evaluator_id" class="form-label fw-bold">
-                                    المقيم <span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select @error('evaluator_id') is-invalid @enderror"
-                                        id="evaluator_id" name="evaluator_id" required>
-                                    <option value="">اختر المقيم</option>
-                                    @foreach($evaluators as $evaluator)
-                                    <option value="{{ $evaluator->id }}" {{ old('evaluator_id') == $evaluator->id ? 'selected' : '' }}>
-                                        {{ $evaluator->name }} ({{ $evaluator->email }})
-                                    </option>
+                        <!-- المحتوى -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white"><i class="fas fa-book-open"></i> تقييم المحتوى التدريبي</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @php
+                                        $content = [
+                                            'relevance' => 'ملاءمة المحتوى للأهداف',
+                                            'quality' => 'جودة المواد التدريبية',
+                                            'organization' => 'تنظيم المحتوى',
+                                            'practical' => 'التطبيقات العملية',
+                                            'updated' => 'حداثة المعلومات'
+                                        ];
+                                    @endphp
+                                    @foreach($content as $key => $label)
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">{{ $label }}</label>
+                                            <select name="content[{{ $key }}]" class="form-select">
+                                                <option value="">-- اختر --</option>
+                                                <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
+                                                <option value="4">⭐⭐⭐⭐ جيد جداً</option>
+                                                <option value="3">⭐⭐⭐ جيد</option>
+                                                <option value="2">⭐⭐ مقبول</option>
+                                                <option value="1">⭐ ضعيف</option>
+                                            </select>
+                                        </div>
                                     @endforeach
-                                </select>
-                                @error('evaluator_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                </div>
                             </div>
                         </div>
 
-                        <!-- التدريب (اختياري) -->
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="training_id" class="form-label fw-bold">
-                                    التدريب (اختياري)
-                                </label>
-                                <select class="form-select @error('training_id') is-invalid @enderror"
-                                        id="training_id" name="training_id">
-                                    <option value="">اختر التدريب (اختياري)</option>
-                                    @foreach($trainings as $training)
-                                    <option value="{{ $training->id }}" {{ old('training_id') == $training->id ? 'selected' : '' }}>
-                                        {{ $training->title }}
-                                    </option>
+                        <!-- أداء المدرب -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-warning text-dark"><i class="fas fa-chalkboard-teacher"></i> تقييم أداء المدرب</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @php
+                                        $trainer = [
+                                            'knowledge' => 'المعرفة والخبرة',
+                                            'communication' => 'مهارات التواصل',
+                                            'interaction' => 'التفاعل مع المتدربين',
+                                            'time_management' => 'إدارة الوقت',
+                                            'motivation' => 'القدرة على التحفيز'
+                                        ];
+                                    @endphp
+                                    @foreach($trainer as $key => $label)
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">{{ $label }}</label>
+                                            <select name="trainer[{{ $key }}]" class="form-select">
+                                                <option value="">-- اختر --</option>
+                                                <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
+                                                <option value="4">⭐⭐⭐⭐ جيد جداً</option>
+                                                <option value="3">⭐⭐⭐ جيد</option>
+                                                <option value="2">⭐⭐ مقبول</option>
+                                                <option value="1">⭐ ضعيف</option>
+                                            </select>
+                                        </div>
                                     @endforeach
-                                </select>
-                                @error('training_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <!-- الحالة -->
-                            <div class="col-md-6 mb-3">
-                                <label for="status" class="form-label fw-bold">
-                                    الحالة <span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select @error('status') is-invalid @enderror"
-                                        id="status" name="status" required>
-                                    <option value="draft" {{ old('status', 'draft') == 'draft' ? 'selected' : '' }}>
-                                        مسودة
-                                    </option>
-                                    <option value="completed" {{ old('status') == 'completed' ? 'selected' : '' }}>
-                                        مكتمل
-                                    </option>
-                                </select>
-                                @error('status')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                </div>
                             </div>
                         </div>
 
-                        <!-- معايير التقييم -->
-                        <div id="criteriaSection" class="mb-4" style="display: none;">
-                            <h6 class="fw-bold mb-3">معايير التقييم</h6>
-                            <div id="criteriaContainer" class="row">
-                                <!-- سيتم إضافة معايير التقييم هنا ديناميكياً -->
+                        <!-- التنظيم -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-secondary text-white"><i class="fas fa-tasks"></i> تقييم التنظيم والإدارة</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @php
+                                        $organization = [
+                                            'scheduling' => 'الجدول الزمني',
+                                            'coordination' => 'التنسيق والتنظيم',
+                                            'support' => 'الدعم الإداري',
+                                            'communication_admin' => 'التواصل الإداري'
+                                        ];
+                                    @endphp
+                                    @foreach($organization as $key => $label)
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">{{ $label }}</label>
+                                            <select name="organization[{{ $key }}]" class="form-select">
+                                                <option value="">-- اختر --</option>
+                                                <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
+                                                <option value="4">⭐⭐⭐⭐ جيد جداً</option>
+                                                <option value="3">⭐⭐⭐ جيد</option>
+                                                <option value="2">⭐⭐ مقبول</option>
+                                                <option value="1">⭐ ضعيف</option>
+                                            </select>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
 
-                        <!-- التعليقات -->
-                        <div class="mb-3">
-                            <label for="comments" class="form-label fw-bold">التعليقات</label>
-                            <textarea class="form-control @error('comments') is-invalid @enderror"
-                                      id="comments" name="comments" rows="3"
-                                      placeholder="أدخل تعليقاتك حول التقييم">{{ old('comments') }}</textarea>
-                            @error('comments')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <!-- التوصيات -->
-                        <div class="mb-3">
-                            <label for="recommendations" class="form-label fw-bold">التوصيات</label>
-                            <textarea class="form-control @error('recommendations') is-invalid @enderror"
-                                      id="recommendations" name="recommendations" rows="3"
-                                      placeholder="أدخل توصياتك للتحسين">{{ old('recommendations') }}</textarea>
-                            @error('recommendations')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <!-- أزرار التحكم -->
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ route('evaluation-followup.evaluations.index') }}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left me-1"></i>
-                                العودة للقائمة
-                            </a>
-                            <div>
-                                <button type="button" class="btn btn-outline-primary me-2" onclick="saveAsDraft()">
-                                    <i class="fas fa-save me-1"></i>
-                                    حفظ كمسودة
-                                </button>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-check me-1"></i>
-                                    إنشاء التقييم
-                                </button>
+                        <!-- الأثر -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white"><i class="fas fa-chart-line"></i> تقييم الأثر والاستفادة</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @php
+                                        $impact = [
+                                            'skills_gained' => 'المهارات المكتسبة',
+                                            'knowledge_gained' => 'المعرفة المكتسبة',
+                                            'practical_application' => 'إمكانية التطبيق',
+                                            'career_impact' => 'الأثر المهني',
+                                            'overall_satisfaction' => 'الرضا العام'
+                                        ];
+                                    @endphp
+                                    @foreach($impact as $key => $label)
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">{{ $label }}</label>
+                                            <select name="impact[{{ $key }}]" class="form-select">
+                                                <option value="">-- اختر --</option>
+                                                <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
+                                                <option value="4">⭐⭐⭐⭐ جيد جداً</option>
+                                                <option value="3">⭐⭐⭐ جيد</option>
+                                                <option value="2">⭐⭐ مقبول</option>
+                                                <option value="1">⭐ ضعيف</option>
+                                            </select>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <!-- تقييم التوظيف -->
+                    <div id="employment-section" style="display: none;">
+                        <div class="card mb-4">
+                            <div class="card-header bg-info text-white"><i class="fas fa-building"></i> تقييم بيئة العمل</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @php
+                                        $employment = [
+                                            'workplace_quality' => 'جودة مكان العمل',
+                                            'tools_equipment' => 'الأدوات والمعدات',
+                                            'safety' => 'الأمان والسلامة',
+                                            'work_culture' => 'ثقافة العمل',
+                                            'supervisor_support' => 'دعم المشرف',
+                                            'guidance' => 'التوجيه والإرشاد'
+                                        ];
+                                    @endphp
+                                    @foreach($employment as $key => $label)
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">{{ $label }}</label>
+                                            <select name="employment[{{ $key }}]" class="form-select">
+                                                <option value="">-- اختر --</option>
+                                                <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
+                                                <option value="4">⭐⭐⭐⭐ جيد جداً</option>
+                                                <option value="3">⭐⭐⭐ جيد</option>
+                                                <option value="2">⭐⭐ مقبول</option>
+                                                <option value="1">⭐ ضعيف</option>
+                                            </select>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- التعليقات -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-dark text-white"><i class="fas fa-comment"></i> التعليقات والتوصيات</div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">نقاط القوة</label>
+                                    <textarea class="form-control" name="strengths" rows="3" placeholder="ما هي نقاط القوة؟"></textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">نقاط الضعف</label>
+                                    <textarea class="form-control" name="weaknesses" rows="3" placeholder="ما هي نقاط الضعف؟"></textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">التعليقات</label>
+                                    <textarea class="form-control" name="comments" rows="3" placeholder="تعليقات إضافية"></textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">التوصيات</label>
+                                    <textarea class="form-control" name="recommendations" rows="3" placeholder="توصياتك للتحسين"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="status" value="completed">
+
+                    <!-- الأزرار -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ route('evaluation-followup.evaluations.index') }}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-arrow-right"></i> العودة
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-check-circle"></i> حفظ التقييم
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const typeSelect = document.getElementById('type');
-    const criteriaSection = document.getElementById('criteriaSection');
-    const criteriaContainer = document.getElementById('criteriaContainer');
-    const statusSelect = document.getElementById('status');
+    <script>
+    document.getElementById('type').addEventListener('change', function() {
+        document.getElementById('training-section').style.display = 'none';
+        document.getElementById('employment-section').style.display = 'none';
 
-    // تحديث معايير التقييم عند تغيير النوع
-    typeSelect.addEventListener('change', function() {
-        const selectedType = this.value;
-        updateCriteria(selectedType);
-    });
-
-    // تحديث المعايير عند تحميل الصفحة إذا كان هناك نوع محدد
-    if (typeSelect.value) {
-        updateCriteria(typeSelect.value);
-    }
-
-    function updateCriteria(type) {
-        if (!type) {
-            criteriaSection.style.display = 'none';
-            return;
-        }
-
-        // الحصول على معايير التقييم من الخادم
-        fetch(`/evaluation-followup/evaluations/criteria/${type}`)
-            .then(response => response.json())
-            .then(data => {
-                if (Object.keys(data).length > 0) {
-                    renderCriteria(data);
-                    criteriaSection.style.display = 'block';
-                } else {
-                    criteriaSection.style.display = 'none';
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching criteria:', error);
-                criteriaSection.style.display = 'none';
-            });
-    }
-
-    function renderCriteria(criteria) {
-        criteriaContainer.innerHTML = '';
-
-        Object.entries(criteria).forEach(([label, key]) => {
-            const col = document.createElement('div');
-            col.className = 'col-md-6 mb-3';
-
-            col.innerHTML = `
-                <label class="form-label fw-bold">${label} <span class="text-danger">*</span></label>
-                <select class="form-select" name="scores[${key}]" required>
-                    <option value="">اختر الدرجة</option>
-                    <option value="1">1 - ضعيف جداً</option>
-                    <option value="2">2 - ضعيف</option>
-                    <option value="3">3 - متوسط</option>
-                    <option value="4">4 - جيد</option>
-                    <option value="5">5 - ممتاز</option>
-                </select>
-            `;
-
-            criteriaContainer.appendChild(col);
-        });
-    }
-
-    // حفظ كمسودة
-    window.saveAsDraft = function() {
-        statusSelect.value = 'draft';
-        document.getElementById('evaluationForm').submit();
-    };
-
-    // التحقق من صحة النموذج
-    document.getElementById('evaluationForm').addEventListener('submit', function(e) {
-        const requiredSelects = document.querySelectorAll('select[required]');
-        let isValid = true;
-
-        requiredSelects.forEach(select => {
-            if (!select.value) {
-                select.classList.add('is-invalid');
-                isValid = false;
-            } else {
-                select.classList.remove('is-invalid');
-            }
-        });
-
-        if (!isValid) {
-            e.preventDefault();
-            alert('يرجى ملء جميع الحقول المطلوبة');
+        if (this.value === 'training') {
+            document.getElementById('training-section').style.display = 'block';
+        } else if (this.value === 'employment') {
+            document.getElementById('employment-section').style.display = 'block';
         }
     });
-});
-</script>
-
-<style>
-.form-label {
-    color: #495057;
-    font-weight: 600;
-}
-
-.card-header {
-    border-bottom: none;
-}
-
-.btn {
-    border-radius: 0.375rem;
-}
-
-.form-select:focus,
-.form-control:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-
-@media (max-width: 768px) {
-    .d-flex.justify-content-between {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .d-flex.justify-content-between > div {
-        text-align: center;
-    }
-}
-</style>
+    </script>
 @endsection

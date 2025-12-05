@@ -39,7 +39,7 @@
                                         <option value="employment">💼 تقييم توظيف</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6 mb-3" id="training-wrapper">
                                     <label class="form-label fw-bold">التدريب <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-lg" name="training_id" id="training_id" required>
                                         <option value="">-- اختر --</option>
@@ -366,6 +366,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             const typeSelect = document.getElementById('type');
             const trainingSelect = document.getElementById('training_id');
+            const trainingWrapper = document.getElementById('training-wrapper');
             const trainingSection = document.getElementById('training-section');
             const employmentSection = document.getElementById('employment-section');
             const trainerSection = document.getElementById('trainer-evaluations-section');
@@ -382,7 +383,13 @@
                 if (daySection) daySection.style.display = 'none';
                 if (trainerSection) trainerSection.style.display = 'none';
 
+                if (trainingWrapper) trainingWrapper.style.display = 'none';
+                if (trainingSelect) trainingSelect.required = false;
+
                 if (type === 'training') {
+                    if (trainingWrapper) trainingWrapper.style.display = 'block';
+                    if (trainingSelect) trainingSelect.required = true;
+
                     if (trainingSection) trainingSection.style.display = 'block';
                     // Trainer and Day sections depend on specific training selection
                     if (trainingSelect && trainingSelect.value) {
@@ -493,39 +500,39 @@
                 const index = Date.now();
                 // Note: We use the blade directive inside JS string, which works because it's in a blade file
                 const trainersOptions = `
-                        <option value="">-- اختر المدرب --</option>
-                        @foreach($trainers as $trainer)
-                            <option value="{{ $trainer->id }}">{{ $trainer->name }}</option>
-                        @endforeach
-                    `;
+                            <option value="">-- اختر المدرب --</option>
+                            @foreach($trainers as $trainer)
+                                <option value="{{ $trainer->id }}">{{ $trainer->name }}</option>
+                            @endforeach
+                        `;
 
                 const rowHtml = `
-                        <div class="row mb-3 border-bottom pb-3" id="trainer-row-${index}">
-                            <div class="col-md-4">
-                                <label class="form-label">المدرب</label>
-                                <select name="instructors[${index}][id]" class="form-select" required>
-                                    ${trainersOptions}
-                                </select>
+                            <div class="row mb-3 border-bottom pb-3" id="trainer-row-${index}">
+                                <div class="col-md-4">
+                                    <label class="form-label">المدرب</label>
+                                    <select name="instructors[${index}][id]" class="form-select" required>
+                                        ${trainersOptions}
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">التقييم العام</label>
+                                        <select name="instructors[${index}][rating]" class="form-select" required>
+                                        <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
+                                        <option value="4">⭐⭐⭐⭐ جيد جداً</option>
+                                        <option value="3">⭐⭐⭐ جيد</option>
+                                        <option value="2">⭐⭐ مقبول</option>
+                                        <option value="1">⭐ ضعيف</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                        <label class="form-label">ملاحظات</label>
+                                        <input type="text" name="instructors[${index}][comments]" class="form-control" placeholder="ملاحظات حول المدرب">
+                                </div>
+                                <div class="col-md-1 d-flex align-items-end">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeTrainerRow('${index}')"><i class="fas fa-trash"></i></button>
+                                </div>
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label">التقييم العام</label>
-                                    <select name="instructors[${index}][rating]" class="form-select" required>
-                                    <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
-                                    <option value="4">⭐⭐⭐⭐ جيد جداً</option>
-                                    <option value="3">⭐⭐⭐ جيد</option>
-                                    <option value="2">⭐⭐ مقبول</option>
-                                    <option value="1">⭐ ضعيف</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                    <label class="form-label">ملاحظات</label>
-                                    <input type="text" name="instructors[${index}][comments]" class="form-control" placeholder="ملاحظات حول المدرب">
-                            </div>
-                            <div class="col-md-1 d-flex align-items-end">
-                                <button type="button" class="btn btn-danger btn-sm" onclick="removeTrainerRow('${index}')"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                    `;
+                        `;
                 trainerContainer.insertAdjacentHTML('beforeend', rowHtml);
             }
 

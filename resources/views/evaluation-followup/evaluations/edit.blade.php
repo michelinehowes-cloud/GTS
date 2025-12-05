@@ -39,7 +39,7 @@
                                         <option value="employment" {{ old('type', $evaluation->evaluation_type) == 'employment' ? 'selected' : '' }}>💼 تقييم توظيف</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-4 mb-3" id="training-wrapper">
                                     <label class="form-label fw-bold">التدريب <span class="text-danger">*</span></label>
                                     <select class="form-select form-select-lg" id="training_id" name="training_id" required>
                                         <option value="">-- اختر --</option>
@@ -385,17 +385,30 @@
         }
         
         // Handle Type Change
-        if (typeSelect) {
-            typeSelect.addEventListener('change', function() {
-                document.getElementById('training-section').style.display = 'none';
-                document.getElementById('employment-section').style.display = 'none';
+        const trainingWrapper = document.getElementById('training-wrapper');
 
-                if (this.value === 'training') {
-                    document.getElementById('training-section').style.display = 'block';
-                } else if (this.value === 'employment') {
-                    document.getElementById('employment-section').style.display = 'block';
-                }
-            });
+        function toggleSections() {
+            if (!typeSelect) return;
+            const type = typeSelect.value;
+
+            // Reset
+            document.getElementById('training-section').style.display = 'none';
+            document.getElementById('employment-section').style.display = 'none';
+            if (trainingWrapper) trainingWrapper.style.display = 'none';
+            if (trainingSelect) trainingSelect.required = false;
+
+            if (type === 'training') {
+                document.getElementById('training-section').style.display = 'block';
+                if (trainingWrapper) trainingWrapper.style.display = 'block';
+                if (trainingSelect) trainingSelect.required = true;
+            } else if (type === 'employment') {
+                document.getElementById('employment-section').style.display = 'block';
+            }
+        }
+
+        if (typeSelect) {
+            typeSelect.addEventListener('change', toggleSections);
+            toggleSections(); // Init
         }
 
         function renderDayRow(i) {

@@ -1,8 +1,10 @@
-# Development Plan for the System
-
-- [x] Analyze requirements
-- [ ] Set up necessary files
-- [ ] Implement main functionality
-- [ ] Handle edge cases
-- [ ] Test the implementation
-- [ ] Verify results
+- [ ] Modify resources/views/training-coordinator/trainings/show.blade.php to display full evaluation details including:
+  - Facilities evaluation
+  - Content evaluation
+  - Trainer evaluation
+  - Organization evaluation
+  - Impact evaluation
+  - Employment evaluation
+  - Strengths
+  - Weaknesses
+  - Recommendations

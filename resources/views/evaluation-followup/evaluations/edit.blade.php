@@ -1,320 +1,309 @@
 @extends('layouts.app')
 
-@section('title', 'تعديل التقييم - نظام إدارة الخريجين')
-@section('page-title', 'تعديل التقييم')
+@section('title', 'تعديل التقييم الشامل')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0">
-                        <i class="fas fa-edit me-2"></i>
-                        تعديل التقييم #{{ $evaluation->id }}
-                    </h5>
-                </div>
+    <div class="container-fluid">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i> تعديل نموذج التقييم الشامل</h5>
+            </div>
 
-                <div class="card-body">
-                    <form action="{{ route('evaluation-followup.evaluations.update', $evaluation) }}" method="POST" id="evaluationForm">
-                        @csrf
-                        @method('PUT')
+            <div class="card-body p-4">
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-                        <div class="row">
-                            <!-- نوع التقييم -->
-                            <div class="col-md-6 mb-3">
-                                <label for="type" class="form-label fw-bold">
-                                    نوع التقييم <span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select @error('type') is-invalid @enderror"
-                                        id="type" name="type" required>
-                                    <option value="">اختر نوع التقييم</option>
-                                    <option value="performance" {{ old('type', $evaluation->type) == 'performance' ? 'selected' : '' }}>
-                                        تقييم الأداء
-                                    </option>
-                                    <option value="training" {{ old('type', $evaluation->type) == 'training' ? 'selected' : '' }}>
-                                        تقييم التدريب
-                                    </option>
-                                    <option value="company" {{ old('type', $evaluation->type) == 'company' ? 'selected' : '' }}>
-                                        تقييم الشركة
-                                    </option>
-                                </select>
-                                @error('type')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                <form action="{{ route('evaluation-followup.evaluations.update', $evaluation->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
 
-                            <!-- تاريخ التقييم -->
-                            <div class="col-md-6 mb-3">
-                                <label for="evaluation_date" class="form-label fw-bold">
-                                    تاريخ التقييم <span class="text-danger">*</span>
-                                </label>
-                                <input type="date" class="form-control @error('evaluation_date') is-invalid @enderror"
-                                       id="evaluation_date" name="evaluation_date"
-                                       value="{{ old('evaluation_date', $evaluation->evaluation_date) }}" required>
-                                @error('evaluation_date')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                    <!-- المعلومات الأساسية -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-secondary text-white">
+                            <i class="fas fa-info-circle"></i> المعلومات الأساسية
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">نوع التقييم <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-lg" id="type" name="type" required>
+                                        <option value="">-- اختر --</option>
+                                        <option value="training" {{ old('type', $evaluation->evaluation_type) == 'training' ? 'selected' : '' }}>📚 تقييم تدريب</option>
+                                        <option value="employment" {{ old('type', $evaluation->evaluation_type) == 'employment' ? 'selected' : '' }}>💼 تقييم توظيف</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">التدريب <span class="text-danger">*</span></label>
+                                    <select class="form-select form-select-lg" name="training_id" required>
+                                        <option value="">-- اختر --</option>
+                                        @foreach($trainings as $training)
+                                            <option value="{{ $training->id }}" {{ old('training_id', $evaluation->evaluatable_id) == $training->id ? 'selected' : '' }}>{{ $training->title }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">تاريخ التقييم <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control form-control-lg" name="evaluation_date" value="{{ old('evaluation_date', \Carbon\Carbon::parse($evaluation->evaluation_date)->format('Y-m-d')) }}" required>
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="row">
-                            <!-- المستخدم المقيم -->
-                            <div class="col-md-6 mb-3">
-                                <label for="user_id" class="form-label fw-bold">
-                                    المستخدم المقيم <span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select @error('user_id') is-invalid @enderror"
-                                        id="user_id" name="user_id" required>
-                                    <option value="">اختر المستخدم</option>
-                                    @foreach($users as $user)
-                                    <option value="{{ $user->id }}" {{ old('user_id', $evaluation->user_id) == $user->id ? 'selected' : '' }}>
-                                        {{ $user->name }} ({{ $user->email }})
-                                    </option>
+                    <!-- تقييم التدريب -->
+                    <div id="training-section" style="display: {{ old('type', $evaluation->evaluation_type) == 'training' ? 'block' : 'none' }};">
+
+                        <!-- التجهيزات -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-info text-white"><i class="fas fa-building"></i> تقييم التجهيزات والمرافق</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @php
+                                        $facilities = [
+                                            'room_quality' => 'جودة القاعة التدريبية',
+                                            'equipment' => 'التجهيزات والأدوات',
+                                            'comfort' => 'الراحة والإضاءة',
+                                            'cleanliness' => 'النظافة والترتيب'
+                                        ];
+                                        $currentFacilities = old('facilities', $evaluation->facilities_evaluation ?? []);
+                                    @endphp
+                                    @foreach($facilities as $key => $label)
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">{{ $label }}</label>
+                                            <select name="facilities[{{ $key }}]" class="form-select">
+                                                <option value="">-- اختر --</option>
+                                                <option value="5" {{ ($currentFacilities[$key] ?? '') == '5' ? 'selected' : '' }}>⭐⭐⭐⭐⭐ ممتاز</option>
+                                                <option value="4" {{ ($currentFacilities[$key] ?? '') == '4' ? 'selected' : '' }}>⭐⭐⭐⭐ جيد جداً</option>
+                                                <option value="3" {{ ($currentFacilities[$key] ?? '') == '3' ? 'selected' : '' }}>⭐⭐⭐ جيد</option>
+                                                <option value="2" {{ ($currentFacilities[$key] ?? '') == '2' ? 'selected' : '' }}>⭐⭐ مقبول</option>
+                                                <option value="1" {{ ($currentFacilities[$key] ?? '') == '1' ? 'selected' : '' }}>⭐ ضعيف</option>
+                                            </select>
+                                        </div>
                                     @endforeach
-                                </select>
-                                @error('user_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                </div>
                             </div>
+                        </div>
 
-                            <!-- المقيم -->
-                            <div class="col-md-6 mb-3">
-                                <label for="evaluator_id" class="form-label fw-bold">
-                                    المقيم <span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select @error('evaluator_id') is-invalid @enderror"
-                                        id="evaluator_id" name="evaluator_id" required>
-                                    <option value="">اختر المقيم</option>
-                                    @foreach($evaluators as $evaluator)
-                                    <option value="{{ $evaluator->id }}" {{ old('evaluator_id', $evaluation->evaluator_id) == $evaluator->id ? 'selected' : '' }}>
-                                        {{ $evaluator->name }} ({{ $evaluator->email }})
-                                    </option>
+                        <!-- المحتوى -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white"><i class="fas fa-book-open"></i> تقييم المحتوى التدريبي</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @php
+                                        $content = [
+                                            'relevance' => 'ملاءمة المحتوى للأهداف',
+                                            'quality' => 'جودة المواد التدريبية',
+                                            'organization' => 'تنظيم المحتوى',
+                                            'practical' => 'التطبيقات العملية',
+                                            'updated' => 'حداثة المعلومات'
+                                        ];
+                                        $currentContent = old('content', $evaluation->content_evaluation ?? []);
+                                    @endphp
+                                    @foreach($content as $key => $label)
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">{{ $label }}</label>
+                                            <select name="content[{{ $key }}]" class="form-select">
+                                                <option value="">-- اختر --</option>
+                                                <option value="5" {{ ($currentContent[$key] ?? '') == '5' ? 'selected' : '' }}>⭐⭐⭐⭐⭐ ممتاز</option>
+                                                <option value="4" {{ ($currentContent[$key] ?? '') == '4' ? 'selected' : '' }}>⭐⭐⭐⭐ جيد جداً</option>
+                                                <option value="3" {{ ($currentContent[$key] ?? '') == '3' ? 'selected' : '' }}>⭐⭐⭐ جيد</option>
+                                                <option value="2" {{ ($currentContent[$key] ?? '') == '2' ? 'selected' : '' }}>⭐⭐ مقبول</option>
+                                                <option value="1" {{ ($currentContent[$key] ?? '') == '1' ? 'selected' : '' }}>⭐ ضعيف</option>
+                                            </select>
+                                        </div>
                                     @endforeach
-                                </select>
-                                @error('evaluator_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                </div>
                             </div>
                         </div>
 
-                        <!-- التدريب (اختياري) -->
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="training_id" class="form-label fw-bold">
-                                    التدريب (اختياري)
-                                </label>
-                                <select class="form-select @error('training_id') is-invalid @enderror"
-                                        id="training_id" name="training_id">
-                                    <option value="">اختر التدريب (اختياري)</option>
-                                    @foreach($trainings as $training)
-                                    <option value="{{ $training->id }}" {{ old('training_id', $evaluation->training_id) == $training->id ? 'selected' : '' }}>
-                                        {{ $training->title }}
-                                    </option>
+                        <!-- أداء المدرب -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-warning text-dark"><i class="fas fa-chalkboard-teacher"></i> تقييم أداء المدرب</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @php
+                                        $trainer = [
+                                            'knowledge' => 'المعرفة والخبرة',
+                                            'communication' => 'مهارات التواصل',
+                                            'interaction' => 'التفاعل مع المتدربين',
+                                            'time_management' => 'إدارة الوقت',
+                                            'motivation' => 'القدرة على التحفيز'
+                                        ];
+                                        $currentTrainer = old('trainer', $evaluation->trainer_evaluation ?? []);
+                                    @endphp
+                                    @foreach($trainer as $key => $label)
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">{{ $label }}</label>
+                                            <select name="trainer[{{ $key }}]" class="form-select">
+                                                <option value="">-- اختر --</option>
+                                                <option value="5" {{ ($currentTrainer[$key] ?? '') == '5' ? 'selected' : '' }}>⭐⭐⭐⭐⭐ ممتاز</option>
+                                                <option value="4" {{ ($currentTrainer[$key] ?? '') == '4' ? 'selected' : '' }}>⭐⭐⭐⭐ جيد جداً</option>
+                                                <option value="3" {{ ($currentTrainer[$key] ?? '') == '3' ? 'selected' : '' }}>⭐⭐⭐ جيد</option>
+                                                <option value="2" {{ ($currentTrainer[$key] ?? '') == '2' ? 'selected' : '' }}>⭐⭐ مقبول</option>
+                                                <option value="1" {{ ($currentTrainer[$key] ?? '') == '1' ? 'selected' : '' }}>⭐ ضعيف</option>
+                                            </select>
+                                        </div>
                                     @endforeach
-                                </select>
-                                @error('training_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <!-- الحالة -->
-                            <div class="col-md-6 mb-3">
-                                <label for="status" class="form-label fw-bold">
-                                    الحالة <span class="text-danger">*</span>
-                                </label>
-                                <select class="form-select @error('status') is-invalid @enderror"
-                                        id="status" name="status" required>
-                                    <option value="draft" {{ old('status', $evaluation->status) == 'draft' ? 'selected' : '' }}>
-                                        مسودة
-                                    </option>
-                                    <option value="completed" {{ old('status', $evaluation->status) == 'completed' ? 'selected' : '' }}>
-                                        مكتمل
-                                    </option>
-                                </select>
-                                @error('status')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                </div>
                             </div>
                         </div>
 
-                        <!-- معايير التقييم -->
-                        <div id="criteriaSection" class="mb-4" style="display: none;">
-                            <h6 class="fw-bold mb-3">معايير التقييم</h6>
-                            <div id="criteriaContainer" class="row">
-                                <!-- سيتم إضافة معايير التقييم هنا ديناميكياً -->
+                        <!-- التنظيم -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-secondary text-white"><i class="fas fa-tasks"></i> تقييم التنظيم والإدارة</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @php
+                                        $organization = [
+                                            'scheduling' => 'الجدول الزمني',
+                                            'coordination' => 'التنسيق والتنظيم',
+                                            'support' => 'الدعم الإداري',
+                                            'communication_admin' => 'التواصل الإداري'
+                                        ];
+                                        $currentOrganization = old('organization', $evaluation->organization_evaluation ?? []);
+                                    @endphp
+                                    @foreach($organization as $key => $label)
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">{{ $label }}</label>
+                                            <select name="organization[{{ $key }}]" class="form-select">
+                                                <option value="">-- اختر --</option>
+                                                <option value="5" {{ ($currentOrganization[$key] ?? '') == '5' ? 'selected' : '' }}>⭐⭐⭐⭐⭐ ممتاز</option>
+                                                <option value="4" {{ ($currentOrganization[$key] ?? '') == '4' ? 'selected' : '' }}>⭐⭐⭐⭐ جيد جداً</option>
+                                                <option value="3" {{ ($currentOrganization[$key] ?? '') == '3' ? 'selected' : '' }}>⭐⭐⭐ جيد</option>
+                                                <option value="2" {{ ($currentOrganization[$key] ?? '') == '2' ? 'selected' : '' }}>⭐⭐ مقبول</option>
+                                                <option value="1" {{ ($currentOrganization[$key] ?? '') == '1' ? 'selected' : '' }}>⭐ ضعيف</option>
+                                            </select>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
 
-                        <!-- التعليقات -->
-                        <div class="mb-3">
-                            <label for="comments" class="form-label fw-bold">التعليقات</label>
-                            <textarea class="form-control @error('comments') is-invalid @enderror"
-                                      id="comments" name="comments" rows="3"
-                                      placeholder="أدخل تعليقاتك حول التقييم">{{ old('comments', $evaluation->comments) }}</textarea>
-                            @error('comments')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                        </div>
-
-                        <!-- التوصيات -->
-                        <div class="mb-3">
-                            <label for="recommendations" class="form-label fw-bold">التوصيات</label>
-                            <textarea class="form-control @error('recommendations') is-invalid @enderror"
-                                      id="recommendations" name="recommendations" rows="3"
-                                      placeholder="أدخل توصياتك للتحسين">{{ old('recommendations', $evaluation->recommendations) }}</textarea>
-                            @error('recommendations')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                        </div>
-
-                        <!-- أزرار التحكم -->
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ route('evaluation-followup.evaluations.show', $evaluation) }}" class="btn btn-secondary">
-                                <i class="fas fa-eye me-1"></i>
-                                عرض التقييم
-                            </a>
-                            <div>
-                                <button type="button" class="btn btn-outline-primary me-2" onclick="saveAsDraft()">
-                                    <i class="fas fa-save me-1"></i>
-                                    حفظ كمسودة
-                                </button>
-                                <button type="submit" class="btn btn-success">
-                                    <i class="fas fa-check me-1"></i>
-                                    تحديث التقييم
-                                </button>
+                        <!-- الأثر -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white"><i class="fas fa-chart-line"></i> تقييم الأثر والاستفادة</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @php
+                                        $impact = [
+                                            'skills_gained' => 'المهارات المكتسبة',
+                                            'knowledge_gained' => 'المعرفة المكتسبة',
+                                            'practical_application' => 'إمكانية التطبيق',
+                                            'career_impact' => 'الأثر المهني',
+                                            'overall_satisfaction' => 'الرضا العام'
+                                        ];
+                                        $currentImpact = old('impact', $evaluation->impact_evaluation ?? []);
+                                    @endphp
+                                    @foreach($impact as $key => $label)
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">{{ $label }}</label>
+                                            <select name="impact[{{ $key }}]" class="form-select">
+                                                <option value="">-- اختر --</option>
+                                                <option value="5" {{ ($currentImpact[$key] ?? '') == '5' ? 'selected' : '' }}>⭐⭐⭐⭐⭐ ممتاز</option>
+                                                <option value="4" {{ ($currentImpact[$key] ?? '') == '4' ? 'selected' : '' }}>⭐⭐⭐⭐ جيد جداً</option>
+                                                <option value="3" {{ ($currentImpact[$key] ?? '') == '3' ? 'selected' : '' }}>⭐⭐⭐ جيد</option>
+                                                <option value="2" {{ ($currentImpact[$key] ?? '') == '2' ? 'selected' : '' }}>⭐⭐ مقبول</option>
+                                                <option value="1" {{ ($currentImpact[$key] ?? '') == '1' ? 'selected' : '' }}>⭐ ضعيف</option>
+                                            </select>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <!-- تقييم التوظيف -->
+                    <div id="employment-section" style="display: {{ old('type', $evaluation->evaluation_type) == 'employment' ? 'block' : 'none' }};">
+                        <div class="card mb-4">
+                            <div class="card-header bg-info text-white"><i class="fas fa-building"></i> تقييم بيئة العمل</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    @php
+                                        $employment = [
+                                            'workplace_quality' => 'جودة مكان العمل',
+                                            'tools_equipment' => 'الأدوات والمعدات',
+                                            'safety' => 'الأمان والسلامة',
+                                            'work_culture' => 'ثقافة العمل',
+                                            'supervisor_support' => 'دعم المشرف',
+                                            'guidance' => 'التوجيه والإرشاد'
+                                        ];
+                                        $currentEmployment = old('employment', $evaluation->employment_evaluation ?? []);
+                                    @endphp
+                                    @foreach($employment as $key => $label)
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">{{ $label }}</label>
+                                            <select name="employment[{{ $key }}]" class="form-select">
+                                                <option value="">-- اختر --</option>
+                                                <option value="5" {{ ($currentEmployment[$key] ?? '') == '5' ? 'selected' : '' }}>⭐⭐⭐⭐⭐ ممتاز</option>
+                                                <option value="4" {{ ($currentEmployment[$key] ?? '') == '4' ? 'selected' : '' }}>⭐⭐⭐⭐ جيد جداً</option>
+                                                <option value="3" {{ ($currentEmployment[$key] ?? '') == '3' ? 'selected' : '' }}>⭐⭐⭐ جيد</option>
+                                                <option value="2" {{ ($currentEmployment[$key] ?? '') == '2' ? 'selected' : '' }}>⭐⭐ مقبول</option>
+                                                <option value="1" {{ ($currentEmployment[$key] ?? '') == '1' ? 'selected' : '' }}>⭐ ضعيف</option>
+                                            </select>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- التعليقات -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-dark text-white"><i class="fas fa-comment"></i> التعليقات والتوصيات</div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">نقاط القوة</label>
+                                    <textarea class="form-control" name="strengths" rows="3" placeholder="ما هي نقاط القوة؟">{{ old('strengths', $evaluation->strengths) }}</textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">نقاط الضعف</label>
+                                    <textarea class="form-control" name="weaknesses" rows="3" placeholder="ما هي نقاط الضعف؟">{{ old('weaknesses', $evaluation->weaknesses) }}</textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">التعليقات</label>
+                                    <textarea class="form-control" name="comments" rows="3" placeholder="تعليقات إضافية">{{ old('comments', $evaluation->comments) }}</textarea>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">التوصيات</label>
+                                    <textarea class="form-control" name="recommendations" rows="3" placeholder="توصياتك للتحسين">{{ old('recommendations', $evaluation->recommendations) }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="status" value="{{ old('status', $evaluation->status) }}">
+
+                    <!-- الأزرار -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ route('evaluation-followup.evaluations.index') }}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-arrow-right"></i> العودة
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-check-circle"></i> حفظ التقييم
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const typeSelect = document.getElementById('type');
-    const criteriaSection = document.getElementById('criteriaSection');
-    const criteriaContainer = document.getElementById('criteriaContainer');
-    const statusSelect = document.getElementById('status');
+    <script>
+    document.getElementById('type').addEventListener('change', function() {
+        document.getElementById('training-section').style.display = 'none';
+        document.getElementById('employment-section').style.display = 'none';
 
-    // تحديث معايير التقييم عند تغيير النوع
-    typeSelect.addEventListener('change', function() {
-        const selectedType = this.value;
-        updateCriteria(selectedType);
-    });
-
-    // تحديث المعايير عند تحميل الصفحة
-    updateCriteria(typeSelect.value);
-
-    function updateCriteria(type) {
-        if (!type) {
-            criteriaSection.style.display = 'none';
-            return;
-        }
-
-        // الحصول على معايير التقييم من الخادم
-        fetch(`/evaluation-followup/evaluations/criteria/${type}`)
-            .then(response => response.json())
-            .then(data => {
-                if (Object.keys(data).length > 0) {
-                    renderCriteria(data);
-                    criteriaSection.style.display = 'block';
-                } else {
-                    criteriaSection.style.display = 'none';
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching criteria:', error);
-                criteriaSection.style.display = 'none';
-            });
-    }
-
-    function renderCriteria(criteria) {
-        criteriaContainer.innerHTML = '';
-
-        Object.entries(criteria).forEach(([label, key]) => {
-            const col = document.createElement('div');
-            col.className = 'col-md-6 mb-3';
-
-            // الحصول على الدرجة المحفوظة إذا كانت موجودة
-            const currentScores = @json(old('scores', $evaluation->scores ?? []));
-            const currentScore = currentScores[key] || '';
-
-            col.innerHTML = `
-                <label class="form-label fw-bold">${label} <span class="text-danger">*</span></label>
-                <select class="form-select" name="scores[${key}]" required>
-                    <option value="">اختر الدرجة</option>
-                    <option value="1" ${currentScore == '1' ? 'selected' : ''}>1 - ضعيف جداً</option>
-                    <option value="2" ${currentScore == '2' ? 'selected' : ''}>2 - ضعيف</option>
-                    <option value="3" ${currentScore == '3' ? 'selected' : ''}>3 - متوسط</option>
-                    <option value="4" ${currentScore == '4' ? 'selected' : ''}>4 - جيد</option>
-                    <option value="5" ${currentScore == '5' ? 'selected' : ''}>5 - ممتاز</option>
-                </select>
-            `;
-
-            criteriaContainer.appendChild(col);
-        });
-    }
-
-    // حفظ كمسودة
-    window.saveAsDraft = function() {
-        statusSelect.value = 'draft';
-        document.getElementById('evaluationForm').submit();
-    };
-
-    // التحقق من صحة النموذج
-    document.getElementById('evaluationForm').addEventListener('submit', function(e) {
-        const requiredSelects = document.querySelectorAll('select[required]');
-        let isValid = true;
-
-        requiredSelects.forEach(select => {
-            if (!select.value) {
-                select.classList.add('is-invalid');
-                isValid = false;
-            } else {
-                select.classList.remove('is-invalid');
-            }
-        });
-
-        if (!isValid) {
-            e.preventDefault();
-            alert('يرجى ملء جميع الحقول المطلوبة');
+        if (this.value === 'training') {
+            document.getElementById('training-section').style.display = 'block';
+        } else if (this.value === 'employment') {
+            document.getElementById('employment-section').style.display = 'block';
         }
     });
-});
-</script>
-
-<style>
-.form-label {
-    color: #495057;
-    font-weight: 600;
-}
-
-.card-header {
-    border-bottom: none;
-}
-
-.btn {
-    border-radius: 0.375rem;
-}
-
-.form-select:focus,
-.form-control:focus {
-    border-color: #ffc107;
-    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
-}
-
-@media (max-width: 768px) {
-    .d-flex.justify-content-between {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .d-flex.justify-content-between > div {
-        text-align: center;
-    }
-}
-</style>
+    </script>
 @endsection

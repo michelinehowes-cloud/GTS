@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'إدارة طلبات التدريب')
-@section('page-title', 'إدارة طلبات التدريب')
+@section('title', 'إضافة برنامج تدريب')
+@section('page-title', 'إضافة برنامج تدريب')
 
 @section('content')
     <div class="container-fluid">
@@ -98,10 +98,17 @@
                                     <label for="instructor_name" class="form-label">اسم المدرب *</label>
                                     <input type="text" class="form-control @error('instructor_name') is-invalid @enderror"
                                         id="instructor_name" name="instructor_name" value="{{ old('instructor_name') }}"
-                                        required>
+                                        list="trainers-list" autocomplete="off" required>
+                                    <datalist id="trainers-list">
+                                        @foreach($trainers as $trainer)
+                                            <option value="{{ $trainer->name }}" data-id="{{ $trainer->id }}">{{ $trainer->specialization }}</option>
+                                        @endforeach
+                                    </datalist>
+                                    <input type="hidden" id="trainer_id" name="trainer_id" value="{{ old('trainer_id') }}">
                                     @error('instructor_name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
+                                    <small class="text-muted">اكتب اسم المدرب أو ابدأ بالكتابة لاختيار مدرب من القائمة</small>
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label for="description" class="form-label">وصف البرنامج *</label>
@@ -172,3 +179,49 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    // بيانات المدربين
+    const trainers = @json($trainers->map(function($trainer) {
+        return [
+            'id' => $trainer->id,
+            'name' => $trainer->name,
+            'specialization' => $trainer->specialization
+        ];
+    }));
+
+    const instructorInput = document.getElementById('instructor_name');
+    const trainerIdInput = document.getElementById('trainer_id');
+
+    // عند تغيير قيمة حقل اسم المدرب
+    instructorInput.addEventListener('input', function() {
+        const inputValue = this.value.trim();
+        
+        // البحث عن المدرب في القائمة
+        const foundTrainer = trainers.find(trainer => 
+            trainer.name.toLowerCase() === inputValue.toLowerCase()
+        );
+
+        // إذا وجد المدرب، احفظ ID
+        if (foundTrainer) {
+            trainerIdInput.value = foundTrainer.id;
+        } else {
+            trainerIdInput.value = '';
+        }
+    });
+
+    // عند اختيار من datalist
+    instructorInput.addEventListener('change', function() {
+        const inputValue = this.value.trim();
+        
+        const foundTrainer = trainers.find(trainer => 
+            trainer.name.toLowerCase() === inputValue.toLowerCase()
+        );
+
+        if (foundTrainer) {
+            trainerIdInput.value = foundTrainer.id;
+        }
+    });
+</script>
+@endpush

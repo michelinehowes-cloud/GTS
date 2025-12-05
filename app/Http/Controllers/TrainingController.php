@@ -7,6 +7,7 @@ use App\Models\Training;
 use App\Models\TrainingApplication;
 use App\Models\Company;
 use App\Models\TrainingReport;
+use App\Models\Evaluation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
@@ -90,9 +91,15 @@ class TrainingController extends Controller
         $training = Training::with('company')->findOrFail($id);
 
         if (auth()->user()->role == 'training_coordinator') {
-            return view('training-coordinator.trainings.show', compact('training'));
+            $evaluations = Evaluation::with('evaluator')->where('training_id', $id)
+                ->whereHas('evaluator', function ($query) {
+                    $query->where('role', 'evaluation_followup');
+                })
+                ->get();
+            return view('training-coordinator.trainings.show', compact('training', 'evaluations'));
         } else {
-            return view('admin.trainings.show', compact('training'));
+            $evaluations = Evaluation::with('evaluator')->where('training_id', $id)->get();
+            return view('admin.trainings.show', compact('training', 'evaluations'));
         }
     }
 

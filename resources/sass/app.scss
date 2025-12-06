@@ -678,3 +678,52 @@ html[data-theme='dark'] {
     text-align: center;
     color: #6c757d;
 }
+
+/* Mobile App Enhancements */
+@media (max-width: 768px) {
+    /* Hide Scrollbar but keep functionality */
+    ::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+    }
+
+    body {
+        -webkit-tap-highlight-color: transparent; /* Remove blue highlight on tap */
+        overscroll-behavior-y: none; /* Prevent pull-to-refresh effect if not desired */
+    }
+
+    /* Improve tap targets */
+    .nav-link, .btn, .submenu-item, .toggle-sidebar, .toggle-sidebar-main {
+        min-height: 48px; /* Accessibility standard */
+        display: flex;
+        align-items: center;
+    }
+
+    /* Better spacing for mobile content */
+    .main-content {
+        padding-bottom: 80px; /* Space for bottom navigation if added later */
+    }
+
+    /* Navbar sticky fix */
+    .navbar-main {
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+        padding-top: env(safe-area-inset-top); /* Handle notch */
+    }
+
+    /* Sidebar adjustment for mobile */
+    .sidebar {
+        width: 80%; /* Don't cover full screen */
+        max-width: 300px;
+        box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+    }
+    
+    /* Ensure content is readable */
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        margin-bottom: 15px;
+    }
+}
+

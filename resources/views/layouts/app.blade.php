@@ -158,14 +158,14 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}"
                                     href="{{ 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
                     (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') :
                         (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') :
                             (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
                                 (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
                                     (auth()->user()->role == 'company' ? route('company.dashboard') :
                                         route('admin.dashboard')))))) 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }}">
                                     <i class="fas fa-tachometer-alt"></i>
                                     لوحة التحكم
                                 </a>
@@ -324,6 +324,18 @@
                             <!-- التدريبات المتاحة (للخريج فقط) -->
                             @if(auth()->user()->role == 'graduate')
                                 <!-- فاصل -->
+                                <!-- فاصل -->
+                                <hr class="sidebar-divider my-3">
+                                <div class="sidebar-heading">
+                                    الملف الشخصي
+                                </div>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('graduate.profile') ? 'active' : '' }}"
+                                        href="{{ route('graduate.profile') }}">
+                                        <i class="fas fa-user"></i>
+                                        بياناتي
+                                    </a>
+                                </li>
                                 <hr class="sidebar-divider my-3">
                                 <div class="sidebar-heading">
                                     التدريب والتوظيف
@@ -356,25 +368,8 @@
                                         الاستبيانات
                                     </a>
                                 </li>
-                                <!-- فاصل -->
-                                <hr class="sidebar-divider my-3">
-                                <div class="sidebar-heading">
-                                    الملف الشخصي
-                                </div>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('graduate.profile') ? 'active' : '' }}"
-                                        href="{{ route('graduate.profile') }}">
-                                        <i class="fas fa-user"></i>
-                                        بياناتي
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}"
-                                        href="{{ route('notifications.index') }}">
-                                        <i class="fas fa-bell"></i>
-                                        الإشعارات
-                                    </a>
-                                </li>
+
+
                             @endif
 
                             <!-- أقسام الإرشاد المهني (لمستخدم الإرشاد المهني فقط) -->

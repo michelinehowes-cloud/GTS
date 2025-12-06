@@ -158,14 +158,14 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}"
                                     href="{{ 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
                     (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') :
                         (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') :
                             (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
                                 (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
                                     (auth()->user()->role == 'company' ? route('company.dashboard') :
                                         route('admin.dashboard')))))) 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }}">
                                     <i class="fas fa-tachometer-alt"></i>
                                     لوحة التحكم
                                 </a>
@@ -750,7 +750,7 @@
                             ];
                             $userIcon = $roleIcons[auth()->user()->role] ?? 'fas fa-user'; // Default icon
                         @endphp
-                        <div class="user-avatar pulse-animation">
+                        <div class="user-avatar">
                             <i class="{{ $userIcon }}"></i>
                         </div>
                     @endauth

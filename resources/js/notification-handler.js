@@ -122,4 +122,63 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         });
     }
+
+    // وظيفة مسح كافة الإشعارات
+    const clearAllBtn = document.getElementById('clearAllNotifications');
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (!confirm('هل أنت متأكد من مسح جميع الإشعارات؟')) {
+                return;
+            }
+
+            // تعطيل الزر أثناء المعالجة
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري المسح...';
+
+            // إرسال طلب مسح جميع الإشعارات
+            fetch('/notifications/read/delete', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete notifications');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // مسح القائمة
+                    const list = document.getElementById('notifications-list');
+                    list.innerHTML = '<li class="dropdown-item text-center text-muted py-3">لا توجد إشعارات جديدة</li>';
+
+                    // إزالة الشارة
+                    const badge = document.getElementById('notification-badge');
+                    if (badge) {
+                        badge.remove();
+                    }
+
+                    // إعادة تفعيل الزر
+                    this.disabled = false;
+                    this.innerHTML = '<i class="fas fa-trash-alt"></i> مسح الكل';
+
+                    // إظهار رسالة نجاح
+                    alert('تم مسح جميع الإشعارات بنجاح');
+                })
+                .catch(error => {
+                    console.error('Error deleting notifications:', error);
+
+                    // إعادة تفعيل الزر
+                    this.disabled = false;
+                    this.innerHTML = '<i class="fas fa-trash-alt"></i> مسح الكل';
+
+                    alert('حدث خطأ أثناء مسح الإشعارات. يرجى المحاولة مرة أخرى.');
+                });
+        });
+    }
 });

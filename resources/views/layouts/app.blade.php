@@ -68,7 +68,8 @@
             width: 100%;
             height: 100%;
             background-color: #ffffff;
-            z-index: 100000; /* أعلى طبقة على الإطلاق */
+            z-index: 100000;
+            /* أعلى طبقة على الإطلاق */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -93,11 +94,12 @@
             top: 40px;
             left: 30px;
         }
+
         .top-logo img {
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         /* الرسم المركزي */
@@ -108,6 +110,7 @@
             margin-bottom: 40px;
             /* background: #f8f9fa; rounded-circle if needed */
         }
+
         .icon-circle {
             width: 60px;
             height: 60px;
@@ -122,9 +125,22 @@
             position: absolute;
             z-index: 2;
         }
-        .top-icon { top: 10px; left: 50%; transform: translateX(-50%); }
-        .left-icon { bottom: 30px; left: 10px; }
-        .right-icon { bottom: 30px; right: 10px; }
+
+        .top-icon {
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .left-icon {
+            bottom: 30px;
+            left: 10px;
+        }
+
+        .right-icon {
+            bottom: 30px;
+            right: 10px;
+        }
 
         .connector-line {
             position: absolute;
@@ -132,10 +148,27 @@
             height: 2px;
             z-index: 1;
         }
+
         /* خطوط تقريبية للربط */
-        .line-1 { width: 70px; top: 60px; left: 35px; transform: rotate(60deg); }
-        .line-2 { width: 70px; top: 60px; right: 35px; transform: rotate(-60deg); }
-        .line-3 { width: 90px; bottom: 60px; left: 55px; }
+        .line-1 {
+            width: 70px;
+            top: 60px;
+            left: 35px;
+            transform: rotate(60deg);
+        }
+
+        .line-2 {
+            width: 70px;
+            top: 60px;
+            right: 35px;
+            transform: rotate(-60deg);
+        }
+
+        .line-3 {
+            width: 90px;
+            bottom: 60px;
+            left: 55px;
+        }
 
         .welcome-title {
             font-size: 2.5rem;
@@ -160,7 +193,7 @@
             display: flex;
             align-items: center;
         }
-        
+
         /* ترحيب مخفي */
         .welcome-hidden {
             opacity: 0;
@@ -221,14 +254,14 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}"
                                     href="{{ 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
                     (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') :
                         (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') :
                             (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
                                 (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
                                     (auth()->user()->role == 'company' ? route('company.dashboard') :
                                         route('admin.dashboard')))))) 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }}">
                                     <i class="fas fa-tachometer-alt"></i>
                                     لوحة التحكم
                                 </a>
@@ -852,19 +885,58 @@
             console.log('DOM loaded, initializing UI scripts...');
 
             // === شاشة الترحيب Splash Screen Logic ===
-            // تظهر لمرة واحدة لكل جلسة (أو دائماً إذا أردت ذلك "كتطبيق")
-            // هنا سنجعلها تظهر دائماً عند إعادة التحميل لتعطي شعور التطبيق
+            // تظهر فقط في التطبيق (Native App) وليس في المتصفح
+            // أو عند حدوث أخطاء في السيرفر
             
-            setTimeout(() => {
-                const welcomeScreen = document.getElementById('welcome-screen');
+            const welcomeScreen = document.getElementById('welcome-screen');
+            
+            // التحقق من أن التطبيق يعمل في بيئة Capacitor (Native App)
+            const isNativeApp = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+            
+            // دالة لإخفاء شاشة الترحيب
+            window.hideSplashScreen = function() {
                 if(welcomeScreen) {
                     welcomeScreen.classList.add('welcome-hidden');
-                    // إزالته من DOM تماماً بعد انتهاء الأنيميشن لتوفير الذاكرة
                     setTimeout(() => {
                         welcomeScreen.style.display = 'none';
                     }, 800);
                 }
-            }, 3000); // 3 ثواني عرض
+            };
+            
+            // دالة لإظهار شاشة الترحيب (للأخطاء)
+            window.showSplashScreen = function(message) {
+                if(welcomeScreen && isNativeApp) {
+                    welcomeScreen.style.display = 'flex';
+                    welcomeScreen.classList.remove('welcome-hidden');
+                    if(message) {
+                        const sloganEl = welcomeScreen.querySelector('.welcome-slogan');
+                        if(sloganEl) sloganEl.textContent = message;
+                    }
+                }
+            };
+            
+            // إذا كان تطبيق Native، أظهر الشاشة ثم أخفها بعد 3 ثوانٍ
+            if(isNativeApp) {
+                if(welcomeScreen) {
+                    welcomeScreen.style.display = 'flex';
+                    setTimeout(() => {
+                        window.hideSplashScreen();
+                    }, 3000);
+                }
+            } else {
+                // في المتصفح، أخفها فورا       ً
+                if(welcomeScreen) {
+                    welcomeScreen.style.display = 'none';
+                }
+            }
+            
+            // معالج الأخطاء العام (يظهر الشاشة عند حدوث خطأ في التطبيق)
+            window.addEventListener('error', function(e) {
+                if(isNativeApp) {
+                    window.showSplashScreen('حدث خطأ، جاري إعادة المحاولة...');
+                    setTimeout(() => window.hideSplashScreen(), 3000);
+                }
+            });
 
             // تعريف العناصر
             const sidebar = document.getElementById('sidebar');

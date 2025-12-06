@@ -1,0 +1,178 @@
+// Bottom Navigation & FAB Handler
+document.addEventListener('DOMContentLoaded', function () {
+    const isMobile = window.innerWidth <= 768;
+
+    if (!isMobile) return; // تشغيل فقط في الموبايل
+
+    // إنشاء Bottom Navigation
+    createBottomNav();
+
+    // إنشاء FAB
+    createFAB();
+});
+
+function createBottomNav() {
+    // التحقق من وجود المستخدم
+    const isAuthenticated = document.querySelector('meta[name="user-authenticated"]');
+    if (!isAuthenticated || isAuthenticated.content !== 'true') return;
+
+    const userRole = document.querySelector('meta[name="user-role"]')?.content || 'guest';
+
+    // تحديد عناصر القائمة حسب الدور
+    const navItems = getNavItemsByRole(userRole);
+
+    if (navItems.length === 0) return;
+
+    // إنشاء HTML
+    const bottomNav = document.createElement('nav');
+    bottomNav.className = 'bottom-nav';
+    bottomNav.innerHTML = `
+        <div class="bottom-nav-items">
+            ${navItems.map(item => `
+                <a href="${item.url}" class="bottom-nav-item ${isCurrentPage(item.url) ? 'active' : ''}">
+                    <i class="${item.icon}"></i>
+                    <span>${item.label}</span>
+                    ${item.badge ? `<span class="bottom-nav-badge">${item.badge}</span>` : ''}
+                </a>
+            `).join('')}
+        </div>
+    `;
+
+    document.body.appendChild(bottomNav);
+}
+
+function getNavItemsByRole(role) {
+    const commonItems = [
+        { url: getDashboardUrl(role), icon: 'fas fa-home', label: 'الرئيسية' },
+    ];
+
+    const roleSpecificItems = {
+        'graduate': [
+            { url: '/graduate/trainings', icon: 'fas fa-graduation-cap', label: 'التدريبات' },
+            { url: '/graduate/job-opportunities', icon: 'fas fa-briefcase', label: 'الوظائف' },
+            { url: '/notifications', icon: 'fas fa-bell', label: 'الإشعارات', badge: getUnreadCount() },
+            { url: '/graduate/profile', icon: 'fas fa-user', label: 'الملف' },
+        ],
+        'admin': [
+            { url: '/admin/graduates', icon: 'fas fa-users', label: 'الخريجين' },
+            { url: '/trainings', icon: 'fas fa-chalkboard-teacher', label: 'التدريبات' },
+            { url: '/notifications', icon: 'fas fa-bell', label: 'الإشعارات', badge: getUnreadCount() },
+            { url: '/admin/reports', icon: 'fas fa-chart-bar', label: 'التقارير' },
+        ],
+        'career_guidance_officer': [
+            { url: '/career-guidance/graduates', icon: 'fas fa-users', label: 'الخريجين' },
+            { url: '/career-guidance/nominations', icon: 'fas fa-user-check', label: 'الترشيحات' },
+            { url: '/notifications', icon: 'fas fa-bell', label: 'الإشعارات', badge: getUnreadCount() },
+            { url: '/career-guidance/reports', icon: 'fas fa-chart-line', label: 'التقارير' },
+        ],
+        'partnership_officer': [
+            { url: '/partnership/companies', icon: 'fas fa-building', label: 'الشركات' },
+            { url: '/partnership/nominations', icon: 'fas fa-handshake', label: 'الترشيحات' },
+            { url: '/notifications', icon: 'fas fa-bell', label: 'الإشعارات', badge: getUnreadCount() },
+            { url: '/job-opportunities', icon: 'fas fa-briefcase', label: 'الفرص' },
+        ],
+    };
+
+    return [...commonItems, ...(roleSpecificItems[role] || [])];
+}
+
+function getDashboardUrl(role) {
+    const dashboards = {
+        'graduate': '/graduate/dashboard',
+        'admin': '/admin/dashboard',
+        'career_guidance_officer': '/career-guidance/dashboard',
+        'partnership_officer': '/partnership/dashboard',
+        'evaluation_followup': '/evaluation-followup/dashboard',
+        'training_coordinator': '/training-coordinator/dashboard',
+        'company': '/company/dashboard',
+    };
+    return dashboards[role] || '/dashboard';
+}
+
+function isCurrentPage(url) {
+    return window.location.pathname === url || window.location.pathname.startsWith(url + '/');
+}
+
+function getUnreadCount() {
+    const badge = document.getElementById('notification-badge');
+    return badge ? badge.textContent : null;
+}
+
+function createFAB() {
+    const userRole = document.querySelector('meta[name="user-role"]')?.content;
+
+    // تحديد الإجراء الرئيسي حسب الدور
+    const fabActions = getFABActionsByRole(userRole);
+
+    if (fabActions.length === 0) return;
+
+    // إنشاء FAB
+    const fab = document.createElement('button');
+    fab.className = 'fab';
+    fab.innerHTML = '<i class="fas fa-plus"></i>';
+
+    // إنشاء قائمة الإجراءات
+    const fabMenu = document.createElement('div');
+    fabMenu.className = 'fab-menu';
+    fabMenu.innerHTML = fabActions.map(action => `
+        <div class="fab-menu-item">
+            <span class="fab-menu-label">${action.label}</span>
+            <a href="${action.url}" class="fab-menu-button">
+                <i class="${action.icon}"></i>
+            </a>
+        </div>
+    `).join('');
+
+    document.body.appendChild(fab);
+    document.body.appendChild(fabMenu);
+
+    // Toggle menu
+    fab.addEventListener('click', function () {
+        fabMenu.classList.toggle('active');
+        fab.querySelector('i').classList.toggle('fa-plus');
+        fab.querySelector('i').classList.toggle('fa-times');
+    });
+
+    // إغلاق عند النقر خارج القائمة
+    document.addEventListener('click', function (e) {
+        if (!fab.contains(e.target) && !fabMenu.contains(e.target)) {
+            fabMenu.classList.remove('active');
+            fab.querySelector('i').classList.remove('fa-times');
+            fab.querySelector('i').classList.add('fa-plus');
+        }
+    });
+}
+
+function getFABActionsByRole(role) {
+    const actions = {
+        'graduate': [
+            { url: '/graduate/trainings', icon: 'fas fa-graduation-cap', label: 'تصفح التدريبات' },
+            { url: '/graduate/job-opportunities', icon: 'fas fa-briefcase', label: 'تصفح الوظائف' },
+        ],
+        'admin': [
+            { url: '/admin/graduates/create', icon: 'fas fa-user-plus', label: 'إضافة خريج' },
+            { url: '/trainings/create', icon: 'fas fa-plus-circle', label: 'إضافة تدريب' },
+            { url: '/job-opportunities/create', icon: 'fas fa-briefcase', label: 'إضافة وظيفة' },
+        ],
+        'career_guidance_officer': [
+            { url: '/career-guidance/graduates/create', icon: 'fas fa-user-plus', label: 'إضافة خريج' },
+            { url: '/career-guidance/nominations/create', icon: 'fas fa-user-check', label: 'ترشيح جديد' },
+        ],
+        'partnership_officer': [
+            { url: '/partnership/companies/create', icon: 'fas fa-building', label: 'إضافة شركة' },
+            { url: '/job-opportunities/create', icon: 'fas fa-briefcase', label: 'إضافة فرصة' },
+        ],
+    };
+
+    return actions[role] || [];
+}
+
+// تحديث Bottom Nav عند تغيير الصفحة
+window.addEventListener('popstate', function () {
+    const bottomNav = document.querySelector('.bottom-nav');
+    if (bottomNav) {
+        document.querySelectorAll('.bottom-nav-item').forEach(item => {
+            item.classList.toggle('active', isCurrentPage(item.getAttribute('href')));
+        });
+    }
+});

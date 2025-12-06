@@ -3,6 +3,8 @@ import Chart from 'chart.js/auto';
 import Sortable from 'sortablejs';
 import './dark-mode';
 import './notification-handler'; // Import the new notification handler
+import './ui-enhancements'; // Import UI enhancements
+import './bottom-nav'; // Import bottom navigation
 
 // Make Sortable globally available for inline scripts
 window.Sortable = Sortable;
@@ -32,7 +34,7 @@ const totalCharts = 6;
 console.log('Chart Data Received:', window.chartData); // Assuming chartData is also passed globally
 
 // تهيئة جميع المخططات
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('DOM loaded, initializing charts...');
     setTimeout(() => {
         try {
@@ -42,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 checkAllChartsLoaded(); // Increment count even if chart element not found
             }
-            
+
             if (document.getElementById('employmentChart')) {
                 initEmploymentChart();
             } else {
@@ -323,7 +325,7 @@ function initSuccessByMajorChart() {
                         beginAtZero: true,
                         max: 100,
                         ticks: {
-                            callback: function(value) {
+                            callback: function (value) {
                                 return value + '%';
                             }
                         }
@@ -392,7 +394,7 @@ function downloadChart(chartId) {
 }
 
 // تحديث البيانات
-document.getElementById('refreshBtn')?.addEventListener('click', function() {
+document.getElementById('refreshBtn')?.addEventListener('click', function () {
     const btn = this;
     const originalText = btn.innerHTML;
 

@@ -14,6 +14,10 @@
         }
     </style>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @auth
+        <meta name="user-authenticated" content="true">
+        <meta name="user-role" content="{{ auth()->user()->role }}">
+    @endauth
     <title>@yield('title', 'نظام إدارة الخريجين')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -158,14 +162,14 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}"
                                     href="{{ 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
                     (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') :
                         (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') :
                             (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
                                 (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
                                     (auth()->user()->role == 'company' ? route('company.dashboard') :
                                         route('admin.dashboard')))))) 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }}">
                                     <i class="fas fa-tachometer-alt"></i>
                                     لوحة التحكم
                                 </a>

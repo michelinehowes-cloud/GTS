@@ -7,6 +7,12 @@
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
 
+// UI Enhancements
+@import '../css/ui-enhancements.css';
+
+// Bottom Navigation
+@import '../css/bottom-nav.css';
+
 /* Sidebar and Layout Styles */
 :root {
     --primary-blue: #1e3a8a;

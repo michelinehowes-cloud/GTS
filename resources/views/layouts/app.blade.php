@@ -3,7 +3,16 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        /* Prevent horizontal scroll */
+        html,
+        body {
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
+        }
+    </style>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'نظام إدارة الخريجين')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -14,6 +23,150 @@
 </head>
 
 <body>
+    <!-- شاشة الترحيب (Splash Screen) -->
+    <div id="welcome-screen">
+        <div class="welcome-content">
+            <!-- الشعار في الأعلى اليسار (أو الوسط للتركيز) -->
+            <div class="top-logo">
+                <img src="{{ asset('images/logo.jpg') }}" alt="Logo">
+            </div>
+
+            <!-- الرسم التوضيحي المركزي (محاكاة للتصميم) -->
+            <div class="center-illustration">
+                <div class="icon-circle top-icon">
+                    <i class="fas fa-book-reader"></i> <!-- التعليم -->
+                </div>
+                <div class="icon-circle left-icon">
+                    <i class="fas fa-handshake"></i> <!-- الشراكة -->
+                </div>
+                <div class="icon-circle right-icon">
+                    <i class="fas fa-chart-line"></i> <!-- التطور -->
+                </div>
+                <!-- خطوط الربط -->
+                <div class="connector-line line-1"></div>
+                <div class="connector-line line-2"></div>
+                <div class="connector-line line-3"></div>
+            </div>
+
+            <!-- النصوص -->
+            <h1 class="welcome-title">WELCOME</h1>
+            <p class="welcome-slogan">Unlock Your Potential. Build Your Future.</p>
+
+            <!-- التذييل -->
+            <div class="welcome-footer">
+                <i class="fas fa-briefcase me-2"></i> Graduates' Training Office
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* تنسيقات شاشة الترحيب */
+        #welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            z-index: 100000; /* أعلى طبقة على الإطلاق */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: opacity 0.8s ease-out, visibility 0.8s;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .welcome-content {
+            text-align: center;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .top-logo {
+            position: absolute;
+            top: 40px;
+            left: 30px;
+        }
+        .top-logo img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* الرسم المركزي */
+        .center-illustration {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin-bottom: 40px;
+            /* background: #f8f9fa; rounded-circle if needed */
+        }
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid #1e3a8a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            font-size: 1.5rem;
+            color: #1e3a8a;
+            position: absolute;
+            z-index: 2;
+        }
+        .top-icon { top: 10px; left: 50%; transform: translateX(-50%); }
+        .left-icon { bottom: 30px; left: 10px; }
+        .right-icon { bottom: 30px; right: 10px; }
+
+        .connector-line {
+            position: absolute;
+            background: #1e3a8a;
+            height: 2px;
+            z-index: 1;
+        }
+        /* خطوط تقريبية للربط */
+        .line-1 { width: 70px; top: 60px; left: 35px; transform: rotate(60deg); }
+        .line-2 { width: 70px; top: 60px; right: 35px; transform: rotate(-60deg); }
+        .line-3 { width: 90px; bottom: 60px; left: 55px; }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1e3a8a;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .welcome-slogan {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 2rem;
+        }
+
+        .welcome-footer {
+            position: absolute;
+            bottom: 40px;
+            font-weight: 600;
+            color: #1e3a8a;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* ترحيب مخفي */
+        .welcome-hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+    </style>
     <!-- Custom Layout Wrapper -->
 
     <!-- الشريط الجانبي -->
@@ -68,14 +221,14 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}"
                                     href="{{ 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
                     (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') :
                         (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') :
                             (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
                                 (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
                                     (auth()->user()->role == 'company' ? route('company.dashboard') :
                                         route('admin.dashboard')))))) 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }}">
                                     <i class="fas fa-tachometer-alt"></i>
                                     لوحة التحكم
                                 </a>
@@ -506,58 +659,17 @@
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('company.profile') ? 'active' : '' }}"
                                         href="{{ route('company.profile') }}">
-                                        <i class="fas fa-building"></i>
-                                        ملف الشركة
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('company.job-opportunities*') ? 'active' : '' }}"
-                                        href="{{ route('company.job-opportunities') }}">
-                                        <i class="fas fa-briefcase"></i>
-                                        فرص العمل
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('company.applications*') ? 'active' : '' }}"
-                                        href="{{ route('company.applications') }}">
-                                        <i class="fas fa-file-alt"></i>
-                                        الطلبات
-                                    </a>
-                                </li>
-                            @endif
-
-                            <!-- مسؤول الميديا -->
-                            @if(auth()->user()->role == 'media_officer')
-
-
-                                <!-- فهرس التدريبات للميديا -->
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('media.training-calendar') ? 'active' : '' }}"
-                                        href="{{ route('media.training-calendar') }}">
-                                        <i class="fas fa-calendar-alt"></i>
-                                        تقويم التدريبات
-                                    </a>
-                                </li>
-
-                                <!-- إدارة الوسائط -->
-                                <li class="nav-item menu-group">
-                                    <a class="nav-link {{ request()->routeIs('media.*') && !request()->routeIs('media.trainings*') && !request()->routeIs('media.news*') && !request()->routeIs('media.announcements*') && !request()->routeIs('media.reports*') ? 'active' : '' }}"
-                                        href="#" onclick="toggleSubmenu('media-menu')">
-                                        <i class="fas fa-images"></i>
-                                        إدارة الوسائط
-                                        <i class="fas fa-chevron-down menu-arrow"></i>
-                                    </a>
-                                    <div class="submenu {{ request()->routeIs('media.*') && !request()->routeIs('media.trainings*') && !request()->routeIs('media.news*') && !request()->routeIs('media.announcements*') && !request()->routeIs('media.reports*') ? 'show' : '' }}"
-                                        id="media-menu">
-                                        <a href="{{ route('media.gallery') }}"
-                                            class="submenu-item {{ request()->routeIs('media.gallery') ? 'active' : '' }}">
-                                            معرض الوسائط
-                                        </a>
-                                        <a href="{{ route('media.upload.form') }}"
-                                            class="submenu-item {{ request()->routeIs('media.upload.form') ? 'active' : '' }}">
-                                            رفع الوسائط
-                                        </a>
-                                    </div>
+                                        <div class="submenu {{ request()->routeIs('media.*') && !request()->routeIs('media.trainings*') && !request()->routeIs('media.news*') && !request()->routeIs('media.announcements*') && !request()->routeIs('media.reports*') ? 'show' : '' }}"
+                                            id="media-menu">
+                                            <a href="{{ route('media.gallery') }}"
+                                                class="submenu-item {{ request()->routeIs('media.gallery') ? 'active' : '' }}">
+                                                معرض الوسائط
+                                            </a>
+                                            <a href="{{ route('media.upload.form') }}"
+                                                class="submenu-item {{ request()->routeIs('media.upload.form') ? 'active' : '' }}">
+                                                رفع الوسائط
+                                            </a>
+                                        </div>
                                 </li>
 
                                 <!-- إدارة المحتوى -->
@@ -739,100 +851,177 @@
         document.addEventListener('DOMContentLoaded', function () {
             console.log('DOM loaded, initializing UI scripts...');
 
-            // عناصر واجهة المستخدم
+            // === شاشة الترحيب Splash Screen Logic ===
+            // تظهر لمرة واحدة لكل جلسة (أو دائماً إذا أردت ذلك "كتطبيق")
+            // هنا سنجعلها تظهر دائماً عند إعادة التحميل لتعطي شعور التطبيق
+            
+            setTimeout(() => {
+                const welcomeScreen = document.getElementById('welcome-screen');
+                if(welcomeScreen) {
+                    welcomeScreen.classList.add('welcome-hidden');
+                    // إزالته من DOM تماماً بعد انتهاء الأنيميشن لتوفير الذاكرة
+                    setTimeout(() => {
+                        welcomeScreen.style.display = 'none';
+                    }, 800);
+                }
+            }, 3000); // 3 ثواني عرض
+
+            // تعريف العناصر
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
             const navbarMain = document.getElementById('navbarMain');
             const toggleSidebar = document.getElementById('toggleSidebar');
             const toggleSidebarMain = document.getElementById('toggleSidebarMain');
 
-            // دالة تبديل الشريط الجانبي
-            function toggleSidebarFunc() {
-                if (!sidebar || !mainContent) return;
+            // إنشاء طبقة الـ Overlay للموبايل
+            const sidebarOverlay = document.createElement('div');
+            sidebarOverlay.className = 'sidebar-overlay';
+            sidebarOverlay.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                background: rgba(0, 0, 0, 0.5); z-index: 1035; display: none; opacity: 0; transition: opacity 0.3s ease;
+            `;
+            document.body.appendChild(sidebarOverlay);
 
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-                if (navbarMain) navbarMain.classList.toggle('expanded');
+            // دالة التبديل (Toggle Function)
+            window.toggleSidebarFunc = function () {
+                if (!sidebar) return;
+                const isMobile = window.innerWidth < 768;
 
-                // تحديث أيقونة الزر الجانبي
-                if (toggleSidebar) {
-                    const icon = toggleSidebar.querySelector('i');
-                    if (icon) {
-                        icon.className = sidebar.classList.contains('collapsed')
-                            ? 'fas fa-chevron-left'
-                            : 'fas fa-chevron-right';
+                if (isMobile) {
+                    // منطق الموبايل
+                    const isActive = sidebar.classList.contains('active-mobile');
+                    if (isActive) {
+                        closeMobileSidebar();
+                    } else {
+                        openMobileSidebar();
                     }
-                }
+                } else {
+                    // منطق الديسكتوب
+                    sidebar.classList.toggle('collapsed');
+                    mainContent?.classList.toggle('expanded');
+                    navbarMain?.classList.toggle('expanded');
 
-                // حفظ الحالة
-                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                    // تحديث الأيقونة
+                    updateToggleIcon();
+
+                    // حفظ الحالة
+                    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                }
+            };
+
+            function openMobileSidebar() {
+                sidebar.classList.add('active-mobile');
+                sidebar.classList.remove('collapsed');
+                sidebarOverlay.style.display = 'block';
+                setTimeout(() => sidebarOverlay.style.opacity = '1', 10);
             }
 
-            // إضافة مستمعي الأحداث
+            function closeMobileSidebar() {
+                sidebar.classList.remove('active-mobile');
+                sidebar.classList.add('collapsed');
+                sidebarOverlay.style.opacity = '0';
+                setTimeout(() => sidebarOverlay.style.display = 'none', 300);
+            }
+
+            function updateToggleIcon() {
+                if (toggleSidebar) {
+                    const icon = toggleSidebar.querySelector('i');
+                    const isCollapsed = sidebar.classList.contains('collapsed');
+                    if (icon) icon.className = isCollapsed ? 'fas fa-chevron-left' : 'fas fa-chevron-right';
+                }
+            }
+
+            // ربط الأزرار بالدالة
             if (toggleSidebar) toggleSidebar.addEventListener('click', toggleSidebarFunc);
             if (toggleSidebarMain) toggleSidebarMain.addEventListener('click', toggleSidebarFunc);
 
-            // استعادة حالة الشريط الجانبي
-            function restoreSidebarState() {
-                const savedState = localStorage.getItem('sidebarCollapsed');
-                const isMobile = window.innerWidth < 768;
+            // النقر على Overlay يغلق القائمة
+            sidebarOverlay.addEventListener('click', closeMobileSidebar);
 
-                if (savedState === 'true' || (savedState === null && isMobile)) {
-                    sidebar?.classList.add('collapsed');
+            // استعادة الحالة عند التحميل
+            function restoreSidebarState() {
+                const isMobile = window.innerWidth < 768;
+                const savedState = localStorage.getItem('sidebarCollapsed');
+
+                if (isMobile) {
+                    sidebar.classList.add('collapsed');
+                    sidebar.classList.remove('active-mobile');
                     mainContent?.classList.add('expanded');
                     navbarMain?.classList.add('expanded');
-
-                    // تحديث الأيقونة
-                    const icon = toggleSidebar?.querySelector('i');
-                    if (icon) icon.className = 'fas fa-chevron-left';
                 } else {
-                    sidebar?.classList.remove('collapsed');
-                    mainContent?.classList.remove('expanded');
-                    navbarMain?.classList.remove('expanded');
-
-                    // تحديث الأيقونة
-                    const icon = toggleSidebar?.querySelector('i');
-                    if (icon) icon.className = 'fas fa-chevron-right';
+                    // الديسكتوب
+                    if (savedState === 'true') {
+                        sidebar.classList.add('collapsed');
+                        mainContent?.classList.add('expanded');
+                        navbarMain?.classList.add('expanded');
+                    } else {
+                        sidebar.classList.remove('collapsed');
+                        mainContent?.classList.remove('expanded');
+                        navbarMain?.classList.remove('expanded');
+                    }
+                    updateToggleIcon();
                 }
             }
-
-            // استدعاء الاستعادة عند التحميل وتغيير الحجم
-            restoreSidebarState();
-            window.addEventListener('resize', () => {
-                if (window.innerWidth < 768 && !sidebar.classList.contains('collapsed')) {
-                    toggleSidebarFunc();
-                }
-            });
 
             // التعامل مع القوائم الفرعية
             window.toggleSubmenu = function (menuId) {
                 const submenu = document.getElementById(menuId);
                 if (!submenu) return;
-
                 const menuGroup = submenu.closest('.menu-group');
-
-                // إغلاق القوائم الأخرى (اختياري - يمكن إزالته إذا كنت تريد فتح قوائم متعددة)
-                // document.querySelectorAll('.submenu.show').forEach(openMenu => {
-                //     if (openMenu.id !== menuId) {
-                //         openMenu.classList.remove('show');
-                //         openMenu.closest('.menu-group')?.classList.remove('active');
-                //     }
-                // });
-
                 submenu.classList.toggle('show');
                 if (menuGroup) menuGroup.classList.toggle('active');
             };
 
-            // تفعيل القائمة النشطة بناءً على الرابط الحالي
+            // تفعيل الروابط النشطة
             const currentPath = window.location.pathname;
             document.querySelectorAll('.submenu-item').forEach(item => {
                 if (item.href && currentPath.includes(new URL(item.href).pathname)) {
                     item.classList.add('active');
                     const submenu = item.closest('.submenu');
                     const menuGroup = item.closest('.menu-group');
-
                     if (submenu) submenu.classList.add('show');
                     if (menuGroup) menuGroup.classList.add('active');
+                }
+            });
+
+            // إغلاق القائمة عند النقر على روابط (موبايل فقط)
+            const allLinks = document.querySelectorAll('#sidebar a');
+            allLinks.forEach(link => {
+                link.addEventListener('click', function () {
+                    if (window.innerWidth < 768) {
+                        const isToggle = this.classList.contains('dropdown-toggle') || this.getAttribute('onclick');
+                        if (!isToggle) closeMobileSidebar();
+                    }
+                });
+            });
+
+            // إضافة CSS الخاص بالموبايل
+            const mobileStyle = document.createElement('style');
+            mobileStyle.innerHTML = `
+                @media (max-width: 768px) {
+                    .sidebar {
+                        transform: translateX(100%);
+                        transition: transform 0.3s ease-in-out;
+                        position: fixed !important; top: 0; right: 0; height: 100vh; z-index: 1040; width: 280px !important;
+                    }
+                    .sidebar.active-mobile { transform: translateX(0) !important; }
+                    .sidebar.collapsed { transform: translateX(100%) !important; }
+                    .main-content, .navbar-main { margin-right: 0 !important; width: 100% !important; }
+                }
+            `;
+            document.head.appendChild(mobileStyle);
+
+            restoreSidebarState();
+
+            // التعامل مع تغيير حجم الشاشة
+            window.addEventListener('resize', () => {
+                const isMobile = window.innerWidth < 768;
+                if (!isMobile) {
+                    // إزالة آثار الموبايل عند التكبير
+                    sidebarOverlay.style.display = 'none';
+                    sidebar.classList.remove('active-mobile');
+                    // استعادة حالة الديسكتوب
+                    restoreSidebarState();
                 }
             });
         });

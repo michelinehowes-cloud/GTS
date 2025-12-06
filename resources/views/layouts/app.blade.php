@@ -23,184 +23,88 @@
 </head>
 
 <body>
-    <!-- شاشة الترحيب (Splash Screen) -->
+    <!-- شاشة الترحيب البسيطة (Splash Screen) -->
     <div id="welcome-screen">
         <div class="welcome-content">
-            <!-- الشعار في الأعلى اليسار (أو الوسط للتركيز) -->
-            <div class="top-logo">
-                <img src="{{ asset('images/logo.jpg') }}" alt="Logo">
-            </div>
-
-            <!-- الرسم التوضيحي المركزي (محاكاة للتصميم) -->
-            <div class="center-illustration">
-                <div class="icon-circle top-icon">
-                    <i class="fas fa-book-reader"></i> <!-- التعليم -->
-                </div>
-                <div class="icon-circle left-icon">
-                    <i class="fas fa-handshake"></i> <!-- الشراكة -->
-                </div>
-                <div class="icon-circle right-icon">
-                    <i class="fas fa-chart-line"></i> <!-- التطور -->
-                </div>
-                <!-- خطوط الربط -->
-                <div class="connector-line line-1"></div>
-                <div class="connector-line line-2"></div>
-                <div class="connector-line line-3"></div>
-            </div>
-
-            <!-- النصوص -->
-            <h1 class="welcome-title">WELCOME</h1>
-            <p class="welcome-slogan">Unlock Your Potential. Build Your Future.</p>
-
-            <!-- التذييل -->
-            <div class="welcome-footer">
-                <i class="fas fa-briefcase me-2"></i> Graduates' Training Office
-            </div>
+            <img src="{{ asset('images/logo.jpg') }}" alt="Logo" class="splash-logo">
+            <div class="splash-pulse"></div>
         </div>
     </div>
 
     <style>
-        /* تنسيقات شاشة الترحيب */
+        /* شاشة الترحيب البسيطة */
         #welcome-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #ffffff;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             z-index: 100000;
-            /* أعلى طبقة على الإطلاق */
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
-            transition: opacity 0.8s ease-out, visibility 0.8s;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: opacity 0.5s ease-out;
         }
 
         .welcome-content {
             text-align: center;
             position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
         }
 
-        .top-logo {
-            position: absolute;
-            top: 40px;
-            left: 30px;
-        }
-
-        .top-logo img {
-            width: 60px;
-            height: 60px;
+        .splash-logo {
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        /* الرسم المركزي */
-        .center-illustration {
+            object-fit: cover;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeInScale 0.6s ease-out;
             position: relative;
-            width: 200px;
-            height: 200px;
-            margin-bottom: 40px;
-            /* background: #f8f9fa; rounded-circle if needed */
-        }
-
-        .icon-circle {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 2px solid #1e3a8a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-            font-size: 1.5rem;
-            color: #1e3a8a;
-            position: absolute;
             z-index: 2;
         }
 
-        .top-icon {
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .left-icon {
-            bottom: 30px;
-            left: 10px;
-        }
-
-        .right-icon {
-            bottom: 30px;
-            right: 10px;
-        }
-
-        .connector-line {
+        .splash-pulse {
             position: absolute;
-            background: #1e3a8a;
-            height: 2px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            animation: pulse 1.5s ease-out infinite;
             z-index: 1;
         }
 
-        /* خطوط تقريبية للربط */
-        .line-1 {
-            width: 70px;
-            top: 60px;
-            left: 35px;
-            transform: rotate(60deg);
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
-        .line-2 {
-            width: 70px;
-            top: 60px;
-            right: 35px;
-            transform: rotate(-60deg);
+        @keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1.8);
+                opacity: 0;
+            }
         }
 
-        .line-3 {
-            width: 90px;
-            bottom: 60px;
-            left: 55px;
-        }
-
-        .welcome-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #1e3a8a;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-        }
-
-        .welcome-slogan {
-            font-size: 1rem;
-            color: #555;
-            margin-bottom: 2rem;
-        }
-
-        .welcome-footer {
-            position: absolute;
-            bottom: 40px;
-            font-weight: 600;
-            color: #1e3a8a;
-            display: flex;
-            align-items: center;
-        }
-
-        /* ترحيب مخفي */
         .welcome-hidden {
             opacity: 0;
             visibility: hidden;
         }
     </style>
-    <!-- Custom Layout Wrapper -->
 
     <!-- الشريط الجانبي -->
     <nav class="sidebar" id="sidebar">
@@ -254,14 +158,14 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}"
                                     href="{{ 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
                     (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') :
                         (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') :
                             (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
                                 (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
                                     (auth()->user()->role == 'company' ? route('company.dashboard') :
                                         route('admin.dashboard')))))) 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }}">
                                     <i class="fas fa-tachometer-alt"></i>
                                     لوحة التحكم
                                 </a>
@@ -887,56 +791,213 @@
             // === شاشة الترحيب Splash Screen Logic ===
             // تظهر فقط في التطبيق (Native App) وليس في المتصفح
             // أو عند حدوث أخطاء في السيرفر
-            
+
             const welcomeScreen = document.getElementById('welcome-screen');
-            
+
             // التحقق من أن التطبيق يعمل في بيئة Capacitor (Native App)
             const isNativeApp = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
-            
+
             // دالة لإخفاء شاشة الترحيب
-            window.hideSplashScreen = function() {
-                if(welcomeScreen) {
+            window.hideSplashScreen = function () {
+                if (welcomeScreen) {
                     welcomeScreen.classList.add('welcome-hidden');
                     setTimeout(() => {
                         welcomeScreen.style.display = 'none';
                     }, 800);
                 }
             };
-            
+
             // دالة لإظهار شاشة الترحيب (للأخطاء)
-            window.showSplashScreen = function(message) {
-                if(welcomeScreen && isNativeApp) {
+            window.showSplashScreen = function (message) {
+                if (welcomeScreen && isNativeApp) {
                     welcomeScreen.style.display = 'flex';
                     welcomeScreen.classList.remove('welcome-hidden');
-                    if(message) {
-                        const sloganEl = welcomeScreen.querySelector('.welcome-slogan');
-                        if(sloganEl) sloganEl.textContent = message;
+                    if (message) {
+                        console.log('Splash Screen Message:', message);
                     }
                 }
             };
-            
-            // إذا كان تطبيق Native، أظهر الشاشة ثم أخفها بعد 3 ثوانٍ
-            if(isNativeApp) {
-                if(welcomeScreen) {
+
+            // إذا كان تطبيق Native، أظهر الشاشة ثم أخفها بعد ثانية واحدة
+            if (isNativeApp) {
+                if (welcomeScreen) {
                     welcomeScreen.style.display = 'flex';
                     setTimeout(() => {
                         window.hideSplashScreen();
-                    }, 3000);
+                    }, 1000); // ثانية واحدة فقط
                 }
             } else {
-                // في المتصفح، أخفها فورا       ً
-                if(welcomeScreen) {
+                // في المتصفح، أخفها فوراً
+                if (welcomeScreen) {
                     welcomeScreen.style.display = 'none';
                 }
             }
-            
-            // معالج الأخطاء العام (يظهر الشاشة عند حدوث خطأ في التطبيق)
-            window.addEventListener('error', function(e) {
-                if(isNativeApp) {
-                    window.showSplashScreen('حدث خطأ، جاري إعادة المحاولة...');
-                    setTimeout(() => window.hideSplashScreen(), 3000);
+
+            // معالج الأخطاء الشامل (يظهر الشاشة عند حدوث خطأ في التطبيق)
+            window.addEventListener('error', function (e) {
+                if (isNativeApp) {
+                    console.error('JavaScript Error:', e.error);
+                    showErrorSplash('حدث خطأ في التطبيق');
                 }
             });
+
+            // معالج الأخطاء غير المعالجة (Promise rejections)
+            window.addEventListener('unhandledrejection', function (event) {
+                if (isNativeApp) {
+                    console.error('Unhandled Promise Rejection:', event.reason);
+                    showErrorSplash('حدث خطأ في الاتصال');
+                }
+            });
+
+            // معالج أخطاء الشبكة
+            window.addEventListener('offline', function () {
+                if (isNativeApp) {
+                    showErrorSplash('لا يوجد اتصال بالإنترنت');
+                }
+            });
+
+            // دالة لعرض شاشة الخطأ
+            function showErrorSplash(message) {
+                if (!isNativeApp) return;
+
+                // إنشاء شاشة الخطأ إذا لم تكن موجودة
+                let errorScreen = document.getElementById('error-splash-screen');
+
+                if (!errorScreen) {
+                    errorScreen = document.createElement('div');
+                    errorScreen.id = 'error-splash-screen';
+                    errorScreen.innerHTML = `
+                        <div class="error-splash-content">
+                            <img src="{{ asset('images/logo.jpg') }}" alt="Logo" class="error-splash-logo">
+                            <div class="error-splash-pulse"></div>
+                            <p class="error-message">${message}</p>
+                        </div>
+                    `;
+                    document.body.appendChild(errorScreen);
+
+                    // إضافة الأنماط
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        #error-splash-screen {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+                            z-index: 100001;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            opacity: 0;
+                            transition: opacity 0.3s ease-out;
+                        }
+                        
+                        #error-splash-screen.show {
+                            opacity: 1;
+                        }
+                        
+                        .error-splash-content {
+                            text-align: center;
+                            position: relative;
+                        }
+                        
+                        .error-splash-logo {
+                            width: 120px;
+                            height: 120px;
+                            border-radius: 50%;
+                            object-fit: cover;
+                            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+                            animation: errorShake 0.6s ease-out;
+                            position: relative;
+                            z-index: 2;
+                        }
+                        
+                        .error-splash-pulse {
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            width: 120px;
+                            height: 120px;
+                            border-radius: 50%;
+                            background: rgba(255, 255, 255, 0.3);
+                            animation: errorPulse 1.5s ease-out infinite;
+                            z-index: 1;
+                        }
+                        
+                        .error-message {
+                            color: white;
+                            font-size: 1.2rem;
+                            font-weight: 600;
+                            margin-top: 20px;
+                            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+                        }
+                        
+                        @keyframes errorShake {
+                            0%, 100% { transform: translateX(0); }
+                            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+                            20%, 40%, 60%, 80% { transform: translateX(10px); }
+                        }
+                        
+                        @keyframes errorPulse {
+                            0% {
+                                transform: translate(-50%, -50%) scale(1);
+                                opacity: 0.8;
+                            }
+                            100% {
+                                transform: translate(-50%, -50%) scale(1.8);
+                                opacity: 0;
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                } else {
+                    // تحديث الرسالة
+                    const messageEl = errorScreen.querySelector('.error-message');
+                    if (messageEl) messageEl.textContent = message;
+                }
+
+                // عرض الشاشة
+                errorScreen.style.display = 'flex';
+                setTimeout(() => errorScreen.classList.add('show'), 10);
+
+                // إخفاء بعد 3 ثوانٍ
+                setTimeout(() => {
+                    errorScreen.classList.remove('show');
+                    setTimeout(() => {
+                        errorScreen.style.display = 'none';
+                    }, 300);
+                }, 3000);
+            }
+
+            // معالج أخطاء HTTP (للأخطاء من السيرفر)
+            if (isNativeApp && window.fetch) {
+                const originalFetch = window.fetch;
+                window.fetch = function (...args) {
+                    return originalFetch.apply(this, args)
+                        .then(response => {
+                            // التحقق من أخطاء HTTP
+                            if (!response.ok) {
+                                if (response.status >= 500) {
+                                    showErrorSplash('خطأ في السيرفر');
+                                } else if (response.status === 404) {
+                                    showErrorSplash('الصفحة غير موجودة');
+                                } else if (response.status === 403) {
+                                    showErrorSplash('غير مصرح لك بالوصول');
+                                } else if (response.status === 401) {
+                                    showErrorSplash('يرجى تسجيل الدخول');
+                                }
+                            }
+                            return response;
+                        })
+                        .catch(error => {
+                            console.error('Fetch Error:', error);
+                            showErrorSplash('خطأ في الاتصال بالسيرفر');
+                            throw error;
+                        });
+                };
+            }
 
             // تعريف العناصر
             const sidebar = document.getElementById('sidebar');

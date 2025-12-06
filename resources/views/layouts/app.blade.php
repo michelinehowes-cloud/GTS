@@ -158,14 +158,14 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}"
                                     href="{{ 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
                     (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') :
                         (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') :
                             (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
                                 (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
                                     (auth()->user()->role == 'company' ? route('company.dashboard') :
                                         route('admin.dashboard')))))) 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }}">
                                     <i class="fas fa-tachometer-alt"></i>
                                     لوحة التحكم
                                 </a>
@@ -730,8 +730,14 @@
                                 <li>
                                     <hr class="dropdown-divider my-0">
                                 </li>
-                                <li><a class="dropdown-item text-center small text-primary fw-bold py-2"
-                                        href="{{ route('notifications.index') }}">عرض كل الإشعارات</a></li>
+                                <li class="d-flex justify-content-between px-2 py-1">
+                                    <a class="dropdown-item text-center small text-primary fw-bold py-2 flex-grow-1"
+                                        href="{{ route('notifications.index') }}">عرض كل الإشعارات</a>
+                                    <button id="clearAllNotifications" class="btn btn-sm btn-outline-danger py-1 px-2"
+                                        style="font-size: 0.75rem;">
+                                        <i class="fas fa-trash-alt"></i> مسح الكل
+                                    </button>
+                                </li>
                             </ul>
                         </div>
                     @endauth

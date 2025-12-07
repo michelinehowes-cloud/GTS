@@ -162,14 +162,14 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}"
                                     href="{{ 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
                     (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') :
                         (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') :
                             (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
                                 (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
                                     (auth()->user()->role == 'company' ? route('company.dashboard') :
                                         route('admin.dashboard')))))) 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }}">
                                     <i class="fas fa-tachometer-alt"></i>
                                     لوحة التحكم
                                 </a>
@@ -838,143 +838,27 @@
                 }
             }
 
-            // معالج الأخطاء الشامل (يظهر الشاشة عند حدوث خطأ في التطبيق)
+
+            // معالج الأخطاء - فقط للتسجيل في Console
             window.addEventListener('error', function (e) {
                 if (isNativeApp) {
                     console.error('JavaScript Error:', e.error);
-                    showErrorSplash('حدث خطأ في التطبيق');
                 }
             });
 
-            // معالج الأخطاء غير المعالجة (Promise rejections)
+            // معالج الأخطاء غير المعالجة
             window.addEventListener('unhandledrejection', function (event) {
                 if (isNativeApp) {
                     console.error('Unhandled Promise Rejection:', event.reason);
-                    showErrorSplash('حدث خطأ في الاتصال');
                 }
             });
 
             // معالج أخطاء الشبكة
             window.addEventListener('offline', function () {
                 if (isNativeApp) {
-                    showErrorSplash('لا يوجد اتصال بالإنترنت');
+                    console.warn('No internet connection');
                 }
             });
-
-            // دالة لعرض شاشة الخطأ
-            function showErrorSplash(message) {
-                if (!isNativeApp) return;
-
-                // إنشاء شاشة الخطأ إذا لم تكن موجودة
-                let errorScreen = document.getElementById('error-splash-screen');
-
-                if (!errorScreen) {
-                    errorScreen = document.createElement('div');
-                    errorScreen.id = 'error-splash-screen';
-                    errorScreen.innerHTML = `
-                        <div class="error-splash-content">
-                            <img src="{{ asset('images/logo.jpg') }}" alt="Logo" class="error-splash-logo">
-                            <div class="error-splash-pulse"></div>
-                            <p class="error-message">${message}</p>
-                        </div>
-                    `;
-                    document.body.appendChild(errorScreen);
-
-                    // إضافة الأنماط
-                    const style = document.createElement('style');
-                    style.textContent = `
-                        #error-splash-screen {
-                            position: fixed;
-                            top: 0;
-                            left: 0;
-                            width: 100%;
-                            height: 100%;
-                            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-                            z-index: 100001;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            opacity: 0;
-                            transition: opacity 0.3s ease-out;
-                        }
-                        
-                        #error-splash-screen.show {
-                            opacity: 1;
-                        }
-                        
-                        .error-splash-content {
-                            text-align: center;
-                            position: relative;
-                        }
-                        
-                        .error-splash-logo {
-                            width: 120px;
-                            height: 120px;
-                            border-radius: 50%;
-                            object-fit: cover;
-                            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-                            animation: errorShake 0.6s ease-out;
-                            position: relative;
-                            z-index: 2;
-                        }
-                        
-                        .error-splash-pulse {
-                            position: absolute;
-                            top: 50%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                            width: 120px;
-                            height: 120px;
-                            border-radius: 50%;
-                            background: rgba(255, 255, 255, 0.3);
-                            animation: errorPulse 1.5s ease-out infinite;
-                            z-index: 1;
-                        }
-                        
-                        .error-message {
-                            color: white;
-                            font-size: 1.2rem;
-                            font-weight: 600;
-                            margin-top: 20px;
-                            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-                        }
-                        
-                        @keyframes errorShake {
-                            0%, 100% { transform: translateX(0); }
-                            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
-                            20%, 40%, 60%, 80% { transform: translateX(10px); }
-                        }
-                        
-                        @keyframes errorPulse {
-                            0% {
-                                transform: translate(-50%, -50%) scale(1);
-                                opacity: 0.8;
-                            }
-                            100% {
-                                transform: translate(-50%, -50%) scale(1.8);
-                                opacity: 0;
-                            }
-                        }
-                    `;
-                    document.head.appendChild(style);
-                } else {
-                    // تحديث الرسالة
-                    const messageEl = errorScreen.querySelector('.error-message');
-                    if (messageEl) messageEl.textContent = message;
-                }
-
-                // عرض الشاشة
-                errorScreen.style.display = 'flex';
-                setTimeout(() => errorScreen.classList.add('show'), 10);
-
-                // إخفاء بعد 3 ثوانٍ
-                setTimeout(() => {
-                    errorScreen.classList.remove('show');
-                    setTimeout(() => {
-                        errorScreen.style.display = 'none';
-                    }, 300);
-                }, 3000);
-            }
 
             // معالج أخطاء HTTP (للأخطاء من السيرفر)
             if (isNativeApp && window.fetch) {
@@ -1166,6 +1050,11 @@
     </script> <!-- Closing for the main script block -->
     @yield('scripts')
     @stack('scripts')
+
+    <!-- Dark Mode Toggle -->
+    <button id="darkModeToggle" title="تبديل الوضع المظلم">
+        <i class="fas fa-moon"></i>
+    </button>
 
 </body>
 

@@ -13,6 +13,9 @@
 // Bottom Navigation
 @import '../css/bottom-nav.css';
 
+// Advanced Features
+@import '../css/advanced-features.css';
+
 /* Sidebar and Layout Styles */
 :root {
     --primary-blue: #1e3a8a;
@@ -577,6 +580,7 @@ html[data-theme='dark'] {
         word-wrap: break-word;
         display: -webkit-box;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
     }
 

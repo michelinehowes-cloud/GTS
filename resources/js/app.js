@@ -5,6 +5,8 @@ import './dark-mode';
 import './notification-handler'; // Import the new notification handler
 import './ui-enhancements'; // Import UI enhancements
 import './bottom-nav'; // Import bottom navigation
+import './advanced-features'; // Import advanced features
+import './advanced-features-part2'; // Import advanced features part 2
 
 // Make Sortable globally available for inline scripts
 window.Sortable = Sortable;

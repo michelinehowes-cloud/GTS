@@ -1,12 +1,13 @@
 import './bootstrap';
 import Chart from 'chart.js/auto';
 import Sortable from 'sortablejs';
-import './dark-mode';
+// import './dark-mode'; // Disabled - using inline script instead
 import './notification-handler'; // Import the new notification handler
 import './ui-enhancements'; // Import UI enhancements
 import './bottom-nav'; // Import bottom navigation
 import './advanced-features'; // Import advanced features
 import './advanced-features-part2'; // Import advanced features part 2
+import './enhanced-ui'; // Import enhanced UI features
 
 // Make Sortable globally available for inline scripts
 window.Sortable = Sortable;

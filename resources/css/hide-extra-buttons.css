@@ -1,0 +1,9 @@
+/* Hide any fixed dark mode toggle buttons */
+.theme-toggle-fixed {
+    display: none !important;
+}
+
+/* Ensure only the navbar button is visible */
+#darkModeToggle:not(.nav-link) {
+    display: none !important;
+}

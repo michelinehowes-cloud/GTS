@@ -162,14 +162,14 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}"
                                     href="{{ 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
                     (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') :
                         (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') :
                             (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
                                 (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
                                     (auth()->user()->role == 'company' ? route('company.dashboard') :
                                         route('admin.dashboard')))))) 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }}">
                                     <i class="fas fa-tachometer-alt"></i>
                                     لوحة التحكم
                                 </a>
@@ -739,6 +739,13 @@
                                 </li>
                             </ul>
                         </div>
+
+                        <!-- Dark Mode Toggle -->
+                        <button id="darkModeToggle"
+                            style="background: none; border: none; padding: 0; cursor: pointer; margin-right: 1rem; display: inline-flex; align-items: center;"
+                            title="تبديل الوضع الليلي" aria-label="تبديل الوضع الليلي">
+                            <i class="fas fa-moon fa-lg text-secondary"></i>
+                        </button>
                     @endauth
                     @auth
                         @php
@@ -753,7 +760,7 @@
                                 'evaluation_followup' => 'fas fa-chart-line',
                                 'media_officer' => 'fas fa-camera',
                             ];
-                            $userIcon = $roleIcons[auth()->user()->role] ?? 'fas fa-user'; // Default icon
+                            $userIcon = $roleIcons[auth()->user()->role] ?? 'fas fa-user';
                         @endphp
                         <div class="user-avatar">
                             <i class="{{ $userIcon }}"></i>
@@ -1048,13 +1055,72 @@
             });
         });
     </script> <!-- Closing for the main script block -->
+
+    <!-- Simple Dark Mode Script -->
+    <script>
+        (function () {
+            // Get theme from localStorage or default to light
+            let currentTheme = localStorage.getItem('theme') || 'light';
+
+            // Apply theme
+            function applyTheme(theme) {
+                const root = document.documentElement;
+                const button = document.getElementById('darkModeToggle');
+
+                if (theme === 'dark') {
+                    root.setAttribute('data-theme', 'dark');
+                    if (button) {
+                        const icon = button.querySelector('i');
+                        if (icon) {
+                            icon.classList.remove('fa-moon');
+                            icon.classList.add('fa-sun');
+                        }
+                    }
+                } else {
+                    root.removeAttribute('data-theme');
+                    if (button) {
+                        const icon = button.querySelector('i');
+                        if (icon) {
+                            icon.classList.remove('fa-sun');
+                            icon.classList.add('fa-moon');
+                        }
+                    }
+                }
+
+                localStorage.setItem('theme', theme);
+                currentTheme = theme;
+            }
+
+            // Toggle theme
+            function toggleTheme() {
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                applyTheme(newTheme);
+            }
+
+            // Initialize
+            applyTheme(currentTheme);
+
+            // Bind click event
+            const button = document.getElementById('darkModeToggle');
+            if (button) {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    toggleTheme();
+                });
+            }
+
+            // Keyboard shortcut
+            document.addEventListener('keydown', function (e) {
+                if ((e.altKey || e.metaKey) && e.key === 'd') {
+                    e.preventDefault();
+                    toggleTheme();
+                }
+            });
+        })();
+    </script>
+
     @yield('scripts')
     @stack('scripts')
-
-    <!-- Dark Mode Toggle -->
-    <button id="darkModeToggle" title="تبديل الوضع المظلم">
-        <i class="fas fa-moon"></i>
-    </button>
 
 </body>
 

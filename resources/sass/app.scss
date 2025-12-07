@@ -7,6 +7,12 @@
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
 
+// Design System - نظام التصميم الموحد
+@import '../css/design-system.css';
+
+// Enhanced Features - الميزات المحسنة
+@import '../css/enhanced-features.css';
+
 // UI Enhancements
 @import '../css/ui-enhancements.css';
 
@@ -15,6 +21,12 @@
 
 // Advanced Features
 @import '../css/advanced-features.css';
+
+// Dark Mode Toggle
+@import '../css/dark-mode-toggle.css';
+
+// Hide Extra Buttons
+@import '../css/hide-extra-buttons.css';
 
 /* Sidebar and Layout Styles */
 :root {

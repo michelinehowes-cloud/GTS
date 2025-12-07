@@ -1,0 +1,59 @@
+/* ==================== DARK MODE TOGGLE BUTTON ==================== */
+#darkModeToggle {
+    transition: all 0.3s ease;
+    /* Remove any positioning - let it flow naturally */
+}
+
+#darkModeToggle i {
+    transition: all 0.3s ease;
+}
+
+#darkModeToggle:hover i {
+    color: var(--primary-blue) !important;
+    transform: scale(1.15) rotate(15deg);
+}
+
+#darkModeToggle:active i {
+    transform: scale(0.95) rotate(0deg);
+}
+
+/* Dark mode active state */
+html[data-theme='dark'] #darkModeToggle i {
+    color: var(--university-gold) !important;
+}
+
+html[data-theme='dark'] #darkModeToggle:hover i {
+    color: var(--university-gold) !important;
+    transform: scale(1.15) rotate(-15deg);
+}
+
+/* Animation for icon change */
+@keyframes iconRotate {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    50% {
+        transform: rotate(180deg) scale(0.8);
+    }
+
+    100% {
+        transform: rotate(360deg) scale(1);
+    }
+}
+
+#darkModeToggle.changing i {
+    animation: iconRotate 0.5s ease;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    #darkModeToggle {
+        padding: 8px !important;
+        margin-right: 0.5rem !important;
+    }
+
+    #darkModeToggle i {
+        font-size: 1rem !important;
+    }
+}

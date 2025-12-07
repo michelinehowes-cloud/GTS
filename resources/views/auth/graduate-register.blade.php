@@ -565,10 +565,40 @@
                                 <label for="university" class="form-label">
                                     الجامعة <span class="required">*</span>
                                 </label>
-                                <input type="text" class="form-control @error('university') is-invalid @enderror"
-                                    id="university" name="university" value="{{ old('university') }}" required
-                                    placeholder="جامعة طرابلس">
+                                <select class="form-select @error('university') is-invalid @enderror" id="university"
+                                    name="university" required>
+                                    <option value="">اختر الجامعة</option>
+                                    <option value="جامعة طرابلس" {{ old('university') == 'جامعة طرابلس' ? 'selected' : '' }}>جامعة طرابلس</option>
+                                </select>
                                 @error('university')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="sector" class="form-label">
+                                    القطاع <span class="required">*</span>
+                                </label>
+                                <select class="form-select @error('sector') is-invalid @enderror" id="sector"
+                                    name="sector" required disabled>
+                                    <option value="">اختر القطاع</option>
+                                </select>
+                                <input type="hidden" id="old_sector" value="{{ old('sector') }}">
+                                @error('sector')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="faculty" class="form-label">
+                                    الكلية <span class="required">*</span>
+                                </label>
+                                <select class="form-select @error('faculty') is-invalid @enderror" id="faculty"
+                                    name="faculty" required disabled>
+                                    <option value="">اختر الكلية</option>
+                                </select>
+                                <input type="hidden" id="old_faculty" value="{{ old('faculty') }}">
+                                @error('faculty')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -577,21 +607,35 @@
                                 <label for="qualification" class="form-label">
                                     المؤهل العلمي <span class="required">*</span>
                                 </label>
-                                <input type="text" class="form-control @error('qualification') is-invalid @enderror"
-                                    id="qualification" name="qualification" value="{{ old('qualification') }}" required
-                                    placeholder="بكالوريوس، ليسانس...">
+                                <select class="form-select @error('qualification') is-invalid @enderror"
+                                    id="qualification" name="qualification" required>
+                                    <option value="">اختر المؤهل</option>
+                                    <option value="بكالوريوس" {{ old('qualification') == 'بكالوريوس' ? 'selected' : '' }}>
+                                        بكالوريوس</option>
+                                    <option value="ليسانس" {{ old('qualification') == 'ليسانس' ? 'selected' : '' }}>ليسانس
+                                    </option>
+                                    <option value="ماجستير" {{ old('qualification') == 'ماجستير' ? 'selected' : '' }}>
+                                        ماجستير</option>
+                                    <option value="دكتوراه" {{ old('qualification') == 'دكتوراه' ? 'selected' : '' }}>
+                                        دكتوراه</option>
+                                    <option value="دبلوم" {{ old('qualification') == 'دبلوم' ? 'selected' : '' }}>دبلوم
+                                    </option>
+                                    <option value="دبلوم عالي" {{ old('qualification') == 'دبلوم عالي' ? 'selected' : '' }}>دبلوم عالي</option>
+                                </select>
                                 @error('qualification')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label for="specialization" class="form-label">
                                     التخصص <span class="required">*</span>
                                 </label>
-                                <input type="text" class="form-control @error('specialization') is-invalid @enderror"
-                                    id="specialization" name="specialization" value="{{ old('specialization') }}"
-                                    required placeholder="علوم حاسوب، هندسة...">
+                                <select class="form-select @error('specialization') is-invalid @enderror"
+                                    id="specialization" name="specialization" required disabled>
+                                    <option value="">اختر التخصص</option>
+                                </select>
+                                <input type="hidden" id="old_specialization" value="{{ old('specialization') }}">
                                 @error('specialization')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -693,6 +737,9 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- University Data Script -->
+    <script src="{{ asset('js/university-data.js') }}"></script>
 
     <script>
         // Toggle password visibility

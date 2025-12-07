@@ -44,6 +44,8 @@ class GraduateRegistrationController extends Controller
             'specialization' => 'required|string|max:100',
             'graduation_year' => 'required|integer|min:1950|max:' . (date('Y') + 1),
             'university' => 'required|string|max:255',
+            'sector' => 'required|string|max:100',
+            'faculty' => 'required|string|max:255',
             'gpa' => 'nullable|numeric|min:0|max:4',
             'experiences' => 'nullable|string',
             'skills' => 'nullable|string',
@@ -66,6 +68,8 @@ class GraduateRegistrationController extends Controller
             'specialization.required' => 'التخصص مطلوب',
             'graduation_year.required' => 'سنة التخرج مطلوبة',
             'university.required' => 'الجامعة مطلوبة',
+            'sector.required' => 'القطاع مطلوب',
+            'faculty.required' => 'الكلية مطلوبة',
         ]);
 
         // معالجة المهارات واللغات (تحويل النص إلى مصفوفة)

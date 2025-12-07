@@ -20,6 +20,9 @@
                         <p><strong>الاسم الكامل:</strong> {{ $graduate->name }}</p>
                         <p><strong>البريد الإلكتروني:</strong> {{ $graduate->email ?? 'لا يوجد' }}</p>
                         <p><strong>رقم الهاتف:</strong> {{ $graduate->phone ?? 'لا يوجد' }}</p>
+                        <p><strong>الجامعة:</strong> {{ $graduate->university ?? 'لا يوجد' }}</p>
+                        <p><strong>القطاع:</strong> {{ $graduate->sector ?? 'لا يوجد' }}</p>
+                        <p><strong>الكلية:</strong> {{ $graduate->faculty ?? 'لا يوجد' }}</p>
                         <p><strong>التخصص:</strong> {{ $graduate->major }}</p>
                         <p><strong>سنة التخرج:</strong> {{ $graduate->graduation_year }}</p>
                         <p><strong>المعدل التراكمي:</strong> {{ $graduate->gpa ?? 'لا يوجد' }}</p>

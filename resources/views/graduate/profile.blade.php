@@ -121,22 +121,17 @@
                                 <!-- المؤهل العلمي -->
                                 <div class="col-md-6 mb-3">
                                     <label for="qualification" class="form-label">المؤهل العلمي</label>
-                                    <input type="text" class="form-control @error('qualification') is-invalid @enderror"
-                                        id="qualification" name="qualification"
-                                        value="{{ old('qualification', $user->qualification) }}"
-                                        placeholder="بكالوريوس، ماجستير، إلخ...">
+                                    <select class="form-select @error('qualification') is-invalid @enderror"
+                                        id="qualification" name="qualification">
+                                        <option value="">اختر المؤهل</option>
+                                        <option value="بكالوريوس" {{ old('qualification', $user->qualification) == 'بكالوريوس' ? 'selected' : '' }}>بكالوريوس</option>
+                                        <option value="ليسانس" {{ old('qualification', $user->qualification) == 'ليسانس' ? 'selected' : '' }}>ليسانس</option>
+                                        <option value="ماجستير" {{ old('qualification', $user->qualification) == 'ماجستير' ? 'selected' : '' }}>ماجستير</option>
+                                        <option value="دكتوراه" {{ old('qualification', $user->qualification) == 'دكتوراه' ? 'selected' : '' }}>دكتوراه</option>
+                                        <option value="دبلوم" {{ old('qualification', $user->qualification) == 'دبلوم' ? 'selected' : '' }}>دبلوم</option>
+                                        <option value="دبلوم عالي" {{ old('qualification', $user->qualification) == 'دبلوم عالي' ? 'selected' : '' }}>دبلوم عالي</option>
+                                    </select>
                                     @error('qualification')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <!-- التخصص -->
-                                <div class="col-md-6 mb-3">
-                                    <label for="specialization" class="form-label">التخصص</label>
-                                    <input type="text" class="form-control @error('specialization') is-invalid @enderror"
-                                        id="specialization" name="specialization"
-                                        value="{{ old('specialization', $user->specialization) }}">
-                                    @error('specialization')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -144,10 +139,52 @@
                                 <!-- الجامعة -->
                                 <div class="col-md-6 mb-3">
                                     <label for="university" class="form-label">الجامعة</label>
-                                    <input type="text" class="form-control @error('university') is-invalid @enderror"
-                                        id="university" name="university"
-                                        value="{{ old('university', $user->university) }}">
+                                    <select class="form-select @error('university') is-invalid @enderror" id="university"
+                                        name="university">
+                                        <option value="">اختر الجامعة</option>
+                                        <option value="جامعة طرابلس" {{ old('university', $user->university) == 'جامعة طرابلس' ? 'selected' : '' }}>جامعة طرابلس</option>
+                                    </select>
                                     @error('university')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- القطاع -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="sector" class="form-label">القطاع</label>
+                                    <select class="form-select @error('sector') is-invalid @enderror" id="sector"
+                                        name="sector" disabled>
+                                        <option value="">اختر القطاع</option>
+                                    </select>
+                                    <input type="hidden" id="old_sector" value="{{ old('sector', $user->sector) }}">
+                                    @error('sector')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- الكلية -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="faculty" class="form-label">الكلية</label>
+                                    <select class="form-select @error('faculty') is-invalid @enderror" id="faculty"
+                                        name="faculty" disabled>
+                                        <option value="">اختر الكلية</option>
+                                    </select>
+                                    <input type="hidden" id="old_faculty" value="{{ old('faculty', $user->faculty) }}">
+                                    @error('faculty')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- التخصص -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="specialization" class="form-label">التخصص</label>
+                                    <select class="form-select @error('specialization') is-invalid @enderror"
+                                        id="specialization" name="specialization" disabled>
+                                        <option value="">اختر التخصص</option>
+                                    </select>
+                                    <input type="hidden" id="old_specialization"
+                                        value="{{ old('specialization', $user->specialization) }}">
+                                    @error('specialization')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -179,7 +216,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label for="languages" class="form-label">اللغات</label>
                                     <input type="text" class="form-control @error('languages') is-invalid @enderror"
-                                        id="languages" name="languages" 
+                                        id="languages" name="languages"
                                         value="{{ old('languages', is_array($user->languages) ? implode(', ', $user->languages) : $user->languages) }}"
                                         placeholder="العربية، الانجليزية، الفرنسية...">
                                     @error('languages')
@@ -344,4 +381,9 @@
             </div>
         </div>
     </div>
+
+    @section('scripts')
+        <!-- University Data Script -->
+        <script src="{{ asset('js/university-data.js') }}"></script>
+    @endsection
 @endsection

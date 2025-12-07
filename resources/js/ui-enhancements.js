@@ -37,58 +37,9 @@ document.addEventListener('DOMContentLoaded', function () {
         container.innerHTML = skeleton;
     }
 
-    // 3. Pull to Refresh (للتطبيق فقط)
-    if (isNativeApp) {
-        let startY = 0;
-        let currentY = 0;
-        let pulling = false;
-        const threshold = 80;
 
-        const refreshIndicator = document.createElement('div');
-        refreshIndicator.className = 'pull-to-refresh-indicator';
-        refreshIndicator.innerHTML = '<i class="fas fa-sync-alt"></i> اسحب للتحديث';
-        document.body.insertBefore(refreshIndicator, document.body.firstChild);
-
-        document.addEventListener('touchstart', function (e) {
-            if (window.scrollY === 0) {
-                startY = e.touches[0].pageY;
-                pulling = true;
-            }
-        });
-
-        document.addEventListener('touchmove', function (e) {
-            if (!pulling) return;
-
-            currentY = e.touches[0].pageY;
-            const distance = currentY - startY;
-
-            if (distance > 0 && distance < threshold * 2) {
-                refreshIndicator.style.transform = `translateY(${distance}px)`;
-                refreshIndicator.style.opacity = Math.min(distance / threshold, 1);
-            }
-        });
-
-        document.addEventListener('touchend', function (e) {
-            if (!pulling) return;
-
-            const distance = currentY - startY;
-
-            if (distance > threshold) {
-                refreshIndicator.classList.add('refreshing');
-                refreshIndicator.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> جاري التحديث...';
-
-                // تحديث الصفحة
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
-            } else {
-                refreshIndicator.style.transform = 'translateY(0)';
-                refreshIndicator.style.opacity = '0';
-            }
-
-            pulling = false;
-        });
-    }
+    // 3. Pull to Refresh - تم إلغاؤه
+    // (تم إزالة هذه الميزة بناءً على طلب المستخدم)
 
     // 4. Smooth Scroll للروابط الداخلية
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {

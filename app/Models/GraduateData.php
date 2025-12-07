@@ -19,6 +19,8 @@ class GraduateData extends Model
         'national_id',
         'major',
         'university',
+        'sector',
+        'faculty',
         'graduation_year',
         'gpa',
         'degree',
@@ -34,7 +36,8 @@ class GraduateData extends Model
         'added_by',
         'data_source',
         'is_active',
-        'notes'
+        'notes',
+        'user_id'
     ];
 
     protected $casts = [

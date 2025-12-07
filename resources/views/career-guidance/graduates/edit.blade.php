@@ -15,7 +15,8 @@
                 <h6 class="m-0 font-weight-bold text-primary">نموذج تعديل بيانات الخريج</h6>
             </div>
             <div class="card-body">
-                <form action="{{ route('career-guidance.graduates.update', $graduate->id) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('career-guidance.graduates.update', $graduate->id) }}" method="POST"
+                    enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -53,14 +54,54 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="major">التخصص:</label>
-                        <select class="form-control @error('major') is-invalid @enderror" id="major" name="major" required>
-                            <option value="">اختر التخصص</option>
-                            @foreach($majors as $major)
-                                <option value="{{ $major }}" {{ old('major', $graduate->major) == $major ? 'selected' : '' }}>
-                                    {{ $major }}</option>
-                            @endforeach
+                        <label for="university">الجامعة:</label>
+                        <select class="form-control @error('university') is-invalid @enderror" id="university"
+                            name="university" required>
+                            <option value="">اختر الجامعة</option>
+                            <option value="جامعة طرابلس" {{ old('university', $graduate->university) == 'جامعة طرابلس' ? 'selected' : '' }}>جامعة طرابلس</option>
                         </select>
+                        @error('university')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sector">القطاع:</label>
+                        <select class="form-control @error('sector') is-invalid @enderror" id="sector" name="sector"
+                            required disabled>
+                            <option value="">اختر القطاع</option>
+                        </select>
+                        <input type="hidden" id="old_sector" value="{{ old('sector', $graduate->sector) }}">
+                        @error('sector')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="faculty">الكلية:</label>
+                        <select class="form-control @error('faculty') is-invalid @enderror" id="faculty" name="faculty"
+                            required disabled>
+                            <option value="">اختر الكلية</option>
+                        </select>
+                        <input type="hidden" id="old_faculty" value="{{ old('faculty', $graduate->faculty) }}">
+                        @error('faculty')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="major">التخصص:</label>
+                        <select class="form-control @error('major') is-invalid @enderror" id="specialization" name="major"
+                            required disabled>
+                            <option value="">اختر التخصص</option>
+                        </select>
+                        <input type="hidden" id="old_specialization" value="{{ old('major', $graduate->major) }}">
                         @error('major')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -102,7 +143,8 @@
                             <option value="">اختر الدرجة العلمية</option>
                             @foreach($degrees as $degree)
                                 <option value="{{ $degree }}" {{ old('degree', $graduate->degree) == $degree ? 'selected' : '' }}>
-                                    {{ $degree }}</option>
+                                    {{ $degree }}
+                                </option>
                             @endforeach
                         </select>
                         @error('degree')
@@ -201,11 +243,14 @@
                         @if($graduate->cv_path)
                             <div class="mb-2">
                                 <span class="text-success"><i class="fas fa-check-circle"></i> يوجد ملف حالي: </span>
-                                <a href="{{ Storage::url($graduate->cv_path) }}" target="_blank">{{ basename($graduate->cv_path) }}</a>
+                                <a href="{{ Storage::url($graduate->cv_path) }}"
+                                    target="_blank">{{ basename($graduate->cv_path) }}</a>
                             </div>
                         @endif
-                        <input type="file" class="form-control-file @error('cv') is-invalid @enderror" id="cv" name="cv" accept=".pdf">
-                        <small class="form-text text-muted">اترك هذا الحقل فارغاً إذا كنت لا تريد تغيير الملف الحالي. (الحد الأقصى: 5 ميجابايت)</small>
+                        <input type="file" class="form-control-file @error('cv') is-invalid @enderror" id="cv" name="cv"
+                            accept=".pdf">
+                        <small class="form-text text-muted">اترك هذا الحقل فارغاً إذا كنت لا تريد تغيير الملف الحالي. (الحد
+                            الأقصى: 5 ميجابايت)</small>
                         @error('cv')
                             <span class="invalid-feedback d-block" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -223,4 +268,9 @@
             </div>
         </div>
     </div>
+
+    @section('scripts')
+        <!-- University Data Script -->
+        <script src="{{ asset('js/university-data.js') }}"></script>
+    @endsection
 @endsection

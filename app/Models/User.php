@@ -18,6 +18,8 @@ class User extends Authenticatable
         'phone',
         'address',
         'university',
+        'sector',
+        'faculty',
         'major',
         'degree',
         'graduation_year',

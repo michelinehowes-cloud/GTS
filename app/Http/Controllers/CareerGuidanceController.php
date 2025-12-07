@@ -83,9 +83,9 @@ class CareerGuidanceController extends Controller
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:graduates_data,email',
+                'email' => 'required|email|unique:graduates_data,email|unique:users,email',
                 'phone' => 'nullable|string|max:20',
-                'national_id' => 'nullable|string|max:50|unique:graduates_data,national_id',
+                'national_id' => 'nullable|string|max:50|unique:graduates_data,national_id|unique:users,national_id',
                 'major' => 'required|string|max:255',
                 'graduation_year' => 'required|integer|min:2000|max:' . (date('Y') + 1),
                 'gpa' => 'nullable|numeric|min:0|max:4',
@@ -109,17 +109,58 @@ class CareerGuidanceController extends Controller
                     ->with('error', 'يجب أن تكون مسجل الدخول لإضافة خريج جديد.');
             }
 
-            $validated['added_by'] = Auth::id(); // Add the authenticated user's ID
+            // إنشاء كلمة مرور مؤقتة قوية
+            $temporaryPassword = 'Gr' . date('Y') . '@' . \Illuminate\Support\Str::random(6);
+
+            // إنشاء حساب مستخدم للخريج
+            $user = \App\Models\User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => \Illuminate\Support\Facades\Hash::make($temporaryPassword),
+                'role' => 'graduate',
+                'phone' => $validated['phone'] ?? null,
+                'national_id' => $validated['national_id'] ?? null,
+                'major' => $validated['major'],
+                'graduation_year' => $validated['graduation_year'],
+                'gpa' => $validated['gpa'] ?? null,
+                'address' => $validated['address'] ?? null,
+                'is_active' => true,
+                'must_change_password' => true, // إجبار تغيير كلمة المرور
+                'is_approved' => true, // الموافقة التلقائية لأن مسؤول الإرشاد هو من أضافه
+            ]);
+
+            // إنشاء سجل في جدول الخريجين
+            $validated['added_by'] = Auth::id();
+            $validated['user_id'] = $user->id; // ربط الخريج بالمستخدم
             $graduate = GraduateData::create($validated);
-            Log::info('تمت إضافة خريج جديد', [
+
+            // إرسال إيميل بالبيانات
+            try {
+                $user->notify(new \App\Notifications\GraduateAccountCreated(
+                    $validated['email'],
+                    $temporaryPassword,
+                    $validated['name']
+                ));
+
+                Log::info('تم إرسال بيانات الدخول للخريج عبر البريد الإلكتروني', [
+                    'user_id' => $user->id,
+                    'email' => $validated['email']
+                ]);
+            } catch (\Exception $e) {
+                Log::error('فشل إرسال البريد الإلكتروني للخريج: ' . $e->getMessage());
+                // نكمل العملية حتى لو فشل الإيميل
+            }
+
+            Log::info('تمت إضافة خريج جديد مع حساب مستخدم', [
                 'user_id' => Auth::id(),
                 'graduate_id' => $graduate->id,
-                'graduate_name' => $graduate->name
+                'graduate_name' => $graduate->name,
+                'account_created' => true
             ]);
 
             return redirect()
                 ->route('career-guidance.graduates.show', $graduate->id)
-                ->with('success', 'تمت إضافة بيانات الخريج بنجاح');
+                ->with('success', 'تمت إضافة بيانات الخريج بنجاح وتم إرسال بيانات الدخول إلى بريده الإلكتروني');
 
         } catch (ValidationException $e) {
             Log::warning('فشل التحقق من صحة البيانات عند إضافة خريج جديد: ' . $e->getMessage(), [

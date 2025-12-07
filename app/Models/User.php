@@ -38,6 +38,8 @@ class User extends Authenticatable
         'approved_by',
         'languages',
         'cv_path',
+        'must_change_password',
+        'password_changed_at',
     ];
 
     protected $hidden = [
@@ -55,6 +57,8 @@ class User extends Authenticatable
         'is_approved' => 'boolean',
         'approved_at' => 'datetime',
         'date_of_birth' => 'date',
+        'must_change_password' => 'boolean',
+        'password_changed_at' => 'datetime',
     ];
 
     /**

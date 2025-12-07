@@ -37,6 +37,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\CheckUserStatus::class,
+            \App\Http\Middleware\EnsurePasswordChanged::class,
         ],
 
         'api' => [
@@ -73,5 +74,6 @@ class Kernel extends HttpKernel
         'evaluation_followup' => \App\Http\Middleware\EvaluationFollowupMiddleware::class,
         'career_guidance_officer' => \App\Http\Middleware\CareerGuidanceOfficerMiddleware::class,
         'media_officer' => \App\Http\Middleware\MediaOfficerMiddleware::class,
+        'password.must.change' => \App\Http\Middleware\EnsurePasswordChanged::class,
     ];
 }

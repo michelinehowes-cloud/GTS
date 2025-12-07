@@ -69,6 +69,12 @@ Route::middleware('guest')->group(function () {
     Route::post('/register/graduate', [App\Http\Controllers\GraduateRegistrationController::class, 'register'])->name('graduate.register.store');
 });
 
+// ==================== 🔑 تغيير كلمة المرور الإجباري ====================
+Route::middleware('auth')->group(function () {
+    Route::get('/password/change/force', [App\Http\Controllers\ForcePasswordChangeController::class, 'show'])->name('password.change.force');
+    Route::post('/password/change/force', [App\Http\Controllers\ForcePasswordChangeController::class, 'update'])->name('password.update.force');
+});
+
 // ==================== 📊 الاستبيانات العامة ====================
 Route::prefix('surveys')->group(function () {
     Route::get('/{slug}', [App\Http\Controllers\PublicSurveyController::class, 'show'])->name('public.survey.show');

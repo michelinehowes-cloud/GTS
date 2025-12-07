@@ -150,9 +150,11 @@ class GraduateController extends Controller
             'address' => 'nullable|string',
             'city' => 'nullable|string|max:100',
             'qualification' => 'nullable|string|max:100',
+            'university' => 'nullable|string|max:255',
+            'sector' => 'nullable|string|max:100',
+            'faculty' => 'nullable|string|max:255',
             'specialization' => 'nullable|string|max:100',
             'graduation_year' => 'nullable|integer|min:1950|max:' . (date('Y') + 1),
-            'university' => 'nullable|string|max:255',
             'gpa' => 'nullable|numeric|min:0|max:4',
             'languages' => 'nullable|string|max:500',
         ]);
@@ -167,9 +169,11 @@ class GraduateController extends Controller
             'address',
             'city',
             'qualification',
+            'university',
+            'sector',
+            'faculty',
             'specialization',
             'graduation_year',
-            'university',
             'gpa',
             'languages',
         ]);
@@ -184,9 +188,11 @@ class GraduateController extends Controller
             'phone' => $data['phone'] ?? null,
             'national_id' => $data['national_id'] ?? null,
             'address' => ($data['city'] ?? '') . ' - ' . ($data['address'] ?? ''),
+            'university' => $data['university'] ?? 'جامعة طرابلس',
+            'sector' => $data['sector'] ?? null,
+            'faculty' => $data['faculty'] ?? null,
             'major' => $data['specialization'] ?? null,
             'graduation_year' => $data['graduation_year'] ?? null,
-            'university' => $data['university'] ?? 'جامعة طرابلس',
             'gpa' => $data['gpa'] ?? null,
             'degree' => $data['qualification'] ?? 'بكالوريوس',
             'languages' => $data['languages'] ? array_map('trim', explode(',', $data['languages'])) : null,
@@ -196,7 +202,8 @@ class GraduateController extends Controller
         // لكن هنا نريد تحديثها لتطابق ملف المستخدم
 
         \App\Models\GraduateData::where('email', $user->email)->update(array_filter($graduateData, function ($v) {
-            return !is_null($v); }));
+            return !is_null($v);
+        }));
 
         return redirect()->route('graduate.profile')
             ->with('success', 'تم تحديث البيانات الشخصية بنجاح');

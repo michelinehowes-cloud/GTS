@@ -4,110 +4,61 @@
 
 @section('content')
     <div class="container-fluid">
-        <!-- رسائل التنبيه -->
         @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle me-2"></i>
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
+            @include('components.alert', [
+                'type' => 'success',
+                'message' => session('success'),
+                'dismissible' => true
+            ])
         @endif
 
         @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
+            @include('components.alert', [
+                'type' => 'danger',
+                'message' => session('error'),
+                'dismissible' => true
+            ])
         @endif
 
         <!-- بطاقات الإحصائيات -->
         <div class="row mb-4">
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card stat-card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                    التدريبات المتاحة
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalTrainings }}</div>
-                            </div>
-                            <div class="col-auto">
-                                <div class="card-icon bg-gradient-primary">
-                                    <i class="fas fa-graduation-cap fa-2x"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @include('components.stat-card', [
+                'title' => 'التدريبات المتاحة',
+                'value' => $totalTrainings,
+                'icon' => 'fas fa-briefcase',
+                'color' => 'primary',
+                'col' => 'col-6 col-md-3 mb-3'
+            ])
 
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card stat-card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    طلباتي
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $myApplications }}</div>
-                            </div>
-                            <div class="col-auto">
-                                <div class="card-icon bg-gradient-success">
-                                    <i class="fas fa-paper-plane fa-2x"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @include('components.stat-card', [
+                'title' => 'طلباتي',
+                'value' => $myApplications,
+                'icon' => 'fas fa-file-alt',
+                'color' => 'success',
+                'col' => 'col-6 col-md-3 mb-3'
+            ])
 
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card stat-card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    قيد المراجعة
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $pendingApplications }}</div>
-                            </div>
-                            <div class="col-auto">
-                                <div class="card-icon bg-gradient-warning">
-                                    <i class="fas fa-clock fa-2x"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @include('components.stat-card', [
+                'title' => 'قيد المراجعة',
+                'value' => $pendingApplications,
+                'icon' => 'fas fa-clock',
+                'color' => 'warning',
+                'col' => 'col-6 col-md-3 mb-3'
+            ])
 
-            <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card stat-card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                    مقبولة
-                                </div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $approvedApplications }}</div>
-                            </div>
-                            <div class="col-auto">
-                                <div class="card-icon bg-gradient-info">
-                                    <i class="fas fa-check-circle fa-2x"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @include('components.stat-card', [
+                'title' => 'مقبولة',
+                'value' => $approvedApplications,
+                'icon' => 'fas fa-check-circle',
+                'color' => 'info',
+                'col' => 'col-6 col-md-3 mb-3'
+            ])
         </div>
 
         <div class="row">
             <!-- التقويم التفاعلي -->
             <div class="col-lg-8 mb-4">
-                <div class="card border-0 shadow-sm h-100">
+                <div class="card-modern">
                     <div class="card-header bg-white py-3">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fas fa-calendar-alt me-2"></i>
@@ -123,7 +74,7 @@
             <!-- الجانب الأيسر: الرسم البياني والإشعارات -->
             <div class="col-lg-4 mb-4">
                 <!-- رسم بياني لحالة التقديمات -->
-                <div class="card border-0 shadow-sm mb-4">
+                <div class="card-modern mb-4">
                     <div class="card-header bg-white py-3">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fas fa-chart-pie me-2"></i>
@@ -136,7 +87,7 @@
                 </div>
 
                 <!-- إشعارات ذكية -->
-                <div class="card border-0 shadow-sm">
+                <div class="card-modern">
                     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">
                             <i class="fas fa-bell me-2"></i>

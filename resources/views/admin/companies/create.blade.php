@@ -1,4 +1,3 @@
-{{-- ملف: resources/views/admin/companies/create.blade.php --}}
 @extends('layouts.app')
 
 @section('title', 'إضافة شركة جديدة')
@@ -6,114 +5,151 @@
 @section('page-title', 'إضافة شركة جديدة')
 
 @section('content')
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-plus me-2"></i>إضافة شركة جديدة
-                </h5>
-            </div>
-            <div class="card-body">
-                @if($errors->any())
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+<div class="container-fluid">
+    <!-- Breadcrumbs -->
+    @include('components.breadcrumbs', [
+        'items' => [
+            ['label' => 'الرئيسية', 'url' => route('admin.dashboard')],
+            ['label' => 'الشركات', 'url' => route('admin.companies')],
+            ['label' => 'إضافة شركة', 'active' => true],
+        ]
+    ])
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card-modern">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="card-title mb-0 text-primary fw-bold">
+                        <i class="fas fa-building me-2"></i> بيانات الشركة الجديدة
+                    </h5>
                 </div>
-                @endif
+                <div class="card-body p-4">
+                    @if($errors->any())
+                    <div class="alert alert-danger border-0 bg-danger-subtle text-danger-emphasis mb-4">
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
 
-                <form action="{{ route('admin.companies.store') }}" method="POST">
-                    @csrf
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="name" class="form-label">اسم الشركة *</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                   id="name" name="name" value="{{ old('name') }}" required>
-                            @error('name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    <form action="{{ route('admin.companies.store') }}" method="POST">
+                        @csrf
                         
-                        <div class="col-md-6 mb-3">
-                            <label for="email" class="form-label">البريد الإلكتروني *</label>
-                            <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                                   id="email" name="email" value="{{ old('email') }}" required>
-                            @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
+                        <div class="row g-3">
+                            <!-- اسم الشركة -->
+                            <div class="col-md-6">
+                                <label for="name" class="form-label-modern">اسم الشركة <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-building text-muted"></i></span>
+                                    <input type="text" class="form-control-modern border-start-0 ps-0 @error('name') is-invalid @enderror" 
+                                           id="name" name="name" value="{{ old('name') }}" required placeholder="اسم الشركة الرسمي">
+                                </div>
+                                @error('name')
+                                    <div class="text-danger small mt-1 fw-bold">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <!-- البريد الإلكتروني -->
+                            <div class="col-md-6">
+                                <label for="email" class="form-label-modern">البريد الإلكتروني <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-envelope text-muted"></i></span>
+                                    <input type="email" class="form-control-modern border-start-0 ps-0 @error('email') is-invalid @enderror" 
+                                           id="email" name="email" value="{{ old('email') }}" required placeholder="البريد الرسمي للتواصل">
+                                </div>
+                                @error('email')
+                                    <div class="text-danger small mt-1 fw-bold">{{ $message }}</div>
+                                @enderror
+                            </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="phone" class="form-label">رقم الهاتف *</label>
-                            <input type="text" class="form-control @error('phone') is-invalid @enderror" 
-                                   id="phone" name="phone" value="{{ old('phone') }}" required>
-                            @error('phone')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label for="industry" class="form-label">المجال الصناعي *</label>
-                            <input type="text" class="form-control @error('industry') is-invalid @enderror" 
-                                   id="industry" name="industry" value="{{ old('industry') }}" required 
-                                   placeholder="مثل: تكنولوجيا، تسويق، تعليم...">
-                            @error('industry')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
+                            <!-- رقم الهاتف -->
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label-modern">رقم الهاتف <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-phone text-muted"></i></span>
+                                    <input type="text" class="form-control-modern border-start-0 ps-0 @error('phone') is-invalid @enderror" 
+                                           id="phone" name="phone" value="{{ old('phone') }}" required placeholder="رقم هاتف الشركة">
+                                </div>
+                                @error('phone')
+                                    <div class="text-danger small mt-1 fw-bold">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <!-- المجال الصناعي -->
+                            <div class="col-md-6">
+                                <label for="industry" class="form-label-modern">المجال الصناعي <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-industry text-muted"></i></span>
+                                    <input type="text" class="form-control-modern border-start-0 ps-0 @error('industry') is-invalid @enderror" 
+                                           id="industry" name="industry" value="{{ old('industry') }}" required 
+                                           placeholder="مثل: تكنولوجيا، تسويق، تعليم...">
+                                </div>
+                                @error('industry')
+                                    <div class="text-danger small mt-1 fw-bold">{{ $message }}</div>
+                                @enderror
+                            </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="password" class="form-label">كلمة المرور *</label>
-                            <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                   id="password" name="password" required>
-                            @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <!-- العنوان -->
+                            <div class="col-12">
+                                <label for="address" class="form-label-modern">العنوان <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-map-marker-alt text-muted"></i></span>
+                                    <input type="text" class="form-control-modern border-start-0 ps-0 @error('address') is-invalid @enderror" 
+                                           id="address" name="address" value="{{ old('address') }}" required placeholder="عنوان المقر الرئيسي">
+                                </div>
+                                @error('address')
+                                    <div class="text-danger small mt-1 fw-bold">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- كلمة المرور -->
+                            <div class="col-md-6">
+                                <label for="password" class="form-label-modern">كلمة المرور <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-muted"></i></span>
+                                    <input type="password" class="form-control-modern border-start-0 ps-0 @error('password') is-invalid @enderror" 
+                                           id="password" name="password" required minlength="8">
+                                </div>
+                                <small class="text-muted"><i class="fas fa-info-circle me-1"></i> 8 أحرف على الأقل</small>
+                                @error('password')
+                                    <div class="text-danger small mt-1 fw-bold">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <!-- تأكيد كلمة المرور -->
+                            <div class="col-md-6">
+                                <label for="password_confirmation" class="form-label-modern">تأكيد كلمة المرور <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-check-double text-muted"></i></span>
+                                    <input type="password" class="form-control-modern border-start-0 ps-0" 
+                                           id="password_confirmation" name="password_confirmation" required>
+                                </div>
+                            </div>
+
+                            <!-- الوصف -->
+                            <div class="col-12">
+                                <label for="description" class="form-label-modern">وصف الشركة</label>
+                                <textarea class="form-control-modern @error('description') is-invalid @enderror" 
+                                          id="description" name="description" rows="4" 
+                                          placeholder="نبذة مختصرة عن نشاط الشركة وخدماتها...">{{ old('description') }}</textarea>
+                                @error('description')
+                                    <div class="text-danger small mt-1 fw-bold">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label for="password_confirmation" class="form-label">تأكيد كلمة المرور *</label>
-                            <input type="password" class="form-control" 
-                                   id="password_confirmation" name="password_confirmation" required>
+
+                        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                            <a href="{{ route('admin.companies') }}" class="btn btn-secondary-modern">
+                                <i class="fas fa-arrow-right me-2"></i>رجوع للقائمة
+                            </a>
+                            <button type="submit" class="btn btn-primary-modern px-4">
+                                <i class="fas fa-save me-2"></i>حفظ الشركة
+                            </button>
                         </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="address" class="form-label">العنوان *</label>
-                        <input type="text" class="form-control @error('address') is-invalid @enderror" 
-                               id="address" name="address" value="{{ old('address') }}" required>
-                        @error('address')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="description" class="form-label">وصف الشركة</label>
-                        <textarea class="form-control @error('description') is-invalid @enderror" 
-                                  id="description" name="description" rows="3" 
-                                  placeholder="وصف مختصر عن نشاط الشركة...">{{ old('description') }}</textarea>
-                        @error('description')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="{{ route('admin.companies') }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-right me-2"></i>رجوع للقائمة
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>حفظ الشركة
-                        </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

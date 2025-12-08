@@ -1,7 +1,27 @@
 /* ==================== DARK MODE TOGGLE BUTTON ==================== */
 #darkModeToggle {
     transition: all 0.3s ease;
-    /* Remove any positioning - let it flow naturally */
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 8px;
+    border-radius: 50%;
+    margin-right: 15px;
+    /* Ensure it doesn't float weirdly */
+    position: static !important; 
+}
+
+/* Fix for breadcrumb appearing as a white bar */
+.breadcrumb-modern {
+    background: transparent !important;
+    box-shadow: none !important;
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
+}
+
+.breadcrumb-modern .breadcrumb {
+    background: transparent !important;
+    padding: 0;
 }
 
 #darkModeToggle i {

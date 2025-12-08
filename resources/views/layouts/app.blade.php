@@ -162,14 +162,14 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}"
                                     href="{{ 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
                     (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') :
                         (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') :
                             (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
                                 (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
                                     (auth()->user()->role == 'company' ? route('company.dashboard') :
                                         route('admin.dashboard')))))) 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }}">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }}">
                                     <i class="fas fa-tachometer-alt"></i>
                                     لوحة التحكم
                                 </a>
@@ -639,7 +639,15 @@
                                 </li>
                                 <!-- تسجيل الخروج -->
                             @endif
-                            <li class="nav-item mt-4 pt-3 border-top border-light">
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="javascript:void(0)" onclick="toggleDarkMode(event)"
+                                    id="darkModeMenuToggle" style="cursor: pointer;">
+                                    <i class="fas fa-moon"></i>
+                                    الوضع الليلي
+                                </a>
+                            </li>
+                            <li class="nav-item mt-2 pt-2 border-top border-light">
                                 <a class="nav-link text-warning fw-bold" href="#"
                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                     <i class="fas fa-sign-out-alt"></i>
@@ -1057,66 +1065,85 @@
     </script> <!-- Closing for the main script block -->
 
     <!-- Simple Dark Mode Script -->
-    <script>
+    <!-- Simple Dark Mode Script -->
+    <script src="{{ asset('js/simple-dark-mode.js') }}"></script>
+    <script type="text/plain">
         (function () {
             // Get theme from localStorage or default to light
             let currentTheme = localStorage.getItem('theme') || 'light';
 
-            // Apply theme
+            // ==========================================
+            // DARK MODE SCRIPT (Global Scope)
+            // ==========================================
+ // 1. Get Theme
+            var currentTheme = localStorage.getItem('theme') || 'light';
+
+            // 2. Apply Theme Function
             function applyTheme(theme) {
                 const root = document.documentElement;
-                const button = document.getElementById('darkModeToggle');
 
+           // Set Attribute
                 if (theme === 'dark') {
                     root.setAttribute('data-theme', 'dark');
-                    if (button) {
-                        const icon = button.querySelector('i');
-                        if (icon) {
-                            icon.classList.remove('fa-moon');
-                            icon.classList.add('fa-sun');
-                        }
-                    }
                 } else {
                     root.removeAttribute('data-theme');
-                    if (button) {
-                        const icon = button.querySelector('i');
-                        if (icon) {
-                            icon.classList.remove('fa-sun');
-                            icon.classList.add('fa-moon');
-                        }
-                    }
                 }
 
+                // Update Icons (Any element with these IDs or inside them)
+                const buttons = [
+                    document.getElementById('darkModeToggle'),
+                    document.getElementById('darkModeMenuToggle')
+                ];
+
+                buttons.forEach(btn => {
+                    if (btn) {
+                        const icon = btn.querySelector('i');
+                        if (icon) {
+                            // Remove old classes first to be safe
+                            icon.classList.remove('fa-moon', 'fa-sun');
+
+                            if (theme === 'dark') {
+                                icon.classList.add('fa-sun');
+                            } else {
+                                icon.classList.add('fa-moon');
+                            }
+                        }
+                    }
+                });
+
+                // Save
                 localStorage.setItem('theme', theme);
                 currentTheme = theme;
             }
 
-            // Toggle theme
-            function toggleTheme() {
+            // 3. Toggle Function (Exposed Globally)
+            window.toggleThemeGlobal = function (e) {
+                if (e) {
+                    e.preventDefault();
+                    if (e.stopPropagation) e.stopPropagation();
+                }
+
                 const newTheme = currentTheme === 'light' ? 'dark' : 'light';
                 applyTheme(newTheme);
-            }
+                console.log('Theme toggled to:', newTheme);
+            };
 
-            // Initialize
+            // 4. Initialize
             applyTheme(currentTheme);
 
-            // Bind click event
-            const button = document.getElementById('darkModeToggle');
-            if (button) {
-                button.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    toggleTheme();
-                });
-            }
+            // 5. Re-apply on DOMContentLoaded (to catch buttons not yet rendered)
+            document.addEventListener('DOMContentLoaded', function () {
+                applyTheme(currentTheme);
+            });
 
-            // Keyboard shortcut
+            // 6. Keyboard Shortcut
             document.addEventListener('keydown', function (e) {
                 if ((e.altKey || e.metaKey) && e.key === 'd') {
                     e.preventDefault();
-                    toggleTheme();
+                    window.toggleThemeGlobal();
                 }
             });
-        })();
+
     </script>
 
     @yield('scripts')

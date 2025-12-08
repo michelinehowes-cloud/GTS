@@ -260,3 +260,20 @@
         transform: none;
     }
 }
+
+/* 15. Global Layout Fixes (Added by Antigravity) */
+/* Hide unwanted Breadcrumbs top bar */
+.breadcrumb-modern,
+nav[aria-label="breadcrumb"],
+.breadcrumb {
+    display: none !important;
+}
+
+/* Hide Floating Action Buttons that Cover Content */
+.floating-action-button,
+.fab,
+button.btn-floating,
+.btn-floating,
+.floating-btn {
+    display: none !important;
+}

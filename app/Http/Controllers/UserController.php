@@ -49,12 +49,12 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
-        
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8|confirmed',
-        'role' => 'required|in:admin,training_coordinator,graduate,partnership_officer,career_guidance_officer,company,evaluation_followup,media_officer', // ✅ تحديث القائمة
+            'role' => 'required|in:admin,training_coordinator,graduate,partnership_officer,career_guidance_officer,company,evaluation_followup,media_officer', // ✅ تحديث القائمة
             'phone' => 'nullable|string|max:20',
         ]);
 
@@ -77,7 +77,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        
+
         if ($user->id == auth()->id()) {
             return redirect()->route('admin.users')->with('error', 'لا يمكن حذف حسابك الشخصي');
         }
@@ -85,5 +85,37 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('admin.users')->with('success', 'تم حذف المستخدم بنجاح');
+    }
+
+    public function toggleStatus($id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($user->id == auth()->id()) {
+            return back()->with('error', 'لا يمكن تغيير حالة حسابك الشخصي');
+        }
+
+        // Assuming 'is_active' column exists, or use a specific logic
+        // If 'is_active' is not in fillable, force save
+        $user->is_active = !$user->is_active;
+        $user->save();
+
+        $status = $user->is_active ? 'تنشيط' : 'تجميد';
+        return back()->with('success', "تم $status حساب المستخدم بنجاح");
+    }
+
+    public function changePassword(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return back()->with('success', 'تم تغيير كلمة مرور المستخدم بنجاح');
     }
 }

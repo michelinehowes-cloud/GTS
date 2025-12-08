@@ -5,21 +5,26 @@ Breadcrumbs Component
 Usage:
 @include('components.breadcrumbs', [
 'items' => [
-['title' => 'الرئيسية', 'url' => route('home')],
-['title' => 'لوحة التحكم', 'url' => route('dashboard')],
-['title' => 'الصفحة الحالية'], // No URL means active item
+['label' => 'الرئيسية', 'url' => route('home')],
+['label' => 'لوحة التحكم', 'url' => route('dashboard')],
+['label' => 'الصفحة الحالية', 'active' => true], // active means current page
 ]
 ])
 --}}
 
 @if(isset($items) && count($items) > 0)
-    <div class="breadcrumb-modern">
+    <div class="breadcrumb-modern mb-4">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
                 @foreach($items as $index => $item)
-                    @if($loop->last)
+                    @php
+                        $label = $item['label'] ?? $item['title'] ?? '';
+                        $isActive = $item['active'] ?? $loop->last;
+                    @endphp
+
+                    @if($isActive)
                         <li class="breadcrumb-item active" aria-current="page">
-                            {{ $item['title'] }}
+                            {{ $label }}
                         </li>
                     @else
                         <li class="breadcrumb-item">
@@ -27,7 +32,7 @@ Usage:
                                 @if($loop->first)
                                     <i class="fas fa-home me-1"></i>
                                 @endif
-                                {{ $item['title'] }}
+                                {{ $label }}
                             </a>
                         </li>
                     @endif

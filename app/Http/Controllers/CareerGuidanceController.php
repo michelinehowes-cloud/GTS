@@ -277,8 +277,8 @@ class CareerGuidanceController extends Controller
             'graduation_year' => $request->graduation_year,
             'gpa' => $request->gpa,
             'degree' => $request->degree,
-            'skills' => $request->skills ? array_map('trim', explode(',', $request->skills)) : null,
-            'languages' => $request->languages ? array_map('trim', explode(',', $request->languages)) : null,
+            'skills' => is_string($request->input('skills')) ? array_map('trim', explode(',', $request->input('skills'))) : $request->input('skills'),
+            'languages' => is_string($request->input('languages')) ? array_map('trim', explode(',', $request->input('languages'))) : $request->input('languages'),
             'employment_status' => $request->employment_status,
             'work_experience' => $request->work_experience,
             'address' => $request->address,
@@ -831,7 +831,7 @@ class CareerGuidanceController extends Controller
             $fileName = "تقرير_الارشاد_المهني_" . date('Y-m-d') . ".pdf";
 
             // استخدام مكتبة PDF مع إعدادات مناسبة
-            $pdf = \PDF::loadView('career-guidance.reports-pdf', compact('stats', 'insights', 'type'))
+            $pdf = PDF::loadView('career-guidance.reports-pdf', compact('stats', 'insights', 'type'))
                 ->setPaper('a4', 'portrait')
                 ->setOption('enable_remote', false)
                 ->setOption('enable_php', false)

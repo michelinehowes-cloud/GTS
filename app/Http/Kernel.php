@@ -75,5 +75,6 @@ class Kernel extends HttpKernel
         'career_guidance_officer' => \App\Http\Middleware\CareerGuidanceOfficerMiddleware::class,
         'media_officer' => \App\Http\Middleware\MediaOfficerMiddleware::class,
         'password.must.change' => \App\Http\Middleware\EnsurePasswordChanged::class,
+        'company' => \App\Http\Middleware\CompanyMiddleware::class,
     ];
 }

@@ -18,6 +18,21 @@ class CompanyController extends Controller
         $this->notificationService = $notificationService;
     }
 
+    public function dashboard()
+    {
+        $user = auth()->user();
+
+        // التحقق من وجود شركة مرتبطة
+        $company = $user->company;
+        // أو طريقة أخرى للحصول على الشركة إذا كانت العلاقة مختلفة
+        // مثلاً: $company = Company::where('user_id', $user->id)->first();
+        if (!$company && $user->role === 'company') {
+            $company = Company::where('user_id', $user->id)->first();
+        }
+
+        return view('company.dashboard', compact('company'));
+    }
+
     public function index()
     {
         $companies = Company::latest()->get();

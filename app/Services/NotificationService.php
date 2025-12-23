@@ -291,7 +291,7 @@ class NotificationService
         $type = 'success';
 
         // إشعار للخريج المرشح
-        $this->sendToUser($nomination->user, $title, $message, $type, [
+        $this->sendToUser($nomination->graduate->user, $title, $message, $type, [
             'model_type' => get_class($nomination),
             'model_id' => $nomination->id,
             'send_email' => true,
@@ -300,8 +300,8 @@ class NotificationService
         // إشعار لمسؤول الشراكات والتوظيف
         $this->sendToRole(
             'partnership_officer',
-            "ترشيح جديد: {$nomination->user->name}",
-            "تم ترشيح {$nomination->user->name} للوظيفة: {$nomination->jobOpportunity->title}",
+            "ترشيح جديد: {$nomination->graduate->user->name}",
+            "تم ترشيح {$nomination->graduate->user->name} للوظيفة: {$nomination->jobOpportunity->title}",
             $type,
             [
                 'model_type' => get_class($nomination),
@@ -327,7 +327,7 @@ class NotificationService
         $type = $status === 'approved' ? 'success' : ($status === 'rejected' ? 'warning' : 'info');
 
         // إشعار للخريج
-        $this->sendToUser($nomination->user, $title, $message, $type, [
+        $this->sendToUser($nomination->graduate->user, $title, $message, $type, [
             'model_type' => get_class($nomination),
             'model_id' => $nomination->id,
             'send_email' => true,

@@ -528,6 +528,11 @@ Route::middleware('auth')->group(function () {
         return redirect('/login');
     })->name('logout');
 
+    // ==================== 🏢 مسارات الشركة ====================
+    Route::middleware(['auth', 'company'])->prefix('company')->name('company.')->group(function () {
+        Route::get('/dashboard', [CompanyController::class, 'dashboard'])->name('dashboard');
+    });
+
 }); // نهاية مجموعة المسارات للمستخدمين المسجلين
 
 // ==================== 🔧 مسارات التطوير والاختبار ====================

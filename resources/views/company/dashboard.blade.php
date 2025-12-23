@@ -39,7 +39,7 @@
                 'value' => $stats['active_jobs'] ?? 0,
                 'icon' => 'fas fa-briefcase',
                 'color' => 'primary',
-                'col' => 'col-xl-4 col-md-6 mb-4',
+                'col' => 'col-6 col-md-4 mb-3',
                 'description' => 'الوظائف المتاحة حالياً للتقديم'
             ])
 
@@ -48,7 +48,7 @@
                 'value' => $stats['total_applications'] ?? 0,
                 'icon' => 'fas fa-file-alt',
                 'color' => 'info',
-                'col' => 'col-xl-4 col-md-6 mb-4',
+                'col' => 'col-6 col-md-4 mb-3',
                 'description' => 'جميع طلبات التوظيف المستلمة'
             ])
 
@@ -57,7 +57,7 @@
                 'value' => $stats['new_applications'] ?? 0,
                 'icon' => 'fas fa-bell',
                 'color' => 'warning',
-                'col' => 'col-xl-4 col-md-6 mb-4',
+                'col' => 'col-6 col-md-4 mb-3',
                 'description' => 'طلبات بانتظار المراجعة'
             ])
         </div>
@@ -72,7 +72,7 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('company.opportunities.create') }}" method="POST">
+                        <form action="{{ route('job-opportunities.store') }}" method="POST">
                             @csrf
                             <div class="row">
                                 <div class="col-md-6 mb-3">

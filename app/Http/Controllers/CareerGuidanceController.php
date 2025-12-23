@@ -426,7 +426,7 @@ class CareerGuidanceController extends Controller
 
         // إرسال إشعار بتحديث حالة الترشيح
         try {
-            $nomination->load(['user', 'jobOpportunity']);
+            $nomination->load(['graduate.user', 'jobOpportunity']);
             $this->notificationService->notifyNominationStatusUpdate($nomination, $request->status);
         } catch (\Exception $e) {
             \Log::error('Failed to send nomination status update notification: ' . $e->getMessage());
@@ -498,7 +498,7 @@ class CareerGuidanceController extends Controller
 
         // إرسال إشعار بالترشيح
         try {
-            $nomination->load(['user', 'jobOpportunity']);
+            $nomination->load(['graduate.user', 'jobOpportunity']);
             $this->notificationService->notifyJobNomination($nomination, Auth::user());
         } catch (\Exception $e) {
             \Log::error('Failed to send job nomination notification: ' . $e->getMessage());

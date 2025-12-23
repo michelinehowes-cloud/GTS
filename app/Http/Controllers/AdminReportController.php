@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Company;
 use App\Models\Training;
-use App\Models\AuditLog; // Assuming you have an AuditLog model
+// use App\Models\AuditLog; // Assuming you have an AuditLog model
 
 class AdminReportController extends Controller
 {
@@ -17,7 +17,8 @@ class AdminReportController extends Controller
         $totalUsers = User::count();
         $totalCompanies = Company::count();
         $totalTrainings = Training::count();
-        $recentAuditLogs = AuditLog::latest()->take(10)->get(); // Fetch recent audit logs
+        // $recentAuditLogs = AuditLog::latest()->take(10)->get(); // AuditLog model missing
+        $recentAuditLogs = collect([]);
 
         return view('admin.reports.index', compact('totalUsers', 'totalCompanies', 'totalTrainings', 'recentAuditLogs'));
     }
@@ -45,7 +46,8 @@ class AdminReportController extends Controller
 
     public function auditLogs()
     {
-        $auditLogs = AuditLog::latest()->paginate(20); // Paginate audit logs
+        // $auditLogs = AuditLog::latest()->paginate(20); // AuditLog model missing
+        $auditLogs = collect([]); // Return empty collection
         // Logic to display all system activities
         return view('admin.reports.audit-logs', compact('auditLogs'));
     }

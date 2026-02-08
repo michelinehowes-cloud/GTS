@@ -1,4 +1,4 @@
-- [ ] Modify resources/views/training-coordinator/trainings/show.blade.php to display full evaluation details including:
+- [x] Modify resources/views/training-coordinator/trainings/show.blade.php to display full evaluation details including:
   - Facilities evaluation
   - Content evaluation
   - Trainer evaluation

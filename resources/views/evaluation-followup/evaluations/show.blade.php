@@ -79,29 +79,43 @@
                             <div class="row">
                                 @php
                                     $sections = [
-                                        'facilities_evaluation' => ['title' => 'التجهيزات والمرافق', 'icon' => 'building', 'color' => 'info'],
-                                        'organization_evaluation' => ['title' => 'التنظيم والإدارة', 'icon' => 'tasks', 'color' => 'secondary'],
-                                        'impact_evaluation' => ['title' => 'الأثر والاستفادة', 'icon' => 'chart-line', 'color' => 'primary'],
+                                        'facilities_evaluation' => ['title' => 'التجهيزات والمرافق', 'icon' => 'building', 'color' => 'success'],
+                                        'content_evaluation' => ['title' => 'المحتوى التدريبي', 'icon' => 'book', 'color' => 'primary'],
+                                        'organization_evaluation' => ['title' => 'التنظيم والإدارة', 'icon' => 'cogs', 'color' => 'info'],
+                                        'impact_evaluation' => ['title' => 'الأثر والاستفادة', 'icon' => 'chart-line', 'color' => 'secondary'],
                                     ];
 
                                     $labels = [
-                                        'room_quality' => 'جودة القاعة',
-                                        'equipment' => 'التجهيزات',
-                                        'comfort' => 'الراحة',
-                                        'cleanliness' => 'النظافة',
+                                        // Facilities
+                                        'room_quality' => 'جودة القاعة التدريبية',
+                                        'equipment' => 'التجهيزات والأدوات',
+                                        'comfort' => 'الراحة والإضاءة',
+                                        'cleanliness' => 'النظافة والترتيب',
+                                        'accessibility' => 'سهولة الوصول',
+                                        'lighting' => 'الإضاءة',
+                                        'ventilation' => 'التهوية',
+                                        'noise_level' => 'مستوى الضوضاء',
+                                        
+                                        // Organization
                                         'scheduling' => 'الجدول الزمني',
-                                        'coordination' => 'التنسيق',
-                                        'support' => 'الدعم',
+                                        'coordination' => 'التنسيق والترتيب',
+                                        'support' => 'الدعم الفني واللوجستي',
                                         'communication_admin' => 'التواصل الإداري',
+                                        'problem_solving' => 'سرعة حل المشكلات',
+                                        
+                                        // Impact
                                         'skills_gained' => 'المهارات المكتسبة',
                                         'knowledge_gained' => 'المعرفة المكتسبة',
-                                        'practical_application' => 'إمكانية التطبيق',
-                                        'career_impact' => 'الأثر المهني',
-                                        'overall_satisfaction' => 'الرضا العام',
-                                        // Daily labels
-                                        'clarity' => 'وضوح المحتوى',
-                                        'relevance' => 'الارتباط بالأهداف',
-                                        'engagement' => 'التفاعل والمشاركة'
+                                        'practical_application' => 'إمكانية التطبيق العملي',
+                                        'career_impact' => 'التأثير على المسار المهني',
+                                        'overall_satisfaction' => 'الرضا العام عن البرنامج',
+                                        
+                                        // Content
+                                        'relevance' => 'ملاءمة المحتوى للأهداف',
+                                        'quality' => 'جودة المواد التدريبية',
+                                        'organization' => 'تنظيم المحتوى',
+                                        'practical' => 'التطبيق العملي',
+                                        'updated' => 'حداثة المعلومات'
                                     ];
                                 @endphp
 
@@ -117,11 +131,14 @@
                                                     <ul class="list-unstyled mb-0">
                                                         @foreach($evaluation->$field as $key => $value)
                                                             @if(is_numeric($value))
-                                                                <li class="mb-2 d-flex justify-content-between align-items-center">
-                                                                    <span>{{ $labels[$key] ?? $key }}</span>
-                                                                    <span class="badge bg-light text-dark border">
-                                                                        {{ $value }}/5 <i class="fas fa-star text-warning ms-1"></i>
-                                                                    </span>
+                                                                <li class="mb-3">
+                                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                        <span class="small">{{ $labels[$key] ?? ucfirst(str_replace('_', ' ', $key)) }}</span>
+                                                                        <span class="badge bg-light text-dark border">{{ $value }}/5</span>
+                                                                    </div>
+                                                                    <div class="progress" style="height: 5px;">
+                                                                        <div class="progress-bar bg-{{ $config['color'] }}" role="progressbar" style="width: {{ $value * 20 }}%" aria-valuenow="{{ $value }}" aria-valuemin="0" aria-valuemax="5"></div>
+                                                                    </div>
                                                                 </li>
                                                             @endif
                                                         @endforeach
@@ -181,21 +198,57 @@
                                                 <div class="row">
                                                     @foreach($evaluation->trainerEvaluations as $trainerEval)
                                                         <div class="col-md-6 mb-3">
-                                                            <div class="card h-100">
+                                                            <div class="card h-100 shadow-sm border-light">
                                                                 <div class="card-body">
-                                                                    <h6 class="card-title fw-bold">
-                                                                        {{ $trainerEval->trainer->name ?? 'مدرب غير معروف' }}
-                                                                    </h6>
-                                                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                                                        <span>التقييم العام</span>
-                                                                        <span
-                                                                            class="badge bg-warning text-dark fs-6">{{ $trainerEval->rating }}/5
-                                                                            <i class="fas fa-star"></i></span>
+                                                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                                                        <h6 class="card-title fw-bold mb-0">
+                                                                            {{ $trainerEval->trainer->name ?? 'مدرب غير معروف' }}
+                                                                        </h6>
+                                                                        <span class="badge bg-warning text-dark">{{ $trainerEval->rating }}/5 <i class="fas fa-star ms-1"></i></span>
                                                                     </div>
-                                                                    @if($trainerEval->comments)
-                                                                        <p class="card-text small text-muted bg-light p-2 rounded">
-                                                                            <i class="fas fa-comment me-1"></i> {{ $trainerEval->comments }}
-                                                                        </p>
+                                                                    
+                                                                    @if($trainerEval->scores && is_array($trainerEval->scores))
+                                                                        <div class="row g-2 mb-3 bg-light p-2 rounded">
+                                                                            @php
+                                                                                $trainerLabels = [
+                                                                                    'knowledge' => 'المعرفة والخبرة',
+                                                                                    'communication' => 'مهارات التواصل',
+                                                                                    'interaction' => 'التفاعل مع المتدربين',
+                                                                                    'time_management' => 'إدارة الوقت',
+                                                                                    'motivation' => 'القدرة على التحفيز'
+                                                                                ];
+                                                                            @endphp
+                                                                            @foreach($trainerEval->scores as $sKey => $sValue)
+                                                                                @if(isset($trainerLabels[$sKey]) || !is_numeric($sKey))
+                                                                                <div class="col-12">
+                                                                                    <div class="d-flex justify-content-between small mb-1">
+                                                                                        <span>{{ $trainerLabels[$sKey] ?? ucfirst(str_replace('_', ' ', $sKey)) }}</span>
+                                                                                        <strong>{{ $sValue }}/5</strong>
+                                                                                    </div>
+                                                                                    <div class="progress" style="height: 4px;">
+                                                                                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $sValue * 20 }}%" aria-valuenow="{{ $sValue }}" aria-valuemin="0" aria-valuemax="5"></div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                @endif
+                                                                            @endforeach
+                                                                        </div>
+                                                                    @endif
+
+                                                                    @if($trainerEval->notes || $trainerEval->strengths || $trainerEval->weaknesses || $trainerEval->recommendations)
+                                                                        <div class="mt-2 p-2 border-top small text-muted">
+                                                                            @if($trainerEval->notes)
+                                                                                <p class="mb-1"><i class="fas fa-comment me-1"></i> <strong>الملاحظات:</strong> {{ $trainerEval->notes }}</p>
+                                                                            @endif
+                                                                            @if($trainerEval->strengths)
+                                                                                <p class="mb-1 text-success"><i class="fas fa-plus-circle me-1"></i> <strong>النقاط القوية:</strong> {{ $trainerEval->strengths }}</p>
+                                                                            @endif
+                                                                            @if($trainerEval->weaknesses)
+                                                                                <p class="mb-1 text-danger"><i class="fas fa-minus-circle me-1"></i> <strong>نقاط التحسين:</strong> {{ $trainerEval->weaknesses }}</p>
+                                                                            @endif
+                                                                            @if($trainerEval->recommendations)
+                                                                                <p class="mb-0 text-info"><i class="fas fa-lightbulb me-1"></i> <strong>التوصيات:</strong> {{ $trainerEval->recommendations }}</p>
+                                                                            @endif
+                                                                        </div>
                                                                     @endif
                                                                 </div>
                                                             </div>
@@ -211,42 +264,94 @@
                             <!-- تقييم التوظيف -->
                             <div class="row">
                                 @php
-                                    $empSections = [
-                                        'employment_evaluation' => ['title' => 'بيئة العمل والإشراف', 'icon' => 'building', 'color' => 'info'],
-                                    ];
-                                    $empLabels = [
-                                        'workplace_quality' => 'جودة مكان العمل',
-                                        'tools_equipment' => 'الأدوات والمعدات',
-                                        'safety' => 'الأمان والسلامة',
-                                        'work_culture' => 'ثقافة العمل',
-                                        'supervisor_support' => 'دعم المشرف',
-                                        'guidance' => 'التوجيه والإرشاد'
+                                    $employmentGroups = [
+                                        'work_environment' => [
+                                            'label' => 'بيئة العمل',
+                                            'icon' => 'building',
+                                            'color' => 'info',
+                                            'questions' => [
+                                                'workplace_quality' => 'جودة مكان العمل',
+                                                'tools_equipment' => 'الأدوات والمعدات',
+                                                'safety' => 'الأمان والسلامة',
+                                                'work_culture' => 'ثقافة العمل',
+                                                'colleagues' => 'العلاقة مع الزملاء',
+                                            ]
+                                        ],
+                                        'supervision' => [
+                                            'label' => 'الإشراف والتوجيه',
+                                            'icon' => 'user-tie',
+                                            'color' => 'primary',
+                                            'questions' => [
+                                                'supervisor_support' => 'دعم المشرف',
+                                                'guidance' => 'التوجيه والإرشاد',
+                                                'feedback' => 'التغذية الراجعة',
+                                                'communication' => 'التواصل',
+                                                'problem_resolution' => 'حل المشكلات',
+                                            ]
+                                        ],
+                                        'development' => [
+                                            'label' => 'فرص التطوير',
+                                            'icon' => 'chart-line',
+                                            'color' => 'success',
+                                            'questions' => [
+                                                'training_opportunities' => 'فرص التدريب',
+                                                'career_growth' => 'النمو الوظيفي',
+                                                'skill_development' => 'تطوير المهارات',
+                                                'responsibilities' => 'المسؤوليات والتحديات',
+                                                'learning' => 'بيئة التعلم',
+                                            ]
+                                        ],
+                                        'compensation' => [
+                                            'label' => 'الرواتب والمزايا',
+                                            'icon' => 'money-bill-wave',
+                                            'color' => 'warning',
+                                            'questions' => [
+                                                'salary' => 'الراتب',
+                                                'benefits' => 'المزايا',
+                                                'work_hours' => 'ساعات العمل',
+                                                'work_life_balance' => 'التوازن بين العمل والحياة',
+                                                'job_security' => 'الأمان الوظيفي',
+                                            ]
+                                        ],
+                                        'overall' => [
+                                            'label' => 'التقييم العام للوظيفة',
+                                            'icon' => 'star',
+                                            'color' => 'dark',
+                                            'questions' => [
+                                                'job_satisfaction' => 'الرضا الوظيفي',
+                                                'company_reputation' => 'سمعة الشركة',
+                                                'recommendation' => 'التوصية للآخرين',
+                                                'future_prospects' => 'التوقعات المستقبلية',
+                                                'overall_experience' => 'التجربة الإجمالية',
+                                            ]
+                                        ],
                                     ];
                                 @endphp
 
-                                @foreach($empSections as $field => $config)
-                                    @if($evaluation->$field)
-                                        <div class="col-12 mb-4">
+                                @foreach($employmentGroups as $groupId => $group)
+                                    @if(isset($evaluation->employment_evaluation[$groupId]) && is_array($evaluation->employment_evaluation[$groupId]))
+                                        <div class="col-md-6 mb-4">
                                             <div class="card h-100 border-0 shadow-sm">
-                                                <div class="card-header bg-{{ $config['color'] }} text-white">
-                                                    <i class="fas fa-{{ $config['icon'] }} me-2"></i> {{ $config['title'] }}
+                                                <div class="card-header bg-{{ $group['color'] }} text-{{ in_array($group['color'], ['warning', 'light']) ? 'dark' : 'white' }}">
+                                                    <i class="fas fa-{{ $group['icon'] }} me-2"></i> {{ $group['label'] }}
                                                 </div>
                                                 <div class="card-body">
-                                                    <div class="row">
-                                                        @foreach($evaluation->$field as $key => $value)
-                                                            @if(is_numeric($value))
-                                                                <div class="col-md-6 mb-2">
-                                                                    <div
-                                                                        class="d-flex justify-content-between align-items-center border-bottom pb-2">
-                                                                        <span>{{ $empLabels[$key] ?? $key }}</span>
-                                                                        <span class="badge bg-light text-dark border">
-                                                                            {{ $value }}/5 <i class="fas fa-star text-warning ms-1"></i>
-                                                                        </span>
+                                                    <ul class="list-unstyled mb-0">
+                                                        @foreach($group['questions'] as $qKey => $qLabel)
+                                                            @if(isset($evaluation->employment_evaluation[$groupId][$qKey]))
+                                                                @php $val = $evaluation->employment_evaluation[$groupId][$qKey]; @endphp
+                                                                <li class="mb-3">
+                                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                                        <span class="small">{{ $qLabel }}</span>
+                                                                        <span class="badge bg-light text-dark border">{{ $val }}/5</span>
                                                                     </div>
-                                                                </div>
+                                                                    <div class="progress" style="height: 5px;">
+                                                                        <div class="progress-bar bg-{{ $group['color'] }}" role="progressbar" style="width: {{ $val * 20 }}%" aria-valuenow="{{ $val }}" aria-valuemin="0" aria-valuemax="5"></div>
+                                                                    </div>
+                                                                </li>
                                                             @endif
                                                         @endforeach
-                                                    </div>
+                                                    </ul>
                                                 </div>
                                             </div>
                                         </div>

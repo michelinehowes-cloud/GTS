@@ -94,8 +94,14 @@ class JobFairController extends Controller
      */
     public function checkIn(Request $request)
     {
-        $qrCode = $request->qr_code;
-        $registration = JobFairRegistration::where('qr_code', $qrCode)
+        $qrCode = trim($request->qr_code);
+        $cleanNumber = ltrim($qrCode, '#');
+
+        $registration = JobFairRegistration::where(function($query) use ($qrCode, $cleanNumber) {
+                $query->where('qr_code', $qrCode)
+                      ->orWhere('registration_number', $qrCode)
+                      ->orWhere('registration_number', $cleanNumber);
+            })
             ->with(['graduate', 'jobFair'])
             ->first();
 

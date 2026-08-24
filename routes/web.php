@@ -531,6 +531,12 @@ Route::middleware('auth')->group(function () {
     // ==================== 🏢 مسارات الشركة ====================
     Route::middleware(['auth', 'company'])->prefix('company')->name('company.')->group(function () {
         Route::get('/dashboard', [CompanyController::class, 'dashboard'])->name('dashboard');
+        
+        // مسارات معارض التوظيف للشركات
+        Route::get('/job-fairs', [App\Http\Controllers\CompanyJobFairController::class, 'index'])->name('job-fairs.index');
+        Route::get('/job-fairs/{fair}/scanner', [App\Http\Controllers\CompanyJobFairController::class, 'scanner'])->name('job-fairs.scanner');
+        Route::post('/job-fairs/{fair}/scanner', [App\Http\Controllers\CompanyJobFairController::class, 'storeVisit'])->name('job-fairs.store-visit');
+        Route::get('/job-fairs/{fair}/leads', [App\Http\Controllers\CompanyJobFairController::class, 'leads'])->name('job-fairs.leads');
     });
 
 }); // نهاية مجموعة المسارات للمستخدمين المسجلين
@@ -578,6 +584,11 @@ Route::get('/job-fair', [App\Http\Controllers\JobFairController::class, 'publicS
 Route::middleware('auth')->group(function () {
     Route::post('/job-fair/{fair}/register', [App\Http\Controllers\JobFairController::class, 'register'])->name('job-fair.register');
     Route::get('/job-fair/ticket/{registration}', [App\Http\Controllers\JobFairController::class, 'myTicket'])->name('job-fair.my-ticket');
+    
+    // المراسلات (الشركات والخريجين)
+    Route::get('/messages', [App\Http\Controllers\MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/{id}', [App\Http\Controllers\MessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages/{id}', [App\Http\Controllers\MessageController::class, 'store'])->name('messages.store');
 });
 
 // إدارة المعرض (أدمن فقط)

@@ -12,7 +12,7 @@
     <style>
         * { font-family: 'Cairo', sans-serif; }
         body {
-            background: linear-gradient(135deg, #0A1628 0%, #1E3A5F 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #e2e8f0 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -36,7 +36,7 @@
 
         /* Header الملوّن */
         .ticket-header {
-            background: linear-gradient(135deg, #0A1628 0%, #1E3A5F 60%, #0A2647 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             color: white;
             padding: 2rem;
             text-align: center;
@@ -59,18 +59,25 @@
         }
 
         .ticket-logo {
-            font-size: 3rem;
             margin-bottom: 0.5rem;
+        }
+        .ticket-logo img {
+            height: 60px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            background: white;
+            padding: 5px;
         }
         .ticket-event-name {
             font-size: 1.3rem;
             font-weight: 900;
-            color: #F59E0B;
+            color: #FDE68A;
             margin-bottom: 0.2rem;
+            margin-top: 0.5rem;
         }
         .ticket-university {
             font-size: 0.85rem;
-            color: rgba(255,255,255,0.7);
+            color: rgba(255,255,255,0.8);
         }
 
         /* Zigzag separator */
@@ -90,14 +97,14 @@
         }
         .ticket-hole {
             width: 20px; height: 20px;
-            background: linear-gradient(135deg, #0A1628, #1E3A5F);
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
             border-radius: 50%;
             margin: 0 -10px;
             flex-shrink: 0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         .ticket-hole-right {
-            background: linear-gradient(135deg, #0A1628, #1E3A5F);
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
         }
 
         /* Body */
@@ -122,7 +129,7 @@
         .grad-name {
             font-size: 1.4rem;
             font-weight: 900;
-            color: #0A1628;
+            color: #1e3a8a;
             margin-bottom: 0.3rem;
         }
         .grad-info {
@@ -151,7 +158,7 @@
         }
         .info-value {
             font-weight: 700;
-            color: #0A1628;
+            color: #1e3a8a;
             font-size: 0.9rem;
         }
 
@@ -203,7 +210,7 @@
         }
         .btn-print {
             flex: 1;
-            background: linear-gradient(135deg, #0A1628, #1E3A5F);
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
             color: white;
             border: none;
             padding: 12px;
@@ -215,7 +222,7 @@
         }
         .btn-print:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(10,22,40,0.4);
+            box-shadow: 0 8px 25px rgba(30,58,138,0.4);
         }
         .btn-back {
             flex: 1;
@@ -262,9 +269,11 @@
 
         <!-- Header -->
         <div class="ticket-header">
-            <div class="ticket-logo">🎓</div>
+            <div class="ticket-logo">
+                <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" style="max-width: 80px;">
+            </div>
             <div class="ticket-event-name">{{ $registration->jobFair->title }}</div>
-            <div class="ticket-university">جامعة طرابلس</div>
+            <div class="ticket-university">مكتب تدريب الخريجين - جامعة طرابلس</div>
             <div class="mt-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.7)">
                 <i class="fas fa-calendar ms-2"></i>{{ $registration->jobFair->event_date->format('d/m/Y') }}
                 &nbsp;&nbsp;

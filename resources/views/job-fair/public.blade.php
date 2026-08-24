@@ -16,9 +16,9 @@
         :root {
             --gold:     #F59E0B;
             --gold-lt:  #FDE68A;
-            --navy:     #0A1628;
-            --navy-md:  #1E3A5F;
-            --navy-lt:  #2D5FA0;
+            --navy:     #1e3a8a; /* University Primary Blue */
+            --navy-md:  #3b82f6; /* University Light Blue */
+            --navy-lt:  #60a5fa;
             --teal:     #0EA5E9;
             --green:    #10B981;
             --white:    #FFFFFF;

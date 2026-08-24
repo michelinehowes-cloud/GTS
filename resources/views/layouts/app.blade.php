@@ -483,6 +483,14 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('job-fair.*') ? 'active' : '' }}"
+                                        href="{{ route('job-fair.admin.index') }}">
+                                        <i class="fas fa-store"></i>
+                                        معرض التوظيف 2026
+                                        <span class="badge ms-1 py-1 px-2 rounded-pill" style="background:linear-gradient(135deg,#F59E0B,#F97316);font-size:0.62rem">جديد</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('partnership.reports') ? 'active' : '' }}"
                                         href="{{ route('partnership.reports') }}">
                                         <i class="fas fa-chart-bar"></i>

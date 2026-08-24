@@ -11,6 +11,48 @@
         </h1>
     </div>
 
+    <!-- بطاقة دعوة لمعرض التوظيف (إن وجد) -->
+    @php
+        $upcomingFair = \App\Models\JobFair::where('status', 'published')
+                            ->where('registration_open', true)
+                            ->where('event_date', '>=', now()->startOfDay())
+                            ->orderBy('event_date', 'asc')
+                            ->first();
+        
+        $isRegistered = false;
+        if ($upcomingFair) {
+            $isRegistered = \App\Models\JobFairRegistration::where('user_id', auth()->id())
+                            ->where('job_fair_id', $upcomingFair->id)
+                            ->exists();
+        }
+    @endphp
+
+    @if($upcomingFair && !$isRegistered)
+    <div class="card shadow-sm border-0 mb-4" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+        <div class="card-body p-4 p-md-5 text-white d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
+            <div>
+                <span class="badge bg-warning text-dark mb-2 px-3 py-2 rounded-pill fw-bold">
+                    <i class="fas fa-star me-1"></i> حدث قادم
+                </span>
+                <h3 class="fw-bold mb-2">{{ $upcomingFair->title }}</h3>
+                <p class="mb-0 text-white-50" style="font-size: 1.1rem">
+                    <i class="fas fa-calendar-alt me-2"></i> {{ $upcomingFair->event_date->format('Y-m-d') }}
+                    <span class="mx-2">|</span>
+                    <i class="fas fa-map-marker-alt me-2"></i> {{ $upcomingFair->location }}
+                </p>
+            </div>
+            <div class="text-md-end">
+                <a href="{{ route('job-fair.public') }}" class="btn btn-warning btn-lg rounded-pill fw-bold text-dark px-5 shadow">
+                    سجّل الآن في المعرض <i class="fas fa-arrow-left ms-2"></i>
+                </a>
+                <div class="mt-2 text-white-50 small">
+                    * حضور المعرض يزيد من فرصتك في الحصول على وظيفة
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- البحث والتصفية -->
     <div class="card shadow mb-4">
         <div class="card-body">

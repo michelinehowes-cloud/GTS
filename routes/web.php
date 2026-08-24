@@ -568,3 +568,30 @@ Route::middleware(['auth'])->prefix('graduate')->name('graduate.')->group(functi
 });
 
 require __DIR__ . '/auth.php';
+
+// ==================== 🎪 معرض التوظيف 2026 ====================
+
+// الصفحة العامة للمعرض (للجميع)
+Route::get('/job-fair', [App\Http\Controllers\JobFairController::class, 'publicShow'])->name('job-fair.public');
+
+// تسجيل الخريج في المعرض (يتطلب تسجيل دخول)
+Route::middleware('auth')->group(function () {
+    Route::post('/job-fair/{fair}/register', [App\Http\Controllers\JobFairController::class, 'register'])->name('job-fair.register');
+    Route::get('/job-fair/ticket/{registration}', [App\Http\Controllers\JobFairController::class, 'myTicket'])->name('job-fair.my-ticket');
+});
+
+// إدارة المعرض (أدمن فقط)
+Route::middleware(['auth'])->prefix('admin/job-fair')->name('job-fair.admin.')->group(function () {
+    Route::get('/', [App\Http\Controllers\JobFairController::class, 'index'])->name('index');
+    Route::get('/create', [App\Http\Controllers\JobFairController::class, 'create'])->name('create');
+    Route::post('/', [App\Http\Controllers\JobFairController::class, 'store'])->name('store');
+    Route::get('/{fair}', [App\Http\Controllers\JobFairController::class, 'show'])->name('show');
+    Route::get('/{fair}/edit', [App\Http\Controllers\JobFairController::class, 'edit'])->name('edit');
+    Route::put('/{fair}', [App\Http\Controllers\JobFairController::class, 'update'])->name('update');
+    Route::post('/{fair}/status', [App\Http\Controllers\JobFairController::class, 'updateStatus'])->name('status');
+    Route::post('/{fair}/companies', [App\Http\Controllers\JobFairController::class, 'addCompany'])->name('add-company');
+    Route::delete('/{fair}/companies/{company}', [App\Http\Controllers\JobFairController::class, 'removeCompany'])->name('remove-company');
+    Route::get('/{fair}/export', [App\Http\Controllers\JobFairController::class, 'exportRegistrations'])->name('export');
+    Route::get('/{fair}/attendance', [App\Http\Controllers\JobFairController::class, 'attendancePage'])->name('attendance');
+    Route::post('/check-in', [App\Http\Controllers\JobFairController::class, 'checkIn'])->name('check-in');
+});

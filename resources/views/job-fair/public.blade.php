@@ -1,495 +1,988 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ $fair ? $fair->title : 'معرض التوظيف 2026' }} — جامعة طرابلس</title>
+    <meta name="description" content="معرض التوظيف السنوي 2026 — جامعة طرابلس. سجّل الآن وابدأ مستقبلك المهني.">
 
-@section('title', 'معرض التوظيف 2026 - جامعة طرابلس')
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-@push('styles')
-<style>
-    :root {
-        --fair-gold:    #F59E0B;
-        --fair-dark:    #0A1628;
-        --fair-blue:    #1E3A5F;
-        --fair-accent:  #3B82F6;
-        --fair-green:   #10B981;
-    }
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ===== Hero Section ===== */
-    .fair-hero {
-        background: linear-gradient(135deg, #0A1628 0%, #1E3A5F 50%, #0A2647 100%);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        position: relative;
-        overflow: hidden;
-    }
-    .fair-hero::before {
-        content: '';
-        position: absolute; inset: 0;
-        background: radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.15) 0%, transparent 60%),
-                    radial-gradient(ellipse at 80% 20%, rgba(245,158,11,0.1) 0%, transparent 50%);
-        pointer-events: none;
-    }
-    .floating-particles {
-        position: absolute; inset: 0; overflow: hidden; pointer-events: none;
-    }
-    .particle {
-        position: absolute;
-        width: 4px; height: 4px;
-        background: rgba(245,158,11,0.6);
-        border-radius: 50%;
-        animation: float-up linear infinite;
-    }
-    @keyframes float-up {
-        0%   { transform: translateY(100vh) scale(0); opacity: 0; }
-        10%  { opacity: 1; }
-        90%  { opacity: 1; }
-        100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
-    }
+        :root {
+            --gold:     #F59E0B;
+            --gold-lt:  #FDE68A;
+            --navy:     #0A1628;
+            --navy-md:  #1E3A5F;
+            --navy-lt:  #2D5FA0;
+            --teal:     #0EA5E9;
+            --green:    #10B981;
+            --white:    #FFFFFF;
+        }
 
-    .fair-badge {
-        display: inline-block;
-        background: linear-gradient(135deg, var(--fair-gold), #F97316);
-        color: #fff;
-        padding: 6px 20px;
-        border-radius: 50px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 15px rgba(245,158,11,0.4);
-    }
+        html { scroll-behavior: smooth; }
 
-    .fair-title {
-        font-size: clamp(2.5rem, 6vw, 5rem);
-        font-weight: 900;
-        background: linear-gradient(135deg, #fff 30%, var(--fair-gold) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        line-height: 1.1;
-        margin-bottom: 1rem;
-    }
-    .fair-subtitle {
-        color: rgba(255,255,255,0.75);
-        font-size: 1.2rem;
-        margin-bottom: 2.5rem;
-    }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            overflow-x: hidden;
+        }
 
-    /* ===== Countdown ===== */
-    .countdown-wrapper {
-        display: flex;
-        gap: 1.5rem;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-bottom: 2.5rem;
-    }
-    .countdown-item {
-        background: rgba(255,255,255,0.08);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.15);
-        border-radius: 16px;
-        padding: 1rem 1.5rem;
-        text-align: center;
-        min-width: 90px;
-        transition: transform 0.3s;
-    }
-    .countdown-item:hover { transform: translateY(-4px); }
-    .countdown-number {
-        font-size: 2.8rem;
-        font-weight: 900;
-        color: var(--fair-gold);
-        line-height: 1;
-        font-variant-numeric: tabular-nums;
-    }
-    .countdown-label {
-        color: rgba(255,255,255,0.6);
-        font-size: 0.75rem;
-        margin-top: 4px;
-        font-weight: 500;
-    }
+        /* ══════════════════════════════════
+           TOP NAV
+        ══════════════════════════════════ */
+        .top-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(10, 22, 40, 0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(245,158,11,0.2);
+            padding: 0.85rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s;
+        }
+        .top-nav.scrolled {
+            padding: 0.6rem 2rem;
+            background: rgba(10, 22, 40, 0.98);
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+        .nav-brand img {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            object-fit: cover;
+        }
+        .nav-brand-text {
+            line-height: 1.2;
+        }
+        .nav-brand-text .main { color: white; font-weight: 700; font-size: 0.95rem; }
+        .nav-brand-text .sub  { color: var(--gold); font-size: 0.72rem; }
 
-    /* ===== Stats Bar ===== */
-    .stats-bar {
-        background: rgba(255,255,255,0.07);
-        border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 16px;
-        padding: 1.2rem 2rem;
-        display: flex;
-        justify-content: space-around;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-bottom: 2.5rem;
-    }
-    .stat-item { text-align: center; }
-    .stat-number {
-        font-size: 2rem;
-        font-weight: 900;
-        color: var(--fair-gold);
-    }
-    .stat-label {
-        color: rgba(255,255,255,0.65);
-        font-size: 0.85rem;
-    }
+        .nav-links { display: flex; align-items: center; gap: 0.5rem; }
+        .nav-btn {
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.25s;
+            border: none;
+        }
+        .nav-btn-outline {
+            background: transparent;
+            border: 1.5px solid rgba(255,255,255,0.3);
+            color: white;
+        }
+        .nav-btn-outline:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        .nav-btn-gold {
+            background: linear-gradient(135deg, var(--gold), #F97316);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245,158,11,0.35);
+        }
+        .nav-btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(245,158,11,0.5);
+            color: white;
+        }
 
-    /* ===== Registration Button ===== */
-    .btn-register {
-        background: linear-gradient(135deg, var(--fair-gold), #F97316);
-        color: #fff;
-        border: none;
-        padding: 16px 48px;
-        border-radius: 50px;
-        font-size: 1.1rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s;
-        box-shadow: 0 8px 30px rgba(245,158,11,0.4);
-        text-decoration: none;
-        display: inline-block;
-    }
-    .btn-register:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 40px rgba(245,158,11,0.6);
-        color: #fff;
-    }
-    .btn-ticket {
-        background: linear-gradient(135deg, var(--fair-green), #059669);
-        color: #fff;
-        border: none;
-        padding: 14px 40px;
-        border-radius: 50px;
-        font-size: 1rem;
-        font-weight: 700;
-        text-decoration: none;
-        display: inline-block;
-        transition: all 0.3s;
-        box-shadow: 0 6px 20px rgba(16,185,129,0.4);
-    }
-    .btn-ticket:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(16,185,129,0.6);
-        color: #fff;
-    }
+        /* ══════════════════════════════════
+           HERO
+        ══════════════════════════════════ */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: var(--navy);
+            padding-top: 70px;
+        }
 
-    /* ===== Details Section ===== */
-    .fair-details {
-        background: #f8fafc;
-        padding: 80px 0;
-    }
-    .detail-card {
-        background: #fff;
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-        border: 1px solid #e8f0fe;
-        height: 100%;
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
-    .detail-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 12px 40px rgba(0,0,0,0.12);
-    }
-    .detail-icon {
-        width: 60px; height: 60px;
-        border-radius: 16px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.6rem;
-        margin-bottom: 1rem;
-    }
+        /* Animated background layers */
+        .hero-bg-layer {
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 40%, rgba(245,158,11,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 80% at 80% 20%, rgba(14,165,233,0.1) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 50% at 50% 100%, rgba(16,185,129,0.08) 0%, transparent 50%),
+                linear-gradient(160deg, #0A1628 0%, #1E3A5F 50%, #0d2444 100%);
+            pointer-events: none;
+        }
 
-    /* ===== Companies Section ===== */
-    .companies-section {
-        background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
-        padding: 80px 0;
-    }
-    .company-card {
-        background: #fff;
-        border-radius: 16px;
-        padding: 1.5rem;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        border: 1px solid #e8f0fe;
-        transition: all 0.3s;
-    }
-    .company-card:hover {
-        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-        transform: translateY(-4px);
-        border-color: var(--fair-accent);
-    }
-    .company-logo {
-        width: 60px; height: 60px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #e8f0fe, #dbeafe);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.5rem;
-        flex-shrink: 0;
-    }
-    .booth-badge {
-        display: inline-block;
-        background: linear-gradient(135deg, var(--fair-blue), var(--fair-accent));
-        color: #fff;
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-size: 0.72rem;
-        font-weight: 600;
-    }
+        /* Grid overlay */
+        .hero-grid {
+            position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
 
-    /* ===== Section Headers ===== */
-    .section-header {
-        text-align: center;
-        margin-bottom: 3rem;
-    }
-    .section-header h2 {
-        font-size: 2.2rem;
-        font-weight: 800;
-        color: var(--fair-dark);
-        margin-bottom: 0.5rem;
-    }
-    .section-header p {
-        color: #64748b;
-        font-size: 1.05rem;
-    }
-    .section-header .section-line {
-        width: 60px; height: 4px;
-        background: linear-gradient(90deg, var(--fair-gold), var(--fair-accent));
-        border-radius: 2px;
-        margin: 1rem auto 0;
-    }
+        /* Floating orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            pointer-events: none;
+            animation: orb-float 8s ease-in-out infinite;
+        }
+        .orb-1 { width: 400px; height: 400px; background: rgba(245,158,11,0.08); top: -100px; right: -100px; animation-delay: 0s; }
+        .orb-2 { width: 300px; height: 300px; background: rgba(14,165,233,0.08); bottom: 0; left: -80px; animation-delay: -3s; }
+        .orb-3 { width: 200px; height: 200px; background: rgba(16,185,129,0.07); top: 50%; left: 50%; animation-delay: -5s; }
 
-    /* ===== Registration Modal ===== */
-    .modal-header-custom {
-        background: linear-gradient(135deg, var(--fair-dark), var(--fair-blue));
-        color: #fff;
-        border-radius: 16px 16px 0 0;
-    }
+        @keyframes orb-float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50%       { transform: translateY(-30px) scale(1.05); }
+        }
 
-    /* ===== Alerts ===== */
-    .registered-banner {
-        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-        border: 2px solid #10B981;
-        border-radius: 16px;
-        padding: 1.5rem 2rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
+        /* Particles */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(245,158,11,0.7);
+            pointer-events: none;
+            animation: particle-rise linear infinite;
+        }
+        @keyframes particle-rise {
+            0%   { transform: translateY(110vh) scale(0); opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 0.6; }
+            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+        }
 
-    /* No Fair Banner */
-    .no-fair-banner {
-        min-height: 60vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #0A1628 0%, #1E3A5F 100%);
-        color: white;
-        text-align: center;
-    }
-</style>
-@endpush
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 0 1rem;
+            max-width: 900px;
+            width: 100%;
+        }
 
-@section('content')
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245,158,11,0.15);
+            border: 1px solid rgba(245,158,11,0.4);
+            color: var(--gold);
+            padding: 6px 18px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+        .hero-eyebrow .dot {
+            width: 6px; height: 6px;
+            background: var(--gold);
+            border-radius: 50%;
+            animation: blink 1.5s ease-in-out infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+        .hero-title {
+            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1.05;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 40%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            color: rgba(255,255,255,0.65);
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            margin-bottom: 2rem;
+            font-weight: 400;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Event info pills */
+        .event-pills {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-bottom: 2.5rem;
+        }
+        .event-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.85);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            backdrop-filter: blur(4px);
+        }
+        .event-pill i { color: var(--gold); }
+
+        /* ══ COUNTDOWN ══ */
+        .countdown-row {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+        .cd-box {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 1.1rem 1.4rem;
+            min-width: 85px;
+            text-align: center;
+            position: relative;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+        .cd-box:hover {
+            transform: translateY(-6px);
+            border-color: rgba(245,158,11,0.5);
+        }
+        .cd-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(245,158,11,0.05), transparent);
+            pointer-events: none;
+        }
+        .cd-num {
+            font-size: 2.6rem;
+            font-weight: 900;
+            color: var(--gold);
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 30px rgba(245,158,11,0.4);
+        }
+        .cd-sep {
+            display: flex;
+            align-items: center;
+            padding-bottom: 1.2rem;
+            color: var(--gold);
+            font-size: 2rem;
+            font-weight: 900;
+            opacity: 0.5;
+            animation: blink 1s infinite;
+        }
+        .cd-lbl {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.5);
+            margin-top: 5px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* ══ STATS ══ */
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            flex-wrap: wrap;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 1.2rem 2rem;
+            margin-bottom: 2.5rem;
+            backdrop-filter: blur(6px);
+        }
+        .hero-stat { text-align: center; }
+        .hero-stat-num {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--gold), #FBBF24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+        .hero-stat-lbl {
+            color: rgba(255,255,255,0.55);
+            font-size: 0.8rem;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+        .hero-stat-divider {
+            width: 1px;
+            background: rgba(255,255,255,0.1);
+            align-self: stretch;
+        }
+
+        /* ══ CTA BUTTONS ══ */
+        .hero-cta {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .cta-primary {
+            background: linear-gradient(135deg, var(--gold) 0%, #F97316 100%);
+            color: white;
+            border: none;
+            padding: 15px 42px;
+            border-radius: 50px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 30px rgba(245,158,11,0.4);
+            transition: all 0.3s;
+        }
+        .cta-primary:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 40px rgba(245,158,11,0.6);
+            color: white;
+        }
+        .cta-secondary {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            border: 1.5px solid rgba(255,255,255,0.25);
+            padding: 15px 42px;
+            border-radius: 50px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s;
+        }
+        .cta-secondary:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.5);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Registered banner */
+        .registered-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(16,185,129,0.15);
+            border: 1.5px solid rgba(16,185,129,0.5);
+            border-radius: 50px;
+            padding: 12px 28px;
+            color: white;
+            font-weight: 600;
+        }
+        .registered-banner .reg-num {
+            background: rgba(16,185,129,0.3);
+            padding: 3px 12px;
+            border-radius: 50px;
+            color: #6EE7B7;
+            font-weight: 700;
+        }
+        .cta-ticket {
+            background: linear-gradient(135deg, var(--green), #059669);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(16,185,129,0.3);
+            transition: all 0.3s;
+        }
+        .cta-ticket:hover {
+            transform: translateY(-2px);
+            color: white;
+            box-shadow: 0 8px 25px rgba(16,185,129,0.5);
+        }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: rgba(255,255,255,0.3);
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            animation: bounce-down 2s ease-in-out infinite;
+        }
+        @keyframes bounce-down {
+            0%,100% { transform: translateX(-50%) translateY(0); }
+            50%      { transform: translateX(-50%) translateY(8px); }
+        }
+
+        /* ══════════════════════════════════
+           INFO SECTION
+        ══════════════════════════════════ */
+        .info-section {
+            padding: 100px 0;
+            background: white;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            color: #92400E;
+            padding: 5px 16px;
+            border-radius: 50px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 800;
+            color: var(--navy);
+            margin-bottom: 0.6rem;
+        }
+        .section-subtitle {
+            color: #64748b;
+            font-size: 1.05rem;
+        }
+        .title-line {
+            display: inline-block;
+            width: 60px;
+            height: 4px;
+            border-radius: 2px;
+            background: linear-gradient(90deg, var(--gold), var(--teal));
+            margin-bottom: 1.5rem;
+        }
+
+        /* Info cards */
+        .info-card {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            height: 100%;
+            border: 1px solid #e8f0fe;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+            transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+            position: relative;
+            overflow: hidden;
+        }
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--teal));
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.35s;
+        }
+        .info-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            border-color: transparent;
+        }
+        .info-card:hover::before { transform: scaleX(1); transform-origin: left; }
+
+        .info-icon {
+            width: 56px; height: 56px;
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.2rem;
+        }
+        .info-card h5 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 0.5rem;
+        }
+        .info-card p { color: #64748b; font-size: 0.9rem; line-height: 1.7; margin: 0; }
+
+        /* Description block */
+        .desc-block {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-right: 4px solid var(--teal);
+            border-radius: 0 16px 16px 0;
+            padding: 1.5rem 2rem;
+        }
+
+        /* ══════════════════════════════════
+           COMPANIES SECTION
+        ══════════════════════════════════ */
+        .companies-section {
+            padding: 100px 0;
+            background: linear-gradient(180deg, #f8fafc 0%, #EFF6FF 100%);
+        }
+
+        .company-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1.5px solid #e2e8f0;
+            transition: all 0.3s;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        .company-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(245,158,11,0.03), rgba(14,165,233,0.03));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .company-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--gold);
+            box-shadow: 0 12px 40px rgba(245,158,11,0.12);
+        }
+        .company-card:hover::after { opacity: 1; }
+
+        .company-logo-box {
+            width: 56px; height: 56px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            border: 1px solid #BFDBFE;
+        }
+        .booth-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--navy), var(--navy-md));
+            color: white;
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .positions-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #F0FDF4;
+            color: #065F46;
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        /* ══════════════════════════════════
+           MODAL
+        ══════════════════════════════════ */
+        .modal-card {
+            border: none;
+            border-radius: 24px;
+            overflow: hidden;
+        }
+        .modal-header-grad {
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-md) 100%);
+            padding: 1.5rem 2rem;
+            border: none;
+        }
+        .grad-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+        }
+        .grad-info-item {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 0.8rem;
+        }
+        .grad-info-item .lbl { font-size: 0.7rem; color: #94a3b8; font-weight: 600; margin-bottom: 3px; }
+        .grad-info-item .val { font-weight: 700; color: var(--navy); font-size: 0.9rem; }
+
+        /* ══════════════════════════════════
+           FOOTER
+        ══════════════════════════════════ */
+        .page-footer {
+            background: var(--navy);
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.85rem;
+        }
+        .page-footer a { color: var(--gold); text-decoration: none; }
+
+        /* ══════════════════════════════════
+           EMPTY STATE
+        ══════════════════════════════════ */
+        .empty-hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(160deg, var(--navy) 0%, var(--navy-md) 100%);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+        .empty-icon { font-size: 5rem; margin-bottom: 1.5rem; filter: drop-shadow(0 0 30px rgba(245,158,11,0.4)); }
+
+        /* ══════════════════════════════════
+           RESPONSIVE
+        ══════════════════════════════════ */
+        @media (max-width: 768px) {
+            .top-nav { padding: 0.75rem 1rem; }
+            .nav-brand-text .main { font-size: 0.8rem; }
+            .hero-stats { gap: 1.5rem; padding: 1rem; }
+            .hero-stat-divider { display: none; }
+            .cd-num { font-size: 2rem; }
+            .cd-box { min-width: 70px; padding: 0.8rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+{{-- ══════════════════════════════════
+     TOP NAV
+══════════════════════════════════ --}}
+<nav class="top-nav" id="topNav">
+    <a href="{{ route('home') }}" class="nav-brand">
+        <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" onerror="this.style.display='none'">
+        <div class="nav-brand-text">
+            <div class="main">مكتب تدريب الخريجين</div>
+            <div class="sub">جامعة طرابلس</div>
+        </div>
+    </a>
+
+    <div class="nav-links">
+        @auth
+            <a href="{{ route('dashboard') }}" class="nav-btn nav-btn-outline">
+                <i class="fas fa-th-large me-1"></i>لوحة التحكم
+            </a>
+            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'partnership_officer')
+            <a href="{{ route('job-fair.admin.index') }}" class="nav-btn nav-btn-gold">
+                <i class="fas fa-cog me-1"></i>إدارة المعرض
+            </a>
+            @endif
+        @else
+            <a href="{{ route('login') }}" class="nav-btn nav-btn-outline">تسجيل الدخول</a>
+            <a href="{{ route('graduate.register') }}" class="nav-btn nav-btn-gold">
+                <i class="fas fa-user-plus me-1"></i>سجّل كخريج
+            </a>
+        @endauth
+    </div>
+</nav>
+
+{{-- ══════════════════════════════════
+     MAIN CONTENT
+══════════════════════════════════ --}}
 
 @if($fair)
-<!-- ===== HERO SECTION ===== -->
-<section class="fair-hero">
-    <!-- Particles -->
-    <div class="floating-particles" id="particles"></div>
 
-    <div class="container text-center text-white position-relative" style="z-index:2">
-        <div class="fair-badge">
-            <i class="fas fa-star ms-2"></i>
+{{-- HERO --}}
+<section class="hero" id="hero">
+    <div class="hero-bg-layer"></div>
+    <div class="hero-grid"></div>
+
+    {{-- Orbs --}}
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    {{-- Particles --}}
+    <div id="particles-container"></div>
+
+    <div class="hero-content">
+        {{-- Eyebrow --}}
+        <div class="hero-eyebrow">
+            <span class="dot"></span>
             معرض التوظيف السنوي
+            <span class="dot"></span>
         </div>
 
-        <h1 class="fair-title">{{ $fair->title }}</h1>
+        {{-- Title --}}
+        <h1 class="hero-title">{{ $fair->title }}</h1>
 
         @if($fair->subtitle)
-            <p class="fair-subtitle">{{ $fair->subtitle }}</p>
+        <p class="hero-subtitle">{{ $fair->subtitle }}</p>
+        @else
+        <p class="hero-subtitle">انطلق نحو مستقبلك المهني — فرصتك الذهبية تبدأ هنا</p>
         @endif
 
-        <!-- Event Info -->
-        <div class="d-flex justify-content-center gap-4 mb-4 flex-wrap" style="color: rgba(255,255,255,0.8)">
-            <span><i class="fas fa-calendar-alt me-2" style="color: var(--fair-gold)"></i>{{ $fair->event_date->format('d/m/Y') }}</span>
+        {{-- Event Pills --}}
+        <div class="event-pills">
+            <span class="event-pill">
+                <i class="fas fa-calendar-alt"></i>
+                {{ \Carbon\Carbon::parse($fair->event_date)->locale('ar')->translatedFormat('j F Y') }}
+            </span>
             @if($fair->start_time)
-            <span><i class="fas fa-clock me-2" style="color: var(--fair-gold)"></i>{{ $fair->start_time }} - {{ $fair->end_time }}</span>
+            <span class="event-pill">
+                <i class="fas fa-clock"></i>
+                {{ \Str::substr($fair->start_time, 0, 5) }}
+                @if($fair->end_time) — {{ \Str::substr($fair->end_time, 0, 5) }} @endif
+            </span>
             @endif
-            <span><i class="fas fa-map-marker-alt me-2" style="color: var(--fair-gold)"></i>{{ $fair->location }}</span>
+            <span class="event-pill">
+                <i class="fas fa-map-marker-alt"></i>
+                {{ $fair->location }}
+            </span>
         </div>
 
-        <!-- Countdown -->
+        {{-- Countdown --}}
         @if($fair->is_upcoming)
-        <div class="countdown-wrapper" id="countdown-wrapper">
-            <div class="countdown-item">
-                <div class="countdown-number" id="cd-days">00</div>
-                <div class="countdown-label">يوم</div>
+        <div dir="ltr" class="countdown-row" id="countdown">
+            <div class="cd-box">
+                <div class="cd-num" id="cd-d">--</div>
+                <div class="cd-lbl">Days</div>
             </div>
-            <div class="countdown-item">
-                <div class="countdown-number" id="cd-hours">00</div>
-                <div class="countdown-label">ساعة</div>
+            <div class="cd-sep">:</div>
+            <div class="cd-box">
+                <div class="cd-num" id="cd-h">--</div>
+                <div class="cd-lbl">Hours</div>
             </div>
-            <div class="countdown-item">
-                <div class="countdown-number" id="cd-minutes">00</div>
-                <div class="countdown-label">دقيقة</div>
+            <div class="cd-sep">:</div>
+            <div class="cd-box">
+                <div class="cd-num" id="cd-m">--</div>
+                <div class="cd-lbl">Min</div>
             </div>
-            <div class="countdown-item">
-                <div class="countdown-number" id="cd-seconds">00</div>
-                <div class="countdown-label">ثانية</div>
+            <div class="cd-sep">:</div>
+            <div class="cd-box">
+                <div class="cd-num" id="cd-s">--</div>
+                <div class="cd-lbl">Sec</div>
             </div>
         </div>
         @else
-        <div class="mb-4">
-            <span class="badge fs-5 py-2 px-4" style="background: rgba(16,185,129,0.3); border: 2px solid #10B981; color: #10B981">
-                <i class="fas fa-circle-dot me-2"></i>المعرض يجري الآن
+        <div style="margin-bottom: 2rem">
+            <span style="background: rgba(16,185,129,0.2); border: 1.5px solid rgba(16,185,129,0.5); color: #6EE7B7; padding: 10px 28px; border-radius: 50px; font-weight: 700; font-size: 1rem">
+                <i class="fas fa-circle me-2" style="animation: blink 1s infinite; font-size: 0.6rem"></i>
+                المعرض يجري الآن
             </span>
         </div>
         @endif
 
-        <!-- Stats -->
-        <div class="stats-bar">
-            <div class="stat-item">
-                <div class="stat-number">{{ $stats['total_registered'] ?? 0 }}</div>
-                <div class="stat-label">خريج مسجل</div>
+        {{-- Stats --}}
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <div class="hero-stat-num">{{ $stats['total_registered'] ?? 0 }}</div>
+                <div class="hero-stat-lbl">خريج مسجّل</div>
             </div>
-            <div class="stat-item">
-                <div class="stat-number">{{ $stats['total_companies'] ?? 0 }}</div>
-                <div class="stat-label">شركة مشاركة</div>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat">
+                <div class="hero-stat-num">{{ $stats['total_companies'] ?? 0 }}</div>
+                <div class="hero-stat-lbl">شركة مشاركة</div>
             </div>
-            @if(isset($stats['total_attended']) && $stats['total_attended'] > 0)
-            <div class="stat-item">
-                <div class="stat-number">{{ $stats['total_attended'] }}</div>
-                <div class="stat-label">حاضر</div>
+            @if(($stats['total_attended'] ?? 0) > 0)
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat">
+                <div class="hero-stat-num">{{ $stats['total_attended'] }}</div>
+                <div class="hero-stat-lbl">حضر المعرض</div>
+            </div>
+            @endif
+            @if($fair->is_upcoming)
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat">
+                <div class="hero-stat-num">{{ $stats['days_remaining'] ?? 0 }}</div>
+                <div class="hero-stat-lbl">يوم متبقي</div>
             </div>
             @endif
         </div>
 
-        <!-- CTA Buttons -->
+        {{-- CTA --}}
         @auth
             @if($myRegistration)
-            <div class="registered-banner d-inline-flex text-dark" style="border-radius:50px; padding: 12px 28px">
-                <i class="fas fa-check-circle fa-lg" style="color: #10B981"></i>
-                <span class="fw-bold">أنت مسجل! رقم تسجيلك: <span style="color:#059669">{{ $myRegistration->registration_number }}</span></span>
-                <a href="{{ route('job-fair.my-ticket', $myRegistration->id) }}" class="btn-ticket me-3">
-                    <i class="fas fa-qrcode me-2"></i>عرض بطاقتي
+            <div class="d-flex flex-column align-items-center gap-3">
+                <div class="registered-banner">
+                    <i class="fas fa-check-circle fa-lg" style="color: #6EE7B7"></i>
+                    <span>أنت مسجّل! رقمك:&nbsp;<span class="reg-num">{{ $myRegistration->registration_number }}</span></span>
+                </div>
+                <a href="{{ route('job-fair.my-ticket', $myRegistration->id) }}" class="cta-ticket">
+                    <i class="fas fa-qrcode"></i>عرض بطاقتي الرقمية
                 </a>
             </div>
             @elseif($fair->can_register)
-            <button class="btn-register" data-bs-toggle="modal" data-bs-target="#registerModal">
-                <i class="fas fa-user-plus ms-2"></i>سجّل الآن في المعرض
-            </button>
+            <div class="hero-cta">
+                <button class="cta-primary" data-bs-toggle="modal" data-bs-target="#registerModal">
+                    <i class="fas fa-user-plus"></i>سجّل الآن
+                </button>
+                <a href="#info" class="cta-secondary">
+                    <i class="fas fa-info-circle"></i>اعرف أكثر
+                </a>
+            </div>
             @else
-            <span class="btn-register" style="opacity:0.5; cursor:not-allowed">
-                <i class="fas fa-lock ms-2"></i>التسجيل مغلق
-            </span>
+            <div class="hero-cta">
+                <span class="cta-primary" style="opacity:0.5; cursor:not-allowed; pointer-events:none">
+                    <i class="fas fa-lock"></i>التسجيل مغلق
+                </span>
+            </div>
             @endif
         @else
-        <div class="d-flex gap-3 justify-content-center flex-wrap">
-            <a href="{{ route('login') }}" class="btn-register">
-                <i class="fas fa-sign-in-alt ms-2"></i>سجّل الدخول للتسجيل
+        <div class="hero-cta">
+            <a href="{{ route('login') }}" class="cta-primary">
+                <i class="fas fa-sign-in-alt"></i>سجّل الدخول للانضمام
             </a>
-            <a href="{{ route('graduate.register') }}" class="btn-ticket">
-                <i class="fas fa-user-plus ms-2"></i>تسجيل كخريج جديد
+            <a href="{{ route('graduate.register') }}" class="cta-secondary">
+                <i class="fas fa-user-graduate"></i>خريج جديد؟ سجّل هنا
             </a>
         </div>
         @endauth
+    </div>
 
-        <!-- Scroll Down -->
-        <div class="mt-5" style="color: rgba(255,255,255,0.4)">
-            <i class="fas fa-chevron-down fa-bounce"></i>
-        </div>
+    {{-- Scroll indicator --}}
+    <div class="scroll-indicator" onclick="document.getElementById('info').scrollIntoView({behavior:'smooth'})">
+        <span>اكتشف أكثر</span>
+        <i class="fas fa-chevron-down"></i>
     </div>
 </section>
 
-<!-- ===== DETAILS SECTION ===== -->
-<section class="fair-details">
+{{-- INFO SECTION --}}
+<section class="info-section" id="info">
     <div class="container">
-        <div class="section-header">
-            <h2>عن المعرض</h2>
-            <p>كل ما تحتاج معرفته عن معرض التوظيف 2026</p>
-            <div class="section-line"></div>
+
+        <div class="text-center mb-5">
+            <div class="section-badge"><i class="fas fa-info-circle"></i>عن المعرض</div>
+            <div class="title-line"></div>
+            <h2 class="section-title">كل ما تحتاج معرفته</h2>
+            <p class="section-subtitle">تفاصيل شاملة عن معرض التوظيف 2026</p>
         </div>
 
         <div class="row g-4 mb-5">
             <div class="col-md-4">
-                <div class="detail-card">
-                    <div class="detail-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe)">
-                        <i class="fas fa-calendar-check" style="color: #2563EB"></i>
+                <div class="info-card">
+                    <div class="info-icon" style="background: linear-gradient(135deg, #DBEAFE, #BFDBFE)">
+                        <i class="fas fa-calendar-check" style="color: #1D4ED8"></i>
                     </div>
-                    <h5 class="fw-bold">التاريخ والوقت</h5>
-                    <p class="text-muted mb-0">{{ $fair->event_date->format('l، d MMMM Y') }}</p>
-                    @if($fair->start_time)
-                    <p class="text-muted mb-0">من {{ $fair->start_time }} حتى {{ $fair->end_time }}</p>
-                    @endif
+                    <h5>التاريخ والوقت</h5>
+                    <p>
+                        {{ \Carbon\Carbon::parse($fair->event_date)->locale('ar')->translatedFormat('l، j F Y') }}
+                        @if($fair->start_time)
+                        <br>من الساعة {{ \Str::substr($fair->start_time,0,5) }}
+                        @if($fair->end_time) حتى {{ \Str::substr($fair->end_time,0,5) }} @endif
+                        @endif
+                    </p>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="detail-card">
-                    <div class="detail-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a)">
+                <div class="info-card">
+                    <div class="info-icon" style="background: linear-gradient(135deg, #FEF3C7, #FDE68A)">
                         <i class="fas fa-map-marker-alt" style="color: #D97706"></i>
                     </div>
-                    <h5 class="fw-bold">المكان</h5>
-                    <p class="text-muted mb-0">{{ $fair->location }}</p>
+                    <h5>مكان الانعقاد</h5>
+                    <p>{{ $fair->location }}</p>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="detail-card">
-                    <div class="detail-icon" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0)">
-                        <i class="fas fa-users" style="color: #059669"></i>
+                <div class="info-card">
+                    <div class="info-icon" style="background: linear-gradient(135deg, #D1FAE5, #A7F3D0)">
+                        <i class="fas fa-user-check" style="color: #059669"></i>
                     </div>
-                    <h5 class="fw-bold">التسجيل</h5>
+                    <h5>التسجيل</h5>
                     @if($fair->can_register)
-                    <p class="text-success mb-0 fw-bold"><i class="fas fa-circle me-1" style="font-size:0.6rem"></i>التسجيل مفتوح</p>
-                    @if($fair->registration_deadline)
-                    <small class="text-muted">ينتهي: {{ $fair->registration_deadline->format('d/m/Y') }}</small>
-                    @endif
+                    <p>
+                        <span style="color:#059669; font-weight:700">
+                            <i class="fas fa-circle" style="font-size:0.5rem"></i> مفتوح الآن
+                        </span>
+                        @if($fair->registration_deadline)
+                        <br><small class="text-muted">ينتهي {{ \Carbon\Carbon::parse($fair->registration_deadline)->format('d/m/Y') }}</small>
+                        @endif
+                        @if($fair->max_graduates)
+                        <br><small class="text-muted">{{ $stats['total_registered'] ?? 0 }} / {{ $fair->max_graduates }} مقعد</small>
+                        @endif
+                    </p>
                     @else
-                    <p class="text-danger mb-0 fw-bold"><i class="fas fa-times-circle me-1"></i>التسجيل مغلق</p>
+                    <p style="color:#EF4444; font-weight:700">
+                        <i class="fas fa-times-circle me-1"></i>التسجيل مغلق
+                    </p>
                     @endif
                 </div>
             </div>
         </div>
 
         @if($fair->description)
-        <div class="p-4 rounded-4 mb-4" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-right: 4px solid #0284C7">
-            <h5 class="fw-bold mb-3"><i class="fas fa-info-circle me-2" style="color: #0284C7"></i>تفاصيل المعرض</h5>
-            <p class="mb-0 text-secondary" style="line-height: 1.8">{{ $fair->description }}</p>
+        <div class="desc-block">
+            <h6 class="fw-bold mb-2" style="color: #0284C7">
+                <i class="fas fa-align-right me-2"></i>تفاصيل إضافية
+            </h6>
+            <p class="mb-0 text-secondary" style="line-height:1.9; font-size:0.95rem">{{ $fair->description }}</p>
         </div>
         @endif
     </div>
 </section>
 
-<!-- ===== COMPANIES SECTION ===== -->
+{{-- COMPANIES SECTION --}}
 @if($companies->count() > 0)
-<section class="companies-section">
+<section class="companies-section" id="companies">
     <div class="container">
-        <div class="section-header">
-            <h2>الشركات المشاركة</h2>
-            <p>{{ $companies->count() }} شركة ستشارك في معرض هذا العام</p>
-            <div class="section-line"></div>
+
+        <div class="text-center mb-5">
+            <div class="section-badge"><i class="fas fa-building"></i>المشاركون</div>
+            <div class="title-line"></div>
+            <h2 class="section-title">الشركات المشاركة</h2>
+            <p class="section-subtitle">{{ $companies->count() }} شركة ستشارك في معرض هذا العام</p>
         </div>
 
         <div class="row g-3">
             @foreach($companies as $fc)
-            <div class="col-md-6 col-lg-4">
+            <div class="col-sm-6 col-lg-4">
                 <div class="company-card">
-                    <div class="company-logo">🏢</div>
-                    <div class="flex-grow-1">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <h6 class="fw-bold mb-1">{{ $fc->company->name }}</h6>
-                            @if($fc->booth_number)
-                            <span class="booth-badge">جناح {{ $fc->booth_number }}</span>
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="company-logo-box">🏢</div>
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-1 mb-2">
+                                <h6 class="fw-bold mb-0" style="color:var(--navy); font-size:0.95rem">
+                                    {{ $fc->company->name ?? 'شركة' }}
+                                </h6>
+                                @if($fc->booth_number)
+                                <span class="booth-tag">جناح {{ $fc->booth_number }}</span>
+                                @endif
+                            </div>
+                            @if($fc->available_positions)
+                            <span class="positions-tag">
+                                <i class="fas fa-briefcase" style="font-size:0.65rem"></i>
+                                {{ $fc->available_positions }} وظيفة
+                            </span>
+                            @endif
+                            @if($fc->participating_sectors)
+                            <p class="text-muted mt-2 mb-0" style="font-size:0.78rem">{{ \Str::limit($fc->participating_sectors, 60) }}</p>
                             @endif
                         </div>
-                        @if($fc->available_positions)
-                        <small class="text-muted">
-                            <i class="fas fa-briefcase me-1 text-primary"></i>{{ $fc->available_positions }} وظيفة متاحة
-                        </small>
-                        @endif
-                        @if($fc->participating_sectors)
-                        <div>
-                            <small class="text-muted">{{ Str::limit($fc->participating_sectors, 50) }}</small>
-                        </div>
-                        @endif
                     </div>
                 </div>
             </div>
@@ -499,59 +992,58 @@
 </section>
 @endif
 
-<!-- ===== REGISTRATION MODAL ===== -->
+{{-- REGISTRATION MODAL --}}
 @auth
 @if(!$myRegistration && $fair->can_register)
 <div class="modal fade" id="registerModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4 overflow-hidden shadow-lg">
-            <div class="modal-header modal-header-custom border-0 p-4">
-                <h5 class="modal-title fw-bold">
-                    <i class="fas fa-user-plus me-2" style="color: var(--fair-gold)"></i>
-                    التسجيل في معرض التوظيف 2026
+        <div class="modal-card modal-content shadow-lg">
+            <div class="modal-header modal-header-grad border-0">
+                <h5 class="modal-title text-white fw-bold">
+                    <i class="fas fa-user-plus me-2" style="color:var(--gold)"></i>
+                    التسجيل في المعرض
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('job-fair.register', $fair->id) }}" method="POST">
                 @csrf
                 <div class="modal-body p-4">
-                    <div class="alert alert-info border-0 rounded-3 mb-3">
+                    <div class="alert border-0 rounded-3 mb-3" style="background:#EFF6FF; color:#1E40AF; font-size:0.88rem">
                         <i class="fas fa-info-circle me-2"></i>
-                        ستحصل على بطاقة دخول إلكترونية مع رمز QR فريد بعد التسجيل.
+                        ستحصل على بطاقة دخول رقمية مع رمز QR فريد فور التسجيل.
                     </div>
 
-                    <!-- بيانات الخريج (للعرض فقط) -->
-                    <div class="p-3 rounded-3 mb-3" style="background: #f8fafc">
-                        <div class="row g-2 text-sm">
-                            <div class="col-6">
-                                <small class="text-muted d-block">الاسم</small>
-                                <strong>{{ auth()->user()->name }}</strong>
-                            </div>
-                            <div class="col-6">
-                                <small class="text-muted d-block">التخصص</small>
-                                <strong>{{ auth()->user()->major ?? 'غير محدد' }}</strong>
-                            </div>
-                            <div class="col-6">
-                                <small class="text-muted d-block">الكلية</small>
-                                <strong>{{ auth()->user()->faculty ?? 'غير محدد' }}</strong>
-                            </div>
-                            <div class="col-6">
-                                <small class="text-muted d-block">سنة التخرج</small>
-                                <strong>{{ auth()->user()->graduation_year ?? 'غير محدد' }}</strong>
-                            </div>
+                    <div class="grad-info-grid mb-3">
+                        <div class="grad-info-item">
+                            <div class="lbl">الاسم</div>
+                            <div class="val">{{ auth()->user()->name }}</div>
+                        </div>
+                        <div class="grad-info-item">
+                            <div class="lbl">التخصص</div>
+                            <div class="val">{{ auth()->user()->major ?? '—' }}</div>
+                        </div>
+                        <div class="grad-info-item">
+                            <div class="lbl">الكلية</div>
+                            <div class="val">{{ auth()->user()->faculty ?? '—' }}</div>
+                        </div>
+                        <div class="grad-info-item">
+                            <div class="lbl">سنة التخرج</div>
+                            <div class="val">{{ auth()->user()->graduation_year ?? '—' }}</div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">القطاعات التي تهمك <small class="text-muted">(اختياري)</small></label>
+                    <div class="mb-0">
+                        <label class="form-label fw-semibold" style="font-size:0.9rem">
+                            القطاعات التي تهمك <small class="text-muted">(اختياري)</small>
+                        </label>
                         <textarea name="interests" class="form-control rounded-3" rows="2"
-                            placeholder="مثال: تكنولوجيا المعلومات، هندسة، صحة..."></textarea>
+                            placeholder="مثال: تكنولوجيا، هندسة، إدارة أعمال..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0 gap-2">
-                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="submit" class="btn-register py-2 px-4">
-                        <i class="fas fa-check ms-2"></i>تأكيد التسجيل
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-semibold" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="cta-primary py-2 px-4">
+                        <i class="fas fa-check"></i>تأكيد التسجيل
                     </button>
                 </div>
             </form>
@@ -562,71 +1054,84 @@
 @endauth
 
 @else
-<!-- No Fair -->
-<div class="no-fair-banner">
-    <div>
-        <div style="font-size: 5rem; margin-bottom: 1rem">🎪</div>
-        <h2 class="fw-bold mb-3">لا يوجد معرض منشور حالياً</h2>
-        <p style="color: rgba(255,255,255,0.6)">تابع الإعلانات للاطلاع على موعد معرض التوظيف القادم</p>
-        <a href="{{ route('home') }}" class="btn-register mt-3">
-            <i class="fas fa-home ms-2"></i>الصفحة الرئيسية
-        </a>
-    </div>
+
+{{-- NO FAIR STATE --}}
+<div class="empty-hero">
+    <div class="empty-icon">🎪</div>
+    <h2 style="font-size:2rem; font-weight:800; margin-bottom:0.8rem; color:white">
+        لا يوجد معرض منشور حالياً
+    </h2>
+    <p style="color:rgba(255,255,255,0.55); max-width:400px; margin-bottom:2rem; line-height:1.7">
+        تابع الإعلانات للاطلاع على موعد معرض التوظيف القادم
+    </p>
+    <a href="{{ route('home') }}" class="cta-primary">
+        <i class="fas fa-home"></i>الصفحة الرئيسية
+    </a>
 </div>
+
 @endif
 
-@endsection
+{{-- FOOTER --}}
+<footer class="page-footer">
+    مكتب تدريب وتوظيف الخريجين — <a href="{{ route('home') }}">جامعة طرابلس</a>
+    &nbsp;|&nbsp;
+    معرض التوظيف 2026
+</footer>
 
-@push('scripts')
+{{-- ══════════════════════════════════
+     SCRIPTS
+══════════════════════════════════ --}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-// ===== Countdown Timer =====
-@if($fair && $fair->is_upcoming)
+// ── Scroll nav style
+window.addEventListener('scroll', function() {
+    document.getElementById('topNav').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// ── Floating particles
 (function() {
-    const eventDate = new Date("{{ $fair->event_date->format('Y-m-d') }}T{{ $fair->start_time ?? '09:00' }}:00");
-
-    function updateCountdown() {
-        const now = new Date();
-        const diff = eventDate - now;
-
-        if (diff <= 0) {
-            document.getElementById('countdown-wrapper')?.remove();
-            return;
-        }
-
-        const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours   = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-        const minutes = Math.floor((diff % (1000*60*60)) / (1000*60));
-        const seconds = Math.floor((diff % (1000*60)) / 1000);
-
-        document.getElementById('cd-days').textContent    = String(days).padStart(2, '0');
-        document.getElementById('cd-hours').textContent   = String(hours).padStart(2, '0');
-        document.getElementById('cd-minutes').textContent = String(minutes).padStart(2, '0');
-        document.getElementById('cd-seconds').textContent = String(seconds).padStart(2, '0');
-    }
-
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-})();
-@endif
-
-// ===== Floating Particles =====
-(function() {
-    const container = document.getElementById('particles');
-    if (!container) return;
-
-    for (let i = 0; i < 20; i++) {
+    const c = document.getElementById('particles-container');
+    if (!c) return;
+    c.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden;';
+    for (let i = 0; i < 25; i++) {
         const p = document.createElement('div');
         p.className = 'particle';
+        const size = 2 + Math.random() * 4;
         p.style.cssText = `
-            left: ${Math.random() * 100}%;
-            animation-duration: ${8 + Math.random() * 12}s;
-            animation-delay: ${-Math.random() * 15}s;
-            width: ${2 + Math.random() * 4}px;
-            height: ${2 + Math.random() * 4}px;
-            opacity: ${0.3 + Math.random() * 0.5};
+            left:${Math.random()*100}%;
+            width:${size}px; height:${size}px;
+            animation-duration:${10 + Math.random() * 15}s;
+            animation-delay:${-Math.random() * 20}s;
+            opacity:${0.3 + Math.random() * 0.5};
         `;
-        container.appendChild(p);
+        c.appendChild(p);
     }
 })();
+
+@if($fair && $fair->is_upcoming)
+// ── Countdown
+(function() {
+    const target = new Date("{{ $fair->event_date->format('Y-m-d') }}T{{ $fair->start_time ? substr($fair->start_time, 0, 5) : '09:00' }}:00");
+
+    function pad(n) { return String(Math.max(0, n)).padStart(2, '0'); }
+
+    function tick() {
+        const diff = target - new Date();
+        if (diff <= 0) {
+            document.getElementById('countdown')?.remove();
+            return;
+        }
+        document.getElementById('cd-d').textContent = pad(Math.floor(diff / 864e5));
+        document.getElementById('cd-h').textContent = pad(Math.floor(diff % 864e5 / 36e5));
+        document.getElementById('cd-m').textContent = pad(Math.floor(diff % 36e5 / 6e4));
+        document.getElementById('cd-s').textContent = pad(Math.floor(diff % 6e4 / 1e3));
+    }
+
+    tick();
+    setInterval(tick, 1000);
+})();
+@endif
 </script>
-@endpush
+</body>
+</html>

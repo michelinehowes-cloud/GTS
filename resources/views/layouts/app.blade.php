@@ -258,6 +258,10 @@
                                             class="submenu-item {{ request()->routeIs('job-opportunities*') ? 'active' : '' }}">
                                             إدارة فرص العمل
                                         </a>
+                                        <a href="{{ route('job-fair.admin.index') }}"
+                                            class="submenu-item {{ request()->routeIs('job-fair.admin*') ? 'active' : '' }}">
+                                            إدارة معرض التوظيف
+                                        </a>
                                     </div>
                                 </li>
 

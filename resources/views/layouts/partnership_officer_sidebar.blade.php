@@ -48,6 +48,14 @@
 </li>
 
 <li class="nav-item">
+    <a class="nav-link {{ request()->routeIs('job-fair.admin*') ? 'active' : '' }}"
+        href="{{ route('job-fair.admin.index') }}">
+        <i class="fas fa-store"></i>
+        معرض التوظيف
+    </a>
+</li>
+
+<li class="nav-item">
     <a class="nav-link {{ request()->routeIs('partnership.nominations*') ? 'active' : '' }}"
         href="{{ route('partnership.nominations') }}">
         <i class="fas fa-user-check"></i>

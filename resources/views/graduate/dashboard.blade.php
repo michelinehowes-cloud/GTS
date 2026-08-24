@@ -20,6 +20,24 @@
             ])
         @endif
 
+        @php
+            $myFairRegistration = \App\Models\JobFairRegistration::where('user_id', auth()->id())->latest()->first();
+        @endphp
+        @if($myFairRegistration)
+            <div class="alert alert-info border-0 shadow-sm d-flex justify-content-between align-items-center rounded-3 mb-4" style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white;">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="fas fa-store fa-2x text-warning"></i>
+                    <div>
+                        <h5 class="mb-1 fw-bold">أنت مسجل في معرض التوظيف 2026!</h5>
+                        <p class="mb-0 text-white-50 small">رقم التسجيل: {{ $myFairRegistration->registration_number }}</p>
+                    </div>
+                </div>
+                <a href="{{ route('job-fair.my-ticket', $myFairRegistration->id) }}" class="btn btn-warning fw-bold text-dark rounded-pill px-4">
+                    <i class="fas fa-qrcode me-2"></i>عرض البطاقة
+                </a>
+            </div>
+        @endif
+
         <!-- بطاقات الإحصائيات -->
         <div class="row mb-4">
             @include('components.stat-card', [

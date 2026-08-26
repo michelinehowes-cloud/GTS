@@ -14,9 +14,9 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --gold:     #F59E0B;
+            --gold:     #eeca3e;
             --gold-lt:  #FDE68A;
-            --navy:     #1e3a8a; /* University Primary Blue */
+            --navy:     #045db0; /* University Primary Blue */
             --navy-md:  #3b82f6; /* University Light Blue */
             --navy-lt:  #60a5fa;
             --teal:     #0EA5E9;
@@ -40,10 +40,8 @@
             position: fixed;
             top: 0; left: 0; right: 0;
             z-index: 1000;
-            background: rgba(10, 22, 40, 0.92);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(245,158,11,0.2);
+            background: transparent;
+            border-bottom: 1px solid transparent;
             padding: 0.85rem 2rem;
             display: flex;
             align-items: center;
@@ -52,7 +50,10 @@
         }
         .top-nav.scrolled {
             padding: 0.6rem 2rem;
-            background: rgba(10, 22, 40, 0.98);
+            background: rgba(10, 22, 40, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(245,158,11,0.2);
         }
         .nav-brand {
             display: flex;
@@ -60,11 +61,18 @@
             gap: 0.75rem;
             text-decoration: none;
         }
-        .nav-brand img {
+        .nav-brand img.main-logo {
             width: 42px; height: 42px;
             border-radius: 50%;
             border: 2px solid var(--gold);
             object-fit: cover;
+        }
+        .nav-brand img.jf-logo {
+            width: auto; height: 38px;
+            border: none;
+            border-radius: 0;
+            margin-right: 15px;
+            object-fit: contain;
         }
         .nav-brand-text {
             line-height: 1.2;
@@ -115,7 +123,6 @@
             justify-content: center;
             overflow: hidden;
             background: var(--navy);
-            padding-top: 70px;
         }
 
         /* Animated background layers */
@@ -125,7 +132,7 @@
                 radial-gradient(ellipse 80% 60% at 20% 40%, rgba(245,158,11,0.12) 0%, transparent 60%),
                 radial-gradient(ellipse 60% 80% at 80% 20%, rgba(14,165,233,0.1) 0%, transparent 55%),
                 radial-gradient(ellipse 50% 50% at 50% 100%, rgba(16,185,129,0.08) 0%, transparent 50%),
-                linear-gradient(160deg, #0A1628 0%, #1E3A5F 50%, #0d2444 100%);
+                linear-gradient(160deg, #045db0 0%, #03488a 50%, #0d2444 100%);
             pointer-events: none;
         }
 
@@ -204,24 +211,175 @@
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
         .hero-title {
-            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            font-size: clamp(2.8rem, 6vw, 5.5rem);
             font-weight: 900;
-            line-height: 1.05;
+            line-height: 1.1;
             margin-bottom: 1rem;
-            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 40%, var(--gold) 100%);
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, var(--gold) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
         .hero-subtitle {
-            color: rgba(255,255,255,0.65);
-            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            color: rgba(255,255,255,0.75);
+            font-size: clamp(1.1rem, 2vw, 1.3rem);
             margin-bottom: 2rem;
             font-weight: 400;
             max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+        }
+
+        /* ══════════════════════════════════
+           PREMIUM 3D COMPOSITION
+        ══════════════════════════════════ */
+        .premium-3d-composition {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+            padding: 2rem;
+        }
+
+        .premium-glow {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(circle, rgba(238,202,62,0.4) 0%, rgba(14,165,233,0.3) 40%, transparent 70%);
+            filter: blur(40px);
+            animation: pulseGlow 4s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
+        .premium-glass-card {
+            position: relative;
+            z-index: 2;
+            width: 320px;
+            height: 320px;
+            background: rgba(255, 255, 255, 0.05); /* True glass */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3), inset 0 0 20px rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            transform-style: preserve-3d;
+            animation: float3DCard 8s ease-in-out infinite;
+        }
+
+        /* Glowing orb behind logo for visibility */
+        .premium-glass-card::before {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%);
+            filter: blur(20px);
+            z-index: 1;
+            transform: translateZ(10px);
+        }
+
+        .premium-logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transform: translateZ(40px);
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.4));
+            position: relative;
+            z-index: 2;
+        }
+
+        .float-element {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            z-index: 3;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .shape-1 {
+            width: 60px; height: 60px;
+            top: 10%; right: 10%;
+            font-size: 1.5rem;
+            color: var(--gold);
+            animation: floatElement 6s ease-in-out infinite 1s;
+        }
+        .shape-2 {
+            width: 70px; height: 70px;
+            bottom: 10%; left: 5%;
+            font-size: 1.8rem;
+            color: var(--teal);
+            animation: floatElement 7s ease-in-out infinite 0.5s;
+        }
+        .shape-3 {
+            padding: 10px 20px;
+            top: 50%; left: -20px;
+            color: white;
+            animation: floatElement 5s ease-in-out infinite 2s;
+        }
+
+        /* Partners Strip */
+        .partner-logo {
+            max-height: 40px;
+            max-width: 140px;
+            object-fit: contain;
+            opacity: 0.5;
+            transition: all 0.3s ease;
+            user-select: none;
+            filter: grayscale(1) brightness(200%);
+        }
+        .partner-logo:hover {
+            opacity: 1;
+            transform: translateY(-2px);
+        }
+        .partner-logo-jpg {
+            /* Removes white background and makes logo white */
+            filter: grayscale(1) invert(1) brightness(200%);
+            mix-blend-mode: screen;
+        }
+        .partner-text {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.5);
+            margin: 0;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+        .partner-text:hover {
+            color: rgba(255,255,255,1);
+            transform: translateY(-2px);
+        }
+
+        @keyframes pulseGlow {
+            0% { opacity: 0.5; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1.1); }
+        }
+        @keyframes float3DCard {
+            0%, 100% { transform: rotateX(8deg) rotateY(-12deg) translateY(0); }
+            50% { transform: rotateX(12deg) rotateY(-8deg) translateY(-20px); }
+        }
+        @keyframes floatElement {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+
+        @media (max-width: 991px) {
+            .hero-text-col { text-align: center !important; margin-bottom: 3rem; }
+            .hero-subtitle { margin-left: auto; margin-right: auto; }
+            .event-pills { justify-content: center !important; }
+            .countdown-row { justify-content: center !important; }
+            .premium-glass-card { width: 260px; height: 260px; }
+            .shape-3 { display: none; }
         }
 
         /* Event info pills */
@@ -685,11 +843,12 @@
 ══════════════════════════════════ --}}
 <nav class="top-nav" id="topNav">
     <a href="{{ route('home') }}" class="nav-brand">
-        <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" onerror="this.style.display='none'">
+        <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" class="main-logo" onerror="this.style.display='none'">
         <div class="nav-brand-text">
             <div class="main">مكتب تدريب الخريجين</div>
             <div class="sub">جامعة طرابلس</div>
         </div>
+        <img src="{{ asset('images/job_fair_logo_horizontal.png') }}" class="jf-logo" alt="شعار المعرض" onerror="this.style.display='none'">
     </a>
 
     <div class="nav-links">
@@ -730,145 +889,170 @@
     {{-- Particles --}}
     <div id="particles-container"></div>
 
-    <div class="hero-content">
-        {{-- Eyebrow --}}
-        <div class="hero-eyebrow">
-            <span class="dot"></span>
-            معرض التوظيف السنوي
-            <span class="dot"></span>
-        </div>
+    <div class="container position-relative z-10" style="padding-top: 80px;">
+        <div class="row align-items-center mb-4">
+            {{-- Text Side --}}
+            <div class="col-lg-6 hero-text-col text-lg-end text-center mt-5 mt-lg-0 order-2 order-lg-1">
+                {{-- Eyebrow --}}
+                <div class="hero-eyebrow">
+                    <span class="dot"></span>
+                    معرض التوظيف السنوي
+                    <span class="dot"></span>
+                </div>
 
-        {{-- Title --}}
-        <h1 class="hero-title">{{ $fair->title }}</h1>
+                {{-- Title --}}
+                <h1 class="hero-title">{{ $fair->title }}</h1>
 
-        @if($fair->subtitle)
-        <p class="hero-subtitle">{{ $fair->subtitle }}</p>
-        @else
-        <p class="hero-subtitle">انطلق نحو مستقبلك المهني — فرصتك الذهبية تبدأ هنا</p>
-        @endif
+                @if($fair->subtitle)
+                <p class="hero-subtitle">{{ $fair->subtitle }}</p>
+                @else
+                <p class="hero-subtitle">انطلق نحو مستقبلك المهني — فرصتك الذهبية تبدأ هنا</p>
+                @endif
 
-        {{-- Event Pills --}}
-        <div class="event-pills">
-            <span class="event-pill">
-                <i class="fas fa-calendar-alt"></i>
-                {{ \Carbon\Carbon::parse($fair->event_date)->locale('ar')->translatedFormat('j F Y') }}
-            </span>
-            @if($fair->start_time)
-            <span class="event-pill">
-                <i class="fas fa-clock"></i>
-                {{ \Str::substr($fair->start_time, 0, 5) }}
-                @if($fair->end_time) — {{ \Str::substr($fair->end_time, 0, 5) }} @endif
-            </span>
-            @endif
-            <span class="event-pill">
-                <i class="fas fa-map-marker-alt"></i>
-                {{ $fair->location }}
-            </span>
-        </div>
+                {{-- Event Pills --}}
+                <div class="event-pills justify-content-lg-start justify-content-center">
+                    <span class="event-pill">
+                        <i class="fas fa-calendar-alt"></i>
+                        {{ \Carbon\Carbon::parse($fair->event_date)->locale('ar')->translatedFormat('j F Y') }}
+                    </span>
+                    @if($fair->start_time)
+                    <span class="event-pill">
+                        <i class="fas fa-clock"></i>
+                        {{ \Str::substr($fair->start_time, 0, 5) }}
+                        @if($fair->end_time) — {{ \Str::substr($fair->end_time, 0, 5) }} @endif
+                    </span>
+                    @endif
+                    <span class="event-pill">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ $fair->location }}
+                    </span>
+                </div>
 
-        {{-- Countdown --}}
-        @if($fair->is_upcoming)
-        <div dir="ltr" class="countdown-row" id="countdown">
-            <div class="cd-box">
-                <div class="cd-num" id="cd-d">--</div>
-                <div class="cd-lbl">Days</div>
+                {{-- Countdown --}}
+                @if($fair->is_upcoming)
+                <div class="d-flex justify-content-lg-start justify-content-center">
+                    <div dir="ltr" class="countdown-row justify-content-center m-0" id="countdown">
+                        <div class="cd-box">
+                            <div class="cd-num" id="cd-d">--</div>
+                            <div class="cd-lbl">Days</div>
+                        </div>
+                        <div class="cd-sep">:</div>
+                        <div class="cd-box">
+                            <div class="cd-num" id="cd-h">--</div>
+                            <div class="cd-lbl">Hours</div>
+                        </div>
+                        <div class="cd-sep">:</div>
+                        <div class="cd-box">
+                            <div class="cd-num" id="cd-m">--</div>
+                            <div class="cd-lbl">Min</div>
+                        </div>
+                        <div class="cd-sep">:</div>
+                        <div class="cd-box">
+                            <div class="cd-num" id="cd-s">--</div>
+                            <div class="cd-lbl">Sec</div>
+                        </div>
+                    </div>
+                </div>
+                @else
+                <div class="d-flex justify-content-lg-start justify-content-center mb-4">
+                    <span style="background: rgba(16,185,129,0.2); border: 1.5px solid rgba(16,185,129,0.5); color: #6EE7B7; padding: 10px 28px; border-radius: 50px; font-weight: 700; font-size: 1rem">
+                        <i class="fas fa-circle me-2" style="animation: blink 1s infinite; font-size: 0.6rem"></i>
+                        المعرض يجري الآن
+                    </span>
+                </div>
+                @endif
+
+                {{-- CTA Buttons --}}
+                <div class="mt-4 d-flex justify-content-lg-start justify-content-center gap-3">
+                    @auth
+                        @if(isset($myRegistration) && $myRegistration)
+                            <a href="{{ route('job-fair.my-ticket', $myRegistration->id) }}" class="nav-btn nav-btn-gold px-4 py-2" style="font-size: 1.1rem">
+                                <i class="fas fa-qrcode me-2"></i>عرض بطاقتي الرقمية
+                            </a>
+                        @elseif($fair->can_register)
+                            <button class="nav-btn nav-btn-gold px-4 py-2" data-bs-toggle="modal" data-bs-target="#registerModal" style="font-size: 1.1rem">
+                                <i class="fas fa-user-plus me-2"></i>سجّل الآن كخريج
+                            </button>
+                        @endif
+                    @else
+                        @if($fair->can_register)
+                            <a href="{{ route('login') }}" class="nav-btn nav-btn-gold px-4 py-2" style="font-size: 1.1rem">
+                                <i class="fas fa-user-plus me-2"></i>سجّل الآن كخريج
+                            </a>
+                        @endif
+                    @endauth
+                    
+                    <a href="#about" class="nav-btn nav-btn-outline px-4 py-2" style="font-size: 1.1rem">
+                        <i class="fas fa-info-circle me-2"></i>اعرف أكثر
+                    </a>
+                </div>
             </div>
-            <div class="cd-sep">:</div>
-            <div class="cd-box">
-                <div class="cd-num" id="cd-h">--</div>
-                <div class="cd-lbl">Hours</div>
-            </div>
-            <div class="cd-sep">:</div>
-            <div class="cd-box">
-                <div class="cd-num" id="cd-m">--</div>
-                <div class="cd-lbl">Min</div>
-            </div>
-            <div class="cd-sep">:</div>
-            <div class="cd-box">
-                <div class="cd-num" id="cd-s">--</div>
-                <div class="cd-lbl">Sec</div>
+
+            {{-- Visual Side (Premium 3D Logo) --}}
+            <div class="col-lg-6 position-relative order-1 order-lg-2 mb-5 mb-lg-0">
+                <div class="premium-3d-composition">
+                    <div class="premium-glow"></div>
+                    <div class="premium-glass-card">
+                        <img src="{{ asset('images/job_fair_logo.png') }}" class="premium-logo-img" alt="شعار المعرض">
+                    </div>
+                    
+                    {{-- Floating Depth Elements --}}
+                    <div class="float-element shape-1"><i class="fas fa-briefcase"></i></div>
+                    <div class="float-element shape-2"><i class="fas fa-user-graduate"></i></div>
+                    <div class="float-element shape-3">1000+ فرصة</div>
+                </div>
             </div>
         </div>
-        @else
-        <div style="margin-bottom: 2rem">
-            <span style="background: rgba(16,185,129,0.2); border: 1.5px solid rgba(16,185,129,0.5); color: #6EE7B7; padding: 10px 28px; border-radius: 50px; font-weight: 700; font-size: 1rem">
-                <i class="fas fa-circle me-2" style="animation: blink 1s infinite; font-size: 0.6rem"></i>
-                المعرض يجري الآن
-            </span>
-        </div>
-        @endif
 
         {{-- Stats --}}
-        <div class="hero-stats">
-            <div class="hero-stat">
-                <div class="hero-stat-num">{{ $stats['total_registered'] ?? 0 }}</div>
-                <div class="hero-stat-lbl">خريج مسجّل</div>
-            </div>
-            <div class="hero-stat-divider"></div>
-            <div class="hero-stat">
-                <div class="hero-stat-num">{{ $stats['total_companies'] ?? 0 }}</div>
-                <div class="hero-stat-lbl">شركة مشاركة</div>
-            </div>
-            @if(($stats['total_attended'] ?? 0) > 0)
-            <div class="hero-stat-divider"></div>
-            <div class="hero-stat">
-                <div class="hero-stat-num">{{ $stats['total_attended'] }}</div>
-                <div class="hero-stat-lbl">حضر المعرض</div>
-            </div>
-            @endif
-            @if($fair->is_upcoming)
-            <div class="hero-stat-divider"></div>
-            <div class="hero-stat">
-                <div class="hero-stat-num">{{ $stats['days_remaining'] ?? 0 }}</div>
-                <div class="hero-stat-lbl">يوم متبقي</div>
-            </div>
-            @endif
-        </div>
-
-        {{-- CTA --}}
-        @auth
-            @if($myRegistration)
-            <div class="d-flex flex-column align-items-center gap-3">
-                <div class="registered-banner">
-                    <i class="fas fa-check-circle fa-lg" style="color: #6EE7B7"></i>
-                    <span>أنت مسجّل! رقمك:&nbsp;<span class="reg-num">{{ $myRegistration->registration_number }}</span></span>
+        <div class="row pb-3">
+            <div class="col-12">
+                <div class="hero-stats" style="max-width: 900px; margin: 0 auto;">
+                    <div class="hero-stat">
+                        <div class="hero-stat-num">{{ $stats['total_registered'] ?? 0 }}</div>
+                        <div class="hero-stat-lbl">خريج مسجّل</div>
+                    </div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-num">{{ $stats['total_companies'] ?? 0 }}</div>
+                        <div class="hero-stat-lbl">شركة مشاركة</div>
+                    </div>
+                    @if(($stats['total_attended'] ?? 0) > 0)
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-num">{{ $stats['total_attended'] }}</div>
+                        <div class="hero-stat-lbl">حضر المعرض</div>
+                    </div>
+                    @endif
+                    @if($fair->is_upcoming)
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-num">{{ $stats['days_remaining'] ?? 0 }}</div>
+                        <div class="hero-stat-lbl">يوم متبقي</div>
+                    </div>
+                    @endif
                 </div>
-                <a href="{{ route('job-fair.my-ticket', $myRegistration->id) }}" class="cta-ticket">
-                    <i class="fas fa-qrcode"></i>عرض بطاقتي الرقمية
-                </a>
             </div>
-            @elseif($fair->can_register)
-            <div class="hero-cta">
-                <button class="cta-primary" data-bs-toggle="modal" data-bs-target="#registerModal">
-                    <i class="fas fa-user-plus"></i>سجّل الآن
-                </button>
-                <a href="#info" class="cta-secondary">
-                    <i class="fas fa-info-circle"></i>اعرف أكثر
-                </a>
-            </div>
-            @else
-            <div class="hero-cta">
-                <span class="cta-primary" style="opacity:0.5; cursor:not-allowed; pointer-events:none">
-                    <i class="fas fa-lock"></i>التسجيل مغلق
-                </span>
-            </div>
-            @endif
-        @else
-        <div class="hero-cta">
-            <a href="{{ route('login') }}" class="cta-primary">
-                <i class="fas fa-sign-in-alt"></i>سجّل الدخول للانضمام
-            </a>
-            <a href="{{ route('graduate.register') }}" class="cta-secondary">
-                <i class="fas fa-user-graduate"></i>خريج جديد؟ سجّل هنا
-            </a>
         </div>
-        @endauth
-    </div>
-
-    {{-- Scroll indicator --}}
-    <div class="scroll-indicator" onclick="document.getElementById('info').scrollIntoView({behavior:'smooth'})">
-        <span>اكتشف أكثر</span>
-        <i class="fas fa-chevron-down"></i>
+        {{-- Partners Strip --}}
+        <div class="row pb-4">
+            <div class="col-12 text-center">
+                <p class="mb-4" style="color: rgba(255,255,255,0.3); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px;">شركاء النجاح</p>
+                <div class="d-flex justify-content-center align-items-center flex-wrap gap-4 gap-md-5">
+                    <img src="{{ asset('images/logo.jpg') }}" alt="مكتب تدريب الخريجين" class="partner-logo partner-logo-jpg" title="مكتب تدريب الخريجين">
+                    
+                    @if(isset($companies) && $companies->count() > 0)
+                        @foreach($companies->take(5) as $fairCompany)
+                            @if($fairCompany->company->logo)
+                                <img src="{{ Storage::url($fairCompany->company->logo) }}" alt="{{ $fairCompany->company->name }}" class="partner-logo" title="{{ $fairCompany->company->name }}">
+                            @else
+                                <span class="partner-text" title="{{ $fairCompany->company->name }}">{{ $fairCompany->company->name }}</span>
+                            @endif
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -902,7 +1086,7 @@
             <div class="col-md-4">
                 <div class="info-card">
                     <div class="info-icon" style="background: linear-gradient(135deg, #FEF3C7, #FDE68A)">
-                        <i class="fas fa-map-marker-alt" style="color: #D97706"></i>
+                        <i class="fas fa-map-marker-alt" style="color: #f7df81"></i>
                     </div>
                     <h5>مكان الانعقاد</h5>
                     <p>{{ $fair->location }}</p>

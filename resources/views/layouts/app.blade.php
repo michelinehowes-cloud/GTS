@@ -12,6 +12,26 @@
             width: 100%;
             position: relative;
         }
+        
+        /* Navbar Style Overrides */
+        .navbar-main {
+            background: var(--university-blue, #1e3a8a) !important;
+            width: 100% !important;
+            margin: 0 !important;
+            max-width: 100% !important;
+            border-radius: 0 !important;
+        }
+        .navbar-brand, .navbar-brand span, .navbar-brand i {
+            -webkit-text-fill-color: white !important;
+            color: white !important;
+            background: none !important;
+        }
+        .navbar-main .text-white,
+        .navbar-main .text-end,
+        .navbar-main .text-end div,
+        .navbar-main .text-end small {
+            color: white !important;
+        }
     </style>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @auth
@@ -23,14 +43,47 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap"
         rel="stylesheet">
+    <link href="{{ asset('css/premium-forms.css') }}" rel="stylesheet">
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    @stack('styles')
 </head>
 
-<body>
+<body class="{{ View::hasSection('focus_mode') ? 'focus-mode' : '' }} bento-theme">
+    
+    @hasSection('focus_mode')
+    <style>
+        body.focus-mode #sidebar { display: none !important; }
+        body.focus-mode #navbarMain { display: none !important; }
+        body.focus-mode #mainContent { margin-right: 0 !important; margin-top: 0 !important; width: 100% !important; padding: 0 !important; }
+        #toggleFocusModeBtn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 9999;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: 0.3s;
+        }
+        #toggleFocusModeBtn:hover { background: rgba(0,0,0,0.8); }
+    </style>
+    <button id="toggleFocusModeBtn" onclick="document.body.classList.toggle('focus-mode')" title="إظهار/إخفاء القوائم">
+        <i class="fas fa-expand"></i>
+    </button>
+    @endif
+
     <!-- شاشة الترحيب البسيطة (Splash Screen) -->
     <div id="welcome-screen">
         <div class="welcome-content">
-            <img src="{{ asset('images/logo.jpg') }}" alt="Logo" class="splash-logo">
+            <img src="{{ asset('images/office_logo_white.png') }}" alt="Logo" class="splash-logo">
             <div class="splash-pulse"></div>
         </div>
     </div>
@@ -43,7 +96,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #045db0 0%, #3b82f6 100%);
             z-index: 100000;
             display: flex;
             justify-content: center;
@@ -58,10 +111,9 @@
 
         .splash-logo {
             width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            height: auto;
+            object-fit: contain;
+            box-shadow: none;
             animation: fadeInScale 0.6s ease-out;
             position: relative;
             z-index: 2;
@@ -119,11 +171,11 @@
                 </button>
                 <div class="logo-container">
                     <div
-                        class="logo-img-placeholder university-logo d-flex align-items-center justify-content-center mx-auto">
-                        <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب الخريجين" class="logo-img"
+                        class="university-logo d-flex align-items-center justify-content-center mx-auto">
+                        <img src="{{ asset('images/office_logo_white.png') }}" alt="شعار مكتب الخريجين" class="logo-img"
                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="d-none align-items-center justify-content-center w-100 h-100">
-                            <i class="fas fa-graduation-cap" style="font-size: 2rem; color: #1e3a8a;"></i>
+                            <i class="fas fa-graduation-cap" style="font-size: 2rem; color: #045db0;"></i>
                         </div>
                     </div>
                     <div class="logo-text">مكتب تدريب الخريجين</div>
@@ -491,7 +543,7 @@
                                         href="{{ route('job-fair.admin.index') }}">
                                         <i class="fas fa-store"></i>
                                         معرض التوظيف 2026
-                                        <span class="badge ms-1 py-1 px-2 rounded-pill" style="background:linear-gradient(135deg,#F59E0B,#F97316);font-size:0.62rem">جديد</span>
+                                        <span class="badge ms-1 py-1 px-2 rounded-pill" style="background:linear-gradient(135deg,#eeca3e,#F97316);font-size:0.62rem">جديد</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -607,17 +659,59 @@
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('company.profile') ? 'active' : '' }}"
                                         href="{{ route('company.profile') }}">
-                                        <div class="submenu {{ request()->routeIs('media.*') && !request()->routeIs('media.trainings*') && !request()->routeIs('media.news*') && !request()->routeIs('media.announcements*') && !request()->routeIs('media.reports*') ? 'show' : '' }}"
-                                            id="media-menu">
-                                            <a href="{{ route('media.gallery') }}"
-                                                class="submenu-item {{ request()->routeIs('media.gallery') ? 'active' : '' }}">
-                                                معرض الوسائط
-                                            </a>
-                                            <a href="{{ route('media.upload.form') }}"
-                                                class="submenu-item {{ request()->routeIs('media.upload.form') ? 'active' : '' }}">
-                                                رفع الوسائط
-                                            </a>
-                                        </div>
+                                        <i class="fas fa-building"></i>
+                                        ملف الشركة
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('job-opportunities.*') ? 'active' : '' }}" 
+                                       href="{{ route('job-opportunities.index') }}">
+                                        <i class="fas fa-briefcase"></i>
+                                        فرص العمل
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('company.job-fairs*') ? 'active' : '' }}" 
+                                       href="{{ route('company.job-fairs.index') }}">
+                                        <i class="fas fa-store"></i>
+                                        معارض التوظيف
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('messages.*') ? 'active' : '' }}" 
+                                       href="{{ route('messages.index') }}">
+                                        <i class="fas fa-envelope"></i>
+                                        الرسائل
+                                        @php
+                                            $unreadMessages = \App\Models\Message::where('receiver_id', auth()->id())->whereNull('read_at')->count();
+                                        @endphp
+                                        @if($unreadMessages > 0)
+                                            <span class="badge bg-danger ms-auto">{{ $unreadMessages }}</span>
+                                        @endif
+                                    </a>
+                                </li>
+                            @endif
+
+                            <!-- لوحة تحكم الميديا -->
+                            @if(auth()->user()->role == 'media_officer')
+                                <li class="nav-item menu-group">
+                                    <a class="nav-link {{ request()->routeIs('media.*') && !request()->routeIs('media.trainings*') && !request()->routeIs('media.news*') && !request()->routeIs('media.announcements*') && !request()->routeIs('media.reports*') ? 'active' : '' }}"
+                                        href="#" onclick="toggleSubmenu('media-menu')">
+                                        <i class="fas fa-photo-video"></i>
+                                        الوسائط المتعددة
+                                        <i class="fas fa-chevron-down menu-arrow"></i>
+                                    </a>
+                                    <div class="submenu {{ request()->routeIs('media.*') && !request()->routeIs('media.trainings*') && !request()->routeIs('media.news*') && !request()->routeIs('media.announcements*') && !request()->routeIs('media.reports*') ? 'show' : '' }}"
+                                        id="media-menu">
+                                        <a href="{{ route('media.gallery') }}"
+                                            class="submenu-item {{ request()->routeIs('media.gallery') ? 'active' : '' }}">
+                                            معرض الوسائط
+                                        </a>
+                                        <a href="{{ route('media.upload.form') }}"
+                                            class="submenu-item {{ request()->routeIs('media.upload.form') ? 'active' : '' }}">
+                                            رفع الوسائط
+                                        </a>
+                                    </div>
                                 </li>
 
                                 <!-- إدارة المحتوى -->
@@ -649,7 +743,6 @@
                                         التقارير
                                     </a>
                                 </li>
-                                <!-- تسجيل الخروج -->
                             @endif
 
                             <li class="nav-item">
@@ -695,22 +788,28 @@
         <nav class="navbar navbar-expand-lg navbar-main" id="navbarMain">
             <div class="container-fluid px-4">
                 <div class="d-flex align-items-center">
-                    <button class="toggle-sidebar-main" id="toggleSidebarMain">
-                        <i class="fas fa-bars"></i>
+                    <button class="toggle-sidebar-main btn border-0 p-0 me-2" id="toggleSidebarMain">
+                        <i class="fas fa-bars fa-lg text-white"></i>
                     </button>
-                    <h4 class="navbar-brand mb-0 ms-3">
-                        <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب الخريجين"
-                            style="height: 40px; margin-left: 10px; display: inline-block;"
-                            onerror="this.style.display='none'">
-                        <i class="fas fa-graduation-cap me-2"></i>
-                        @yield('page-title', 'لوحة التحكم الرئيسية')
+                    <h4 class="navbar-brand mb-0 ms-3 text-white">
+                        @if(request()->is('admin/job-fair*') || request()->is('job-fair*') || request()->routeIs('job-fair.*'))
+                            <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="شعار المعرض"
+                                style="height: 40px; margin-left: 10px; display: inline-block; object-fit: contain;"
+                                onerror="this.style.display='none'">
+                        @else
+                            <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب الخريجين"
+                                style="height: 40px; margin-left: 10px; display: inline-block; object-fit: contain;"
+                                onerror="this.style.display='none'">
+                        @endif
+                        <i class="fas fa-graduation-cap me-2 text-white"></i>
+                        <span class="text-white">@yield('page-title', 'لوحة التحكم الرئيسية')</span>
                     </h4>
                 </div>
 
                 <div class="d-flex align-items-center">
                     <div class="me-3 text-end">
-                        <div class="fw-bold text-dark fs-6">{{ auth()->user()->name ?? 'مستخدم' }}</div>
-                        <small class="text-muted">
+                        <div class="fw-bold text-white fs-6">{{ auth()->user()->name ?? 'مستخدم' }}</div>
+                        <small class="text-white opacity-75">
                             @auth
                                 {{ auth()->user()->role_name }}
                             @endauth
@@ -720,9 +819,9 @@
                     <!-- Notifications Dropdown -->
                     @auth
                         <div class="dropdown me-3">
-                            <a class="nav-link dropdown-toggle position-relative" href="#" id="notificationsDropdown"
+                            <a class="nav-link dropdown-toggle position-relative text-white" href="#" id="notificationsDropdown"
                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-bell fa-lg text-secondary"></i>
+                                <i class="fas fa-bell fa-lg text-white"></i>
                                 @if(isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
                                     <span
                                         class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
@@ -764,7 +863,7 @@
                         <button id="darkModeToggle"
                             style="background: none; border: none; padding: 0; cursor: pointer; margin-right: 1rem; display: inline-flex; align-items: center;"
                             title="تبديل الوضع الليلي" aria-label="تبديل الوضع الليلي">
-                            <i class="fas fa-moon fa-lg text-secondary"></i>
+                            <i class="fas fa-moon fa-lg text-white"></i>
                         </button>
                     @endauth
                     @auth

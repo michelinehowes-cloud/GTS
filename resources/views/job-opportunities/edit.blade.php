@@ -3,22 +3,7 @@
 @section('title', 'تعديل فرصة العمل - ' . $opportunity->title)
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3>تعديل فرصة العمل: {{ $opportunity->title }}</h3>
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('job-opportunities.show', $opportunity->id) }}" class="btn btn-info">
-                            <i class="fas fa-eye me-2"></i>عرض التفاصيل
-                        </a>
-                        <a href="{{ route('job-opportunities.index') }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-right me-2"></i>رجوع للقائمة
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body">
+
                     @if($errors->any())
                         <div class="alert alert-danger">
                             <h6>يوجد أخطاء في البيانات:</h6>
@@ -30,7 +15,8 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('job-opportunities.update', $opportunity->id) }}" method="POST">
+                    <x-bento-form title="تعديل فرصة عمل" subtitle="تحديث تفاصيل الفرصة الوظيفية" icon="fa-edit">
+<form action="{{ route('job-opportunities.update', $opportunity->id) }}" method="POST">
                         @csrf
                         @method('PUT')
                         
@@ -205,9 +191,5 @@
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+</x-bento-form>
 @endsection

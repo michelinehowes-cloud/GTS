@@ -46,6 +46,8 @@ class SurveyController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'type' => 'nullable|in:training,job_opportunity,job_fair',
+            'related_id' => 'nullable|integer',
             'questions' => 'required|array|min:1',
             'questions.*.question' => 'required|string',
             'questions.*.type' => 'required|in:text,textarea,radio,checkbox,select,rating,date,email,number',
@@ -100,6 +102,8 @@ class SurveyController extends Controller
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'is_active' => $request->has('is_active'),
+            'type' => $request->type,
+            'related_id' => $request->related_id,
         ]);
 
         return redirect()->route('evaluation-followup.surveys.index')
@@ -141,6 +145,8 @@ class SurveyController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'type' => 'nullable|in:training,job_opportunity,job_fair',
+            'related_id' => 'nullable|integer',
             'questions' => 'required|array|min:1',
             'questions.*.question' => 'required|string',
             'questions.*.type' => 'required|in:text,textarea,radio,checkbox,select,rating,date,email,number',
@@ -195,6 +201,8 @@ class SurveyController extends Controller
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'is_active' => $request->has('is_active'),
+            'type' => $request->type,
+            'related_id' => $request->related_id,
         ]);
 
         return redirect()->route('evaluation-followup.surveys.index')

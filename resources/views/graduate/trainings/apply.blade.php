@@ -103,7 +103,7 @@
 <style>
 .training-card {
     transition: transform 0.3s ease;
-    border-right: 4px solid #1e3a8a;
+    border-right: 4px solid #045db0;
     height: 100%;
 }
 .training-card:hover {

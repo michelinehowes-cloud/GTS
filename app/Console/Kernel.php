@@ -15,7 +15,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // إرسال تذكيرات معارض التوظيف التي تبدأ غداً (يومياً الساعة 10 صباحاً)
+        $schedule->command('jobfair:send-reminders')->dailyAt('10:00');
     }
 
     /**

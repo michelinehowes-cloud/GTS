@@ -1,18 +1,34 @@
+@font-face {
+    font-family: '29LT Bukra';
+    src: local('29LT Bukra'), local('29LT Bukra Regular');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: '29LT Bukra';
+    src: local('29LT Bukra Bold');
+    font-weight: bold;
+    font-style: normal;
+}
+body, h1, h2, h3, h4, h5, h6, p, div, span, a, button, input, select, textarea {
+    font-family: '29LT Bukra', 'Cairo', 'Tajawal', sans-serif !important;
+}
+
 /* ==================== DESIGN SYSTEM ==================== */
 /* نظام التصميم الموحد لجميع صفحات التطبيق */
 
 /* ==================== CSS VARIABLES ==================== */
 :root {
     /* الألوان الأساسية */
-    --primary-blue: #1e3a8a;
-    --primary-dark: #1e40af;
+    --primary-blue: #045db0;
+    --primary-dark: #03488a;
     --primary-medium: #3b82f6;
-    --primary-light: #60a5fa;
-    --primary-lighter: #93c5fd;
+    --primary-light: #348deb;
+    --primary-lighter: #8bc3fa;
 
     /* الألوان الثانوية */
-    --accent-gold: #d4af37;
-    --accent-light: #fbbf24;
+    --accent-gold: #eeca3e;
+    --accent-light: #f7df81;
 
     /* ألوان الحالة */
     --success: #10b981;

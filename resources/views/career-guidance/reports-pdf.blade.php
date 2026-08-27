@@ -29,12 +29,12 @@
         .header {
             text-align: center;
             margin-bottom: 30px;
-            border-bottom: 3px solid #1e3a8a;
+            border-bottom: 3px solid #045db0;
             padding-bottom: 15px;
         }
 
         .header h1 {
-            color: #1e3a8a;
+            color: #045db0;
             font-size: 26px;
             margin-bottom: 10px;
             font-weight: bold;
@@ -53,7 +53,7 @@
         }
 
         .section-header {
-            background-color: #1e3a8a;
+            background-color: #045db0;
             color: white;
             padding: 12px 15px;
             font-size: 16px;
@@ -87,7 +87,7 @@
         }
 
         .stats-item strong {
-            color: #1e3a8a;
+            color: #045db0;
             display: block;
             margin-bottom: 8px;
             font-size: 14px;
@@ -107,7 +107,7 @@
         }
 
         .insight-item strong {
-            color: #1e3a8a;
+            color: #045db0;
             font-size: 14px;
         }
 

@@ -9,8 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --university-blue: #1e3a8a;
-            --university-gold: #d4af37;
+            --university-blue: #045db0;
+            --university-gold: #eeca3e;
             --background-light: #f8fafc;
         }
         
@@ -89,7 +89,7 @@
                      style="max-width: 100%; max-height: 100%; border-radius: 8px;"
                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="d-none align-items-center justify-content-center w-100 h-100">
-                    <i class="fas fa-graduation-cap" style="font-size: 2rem; color: #1e3a8a;"></i>
+                    <i class="fas fa-graduation-cap" style="font-size: 2rem; color: #045db0;"></i>
                 </div>
             </div>
             <h4>استعادة كلمة المرور</h4>

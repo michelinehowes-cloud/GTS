@@ -23,6 +23,7 @@ class JobFair extends Model
         'max_graduates',
         'max_companies',
         'status',
+        'survey_id',
         'registration_open',
         'registration_deadline',
         'notes',
@@ -57,6 +58,11 @@ class JobFair extends Model
         return $this->belongsToMany(User::class, 'job_fair_registrations')
                     ->withPivot(['qr_code', 'registration_number', 'attended', 'check_in_at', 'status', 'interests'])
                     ->withTimestamps();
+    }
+
+    public function events()
+    {
+        return $this->hasMany(JobFairEvent::class);
     }
 
     // ========== Accessors ==========

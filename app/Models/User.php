@@ -194,6 +194,14 @@ class User extends Authenticatable
     }
 
     /**
+     * العلاقة مع بيانات الخريج
+     */
+    public function graduateData()
+    {
+        return $this->hasOne(GraduateData::class, 'email', 'email');
+    }
+
+    /**
      * العلاقة مع فرص العمل التي أنشأها المستخدم
      */
     public function createdJobOpportunities()

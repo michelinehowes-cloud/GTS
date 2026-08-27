@@ -5,28 +5,20 @@
 @section('content')
 <div class="container py-4" style="max-width: 800px">
 
-    <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="{{ route('job-fair.admin.index') }}" class="btn btn-light rounded-circle" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center">
-            <i class="fas fa-arrow-right"></i>
-        </a>
-        <div>
-            <h2 class="fw-bold mb-0" style="color: #0A1628">إنشاء معرض توظيف</h2>
-            <small class="text-muted">أدخل تفاصيل المعرض الجديد</small>
-        </div>
-    </div>
+    
 
-    <form action="{{ route('job-fair.admin.store') }}" method="POST" enctype="multipart/form-data">
+    <x-bento-form title="إنشاء معرض توظيف" subtitle="أدخل تفاصيل المعرض الجديد" icon="fa-calendar-plus">
+<form action="{{ route('job-fair.admin.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <!-- بيانات أساسية -->
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-header border-0 bg-transparent p-4 pb-0">
+        <div class="form-section mb-4">
+            <h5 class="section-title">
                 <h5 class="fw-bold mb-0">
                     <i class="fas fa-info-circle me-2" style="color: #3B82F6"></i>
                     المعلومات الأساسية
                 </h5>
-            </div>
-            <div class="card-body p-4">
+            <div class="p-4">
                 <div class="row g-3">
                     <div class="col-12">
                         <label class="form-label fw-semibold">عنوان المعرض *</label>
@@ -80,14 +72,13 @@
         </div>
 
         <!-- التسجيل -->
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-header border-0 bg-transparent p-4 pb-0">
+        <div class="form-section mb-4">
+            <h5 class="section-title">
                 <h5 class="fw-bold mb-0">
                     <i class="fas fa-users me-2" style="color: #10B981"></i>
                     إعدادات التسجيل
                 </h5>
-            </div>
-            <div class="card-body p-4">
+            <div class="p-4">
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">أقصى عدد خريجين</label>
@@ -113,14 +104,13 @@
         </div>
 
         <!-- الحالة -->
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-header border-0 bg-transparent p-4 pb-0">
+        <div class="form-section mb-4">
+            <h5 class="section-title">
                 <h5 class="fw-bold mb-0">
-                    <i class="fas fa-toggle-on me-2" style="color: #F59E0B"></i>
+                    <i class="fas fa-toggle-on me-2" style="color: #eeca3e"></i>
                     حالة المعرض
                 </h5>
-            </div>
-            <div class="card-body p-4">
+            <div class="p-4">
                 <div class="row g-3">
                     <div class="col-md-6">
                         <select name="status" class="form-select rounded-3">
@@ -142,15 +132,14 @@
         </div>
 
         <!-- الشركات المشاركة -->
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-header border-0 bg-transparent p-4 pb-0">
+        <div class="form-section mb-4">
+            <h5 class="section-title">
                 <h5 class="fw-bold mb-0">
                     <i class="fas fa-building me-2" style="color: #6366F1"></i>
                     الشركات المشاركة
                     <small class="text-muted fw-normal">(يمكن الإضافة لاحقاً)</small>
                 </h5>
-            </div>
-            <div class="card-body p-4">
+            <div class="p-4">
                 <div id="companies-container"></div>
                 <button type="button" class="btn btn-outline-primary rounded-pill btn-sm" onclick="addCompanyRow()">
                     <i class="fas fa-plus me-2"></i>إضافة شركة
@@ -164,7 +153,8 @@
                 <i class="fas fa-save me-2"></i>إنشاء المعرض
             </button>
         </div>
-    </form>
+    <div class="text-center mt-5"><button type="submit" class="btn-register"><i class="fas fa-save me-2"></i> حفظ المعرض</button></div></form>
+</x-bento-form>
 </div>
 @endsection
 

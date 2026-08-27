@@ -2,41 +2,76 @@
 
 @section('title', $fair->title . ' - تفاصيل المعرض')
 
+@section('focus_mode', true)
+
 @section('content')
 <div class="container-fluid py-4">
 
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <div class="d-flex align-items-center gap-3">
-            <a href="{{ route('job-fair.admin.index') }}" class="btn btn-light rounded-circle" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center">
+    <style>
+        .stat-card-custom {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .stat-card-custom:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08) !important;
+        }
+        .stat-card-custom:hover i {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        .list-item-custom {
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .list-item-custom:hover {
+            transform: translateX(-5px);
+            background: #fff !important;
+            border-color: rgba(4,93,176,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+    </style>
+    <!-- Hero Header -->
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center mb-4 p-4 rounded-4 shadow flex-wrap gap-4" style="background: linear-gradient(135deg, #03488a 0%, #045db0 100%); color: white; position: relative; overflow: hidden;">
+        
+        <!-- Decoration -->
+        <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(238,202,62,0.2) 0%, transparent 70%); border-radius: 50%;"></div>
+
+        <div class="d-flex align-items-center gap-4 position-relative z-1">
+            <a href="{{ route('job-fair.admin.index') }}" class="btn rounded-circle" style="width:50px;height:50px;display:flex;align-items:center;justify-content:center; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
                 <i class="fas fa-arrow-right"></i>
             </a>
+            <!-- Logos -->
+            <div class="d-flex align-items-center gap-3">
+                <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="شعار المعرض" style="height: 55px; width: auto;">
+            </div>
             <div>
-                <h2 class="fw-bold mb-0" style="color: #0A1628">{{ $fair->title }}</h2>
-                <small class="text-muted">
-                    <i class="fas fa-calendar me-1"></i>{{ $fair->event_date->format('d/m/Y') }}
-                    &nbsp;—&nbsp;
-                    <i class="fas fa-map-marker-alt me-1"></i>{{ $fair->location }}
-                </small>
+                <h2 class="fw-bold mb-1" style="color: #eeca3e; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $fair->title }}</h2>
+                <div class="d-flex align-items-center gap-3" style="color: rgba(255,255,255,0.9); font-size: 0.95rem;">
+                    <span><i class="fas fa-calendar-alt me-1 text-warning"></i>{{ $fair->event_date->format('d/m/Y') }}</span>
+                    <span><i class="fas fa-map-marker-alt me-1 text-warning"></i>{{ $fair->location }}</span>
+                </div>
             </div>
         </div>
-        <div class="d-flex gap-2 flex-wrap">
+        <div class="d-flex gap-2 flex-wrap position-relative z-1 align-items-center">
             <!-- تغيير الحالة -->
-            <form action="{{ route('job-fair.admin.status', $fair->id) }}" method="POST" class="d-inline">
+            <form action="{{ route('job-fair.admin.status', $fair->id) }}" method="POST" class="m-0">
                 @csrf
-                <select name="status" class="form-select form-select-sm rounded-pill d-inline-block" style="width:auto" onchange="this.form.submit()">
+                <select name="status" class="form-select form-select-sm rounded-pill border-0 px-3 py-2 shadow-sm" style="width:auto; font-weight: bold; background: white; color: #03488a; cursor: pointer;" onchange="this.form.submit()">
                     @foreach(['draft'=>'مسودة','published'=>'منشور','ongoing'=>'جارٍ الآن','completed'=>'منتهي'] as $val => $label)
                     <option value="{{ $val }}" {{ $fair->status == $val ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>
             </form>
-            <a href="{{ route('job-fair.admin.attendance', $fair->id) }}" class="btn btn-success rounded-pill">
+            <a href="{{ route('job-fair.admin.live', $fair->id) }}" class="btn rounded-pill text-white px-3 py-2" target="_blank" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <i class="fas fa-tv me-2 text-danger"></i>بث مباشر
+            </a>
+            <a href="{{ route('job-fair.admin.attendance', $fair->id) }}" class="btn rounded-pill fw-bold px-4 py-2 shadow-sm" style="background: #eeca3e; color: #03488a; border: none; transition: 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                 <i class="fas fa-qrcode me-2"></i>ماسح QR
             </a>
-            <a href="{{ route('job-fair.admin.export', $fair->id) }}" class="btn btn-outline-info rounded-pill">
+            <a href="{{ route('job-fair.admin.export', $fair->id) }}" class="btn rounded-pill text-white px-3 py-2" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
                 <i class="fas fa-file-export me-2"></i>تصدير
             </a>
-            <a href="{{ route('job-fair.public') }}" class="btn btn-outline-primary rounded-pill" target="_blank">
+            <a href="{{ route('job-fair.public') }}" class="btn rounded-pill text-white px-3 py-2" target="_blank" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
                 <i class="fas fa-external-link-alt me-2"></i>صفحة عامة
             </a>
         </div>
@@ -50,28 +85,52 @@
 
     <!-- Stats Cards -->
     <div class="row g-3 mb-4">
+        <!-- Registered -->
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3" style="background: linear-gradient(135deg, #EFF6FF, #DBEAFE)">
-                <div style="font-size: 2rem; font-weight: 900; color: #2563EB">{{ $stats['total_registered'] }}</div>
-                <small class="text-muted">خريج مسجل</small>
+            <div class="card stat-card-custom rounded-4 p-4 shadow-sm text-end h-100" style="background: white; border: none; border-right: 5px solid #03488a; box-shadow: 0 4px 15px rgba(0,0,0,0.04) !important;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div style="font-size: 2.2rem; font-weight: 900; color: #1e293b;">{{ $stats['total_registered'] }}</div>
+                    <div style="width:55px;height:55px;background:rgba(3,72,138,0.08);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem; transition: transform 0.3s;">
+                        <i class="fas fa-user-graduate" style="color: #03488a;"></i>
+                    </div>
+                </div>
+                <h6 class="fw-bold mb-0 text-start text-muted">خريج مسجل</h6>
             </div>
         </div>
+        <!-- Attended -->
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3" style="background: linear-gradient(135deg, #F0FDF4, #D1FAE5)">
-                <div style="font-size: 2rem; font-weight: 900; color: #059669">{{ $stats['total_attended'] }}</div>
-                <small class="text-muted">حضر</small>
+            <div class="card stat-card-custom rounded-4 p-4 shadow-sm text-end h-100" style="background: white; border: none; border-right: 5px solid #045db0; box-shadow: 0 4px 15px rgba(0,0,0,0.04) !important;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div style="font-size: 2.2rem; font-weight: 900; color: #1e293b;">{{ $stats['total_attended'] }}</div>
+                    <div style="width:55px;height:55px;background:rgba(4,93,176,0.08);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem; transition: transform 0.3s;">
+                        <i class="fas fa-user-check" style="color: #045db0;"></i>
+                    </div>
+                </div>
+                <h6 class="fw-bold mb-0 text-start text-muted">حضروا المعرض</h6>
             </div>
         </div>
+        <!-- Companies -->
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3" style="background: linear-gradient(135deg, #FFF7ED, #FED7AA)">
-                <div style="font-size: 2rem; font-weight: 900; color: #EA580C">{{ $stats['total_companies'] }}</div>
-                <small class="text-muted">شركة</small>
+            <div class="card stat-card-custom rounded-4 p-4 shadow-sm text-end h-100" style="background: white; border: none; border-right: 5px solid #eeca3e; box-shadow: 0 4px 15px rgba(0,0,0,0.04) !important;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div style="font-size: 2.2rem; font-weight: 900; color: #1e293b;">{{ $stats['total_companies'] }}</div>
+                    <div style="width:55px;height:55px;background:rgba(238,202,62,0.15);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem; transition: transform 0.3s;">
+                        <i class="fas fa-building" style="color: #d97706;"></i>
+                    </div>
+                </div>
+                <h6 class="fw-bold mb-0 text-start text-muted">شركة مشاركة</h6>
             </div>
         </div>
+        <!-- Days Remaining -->
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm rounded-4 text-center p-3" style="background: linear-gradient(135deg, #FEF3C7, #FDE68A)">
-                <div style="font-size: 2rem; font-weight: 900; color: #D97706">{{ $stats['days_remaining'] }}</div>
-                <small class="text-muted">يوم متبقي</small>
+            <div class="card stat-card-custom rounded-4 p-4 shadow-sm text-end h-100" style="background: white; border: none; border-right: 5px solid #10b981; box-shadow: 0 4px 15px rgba(0,0,0,0.04) !important;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div style="font-size: 2.2rem; font-weight: 900; color: #1e293b;">{{ $stats['days_remaining'] }}</div>
+                    <div style="width:55px;height:55px;background:rgba(16,185,129,0.1);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem; transition: transform 0.3s;">
+                        <i class="fas fa-clock" style="color: #10b981;"></i>
+                    </div>
+                </div>
+                <h6 class="fw-bold mb-0 text-start text-muted">يوم متبقي</h6>
             </div>
         </div>
     </div>
@@ -132,7 +191,7 @@
                     @else
                     <div class="d-flex flex-column gap-2">
                         @foreach($fair->companies as $fc)
-                        <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background: #f8fafc">
+                        <div class="d-flex align-items-center gap-3 p-3 rounded-3 list-item-custom" style="background: #f8fafc">
                             <div class="d-flex align-items-center justify-content-center rounded-3" style="width:40px;height:40px;background:#e8f0fe;font-size:1.2rem">🏢</div>
                             <div class="flex-grow-1">
                                 <div class="fw-semibold small">{{ $fc->company->name }}</div>
@@ -187,7 +246,7 @@
                             </thead>
                             <tbody>
                                 @foreach($registrations as $reg)
-                                <tr>
+                                <tr class="list-item-custom">
                                     <td><small class="fw-bold text-primary">{{ $reg->registration_number }}</small></td>
                                     <td>{{ $reg->graduate->name }}</td>
                                     <td><small class="text-muted">{{ $reg->graduate->major ?? '—' }}</small></td>

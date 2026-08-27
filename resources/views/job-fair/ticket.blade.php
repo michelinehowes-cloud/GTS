@@ -8,22 +8,28 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         * { font-family: 'Cairo', sans-serif; }
         body {
-            background: linear-gradient(135deg, #1e3a8a 0%, #e2e8f0 100%);
-            min-height: 100vh;
+            background: linear-gradient(135deg, #045db0 0%, #e2e8f0 100%);
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            overflow: hidden;
         }
 
         /* ===== Ticket Card ===== */
         .ticket-wrapper {
             max-width: 480px;
             width: 100%;
+            padding: 20px;
+            transform-origin: center center;
         }
 
         .ticket {
@@ -36,7 +42,7 @@
 
         /* Header الملوّن */
         .ticket-header {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: #045db0;
             color: white;
             padding: 2rem;
             text-align: center;
@@ -62,11 +68,7 @@
             margin-bottom: 0.5rem;
         }
         .ticket-logo img {
-            height: 60px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            background: white;
-            padding: 5px;
+            /* html2canvas scaling fix: remove object-fit */
         }
         .ticket-event-name {
             font-size: 1.3rem;
@@ -97,14 +99,14 @@
         }
         .ticket-hole {
             width: 20px; height: 20px;
-            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            background: linear-gradient(135deg, #045db0, #3b82f6);
             border-radius: 50%;
             margin: 0 -10px;
             flex-shrink: 0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         .ticket-hole-right {
-            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            background: linear-gradient(135deg, #045db0, #3b82f6);
         }
 
         /* Body */
@@ -114,7 +116,7 @@
 
         /* Reg Number Badge */
         .reg-number-badge {
-            background: linear-gradient(135deg, #F59E0B, #F97316);
+            background: linear-gradient(135deg, #eeca3e, #F97316);
             color: #fff;
             padding: 6px 20px;
             border-radius: 50px;
@@ -129,7 +131,7 @@
         .grad-name {
             font-size: 1.4rem;
             font-weight: 900;
-            color: #1e3a8a;
+            color: #045db0;
             margin-bottom: 0.3rem;
         }
         .grad-info {
@@ -158,7 +160,7 @@
         }
         .info-value {
             font-weight: 700;
-            color: #1e3a8a;
+            color: #045db0;
             font-size: 0.9rem;
         }
 
@@ -210,7 +212,7 @@
         }
         .btn-print {
             flex: 1;
-            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            background: linear-gradient(135deg, #045db0, #3b82f6);
             color: white;
             border: none;
             padding: 12px;
@@ -248,10 +250,7 @@
         }
 
         @media print {
-            body { background: white; padding: 0; }
-            .ticket { box-shadow: none; }
-            .action-buttons { display: none; }
-            .no-print { display: none; }
+            .no-print { display: none !important; }
         }
     </style>
 </head>
@@ -269,8 +268,9 @@
 
         <!-- Header -->
         <div class="ticket-header">
-            <div class="ticket-logo">
-                <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" style="max-width: 80px;">
+            <div class="d-flex justify-content-center align-items-center gap-3 mb-2 ticket-logo">
+                <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="شعار المعرض" style="height: 45px; width: auto;">
+                <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب الخريجين بجامعة طرابلس" style="height: 55px; width: auto;">
             </div>
             <div class="ticket-event-name">{{ $registration->jobFair->title }}</div>
             <div class="ticket-university">مكتب تدريب الخريجين - جامعة طرابلس</div>
@@ -341,14 +341,19 @@
     </div>
 
     <!-- Buttons -->
-    <div class="action-buttons no-print">
-        <button onclick="window.print()" class="btn-print">
-            <i class="fas fa-print ms-2"></i>طباعة البطاقة
+    <div class="action-buttons no-print d-flex flex-column gap-2 mt-3">
+        <button onclick="downloadTicket()" class="btn-print w-100" id="download-btn" style="background: #10b981;">
+            <i class="fas fa-image ms-2"></i>حفظ كصورة
         </button>
-        <a href="{{ route('job-fair.public') }}" class="btn-back">
-            <i class="fas fa-arrow-right"></i>
-            العودة للمعرض
-        </a>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn-print m-0">
+                <i class="fas fa-print ms-2"></i>طباعة البطاقة
+            </button>
+            <a href="{{ route('job-fair.public') }}" class="btn-back m-0">
+                <i class="fas fa-arrow-right"></i>
+                العودة للمعرض
+            </a>
+        </div>
     </div>
 
 </div>
@@ -357,12 +362,85 @@
 // توليد QR Code
 new QRCode(document.getElementById('qr-code'), {
     text: "{{ $registration->qr_code }}",
-    width: 180,
-    height: 180,
-    colorDark: "#0A1628",
+    width: 170,
+    height: 170,
+    colorDark: "#045db0",
     colorLight: "#ffffff",
     correctLevel: QRCode.CorrectLevel.H
 });
+
+// دالة حفظ البطاقة كصورة
+function downloadTicket() {
+    const btn = document.getElementById('download-btn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin ms-2"></i> جاري الحفظ...';
+    btn.disabled = true;
+
+    // استخدام html2canvas لالتقاط صورة للبطاقة
+    const ticketElement = document.querySelector('.ticket');
+    
+    html2canvas(ticketElement, {
+        scale: 2, // جودة أعلى
+        useCORS: true, // للسماح بتحميل الصور الخارجية إن وجدت
+        backgroundColor: null, // للحفاظ على الشفافية لو وجدت
+        onclone: function(clonedDoc) {
+            // إصلاح مشكلة تداخل النصوص العربية عن طريق إزالة التصغير (Scale)
+            // من النسخة المستنسخة قبل التقاط الصورة
+            const clonedWrapper = clonedDoc.querySelector('.ticket-wrapper');
+            if (clonedWrapper) {
+                clonedWrapper.style.transform = 'none';
+            }
+        }
+    }).then(canvas => {
+        // إنشاء رابط التحميل
+        const link = document.createElement('a');
+        link.download = `ticket_{{ $registration->registration_number }}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+
+        // إعادة الزر لحالته الطبيعية
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }).catch(err => {
+        console.error("Error generating ticket image: ", err);
+        alert("حدث خطأ أثناء حفظ البطاقة، يرجى المحاولة مرة أخرى.");
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    });
+}
+
+// دالة لتعديل حجم البطاقة تلقائيا لتناسب الشاشة
+function fitTicketToScreen() {
+    const wrapper = document.querySelector('.ticket-wrapper');
+    if (!wrapper) return;
+    
+    // Reset transform to measure original size
+    wrapper.style.transform = 'none';
+    
+    // Get actual dimensions
+    const windowHeight = window.innerHeight;
+    const windowWidth = window.innerWidth;
+    
+    const wrapperHeight = wrapper.offsetHeight;
+    const wrapperWidth = wrapper.offsetWidth;
+    
+    // Calculate scale factor (with slight padding buffer)
+    const scaleY = windowHeight / wrapperHeight;
+    const scaleX = windowWidth / wrapperWidth;
+    
+    // Always scale down if it exceeds viewport, never scale up
+    const scale = Math.min(scaleX, scaleY, 1);
+    
+    wrapper.style.transform = `scale(${scale})`;
+}
+
+// تشغيل الدالة عند التحميل وعند تغيير حجم الشاشة
+window.addEventListener('load', fitTicketToScreen);
+window.addEventListener('resize', fitTicketToScreen);
+
+// تشغيل مبدئي
+setTimeout(fitTicketToScreen, 100);
+
 </script>
 
 </body>

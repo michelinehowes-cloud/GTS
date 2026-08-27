@@ -28,7 +28,7 @@
     @endphp
 
     @if($upcomingFair && !$isRegistered)
-    <div class="card shadow-sm border-0 mb-4" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+    <div class="card shadow-sm border-0 mb-4" style="background: linear-gradient(135deg, #045db0 0%, #3b82f6 100%);">
         <div class="card-body p-4 p-md-5 text-white d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
             <div>
                 <span class="badge bg-warning text-dark mb-2 px-3 py-2 rounded-pill fw-bold">

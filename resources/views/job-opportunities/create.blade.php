@@ -3,17 +3,7 @@
 @section('title', 'إضافة فرصة عمل جديدة')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3>إضافة فرصة عمل جديدة</h3>
-                    <a href="{{ route('job-opportunities.index') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-right me-2"></i>رجوع للقائمة
-                    </a>
-                </div>
-                <div class="card-body">
+
                     @if($errors->any())
                     <div class="alert alert-danger">
                         <h6>يوجد أخطاء في البيانات:</h6>
@@ -25,7 +15,8 @@
                     </div>
                     @endif
 
-                    <form action="{{ route('job-opportunities.store') }}" method="POST">
+                    <x-bento-form title="إضافة فرصة عمل جديدة" subtitle="أدخل تفاصيل الفرصة الوظيفية" icon="fa-briefcase">
+<form action="{{ route('job-opportunities.store') }}" method="POST">
                         @csrf
                         
                         <div class="row">
@@ -231,11 +222,7 @@
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+</x-bento-form>
 
 @section('scripts')
 <script>

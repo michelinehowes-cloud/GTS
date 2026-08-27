@@ -115,6 +115,7 @@ Route::middleware('auth')->group(function () {
 
         // 📊 لوحة التحكم والإحصائيات
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/dashboard/live-stats', [AdminController::class, 'liveStats'])->name('admin.dashboard.live-stats');
 
         // 📈 التقارير والإحصائيات
         Route::prefix('reports')->group(function () {
@@ -145,6 +146,9 @@ Route::middleware('auth')->group(function () {
         Route::put('/companies/{company}', [CompanyController::class, 'update'])->name('admin.companies.update');
         Route::delete('/companies/{company}', [CompanyController::class, 'destroy'])->name('admin.companies.destroy');
         Route::patch('/companies/{id}/approve', [AdminController::class, 'approveCompany'])->name('admin.companies.approve');
+        Route::patch('/companies/{id}/reset-password', [CompanyController::class, 'resetPassword'])->name('admin.companies.reset-password');
+        Route::post('/companies/{id}/create-user', [CompanyController::class, 'createUserAccount'])->name('admin.companies.create-user');
+
 
         // 🎯 إدارة برامج التدريب
         Route::resource('trainings', TrainingController::class)->names([
@@ -174,6 +178,9 @@ Route::middleware('auth')->group(function () {
             Route::get('/graduates/{id}', [CareerGuidanceController::class, 'showGraduate'])->name('admin.career-guidance.graduates.show');
             Route::get('/graduates/{id}/edit', [CareerGuidanceController::class, 'editGraduate'])->name('admin.career-guidance.graduates.edit');
             Route::put('/graduates/{id}', [CareerGuidanceController::class, 'updateGraduate'])->name('admin.career-guidance.graduates.update');
+            Route::patch('/graduates/{id}/reset-password', [CareerGuidanceController::class, 'resetGraduatePassword'])->name('admin.career-guidance.graduates.reset-password');
+            Route::post('/graduates/{id}/create-user', [CareerGuidanceController::class, 'createGraduateAccount'])->name('admin.career-guidance.graduates.create-user');
+
 
             // 📨 إدارة الترشيحات
             Route::get('/nominations', [CareerGuidanceController::class, 'nominations'])->name('admin.career-guidance.nominations');
@@ -532,11 +539,24 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['auth', 'company'])->prefix('company')->name('company.')->group(function () {
         Route::get('/dashboard', [CompanyController::class, 'dashboard'])->name('dashboard');
         
+        // مسارات ملف الشركة التعريفي
+        Route::get('/profile', [CompanyController::class, 'profile'])->name('profile');
+        Route::put('/profile', [CompanyController::class, 'updateProfile'])->name('profile.update');
+        
+        // مسارات التوظيف والمرشحين (ATS)
+        Route::get('/nominations', [CompanyController::class, 'nominations'])->name('nominations');
+        Route::get('/nominations/{nomination}', [CompanyController::class, 'showNomination'])->name('nominations.show');
+        Route::put('/nominations/{nomination}/status', [CompanyController::class, 'updateNominationStatus'])->name('nominations.update-status');
+        
         // مسارات معارض التوظيف للشركات
         Route::get('/job-fairs', [App\Http\Controllers\CompanyJobFairController::class, 'index'])->name('job-fairs.index');
+        Route::get('/job-fairs/{fair}/qr-booth', [App\Http\Controllers\CompanyJobFairController::class, 'qrBooth'])->name('job-fairs.qr-booth');
         Route::get('/job-fairs/{fair}/scanner', [App\Http\Controllers\CompanyJobFairController::class, 'scanner'])->name('job-fairs.scanner');
         Route::post('/job-fairs/{fair}/scanner', [App\Http\Controllers\CompanyJobFairController::class, 'storeVisit'])->name('job-fairs.store-visit');
         Route::get('/job-fairs/{fair}/leads', [App\Http\Controllers\CompanyJobFairController::class, 'leads'])->name('job-fairs.leads');
+        Route::get('/job-fairs/{fair}/search', [App\Http\Controllers\CompanyJobFairController::class, 'searchGraduates'])->name('job-fairs.search');
+        Route::post('/job-fairs/update-lead-status', [App\Http\Controllers\CompanyJobFairController::class, 'updateLeadStatus'])->name('job-fairs.update-lead-status');
+        Route::post('/job-fairs/visits/{visit}/outcome', [App\Http\Controllers\CompanyJobFairController::class, 'updateVisitOutcome'])->name('job-fairs.visit-outcome');
     });
 
 }); // نهاية مجموعة المسارات للمستخدمين المسجلين
@@ -558,6 +578,10 @@ Route::get('/new_test', function () {
 
 // ==================== 🎓 مسارات الخريجين - فرص العمل ====================
 Route::middleware(['auth'])->prefix('graduate')->name('graduate.')->group(function () {
+    
+    // مسح الباركود للشركة
+    Route::get('/job-fairs/{fair}/company/{company}/scan', [App\Http\Controllers\GraduateJobFairController::class, 'scanCompanyQr'])->name('job-fairs.company.scan');
+
     // فرص العمل
     Route::get('/job-opportunities', [App\Http\Controllers\GraduateJobController::class, 'index'])->name('job-opportunities.index');
     Route::get('/job-opportunities/{id}', [App\Http\Controllers\GraduateJobController::class, 'show'])->name('job-opportunities.show');
@@ -571,6 +595,10 @@ Route::middleware(['auth'])->prefix('graduate')->name('graduate.')->group(functi
     Route::get('/surveys', [App\Http\Controllers\Graduate\GraduateSurveyController::class, 'index'])->name('surveys.index');
     Route::get('/surveys/{survey}', [App\Http\Controllers\Graduate\GraduateSurveyController::class, 'show'])->name('surveys.show');
     Route::post('/surveys/{survey}', [App\Http\Controllers\Graduate\GraduateSurveyController::class, 'store'])->name('surveys.store');
+
+    // المفضلة
+    Route::get('/favorites', [App\Http\Controllers\FavoriteController::class, 'index'])->name('favorites.index');
+    Route::post('/favorites/{companyId}/toggle', [App\Http\Controllers\FavoriteController::class, 'toggle'])->name('favorites.toggle');
 });
 
 require __DIR__ . '/auth.php';
@@ -584,16 +612,26 @@ Route::get('/job-fair', [App\Http\Controllers\JobFairController::class, 'publicS
 Route::middleware('auth')->group(function () {
     Route::post('/job-fair/{fair}/register', [App\Http\Controllers\JobFairController::class, 'register'])->name('job-fair.register');
     Route::get('/job-fair/ticket/{registration}', [App\Http\Controllers\JobFairController::class, 'myTicket'])->name('job-fair.my-ticket');
+    Route::get('/job-fair/{fair}/print-ticket', [App\Http\Controllers\JobFairController::class, 'printTicket'])->name('job-fair.ticket.print');
     
     // المراسلات (الشركات والخريجين)
     Route::get('/messages', [App\Http\Controllers\MessageController::class, 'index'])->name('messages.index');
     Route::get('/messages/{id}', [App\Http\Controllers\MessageController::class, 'show'])->name('messages.show');
     Route::post('/messages/{id}', [App\Http\Controllers\MessageController::class, 'store'])->name('messages.store');
+
+    // السيرة الذاتية الرقمية (Digital CV Profile)
+    Route::get('/graduate/profile/{id}', [App\Http\Controllers\PublicProfileController::class, 'show'])->name('graduate.profile.public');
+
+    // الكتيب الرقمي والفعاليات للخريج
+    Route::get('/job-fair/{fair}/catalog', [App\Http\Controllers\GraduateJobFairController::class, 'catalog'])->name('job-fair.catalog');
+    Route::post('/job-fair/company/{company}/wishlist', [App\Http\Controllers\GraduateJobFairController::class, 'toggleWishlist'])->name('job-fair.wishlist.toggle');
+    Route::post('/job-fair/event/{event}/toggle', [App\Http\Controllers\GraduateJobFairController::class, 'toggleEventRegistration'])->name('job-fair.event.toggle');
 });
 
 // إدارة المعرض (أدمن فقط)
 Route::middleware(['auth'])->prefix('admin/job-fair')->name('job-fair.admin.')->group(function () {
     Route::get('/', [App\Http\Controllers\JobFairController::class, 'index'])->name('index');
+    Route::get('/live/{fair}', [App\Http\Controllers\JobFairController::class, 'liveDashboard'])->name('live');
     Route::get('/create', [App\Http\Controllers\JobFairController::class, 'create'])->name('create');
     Route::post('/', [App\Http\Controllers\JobFairController::class, 'store'])->name('store');
     Route::get('/{fair}', [App\Http\Controllers\JobFairController::class, 'show'])->name('show');
@@ -605,4 +643,9 @@ Route::middleware(['auth'])->prefix('admin/job-fair')->name('job-fair.admin.')->
     Route::get('/{fair}/export', [App\Http\Controllers\JobFairController::class, 'exportRegistrations'])->name('export');
     Route::get('/{fair}/attendance', [App\Http\Controllers\JobFairController::class, 'attendancePage'])->name('attendance');
     Route::post('/check-in', [App\Http\Controllers\JobFairController::class, 'checkIn'])->name('check-in');
+    
+    // إدارة الفعاليات
+    Route::get('/{fair}/events', [App\Http\Controllers\JobFairEventController::class, 'index'])->name('events.index');
+    Route::post('/{fair}/events', [App\Http\Controllers\JobFairEventController::class, 'store'])->name('events.store');
+    Route::delete('/events/{event}', [App\Http\Controllers\JobFairEventController::class, 'destroy'])->name('events.destroy');
 });

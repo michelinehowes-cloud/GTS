@@ -20,7 +20,7 @@ class AdminController extends Controller
         // التحقق من وجود الجداول قبل استخدامها
         $usersCount = Schema::hasTable('users') ? User::count() : 0;
         $companiesCount = Schema::hasTable('companies') ? Company::count() : 0;
-        $trainingsCount = Schema::hasTable('trainings') ? Training::count() : 0;
+        $approvedTrainingsCount = Schema::hasTable('trainings') ? Training::where('status', 'active')->count() : 0;
 
         if (Schema::hasTable('training_applications')) {
             $applicationsCount = TrainingApplication::count();
@@ -59,7 +59,7 @@ class AdminController extends Controller
         return view('admin.dashboard', [
             'usersCount' => $usersCount,
             'companiesCount' => $companiesCount,
-            'trainingsCount' => $trainingsCount,
+            'approvedTrainingsCount' => $approvedTrainingsCount,
             'applicationsCount' => $applicationsCount,
             'pendingApplicationsCount' => $pendingApplicationsCount,
             'jobOpportunitiesCount' => $jobOpportunitiesCount,
@@ -82,7 +82,28 @@ class AdminController extends Controller
     }
 
     /**
-     * الحصول على بيانات المخططات للوحة التحكم
+     * API endpoint for live dashboard stats
+     */
+    public function liveStats()
+    {
+        $usersCount = Schema::hasTable('users') ? User::count() : 0;
+        $companiesCount = Schema::hasTable('companies') ? Company::count() : 0;
+        $approvedTrainingsCount = Schema::hasTable('trainings') ? Training::where('status', 'active')->count() : 0;
+        $applicationsCount = Schema::hasTable('training_applications') ? TrainingApplication::count() : 0;
+
+        $chartData = $this->getDashboardChartData();
+
+        return response()->json([
+            'usersCount' => $usersCount,
+            'companiesCount' => $companiesCount,
+            'approvedTrainingsCount' => $approvedTrainingsCount,
+            'applicationsCount' => $applicationsCount,
+            'chartData' => $chartData
+        ]);
+    }
+
+    /**
+     * إرجاع بيانات المخططات (Charts) للوحة التحكم
      */
     private function getDashboardChartData()
     {

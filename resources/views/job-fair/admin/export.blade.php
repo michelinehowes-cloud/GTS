@@ -11,7 +11,7 @@
         body { background: #f8fafc; }
 
         .export-header {
-            background: linear-gradient(135deg, #0A1628 0%, #1E3A5F 100%);
+            background: linear-gradient(135deg, #045db0 0%, #03488a 100%);
             color: white;
             padding: 2rem;
             border-radius: 0 0 20px 20px;
@@ -36,7 +36,7 @@
                 <small class="opacity-50">{{ $fair->event_date->format('d/m/Y') }} — {{ $fair->location }}</small>
             </div>
             <div class="text-center">
-                <div style="font-size: 2rem; font-weight: 900; color: #F59E0B">{{ $registrations->count() }}</div>
+                <div style="font-size: 2rem; font-weight: 900; color: #eeca3e">{{ $registrations->count() }}</div>
                 <div class="opacity-75 small">خريج مسجل</div>
             </div>
         </div>

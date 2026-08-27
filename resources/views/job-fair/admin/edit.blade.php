@@ -5,29 +5,20 @@
 @section('content')
 <div class="container py-4" style="max-width: 800px">
 
-    <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="btn btn-light rounded-circle" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center">
-            <i class="fas fa-arrow-right"></i>
-        </a>
-        <div>
-            <h2 class="fw-bold mb-0" style="color: #0A1628">تعديل المعرض</h2>
-            <small class="text-muted">{{ $fair->title }}</small>
-        </div>
-    </div>
+    
 
     <form action="{{ route('job-fair.admin.update', $fair->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
         <!-- المعلومات الأساسية -->
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-header border-0 bg-transparent p-4 pb-0">
+        <div class="form-section mb-4">
+            <h5 class="section-title">
                 <h5 class="fw-bold mb-0">
                     <i class="fas fa-info-circle me-2" style="color: #3B82F6"></i>
                     المعلومات الأساسية
                 </h5>
-            </div>
-            <div class="card-body p-4">
+            <div class="p-4">
                 <div class="row g-3">
                     <div class="col-12">
                         <label class="form-label fw-semibold">عنوان المعرض *</label>
@@ -77,14 +68,13 @@
         </div>
 
         <!-- إعدادات التسجيل -->
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-header border-0 bg-transparent p-4 pb-0">
+        <div class="form-section mb-4">
+            <h5 class="section-title">
                 <h5 class="fw-bold mb-0">
                     <i class="fas fa-users me-2" style="color: #10B981"></i>
                     إعدادات التسجيل
                 </h5>
-            </div>
-            <div class="card-body p-4">
+            <div class="p-4">
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">أقصى عدد خريجين</label>
@@ -110,14 +100,13 @@
         </div>
 
         <!-- الحالة -->
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-header border-0 bg-transparent p-4 pb-0">
+        <div class="form-section mb-4">
+            <h5 class="section-title">
                 <h5 class="fw-bold mb-0">
-                    <i class="fas fa-toggle-on me-2" style="color: #F59E0B"></i>
+                    <i class="fas fa-toggle-on me-2" style="color: #eeca3e"></i>
                     حالة المعرض
                 </h5>
-            </div>
-            <div class="card-body p-4">
+            <div class="p-4">
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">الحالة</label>
@@ -148,6 +137,7 @@
                 <i class="fas fa-save me-2"></i>حفظ التعديلات
             </button>
         </div>
-    </form>
+    <div class="text-center mt-5"><button type="submit" class="btn-register"><i class="fas fa-save me-2"></i> حفظ التعديلات</button></div></form>
+</x-bento-form>
 </div>
 @endsection

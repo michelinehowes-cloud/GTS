@@ -48,12 +48,19 @@ class Survey extends Model
         return $this->belongsTo(JobOpportunity::class, 'related_id')->where('type', 'job_opportunity');
     }
 
+    public function jobFair()
+    {
+        return $this->belongsTo(JobFair::class, 'related_id')->where('type', 'job_fair');
+    }
+
     public function getRelatedEntityAttribute()
     {
         if ($this->type === 'training') {
             return \App\Models\Training::find($this->related_id);
         } elseif ($this->type === 'job_opportunity') {
             return \App\Models\JobOpportunity::find($this->related_id); // Adjust model name if needed
+        } elseif ($this->type === 'job_fair') {
+            return \App\Models\JobFair::find($this->related_id);
         }
         return null;
     }

@@ -9,16 +9,17 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap"
         rel="stylesheet">
+    <link href="{{ asset('css/premium-forms.css') }}" rel="stylesheet">
     <style>
         :root {
-            --primary-blue: #1e3a8a;
+            --primary-blue: #045db0;
             --primary-dark: #1e40af;
             --primary-medium: #3b82f6;
             --primary-light: #60a5fa;
-            --accent-gold: #d4af37;
+            --accent-gold: #eeca3e;
             --accent-light: #fbbf24;
-            --university-blue: #1e3a8a;
-            --university-gold: #d4af37;
+            --university-blue: #045db0;
+            --university-gold: #eeca3e;
             --text-dark: #1f2937;
             --text-light: #6b7280;
             --background-light: #f8fafc;
@@ -43,7 +44,7 @@
         }
 
         .sidebar {
-            background: linear-gradient(180deg, var(--university-blue) 0%, #1e3a8a 100%);
+            background: linear-gradient(180deg, var(--university-blue) 0%, #045db0 100%);
             /* تم تغيير min-height إلى height: 100%vh */
             height: 100vh;
             color: var(--white);
@@ -327,7 +328,7 @@
                                     class="logo-img"
                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                 <div class="d-none align-items-center justify-content-center w-100 h-100">
-                                    <i class="fas fa-graduation-cap" style="font-size: 2rem; color: #1e3a8a;"></i>
+                                    <i class="fas fa-graduation-cap" style="font-size: 2rem; color: #045db0;"></i>
                                 </div>
                             </div>
                             <div class="logo-text">مكتب تدريب الخريجين</div>

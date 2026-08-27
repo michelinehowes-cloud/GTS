@@ -3,7 +3,7 @@
 @section('title', 'لوحة تحكم الخريج')
 
 @section('content')
-    <div class="container-fluid">
+    <div class="container-fluid py-4">
         @if(session('success'))
             @include('components.alert', [
                 'type' => 'success',
@@ -24,97 +24,142 @@
             $myFairRegistration = \App\Models\JobFairRegistration::where('user_id', auth()->id())->latest()->first();
         @endphp
         @if($myFairRegistration)
-            <div class="alert alert-info border-0 shadow-sm d-flex justify-content-between align-items-center rounded-3 mb-4" style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white;">
-                <div class="d-flex align-items-center gap-3">
-                    <i class="fas fa-store fa-2x text-warning"></i>
-                    <div>
-                        <h5 class="mb-1 fw-bold">أنت مسجل في معرض التوظيف 2026!</h5>
-                        <p class="mb-0 text-white-50 small">رقم التسجيل: {{ $myFairRegistration->registration_number }}</p>
+            <div class="bento-card mb-4 p-4" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border-left: 4px solid var(--bento-gold);">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bento-card-icon bento-icon-gold">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-1 fw-bold text-white">أنت مسجل في معرض التوظيف 2026! 🎉</h4>
+                            <p class="mb-0 text-white-50 fs-6">رقم التسجيل: <span class="badge bg-secondary ms-1">{{ $myFairRegistration->registration_number }}</span></p>
+                        </div>
                     </div>
+                    <a href="{{ route('job-fair.my-ticket', $myFairRegistration->id) }}" class="btn-bento-outline" style="border-color: var(--bento-gold); color: var(--bento-gold);">
+                        <i class="fas fa-qrcode me-2"></i>عرض بطاقة الدخول
+                    </a>
                 </div>
-                <a href="{{ route('job-fair.my-ticket', $myFairRegistration->id) }}" class="btn btn-warning fw-bold text-dark rounded-pill px-4">
-                    <i class="fas fa-qrcode me-2"></i>عرض البطاقة
-                </a>
             </div>
         @endif
 
-        <!-- بطاقات الإحصائيات -->
-        <div class="row mb-4">
-            @include('components.stat-card', [
-                'title' => 'التدريبات المتاحة',
-                'value' => $totalTrainings,
-                'icon' => 'fas fa-briefcase',
-                'color' => 'primary',
-                'col' => 'col-6 col-md-3 mb-3'
-            ])
+        <!-- بطاقات الإحصائيات (Bento Grid) -->
+        <div class="bento-grid">
+            <div class="bento-card">
+                <div class="bento-card-header">
+                    <h3 class="bento-card-title">البرامج التدريبية</h3>
+                    <div class="bento-card-icon bento-icon-primary">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-end mt-1">
+                    <div class="bento-stat">{{ $totalTrainings ?? 0 }}</div>
+                    <div class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-3 py-2 mb-2">
+                        متاح <i class="fas fa-check-circle ms-1"></i>
+                    </div>
+                </div>
+                <div class="bento-desc mt-2">إجمالي البرامج التدريبية المتاحة للتسجيل بها</div>
+                <a href="{{ route('graduate.trainings') }}" class="btn-bento-outline mt-3 text-center text-decoration-none">تصفح البرامج <i class="fas fa-arrow-left ms-1"></i></a>
+            </div>
 
-            @include('components.stat-card', [
-                'title' => 'طلباتي',
-                'value' => $myApplications,
-                'icon' => 'fas fa-file-alt',
-                'color' => 'success',
-                'col' => 'col-6 col-md-3 mb-3'
-            ])
+            <div class="bento-card">
+                <div class="bento-card-header">
+                    <h3 class="bento-card-title">فرص العمل</h3>
+                    <div class="bento-card-icon bento-icon-success">
+                        <i class="fas fa-building"></i>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-end mt-1">
+                    <div class="bento-stat">{{ \App\Models\JobOpportunity::where('status', 'open')->count() ?? 0 }}</div>
+                    <div class="badge rounded-pill bg-success bg-opacity-10 text-success px-3 py-2 mb-2">
+                        مفتوح <i class="fas fa-bolt ms-1"></i>
+                    </div>
+                </div>
+                <div class="bento-desc mt-2">فرص العمل المتاحة من الشركات</div>
+                <a href="{{ route('graduate.job-opportunities.index') }}" class="btn-bento-outline mt-3 text-center text-decoration-none">تصفح الفرص <i class="fas fa-arrow-left ms-1"></i></a>
+            </div>
 
-            @include('components.stat-card', [
-                'title' => 'قيد المراجعة',
-                'value' => $pendingApplications,
-                'icon' => 'fas fa-clock',
-                'color' => 'warning',
-                'col' => 'col-6 col-md-3 mb-3'
-            ])
+            <div class="bento-card">
+                <div class="bento-card-header">
+                    <h3 class="bento-card-title">طلباتي</h3>
+                    <div class="bento-card-icon bento-icon-warning">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-end mt-1">
+                    <div class="bento-stat">{{ $myApplications ?? 0 }}</div>
+                    <div class="badge rounded-pill bg-warning bg-opacity-10 text-warning px-3 py-2 mb-2" style="color: #d97706 !important;">
+                        مستمر <i class="fas fa-arrow-trend-up ms-1"></i>
+                    </div>
+                </div>
+                <div class="bento-desc mt-2">طلبات التقديم على الوظائف والتدريب</div>
+                <a href="{{ route('graduate.my-applications') }}" class="btn-bento-outline mt-3 text-center text-decoration-none">متابعة الطلبات <i class="fas fa-arrow-left ms-1"></i></a>
+            </div>
 
-            @include('components.stat-card', [
-                'title' => 'مقبولة',
-                'value' => $approvedApplications,
-                'icon' => 'fas fa-check-circle',
-                'color' => 'info',
-                'col' => 'col-6 col-md-3 mb-3'
-            ])
+            <div class="bento-card">
+                <div class="bento-card-header">
+                    <h3 class="bento-card-title">تسجيل حضور</h3>
+                    <div class="bento-card-icon bento-icon-danger">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-end mt-1">
+                    <div class="bento-stat"><i class="fas fa-camera"></i></div>
+                    <div class="badge rounded-pill bg-danger bg-opacity-10 text-danger px-3 py-2 mb-2">
+                        مباشر <i class="fas fa-circle-dot ms-1"></i>
+                    </div>
+                </div>
+                <div class="bento-desc mt-2">استخدم كاميرا الهاتف لتسجيل الحضور</div>
+                <button class="btn-bento mt-3 w-100" data-bs-toggle="modal" data-bs-target="#qrScannerModal">مسح باركود (QR)</button>
+            </div>
         </div>
 
         <div class="row">
             <!-- التقويم التفاعلي -->
             <div class="col-lg-8 mb-4">
-                <div class="card-modern">
-                    <div class="card-header bg-white py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
-                            <i class="fas fa-calendar-alt me-2"></i>
-                            تقويم التدريبات
-                        </h6>
+                <div class="bento-card h-100">
+                    <div class="bento-card-header border-bottom border-secondary pb-3 mb-3">
+                        <h3 class="bento-card-title text-white fs-5">
+                            <i class="fas fa-calendar-alt me-2 text-primary"></i>تقويم التدريبات والفعاليات
+                        </h3>
                     </div>
-                    <div class="card-body">
-                        <div id="calendar"></div>
+                    <div class="card-body p-0">
+                        <div id="calendar" style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px;"></div>
                     </div>
                 </div>
             </div>
 
             <!-- الجانب الأيسر: الرسم البياني والإشعارات -->
             <div class="col-lg-4 mb-4">
-                <!-- رسم بياني لحالة التقديمات -->
-                <div class="card-modern mb-4">
-                    <div class="card-header bg-white py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
-                            <i class="fas fa-chart-pie me-2"></i>
-                            حالة التقديمات
-                        </h6>
+                <!-- إشعارات ذكية -->
+                <div class="bento-card h-100">
+                    <div class="bento-card-header border-bottom border-secondary pb-3 mb-3">
+                        <h3 class="bento-card-title text-white fs-5">
+                            <i class="fas fa-bell me-2 text-warning"></i>آخر الإشعارات
+                        </h3>
                     </div>
-                    <div class="card-body">
-                        <canvas id="applicationStatusChart" style="height: 250px;"></canvas>
+                    <div class="card-body p-0 d-flex flex-column justify-content-center align-items-center h-100" style="min-height: 200px;">
+                        <i class="fas fa-bell-slash fa-3x text-secondary mb-3"></i>
+                        <p class="text-white-50 text-center fs-6">لا توجد إشعارات جديدة حالياً</p>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- إشعارات ذكية -->
-                <div class="card-modern">
-                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 font-weight-bold text-primary">
-                            <i class="fas fa-bell me-2"></i>
-                            الإشعارات
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <p class="text-muted text-center">لا توجد إشعارات جديدة</p>
-                    </div>
+    <!-- QR Scanner Modal -->
+    <div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="qrScannerModalLabel">ماسح الباركود (QR)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="text-muted mb-3">قم بتوجيه الكاميرا نحو باركود جناح الشركة لتسليم سيرتك الذاتية</p>
+                    <div id="reader" style="width: 100%; max-width: 400px; margin: 0 auto;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
                 </div>
             </div>
         </div>
@@ -539,8 +584,45 @@
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+        <script src="https://unpkg.com/html5-qrcode"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
+                // --- HTML5 QR Code Scanner ---
+                let html5QrcodeScanner;
+                const qrModal = document.getElementById('qrScannerModal');
+
+                qrModal.addEventListener('shown.bs.modal', function () {
+                    html5QrcodeScanner = new Html5QrcodeScanner(
+                        "reader",
+                        { fps: 10, qrbox: {width: 250, height: 250}, aspectRatio: 1.0 },
+                        /* verbose= */ false
+                    );
+                    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+                });
+
+                qrModal.addEventListener('hidden.bs.modal', function () {
+                    if (html5QrcodeScanner) {
+                        html5QrcodeScanner.clear().catch(error => {
+                            console.error("Failed to clear html5QrcodeScanner. ", error);
+                        });
+                    }
+                });
+
+                function onScanSuccess(decodedText, decodedResult) {
+                    // Check if it's a URL
+                    if (decodedText.startsWith('http')) {
+                        // Stop scanning and redirect
+                        html5QrcodeScanner.clear();
+                        window.location.href = decodedText;
+                    } else {
+                        alert('هذا الباركود غير صالح للاستخدام هنا.');
+                    }
+                }
+
+                function onScanFailure(error) {
+                    // handle scan failure, usually better to ignore and keep scanning
+                }
+
                 // --- Chart.js: Application Status ---
                 var ctx = document.getElementById('applicationStatusChart').getContext('2d');
                 var applicationStats = @json($applicationStats);

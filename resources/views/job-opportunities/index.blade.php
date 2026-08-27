@@ -35,54 +35,66 @@
     </div>
 
     <!-- بطاقات الإحصائيات -->
-    <div class="row mb-4">
-        @include('components.stat-card', [
-            'col' => 'col-xl-2 col-md-4 col-sm-6 mb-3',
-            'title' => 'إجمالي الفرص',
-            'value' => $opportunities->count(),
-            'icon' => 'fas fa-briefcase',
-            'color' => 'primary'
-        ])
+    <div class="bento-grid mb-4">
+        <div class="bento-card">
+            <div class="bento-card-header">
+                <h3 class="bento-card-title">إجمالي الفرص</h3>
+                <div class="bento-card-icon bento-icon-primary">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+            </div>
+            <div class="bento-stat">{{ $opportunities->count() }}</div>
+        </div>
         
-        @include('components.stat-card', [
-            'col' => 'col-xl-2 col-md-4 col-sm-6 mb-3',
-            'title' => 'مفتوحة',
-            'value' => $opportunities->where('status', 'open')->count(),
-            'icon' => 'fas fa-door-open',
-            'color' => 'success'
-        ])
+        <div class="bento-card">
+            <div class="bento-card-header">
+                <h3 class="bento-card-title">مفتوحة</h3>
+                <div class="bento-card-icon bento-icon-success">
+                    <i class="fas fa-door-open"></i>
+                </div>
+            </div>
+            <div class="bento-stat">{{ $opportunities->where('status', 'open')->count() }}</div>
+        </div>
         
-        @include('components.stat-card', [
-            'col' => 'col-xl-2 col-md-4 col-sm-6 mb-3',
-            'title' => 'وظائف',
-            'value' => $opportunities->where('type', 'job')->count(),
-            'icon' => 'fas fa-user-tie',
-            'color' => 'info'
-        ])
+        <div class="bento-card">
+            <div class="bento-card-header">
+                <h3 class="bento-card-title">وظائف</h3>
+                <div class="bento-card-icon bento-icon-primary" style="background: rgba(14, 165, 233, 0.15); color: #0ea5e9;">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+            </div>
+            <div class="bento-stat">{{ $opportunities->where('type', 'job')->count() }}</div>
+        </div>
         
-        @include('components.stat-card', [
-            'col' => 'col-xl-2 col-md-4 col-sm-6 mb-3',
-            'title' => 'تدريبات',
-            'value' => $opportunities->where('type', 'training')->count(),
-            'icon' => 'fas fa-graduation-cap',
-            'color' => 'warning'
-        ])
+        <div class="bento-card">
+            <div class="bento-card-header">
+                <h3 class="bento-card-title">تدريبات</h3>
+                <div class="bento-card-icon bento-icon-warning">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+            </div>
+            <div class="bento-stat">{{ $opportunities->where('type', 'training')->count() }}</div>
+        </div>
         
-        @include('components.stat-card', [
-            'col' => 'col-xl-2 col-md-4 col-sm-6 mb-3',
-            'title' => 'تدريب عملي',
-            'value' => $opportunities->where('type', 'internship')->count(),
-            'icon' => 'fas fa-laptop-code',
-            'color' => 'secondary'
-        ])
+        <div class="bento-card">
+            <div class="bento-card-header">
+                <h3 class="bento-card-title">تدريب عملي</h3>
+                <div class="bento-card-icon bento-icon-primary" style="background: rgba(100, 116, 139, 0.15); color: #64748b;">
+                    <i class="fas fa-laptop-code"></i>
+                </div>
+            </div>
+            <div class="bento-stat">{{ $opportunities->where('type', 'internship')->count() }}</div>
+        </div>
         
-        @include('components.stat-card', [
-            'col' => 'col-xl-2 col-md-4 col-sm-6 mb-3',
-            'title' => 'الترشيحات',
-            'value' => $opportunities->sum('nominations_count'),
-            'icon' => 'fas fa-users',
-            'color' => 'dark'
-        ])
+        <div class="bento-card">
+            <div class="bento-card-header">
+                <h3 class="bento-card-title">الترشيحات</h3>
+                <div class="bento-card-icon bento-icon-danger" style="background: rgba(15, 23, 42, 0.15); color: #0f172a;">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+            <div class="bento-stat">{{ $opportunities->sum('nominations_count') }}</div>
+        </div>
     </div>
 
     <!-- فلترة البيانات -->
@@ -202,17 +214,18 @@
                                         <td>
                                             @php
                                                 $typeColors = [
-                                                    'job' => 'success',
-                                                    'training' => 'info', 
-                                                    'internship' => 'warning'
+                                                    'job' => ['bg' => '#dcfce7', 'text' => '#15803d', 'border' => '#bbf7d0'],
+                                                    'training' => ['bg' => '#e0e7ff', 'text' => '#4338ca', 'border' => '#c7d2fe'], 
+                                                    'internship' => ['bg' => '#fef9c3', 'text' => '#a16207', 'border' => '#fef08a']
                                                 ];
                                                 $typeLabels = [
                                                     'job' => 'وظيفة',
                                                     'training' => 'تدريب',
                                                     'internship' => 'تدريب عملي'
                                                 ];
+                                                $style = $typeColors[$opportunity->type] ?? $typeColors['job'];
                                             @endphp
-                                            <span class="badge bg-{{ $typeColors[$opportunity->type] }}-subtle text-{{ $typeColors[$opportunity->type] }} px-3 py-2 rounded-pill">
+                                            <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background-color: {{ $style['bg'] }}; color: {{ $style['text'] }}; border: 1px solid {{ $style['border'] }};">
                                                 {{ $typeLabels[$opportunity->type] }}
                                             </span>
                                         </td>
@@ -240,10 +253,10 @@
                                         <td>
                                             @php
                                                 $statusColors = [
-                                                    'new' => 'secondary',
-                                                    'open' => 'success',
-                                                    'closed' => 'danger',
-                                                    'completed' => 'info'
+                                                    'new' => ['bg' => '#f3f4f6', 'text' => '#4b5563', 'border' => '#e5e7eb'],
+                                                    'open' => ['bg' => '#dcfce7', 'text' => '#15803d', 'border' => '#bbf7d0'],
+                                                    'closed' => ['bg' => '#fee2e2', 'text' => '#b91c1c', 'border' => '#fecaca'],
+                                                    'completed' => ['bg' => '#dbeafe', 'text' => '#1d4ed8', 'border' => '#bfdbfe']
                                                 ];
                                                 $statusLabels = [
                                                     'new' => 'جديدة',
@@ -251,36 +264,42 @@
                                                     'closed' => 'مغلقة',
                                                     'completed' => 'مكتملة'
                                                 ];
+                                                $sStyle = $statusColors[$opportunity->status] ?? $statusColors['new'];
                                             @endphp
-                                            <span class="badge bg-{{ $statusColors[$opportunity->status] }} px-3 py-2 rounded-pill">
+                                            <span class="badge rounded-pill px-3 py-2 fw-semibold" style="background-color: {{ $sStyle['bg'] }}; color: {{ $sStyle['text'] }}; border: 1px solid {{ $sStyle['border'] }};">
                                                 {{ $statusLabels[$opportunity->status] }}
                                             </span>
                                         </td>
                                         <td class="text-center">
-                                            <div class="btn-group">
+                                            <div class="d-flex gap-1 justify-content-center">
                                                 <a href="{{ route('job-opportunities.show', $opportunity->id) }}" 
-                                                   class="btn btn-sm btn-icon btn-outline-info-modern" 
+                                                   class="btn btn-sm btn-outline-info rounded-circle d-flex justify-content-center align-items-center" 
+                                                   style="width: 32px; height: 32px; padding: 0;"
                                                    data-bs-toggle="tooltip" 
                                                    title="عرض التفاصيل">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                                  <a href="{{ route('job-opportunities.nominations', $opportunity->id) }}"
-                                                   class="btn btn-sm btn-icon btn-outline-success-modern"
+                                                   class="btn btn-sm btn-outline-success rounded-circle d-flex justify-content-center align-items-center"
+                                                   style="width: 32px; height: 32px; padding: 0;"
                                                    data-bs-toggle="tooltip"
                                                    title="الترشيحات">
                                                     <i class="fas fa-users"></i>
                                                 </a>
                                                 <a href="{{ route('job-opportunities.edit', $opportunity->id) }}" 
-                                                   class="btn btn-sm btn-icon btn-outline-warning-modern"
+                                                   class="btn btn-sm btn-outline-warning rounded-circle d-flex justify-content-center align-items-center"
+                                                   style="width: 32px; height: 32px; padding: 0;"
                                                    data-bs-toggle="tooltip" 
                                                    title="تعديل">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <button type="button" class="btn btn-sm btn-icon btn-outline-secondary-modern" 
-                                                        data-bs-toggle="dropdown" aria-expanded="false" title="المزيد">
-                                                    <i class="fas fa-ellipsis-v"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                                <div class="dropdown">
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle d-flex justify-content-center align-items-center" 
+                                                            style="width: 32px; height: 32px; padding: 0;"
+                                                            data-bs-toggle="dropdown" aria-expanded="false" title="المزيد">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
                                                     <li><a class="dropdown-item" href="{{ route('partnership.nominations') }}"><i class="fas fa-list me-2 text-info"></i>جميع الترشيحات</a></li>
                                                     <li><hr class="dropdown-divider"></li>
                                                     <li>
@@ -296,6 +315,7 @@
                                                         </form>
                                                     </li>
                                                 </ul>
+                                                </div>
                                             </div>
                                         </td>
                                     </tr>
@@ -304,18 +324,13 @@
                             </table>
                         </div>
                     @else
-                        <div class="text-center py-5">
+                        <div class="col-12">
                             <div class="empty-state">
-                                <div class="mb-4">
-                                    <span class="fa-stack fa-2x">
-                                        <i class="fas fa-circle fa-stack-2x text-light"></i>
-                                        <i class="fas fa-briefcase fa-stack-1x text-muted"></i>
-                                    </span>
-                                </div>
-                                <h4 class="text-muted fw-bold">لا توجد فرص عمل أو تدريب</h4>
-                                <p class="text-muted mb-4">يمكنك البدء بإضافة أول فرصة عمل أو تدريب</p>
-                                <a href="{{ route('job-opportunities.create') }}" class="btn btn-primary-modern px-4">
-                                    <i class="fas fa-plus me-2"></i>إضافة أول فرصة
+                                <i class="fas fa-briefcase empty-state-icon"></i>
+                                <h4>لا توجد فرص عمل أو تدريب</h4>
+                                <p>يمكنك البدء بإضافة أول فرصة عمل أو تدريب للمستفيدين</p>
+                                <a href="{{ route('job-opportunities.create') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>إضافة فرصة جديدة
                                 </a>
                             </div>
                         </div>

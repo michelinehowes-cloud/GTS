@@ -5,13 +5,14 @@
 @push('styles')
 <style>
     .scanner-section {
-        background: linear-gradient(135deg, #0A1628 0%, #1E3A5F 100%);
+        background: linear-gradient(135deg, #03488a 0%, #045db0 100%);
         border-radius: 24px;
         padding: 2.5rem;
         color: white;
+        box-shadow: 0 20px 40px rgba(4,93,176,0.3);
     }
     .scanner-box {
-        border: 3px dashed rgba(245,158,11,0.5);
+        border: 3px dashed rgba(238,202,62,0.6);
         border-radius: 20px;
         padding: 2rem;
         text-align: center;
@@ -29,7 +30,7 @@
         width: 100%;
     }
     #qr-input::placeholder { color: rgba(255,255,255,0.4); }
-    #qr-input:focus { outline: none; border-color: #F59E0B; box-shadow: 0 0 0 3px rgba(245,158,11,0.2); }
+    #qr-input:focus { outline: none; border-color: #eeca3e; box-shadow: 0 0 0 3px rgba(238,202,62,0.2); }
 
     .result-card {
         border-radius: 16px;
@@ -47,24 +48,33 @@
         background: rgba(255,255,255,0.08);
         border-radius: 16px;
     }
-    .attendance-stat .num { font-size: 2.5rem; font-weight: 900; color: #F59E0B; }
+    .attendance-stat .num { font-size: 2.5rem; font-weight: 900; color: #eeca3e; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
     .attendance-stat .lbl { color: rgba(255,255,255,0.6); font-size: 0.85rem; }
 </style>
 @endpush
 
+@section('focus_mode', true)
+
 @section('content')
 <div class="container py-4" style="max-width: 800px">
 
-    <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="btn btn-light rounded-circle" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center">
-            <i class="fas fa-arrow-right"></i>
-        </a>
-        <div>
-            <h2 class="fw-bold mb-0" style="color: #0A1628">
-                <i class="fas fa-qrcode me-2" style="color: #10B981"></i>
-                تسجيل الحضور
-            </h2>
-            <small class="text-muted">{{ $fair->title }}</small>
+    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 mb-4">
+        <div class="d-flex align-items-center gap-3">
+            <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="btn btn-light rounded-circle shadow-sm" style="width:45px;height:45px;display:flex;align-items:center;justify-content:center; color: #045db0;">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <div>
+                <h2 class="fw-bold mb-0" style="color: #03488a">
+                    <i class="fas fa-qrcode me-2" style="color: #eeca3e"></i>
+                    تسجيل الحضور
+                </h2>
+                <small class="text-muted fw-bold">{{ $fair->title }}</small>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-3 bg-white p-2 rounded-4 shadow-sm">
+            <img src="{{ asset('images/logo.jpg') }}" alt="مكتب الخريجين" style="height: 40px; border-radius: 8px;">
+            <div style="width: 1px; height: 30px; background: #e2e8f0;"></div>
+            <img src="{{ asset('images/job_fair_logo.png') }}" alt="شعار المعرض" style="height: 45px;">
         </div>
     </div>
 
@@ -95,14 +105,20 @@
         </div>
 
         <!-- QR Input -->
-        <div class="scanner-box">
+        <div class="scanner-box" id="scanner-init-controls">
             <div style="font-size: 3rem; margin-bottom: 1rem">📷</div>
             <p style="color: rgba(255,255,255,0.7)" class="mb-3">
                 وجّه ماسح QR نحو بطاقة الخريج، أو اكتب الرمز يدوياً
             </p>
+            <button id="start-camera-btn" class="btn mb-3 px-4 py-2" style="border-radius: 50px; font-weight: bold; background-color: #eeca3e; color: #03488a; border: none; box-shadow: 0 4px 15px rgba(238,202,62,0.4); transition: all 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <i class="fas fa-camera me-2"></i> فتح الكاميرا للمسح
+            </button>
             <input type="text" id="qr-input" placeholder="JF-1-5-XXXXXXXX"
-                   autocomplete="off" autocorrect="off" spellcheck="false">
+                   autocomplete="off" autocorrect="off" spellcheck="false" class="form-control text-center mx-auto" style="max-width: 300px;">
         </div>
+
+        <!-- Camera Container -->
+        <div id="reader" style="display: none; margin: 0 auto; max-width: 400px; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 10px 25px rgba(0,0,0,0.5);"></div>
 
         <!-- Result -->
         <div class="result-card result-success" id="result-success">
@@ -151,6 +167,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://unpkg.com/html5-qrcode"></script>
 <script>
 const input = document.getElementById('qr-input');
 const checkInUrl = "{{ route('job-fair.admin.check-in') }}";
@@ -158,6 +175,8 @@ const csrfToken = "{{ csrf_token() }}";
 let attendedCount = {{ $stats['total_attended'] }};
 let registeredCount = {{ $stats['total_registered'] }};
 let scanHistory = [];
+let html5QrcodeScanner;
+let isScanning = false;
 
 // Auto-focus input
 input.focus();
@@ -170,7 +189,36 @@ input.addEventListener('keydown', function(e) {
     }
 });
 
+// Camera Scanner Logic
+document.getElementById('start-camera-btn').addEventListener('click', function() {
+    document.getElementById('scanner-init-controls').style.display = 'none';
+    document.getElementById('reader').style.display = 'block';
+    
+    html5QrcodeScanner = new Html5Qrcode("reader");
+    const config = { 
+        fps: 10, 
+        qrbox: { width: 250, height: 250 },
+        aspectRatio: 1.0,
+        disableFlip: false
+    };
+    
+    html5QrcodeScanner.start({ facingMode: "environment" }, config, (decodedText, decodedResult) => {
+        if(!isScanning) {
+            isScanning = true;
+            processQR(decodedText);
+            setTimeout(() => { isScanning = false; }, 3000); 
+        }
+    })
+    .catch((err) => {
+        alert("تعذر الوصول إلى الكاميرا. يرجى التأكد من منح الصلاحيات.");
+        document.getElementById('scanner-init-controls').style.display = 'block';
+        document.getElementById('reader').style.display = 'none';
+    });
+});
+
 function processQR(code) {
+    hideAllResults();
+    
     fetch(checkInUrl, {
         method: 'POST',
         headers: {

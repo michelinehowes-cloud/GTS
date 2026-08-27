@@ -34,7 +34,7 @@
         }
 
         .card-header {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #045db0 0%, #3b82f6 100%);
             color: white;
             padding: 30px;
             text-align: center;
@@ -141,7 +141,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #045db0 0%, #3b82f6 100%);
             border: none;
             border-radius: 12px;
             padding: 14px 30px;

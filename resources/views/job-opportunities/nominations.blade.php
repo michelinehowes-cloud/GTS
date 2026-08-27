@@ -7,7 +7,7 @@
     <div class="row">
         <div class="col-12">
             <!-- بطاقة العنوان الرئيسية -->
-            <div class="card shadow-sm border-0 mb-4" style="background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);">
+            <div class="card shadow-sm border-0 mb-4" style="background: linear-gradient(135deg, #2c5aa0 0%, #045db0 100%);">
                 <div class="card-body p-4 text-white">
                     <div class="row align-items-center">
                         <div class="col-md-8">
@@ -65,7 +65,7 @@
             <!-- بطاقة الإحصائيات السريعة -->
             <div class="row mb-4">
                 <div class="col-xl-3 col-md-6">
-                    <div class="card text-white shadow-sm border-0" style="background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);">
+                    <div class="card text-white shadow-sm border-0" style="background: linear-gradient(135deg, #2c5aa0 0%, #045db0 100%);">
                         <div class="card-body text-center py-4">
                             <i class="fas fa-users fa-3x mb-3 opacity-75"></i>
                             <h2 class="display-6 fw-bold">{{ $nominations->count() }}</h2>
@@ -228,11 +228,11 @@
                             <h4 class="mb-3" style="color: #64748b;">لا توجد ترشيحات</h4>
                             <p class="mb-4" style="color: #94a3b8;">لم يتم ترشيح أي خريج لهذه الفرصة بعد</p>
                             @if(auth()->user()->role === 'admin')
-                                <a href="{{ route('admin.career-guidance.nominations.create') }}" class="btn btn-lg rounded-pill text-white" style="background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);">
+                                <a href="{{ route('admin.career-guidance.nominations.create') }}" class="btn btn-lg rounded-pill text-white" style="background: linear-gradient(135deg, #2c5aa0 0%, #045db0 100%);">
                                     <i class="fas fa-plus me-2"></i>ترشيح خريج جديد
                                 </a>
                             @elseif(auth()->user()->role === 'career_guidance_officer')
-                                <a href="{{ route('admin.career-guidance.nominations.create') }}" class="btn btn-lg rounded-pill text-white" style="background: linear-gradient(135deg, #2c5aa0 0%, #1e3a8a 100%);">
+                                <a href="{{ route('admin.career-guidance.nominations.create') }}" class="btn btn-lg rounded-pill text-white" style="background: linear-gradient(135deg, #2c5aa0 0%, #045db0 100%);">
                                     <i class="fas fa-plus me-2"></i>ترشيح خريج جديد
                                 </a>
                             @endif
@@ -290,7 +290,7 @@
 /* تخصيص الألوان الأساسية */
 :root {
     --primary-color: #2c5aa0;
-    --primary-dark: #1e3a8a;
+    --primary-dark: #045db0;
     --secondary-color: #f59e0b;
     --success-color: #10b981;
     --info-color: #3b82f6;

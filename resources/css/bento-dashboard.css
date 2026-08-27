@@ -1,0 +1,476 @@
+/* =========================================================================
+   PREMIUM BENTO DASHBOARD & GLASSMORPHISM UI 2.0
+   The ultimate luxury, clean, and modern design system.
+========================================================================= */
+:root {
+    /* Color Palette */
+    --bento-bg: #f8fafc; /* Very light gray/blue background */
+    --bento-surface: #ffffff;
+    --bento-surface-hover: #fafafa;
+    --bento-border: rgba(0, 0, 0, 0.05);
+    
+    --bento-text: #0f172a;
+    --bento-text-muted: #64748b;
+    
+    --bento-primary: #1e3a8a; /* University Blue */
+    --bento-primary-light: #3b82f6;
+    --bento-gold: #f59e0b; /* Gold */
+    --bento-gold-light: #fbbf24;
+    
+    --bento-gradient: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    --bento-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    --bento-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    --bento-shadow-inset: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+
+    --bento-sidebar-bg: #1e3a8a;
+    --bento-nav-bg: #1e3a8a;
+    
+    --bento-radius: 16px;
+    --bento-radius-sm: 10px;
+}
+
+/* Global Body Styling */
+body.bento-theme {
+    background-color: var(--bento-bg) !important;
+    color: var(--bento-text);
+    font-family: '29LT Bukra', 'Cairo', 'Tajawal', sans-serif !important;
+}
+
+/* Premium Card Modern Override */
+.card-modern, .bento-card {
+    background: var(--bento-surface) !important;
+    border: 1px solid var(--bento-border) !important;
+    border-radius: var(--bento-radius) !important;
+    box-shadow: var(--bento-shadow) !important;
+    padding: 1.5rem !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.card-modern:hover, .bento-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--bento-shadow-hover) !important;
+}
+
+.card-modern .card-header, .bento-card-header {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(0,0,0,0.03) !important;
+    padding-bottom: 1rem !important;
+    margin-bottom: 1.5rem !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
+.card-modern .card-title {
+    font-weight: 800 !important;
+    color: var(--bento-primary) !important;
+    font-size: 1.25rem !important;
+}
+
+/* Form Controls (Inputs) Premium Styling */
+.form-control-modern, .form-control, .form-select-modern, .form-select {
+    background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: var(--bento-radius-sm) !important;
+    padding: 0.75rem 1.25rem !important;
+    color: var(--bento-text) !important;
+    transition: all 0.2s ease !important;
+    box-shadow: none !important;
+    font-size: 0.95rem !important;
+}
+
+.form-control-modern:focus, .form-control:focus, .form-select-modern:focus, .form-select:focus {
+    background-color: #ffffff !important;
+    border-color: var(--bento-primary-light) !important;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15) !important;
+}
+
+/* Input Groups */
+.input-group-text {
+    background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: var(--bento-text-muted) !important;
+    border-radius: var(--bento-radius-sm) !important;
+}
+
+.input-group:focus-within .input-group-text {
+    border-color: var(--bento-primary-light) !important;
+    color: var(--bento-primary-light) !important;
+}
+.input-group:focus-within .form-control-modern, .input-group:focus-within .form-control {
+    border-color: var(--bento-primary-light) !important;
+}
+
+.form-label-modern, .form-label {
+    font-weight: 700 !important;
+    color: #475569 !important;
+    margin-bottom: 0.5rem !important;
+    font-size: 0.9rem !important;
+}
+
+/* Buttons */
+.btn-primary, .bento-btn, .btn-modern, .btn-primary-modern {
+    background: var(--bento-gradient) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: var(--bento-radius-sm) !important;
+    padding: 0.75rem 1.5rem;
+    font-weight: 700 !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2) !important;
+}
+
+.btn-primary:hover, .bento-btn:hover, .btn-modern:hover, .btn-primary-modern:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(30, 58, 138, 0.3) !important;
+    filter: brightness(1.05);
+    color: #ffffff !important;
+}
+
+.btn-secondary-modern {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    border: none !important;
+    border-radius: var(--bento-radius-sm) !important;
+    padding: 0.75rem 1.5rem;
+    font-weight: 700 !important;
+    transition: all 0.3s ease !important;
+}
+.btn-secondary-modern:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+/* Empty State / No Data */
+.empty-state {
+    padding: 4rem 2rem;
+    text-align: center;
+    background: var(--bento-surface);
+    border-radius: var(--bento-radius);
+    box-shadow: var(--bento-shadow);
+    border: 1px dashed #cbd5e1;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    color: #cbd5e1;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h4, .empty-state h5 {
+    font-weight: 800;
+    color: var(--bento-text);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: var(--bento-text-muted);
+    margin-bottom: 1.5rem;
+}
+
+/* Stat Cards (Dashboard) */
+.stat-card-clean, .stat-card {
+    background: var(--bento-surface) !important;
+    border: none !important;
+    border-radius: var(--bento-radius) !important;
+    box-shadow: var(--bento-shadow) !important;
+    padding: 1.5rem !important;
+    transition: all 0.3s ease !important;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-card-clean:hover, .stat-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: var(--bento-shadow-hover) !important;
+}
+
+/* Add a subtle top border to stat cards based on type */
+.stat-card-clean::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--bento-gradient);
+}
+
+.stat-card-clean h2, .stat-card .card-value {
+    font-size: 2.5rem !important;
+    font-weight: 800 !important;
+    color: var(--bento-text) !important;
+    margin-top: 1rem !important;
+    margin-bottom: 0 !important;
+}
+
+.stat-card-clean p, .stat-card .stat-trend {
+    font-size: 1rem !important;
+    color: var(--bento-text-muted) !important;
+    font-weight: 600 !important;
+}
+
+.stat-card-clean .icon-wrapper {
+    background: rgba(30, 58, 138, 0.05);
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bento-primary);
+    font-size: 1.5rem;
+}
+
+/* Add some color variations for stat cards */
+.stat-card-clean.stat-success .icon-wrapper { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.stat-card-clean.stat-success::before { background: #10b981; }
+
+.stat-card-clean.stat-warning .icon-wrapper { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.stat-card-clean.stat-warning::before { background: #f59e0b; }
+
+.stat-card-clean.stat-info .icon-wrapper { background: rgba(56, 189, 248, 0.1); color: #38bdf8; }
+.stat-card-clean.stat-info::before { background: #38bdf8; }
+
+/* Table Cards (Opt-in floating card rows) */
+.table-cards {
+    border-spacing: 0 10px !important;
+    border-collapse: separate !important;
+    background: transparent !important;
+}
+
+.table-cards th {
+    border-bottom: none !important;
+    border-top: none !important;
+    color: var(--bento-text-muted) !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem;
+    padding: 1rem 1.25rem !important;
+    background: transparent !important;
+}
+
+.table-cards td {
+    background: var(--bento-surface) !important;
+    border-top: 1px solid var(--bento-border) !important;
+    border-bottom: 1px solid var(--bento-border) !important;
+    padding: 1rem 1.25rem !important;
+    vertical-align: middle !important;
+}
+
+.table-cards tr td:first-child {
+    border-right: 1px solid var(--bento-border) !important;
+    border-top-right-radius: var(--bento-radius-sm) !important;
+    border-bottom-right-radius: var(--bento-radius-sm) !important;
+}
+
+.table-cards tr td:last-child {
+    border-left: 1px solid var(--bento-border) !important;
+    border-top-left-radius: var(--bento-radius-sm) !important;
+    border-bottom-left-radius: var(--bento-radius-sm) !important;
+}
+
+.table-cards tbody tr {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    transition: all 0.2s ease;
+}
+
+.table-cards tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--bento-shadow-sm);
+}
+
+/* Beautiful Bento Data Table */
+.table-bento {
+    background: transparent !important;
+    border-collapse: separate !important;
+    border-spacing: 0 0 !important;
+    width: 100%;
+}
+
+.table-bento th {
+    background: #f8fafc !important;
+    color: #64748b !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
+    padding: 1rem 1.25rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-top: none !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    white-space: nowrap;
+}
+
+.table-bento td {
+    background: #ffffff !important;
+    padding: 1rem 1.25rem !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    vertical-align: middle !important;
+    color: #334155 !important;
+    font-weight: 500;
+}
+
+.table-bento tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+.table-bento tbody tr {
+    transition: all 0.2s ease !important;
+    box-shadow: none !important;
+}
+
+.table-bento tbody tr:hover td {
+    background-color: #f8fafc !important;
+}
+
+/* Icon Buttons & Avatars (Perfectly centered) */
+.avatar-circle {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 50% !important;
+    font-weight: 700 !important;
+    font-size: 18px !important;
+    flex-shrink: 0;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%) !important;
+    color: #4338ca !important;
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.5), 0 2px 5px rgba(0,0,0,0.05) !important;
+    border: 1px solid #e0e7ff !important;
+    text-transform: uppercase;
+}
+
+.avatar-circle span {
+    line-height: 1 !important;
+    display: block !important;
+    transform: translateY(-2px); /* Slight bump up to center Arabic Alef perfectly */
+}
+
+/* Premium Badges for Employment Status */
+.badge-employed {
+    background-color: #d1fae5 !important;
+    color: #059669 !important;
+    padding: 0.5em 0.8em;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+.badge-seeking {
+    background-color: #e0e7ff !important; /* Soft indigo instead of yellow */
+    color: #4f46e5 !important;
+    padding: 0.5em 0.8em;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+.badge-education {
+    background-color: #dbeafe !important;
+    color: #2563eb !important;
+    padding: 0.5em 0.8em;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+.badge-unemployed {
+    background-color: #f3f4f6 !important;
+    color: #4b5563 !important;
+    padding: 0.5em 0.8em;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+.btn-icon {
+    width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    line-height: 1 !important;
+    text-align: center !important;
+}
+
+.btn-icon i {
+    margin: 0 !important;
+    line-height: 1 !important;
+    display: inline-block !important;
+}
+
+/* Sidebar & Logo Fixes */
+.sidebar {
+    background: var(--bento-sidebar-bg) !important;
+}
+
+.logo-container {
+    text-align: center;
+    padding: 1.5rem 0 1rem 0;
+}
+
+.university-logo {
+    width: 90px !important;
+    height: 90px !important;
+    background: transparent !important;
+    margin: 0 auto 1rem auto !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.university-logo img.logo-img {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.logo-text {
+    color: #ffffff !important;
+    font-weight: 800;
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.logo-subtext {
+    color: var(--bento-gold) !important;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Bento Grid Layout */
+.bento-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+.bento-grid .bento-card { margin-bottom: 0 !important; }
+
+/* Bento Card Elements */
+.bento-card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.bento-card-title { font-size: 1rem; font-weight: 700; color: var(--bento-text-muted); margin: 0; }
+.bento-card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+.bento-icon-primary { background: rgba(30, 58, 138, 0.1); color: #1e3a8a; }
+.bento-icon-success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.bento-icon-warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.bento-icon-danger { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.bento-stat { font-size: 2.25rem; font-weight: 800; color: var(--bento-text); line-height: 1; margin-top: 1rem; }
+.bento-desc { font-size: 0.875rem; color: var(--bento-text-muted); }
+
+.bento-grid-large { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+.bento-grid-large .bento-card { margin-bottom: 0 !important; }
+
+.form-control-modern, .form-select-modern { display: block !important; width: 100% !important; } .form-label-modern { display: block !important; margin-bottom: 0.5rem !important; font-weight: 700 !important; }
+
+.btn-sm { padding: 0.4rem 1rem !important; font-size: 0.875rem !important; }

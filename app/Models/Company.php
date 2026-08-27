@@ -18,6 +18,7 @@ class Company extends Model
         'address',
         'website',
         'description',
+        'logo_path',
         'is_approved',
         'partnership_type',
     'partnership_status',

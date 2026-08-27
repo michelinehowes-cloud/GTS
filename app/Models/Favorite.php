@@ -16,3 +16,4 @@ class Favorite extends Model
     public function company() {
         return $this->belongsTo(User::class, 'company_id');
     }
+}

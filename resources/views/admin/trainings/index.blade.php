@@ -13,42 +13,59 @@
     ])
 
     <!-- قسم الإحصائيات -->
-    <div class="row g-3 mb-4">
-        <div class="col-xl-3 col-md-6">
-            @include('components.stat-card', [
-                'title' => 'إجمالي البرامج',
-                'value' => $trainings->count(),
-                'icon' => 'fas fa-graduation-cap',
-                'color' => 'primary',
-                'description' => 'كافة البرامج التدريبية'
-            ])
+    <div class="bento-grid mb-4">
+        <div class="bento-card">
+            <div class="bento-card-header">
+                <h3 class="bento-card-title">إجمالي البرامج</h3>
+                <div class="bento-card-icon bento-icon-primary">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+            </div>
+            <div class="bento-stat">{{ $trainings->count() }}</div>
+            <div class="bento-desc mt-2">كافة البرامج التدريبية المضافة للنظام</div>
         </div>
-        <div class="col-xl-3 col-md-6">
-            @include('components.stat-card', [
-                'title' => 'البرامج النشطة',
-                'value' => $trainings->where('status', 'active')->count(),
-                'icon' => 'fas fa-check-circle',
-                'color' => 'success',
-                'description' => 'متاح حالياً للتسجيل'
-            ])
+
+        <div class="bento-card">
+            <div class="bento-card-header">
+                <h3 class="bento-card-title">البرامج النشطة</h3>
+                <div class="bento-card-icon bento-icon-success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-end mt-1">
+                <div class="bento-stat">{{ $trainings->where('status', 'active')->count() }}</div>
+                <div class="badge rounded-pill bg-success bg-opacity-10 text-success px-3 py-2 mb-2">
+                    نشط <i class="fas fa-bolt ms-1"></i>
+                </div>
+            </div>
+            <div class="bento-desc mt-2">برامج متاحة حالياً للتسجيل</div>
         </div>
-        <div class="col-xl-3 col-md-6">
-            @include('components.stat-card', [
-                'title' => 'طلبات قيد المراجعة',
-                'value' => $applications->where('status', 'pending')->count(),
-                'icon' => 'fas fa-user-clock',
-                'color' => 'warning',
-                'description' => 'بانتظار الموافقة'
-            ])
+
+        <div class="bento-card">
+            <div class="bento-card-header">
+                <h3 class="bento-card-title">طلبات قيد المراجعة</h3>
+                <div class="bento-card-icon bento-icon-warning">
+                    <i class="fas fa-user-clock"></i>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-end mt-1">
+                <div class="bento-stat">{{ $applications->where('status', 'pending')->count() }}</div>
+                <div class="badge rounded-pill bg-warning bg-opacity-10 text-warning px-3 py-2 mb-2" style="color: #d97706 !important;">
+                    بانتظار الموافقة <i class="fas fa-clock ms-1"></i>
+                </div>
+            </div>
+            <div class="bento-desc mt-2">طلبات التحاق تحتاج لمعالجة</div>
         </div>
-        <div class="col-xl-3 col-md-6">
-            @include('components.stat-card', [
-                'title' => 'إجمالي الطلبات',
-                'value' => $applications->count(),
-                'icon' => 'fas fa-users',
-                'color' => 'info',
-                'description' => 'جميع طلبات الالتحاق'
-            ])
+
+        <div class="bento-card">
+            <div class="bento-card-header">
+                <h3 class="bento-card-title">إجمالي الطلبات</h3>
+                <div class="bento-card-icon bento-icon-primary" style="background: rgba(14, 165, 233, 0.15); color: #0ea5e9;">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+            <div class="bento-stat">{{ $applications->count() }}</div>
+            <div class="bento-desc mt-2">جميع طلبات الالتحاق المسجلة</div>
         </div>
     </div>
 
@@ -63,23 +80,26 @@
     @endif
 
     <!-- المحتوى الرئيسي (تبويبات) -->
-    <div class="card-modern">
-        <div class="card-header bg-white border-bottom p-0">
-            <div class="d-flex justify-content-between align-items-center p-3 pb-0">
-                <ul class="nav nav-tabs border-bottom-0 card-header-tabs" id="trainingTabs" role="tablist">
+    <div class="bento-card p-0">
+        <div class="border-bottom p-0">
+            <div class="d-flex justify-content-between align-items-center p-3 pb-0 flex-wrap gap-3">
+                <ul class="nav nav-tabs border-bottom-0" id="trainingTabs" role="tablist" style="margin-bottom: -1px;">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active fw-bold" id="programs-tab" data-bs-toggle="tab" data-bs-target="#programs" type="button" role="tab">
+                        <button class="nav-link active fw-bold text-secondary" id="programs-tab" data-bs-toggle="tab" data-bs-target="#programs" type="button" role="tab" style="border-radius: 12px 12px 0 0; background-color: var(--bento-surface); color: var(--bento-text) !important;">
                             <i class="fas fa-graduation-cap me-2"></i>برامج التدريب
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold" id="applications-tab" data-bs-toggle="tab" data-bs-target="#applications" type="button" role="tab">
-                            <i class="fas fa-file-alt me-2"></i>طلبات الالتحاق <span class="badge bg-danger rounded-pill ms-2">{{ $applications->where('status', 'pending')->count() }}</span>
+                        <button class="nav-link fw-bold text-secondary" id="applications-tab" data-bs-toggle="tab" data-bs-target="#applications" type="button" role="tab" style="border-radius: 12px 12px 0 0;">
+                            <i class="fas fa-file-alt me-2"></i>طلبات الالتحاق 
+                            @if($applications->where('status', 'pending')->count() > 0)
+                                <span class="badge bg-danger rounded-pill ms-2">{{ $applications->where('status', 'pending')->count() }}</span>
+                            @endif
                         </button>
                     </li>
                 </ul>
                 <div class="pb-2">
-                    <a href="{{ route('admin.trainings.create') }}" class="btn btn-primary-modern btn-sm">
+                    <a href="{{ route('admin.trainings.create') }}" class="btn-bento btn-sm text-decoration-none d-inline-block">
                         <i class="fas fa-plus me-1"></i> إضافة برنامج جديد
                     </a>
                 </div>
@@ -87,7 +107,7 @@
         </div>
 
         <div class="card-body p-0">
-            <div class="tab-content" id="trainingTabsContent">
+            <div class="tab-content p-4" id="trainingTabsContent">
                 
                 <!-- تبويب برامج التدريب -->
                 <div class="tab-pane fade show active" id="programs" role="tabpanel" tabindex="0">

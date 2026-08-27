@@ -318,8 +318,11 @@ class NotificationService
         $statusText = [
             'pending' => 'قيد المراجعة',
             'approved' => 'مقبول',
+            'accepted' => 'مقبول وتم التوظيف',
             'rejected' => 'مرفوض',
             'interview' => 'تم تحديد موعد مقابلة',
+            'under_review' => 'قيد الدراسة (تحت المراجعة)',
+            'interview_scheduled' => 'تم تحديد موعد مقابلة',
         ];
 
         $title = 'تحديث حالة الترشيح';

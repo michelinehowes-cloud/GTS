@@ -17,7 +17,7 @@
         }
 
         .hero-section {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #045db0 0%, #3b82f6 100%);
             color: white;
             padding: 100px 0;
             position: relative;
@@ -61,7 +61,7 @@
         }
 
         .btn-custom {
-            background: linear-gradient(45deg, #3b82f6, #1e3a8a);
+            background: linear-gradient(45deg, #3b82f6, #045db0);
             border: none;
             color: white;
             padding: 12px 30px;
@@ -103,7 +103,7 @@
             <p class="lead mb-5 animate-fade-in" style="animation-delay: 0.2s;">هذه صفحة تجريبية تم إنشاؤها للتحقق من
                 عمل النظام بشكل صحيح.</p>
             <a href="/" class="btn btn-light btn-lg rounded-pill px-5 animate-fade-in"
-                style="animation-delay: 0.4s; color: #1e3a8a; font-weight: bold;">العودة للرئيسية</a>
+                style="animation-delay: 0.4s; color: #045db0; font-weight: bold;">العودة للرئيسية</a>
         </div>
     </section>
 

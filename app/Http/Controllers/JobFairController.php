@@ -30,16 +30,23 @@ class JobFairController extends Controller
         }
 
         $myRegistration = null;
+        $favoriteCompanyIds = [];
         if (Auth::check() && $fair) {
             $myRegistration = JobFairRegistration::where('job_fair_id', $fair->id)
                 ->where('user_id', Auth::id())
                 ->first();
+                
+            if (Auth::user()->role === 'graduate') {
+                $favoriteCompanyIds = \App\Models\Favorite::where('graduate_id', Auth::id())
+                    ->pluck('company_id')
+                    ->toArray();
+            }
         }
 
         $companies = $fair ? $fair->companies()->with('company')->where('status', 'confirmed')->get() : collect();
         $stats = $this->getFairStats($fair);
 
-        return view('job-fair.public', compact('fair', 'myRegistration', 'companies', 'stats'));
+        return view('job-fair.public', compact('fair', 'myRegistration', 'companies', 'stats', 'favoriteCompanyIds'));
     }
 
     /**
@@ -154,7 +161,8 @@ class JobFairController extends Controller
     public function create()
     {
         $companies = Company::orderBy('name')->get();
-        return view('job-fair.admin.create', compact('companies'));
+        $surveys = \App\Models\Survey::where('type', 'job_fair')->orWhereNull('type')->orderBy('title')->get();
+        return view('job-fair.admin.create', compact('companies', 'surveys'));
     }
 
     /**
@@ -166,6 +174,7 @@ class JobFairController extends Controller
             'title'      => 'required|string|max:255',
             'event_date' => 'required|date',
             'location'   => 'required|string|max:255',
+            'survey_id'  => 'nullable|exists:surveys,id',
         ]);
 
         $data = $request->except(['_token', 'companies']);
@@ -212,13 +221,68 @@ class JobFairController extends Controller
     }
 
     /**
+     * لوحة الإحصائيات اللحظية (Live Dashboard)
+     */
+    public function liveDashboard(JobFair $fair)
+    {
+        $stats = $this->getFairStats($fair);
+        
+        // جلب أحدث الحضور
+        $recentCheckins = JobFairRegistration::where('job_fair_id', $fair->id)
+            ->where('status', 'attended')
+            ->with('graduate')
+            ->orderBy('updated_at', 'desc')
+            ->take(10)
+            ->get();
+            
+        // جلب أكثر التخصصات حضورا
+        $topMajors = \DB::table('job_fair_registrations')
+            ->join('users', 'job_fair_registrations.user_id', '=', 'users.id')
+            ->select('users.major', \DB::raw('count(*) as total'))
+            ->where('job_fair_registrations.job_fair_id', $fair->id)
+            ->where('job_fair_registrations.status', 'attended')
+            ->whereNotNull('users.major')
+            ->groupBy('users.major')
+            ->orderByDesc('total')
+            ->take(5)
+            ->get();
+
+        return view('job-fair.admin.live_dashboard', compact('fair', 'stats', 'recentCheckins', 'topMajors'));
+    }
+
+    /**
+     * طباعة البطاقة الذكية (Smart ID Card) للخريج
+     * يدعم الأدمن لعرض أي بطاقة عبر ?reg=ID
+     */
+    public function printTicket(JobFair $fair)
+    {
+        $user = auth()->user();
+
+        // الأدمن يمكنه عرض بطاقة أي خريج عبر ?reg=ID
+        if (in_array($user->role, ['admin', 'partnership_officer']) && request()->has('reg')) {
+            $registration = JobFairRegistration::where('job_fair_id', $fair->id)
+                ->where('id', request('reg'))
+                ->with('graduate')
+                ->firstOrFail();
+        } else {
+            $registration = JobFairRegistration::where('job_fair_id', $fair->id)
+                ->where('user_id', $user->id)
+                ->with('graduate')
+                ->firstOrFail();
+        }
+
+        return view('job-fair.ticket-print', compact('registration', 'fair'));
+    }
+
+    /**
      * تعديل معرض
      */
     public function edit(JobFair $fair)
     {
         $companies = Company::orderBy('name')->get();
+        $surveys = \App\Models\Survey::where('type', 'job_fair')->orWhereNull('type')->orderBy('title')->get();
         $fair->load('companies');
-        return view('job-fair.admin.edit', compact('fair', 'companies'));
+        return view('job-fair.admin.edit', compact('fair', 'companies', 'surveys'));
     }
 
     /**
@@ -230,6 +294,7 @@ class JobFairController extends Controller
             'title'      => 'required|string|max:255',
             'event_date' => 'required|date',
             'location'   => 'required|string|max:255',
+            'survey_id'  => 'nullable|exists:surveys,id',
         ]);
 
         $data = $request->except(['_token', '_method', 'companies']);

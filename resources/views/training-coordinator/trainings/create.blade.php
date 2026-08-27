@@ -4,14 +4,7 @@
 @section('page-title', 'إضافة برنامج تدريب')
 
 @section('content')
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>إضافة برنامج تدريب جديد</h3>
-                    </div>
-                    <div class="card-body">
+    
                         @if($errors->any())
                             <div class="alert alert-danger">
                                 <ul class="mb-0">
@@ -22,7 +15,8 @@
                             </div>
                         @endif
 
-                        <form action="{{ route('training-coordinator.trainings.store') }}" method="POST">
+                        <x-bento-form title="إضافة دورة تدريبية جديدة" subtitle="أدخل تفاصيل الدورة" icon="fa-chalkboard-teacher">
+<form action="{{ route('training-coordinator.trainings.store') }}" method="POST">
                             @csrf
                             <div class="row">
                                 <div class="col-md-6 mb-3">
@@ -173,11 +167,7 @@
                                 </div>
                             </div>
                         </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+</x-bento-form>
 @endsection
 
 @push('scripts')

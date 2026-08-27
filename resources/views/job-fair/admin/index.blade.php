@@ -2,23 +2,31 @@
 
 @section('title', 'إدارة معارض التوظيف')
 
+@section('focus_mode', true)
+
 @section('content')
 <div class="container-fluid py-4">
 
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold mb-1" style="color: #0A1628">
-                <i class="fas fa-store me-2" style="color: #F59E0B"></i>
-                معارض التوظيف
-            </h2>
-            <p class="text-muted mb-0">إدارة وإنشاء معارض التوظيف</p>
+    <!-- Hero Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 p-4 rounded-4 shadow-sm flex-wrap gap-3" style="background: linear-gradient(135deg, var(--navy, #045db0) 0%, var(--navy-md, #03488a) 100%); color: white;">
+        <div class="d-flex align-items-center gap-3">
+            <!-- Logo -->
+            <div class="d-flex align-items-center gap-3">
+                <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="معرض التوظيف" style="height: 55px; width: auto;">
+            </div>
+            <div>
+                <h2 class="fw-bold mb-1" style="color: var(--gold, #eeca3e); text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                    <i class="fas fa-store me-2" style="color: rgba(255,255,255,0.7);"></i>
+                    إدارة معارض التوظيف
+                </h2>
+                <small style="color: rgba(255,255,255,0.8);">إدارة وإنشاء معارض التوظيف والتحكم في إعداداتها</small>
+            </div>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('job-fair.public') }}" class="btn btn-outline-primary rounded-pill" target="_blank">
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ route('job-fair.public') }}" class="btn rounded-pill text-white" target="_blank" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);">
                 <i class="fas fa-eye me-2"></i>الصفحة العامة
             </a>
-            <a href="{{ route('job-fair.admin.create') }}" class="btn btn-warning rounded-pill text-dark fw-bold">
+            <a href="{{ route('job-fair.admin.create') }}" class="btn rounded-pill fw-bold" style="background: var(--gold, #eeca3e); color: var(--navy-md, #03488a); border: none;">
                 <i class="fas fa-plus me-2"></i>معرض جديد
             </a>
         </div>
@@ -42,13 +50,13 @@
     <div class="row g-4">
         @foreach($fairs as $fair)
         <div class="col-lg-6">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden" style="border-right: 4px solid
+            <div class="card-modern" style="border-right: 4px solid
                 @if($fair->status === 'published') #3B82F6
                 @elseif($fair->status === 'ongoing') #10B981
                 @elseif($fair->status === 'completed') #6B7280
-                @else #F59E0B
-                @endif !important">
-                <div class="card-body p-4">
+                @else #eeca3e
+                @endif !important; padding: 1.5rem;">
+                <div class="card-body p-0">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
                             <h5 class="fw-bold mb-1">{{ $fair->title }}</h5>
@@ -75,22 +83,22 @@
                             <small class="text-muted">شركة</small>
                         </div>
                         <div class="col-4 text-center p-2 rounded-3" style="background: #fef3c7">
-                            <div class="fw-bold" style="font-size: 1.4rem; color: #D97706">{{ $fair->days_remaining }}</div>
+                            <div class="fw-bold" style="font-size: 1.4rem; color: #f7df81">{{ $fair->days_remaining }}</div>
                             <small class="text-muted">يوم متبقي</small>
                         </div>
                     </div>
 
-                    <div class="d-flex gap-2 flex-wrap">
-                        <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="btn btn-sm btn-primary rounded-pill">
+                    <div class="d-flex gap-2 flex-wrap mt-3">
+                        <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="btn btn-sm btn-primary-modern">
                             <i class="fas fa-eye me-1"></i>التفاصيل
                         </a>
-                        <a href="{{ route('job-fair.admin.attendance', $fair->id) }}" class="btn btn-sm btn-success rounded-pill">
+                        <a href="{{ route('job-fair.admin.attendance', $fair->id) }}" class="btn btn-sm btn-success text-white" style="border-radius: var(--bento-radius-sm);">
                             <i class="fas fa-qrcode me-1"></i>الحضور
                         </a>
-                        <a href="{{ route('job-fair.admin.edit', $fair->id) }}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                        <a href="{{ route('job-fair.admin.edit', $fair->id) }}" class="btn btn-sm btn-secondary-modern">
                             <i class="fas fa-edit me-1"></i>تعديل
                         </a>
-                        <a href="{{ route('job-fair.admin.export', $fair->id) }}" class="btn btn-sm btn-outline-info rounded-pill">
+                        <a href="{{ route('job-fair.admin.export', $fair->id) }}" class="btn btn-sm btn-info text-white" style="border-radius: var(--bento-radius-sm);">
                             <i class="fas fa-download me-1"></i>تصدير
                         </a>
                     </div>

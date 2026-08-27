@@ -7,9 +7,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .university-blue { color: #1e3a8a; }
-        .university-gold { color: #d4af37; }
-        .card { border-right: 4px solid #d4af37; }
+        .university-blue { color: #045db0; }
+        .university-gold { color: #eeca3e; }
+        .card { border-right: 4px solid #eeca3e; }
     </style>
 </head>
 <body>

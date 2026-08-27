@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 
 class CareerGuidanceController extends Controller
@@ -326,8 +328,7 @@ class CareerGuidanceController extends Controller
             }
         }
 
-        return redirect()->route('career-guidance.graduates.show', $graduate->id)
-            ->with('success', 'تم تحديث بيانات الخريج بنجاح.');
+        return redirect()->back()->with('success', 'تم تحديث بيانات الخريج بنجاح.');
     }
 
     /**
@@ -339,6 +340,66 @@ class CareerGuidanceController extends Controller
         $this->authorize('view', $graduate); // Authorize viewing the graduate details
 
         return view('career-guidance.graduates.show', compact('graduate'));
+    }
+
+    /**
+     * إعادة تعيين كلمة مرور حساب الخريج
+     */
+    public function resetGraduatePassword(Request $request, $id)
+    {
+        $graduate = GraduateData::findOrFail($id);
+
+        $request->validate([
+            'new_password' => 'required|string|min:8|confirmed',
+        ], [
+            'new_password.required' => 'كلمة المرور الجديدة مطلوبة.',
+            'new_password.min' => 'يجب أن تكون كلمة المرور 8 أحرف على الأقل.',
+            'new_password.confirmed' => 'كلمة المرور وتأكيدها غير متطابقين.',
+        ]);
+
+        $user = User::findOrFail($graduate->user_id);
+        $user->update([
+            'password' => Hash::make($request->new_password),
+        ]);
+
+        return redirect()->back()->with('password_success', 'تم تغيير كلمة مرور الخريج بنجاح!');
+    }
+
+    /**
+     * إنشاء حساب مستخدم للخريج إذا لم يكن موجوداً
+     */
+    public function createGraduateAccount(Request $request, $id)
+    {
+        $graduate = GraduateData::findOrFail($id);
+
+        if ($graduate->user_id) {
+            return redirect()->back()->withErrors(['error' => 'هذا الخريج يمتلك حساباً بالفعل.']);
+        }
+
+        $request->validate([
+            'new_password' => 'required|string|min:8|confirmed',
+        ], [
+            'new_password.required' => 'كلمة المرور مطلوبة.',
+            'new_password.min' => 'يجب أن تكون كلمة المرور 8 أحرف على الأقل.',
+            'new_password.confirmed' => 'كلمة المرور وتأكيدها غير متطابقين.',
+        ]);
+
+        $existingUser = User::where('email', $graduate->email)->first();
+        if ($existingUser) {
+            return redirect()->back()->withErrors(['error' => 'يوجد مستخدم آخر مسجل بنفس البريد الإلكتروني للخريج. يرجى تعديل بريد الخريج أولاً.']);
+        }
+
+        $user = User::create([
+            'name' => $graduate->name,
+            'email' => $graduate->email,
+            'password' => Hash::make($request->new_password),
+            'role' => 'graduate',
+            'is_active' => true,
+        ]);
+
+        $graduate->update(['user_id' => $user->id]);
+
+        return redirect()->back()->with('password_success', 'تم إنشاء وربط حساب الخريج بنجاح!');
     }
 
     /**

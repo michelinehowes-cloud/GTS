@@ -10,7 +10,10 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::where('id', '!=', auth()->id())->latest()->get();
+        $users = User::whereNotIn('role', ['graduate', 'company'])
+                     ->where('id', '!=', auth()->id())
+                     ->latest()
+                     ->get();
         return view('admin.users.index', compact('users'));
     }
 
@@ -25,7 +28,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:admin,training_coordinator,graduate,partnership_officer,career_guidance_officer,company,evaluation_followup,media_officer',
+            'role' => 'required|in:admin,training_coordinator,partnership_officer,career_guidance_officer,evaluation_followup,media_officer',
             'phone' => 'nullable|string|max:20',
         ]);
 
@@ -54,7 +57,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8|confirmed',
-            'role' => 'required|in:admin,training_coordinator,graduate,partnership_officer,career_guidance_officer,company,evaluation_followup,media_officer', // ✅ تحديث القائمة
+            'role' => 'required|in:admin,training_coordinator,partnership_officer,career_guidance_officer,evaluation_followup,media_officer', // ✅ تحديث القائمة
             'phone' => 'nullable|string|max:20',
         ]);
 

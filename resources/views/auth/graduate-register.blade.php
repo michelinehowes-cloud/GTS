@@ -21,9 +21,9 @@
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: #f8f9fa; /* Light gray background matching Bento UI */
             min-height: 100vh;
-            padding: 20px 0;
+            padding: 40px 0;
         }
 
         .registration-container {
@@ -52,12 +52,13 @@
         }
 
         .card-header {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: #1e3a8a; /* University Blue */
             color: white;
             padding: 40px 30px;
             text-align: center;
             position: relative;
             overflow: hidden;
+            border-bottom: 4px solid #f59e0b; /* Gold accent */
         }
 
         .card-header::before {
@@ -109,7 +110,7 @@
             font-size: 1.3rem;
             margin-bottom: 25px;
             padding-bottom: 12px;
-            border-bottom: 3px solid #3b82f6;
+            border-bottom: 3px solid #f59e0b;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -117,7 +118,7 @@
 
         .section-title i {
             font-size: 1.5rem;
-            color: #3b82f6;
+            color: #1e3a8a;
         }
 
         .form-label {
@@ -143,8 +144,8 @@
 
         .form-control:focus,
         .form-select:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.15);
+            border-color: #1e3a8a;
+            box-shadow: 0 0 0 0.25rem rgba(30, 58, 138, 0.15);
         }
 
         .form-control.is-invalid {
@@ -168,7 +169,7 @@
         }
 
         .password-toggle:hover {
-            color: #3b82f6;
+            color: #1e3a8a;
         }
 
         .password-field {
@@ -176,7 +177,7 @@
         }
 
         .btn-register {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e3a8a 100%);
             border: none;
             border-radius: 14px;
             padding: 16px 50px;
@@ -184,12 +185,12 @@
             font-size: 1.2rem;
             color: white;
             transition: all 0.3s ease;
-            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 10px 25px rgba(30, 58, 138, 0.3);
         }
 
         .btn-register:hover {
             transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 15px 35px rgba(30, 58, 138, 0.4);
         }
 
         .btn-register:active {
@@ -204,7 +205,7 @@
         }
 
         .card-footer a {
-            color: #3b82f6;
+            color: #1e3a8a;
             font-weight: 700;
             text-decoration: none;
             transition: color 0.3s ease;
@@ -276,9 +277,9 @@
         }
 
         .step.active .step-circle {
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e3a8a 100%);
             color: white;
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 5px 15px rgba(30, 58, 138, 0.4);
         }
 
         .step-label {
@@ -289,7 +290,7 @@
         }
 
         .step.active .step-label {
-            color: #1e3a8a;
+            color: #045db0;
         }
 
         /* Mobile Responsive */

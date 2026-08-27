@@ -56,6 +56,7 @@ class CompanyController extends Controller
             'password' => 'required|min:8|confirmed',
             'partnership_type' => 'required|in:employment,training,logistic_support,academic,training_employment',
             'partnership_status' => 'required|in:active,expired,under_review',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         // إنشاء المستخدم أولاً
@@ -67,7 +68,7 @@ class CompanyController extends Controller
         ]);
 
         // إنشاء الشركة
-        Company::create([
+        $company = Company::create([
             'user_id' => $user->id,
             'name' => $request->name,
             'email' => $request->email,
@@ -76,8 +77,15 @@ class CompanyController extends Controller
             'address' => $request->address,
             'description' => $request->description,
             'is_approved' => true, // الموافقة تلقائياً عند الإنشاء من قبل المدير
+            'partnership_type' => $request->partnership_type,
             'partnership_status' => $request->partnership_status,
         ]);
+
+        if ($request->hasFile('logo')) {
+            $path = $request->file('logo')->store('companies/logos', 'public');
+            $company->logo_path = $path;
+            $company->save();
+        }
 
         // إرسال إشعارات
         try {
@@ -125,6 +133,7 @@ class CompanyController extends Controller
             'description' => 'nullable|string',
             'partnership_type' => 'required|in:employment,training,logistic_support,academic,training_employment',
             'partnership_status' => 'required|in:active,expired,under_review',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $company->update($request->only([
@@ -144,6 +153,15 @@ class CompanyController extends Controller
             'contact_phone',
             'contact_email'
         ]));
+
+        if ($request->hasFile('logo')) {
+            if ($company->logo_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($company->logo_path);
+            }
+            $path = $request->file('logo')->store('companies/logos', 'public');
+            $company->logo_path = $path;
+            $company->save();
+        }
 
         // تحديث بيانات المستخدم المرتبط
         if ($company->user) {
@@ -171,5 +189,55 @@ class CompanyController extends Controller
 
         return redirect()->route('admin.companies')
             ->with('success', 'تم حذف الشركة بنجاح');
+    }
+
+    public function profile()
+    {
+        $user = auth()->user();
+        $company = Company::where('user_id', $user->id)->first();
+        if (!$company) {
+            return redirect()->route('company.dashboard')->with('error', 'الشركة غير موجودة');
+        }
+        return view('company.profile.edit', compact('company'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+        $company = Company::where('user_id', $user->id)->first();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'industry' => 'required|string|max:255',
+            'address' => 'required|string|max:500',
+            'description' => 'nullable|string',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($company) {
+            $company->update($request->only([
+                'name',
+                'phone',
+                'industry',
+                'address',
+                'description'
+            ]));
+
+            if ($request->hasFile('logo')) {
+                if ($company->logo_path) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($company->logo_path);
+                }
+                $path = $request->file('logo')->store('companies/logos', 'public');
+                $company->logo_path = $path;
+                $company->save();
+            }
+        }
+
+        $user->update([
+            'name' => $request->name,
+        ]);
+
+        return redirect()->route('company.profile')->with('success', 'تم تحديث الملف الشخصي بنجاح');
     }
 }

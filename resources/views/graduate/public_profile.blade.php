@@ -51,7 +51,7 @@
                                 </p>
                                 <div class="d-flex justify-content-center justify-content-md-start gap-3 mt-2">
                                     <span class="badge glass-panel text-white p-2 shadow-sm fs-6">
-                                        <i class="fas fa-star text-warning me-1"></i> المعدل: {{ $graduate->graduateData->gpa ?? 'N/A' }}
+                                        <i class="fas fa-star text-warning me-1"></i> المعدل: {{ $graduate->graduateData->gpa ? $graduate->graduateData->gpa . '%' : 'N/A' }}
                                     </span>
                                     <span class="badge glass-panel text-white p-2 shadow-sm fs-6">
                                         <i class="fas fa-calendar-alt text-light me-1"></i> الدفعة: {{ $graduate->graduateData->graduation_year ?? 'N/A' }}
@@ -132,7 +132,7 @@
                             <div class="d-flex flex-wrap gap-2 mb-4">
                                 @if($graduate->graduateData && !empty($graduate->graduateData->skills))
                                     @foreach($graduate->graduateData->skills as $skill)
-                                        <span class="badge bg-soft-primary text-primary border border-primary-subtle px-3 py-2 rounded-pill">{{ $skill }}</span>
+                                        <span class="badge bg-soft-primary text-primary border border-primary px-3 py-2 rounded-pill">{{ $skill }}</span>
                                     @endforeach
                                 @else
                                     <span class="text-muted small">لم يتم إضافة مهارات</span>
@@ -205,7 +205,7 @@
                                             <i class="fas fa-award fa-fw"></i> الدرجة: <strong>{{ $graduate->graduateData->degree ?? 'بكالوريوس' }}</strong>
                                         </div>
                                         <div class="col-sm-6 mb-2">
-                                            <i class="fas fa-chart-line fa-fw"></i> المعدل: <strong dir="ltr">{{ $graduate->graduateData->gpa ?? 'N/A' }}</strong>
+                                            <i class="fas fa-chart-line fa-fw"></i> المعدل: <strong dir="ltr">{{ $graduate->graduateData->gpa ? $graduate->graduateData->gpa . '%' : 'N/A' }}</strong>
                                         </div>
                                         <div class="col-sm-6 mb-2">
                                             <i class="fas fa-calendar-check fa-fw"></i> سنة التخرج: <strong>{{ $graduate->graduateData->graduation_year ?? 'N/A' }}</strong>

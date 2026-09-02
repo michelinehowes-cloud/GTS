@@ -55,6 +55,79 @@ class Training extends Model
     }
 
     /**
+     * العلاقة مع سجلات الحضور اليومية
+     */
+    public function attendances()
+    {
+        return $this->hasMany(TrainingAttendance::class);
+    }
+
+    /**
+     * الحصول على قائمة تواريخ أيام التدريب من تاريخ البدء إلى تاريخ الانتهاء
+     * @return \Illuminate\Support\Collection
+     */
+    public function getTrainingDaysAttribute()
+    {
+        $dates = collect();
+        if (!$this->start_date) {
+            return $dates;
+        }
+
+        $startDate = $this->start_date->copy();
+        $endDate = $this->end_date ? $this->end_date->copy() : $startDate->copy();
+
+        if ($endDate->lt($startDate)) {
+            $endDate = $startDate->copy();
+        }
+
+        $current = $startDate->copy();
+        $dayIndex = 1;
+
+        while ($current->lte($endDate)) {
+            $dates->push([
+                'day_number' => $dayIndex,
+                'date' => $current->format('Y-m-d'),
+                'carbon' => $current->copy(),
+                'formatted' => $current->format('Y-m-d'),
+                'day_name' => $this->getArabicDayName($current->dayOfWeek),
+                'is_today' => $current->isToday(),
+                'is_past' => $current->isPast() && !$current->isToday(),
+                'is_future' => $current->isFuture() && !$current->isToday(),
+            ]);
+            $current->addDay();
+            $dayIndex++;
+        }
+
+        return $dates;
+    }
+
+    /**
+     * إجمالي عدد أيام التدريب
+     */
+    public function getTotalDaysCountAttribute()
+    {
+        $days = $this->training_days;
+        return $days->count() > 0 ? $days->count() : 1;
+    }
+
+    /**
+     * اسم اليوم بالعربية
+     */
+    private function getArabicDayName($dayOfWeek)
+    {
+        $days = [
+            0 => 'الأحد',
+            1 => 'الإثنين',
+            2 => 'الثلاثاء',
+            3 => 'الأربعاء',
+            4 => 'الخميس',
+            5 => 'الجمعة',
+            6 => 'السبت',
+        ];
+        return $days[$dayOfWeek] ?? '';
+    }
+
+    /**
      * الحصول على النوع بالعربية
      */
     public function getTypeArabicAttribute()

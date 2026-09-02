@@ -656,11 +656,11 @@
 
                             <div class="col-md-3">
                                 <label for="gpa" class="form-label">
-                                    المعدل التراكمي
+                                    المعدل التراكمي (%)
                                 </label>
                                 <input type="number" class="form-control @error('gpa') is-invalid @enderror" id="gpa"
-                                    name="gpa" value="{{ old('gpa') }}" step="0.01" min="0" max="4"
-                                    placeholder="من 4.00">
+                                    name="gpa" value="{{ old('gpa') }}" step="0.01" min="0" max="100"
+                                    placeholder="مثال: 85.50">
                                 @error('gpa')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

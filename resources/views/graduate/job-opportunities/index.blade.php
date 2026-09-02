@@ -1,15 +1,30 @@
 @extends('layouts.app')
 
-@section('title', 'فرص العمل المتاحة')
+@section('title', 'فرص العمل والتدريب المتاحة')
 
 @section('content')
-<div class="container-fluid px-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-briefcase text-primary"></i>
-            فرص العمل المتاحة
-        </h1>
-    </div>
+<div class="container-fluid px-2 px-md-3">
+    <!-- Unified Page Hero Banner -->
+    <x-page-hero
+        title="فرص العمل والتدريب المتاحة"
+        subtitle="تصفح الشواغر والفرص الوظيفية المتاحة من الشركات الشريكة وقدم عليها مباشرة"
+        icon="fas fa-briefcase"
+        :breadcrumbs="[
+            ['label' => 'منصة الخريجين', 'url' => route('graduate.dashboard')],
+            ['label' => 'فرص العمل المتاحة']
+        ]"
+        :badge="isset($jobOpportunities) && $jobOpportunities->count() > 0 ? (method_exists($jobOpportunities, 'total') ? $jobOpportunities->total() : $jobOpportunities->count()) . ' فرصة شاغرة' : null"
+        badgeIcon="fas fa-search"
+    >
+        <a href="{{ route('graduate.my-applications') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-clipboard-list fs-6"></i>
+            <span>متابعة ترشيحاتي</span>
+        </a>
+        <a href="{{ route('graduate.dashboard') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-home fs-6"></i>
+            <span>لوحة التحكم</span>
+        </a>
+    </x-page-hero>
 
     <!-- بطاقة دعوة لمعرض التوظيف (إن وجد) -->
     @php
@@ -28,43 +43,45 @@
     @endphp
 
     @if($upcomingFair && !$isRegistered)
-    <div class="card shadow-sm border-0 mb-4" style="background: linear-gradient(135deg, #045db0 0%, #3b82f6 100%);">
-        <div class="card-body p-4 p-md-5 text-white d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
-            <div>
-                <span class="badge bg-warning text-dark mb-2 px-3 py-2 rounded-pill fw-bold">
-                    <i class="fas fa-star me-1"></i> حدث قادم
-                </span>
-                <h3 class="fw-bold mb-2">{{ $upcomingFair->title }}</h3>
-                <p class="mb-0 text-white-50" style="font-size: 1.1rem">
-                    <i class="fas fa-calendar-alt me-2"></i> {{ $upcomingFair->event_date->format('Y-m-d') }}
-                    <span class="mx-2">|</span>
-                    <i class="fas fa-map-marker-alt me-2"></i> {{ $upcomingFair->location }}
-                </p>
-            </div>
-            <div class="text-md-end">
-                <a href="{{ route('job-fair.public') }}" class="btn btn-warning btn-lg rounded-pill fw-bold text-dark px-5 shadow">
-                    سجّل الآن في المعرض <i class="fas fa-arrow-left ms-2"></i>
-                </a>
-                <div class="mt-2 text-white-50 small">
-                    * حضور المعرض يزيد من فرصتك في الحصول على وظيفة
+        <div class="card-modern mb-4 p-4 border-start border-4 border-primary">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                <div>
+                    <span class="badge bg-light text-warning border border-warning rounded-pill px-3 py-1 fw-bold mb-2">
+                        <i class="fas fa-star me-1"></i> حدث قادم
+                    </span>
+                    <h4 class="fw-bold text-dark mb-2">{{ $upcomingFair->title }}</h4>
+                    <div class="d-flex flex-wrap gap-3 text-muted small">
+                        <div><i class="fas fa-calendar-alt me-1 text-primary"></i> {{ $upcomingFair->event_date->format('Y-m-d') }}</div>
+                        <div><i class="fas fa-map-marker-alt me-1 text-danger"></i> {{ $upcomingFair->location }}</div>
+                    </div>
+                </div>
+                <div class="text-md-end">
+                    <a href="{{ route('job-fair.public') }}" class="btn btn-primary-modern px-4 py-2">
+                        سجّل الآن في المعرض <i class="fas fa-arrow-left ms-1"></i>
+                    </a>
+                    <div class="text-muted small mt-1">حضور المعرض يتيح لك التواصل المباشر مع الشركات</div>
                 </div>
             </div>
         </div>
-    </div>
     @endif
 
     <!-- البحث والتصفية -->
-    <div class="card shadow mb-4">
-        <div class="card-body">
+    <div class="card-modern mb-4">
+        <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="card-title mb-0 text-primary fw-bold">
+                <i class="fas fa-filter me-2"></i>تصفية والبحث في الوظائف
+            </h5>
+        </div>
+        <div class="card-body p-4">
             <form method="GET" action="{{ route('graduate.job-opportunities.index') }}" class="row g-3">
                 <div class="col-md-4">
-                    <label class="form-label">البحث</label>
-                    <input type="text" name="search" class="form-control" placeholder="ابحث عن وظيفة..." value="{{ request('search') }}">
+                    <label class="form-label-modern">البحث بالكلمة المفتاحية</label>
+                    <input type="text" name="search" class="form-control-modern" placeholder="ابحث عن مسمى وظيفي أو مهارة..." value="{{ request('search') }}">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">نوع الوظيفة</label>
-                    <select name="contract_type" class="form-select">
-                        <option value="">الكل</option>
+                    <label class="form-label-modern">نوع الفرصة</label>
+                    <select name="contract_type" class="form-select-modern">
+                        <option value="">جميع الأنواع</option>
                         <option value="full_time" {{ request('contract_type') == 'full_time' ? 'selected' : '' }}>دوام كامل</option>
                         <option value="part_time" {{ request('contract_type') == 'part_time' ? 'selected' : '' }}>دوام جزئي</option>
                         <option value="contract" {{ request('contract_type') == 'contract' ? 'selected' : '' }}>عقد</option>
@@ -72,12 +89,12 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">الموقع</label>
-                    <input type="text" name="location" class="form-control" placeholder="المدينة..." value="{{ request('location') }}">
+                    <label class="form-label-modern">المدينة أو الموقع</label>
+                    <input type="text" name="location" class="form-control-modern" placeholder="طرابلس، بنغازي..." value="{{ request('location') }}">
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search"></i> بحث
+                    <button type="submit" class="btn btn-primary-modern w-100 py-2">
+                        <i class="fas fa-search me-1"></i> بحث
                     </button>
                 </div>
             </form>
@@ -85,58 +102,59 @@
     </div>
 
     @if($jobOpportunities->count() > 0)
-        <div class="row">
+        <div class="row g-4 mb-4">
             @foreach($jobOpportunities as $job)
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100 shadow-sm hover-shadow">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <h5 class="card-title mb-0">{{ $job->title }}</h5>
-                                @if(in_array($job->id, $myNominations))
-                                    <span class="badge bg-success">
-                                        <i class="fas fa-check"></i> مقدم
-                                    </span>
-                                @endif
-                            </div>
-                            
+                <div class="col-md-6 col-lg-4">
+                    <div class="card-modern h-100 d-flex flex-column">
+                        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-start">
+                            <h5 class="fw-bold text-dark mb-0 lh-base" style="font-size: 1.05rem;">{{ $job->title }}</h5>
+                            @if(in_array($job->id, $myNominations))
+                                <span class="badge bg-light text-success border border-success rounded-pill px-2 py-1 small flex-shrink-0 ms-2">
+                                    <i class="fas fa-check me-1"></i> مُقدَّم
+                                </span>
+                            @endif
+                        </div>
+                        
+                        <div class="card-body p-4 flex-grow-1">
                             @if($job->company)
-                                <p class="text-muted mb-2">
-                                    <i class="fas fa-building"></i>
-                                    {{ $job->company->name }}
-                                </p>
+                                <div class="text-muted small mb-2">
+                                    <i class="fas fa-building text-primary me-1"></i>
+                                    <span class="fw-bold text-dark">{{ $job->company->name }}</span>
+                                </div>
                             @endif
 
-                            <p class="text-muted mb-2">
-                                <i class="fas fa-map-marker-alt"></i>
-                                {{ $job->location }}
-                            </p>
-
-                            <p class="text-muted mb-2">
-                                <i class="fas fa-clock"></i>
-                                @if($job->contract_type == 'full_time')
-                                    دوام كامل
-                                @elseif($job->contract_type == 'part_time')
-                                    دوام جزئي
-                                @elseif($job->contract_type == 'contract')
-                                    عقد
-                                @else
-                                    عمل حر
-                                @endif
-                            </p>
-
-                            <p class="card-text text-truncate-3">
-                                {{ Str::limit($job->description, 150) }}
-                            </p>
-
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <small class="text-muted">
-                                    <i class="fas fa-calendar"></i>
-                                    ينتهي: {{ $job->application_deadline->format('Y-m-d') }}
-                                </small>
-                                <a href="{{ route('graduate.job-opportunities.show', $job->id) }}" class="btn btn-sm btn-primary">
-                                    عرض التفاصيل
-                                </a>
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="badge bg-light text-secondary border rounded-pill px-2 py-1 small">
+                                    <i class="fas fa-map-marker-alt text-danger me-1"></i>
+                                    {{ $job->location ?? 'غير محدد' }}
+                                </span>
+                                <span class="badge bg-light text-secondary border rounded-pill px-2 py-1 small">
+                                    <i class="fas fa-clock text-info me-1"></i>
+                                    @if($job->contract_type == 'full_time')
+                                        دوام كامل
+                                    @elseif($job->contract_type == 'part_time')
+                                        دوام جزئي
+                                    @elseif($job->contract_type == 'contract')
+                                        عقد
+                                    @else
+                                        عمل حر
+                                    @endif
+                                </span>
                             </div>
+
+                            <p class="text-muted small mb-0" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                {{ Str::limit($job->description, 130) }}
+                            </p>
+                        </div>
+
+                        <div class="card-footer bg-white p-3 border-top d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar-times text-danger me-1"></i>
+                                ينتهي: {{ $job->application_deadline->format('Y-m-d') }}
+                            </small>
+                            <a href="{{ route('graduate.job-opportunities.show', $job->id) }}" class="btn btn-sm btn-outline-primary-modern">
+                                <i class="fas fa-eye me-1"></i> عرض التفاصيل
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -148,29 +166,13 @@
             {{ $jobOpportunities->links() }}
         </div>
     @else
-        <div class="alert alert-info text-center">
-            <i class="fas fa-info-circle fa-3x mb-3"></i>
-            <h4>لا توجد فرص عمل متاحة حالياً</h4>
-            <p>تحقق لاحقاً للحصول على فرص جديدة</p>
+        <div class="card-modern text-center py-5">
+            <div class="card-body py-5">
+                <i class="fas fa-briefcase display-3 text-muted mb-3 opacity-50"></i>
+                <h4 class="fw-bold text-dark mb-2">لا توجد فرص عمل متاحة حالياً</h4>
+                <p class="text-muted mb-0">تحقق لاحقاً أو قم بتعديل معايير البحث للحصول على نتائج أكثر</p>
+            </div>
         </div>
     @endif
 </div>
-
-<style>
-.hover-shadow {
-    transition: all 0.3s ease;
-}
-
-.hover-shadow:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-}
-
-.text-truncate-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-</style>
-@endsection
+@endsection

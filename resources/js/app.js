@@ -34,7 +34,7 @@ let charts = {};
 let chartsLoaded = 0;
 const totalCharts = 6;
 
-console.log('Chart Data Received:', window.chartData); // Assuming chartData is also passed globally
+
 
 // تهيئة جميع المخططات
 document.addEventListener('DOMContentLoaded', function () {

@@ -98,6 +98,14 @@ Route::middleware('auth')->group(function () {
         } elseif ($user->role === 'partnership_officer') {
             return redirect()->route('partnership.dashboard');
         } elseif ($user->role === 'company') {
+            $company = $user->company ?? \App\Models\Company::where('email', $user->email)->first();
+            $isApproved = $company && $company->is_approved && $company->partnership_status === 'active';
+            if (!$isApproved) {
+                Auth::logout();
+                return redirect()->route('login')->withErrors([
+                    'email' => 'عذراً، حساب شركتكم قيد المراجعة أو غير نشط. يُسمح بالدخول في حالة الاعتماد النشط فقط.',
+                ]);
+            }
             return redirect()->route('company.dashboard');
         } elseif ($user->role === 'evaluation_followup') {
             return redirect()->route('evaluation-followup.dashboard');
@@ -118,6 +126,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard/live-stats', [AdminController::class, 'liveStats'])->name('admin.dashboard.live-stats');
 
         // 📈 التقارير والإحصائيات
+        Route::get('/reports', [AdminReportController::class, 'index'])->name('admin.reports');
         Route::prefix('reports')->group(function () {
             Route::get('/', [AdminReportController::class, 'index'])->name('admin.reports.index');
             Route::get('/users', [AdminReportController::class, 'usersReport'])->name('admin.reports.users');
@@ -145,7 +154,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/companies/{company}/edit', [CompanyController::class, 'edit'])->name('admin.companies.edit');
         Route::put('/companies/{company}', [CompanyController::class, 'update'])->name('admin.companies.update');
         Route::delete('/companies/{company}', [CompanyController::class, 'destroy'])->name('admin.companies.destroy');
-        Route::patch('/companies/{id}/approve', [AdminController::class, 'approveCompany'])->name('admin.companies.approve');
+        Route::post('/companies/{id}/toggle-approval', [CompanyController::class, 'toggleApproval'])->name('admin.companies.toggle-approval');
+        Route::patch('/companies/{id}/approve', [CompanyController::class, 'toggleApproval'])->name('admin.companies.approve');
         Route::patch('/companies/{id}/reset-password', [CompanyController::class, 'resetPassword'])->name('admin.companies.reset-password');
         Route::post('/companies/{id}/create-user', [CompanyController::class, 'createUserAccount'])->name('admin.companies.create-user');
 
@@ -160,9 +170,18 @@ Route::middleware('auth')->group(function () {
             'update' => 'admin.trainings.update',
             'destroy' => 'admin.trainings.destroy'
         ]);
+        
+        Route::get('trainings/{training}/scanner', [TrainingController::class, 'scanner'])->name('admin.trainings.scanner');
+        Route::post('trainings/{training}/scan', [TrainingController::class, 'processScan'])->name('admin.trainings.scan');
+        Route::get('trainings/{training}/attendance', [TrainingController::class, 'attendance'])->name('admin.trainings.attendance');
+        Route::post('trainings/{training}/attendance/toggle', [TrainingController::class, 'toggleAttendance'])->name('admin.trainings.attendance.toggle');
+        Route::get('trainings/{training}/attendance/export', [TrainingController::class, 'exportAttendance'])->name('admin.trainings.attendance.export');
+        Route::post('trainings/{training}/bulk-accept', [TrainingController::class, 'bulkAcceptApplications'])->name('admin.trainings.bulk-accept');
 
         // 📝 إدارة طلبات التدريب
         Route::get('/applications', [AdminController::class, 'applications'])->name('admin.applications.index');
+        Route::get('/applications-all', [AdminController::class, 'applications'])->name('admin.applications');
+        Route::post('/applications/bulk-approve', [AdminController::class, 'bulkApproveApplications'])->name('admin.applications.bulk-approve');
         Route::post('/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('admin.applications.approve');
         Route::post('/applications/{id}/reject', [AdminController::class, 'rejectApplication'])->name('admin.applications.reject');
         Route::post('/applications/{id}/pending', [AdminController::class, 'pendingApplication'])->name('admin.applications.pending');
@@ -218,9 +237,13 @@ Route::middleware('auth')->group(function () {
 
         // 📋 طلبات التدريب الخاصة بالمنسق
         Route::get('/applications', [TrainingController::class, 'coordinatorApplications'])->name('training-coordinator.applications');
+        Route::post('/applications/bulk-approve', [TrainingController::class, 'bulkApproveApplications'])->name('training-coordinator.applications.bulk-approve');
+        Route::post('/applications/bulk-reject', [TrainingController::class, 'bulkRejectApplications'])->name('training-coordinator.applications.bulk-reject');
+        Route::post('/applications/bulk-delete', [TrainingController::class, 'bulkDeleteApplications'])->name('training-coordinator.applications.bulk-delete');
         Route::post('/applications/{id}/approve', [TrainingController::class, 'approveApplication'])->name('training-coordinator.applications.approve');
         Route::post('/applications/{id}/reject', [TrainingController::class, 'rejectApplication'])->name('training-coordinator.applications.reject');
         Route::post('/applications/{id}/pending', [TrainingController::class, 'pendingApplication'])->name('training-coordinator.applications.pending');
+        Route::delete('/applications/{id}', [TrainingController::class, 'destroyApplication'])->name('training-coordinator.applications.destroy');
         // 🎯 إدارة التدريبات لمنسق التدريب
         // تم استبعاد طريقة index من مسار الموارد وتحديدها بشكل منفصل
         // لضمان استخدام طريقة coordinatorTrainings الصحيحة
@@ -234,6 +257,11 @@ Route::middleware('auth')->group(function () {
         ]);
         // مسار index مخصص لمنسق التدريب
         Route::get('/trainings', [TrainingController::class, 'coordinatorTrainings'])->name('training-coordinator.trainings');
+        Route::get('/trainings/{training}/scanner', [TrainingController::class, 'scanner'])->name('training-coordinator.trainings.scanner');
+        Route::post('/trainings/{training}/scan', [TrainingController::class, 'processScan'])->name('training-coordinator.trainings.scan');
+        Route::get('/trainings/{training}/attendance', [TrainingController::class, 'attendance'])->name('training-coordinator.trainings.attendance');
+        Route::post('/trainings/{training}/attendance/toggle', [TrainingController::class, 'toggleAttendance'])->name('training-coordinator.trainings.attendance.toggle');
+        Route::get('/trainings/{training}/attendance/export', [TrainingController::class, 'exportAttendance'])->name('training-coordinator.trainings.attendance.export');
 
         // التقارير
         Route::get('/reports', [TrainingController::class, 'reports'])->name('training-coordinator.reports');
@@ -270,6 +298,7 @@ Route::middleware('auth')->group(function () {
 
         // 📊 لوحة تحكم الخريج
         Route::get('/dashboard', [GraduateController::class, 'dashboard'])->name('graduate.dashboard');
+        Route::get('/id-card', [GraduateController::class, 'idCard'])->name('graduate.id-card');
 
         // 👤 الملف الشخصي للخريج
         Route::get('/profile', [GraduateController::class, 'profile'])->name('graduate.profile');
@@ -305,6 +334,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/companies/{company}/edit', [PartnershipController::class, 'editCompany'])->name('partnership.companies.edit');
         Route::put('/companies/{company}', [PartnershipController::class, 'updateCompany'])->name('partnership.companies.update');
         Route::delete('/companies/{company}', [PartnershipController::class, 'destroyCompany'])->name('partnership.companies.destroy');
+        Route::post('/companies/{id}/toggle-approval', [PartnershipController::class, 'toggleApproval'])->name('partnership.companies.toggle-approval');
         Route::put('/companies/{id}/partnership', [PartnershipController::class, 'updateCompanyPartnership'])->name('partnership.companies.update-partnership');
 
         // 📎 إدارة الوثائق
@@ -472,6 +502,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/pending-approvals', [App\Http\Controllers\GraduateRegistrationController::class, 'pendingApprovals'])->name('career-guidance.pending-approvals');
         Route::post('/pending-approvals/{id}/approve', [App\Http\Controllers\GraduateRegistrationController::class, 'approve'])->name('career-guidance.approve-graduate');
         Route::post('/pending-approvals/{id}/reject', [App\Http\Controllers\GraduateRegistrationController::class, 'reject'])->name('career-guidance.reject-graduate');
+        Route::post('/pending-approvals/bulk-approve', [App\Http\Controllers\GraduateRegistrationController::class, 'bulkApprove'])->name('career-guidance.bulk-approve-graduates');
+        Route::post('/pending-approvals/bulk-reject', [App\Http\Controllers\GraduateRegistrationController::class, 'bulkReject'])->name('career-guidance.bulk-reject-graduates');
     });
 
     // ==================== 💼 مسارات فرص العمل والتدريب ====================
@@ -642,6 +674,7 @@ Route::middleware(['auth'])->prefix('admin/job-fair')->name('job-fair.admin.')->
     Route::delete('/{fair}/companies/{company}', [App\Http\Controllers\JobFairController::class, 'removeCompany'])->name('remove-company');
     Route::get('/{fair}/export', [App\Http\Controllers\JobFairController::class, 'exportRegistrations'])->name('export');
     Route::get('/{fair}/attendance', [App\Http\Controllers\JobFairController::class, 'attendancePage'])->name('attendance');
+    Route::post('/{fair}/reset-attendance', [App\Http\Controllers\JobFairController::class, 'resetAttendance'])->name('reset-attendance');
     Route::post('/check-in', [App\Http\Controllers\JobFairController::class, 'checkIn'])->name('check-in');
     
     // إدارة الفعاليات

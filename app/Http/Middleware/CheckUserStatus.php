@@ -17,14 +17,34 @@ class CheckUserStatus
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::check() && !Auth::user()->is_active) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+        if (Auth::check()) {
+            $user = Auth::user();
 
-            return redirect()->route('login')->withErrors([
-                'email' => 'تم تجميد حسابك. يرجى التواصل مع الإدارة.',
-            ]);
+            if (!$user->is_active) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return redirect()->route('login')->withErrors([
+                    'email' => 'تم تجميد حسابك. يرجى التواصل مع الإدارة.',
+                ]);
+            }
+
+            // التحقق من حساب الشركة (الاعتماد النشط فقط)
+            if ($user->role === 'company') {
+                $company = $user->company ?? \App\Models\Company::where('email', $user->email)->first();
+                $isApproved = $company && $company->is_approved && $company->partnership_status === 'active';
+
+                if (!$isApproved) {
+                    Auth::logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+
+                    return redirect()->route('login')->withErrors([
+                        'email' => 'عذراً، حساب شركتكم قيد المراجعة أو غير نشط. يُسمح بالدخول في حالة الاعتماد النشط فقط.',
+                    ]);
+                }
+            }
         }
 
         return $next($request);

@@ -182,6 +182,20 @@
                                             وثيقة
                                         <td>
     <div class="btn-group" role="group">
+        {{-- زر تبديل الاعتماد --}}
+        <form action="{{ route('partnership.companies.toggle-approval', $company->id) }}" method="POST" class="d-inline">
+            @csrf
+            @if($company->is_approved)
+                <button type="submit" class="btn btn-outline-secondary btn-sm" title="إلغاء الاعتماد">
+                    <i class="fas fa-ban text-warning"></i>
+                </button>
+            @else
+                <button type="submit" class="btn btn-success btn-sm" title="اعتماد وتفعيل الشركة">
+                    <i class="fas fa-check"></i>
+                </button>
+            @endif
+        </form>
+        
         {{-- زر العرض --}}
         <a href="{{ route('partnership.companies.show', $company->id) }}" 
            class="btn btn-info btn-sm" title="عرض التفاصيل">

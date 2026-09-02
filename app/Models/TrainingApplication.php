@@ -14,11 +14,13 @@ class TrainingApplication extends Model
         'user_id',
         'status',
         'message',
-        'applied_at'
+        'applied_at',
+        'attended_at'
     ];
 
     protected $casts = [
-        'applied_at' => 'datetime'
+        'applied_at' => 'datetime',
+        'attended_at' => 'datetime'
     ];
 
     public function training()
@@ -29,5 +31,10 @@ class TrainingApplication extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(TrainingAttendance::class, 'training_application_id');
     }
 }

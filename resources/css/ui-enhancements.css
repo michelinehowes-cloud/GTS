@@ -105,9 +105,9 @@
     }
 }
 
-/* 5. Smooth Transitions */
-* {
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+/* 5. Smooth Interactive Transitions */
+a, button, .btn, .form-control, .form-select {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 /* 6. Card Hover Effects */
@@ -120,28 +120,19 @@
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
 }
 
-/* 7. Button Ripple Effect */
+/* 7. Calm & Subtle Button Hover Animations (No Pulsing) */
 .btn {
-    position: relative;
-    overflow: hidden;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease !important;
+    animation: none !important;
 }
 
-.btn::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.5);
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
+.btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
 }
 
-.btn:active::before {
-    width: 300px;
-    height: 300px;
+.btn:active {
+    transform: translateY(0) scale(0.98) !important;
 }
 
 /* 8. Focus States */
@@ -231,23 +222,9 @@
     }
 }
 
-/* 13. Badge Animations */
+/* 13. Badge Styles (No Auto-Pulsing or Popping) */
 .badge {
-    animation: badgePop 0.3s ease;
-}
-
-@keyframes badgePop {
-    0% {
-        transform: scale(0);
-    }
-
-    50% {
-        transform: scale(1.2);
-    }
-
-    100% {
-        transform: scale(1);
-    }
+    animation: none !important;
 }
 
 /* 14. Mobile Optimizations */

@@ -335,7 +335,6 @@
                     امسح لتسجيل الحضور
                 </div>
                 <div id="qr-code" class="d-flex justify-content-center"></div>
-                <div class="qr-code-text">{{ $registration->qr_code }}</div>
             </div>
         </div>
     </div>
@@ -361,7 +360,7 @@
 <script>
 // توليد QR Code
 new QRCode(document.getElementById('qr-code'), {
-    text: "{{ $registration->qr_code }}",
+    text: "{{ route('graduate.profile.public', $registration->user_id) }}",
     width: 170,
     height: 170,
     colorDark: "#045db0",

@@ -67,14 +67,9 @@ class CompanyJobFairController extends Controller
      */
     public function storeVisit(Request $request, JobFair $fair)
     {
-        $qrCode = trim($request->qr_code);
-        $cleanNumber = ltrim($qrCode, '#');
+        $graduateId = $request->graduate_id;
 
-        $registration = JobFairRegistration::where(function($query) use ($qrCode, $cleanNumber) {
-                $query->where('qr_code', $qrCode)
-                      ->orWhere('registration_number', $qrCode)
-                      ->orWhere('registration_number', $cleanNumber);
-            })
+        $registration = JobFairRegistration::where('user_id', $graduateId)
             ->where('job_fair_id', $fair->id)
             ->with('graduate')
             ->first();
@@ -123,6 +118,18 @@ class CompanyJobFairController extends Controller
             ->where('company_id', $companyId)
             ->where('graduate_id', $graduate->id)
             ->first();
+            
+        // جلب التدريبات التي حضرها الخريج
+        $attendedTrainings = \App\Models\TrainingApplication::where('user_id', $graduate->id)
+            ->whereNotNull('attended_at')
+            ->with('training')
+            ->get()
+            ->map(function($app) {
+                return [
+                    'title' => $app->training->title ?? 'تدريب',
+                    'date' => $app->attended_at->format('Y-m-d')
+                ];
+            });
 
         return response()->json([
             'success'        => true,
@@ -135,6 +142,7 @@ class CompanyJobFairController extends Controller
             'gpa'            => $graduate->gpa ? number_format($graduate->gpa, 2) : null,
             'phone'          => $graduate->phone,
             'skills'         => $graduate->skills ?? [],
+            'trainings'      => $attendedTrainings,
             'message'        => 'تم استلام بيانات الخريج بنجاح.',
         ]);
     }
@@ -145,11 +153,22 @@ class CompanyJobFairController extends Controller
     public function updateVisitOutcome(Request $request, JobFairVisit $visit)
     {
         $company = auth()->user()->company;
-        if (!$company || $visit->company_id !== $company->id) {
+        if (!$company || $visit->company_id !== auth()->id()) {
             return response()->json(['success' => false, 'message' => 'غير مصرح.'], 403);
         }
 
-        $visit->update(['status' => $request->outcome]);
+        $outcome = $request->outcome;
+        // Map old 'interviewed' to 'shortlisted' to prevent DB enum errors from old form resubmissions
+        if ($outcome === 'interviewed') {
+            $outcome = 'shortlisted';
+        }
+
+        // Validate to ensure it's in the ENUM list
+        if (!in_array($outcome, ['pending', 'shortlisted', 'accepted', 'rejected'])) {
+            $outcome = 'pending';
+        }
+
+        $visit->update(['status' => $outcome]);
 
         $labels = [
             'shortlisted' => 'مدرج في القائمة القصيرة ⭐',
@@ -158,9 +177,15 @@ class CompanyJobFairController extends Controller
             'pending'     => 'قيد الدراسة 🕐',
         ];
 
+        // Since the user might be submitting via a standard form POST rather than AJAX, 
+        // we should redirect back instead of returning JSON if it's not an AJAX request.
+        if (!$request->ajax() && !$request->wantsJson()) {
+            return back()->with('success', 'تم تحديث حالة الخريج بنجاح.');
+        }
+
         return response()->json([
             'success' => true,
-            'label'   => $labels[$request->outcome] ?? $request->outcome,
+            'label'   => $labels[$outcome] ?? $outcome,
         ]);
     }
 
@@ -178,7 +203,13 @@ class CompanyJobFairController extends Controller
 
         $visits = JobFairVisit::where('job_fair_id', $fair->id)
             ->where('company_id', auth()->id())
-            ->with(['graduate', 'graduate.graduateData'])
+            ->with([
+                'graduate', 
+                'graduate.graduateData',
+                'graduate.trainingApplications' => function($q) {
+                    $q->whereNotNull('attended_at')->with('training');
+                }
+            ])
             ->latest()
             ->paginate(15);
 
@@ -237,7 +268,7 @@ class CompanyJobFairController extends Controller
         if (!$company) abort(403);
 
         $visit = JobFairVisit::where('id', $request->visit_id)
-            ->where('company_id', $company->id) // Ensure they own this lead
+            ->where('company_id', auth()->id()) // Ensure they own this lead
             ->firstOrFail();
 
         $visit->status = $request->status;

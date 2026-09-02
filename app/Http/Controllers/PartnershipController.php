@@ -348,31 +348,27 @@ class PartnershipController extends Controller
     }
 
     /**
-     * Temporary method to test document path and existence by full file path.
+     * حذف شركة
      */
-    public function testDocumentPath($encodedPath)
+    public function destroyCompany(Company $company)
     {
-        $filePath = urldecode($encodedPath); // Decode the URL-encoded path
+        $company->delete();
+        return redirect()->route('partnership.companies')->with('success', 'تم حذف الشركة بنجاح');
+    }
 
-        $document = PartnershipDocument::where('file_path', $filePath)->first();
-
-        if (!$document) {
-            return response()->json([
-                'message' => 'Document not found with the provided file path in the database.',
-                'file_path_attempted' => $filePath,
-            ], 404);
+    /**
+     * تبديل اعتماد الشركة
+     */
+    public function toggleApproval($id)
+    {
+        $company = Company::findOrFail($id);
+        $company->is_approved = !$company->is_approved;
+        if ($company->is_approved && $company->partnership_status === 'under_review') {
+            $company->partnership_status = 'active';
         }
+        $company->save();
 
-        $exists = Storage::disk('public')->exists($filePath);
-        $url = Storage::url($filePath);
-
-        return response()->json([
-            'document_id' => $document->id,
-            'stored_file_path' => $filePath,
-            'file_exists_in_storage' => $exists,
-            'generated_url' => $url,
-            'full_public_path' => public_path('storage/' . $filePath),
-            'message' => $exists ? 'File found and URL generated.' : 'File NOT found in storage.',
-        ]);
+        $msg = $company->is_approved ? 'تم اعتماد الشركة بنجاح' : 'تم إلغاء اعتماد الشركة';
+        return redirect()->back()->with('success', $msg);
     }
 }

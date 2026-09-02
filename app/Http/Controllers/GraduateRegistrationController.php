@@ -35,7 +35,7 @@ class GraduateRegistrationController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'phone' => 'required|string|max:20',
-            'national_id' => 'required|string|max:20|unique:users,national_id',
+            'national_id' => 'nullable|string|max:50',
             'date_of_birth' => 'required|date',
             'gender' => 'required|in:male,female',
             'address' => 'required|string',
@@ -46,7 +46,7 @@ class GraduateRegistrationController extends Controller
             'university' => 'required|string|max:255',
             'sector' => 'required|string|max:100',
             'faculty' => 'required|string|max:255',
-            'gpa' => 'nullable|numeric|min:0|max:4',
+            'gpa' => 'nullable|numeric|min:0|max:100',
             'experiences' => 'nullable|string',
             'skills' => 'nullable|string',
             'languages' => 'nullable|string',
@@ -58,8 +58,6 @@ class GraduateRegistrationController extends Controller
             'password.min' => 'كلمة المرور يجب أن تكون 8 أحرف على الأقل',
             'password.confirmed' => 'كلمة المرور غير متطابقة',
             'phone.required' => 'رقم الهاتف مطلوب',
-            'national_id.required' => 'رقم القيد مطلوب',
-            'national_id.unique' => 'رقم القيد موجود بالفعل',
             'date_of_birth.required' => 'تاريخ الميلاد مطلوب',
             'gender.required' => 'الجنس مطلوب',
             'address.required' => 'العنوان مطلوب',
@@ -70,6 +68,9 @@ class GraduateRegistrationController extends Controller
             'university.required' => 'الجامعة مطلوبة',
             'sector.required' => 'القطاع مطلوب',
             'faculty.required' => 'الكلية مطلوبة',
+            'gpa.numeric' => 'المعدل التراكمي يجب أن يكون رقماً',
+            'gpa.min' => 'المعدل التراكمي لا يمكن أن يكون أقل من 0',
+            'gpa.max' => 'المعدل التراكمي كنسبة مئوية لا يمكن أن يتجاوز 100%',
         ]);
 
         // معالجة المهارات واللغات (تحويل النص إلى مصفوفة)
@@ -92,6 +93,8 @@ class GraduateRegistrationController extends Controller
             'specialization' => $request->specialization,
             'graduation_year' => $request->graduation_year,
             'university' => $request->university,
+            'sector' => $request->sector,
+            'faculty' => $request->faculty,
             'gpa' => $request->gpa,
             'experiences' => $request->experiences,
             'skills' => $skills,
@@ -140,34 +143,72 @@ class GraduateRegistrationController extends Controller
             return back()->withErrors(['error' => 'هذا المستخدم ليس خريجاً']);
         }
 
-        // التحقق من عدم وجود سجل مكرر في graduates_data
-        $existingGraduate = \App\Models\GraduateData::where('email', $user->email)
-            ->orWhere(function ($query) use ($user) {
-                if ($user->national_id) {
-                    $query->where('national_id', $user->national_id);
-                }
-            })
-            ->first();
+        $res = $this->processGraduateApproval($user);
 
-        if ($existingGraduate) {
-            // الموافقة على الحساب فقط بدون إنشاء سجل جديد
-            $user->update([
-                'is_approved' => true,
-                'approved_at' => now(),
-                'approved_by' => auth()->id(),
-            ]);
+        return back()->with($res['status'], $res['message']);
+    }
 
-            return back()->with('success', 'تمت الموافقة على الحساب بنجاح (الخريج موجود مسبقاً في قاعدة البيانات)');
+    /**
+     * الموافقة الجماعية على طلبات التسجيل المحددة أو الكل
+     */
+    public function bulkApprove(Request $request)
+    {
+        if ($request->boolean('approve_all')) {
+            $users = User::where('role', 'graduate')->where('is_approved', false)->get();
+        } else {
+            $ids = $request->input('ids', []);
+            if (empty($ids) || !is_array($ids)) {
+                return back()->withErrors(['error' => 'يرجى تحديد خريج واحد على الأقل للموافقة عليه']);
+            }
+            $users = User::where('role', 'graduate')->where('is_approved', false)->whereIn('id', $ids)->get();
         }
 
-        // الموافقة على الحساب
+        if ($users->isEmpty()) {
+            return back()->with('info', 'لا توجد طلبات معلقة للموافقة عليها');
+        }
+
+        $count = 0;
+        foreach ($users as $user) {
+            $this->processGraduateApproval($user);
+            $count++;
+        }
+
+        return back()->with('success', "تمت الموافقة بنجاح على {$count} من طلبات تسجيل الخريجين وتفعيل حساباتهم.");
+    }
+
+    /**
+     * الرفض الجماعي لطلبات التسجيل المحددة
+     */
+    public function bulkReject(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (empty($ids) || !is_array($ids)) {
+            return back()->withErrors(['error' => 'يرجى تحديد خريج واحد على الأقل لرفضه']);
+        }
+
+        $users = User::where('role', 'graduate')->where('is_approved', false)->whereIn('id', $ids)->get();
+        $count = 0;
+        foreach ($users as $user) {
+            $user->delete();
+            $count++;
+        }
+
+        return back()->with('success', "تم رفض {$count} طلب تسجيل بنجاح.");
+    }
+
+    /**
+     * معالجة الموافقة وتفعيل حساب الخريج ومزامنته مع قاعدة بيانات الإرشاد المهني
+     */
+    private function processGraduateApproval(User $user)
+    {
+        // 1. تفعيل الحساب
         $user->update([
             'is_approved' => true,
             'approved_at' => now(),
-            'approved_by' => auth()->id(),
+            'approved_by' => auth()->id() ?? 1,
         ]);
 
-        // إشعار للخريج
+        // 2. إشعار للخريج
         try {
             $this->notificationService->sendToUser(
                 $user,
@@ -179,32 +220,57 @@ class GraduateRegistrationController extends Controller
             \Log::error('Failed to send approval notification: ' . $e->getMessage());
         }
 
-        // إنشاء سجل في جدول graduates_data تلقائياً
+        // 3. التحقق من وجود سجل مسبق في جدول graduates_data
+        $existingGraduate = \App\Models\GraduateData::where('email', $user->email)
+            ->orWhere(function ($query) use ($user) {
+                if ($user->national_id) {
+                    $query->where('national_id', $user->national_id);
+                }
+            })
+            ->first();
+
+        if ($existingGraduate) {
+            return [
+                'status' => 'success',
+                'message' => 'تمت الموافقة على الحساب وتفعيله بنجاح (الخريج مسجل مسبقاً في قاعدة بيانات التوظيف).'
+            ];
+        }
+
+        // 4. إنشاء سجل في جدول graduates_data تلقائياً
         try {
             \App\Models\GraduateData::create([
                 'name' => $user->name,
                 'email' => $user->email,
                 'phone' => $user->phone,
                 'national_id' => $user->national_id ?? null,
-                'major' => $user->specialization ?? 'غير محدد',
+                'major' => $user->specialization ?? $user->major ?? 'غير محدد',
+                'faculty' => $user->faculty ?? null,
+                'sector' => $user->sector ?? null,
                 'university' => $user->university ?? 'جامعة طرابلس',
                 'graduation_year' => $user->graduation_year ?? date('Y'),
                 'gpa' => $user->gpa ?? null,
-                'degree' => $user->qualification ?? 'بكالوريوس',
+                'degree' => $user->qualification ?? $user->degree ?? 'بكالوريوس',
                 'address' => $user->address ?? null,
-                'skills' => $user->skills ?? [],
-                'languages' => $user->languages ?? [],
+                'skills' => is_array($user->skills) ? $user->skills : (is_string($user->skills) ? json_decode($user->skills, true) : []),
+                'languages' => is_array($user->languages) ? $user->languages : (is_string($user->languages) ? json_decode($user->languages, true) : []),
                 'work_experience' => $user->experiences ?? null,
                 'employment_status' => 'seeking_opportunities',
-                'added_by' => auth()->id(),
+                'added_by' => auth()->id() ?? 1,
                 'data_source' => 'system_sync',
                 'is_active' => true,
                 'notes' => 'تم الإنشاء تلقائياً عند الموافقة على طلب التسجيل',
             ]);
 
-            return back()->with('success', 'تمت الموافقة على الحساب بنجاح وتم إضافة الخريج إلى قاعدة البيانات');
+            return [
+                'status' => 'success',
+                'message' => 'تمت الموافقة على الحساب بنجاح وتمت إضافة الخريج إلى قاعدة بيانات الإرشاد والتوظيف.'
+            ];
         } catch (\Exception $e) {
-            return back()->with('warning', 'تمت الموافقة على الحساب بنجاح ولكن حدث خطأ أثناء إضافة الخريج إلى قاعدة البيانات: ' . $e->getMessage());
+            \Log::error('GraduateData creation error: ' . $e->getMessage());
+            return [
+                'status' => 'warning',
+                'message' => 'تم تفعيل حساب الخريج بنجاح، مع تنبيه: ' . $e->getMessage()
+            ];
         }
     }
 

@@ -70,7 +70,15 @@
     <a class="nav-link {{ request()->routeIs('graduate.profile') ? 'active' : '' }}"
         href="{{ route('graduate.profile') }}">
         <i class="fas fa-fw fa-user"></i>
-        <span>بياناتي</span>
+        <span>الملف الشخصي</span>
+    </a>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link {{ request()->routeIs('graduate.id-card') ? 'active' : '' }}"
+        href="{{ route('graduate.id-card') }}">
+        <i class="fas fa-fw fa-id-badge"></i>
+        <span>بطاقتي الرقمية</span>
     </a>
 </li>
 

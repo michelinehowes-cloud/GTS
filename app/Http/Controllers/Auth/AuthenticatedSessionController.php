@@ -46,6 +46,25 @@ class AuthenticatedSessionController extends Controller
                 ]);
             }
 
+            // التحقق من اعتماد حساب الخريج
+            if ($user->role === 'graduate' && !$user->is_approved) {
+                return back()->withErrors([
+                    'email' => 'حسابك في انتظار الموافقة والاعتماد من قبل الإدارة.',
+                ]);
+            }
+
+            // التحقق من اعتماد وتفعيل حساب الشركة (في حالة الاعتماد النشط فقط)
+            if ($user->role === 'company') {
+                $company = $user->company ?? \App\Models\Company::where('email', $user->email)->first();
+                $isApproved = $company && $company->is_approved && $company->partnership_status === 'active';
+
+                if (!$isApproved) {
+                    return back()->withErrors([
+                        'email' => 'عذراً، حساب شركتكم قيد المراجعة أو غير مفعل. يُسمح بالدخول في حالة الاعتماد النشط فقط.',
+                    ]);
+                }
+            }
+
             // إتمام تسجيل الدخول
             Auth::login($user, $request->boolean('remember'));
             $request->session()->regenerate();

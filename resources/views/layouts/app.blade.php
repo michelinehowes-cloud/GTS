@@ -3,92 +3,152 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <style>
-        /* Prevent horizontal scroll */
-        html,
-        body {
-            overflow-x: hidden;
-            width: 100%;
-            position: relative;
-        }
-        
-        /* Navbar Style Overrides */
-        .navbar-main {
-            background: var(--university-blue, #1e3a8a) !important;
-            width: 100% !important;
-            margin: 0 !important;
-            max-width: 100% !important;
-            border-radius: 0 !important;
-        }
-        .navbar-brand, .navbar-brand span, .navbar-brand i {
-            -webkit-text-fill-color: white !important;
-            color: white !important;
-            background: none !important;
-        }
-        .navbar-main .text-white,
-        .navbar-main .text-end,
-        .navbar-main .text-end div,
-        .navbar-main .text-end small {
-            color: white !important;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @auth
         <meta name="user-authenticated" content="true">
         <meta name="user-role" content="{{ auth()->user()->role }}">
     @endauth
     <title>@yield('title', 'نظام إدارة الخريجين')</title>
+
+    <!-- Stylesheets -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <link href="{{ asset('css/premium-forms.css') }}" rel="stylesheet">
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
-    @stack('styles')
-</head>
 
-<body class="{{ View::hasSection('focus_mode') ? 'focus-mode' : '' }} bento-theme">
-    
-    @hasSection('focus_mode')
     <style>
-        body.focus-mode #sidebar { display: none !important; }
-        body.focus-mode #navbarMain { display: none !important; }
-        body.focus-mode #mainContent { margin-right: 0 !important; margin-top: 0 !important; width: 100% !important; padding: 0 !important; }
-        #toggleFocusModeBtn {
+        /* Mobile & Desktop Scroll Optimization */
+        html {
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-text-size-adjust: 100%;
+            height: auto;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: auto;
+            width: 100%;
+            min-height: 100vh;
+            position: static;
+        }
+
+        .main-content {
+            overflow-y: visible !important;
+            min-height: 100vh;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Theme & Layout Customizations */
+        body {
+            background-color: #f1f5f9 !important;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #0d47a1 0%, #1976d2 50%, #2563eb 100%) !important;
+        }
+
+        /* اعتماد شريط البانر العريض في جميع الصفحات وإخفاء الشريط العلوي القديم */
+        .navbar-main {
+            display: none !important;
+        }
+
+        .main-content {
+            padding-top: 14px !important;
+            padding-bottom: 40px !important;
+            min-height: 100vh;
+        }
+
+        /* زر إظهار القائمة الجانبية العائم عند إخفاء الشريط الجانبي */
+        .floating-sidebar-toggle {
             position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 9999;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(0,0,0,0.5);
-            color: white;
-            border: none;
-            display: flex;
+            top: 18px;
+            right: 18px;
+            z-index: 1045;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #1565c0;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12) !important;
+            display: none;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: 0.3s;
+            cursor: pointer;
+            font-size: 1.15rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        #toggleFocusModeBtn:hover { background: rgba(0,0,0,0.8); }
-    </style>
-    <button id="toggleFocusModeBtn" onclick="document.body.classList.toggle('focus-mode')" title="إظهار/إخفاء القوائم">
-        <i class="fas fa-expand"></i>
-    </button>
-    @endif
+        .floating-sidebar-toggle:hover {
+            background: #1565c0;
+            color: #ffffff;
+            transform: scale(1.06);
+            box-shadow: 0 6px 22px rgba(21, 101, 192, 0.35) !important;
+        }
+        body.sidebar-is-collapsed .floating-sidebar-toggle {
+            display: flex !important;
+        }
 
-    <!-- شاشة الترحيب البسيطة (Splash Screen) -->
-    <div id="welcome-screen">
-        <div class="welcome-content">
-            <img src="{{ asset('images/office_logo_white.png') }}" alt="Logo" class="splash-logo">
-            <div class="splash-pulse"></div>
-        </div>
-    </div>
+        /* إلغاء جميع الحركات والنبض التلقائي للأزرار والشارات واعتماد حركة هادئة عند تمرير الماوس فقط */
+        .badge, .badge.rounded-pill, a.badge, .btn, .btn-modern, .btn-primary, .btn-primary-modern, .btn-warning, .btn-info, .btn-light, .btn-outline-primary, .btn-outline-secondary {
+            animation: none !important;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, filter 0.2s ease !important;
+        }
 
-    <style>
+        /* إلغاء الظلال الحمراء والمزعجة للشارات نهائياً وتصميمها بستايل بسيط ونظيف */
+        .badge, .badge.rounded-pill, span.badge {
+            box-shadow: none !important;
+            text-shadow: none !important;
+            filter: none !important;
+        }
+
+        .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-danger, .btn-outline-warning, .btn-outline-info {
+            box-shadow: none !important;
+        }
+
+        .btn:hover, .btn-modern:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .btn-outline-primary:hover, .btn-outline-secondary:hover {
+            box-shadow: none !important;
+        }
+
+        .btn:active, .btn-modern:active, a.badge:active, button.badge:active {
+            transform: translateY(0) scale(0.98) !important;
+            box-shadow: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding-top: 10px !important;
+                padding-bottom: 85px !important;
+                margin-right: 0 !important;
+                width: 100% !important;
+                overflow-y: visible !important;
+            }
+            .sidebar {
+                transform: translateX(100%) !important;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                position: fixed !important;
+                top: 0 !important;
+                right: 0 !important;
+                height: 100vh !important;
+                z-index: 1050 !important;
+                width: 280px !important;
+                box-shadow: -5px 0 25px rgba(0, 0, 0, 0.2) !important;
+            }
+            .sidebar.active-mobile {
+                transform: translateX(0) !important;
+            }
+        }
+
         /* شاشة الترحيب البسيطة */
         #welcome-screen {
             position: fixed;
@@ -98,10 +158,16 @@
             height: 100%;
             background: linear-gradient(135deg, #045db0 0%, #3b82f6 100%);
             z-index: 100000;
-            display: flex;
+            display: none;
+            pointer-events: none;
             justify-content: center;
             align-items: center;
             transition: opacity 0.5s ease-out;
+        }
+
+        #welcome-screen.active-splash {
+            display: flex;
+            pointer-events: auto;
         }
 
         .welcome-content {
@@ -137,7 +203,6 @@
                 opacity: 0;
                 transform: scale(0.8);
             }
-
             100% {
                 opacity: 1;
                 transform: scale(1);
@@ -149,7 +214,6 @@
                 transform: translate(-50%, -50%) scale(1);
                 opacity: 0.8;
             }
-
             100% {
                 transform: translate(-50%, -50%) scale(1.8);
                 opacity: 0;
@@ -161,6 +225,18 @@
             visibility: hidden;
         }
     </style>
+    @stack('styles')
+</head>
+
+<body class="bento-theme {{ request()->routeIs('graduate.dashboard') ? 'is-graduate-dashboard' : '' }}">
+
+    <!-- شاشة الترحيب البسيطة (Splash Screen) -->
+    <div id="welcome-screen">
+        <div class="welcome-content">
+            <img src="{{ asset('images/office_logo_white.png') }}" alt="Logo" class="splash-logo">
+            <div class="splash-pulse"></div>
+        </div>
+    </div>
 
     <!-- الشريط الجانبي -->
     <nav class="sidebar" id="sidebar">
@@ -291,7 +367,6 @@
                                     </a>
                                 </li>
 
-
                                 <!-- ادارة الشراكات والتوظيف -->
                                 <li class="nav-item menu-group">
                                     <a class="nav-link {{ request()->routeIs('admin.companies*') || request()->routeIs('job-opportunities*') ? 'active' : '' }}"
@@ -317,23 +392,50 @@
                                     </div>
                                 </li>
 
-                                <!-- ادارة الارشاد المهني -->
+                                <!-- ادارة الارشاد المهني للمدير -->
                                 <li class="nav-item menu-group">
-                                    <a class="nav-link {{ request()->routeIs('admin.career-guidance.graduates.create') || request()->routeIs('job-opportunities.create') ? 'active' : '' }}"
-                                        href="#" onclick="toggleSubmenu('quick-actions-menu')">
-                                        <i class="fas fa-bolt"></i>
-                                        ادارة الارشاد المهني
+                                    <a class="nav-link {{ request()->routeIs('admin.career-guidance.*') || request()->routeIs('career-guidance.pending-approvals') ? 'active' : '' }}"
+                                        href="#" onclick="toggleSubmenu('admin-career-guidance-menu')">
+                                        <i class="fas fa-compass"></i>
+                                        إدارة الإرشاد المهني
                                         <i class="fas fa-chevron-down menu-arrow"></i>
                                     </a>
-                                    <div class="submenu {{ request()->routeIs('admin.career-guidance.graduates.create') || request()->routeIs('job-opportunities.create') ? 'show' : '' }}"
-                                        id="quick-actions-menu">
+                                    <div class="submenu {{ request()->routeIs('admin.career-guidance.*') || request()->routeIs('career-guidance.pending-approvals') ? 'show' : '' }}"
+                                        id="admin-career-guidance-menu">
+                                        <a href="{{ route('admin.career-guidance.dashboard') }}"
+                                            class="submenu-item {{ request()->routeIs('admin.career-guidance.dashboard') ? 'active' : '' }}">
+                                            لوحة الإرشاد المهني
+                                        </a>
                                         <a href="{{ route('admin.career-guidance.graduates') }}"
-                                            class="submenu-item {{ request()->routeIs('admin.career-guidance.graduates') ? 'active' : '' }}">
+                                            class="submenu-item {{ request()->routeIs('admin.career-guidance.graduates') && !request()->routeIs('admin.career-guidance.graduates.create') ? 'active' : '' }}">
                                             إدارة بيانات الخريجين
+                                        </a>
+                                        <a href="{{ route('career-guidance.pending-approvals') }}"
+                                            class="submenu-item {{ request()->routeIs('career-guidance.pending-approvals') ? 'active' : '' }} d-flex justify-content-between align-items-center">
+                                            <span>طلبات تسجيل الخريجين</span>
+                                            @if(isset($pendingGraduatesCount) && $pendingGraduatesCount > 0)
+                                                <span class="badge bg-danger rounded-pill px-2" style="font-size: 0.68rem;">{{ $pendingGraduatesCount }}</span>
+                                            @endif
                                         </a>
                                         <a href="{{ route('admin.career-guidance.graduates.create') }}"
                                             class="submenu-item {{ request()->routeIs('admin.career-guidance.graduates.create') ? 'active' : '' }}">
-                                            إضافة خريج
+                                            إضافة خريج جديد
+                                        </a>
+                                        <a href="{{ route('admin.career-guidance.nominations') }}"
+                                            class="submenu-item {{ request()->routeIs('admin.career-guidance.nominations') && !request()->routeIs('admin.career-guidance.nominations.create') ? 'active' : '' }}">
+                                            إدارة الترشيحات
+                                        </a>
+                                        <a href="{{ route('admin.career-guidance.nominations.create') }}"
+                                            class="submenu-item {{ request()->routeIs('admin.career-guidance.nominations.create') ? 'active' : '' }}">
+                                            ترشيح جديد
+                                        </a>
+                                        <a href="{{ route('admin.career-guidance.import.graduates.create') }}"
+                                            class="submenu-item {{ request()->routeIs('admin.career-guidance.import.graduates*') ? 'active' : '' }}">
+                                            استيراد الخريجين Excel
+                                        </a>
+                                        <a href="{{ route('admin.career-guidance.advanced-reports') }}"
+                                            class="submenu-item {{ request()->routeIs('admin.career-guidance.advanced-reports*') ? 'active' : '' }}">
+                                            التقارير المتقدمة
                                         </a>
                                     </div>
                                 </li>
@@ -452,6 +554,10 @@
                                         <a href="{{ route('career-guidance.graduates.create') }}"
                                             class="submenu-item {{ request()->routeIs('career-guidance.graduates.create') ? 'active' : '' }}">
                                             إضافة خريج جديد
+                                        </a>
+                                        <a href="{{ route('career-guidance.import.graduates.create') }}"
+                                            class="submenu-item {{ request()->routeIs('career-guidance.import.graduates*') ? 'active' : '' }}">
+                                            استيراد الخريجين Excel
                                         </a>
                                         <a href="{{ route('career-guidance.pending-approvals') }}"
                                             class="submenu-item {{ request()->routeIs('career-guidance.pending-approvals') ? 'active' : '' }}">
@@ -781,6 +887,11 @@
         </div>
     </nav>
 
+    <!-- زر إظهار القائمة الجانبية العائم عند الإخفاء -->
+    <button type="button" class="floating-sidebar-toggle btn" id="floatingSidebarToggle" title="إظهار القائمة الجانبية">
+        <i class="fas fa-bars"></i>
+    </button>
+
     <!-- المحتوى الرئيسي -->
     <div class="main-content" id="mainContent">
 
@@ -788,21 +899,20 @@
         <nav class="navbar navbar-expand-lg navbar-main" id="navbarMain">
             <div class="container-fluid px-4">
                 <div class="d-flex align-items-center">
-                    <button class="toggle-sidebar-main btn border-0 p-0 me-2" id="toggleSidebarMain">
+                    <button class="toggle-sidebar-main btn d-flex align-items-center justify-content-center p-0 me-2" id="toggleSidebarMain" style="width: 38px; height: 38px; border-radius: 10px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: #ffffff;">
                         <i class="fas fa-bars fa-lg text-white"></i>
                     </button>
-                    <h4 class="navbar-brand mb-0 ms-3 text-white">
+                    <h4 class="navbar-brand mb-0 ms-3 d-flex align-items-center">
                         @if(request()->is('admin/job-fair*') || request()->is('job-fair*') || request()->routeIs('job-fair.*'))
-                            <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="شعار المعرض"
-                                style="height: 40px; margin-left: 10px; display: inline-block; object-fit: contain;"
-                                onerror="this.style.display='none'">
+                            <img src="{{ asset('images/job_fair_logo.png') }}" alt="شعار المعرض"
+                                style="height: 38px; margin-left: 10px; display: inline-block; object-fit: contain;"
+                                onerror="this.src='{{ asset('images/job_fair_logo_white.png') }}'">
                         @else
-                            <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب الخريجين"
-                                style="height: 40px; margin-left: 10px; display: inline-block; object-fit: contain;"
-                                onerror="this.style.display='none'">
+                            <img src="{{ asset('images/gto_logo.jpg') }}" alt="مكتب الخريجين"
+                                style="height: 38px; border-radius: 8px; margin-left: 10px; display: inline-block; object-fit: contain; border: 1.5px solid rgba(255,255,255,0.4);"
+                                onerror="this.src='{{ asset('images/office_logo_white.png') }}'">
                         @endif
-                        <i class="fas fa-graduation-cap me-2 text-white"></i>
-                        <span class="text-white">@yield('page-title', 'لوحة التحكم الرئيسية')</span>
+                        <span class="text-white fw-bold fs-5">@yield('page-title', View::getSection('title') ?? 'لوحة التحكم')</span>
                     </h4>
                 </div>
 
@@ -1026,7 +1136,7 @@
             sidebarOverlay.className = 'sidebar-overlay';
             sidebarOverlay.style.cssText = `
                 position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-                background: rgba(0, 0, 0, 0.5); z-index: 1035; display: none; opacity: 0; transition: opacity 0.3s ease;
+                background: rgba(0, 0, 0, 0.5); z-index: 1035; display: none; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
             `;
             document.body.appendChild(sidebarOverlay);
 
@@ -1061,6 +1171,7 @@
                 sidebar.classList.add('active-mobile');
                 sidebar.classList.remove('collapsed');
                 sidebarOverlay.style.display = 'block';
+                sidebarOverlay.style.pointerEvents = 'auto';
                 setTimeout(() => sidebarOverlay.style.opacity = '1', 10);
             }
 
@@ -1068,20 +1179,34 @@
                 sidebar.classList.remove('active-mobile');
                 sidebar.classList.add('collapsed');
                 sidebarOverlay.style.opacity = '0';
-                setTimeout(() => sidebarOverlay.style.display = 'none', 300);
+                sidebarOverlay.style.pointerEvents = 'none';
+                setTimeout(() => {
+                    sidebarOverlay.style.display = 'none';
+                }, 300);
             }
 
             function updateToggleIcon() {
+                const isCollapsed = sidebar.classList.contains('collapsed');
                 if (toggleSidebar) {
                     const icon = toggleSidebar.querySelector('i');
-                    const isCollapsed = sidebar.classList.contains('collapsed');
                     if (icon) icon.className = isCollapsed ? 'fas fa-chevron-left' : 'fas fa-chevron-right';
+                }
+                const floatingBtn = document.getElementById('floatingSidebarToggle');
+                if (floatingBtn) {
+                    floatingBtn.style.display = isCollapsed ? 'flex' : 'none';
+                }
+                if (isCollapsed) {
+                    document.body.classList.add('sidebar-is-collapsed');
+                } else {
+                    document.body.classList.remove('sidebar-is-collapsed');
                 }
             }
 
             // ربط الأزرار بالدالة
             if (toggleSidebar) toggleSidebar.addEventListener('click', toggleSidebarFunc);
             if (toggleSidebarMain) toggleSidebarMain.addEventListener('click', toggleSidebarFunc);
+            const floatingToggleBtn = document.getElementById('floatingSidebarToggle');
+            if (floatingToggleBtn) floatingToggleBtn.addEventListener('click', toggleSidebarFunc);
 
             // النقر على Overlay يغلق القائمة
             sidebarOverlay.addEventListener('click', closeMobileSidebar);
@@ -1147,6 +1272,13 @@
             const mobileStyle = document.createElement('style');
             mobileStyle.innerHTML = `
                 @media (max-width: 768px) {
+                    html, body {
+                        overflow-x: hidden !important;
+                        overflow-y: auto !important;
+                        -webkit-overflow-scrolling: touch !important;
+                        position: static !important;
+                        height: auto !important;
+                    }
                     .sidebar {
                         transform: translateX(100%);
                         transition: transform 0.3s ease-in-out;
@@ -1154,7 +1286,7 @@
                     }
                     .sidebar.active-mobile { transform: translateX(0) !important; }
                     .sidebar.collapsed { transform: translateX(100%) !important; }
-                    .main-content, .navbar-main { margin-right: 0 !important; width: 100% !important; }
+                    .main-content, .navbar-main { margin-right: 0 !important; width: 100% !important; overflow-y: visible !important; }
                 }
             `;
             document.head.appendChild(mobileStyle);

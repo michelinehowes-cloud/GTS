@@ -53,8 +53,6 @@
 </style>
 @endpush
 
-@section('focus_mode', true)
-
 @section('content')
 <div class="container py-4" style="max-width: 800px">
 
@@ -219,13 +217,36 @@ document.getElementById('start-camera-btn').addEventListener('click', function()
 function processQR(code) {
     hideAllResults();
     
+    let graduateId = null;
+    const patterns = [
+        /\/graduate\/profile\/(\d+)/i,   
+        /\/profile\/(\d+)/i,             
+        /profile[\/=](\d+)/i,            
+        /[&?]id=(\d+)/i,                 
+        /[\/\-_=](\d+)[\/\s]*$/,         
+        /^JF-\d+-(\d+)-/i,               
+        /^(\d+)$/,                        
+    ];
+
+    for (const pattern of patterns) {
+        const m = code.match(pattern);
+        if (m) { graduateId = m[1]; break; }
+    }
+
+    if (!graduateId) {
+        document.getElementById('result-error-msg').textContent = "رمز QR غير صالح. تأكد من مسح البطاقة الصحيحة.";
+        showResult('error');
+        playBeep('error');
+        return;
+    }
+
     fetch(checkInUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': csrfToken,
         },
-        body: JSON.stringify({ qr_code: code })
+        body: JSON.stringify({ graduate_id: parseInt(graduateId), job_fair_id: {{ $fair->id }} })
     })
     .then(r => r.json())
     .then(data => {

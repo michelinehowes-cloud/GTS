@@ -1,114 +1,135 @@
 @extends('layouts.app')
 
-@section('title', 'التدريبات المتاحة')
+@section('title', 'التدريبات المتاحة للتقديم')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3>التدريبات المتاحة للالتحاق</h3>
-                </div>
-                <div class="card-body">
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show">
-                            <i class="fas fa-check-circle me-2"></i>
-                            {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+<div class="container-fluid px-2 px-md-3">
+    <!-- Unified Page Hero Banner -->
+    <x-page-hero
+        title="التدريبات والبرامج المتاحة للالتحاق"
+        subtitle="تصفح الفرص والورش التدريبية المعتمدة وقدم طلبك للالتحاق بها مباشرة"
+        icon="fas fa-graduation-cap"
+        :breadcrumbs="[
+            ['label' => 'منصة الخريجين', 'url' => route('graduate.dashboard')],
+            ['label' => 'التقديم على التدريبات']
+        ]"
+        badge="برامج معتمدة"
+        badgeIcon="fas fa-certificate"
+    >
+        <a href="{{ route('graduate.trainings') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-arrow-right fs-6"></i>
+            <span>البرامج التدريبية</span>
+        </a>
+        <a href="{{ route('graduate.dashboard') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-home fs-6"></i>
+            <span>لوحة التحكم</span>
+        </a>
+    </x-page-hero>
+
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show border-0 rounded-3 shadow-sm mb-4" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show border-0 rounded-3 shadow-sm mb-4" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if($trainings->count() > 0)
+        <div class="row g-4 mb-4">
+            @foreach($trainings as $training)
+                @php
+                    $app = \App\Models\TrainingApplication::where('user_id', auth()->id())->where('training_id', $training->id)->first();
+                @endphp
+                <div class="col-md-6 col-lg-4">
+                    <div class="card-modern h-100 d-flex flex-column">
+                        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                            <span class="badge bg-light text-primary border border-primary rounded-pill px-3 py-1">
+                                @switch($training->type)
+                                    @case('workshop') ورشة عمل @break
+                                    @case('course') دورة @break
+                                    @case('seminar') ندوة @break
+                                    @case('internship') تدريب عملي @break
+                                    @default {{ $training->type }}
+                                @endswitch
+                            </span>
+                            @if($app)
+                                @if($app->status === 'approved')
+                                    <span class="badge bg-light text-success border border-success rounded-pill px-2 py-1 small">
+                                        <i class="fas fa-check-circle me-1"></i> تم القبول
+                                    </span>
+                                @elseif($app->status === 'rejected')
+                                    <span class="badge bg-light text-danger border border-danger rounded-pill px-2 py-1 small">
+                                        <i class="fas fa-times-circle me-1"></i> تم الرفض
+                                    </span>
+                                @else
+                                    <span class="badge bg-light text-warning border border-warning rounded-pill px-2 py-1 small">
+                                        <i class="fas fa-clock me-1"></i> قيد المراجعة
+                                    </span>
+                                @endif
+                            @else
+                                <span class="badge bg-light text-success border border-success rounded-pill px-2 py-1 small">
+                                    نشط
+                                </span>
+                            @endif
                         </div>
-                    @endif
+                        <div class="card-body p-4 flex-grow-1">
+                            <h5 class="fw-bold text-dark mb-2">{{ $training->title }}</h5>
+                            <p class="text-muted small mb-3" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                                {{ Str::limit($training->description, 130) }}
+                            </p>
 
-                    @if(session('error'))
-                        <div class="alert alert-danger alert-dismissible fade show">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            {{ session('error') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
-
-                    @if($trainings->count() > 0)
-                    <div class="row">
-                        @foreach($trainings as $training)
-                        <div class="col-md-6 mb-4">
-                            <div class="card training-card">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ $training->title }}</h5>
-                                    <p class="card-text">{{ $training->description }}</p>
-                                    
-                                    <div class="training-details mb-3">
-                                        <small class="text-muted">
-                                            <i class="fas fa-clock me-1"></i> {{ $training->duration }}
-                                        </small>
-                                        <small class="text-muted mx-2">
-                                            <i class="fas fa-map-marker-alt me-1"></i> {{ $training->location }}
-                                        </small>
-                                        <small class="text-muted">
-                                            <i class="fas fa-users me-1"></i> {{ $training->seats }} مقاعد
-                                        </small>
-                                    </div>
-
-                                    <div class="training-details mb-3">
-                                        <small class="text-muted">
-                                            <i class="fas fa-calendar me-1"></i> يبدأ: {{ $training->start_date->format('Y-m-d') }}
-                                        </small>
-                                        <small class="text-muted mx-2">
-                                            <i class="fas fa-calendar-check me-1"></i> ينتهي: {{ $training->end_date->format('Y-m-d') }}
-                                        </small>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <span class="badge bg-primary">
-                                            @switch($training->type)
-                                                @case('workshop') ورشة عمل @break
-                                                @case('course') دورة @break
-                                                @case('seminar') ندوة @break
-                                                @case('internship') تدريب عملي @break
-                                            @endswitch
-                                        </span>
-                                        <span class="badge bg-success">نشط</span>
-                                    </div>
-                                    
-                                    <div class="d-flex gap-2">
-                                        <!-- استخدم Form مباشرة -->
-                                        <form action="{{ route('graduate.trainings.apply') }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <input type="hidden" name="training_id" value="{{ $training->id }}">
-                                            <button type="submit" class="btn btn-primary btn-sm">
-                                                <i class="fas fa-paper-plane me-1"></i>التقديم للتدريب
-                                            </button>
-                                        </form>
-                                        <button class="btn btn-outline-info btn-sm">
-                                            <i class="fas fa-info-circle me-1"></i>تفاصيل أكثر
-                                        </button>
-                                    </div>
+                            <div class="p-3 bg-light rounded-3 mb-3 small">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted"><i class="fas fa-map-marker-alt text-danger me-1"></i> المكان:</span>
+                                    <span class="fw-bold text-dark">{{ $training->location ?? 'جامعة طرابلس' }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted"><i class="fas fa-clock text-info me-1"></i> المدة:</span>
+                                    <span class="fw-bold text-dark">{{ $training->duration ?? 'غير محددة' }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted"><i class="fas fa-calendar-alt text-warning me-1"></i> البداية:</span>
+                                    <span class="fw-bold text-dark">{{ $training->start_date ? \Carbon\Carbon::parse($training->start_date)->format('Y-m-d') : 'قريباً' }}</span>
                                 </div>
                             </div>
                         </div>
-                        @endforeach
+
+                        <div class="card-footer bg-white p-3 border-top d-flex justify-content-between align-items-center gap-2">
+                            @if($app)
+                                <a href="{{ route('graduate.trainings.show', $training->id) }}" class="btn btn-sm btn-outline-primary-modern w-100 py-2">
+                                    <i class="fas fa-info-circle me-1"></i> متابعة حالة الطلب
+                                </a>
+                            @else
+                                <form action="{{ route('graduate.trainings.apply', $training->id) }}" method="POST" class="flex-grow-1">
+                                    @csrf
+                                    <input type="hidden" name="training_id" value="{{ $training->id }}">
+                                    <button type="submit" class="btn btn-sm btn-primary-modern w-100">
+                                        <i class="fas fa-paper-plane me-1"></i> التقديم للتدريب
+                                    </button>
+                                </form>
+                                <a href="{{ route('graduate.trainings.show', $training->id) }}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-eye me-1"></i> التفاصيل
+                                </a>
+                            @endif
+                        </div>
                     </div>
-                    @else
-                    <div class="text-center py-4">
-                        <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">لا توجد تدريبات متاحة حالياً</h5>
-                        <p class="text-muted">يرجى مراجعة هذه الصفحة لاحقاً للاطلاع على التدريبات الجديدة</p>
-                    </div>
-                    @endif
                 </div>
+            @endforeach
+        </div>
+    @else
+        <div class="card-modern text-center py-5">
+            <div class="card-body py-5">
+                <i class="fas fa-graduation-cap display-3 text-muted mb-3 opacity-50"></i>
+                <h4 class="fw-bold text-dark mb-2">لا توجد تدريبات متاحة حالياً</h4>
+                <p class="text-muted mb-0">يرجى مراجعة هذه الصفحة لاحقاً للاطلاع على التدريبات الجديدة فور إطلاقها</p>
             </div>
         </div>
-    </div>
+    @endif
 </div>
-
-<style>
-.training-card {
-    transition: transform 0.3s ease;
-    border-right: 4px solid #045db0;
-    height: 100%;
-}
-.training-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-</style>
-@endsection
+@endsection

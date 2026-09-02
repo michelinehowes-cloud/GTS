@@ -24,6 +24,20 @@ class CompanyMiddleware
             return redirect('/dashboard')->with('error', 'ليس لديك صلاحية للوصول إلى هذه الصفحة');
         }
 
+        $user = auth()->user();
+        $company = $user->company ?? \App\Models\Company::where('email', $user->email)->first();
+        $isApproved = $company && $company->is_approved && $company->partnership_status === 'active';
+
+        if (!$isApproved) {
+            auth()->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->withErrors([
+                'email' => 'عذراً، حساب شركتكم غير معتمد أو غير نشط. يُسمح بالدخول في حالة الاعتماد النشط فقط.',
+            ]);
+        }
+
         return $next($request);
     }
 }

@@ -4,466 +4,337 @@
 @section('page-title', 'لوحة تحكم مسؤول النظام')
 
 @section('content')
-    <div class="container-fluid py-4">
-        <!-- Breadcrumbs -->
-        @include('components.breadcrumbs', [
-            'items' => [
-                ['label' => 'الرئيسية', 'url' => route('home')],
-                ['label' => 'لوحة تحكم المدير', 'active' => true],
-            ]
+<div class="container-fluid">
+    <!-- Breadcrumbs -->
+    @include('components.breadcrumbs', [
+        'items' => [
+            ['label' => 'الرئيسية', 'url' => route('home')],
+            ['label' => 'لوحة تحكم المدير', 'active' => true],
+        ]
+    ])
+
+    {{-- رأس لوحة التحكم --}}
+    <div class="card-modern mb-4 p-3 p-md-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-light-primary text-primary fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px; font-size: 1.4rem;">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div>
+                    <h2 class="text-primary fw-bold mb-1 fs-4">لوحة تحكم مسؤول النظام</h2>
+                    <p class="text-muted small mb-0">نظرة شاملة ومؤشرات أداء المنظومة، الخريجين، والشركات ومعارض التوظيف</p>
+                </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap w-100 w-md-auto">
+                <a href="{{ route('job-fair.admin.index') }}" class="btn btn-warning-modern flex-grow-1 flex-md-grow-0 btn-sm">
+                    <i class="fas fa-store me-1"></i> معارض التوظيف
+                </a>
+                <a href="{{ route('admin.companies') }}" class="btn btn-outline-primary flex-grow-1 flex-md-grow-0 btn-sm">
+                    <i class="fas fa-building me-1"></i> الشركات
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if(isset($pendingGraduatesCount) && $pendingGraduatesCount > 0)
+    <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center justify-content-between p-3 mb-4 rounded-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-3">
+            <div class="rounded-circle bg-warning bg-opacity-25 text-warning p-2 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; flex-shrink: 0;">
+                <i class="fas fa-user-clock fa-lg"></i>
+            </div>
+            <div>
+                <strong class="d-block text-dark fs-6">يوجد {{ $pendingGraduatesCount }} طلبات تسجيل خريجين جديدة بانتظار الاعتماد والموافقة</strong>
+                <span class="text-muted small">يمكنك مراجعة وتدقيق بيانات الخريجين وتفعيل حساباتهم فوراً ليتمكنوا من تسجيل الدخول واستخدام المنظومة.</span>
+            </div>
+        </div>
+        <a href="{{ route('career-guidance.pending-approvals') }}" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold">
+            <i class="fas fa-check-circle me-1"></i> مراجعة واعتماد الطلبات
+        </a>
+    </div>
+    @endif
+
+    <!-- 📊 الإحصائيات الرئيسية (2x2 على الموبايل) -->
+    <div class="row mb-3">
+        @include('components.stat-card', [
+            'col' => 'col-6 col-xl-3 mb-3',
+            'title' => 'الشركات المسجلة',
+            'value' => $companiesCount ?? 0,
+            'icon' => 'fas fa-building',
+            'color' => 'primary',
+            'link' => route('admin.companies')
         ])
-
-        <div class="row mb-4">
-            <div class="col-12">
-                <h2 class="text-white fw-bold mb-4" style="text-shadow: 0 2px 10px rgba(0,0,0,0.5);">نظرة عامة على النظام</h2>
-            </div>
-        </div>
-
-        <!-- Row 1: Core Statistics (Bento Grid) -->
-        <div class="bento-grid-large mb-4">
-            <!-- الشركات -->
-            <div class="bento-card">
-                <div class="bento-card-header">
-                    <h3 class="bento-card-title">الشركات</h3>
-                    <div class="bento-card-icon bento-icon-primary">
-                        <i class="fas fa-building"></i>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-end mt-1">
-                    <div class="bento-stat" id="stat-companies">{{ $companiesCount ?? 0 }}</div>
-                    <div class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-3 py-2 mb-2">
-                        مستمر <i class="fas fa-arrow-trend-up ms-1"></i>
-                    </div>
-                </div>
-                <div class="bento-desc mt-2">إجمالي الشركات المسجلة بالمعرض والنظام</div>
-            </div>
-
-            <!-- المستخدمين -->
-            <div class="bento-card">
-                <div class="bento-card-header">
-                    <h3 class="bento-card-title">المستخدمين</h3>
-                    <div class="bento-card-icon bento-icon-success">
-                        <i class="fas fa-users"></i>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-end mt-1">
-                    <div class="bento-stat" id="stat-users">{{ $usersCount ?? 0 }}</div>
-                    <div class="badge rounded-pill bg-success bg-opacity-10 text-success px-3 py-2 mb-2">
-                        نشط <i class="fas fa-bolt ms-1"></i>
-                    </div>
-                </div>
-                <div class="bento-desc mt-2">إجمالي الخريجين والمشرفين</div>
-            </div>
-
-            <!-- التدريبات المعتمدة -->
-            <div class="bento-card">
-                <div class="bento-card-header">
-                    <h3 class="bento-card-title">التدريبات المعتمدة</h3>
-                    <div class="bento-card-icon bento-icon-gold">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-end mt-1">
-                    <div class="bento-stat" id="stat-trainings">{{ $approvedTrainingsCount ?? 0 }}</div>
-                    <div class="badge rounded-pill bg-warning bg-opacity-10 text-warning px-3 py-2 mb-2" style="color: #d97706 !important;">
-                        متاح <i class="fas fa-check-circle ms-1"></i>
-                    </div>
-                </div>
-                <div class="bento-desc mt-2">جاهزة ومتاحة لتسجيل الخريجين</div>
-            </div>
-            
-            <!-- طلبات التدريب -->
-            <div class="bento-card">
-                <div class="bento-card-header">
-                    <h3 class="bento-card-title">طلبات التدريب</h3>
-                    <div class="bento-card-icon bento-icon-danger">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-end mt-1">
-                    <div class="bento-stat" id="stat-applications">{{ $applicationsCount ?? 0 }}</div>
-                    <div class="badge rounded-pill bg-danger bg-opacity-10 text-danger px-3 py-2 mb-2">
-                        جديد <i class="fas fa-fire ms-1"></i>
-                    </div>
-                </div>
-                <div class="bento-desc mt-2">طلبات مسجلة في البرامج التدريبية</div>
-            </div>
-        </div>
-
-        <!-- Charts Section -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="bento-card">
-                    <div class="bento-card-header border-bottom border-secondary pb-3 mb-4">
-                        <h3 class="bento-card-title text-white fs-4">
-                            <i class="fas fa-chart-bar me-2 text-primary"></i>الإحصائيات التفاعلية
-                        </h3>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="row">
-                            <!-- مخطط توزيع المستخدمين حسب الدور -->
-                            <div class="col-lg-6 mb-4">
-                                <div class="p-3 h-100" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px;">
-                                    <h5 class="text-white mb-3 fw-bold">توزيع المستخدمين حسب الدور</h5>
-                                    <canvas id="usersByRoleChart" style="max-height: 300px;"></canvas>
-                                </div>
-                            </div>
-
-                            <!-- مخطط حالة الشركات -->
-                            <div class="col-lg-6 mb-4">
-                                <div class="p-3 h-100" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px;">
-                                    <h5 class="text-white mb-3 fw-bold">حالة الشركات</h5>
-                                    <canvas id="companiesByStatusChart" style="max-height: 300px;"></canvas>
-                                </div>
-                            </div>
-
-                            <!-- مخطط حالة التوظيف -->
-                            <div class="col-lg-6 mb-4">
-                                <div class="p-3 h-100" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px;">
-                                    <h5 class="text-white mb-3 fw-bold">حالة توظيف الخريجين</h5>
-                                    <canvas id="employmentStatusChart" style="max-height: 300px;"></canvas>
-                                </div>
-                            </div>
-
-                            <!-- مخطط النشاط الشهري -->
-                            <div class="col-lg-6 mb-4">
-                                <div class="p-3 h-100" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px;">
-                                    <h5 class="text-white mb-3 fw-bold">النشاط الشهري لطلبات التدريب</h5>
-                                    <canvas id="monthlyActivityChart" style="max-height: 300px;"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row mb-4">
-            <div class="col-lg-6 mb-4">
-                <div class="bento-card h-100">
-                    <div class="bento-card-header border-bottom border-secondary pb-3 mb-3">
-                        <h3 class="bento-card-title text-white fs-5">
-                            <i class="fas fa-history me-2 text-primary"></i>أحدث المستخدمين
-                        </h3>
-                    </div>
-                    <div class="card-body p-0">
-                        @if($recentUsers->isEmpty())
-                            <p class="text-white-50 text-center py-4">لا يوجد مستخدمون جدد لعرضهم.</p>
-                        @else
-                            <ul class="list-group list-group-flush bg-transparent">
-                                @foreach($recentUsers as $user)
-                                    <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent border-0 px-0 mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.05) !important;">
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-sm me-3 bg-white bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-primary" style="width: 45px; height: 45px;">
-                                                <i class="fas fa-user-circle fa-lg"></i>
-                                            </div>
-                                            <div>
-                                            <h6 class="mb-0">{{ $user->name }}</h6>
-                                            <small class="text-muted">{{ $user->email }}</small>
-                                        </div>
-                                    </div>
-                                    <span class="badge bg-secondary">{{ $user->role }}</span>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-6 mb-4">
-            <div class="bento-card h-100">
-                <div class="bento-card-header border-bottom border-secondary pb-3 mb-3">
-                    <h3 class="bento-card-title text-white fs-5">
-                        <i class="fas fa-building me-2 text-info"></i>أحدث الشركات
-                    </h3>
-                </div>
-                <div class="card-body p-0">
-                    @if($recentCompanies->isEmpty())
-                        <p class="text-white-50 text-center py-4">لا توجد شركات جديدة لعرضها.</p>
-                    @else
-                        <ul class="list-group list-group-flush bg-transparent">
-                            @foreach($recentCompanies as $company)
-                                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent border-0 px-0 mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.05) !important;">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm me-3 bg-white bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-info" style="width: 45px; height: 45px;">
-                                            <i class="fas fa-industry fa-lg"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0 text-white">{{ $company->name }}</h6>
-                                            <small class="text-white-50">{{ $company->email }}</small>
-                                        </div>
-                                    </div>
-                                    @if($company->is_approved)
-                                        <span class="bento-badge bento-badge-success">معتمدة</span>
-                                    @else
-                                        <span class="bento-badge bento-badge-warning">قيد الانتظار</span>
-                                    @endif
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
-                </div>
-            </div>
-        </div>
+        @include('components.stat-card', [
+            'col' => 'col-6 col-xl-3 mb-3',
+            'title' => 'المستخدمين والخريجين',
+            'value' => $usersCount ?? 0,
+            'icon' => 'fas fa-users',
+            'color' => 'success',
+            'link' => route('admin.users')
+        ])
+        @include('components.stat-card', [
+            'col' => 'col-6 col-xl-3 mb-3',
+            'title' => 'التدريبات المعتمدة',
+            'value' => $approvedTrainingsCount ?? 0,
+            'icon' => 'fas fa-graduation-cap',
+            'color' => 'warning',
+            'link' => route('admin.trainings')
+        ])
+        @include('components.stat-card', [
+            'col' => 'col-6 col-xl-3 mb-3',
+            'title' => 'طلبات التدريب',
+            'value' => $applicationsCount ?? 0,
+            'icon' => 'fas fa-file-alt',
+            'color' => 'info',
+            'link' => route('admin.applications.index')
+        ])
     </div>
 
+    <!-- 📈 المخططات البيانية التفاعلية -->
     <div class="row mb-4">
-        <div class="col-lg-6 mb-4">
-            <div class="bento-card h-100">
-                <div class="bento-card-header border-bottom border-secondary pb-3 mb-3">
-                    <h3 class="bento-card-title text-white fs-5">
-                        <i class="fas fa-file-alt me-2 text-warning"></i>أحدث طلبات التدريب
-                    </h3>
-                </div>
-                <div class="card-body p-0">
-                    @if($recentTrainingApplications->isEmpty())
-                        <p class="text-white-50 text-center py-4">لا توجد طلبات تدريب جديدة لعرضها.</p>
-                    @else
-                        <ul class="list-group list-group-flush bg-transparent">
-                            @foreach($recentTrainingApplications as $application)
-                                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent border-0 px-0 mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.05) !important;">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm me-3 bg-white bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-warning" style="width: 45px; height: 45px;">
-                                            <i class="fas fa-user-check fa-lg"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0 text-white">{{ $application->user->name ?? 'N/A' }}</h6>
-                                            <small class="text-white-50">برنامج: {{ $application->training->name ?? 'N/A' }}</small>
-                                        </div>
-                                    </div>
-                                    <span class="bento-badge bento-badge-{{ $application->status == 'pending' ? 'warning' : ($application->status == 'approved' ? 'success' : 'danger') }}">
-                                        {{ $application->status == 'pending' ? 'معلق' : ($application->status == 'approved' ? 'موافق عليه' : 'مرفوض') }}
-                                    </span>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
+        <!-- مخطط توزيع المستخدمين حسب الدور -->
+        <div class="col-12 col-lg-6 mb-3 mb-lg-4">
+            <div class="card-modern h-100 p-3 p-md-4">
+                <h5 class="fw-bold text-dark mb-3 fs-6">
+                    <i class="fas fa-chart-pie me-2 text-primary"></i> توزيع المستخدمين حسب الدور
+                </h5>
+                <div style="position: relative; height: 230px; width: 100%;">
+                    <canvas id="usersByRoleChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-6 mb-4">
-            <div class="bento-card h-100">
-                <div class="bento-card-header border-bottom border-secondary pb-3 mb-3">
-                    <h3 class="bento-card-title text-white fs-5">
-                        <i class="fas fa-briefcase me-2 text-success"></i>أحدث فرص العمل
-                    </h3>
+        <!-- مخطط حالة الشركات -->
+        <div class="col-12 col-lg-6 mb-3 mb-lg-4">
+            <div class="card-modern h-100 p-3 p-md-4">
+                <h5 class="fw-bold text-dark mb-3 fs-6">
+                    <i class="fas fa-chart-bar me-2 text-success"></i> حالة الشركات
+                </h5>
+                <div style="position: relative; height: 230px; width: 100%;">
+                    <canvas id="companiesByStatusChart"></canvas>
                 </div>
-                <div class="card-body p-0">
-                    @if($recentJobOpportunities->isEmpty())
-                        <p class="text-white-50 text-center py-4">لا توجد فرص عمل جديدة لعرضها.</p>
-                    @else
-                        <ul class="list-group list-group-flush bg-transparent">
-                            @foreach($recentJobOpportunities as $job)
-                                <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent border-0 px-0 mb-2" style="border-bottom: 1px solid rgba(255,255,255,0.05) !important;">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm me-3 bg-white bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center text-success" style="width: 45px; height: 45px;">
-                                            <i class="fas fa-tag fa-lg"></i>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0 text-white text-truncate" style="max-width: 200px;">{{ $job->title }}</h6>
-                                            <small class="text-white-50">الشركة: {{ $job->company->name ?? 'N/A' }}</small>
-                                        </div>
-                                    </div>
-                                    <span class="bento-badge bento-badge-{{ $job->status == 'active' ? 'success' : 'primary' }}">
-                                        {{ $job->status == 'active' ? 'نشط' : 'غير نشط' }}
-                                    </span>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
+            </div>
+        </div>
+
+        <!-- مخطط حالة التوظيف -->
+        <div class="col-12 col-lg-6 mb-3 mb-lg-4">
+            <div class="card-modern h-100 p-3 p-md-4">
+                <h5 class="fw-bold text-dark mb-3 fs-6">
+                    <i class="fas fa-chart-doughnut me-2 text-info"></i> حالة توظيف الخريجين
+                </h5>
+                <div style="position: relative; height: 230px; width: 100%;">
+                    <canvas id="employmentStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- مخطط النشاط الشهري -->
+        <div class="col-12 col-lg-6 mb-3 mb-lg-4">
+            <div class="card-modern h-100 p-3 p-md-4">
+                <h5 class="fw-bold text-dark mb-3 fs-6">
+                    <i class="fas fa-chart-line me-2 text-warning"></i> النشاط الشهري لطلبات التدريب
+                </h5>
+                <div style="position: relative; height: 230px; width: 100%;">
+                    <canvas id="monthlyActivityChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- 📋 القوائم السريعة والأنشطة الحديثة -->
     <div class="row mb-4">
-        <div class="col-12">
-            <div class="bento-card">
-                <div class="bento-card-header border-bottom border-secondary pb-3 mb-4">
-                    <h3 class="bento-card-title text-white fs-4">
-                        <i class="fas fa-bolt me-2 text-gold"></i>إجراءات سريعة
-                    </h3>
+        <!-- أحدث المستخدمين -->
+        <div class="col-12 col-lg-6 mb-3 mb-lg-4">
+            <div class="card-modern h-100 p-3 p-md-4">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                    <h5 class="fw-bold text-dark fs-6 mb-0">
+                        <i class="fas fa-user-plus me-2 text-primary"></i> أحدث المستخدمين
+                    </h5>
+                    <a href="{{ route('admin.users') }}" class="btn btn-sm btn-link text-primary p-0 text-decoration-none">عرض الكل</a>
                 </div>
-                <div class="card-body p-0">
-                    <div class="row g-3">
-                        <!-- إدارة الشركات -->
-                        <div class="col-md-3">
-                            <a href="{{ route('admin.companies.create') }}" class="btn-bento w-100 d-block text-center text-decoration-none">
-                                <i class="fas fa-plus me-2"></i>إضافة شركة
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="{{ route('admin.companies') }}" class="btn-bento-outline w-100 d-block text-center text-decoration-none">
-                                <i class="fas fa-building me-2"></i>إدارة الشركات
-                            </a>
-                        </div>
-                        <!-- إدارة برامج التدريب -->
-                        <div class="col-md-3">
-                            <a href="{{ route('admin.trainings.create') }}" class="btn-bento w-100 d-block text-center text-decoration-none" style="background: linear-gradient(135deg, #10b981, #059669);">
-                                <i class="fas fa-plus me-2"></i>إضافة تدريب
-                            </a>
-                        </div>
-                        <div class="col-md-3">
-                            <a href="{{ route('admin.trainings') }}" class="btn-bento-outline w-100 d-block text-center text-decoration-none">
-                                <i class="fas fa-graduation-cap me-2"></i>برامج التدريب
-                            </a>
-                        </div>
-                        <!-- إدارة المستخدمين -->
-                        <div class="col-md-3">
-                            <a href="{{ route('admin.users') }}" class="btn-bento-outline w-100 d-block text-center text-decoration-none">
-                                <i class="fas fa-users me-2"></i>إدارة المستخدمين
-                            </a>
-                        </div>
-                        <!-- التقارير -->
-                        <div class="col-md-3">
-                            <a href="{{ route('admin.reports.index') }}" class="btn-bento-outline w-100 d-block text-center text-decoration-none" style="border-color: var(--bento-gold); color: var(--bento-gold);">
-                                <i class="fas fa-chart-bar me-2"></i>التقارير
-                            </a>
-                        </div>
-                        <!-- طلبات التدريب -->
-                        <div class="col-md-3">
-                            <a href="{{ route('admin.applications.index') }}" class="btn-bento-outline w-100 d-block text-center text-decoration-none">
-                                <i class="fas fa-file-alt me-2"></i>طلبات التدريب
-                            </a>
-                        </div>
+                @if($recentUsers->isEmpty())
+                    <p class="text-muted text-center py-4 mb-0 small">لا يوجد مستخدمون جدد لعرضهم</p>
+                @else
+                    <div class="d-flex flex-column gap-2">
+                        @foreach($recentUsers as $user)
+                            <div class="d-flex justify-content-between align-items-center p-2 rounded-3" style="background: #f8fafc;">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="rounded-circle bg-light-primary text-primary d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                                        {{ mb_substr($user->name, 0, 1) }}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 text-dark fw-bold" style="font-size: 0.85rem;">{{ $user->name }}</h6>
+                                        <small class="text-muted" style="font-size: 0.72rem;">{{ $user->email }}</small>
+                                    </div>
+                                </div>
+                                <span class="badge bg-light text-primary border border-primary rounded-pill px-2 py-1" style="font-size: 0.7rem;">
+                                    {{ $user->role_name ?? $user->role }}
+                                </span>
+                            </div>
+                        @endforeach
                     </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- أحدث الشركات -->
+        <div class="col-12 col-lg-6 mb-3 mb-lg-4">
+            <div class="card-modern h-100 p-3 p-md-4">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                    <h5 class="fw-bold text-dark fs-6 mb-0">
+                        <i class="fas fa-building me-2 text-info"></i> أحدث الشركات
+                    </h5>
+                    <a href="{{ route('admin.companies') }}" class="btn btn-sm btn-link text-info p-0 text-decoration-none">عرض الكل</a>
                 </div>
+                @if($recentCompanies->isEmpty())
+                    <p class="text-muted text-center py-4 mb-0 small">لا توجد شركات جديدة لعرضها</p>
+                @else
+                    <div class="d-flex flex-column gap-2">
+                        @foreach($recentCompanies as $company)
+                            <div class="d-flex justify-content-between align-items-center p-2 rounded-3" style="background: #f8fafc;">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="rounded-circle bg-light text-info d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; font-size: 0.9rem;">
+                                        <i class="fas fa-industry"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 text-dark fw-bold" style="font-size: 0.85rem;">{{ $company->name }}</h6>
+                                        <small class="text-muted" style="font-size: 0.72rem;">{{ $company->email }}</small>
+                                    </div>
+                                </div>
+                                <span class="badge rounded-pill px-2 py-1 {{ $company->is_approved ? 'bg-success text-white' : 'bg-warning text-dark' }}" style="font-size: 0.7rem;">
+                                    {{ $company->is_approved ? 'معتمدة' : 'قيد الانتظار' }}
+                                </span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
     </div>
 
-@endsection
+    <!-- ⚡ إجراءات سريعة للمدير -->
+    <div class="card-modern mb-4 p-3 p-md-4">
+        <div class="border-bottom pb-2 mb-3">
+            <h5 class="fw-bold text-dark fs-6 mb-0">
+                <i class="fas fa-bolt me-2 text-warning"></i> إجراءات سريعة
+            </h5>
+        </div>
+        <div class="row g-2">
+            <div class="col-6 col-md-3">
+                <a href="{{ route('admin.companies.create') }}" class="btn btn-outline-primary w-100 rounded-3 py-2 text-nowrap" style="font-size: 0.8rem;">
+                    <i class="fas fa-plus me-1"></i> إضافة شركة
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{{ route('admin.trainings.create') }}" class="btn btn-outline-success w-100 rounded-3 py-2 text-nowrap" style="font-size: 0.8rem;">
+                    <i class="fas fa-plus-circle me-1"></i> إضافة تدريب
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{{ route('job-fair.admin.create') }}" class="btn btn-outline-warning w-100 rounded-3 py-2 text-nowrap" style="font-size: 0.8rem;">
+                    <i class="fas fa-store me-1"></i> إنشاء معرض توظيف
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{{ route('admin.reports.index') }}" class="btn btn-outline-info w-100 rounded-3 py-2 text-nowrap" style="font-size: 0.8rem;">
+                    <i class="fas fa-chart-bar me-1"></i> تقارير النظام
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 
-@section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // بيانات المخططات من PHP
-            const chartData = @json($chartData);
+<!-- Chart.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const commonChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    rtl: true,
+                    labels: {
+                        boxWidth: 12,
+                        padding: 8,
+                        font: { family: 'Tajawal', size: 11 }
+                    }
+                }
+            }
+        };
 
-            // تهيئة المخططات
-            initDashboardCharts(chartData);
+        // 1. Users by Role (من قاعدة البيانات الفعلية)
+        new Chart(document.getElementById('usersByRoleChart'), {
+            type: 'doughnut',
+            data: {
+                labels: {!! json_encode($chartsData['usersByRole']['labels'] ?? []) !!},
+                datasets: [{
+                    data: {!! json_encode($chartsData['usersByRole']['data'] ?? []) !!},
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#64748b'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: commonChartOptions
         });
 
-        function initDashboardCharts(chartData) {
-            // مخطط توزيع المستخدمين حسب الدور
-            const usersByRoleCtx = document.getElementById('usersByRoleChart');
-            if (usersByRoleCtx && chartData.usersByRole) {
-                new Chart(usersByRoleCtx, {
-                    type: 'bar',
-                    data: chartData.usersByRole,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top',
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'عدد المستخدمين'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
+        // 2. Companies by Status (من قاعدة البيانات الفعلية)
+        new Chart(document.getElementById('companiesByStatusChart'), {
+            type: 'pie',
+            data: {
+                labels: {!! json_encode($chartsData['companiesByStatus']['labels'] ?? []) !!},
+                datasets: [{
+                    data: {!! json_encode($chartsData['companiesByStatus']['data'] ?? []) !!},
+                    backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: commonChartOptions
+        });
 
-            // مخطط حالة الشركات
-            const companiesByStatusCtx = document.getElementById('companiesByStatusChart');
-            if (companiesByStatusCtx && chartData.companiesByStatus) {
-                new Chart(companiesByStatusCtx, {
-                    type: 'doughnut',
-                    data: chartData.companiesByStatus,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                            }
-                        },
-                        cutout: '60%'
-                    }
-                });
+        // 3. Employment Status (من قاعدة البيانات الفعلية)
+        new Chart(document.getElementById('employmentStatusChart'), {
+            type: 'bar',
+            data: {
+                labels: {!! json_encode($chartsData['employmentStatus']['labels'] ?? []) !!},
+                datasets: [{
+                    label: 'العدد',
+                    data: {!! json_encode($chartsData['employmentStatus']['data'] ?? []) !!},
+                    backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#06b6d4', '#ef4444'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                ...commonChartOptions,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { precision: 0, stepSize: 1 } } }
             }
+        });
 
-            // مخطط حالة التوظيف
-            const employmentStatusCtx = document.getElementById('employmentStatusChart');
-            if (employmentStatusCtx && chartData.employmentStatus) {
-                new Chart(employmentStatusCtx, {
-                    type: 'pie',
-                    data: chartData.employmentStatus,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                            }
-                        }
-                    }
-                });
+        // 4. Monthly Activity (من قاعدة البيانات الفعلية)
+        new Chart(document.getElementById('monthlyActivityChart'), {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($chartsData['monthlyActivity']['labels'] ?? []) !!},
+                datasets: [{
+                    label: 'طلبات التدريب',
+                    data: {!! json_encode($chartsData['monthlyActivity']['data'] ?? []) !!},
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#3b82f6'
+                }]
+            },
+            options: {
+                ...commonChartOptions,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { precision: 0, stepSize: 1 } } }
             }
-
-            // مخطط النشاط الشهري
-            const monthlyActivityCtx = document.getElementById('monthlyActivityChart');
-            if (monthlyActivityCtx && chartData.monthlyActivity) {
-                new Chart(monthlyActivityCtx, {
-                    type: 'line',
-                    data: chartData.monthlyActivity,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'عدد الطلبات'
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-        }
-
-        // Live Dashboard Updates
-        setInterval(function() {
-            fetch('{{ route('admin.dashboard.live-stats') }}')
-                .then(response => response.json())
-                .then(data => {
-                    // Update stats cards with smooth animation if value changed
-                    updateStatWithAnimation('stat-companies', data.companiesCount);
-                    updateStatWithAnimation('stat-users', data.usersCount);
-                    updateStatWithAnimation('stat-trainings', data.approvedTrainingsCount);
-                    updateStatWithAnimation('stat-applications', data.applicationsCount);
-                })
-                .catch(error => console.error('Error fetching live stats:', error));
-        }, 10000); // Poll every 10 seconds
-
-        function updateStatWithAnimation(elementId, newValue) {
-            const el = document.getElementById(elementId);
-            if (el && el.innerText != newValue) {
-                el.style.opacity = '0';
-                setTimeout(() => {
-                    el.innerText = newValue;
-                    el.style.opacity = '1';
-                }, 300);
-            }
-        }
-    </script>
+        });
+    });
+</script>
 @endsection

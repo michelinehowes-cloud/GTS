@@ -2,52 +2,60 @@
 
 @section('title', 'إدارة الخريجين - مسؤول الإرشاد المهني')
 
+@push('styles')
+<style>
+    .action-circle-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        padding: 0;
+        line-height: 1;
+    }
+    .action-circle-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    }
+    .action-circle-btn i { margin: 0 !important; }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4 p-4 rounded-4 shadow-sm border-start border-4 border-primary bg-white">
-                <div>
-                    <h1 class="h3 mb-2 text-primary font-weight-bold">
-                        <i class="fas fa-users-graduate me-2"></i>إدارة بيانات الخريجين
-                    </h1>
-                    <p class="text-muted mb-0">عرض وإدارة قائمة الخريجين المسجلين في النظام</p>
-                </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ route('admin.career-guidance.graduates.create') }}" class="btn btn-primary-modern">
-                        <i class="fas fa-user-plus me-2"></i>إضافة خريج جديد
-                    </a>
-                    <button class="btn btn-outline-success-modern" data-bs-toggle="modal" data-bs-target="#importGraduatesModal">
-                        <i class="fas fa-file-import me-2"></i>استيراد Excel
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    @include('components.breadcrumbs', [
+        'items' => [
+            ['label' => 'الرئيسية', 'url' => route('admin.dashboard')],
+            ['label' => 'إدارة الخريجين', 'active' => true],
+        ]
+    ])
 
     <!-- رسائل التنبيه -->
     @if(session('import_errors'))
-        <div class="alert alert-danger">
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert">
             <h6><i class="fas fa-exclamation-triangle me-2"></i>أخطاء في الاستيراد:</h6>
             <ul class="mb-0">
                 @foreach(session('import_errors') as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
     @if(session('success'))
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle me-2"></i>
-            {{ session('success') }}
+        <div class="alert alert-success alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
     @if(session('error'))
-        <div class="alert alert-danger">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            {{ session('error') }}
+        <div class="alert alert-danger alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
@@ -145,100 +153,140 @@
     </div>
 
     <!-- جدول الخريجين -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card-modern">
-                <div class="card-body p-0">
-                    @if($graduates->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead class="bg-light text-muted">
-                                    <tr>
-                                        <th class="py-3 px-4 border-0" width="50">#</th>
-                                        <th class="py-3 border-0">الخريج</th>
-                                        <th class="py-3 border-0">التخصص</th>
-                                        <th class="py-3 border-0 text-center">سنة التخرج</th>
-                                        <th class="py-3 border-0 text-center">المعدل</th>
-                                        <th class="py-3 border-0 text-center">حالة التوظيف</th>
-                                        <th class="py-3 border-0 text-center">الترشيحات</th>
-                                        <th class="py-3 border-0 text-center" width="150">الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($graduates as $graduate)
-                                    <tr>
-                                        <td class="px-4 text-muted fw-bold">{{ $loop->iteration }}</td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; font-weight: bold;">
-                                                    {{ mb_substr($graduate->name, 0, 1) }}
-                                                </div>
-                                                <div>
-                                                    <h6 class="mb-0 fw-bold text-dark">{{ $graduate->name }}</h6>
-                                                    <small class="text-muted">{{ $graduate->email }}</small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td><span class="badge bg-light text-dark border">{{ $graduate->major }}</span></td>
-                                        <td class="text-center fw-bold text-secondary">{{ $graduate->graduation_year }}</td>
-                                        <td class="text-center">
-                                            @if($graduate->gpa)
-                                                <span class="badge" style="background: rgba(14, 165, 233, 0.15); color: #0ea5e9;">{{ $graduate->gpa }}</span>
-                                            @else
-                                                <span class="text-muted">-</span>
-                                            @endif
-                                        </td>
-                                        <td class="text-center">
-                                            @if($graduate->employment_status == 'employed')
-                                                <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">موظف</span>
-                                            @elseif($graduate->employment_status == 'seeking_opportunities')
-                                                <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">باحث عن عمل</span>
-                                            @elseif($graduate->employment_status == 'continuing_education')
-                                                <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">مستكمل للدراسة</span>
-                                            @else
-                                                <span class="badge" style="background: rgba(107, 114, 128, 0.15); color: #6b7280;">غير موظف</span>
-                                            @endif
-                                        </td>
-                                        <td class="text-center">
-                                            <div class="d-flex flex-column align-items-center gap-1">
-                                                <span class="badge bg-primary rounded-pill">{{ $graduate->nominations_count }}</span>
-                                                @if($graduate->accepted_nominations_count > 0)
-                                                    <span class="badge bg-success rounded-pill" style="font-size: 0.7rem;">{{ $graduate->accepted_nominations_count }} مقبول</span>
-                                                @endif
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <div class="d-flex justify-content-center gap-2">
-                                                <a href="{{ route('admin.career-guidance.graduates.show', $graduate->id) }}" class="btn btn-sm btn-primary-modern rounded-circle" style="width: 32px; height: 32px; padding: 0; line-height: 32px;" title="عرض التفاصيل">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="{{ route('admin.career-guidance.graduates.edit', $graduate->id) }}" class="btn btn-sm btn-secondary-modern rounded-circle" style="width: 32px; height: 32px; padding: 0; line-height: 32px;" title="تعديل">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a href="#" class="btn btn-sm btn-success text-white rounded-circle" style="width: 32px; height: 32px; padding: 0; line-height: 32px; border-radius: 50% !important;" title="ترشيح لفرصة">
-                                                    <i class="fas fa-paper-plane"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-center py-5">
-                            <div class="mb-3">
-                                <i class="fas fa-users-slash text-muted" style="font-size: 4rem; opacity: 0.5;"></i>
-                            </div>
-                            <h5 class="text-muted fw-bold">لا توجد بيانات خريجين</h5>
-                            <p class="text-muted mb-4">يمكنك البدء بإضافة خريجين جدد أو استيرادهم من ملف Excel</p>
-                            <a href="{{ route('admin.career-guidance.graduates.create') }}" class="btn btn-primary-modern">
-                                <i class="fas fa-plus me-2"></i>إضافة أول خريج
-                            </a>
-                        </div>
-                    @endif
+    <div class="card-modern">
+        <div class="card-header bg-white py-3 border-bottom">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h5 class="card-title mb-0 text-primary fw-bold fs-6">
+                    <i class="fas fa-user-graduate me-2"></i>قائمة الخريجين المسجلين
+                </h5>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('admin.career-guidance.graduates.create') }}" class="btn btn-primary-modern btn-sm">
+                        <i class="fas fa-user-plus me-1"></i>إضافة خريج
+                    </a>
+                    <button class="btn btn-sm btn-outline-success action-circle-btn px-3" style="width:auto;border-radius:8px;" data-bs-toggle="modal" data-bs-target="#importGraduatesModal">
+                        <i class="fas fa-file-import me-1"></i>استيراد Excel
+                    </button>
                 </div>
             </div>
+        </div>
+
+        <div class="card-body p-0">
+            @if($graduates->count() > 0)
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="py-3 px-4 border-0 text-secondary small text-uppercase fw-bold" width="50">#</th>
+                                <th class="py-3 border-0 text-secondary small text-uppercase fw-bold">الخريج</th>
+                                <th class="py-3 border-0 text-secondary small text-uppercase fw-bold">التخصص والجامعة</th>
+                                <th class="py-3 border-0 text-secondary small text-uppercase fw-bold text-center">سنة التخرج</th>
+                                <th class="py-3 border-0 text-secondary small text-uppercase fw-bold text-center">المعدل</th>
+                                <th class="py-3 border-0 text-secondary small text-uppercase fw-bold" width="160">حالة التوظيف</th>
+                                <th class="py-3 border-0 text-secondary small text-uppercase fw-bold text-center" width="110">الترشيحات</th>
+                                <th class="py-3 px-4 border-0 text-secondary small text-uppercase fw-bold text-end" width="140">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-top-0">
+                            @foreach($graduates as $graduate)
+                            <tr>
+                                <td class="px-4 text-muted">{{ $loop->iteration }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-light text-primary rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width: 36px; height: 36px;">
+                                            <span class="fw-bold">{{ mb_substr($graduate->name, 0, 1) }}</span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">{{ $graduate->name }}</div>
+                                            <small class="text-muted">{{ $graduate->email }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark">{{ $graduate->major }}</div>
+                                    @if($graduate->university)
+                                        <small class="text-muted"><i class="fas fa-university me-1"></i>{{ $graduate->university }}</small>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    <span class="fw-bold text-secondary">{{ $graduate->graduation_year }}</span>
+                                </td>
+                                <td class="text-center">
+                                    @if($graduate->gpa)
+                                        <span class="badge bg-info bg-opacity-10 text-info border border-info rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.75rem;">
+                                            {{ $graduate->gpa }}%
+                                        </span>
+                                    @else
+                                        <span class="text-muted small">--</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($graduate->employment_status == 'employed')
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.75rem;">
+                                            <i class="fas fa-briefcase me-1"></i>موظف
+                                        </span>
+                                    @elseif($graduate->employment_status == 'seeking_opportunities')
+                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.75rem;">
+                                            <i class="fas fa-search me-1"></i>باحث عن عمل
+                                        </span>
+                                    @elseif($graduate->employment_status == 'continuing_education')
+                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.75rem;">
+                                            <i class="fas fa-graduation-cap me-1"></i>مستكمل للدراسة
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.75rem;">
+                                            <i class="fas fa-times-circle me-1"></i>غير موظف
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.75rem;">
+                                        {{ $graduate->nominations_count }}
+                                    </span>
+                                    @if($graduate->accepted_nominations_count > 0)
+                                        <div class="mt-1">
+                                            <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-2 py-1 fw-semibold" style="font-size: 0.7rem;">
+                                                {{ $graduate->accepted_nominations_count }} مقبول
+                                            </span>
+                                        </div>
+                                    @endif
+                                </td>
+                                <td class="px-4 text-end">
+                                    <div class="d-flex align-items-center justify-content-end gap-1">
+                                        <a href="{{ route('admin.career-guidance.graduates.show', $graduate->id) }}"
+                                           class="btn btn-sm btn-outline-primary action-circle-btn"
+                                           data-bs-toggle="tooltip" title="عرض التفاصيل">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ route('admin.career-guidance.graduates.edit', $graduate->id) }}"
+                                           class="btn btn-sm btn-outline-secondary action-circle-btn"
+                                           data-bs-toggle="tooltip" title="تعديل">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="#"
+                                           class="btn btn-sm btn-success action-circle-btn"
+                                           data-bs-toggle="tooltip" title="ترشيح لفرصة">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-user-graduate fa-3x text-muted opacity-50"></i>
+                        </div>
+                    </div>
+                    <h5 class="text-muted mb-3">لا توجد بيانات خريجين</h5>
+                    <a href="{{ route('admin.career-guidance.graduates.create') }}" class="btn btn-primary-modern">
+                        <i class="fas fa-plus me-2"></i>إضافة أول خريج
+                    </a>
+                </div>
+            @endif
         </div>
     </div>
 </div>
@@ -398,4 +446,15 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
+</script>
 @endsection

@@ -53,11 +53,23 @@ function getNavItemsByRole(role) {
             { url: '/notifications', icon: 'fas fa-bell', label: 'الإشعارات', badge: getUnreadCount() },
             { url: '/graduate/profile', icon: 'fas fa-user', label: 'الملف' },
         ],
+        'training_coordinator': [
+            { url: '/coordinator/trainings', icon: 'fas fa-graduation-cap', label: 'التدريب' },
+            { url: '/coordinator/applications', icon: 'fas fa-users', label: 'الطلبات' },
+            { url: '/coordinator/calendar', icon: 'fas fa-calendar-alt', label: 'التقويم' },
+            { url: '/coordinator/reports', icon: 'fas fa-chart-bar', label: 'التقارير' },
+        ],
         'admin': [
-            { url: '/admin/graduates', icon: 'fas fa-users', label: 'الخريجين' },
-            { url: '/trainings', icon: 'fas fa-chalkboard-teacher', label: 'التدريبات' },
-            { url: '/notifications', icon: 'fas fa-bell', label: 'الإشعارات', badge: getUnreadCount() },
-            { url: '/admin/reports', icon: 'fas fa-chart-bar', label: 'التقارير' },
+            { url: '/admin/users', icon: 'fas fa-users-cog', label: 'المستخدمين' },
+            { url: '/admin/trainings', icon: 'fas fa-graduation-cap', label: 'التدريب' },
+            { url: '/admin/companies', icon: 'fas fa-building', label: 'الشركات' },
+            { url: '/admin/applications', icon: 'fas fa-clipboard-list', label: 'الطلبات' },
+        ],
+        'company': [
+            { url: '/company/profile', icon: 'fas fa-building', label: 'الملف' },
+            { url: '/job-opportunities', icon: 'fas fa-briefcase', label: 'الفرص' },
+            { url: '/company/job-fairs', icon: 'fas fa-store', label: 'المعارض' },
+            { url: '/messages', icon: 'fas fa-envelope', label: 'الرسائل' },
         ],
         'career_guidance_officer': [
             { url: '/career-guidance/graduates', icon: 'fas fa-users', label: 'الخريجين' },
@@ -68,8 +80,20 @@ function getNavItemsByRole(role) {
         'partnership_officer': [
             { url: '/partnership/companies', icon: 'fas fa-building', label: 'الشركات' },
             { url: '/partnership/nominations', icon: 'fas fa-handshake', label: 'الترشيحات' },
-            { url: '/notifications', icon: 'fas fa-bell', label: 'الإشعارات', badge: getUnreadCount() },
             { url: '/job-opportunities', icon: 'fas fa-briefcase', label: 'الفرص' },
+            { url: '/partnership/reports', icon: 'fas fa-chart-line', label: 'التقارير' },
+        ],
+        'evaluation_followup': [
+            { url: '/evaluation-followup/surveys', icon: 'fas fa-poll-h', label: 'الاستبيانات' },
+            { url: '/evaluation-followup/evaluations', icon: 'fas fa-star', label: 'التقييمات' },
+            { url: '/evaluation-followup/training-calendar', icon: 'fas fa-calendar-alt', label: 'التقويم' },
+            { url: '/evaluation-followup/evaluation-reports', icon: 'fas fa-chart-pie', label: 'التقارير' },
+        ],
+        'media_officer': [
+            { url: '/media/gallery', icon: 'fas fa-photo-video', label: 'الوسائط' },
+            { url: '/media/news', icon: 'fas fa-newspaper', label: 'الأخبار' },
+            { url: '/media/announcements', icon: 'fas fa-bullhorn', label: 'الإعلانات' },
+            { url: '/media/reports', icon: 'fas fa-chart-bar', label: 'التقارير' },
         ],
     };
 
@@ -95,7 +119,9 @@ function isCurrentPage(url) {
 
 function getUnreadCount() {
     const badge = document.getElementById('notification-badge');
-    return badge ? badge.textContent : null;
+    if (!badge) return null;
+    const count = parseInt(badge.textContent.replace(/\D/g, ''), 10);
+    return count > 0 ? (count > 99 ? '99+' : count.toString()) : null;
 }
 
 function createFAB() {
@@ -148,11 +174,22 @@ function getFABActionsByRole(role) {
         'graduate': [
             { url: '/graduate/trainings', icon: 'fas fa-graduation-cap', label: 'تصفح التدريبات' },
             { url: '/graduate/job-opportunities', icon: 'fas fa-briefcase', label: 'تصفح الوظائف' },
+            { url: '/graduate/profile', icon: 'fas fa-user-edit', label: 'تعديل الملف' },
+        ],
+        'training_coordinator': [
+            { url: '/coordinator/trainings/create', icon: 'fas fa-plus-circle', label: 'إضافة برنامج تدريب' },
+            { url: '/coordinator/applications', icon: 'fas fa-clipboard-check', label: 'إدارة الطلبات' },
+            { url: '/coordinator/calendar', icon: 'fas fa-calendar-alt', label: 'تقويم التدريبات' },
         ],
         'admin': [
-            { url: '/admin/graduates/create', icon: 'fas fa-user-plus', label: 'إضافة خريج' },
-            { url: '/trainings/create', icon: 'fas fa-plus-circle', label: 'إضافة تدريب' },
+            { url: '/admin/career-guidance/graduates/create', icon: 'fas fa-user-plus', label: 'إضافة خريج' },
+            { url: '/admin/trainings/create', icon: 'fas fa-plus-circle', label: 'إضافة تدريب' },
+            { url: '/admin/companies', icon: 'fas fa-building', label: 'إدارة الشركات' },
             { url: '/job-opportunities/create', icon: 'fas fa-briefcase', label: 'إضافة وظيفة' },
+        ],
+        'company': [
+            { url: '/job-opportunities/create', icon: 'fas fa-plus-circle', label: 'نشر فرصة عمل' },
+            { url: '/company/profile', icon: 'fas fa-building', label: 'ملف الشركة' },
         ],
         'career_guidance_officer': [
             { url: '/career-guidance/graduates/create', icon: 'fas fa-user-plus', label: 'إضافة خريج' },
@@ -161,6 +198,14 @@ function getFABActionsByRole(role) {
         'partnership_officer': [
             { url: '/partnership/companies/create', icon: 'fas fa-building', label: 'إضافة شركة' },
             { url: '/job-opportunities/create', icon: 'fas fa-briefcase', label: 'إضافة فرصة' },
+        ],
+        'evaluation_followup': [
+            { url: '/evaluation-followup/surveys/create', icon: 'fas fa-poll-h', label: 'إنشاء استبيان' },
+            { url: '/evaluation-followup/evaluations/create', icon: 'fas fa-star', label: 'إضافة تقييم' },
+        ],
+        'media_officer': [
+            { url: '/media/upload', icon: 'fas fa-cloud-upload-alt', label: 'رفع وسائط' },
+            { url: '/media/news/create', icon: 'fas fa-newspaper', label: 'إضافة خبر' },
         ],
     };
 

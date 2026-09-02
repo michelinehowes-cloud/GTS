@@ -354,12 +354,51 @@ function logErrorToServer(error) {
     }
 }
 
+// ==================== UTILITY FUNCTIONS ====================
+
+/**
+ * عرض رسالة خطأ تحت عنصر الإدخال
+ */
+function showErrorMessage(input, message) {
+    removeErrorMessage(input);
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'invalid-feedback d-block';
+    errorDiv.dataset.errorFor = input.id || input.name || 'unknown';
+    errorDiv.textContent = message;
+    input.classList.add('is-invalid');
+    input.parentNode.appendChild(errorDiv);
+}
+
+/**
+ * إزالة رسالة الخطأ من عنصر الإدخال
+ */
+function removeErrorMessage(input) {
+    input.classList.remove('is-invalid');
+    const key = input.id || input.name || 'unknown';
+    const existing = input.parentNode.querySelector(`[data-error-for="${key}"]`);
+    if (existing) existing.remove();
+}
+
+/**
+ * التحقق من صحة إدخال واحد
+ */
+function validateInputLocal(input) {
+    const value = input.value.trim();
+    if (input.hasAttribute('required') && !value) {
+        showErrorMessage(input, 'هذا الحقل مطلوب');
+        return false;
+    }
+    removeErrorMessage(input);
+    input.classList.add('is-valid');
+    return true;
+}
+
 // تصدير الدوال للاستخدام العام
 window.advancedFeatures = {
-    validateInput,
-    showErrorMessage,
-    removeErrorMessage,
-    getRecentSearches,
-    saveRecentSearch,
-    handleError
+    validateInput:    validateInputLocal,
+    showErrorMessage: showErrorMessage,
+    removeErrorMessage: removeErrorMessage,
+    getRecentSearches: getRecentSearches,
+    saveRecentSearch:  saveRecentSearch,
+    handleError:       handleError
 };

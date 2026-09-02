@@ -376,6 +376,132 @@
             color: #ffffff;
         }
 
+        /* 10. تنسيقات نافذة تسجيل خريج جديد المنبثقة */
+        .modal-register-content {
+            border: none;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(13, 56, 130, 0.35);
+        }
+
+        .modal-register-header {
+            background: linear-gradient(135deg, #0d3882 0%, #1565c0 50%, #1e88e5 100%);
+            color: white;
+            padding: 26px 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 4px solid #f59e0b;
+        }
+
+        .modal-register-header h3 {
+            font-weight: 800;
+            font-size: 1.65rem;
+            margin-bottom: 6px;
+        }
+
+        .modal-register-body {
+            padding: 28px 32px;
+            background: #ffffff;
+            max-height: calc(85vh - 120px);
+            overflow-y: auto;
+        }
+
+        .reg-progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .reg-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .reg-step::before {
+            content: '';
+            position: absolute;
+            top: 18px;
+            right: 50%;
+            width: 100%;
+            height: 3px;
+            background: #e2e8f0;
+            z-index: 0;
+            transition: all 0.3s ease;
+        }
+
+        .reg-step:first-child::before {
+            display: none;
+        }
+
+        .reg-step.completed::before,
+        .reg-step.active::before {
+            background: #1565c0;
+        }
+
+        .reg-step-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #64748b;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .reg-step.active .reg-step-circle {
+            background: linear-gradient(135deg, #0d3882 0%, #1565c0 100%);
+            color: white;
+            box-shadow: 0 4px 14px rgba(21, 101, 192, 0.35);
+        }
+
+        .reg-step.completed .reg-step-circle {
+            background: #10b981;
+            color: white;
+        }
+
+        .reg-step-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 8px;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .reg-step.active .reg-step-label {
+            color: #1565c0;
+            font-weight: 700;
+        }
+
+        .reg-section-title {
+            color: #1565c0;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #f59e0b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-register-footer {
+            background: #f8fafc;
+            padding: 16px 24px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+
         @media (max-width: 768px) {
             .hero-section {
                 padding: 70px 0 100px;
@@ -385,6 +511,12 @@
             }
             .stats-ribbon {
                 margin-top: -45px;
+            }
+            .modal-register-body {
+                padding: 20px 16px;
+            }
+            .reg-step-label {
+                font-size: 0.75rem;
             }
         }
     </style>
@@ -444,9 +576,9 @@
                             <i class="fas fa-sign-in-alt text-primary"></i>
                             <span>تسجيل الدخول</span>
                         </button>
-                        <a href="{{ route('graduate.register') }}" class="btn btn-gold btn-sm rounded-pill px-3.5 py-1.5 fw-bold shadow-sm">
+                        <button type="button" class="btn btn-gold btn-sm rounded-pill px-3.5 py-1.5 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal">
                             <i class="fas fa-user-plus me-1"></i>تسجيل خريج
-                        </a>
+                        </button>
                     @endauth
                 </div>
             </div>
@@ -485,10 +617,10 @@
                         <i class="fas fa-sign-in-alt"></i>
                         <span>تسجيل الدخول</span>
                     </button>
-                    <a href="{{ route('graduate.register') }}" class="btn btn-outline-hero btn-lg d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-outline-hero btn-lg d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal">
                         <i class="fas fa-user-plus"></i>
                         <span>إنشاء حساب خريج جديد</span>
-                    </a>
+                    </button>
                 @endauth
                 <a href="#trainings" class="btn btn-outline-hero btn-lg d-flex align-items-center gap-2">
                     <i class="fas fa-graduation-cap"></i>
@@ -917,10 +1049,10 @@
                 <div class="col-lg-3 col-md-6 col-6">
                     <h6 class="text-white fw-bold mb-3 fs-6">البوابات والخدمات</h6>
                     <ul class="list-unstyled mb-0">
-                        <li><a href="{{ route('graduate.register') }}" class="footer-link">تسجيل خريج جديد</a></li>
+                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal" class="footer-link">تسجيل خريج جديد</a></li>
                         <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#loginModal" class="footer-link">تسجيل الدخول للنظام</a></li>
                         <li><a href="{{ route('job-fair.public') }}" class="footer-link">بوابة معرض التوظيف 2026</a></li>
-                        <li><a href="{{ route('password.request') }}" class="footer-link">استعادة كلمة المرور</a></li>
+                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" class="footer-link">استعادة كلمة المرور</a></li>
                     </ul>
                 </div>
 
@@ -966,6 +1098,13 @@
                     <p class="mb-0 text-white-50 small">مكتب تدريب وتأهيل الخريجين — جامعة طرابلس</p>
                 </div>
                 <div class="modal-login-body">
+                    @if(session('success'))
+                        <div class="alert alert-success border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
+                            <i class="fas fa-check-circle flex-shrink-0 fs-6 text-success"></i>
+                            <span class="fw-semibold">{{ session('success') }}</span>
+                        </div>
+                    @endif
+
                     @if(session('status'))
                         <div class="alert alert-success border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
                             <i class="fas fa-check-circle flex-shrink-0 fs-6 text-success"></i>
@@ -973,7 +1112,7 @@
                         </div>
                     @endif
 
-                    @if($errors->any() && !request('open_forgot') && !request('open_verify') && !old('reset_form') && !old('verify_form'))
+                    @if($errors->any() && !request('open_forgot') && !request('open_verify') && !request('open_register') && !old('reset_form') && !old('verify_form') && !old('from_register_modal'))
                         <div class="alert alert-danger border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
                             <i class="fas fa-exclamation-circle flex-shrink-0 fs-6 text-danger"></i>
                             <span class="fw-semibold">{{ $errors->first() }}</span>
@@ -1021,7 +1160,7 @@
                     <div class="text-center mt-4 pt-3 border-top">
                         <p class="text-muted small mb-0">
                             خريج جديد ولم تسجل بعد؟
-                            <a href="{{ route('graduate.register') }}" class="fw-bold text-decoration-none ms-1" style="color: #1565c0;">
+                            <a href="javascript:void(0)" id="btnOpenRegisterFromLogin" class="fw-bold text-decoration-none ms-1" style="color: #1565c0; cursor: pointer;">
                                 تسجيل خريج جديد <i class="fas fa-arrow-left ms-1 small"></i>
                             </a>
                         </p>
@@ -1163,14 +1302,419 @@
         </div>
     </div>
 
+    <!-- ==================== 14. نافذة تسجيل خريج جديد المنبثقة (Graduate Registration Modal) ==================== -->
+    <div class="modal fade" id="graduateRegisterModal" tabindex="-1" aria-labelledby="graduateRegisterModalLabel" aria-hidden="true" style="backdrop-filter: blur(8px);">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 860px;">
+            <div class="modal-content modal-register-content">
+                <!-- Header -->
+                <div class="modal-register-header position-relative">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 start-0 m-3 shadow-none" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                    <h3><i class="fas fa-user-graduate me-2 text-warning"></i> تسجيل خريج جديد</h3>
+                    <p class="text-white-50 mb-0 small">انضم إلينا للاستفادة من خدمات التدريب والتأهيل وفرص التوظيف المباشر</p>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-register-body">
+                    <!-- Progress Steps -->
+                    <div class="reg-progress-steps">
+                        <div class="reg-step active" id="modalStepIndicator1" onclick="switchRegStep(1)">
+                            <div class="reg-step-circle">1</div>
+                            <div class="reg-step-label">البيانات الشخصية</div>
+                        </div>
+                        <div class="reg-step" id="modalStepIndicator2" onclick="switchRegStep(2)">
+                            <div class="reg-step-circle">2</div>
+                            <div class="reg-step-label">البيانات الأكاديمية</div>
+                        </div>
+                        <div class="reg-step" id="modalStepIndicator3" onclick="switchRegStep(3)">
+                            <div class="reg-step-circle">3</div>
+                            <div class="reg-step-label">المهارات والخبرات</div>
+                        </div>
+                    </div>
+
+                    <!-- Errors -->
+                    @if ($errors->any() && (request('open_register') || old('from_register_modal')))
+                        <div class="alert alert-danger border-0 rounded-3 py-2.5 px-3 small mb-4 shadow-none">
+                            <strong class="d-flex align-items-center gap-2 mb-1">
+                                <i class="fas fa-exclamation-circle text-danger"></i>
+                                <span>يرجى تصحيح الأخطاء التالية:</span>
+                            </strong>
+                            <ul class="mb-0 ps-3">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <!-- Form -->
+                    <form method="POST" action="{{ route('graduate.register.store') }}" id="modalRegistrationForm">
+                        @csrf
+                        <input type="hidden" name="from_register_modal" value="1">
+
+                        <!-- Step 1: Personal Info -->
+                        <div class="reg-step-section" id="regSection1">
+                            <h5 class="reg-section-title">
+                                <i class="fas fa-user text-primary"></i>
+                                <span>البيانات الشخصية</span>
+                            </h5>
+
+                            <div class="row g-3 text-start text-rtl">
+                                <div class="col-md-6">
+                                    <label for="reg_name" class="form-label fw-bold text-dark small mb-1">
+                                        الاسم الرباعي <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control modal-login-input @error('name') is-invalid @enderror" id="reg_name"
+                                        name="name" value="{{ old('name') }}" required placeholder="الاسم كما هو في الهوية">
+                                    @error('name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="reg_national_id" class="form-label fw-bold text-dark small mb-1">
+                                        رقم القيد / الرقم الوطني <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control modal-login-input @error('national_id') is-invalid @enderror"
+                                        id="reg_national_id" name="national_id" value="{{ old('national_id') }}" required
+                                        placeholder="رقم القيد بالجامعة">
+                                    @error('national_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="reg_email" class="form-label fw-bold text-dark small mb-1">
+                                        البريد الإلكتروني <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="email" class="form-control modal-login-input @error('email') is-invalid @enderror" id="reg_email"
+                                        name="email" value="{{ old('email') }}" required placeholder="example@domain.com">
+                                    @error('email')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="reg_phone" class="form-label fw-bold text-dark small mb-1">
+                                        رقم الهاتف <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="tel" class="form-control modal-login-input @error('phone') is-invalid @enderror" id="reg_phone"
+                                        name="phone" value="{{ old('phone') }}" required placeholder="09xxxxxxxx">
+                                    @error('phone')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="reg_password" class="form-label fw-bold text-dark small mb-1">
+                                        كلمة المرور <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="position-relative">
+                                        <input type="password" class="form-control modal-login-input pe-5 @error('password') is-invalid @enderror"
+                                            id="reg_password" name="password" required minlength="8" placeholder="8 أحرف على الأقل">
+                                        <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 shadow-none border-0" id="btnToggleRegPass" style="z-index: 5;">
+                                            <i class="far fa-eye" id="iconToggleRegPass"></i>
+                                        </button>
+                                    </div>
+                                    @error('password')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="reg_password_confirmation" class="form-label fw-bold text-dark small mb-1">
+                                        تأكيد كلمة المرور <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="position-relative">
+                                        <input type="password" class="form-control modal-login-input pe-5" id="reg_password_confirmation"
+                                            name="password_confirmation" required minlength="8" placeholder="أعد كتابة كلمة المرور">
+                                        <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 shadow-none border-0" id="btnToggleRegConfirmPass" style="z-index: 5;">
+                                            <i class="far fa-eye" id="iconToggleRegConfirmPass"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="reg_date_of_birth" class="form-label fw-bold text-dark small mb-1">
+                                        تاريخ الميلاد <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="date" class="form-control modal-login-input @error('date_of_birth') is-invalid @enderror"
+                                        id="reg_date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}" required>
+                                    @error('date_of_birth')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="reg_gender" class="form-label fw-bold text-dark small mb-1">
+                                        الجنس <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select modal-login-input @error('gender') is-invalid @enderror" id="reg_gender"
+                                        name="gender" required>
+                                        <option value="">اختر الجنس</option>
+                                        <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>ذكر</option>
+                                        <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>أنثى</option>
+                                    </select>
+                                    @error('gender')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="reg_city" class="form-label fw-bold text-dark small mb-1">
+                                        المدينة <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control modal-login-input @error('city') is-invalid @enderror" id="reg_city"
+                                        name="city" value="{{ old('city', 'طرابلس') }}" required placeholder="طرابلس">
+                                    @error('city')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="reg_address" class="form-label fw-bold text-dark small mb-1">
+                                        العنوان بالتفصيل <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control modal-login-input @error('address') is-invalid @enderror"
+                                        id="reg_address" name="address" value="{{ old('address') }}" required
+                                        placeholder="الحي - الشارع">
+                                    @error('address')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-4 pt-2 border-top">
+                                <button type="button" class="btn btn-modal-login px-4 d-flex align-items-center gap-2" onclick="switchRegStep(2)">
+                                    <span>المتابعة: البيانات الأكاديمية</span>
+                                    <i class="fas fa-arrow-left"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Academic Info -->
+                        <div class="reg-step-section d-none" id="regSection2">
+                            <h5 class="reg-section-title">
+                                <i class="fas fa-graduation-cap text-primary"></i>
+                                <span>البيانات الأكاديمية</span>
+                            </h5>
+
+                            <div class="row g-3 text-start text-rtl">
+                                <div class="col-md-6">
+                                    <label for="university" class="form-label fw-bold text-dark small mb-1">
+                                        الجامعة <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select modal-login-input @error('university') is-invalid @enderror" id="university"
+                                        name="university" required>
+                                        <option value="جامعة طرابلس" selected>جامعة طرابلس</option>
+                                    </select>
+                                    @error('university')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="sector" class="form-label fw-bold text-dark small mb-1">
+                                        القطاع / القاطع <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select modal-login-input @error('sector') is-invalid @enderror" id="sector"
+                                        name="sector" required>
+                                        <option value="">اختر القطاع</option>
+                                    </select>
+                                    <input type="hidden" id="old_sector" value="{{ old('sector') }}">
+                                    @error('sector')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="faculty" class="form-label fw-bold text-dark small mb-1">
+                                        الكلية <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select modal-login-input @error('faculty') is-invalid @enderror" id="faculty"
+                                        name="faculty" required disabled>
+                                        <option value="">اختر الكلية</option>
+                                    </select>
+                                    <input type="hidden" id="old_faculty" value="{{ old('faculty') }}">
+                                    @error('faculty')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="qualification" class="form-label fw-bold text-dark small mb-1">
+                                        المؤهل العلمي <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select modal-login-input @error('qualification') is-invalid @enderror"
+                                        id="qualification" name="qualification" required>
+                                        <option value="">اختر المؤهل</option>
+                                        <option value="بكالوريوس" {{ old('qualification', 'بكالوريوس') == 'بكالوريوس' ? 'selected' : '' }}>بكالوريوس</option>
+                                        <option value="ليسانس" {{ old('qualification') == 'ليسانس' ? 'selected' : '' }}>ليسانس</option>
+                                        <option value="ماجستير" {{ old('qualification') == 'ماجستير' ? 'selected' : '' }}>ماجستير</option>
+                                        <option value="دكتوراه" {{ old('qualification') == 'دكتوراه' ? 'selected' : '' }}>دكتوراه</option>
+                                        <option value="دبلوم عالي" {{ old('qualification') == 'دبلوم عالي' ? 'selected' : '' }}>دبلوم عالي</option>
+                                    </select>
+                                    @error('qualification')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label for="specialization" class="form-label fw-bold text-dark small mb-1">
+                                        التخصص الأكاديمي <span class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select modal-login-input @error('specialization') is-invalid @enderror"
+                                        id="specialization" name="specialization" required disabled>
+                                        <option value="">اختر التخصص</option>
+                                    </select>
+                                    <input type="hidden" id="old_specialization" value="{{ old('specialization') }}">
+                                    @error('specialization')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="graduation_year" class="form-label fw-bold text-dark small mb-1">
+                                        سنة التخرج <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number" class="form-control modal-login-input @error('graduation_year') is-invalid @enderror"
+                                        id="graduation_year" name="graduation_year" value="{{ old('graduation_year', date('Y')) }}"
+                                        required min="1960" max="{{ date('Y') + 1 }}" placeholder="{{ date('Y') }}">
+                                    @error('graduation_year')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="gpa" class="form-label fw-bold text-dark small mb-1">
+                                        المعدل التراكمي (%)
+                                    </label>
+                                    <input type="number" class="form-control modal-login-input @error('gpa') is-invalid @enderror" id="gpa"
+                                        name="gpa" value="{{ old('gpa') }}" step="0.01" min="0" max="100"
+                                        placeholder="مثال: 85.50">
+                                    @error('gpa')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4 pt-2 border-top">
+                                <button type="button" class="btn btn-outline-secondary rounded-3 px-4 d-flex align-items-center gap-2" onclick="switchRegStep(1)">
+                                    <i class="fas fa-arrow-right"></i>
+                                    <span>السابق: البيانات الشخصية</span>
+                                </button>
+                                <button type="button" class="btn btn-modal-login px-4 d-flex align-items-center gap-2" onclick="switchRegStep(3)">
+                                    <span>المتابعة: المهارات والخبرات</span>
+                                    <i class="fas fa-arrow-left"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Skills & Experience -->
+                        <div class="reg-step-section d-none" id="regSection3">
+                            <h5 class="reg-section-title">
+                                <i class="fas fa-briefcase text-primary"></i>
+                                <span>المهارات والخبرات</span>
+                            </h5>
+
+                            <div class="row g-3 text-start text-rtl">
+                                <div class="col-12">
+                                    <label for="experiences" class="form-label fw-bold text-dark small mb-1">
+                                        الخبرة العملية السابقة (إن وجدت)
+                                    </label>
+                                    <textarea class="form-control modal-login-input @error('experiences') is-invalid @enderror"
+                                        id="experiences" name="experiences" rows="3"
+                                        placeholder="اذكر خبراتك العملية السابقة أو مشاريع التخرج والتدريبات الميدانية...">{{ old('experiences') }}</textarea>
+                                    @error('experiences')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="skills" class="form-label fw-bold text-dark small mb-1">
+                                        المهارات الشخصية والتقنية
+                                    </label>
+                                    <input type="text" class="form-control modal-login-input @error('skills') is-invalid @enderror"
+                                        id="skills" name="skills" value="{{ old('skills') }}"
+                                        placeholder="مثال: برمجة، تحليل بيانات، إدارة وقت">
+                                    <small class="text-muted" style="font-size: 0.78rem;">افصل بين المهارات بفاصلة (,)</small>
+                                    @error('skills')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="languages" class="form-label fw-bold text-dark small mb-1">
+                                        اللغات المتقنة
+                                    </label>
+                                    <input type="text" class="form-control modal-login-input @error('languages') is-invalid @enderror"
+                                        id="languages" name="languages" value="{{ old('languages', 'العربية، الإنجليزية') }}"
+                                        placeholder="العربية، الإنجليزية">
+                                    <small class="text-muted" style="font-size: 0.78rem;">افصل بين اللغات بفاصلة (,)</small>
+                                    @error('languages')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4 pt-2 border-top">
+                                <button type="button" class="btn btn-outline-secondary rounded-3 px-4 d-flex align-items-center gap-2" onclick="switchRegStep(2)">
+                                    <i class="fas fa-arrow-right"></i>
+                                    <span>السابق: البيانات الأكاديمية</span>
+                                </button>
+                                <button type="submit" class="btn btn-modal-login px-5 d-flex align-items-center gap-2" id="modalSubmitRegisterBtn">
+                                    <i class="fas fa-user-plus"></i>
+                                    <span>تسجيل حساب جديد</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-register-footer">
+                    <p class="mb-0 text-muted small">
+                        لديك حساب خريج بالفعل؟
+                        <a href="javascript:void(0)" id="btnBackToLoginFromRegister" class="fw-bold text-decoration-none ms-1" style="color: #1565c0; cursor: pointer;">
+                            تسجيل الدخول هنا <i class="fas fa-arrow-left ms-1 small"></i>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="{{ asset('js/university-data.js') }}"></script>
     <script>
         AOS.init({
             duration: 800,
             once: true,
         });
+
+        // دالة التبديل بين خطوات التسجيل
+        window.switchRegStep = function (step) {
+            // إخفاء كافة الأقسام
+            document.querySelectorAll('.reg-step-section').forEach(el => el.classList.add('d-none'));
+            // إظهار القسم المطلوب
+            const targetSection = document.getElementById('regSection' + step);
+            if (targetSection) {
+                targetSection.classList.remove('d-none');
+            }
+
+            // تحديث مؤشرات الخطوات
+            for (let i = 1; i <= 3; i++) {
+                const ind = document.getElementById('modalStepIndicator' + i);
+                if (!ind) continue;
+                ind.classList.remove('active', 'completed');
+                if (i < step) {
+                    ind.classList.add('completed');
+                } else if (i === step) {
+                    ind.classList.add('active');
+                }
+            }
+        };
 
         // تفعيل النوافذ المنبثقة وإظهار/إخفاء كلمة المرور
         document.addEventListener('DOMContentLoaded', function () {
@@ -1191,15 +1735,19 @@
             setupEyeToggle('btnToggleModalPass', 'modalPassword', 'iconToggleModalPass');
             setupEyeToggle('btnToggleVerifyPass', 'verifyNewPassword', 'iconToggleVerifyPass');
             setupEyeToggle('btnToggleVerifyConfirmPass', 'verifyConfirmPassword', 'iconToggleVerifyConfirmPass');
+            setupEyeToggle('btnToggleRegPass', 'reg_password', 'iconToggleRegPass');
+            setupEyeToggle('btnToggleRegConfirmPass', 'reg_password_confirmation', 'iconToggleRegConfirmPass');
 
-            // تهيئة النوافذ المنبثقة الثلاث
+            // تهيئة النوافذ المنبثقة الأربع
             const loginModalEl = document.getElementById('loginModal');
             const forgotModalEl = document.getElementById('forgotPasswordModal');
             const verifyModalEl = document.getElementById('verifyCodeModal');
+            const registerModalEl = document.getElementById('graduateRegisterModal');
 
             const loginModal = loginModalEl ? new bootstrap.Modal(loginModalEl) : null;
             const forgotModal = forgotModalEl ? new bootstrap.Modal(forgotModalEl) : null;
             const verifyModal = verifyModalEl ? new bootstrap.Modal(verifyModalEl) : null;
+            const registerModal = registerModalEl ? new bootstrap.Modal(registerModalEl) : null;
 
             // التبديل من تسجيل الدخول إلى استعادة كلمة المرور
             const btnOpenForgot = document.getElementById('btnOpenForgotModal');
@@ -1207,6 +1755,24 @@
                 btnOpenForgot.addEventListener('click', function () {
                     bootstrap.Modal.getInstance(loginModalEl)?.hide();
                     setTimeout(() => forgotModal.show(), 350);
+                });
+            }
+
+            // التبديل من تسجيل الدخول إلى تسجيل خريج جديد
+            const btnOpenRegisterFromLogin = document.getElementById('btnOpenRegisterFromLogin');
+            if (btnOpenRegisterFromLogin && registerModal && loginModalEl) {
+                btnOpenRegisterFromLogin.addEventListener('click', function () {
+                    bootstrap.Modal.getInstance(loginModalEl)?.hide();
+                    setTimeout(() => registerModal.show(), 350);
+                });
+            }
+
+            // التبديل من تسجيل خريج جديد إلى تسجيل الدخول
+            const btnBackToLoginFromRegister = document.getElementById('btnBackToLoginFromRegister');
+            if (btnBackToLoginFromRegister && loginModal && registerModalEl) {
+                btnBackToLoginFromRegister.addEventListener('click', function () {
+                    bootstrap.Modal.getInstance(registerModalEl)?.hide();
+                    setTimeout(() => loginModal.show(), 350);
                 });
             }
 
@@ -1237,19 +1803,32 @@
                 });
             }
 
+            // عند فتح نافذة التسجيل، التأكد من تحميل القطاعات والكليات
+            if (registerModalEl) {
+                registerModalEl.addEventListener('shown.bs.modal', function () {
+                    if (typeof loadSectors === 'function') {
+                        loadSectors();
+                    }
+                });
+            }
+
             // الفتح التلقائي للنوافذ بحسب رابط الصفحة والأخطاء
             const urlParams = new URLSearchParams(window.location.search);
+            const isRegisterRequested = urlParams.has('open_register') || {{ old('from_register_modal') ? 'true' : 'false' }};
             const isVerifyRequested = urlParams.has('open_verify') || {{ old('verify_form') ? 'true' : 'false' }};
             const isForgotRequested = urlParams.has('open_forgot') || {{ old('reset_form') ? 'true' : 'false' }};
             const isLoginRequested = urlParams.has('open_login') || urlParams.has('login');
+            const hasSuccess = {{ session('success') ? 'true' : 'false' }};
             const hasStatus = {{ session('status') ? 'true' : 'false' }};
             const hasErrors = {{ $errors->any() ? 'true' : 'false' }};
 
-            if (isVerifyRequested) {
+            if (isRegisterRequested) {
+                registerModal?.show();
+            } else if (isVerifyRequested) {
                 verifyModal?.show();
             } else if (isForgotRequested) {
                 forgotModal?.show();
-            } else if (isLoginRequested || hasErrors || hasStatus) {
+            } else if (isLoginRequested || hasErrors || hasStatus || hasSuccess) {
                 loginModal?.show();
             }
         });

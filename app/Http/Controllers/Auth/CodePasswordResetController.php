@@ -56,23 +56,36 @@ class CodePasswordResetController extends Controller
             return redirect('/?open_forgot=1')->withErrors(['email' => 'فشل إرسال البريد الإلكتروني. يرجى المحاولة لاحقاً.'])->withInput();
         }
 
-        return redirect()->route('password.code.verify', ['email' => $request->email]);
+        // تحويل المستخدم للنافذة المنبثقة لإدخال الرمز مباشرة بالصفحة الرئيسية
+        return redirect('/?open_verify=1&email=' . urlencode($request->email))->with('status_code_sent', 'تم إرسال رمز التحقق بنجاح إلى بريدك الإلكتروني.');
     }
 
-    // عرض صفحة التحقق (إدخال الرمز وكلمة المرور الجديدة)
+    // تحويل صفحة التحقق إلى النافذة المنبثقة بالصفحة الرئيسية
     public function verify(Request $request)
     {
-        return view('auth.passwords.code-verify', ['email' => $request->email]);
+        return redirect('/?open_verify=1&email=' . urlencode($request->email));
     }
 
-    // تغيير كلمة المرور
+    // تغيير كلمة المرور عبر النافذة المنبثقة
     public function update(Request $request)
     {
-        $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'email' => 'required|email|exists:users,email',
             'code' => 'required|numeric',
             'password' => 'required|string|min:8|confirmed',
+        ], [
+            'email.required' => 'البريد الإلكتروني مطلوب.',
+            'email.exists' => 'البريد الإلكتروني غير مسجل في النظام.',
+            'code.required' => 'يرجى إدخال رمز التحقق.',
+            'code.numeric' => 'يجب أن يتكون رمز التحقق من أرقام فقط.',
+            'password.required' => 'يرجى إدخال كلمة المرور الجديدة.',
+            'password.min' => 'يجب ألا تقل كلمة المرور عن 8 أحرف.',
+            'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
         ]);
+
+        if ($validator->fails()) {
+            return redirect('/?open_verify=1&email=' . urlencode($request->email))->withErrors($validator)->withInput();
+        }
 
         // التحقق من الرمز
         $record = DB::table('password_reset_codes')
@@ -81,12 +94,12 @@ class CodePasswordResetController extends Controller
             ->first();
 
         if (!$record) {
-            return back()->withErrors(['code' => 'رمز التحقق غير صحيح.']);
+            return redirect('/?open_verify=1&email=' . urlencode($request->email))->withErrors(['code' => 'رمز التحقق غير صحيح. يرجى التحقق من بريدك.'])->withInput();
         }
 
-        // التحقق من صلاحية الرمز (مثلاً 15 دقيقة)
+        // التحقق من صلاحية الرمز (15 دقيقة)
         if (Carbon::parse($record->created_at)->addMinutes(15)->isPast()) {
-            return back()->withErrors(['code' => 'انتهت صلاحية الرمز. اطلب رمزاً جديداً.']);
+            return redirect('/?open_verify=1&email=' . urlencode($request->email))->withErrors(['code' => 'انتهت صلاحية الرمز. يرجى طلب رمز جديد.'])->withInput();
         }
 
         // تغيير كلمة المرور
@@ -97,6 +110,6 @@ class CodePasswordResetController extends Controller
         // حذف الرمز المستخدم
         DB::table('password_reset_codes')->where('email', $request->email)->delete();
 
-        return redirect()->route('login')->with('status', 'تم تغيير كلمة المرور بنجاح. يمكنك تسجيل الدخول الآن.');
+        return redirect('/?open_login=1')->with('status', 'تم تغيير كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول.');
     }
 }

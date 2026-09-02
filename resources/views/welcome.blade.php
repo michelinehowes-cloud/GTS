@@ -966,7 +966,14 @@
                     <p class="mb-0 text-white-50 small">مكتب تدريب وتأهيل الخريجين — جامعة طرابلس</p>
                 </div>
                 <div class="modal-login-body">
-                    @if($errors->any())
+                    @if(session('status'))
+                        <div class="alert alert-success border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
+                            <i class="fas fa-check-circle flex-shrink-0 fs-6 text-success"></i>
+                            <span class="fw-semibold">{{ session('status') }}</span>
+                        </div>
+                    @endif
+
+                    @if($errors->any() && !request('open_forgot') && !request('open_verify') && !old('reset_form') && !old('verify_form'))
                         <div class="alert alert-danger border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
                             <i class="fas fa-exclamation-circle flex-shrink-0 fs-6 text-danger"></i>
                             <span class="fw-semibold">{{ $errors->first() }}</span>
@@ -1069,6 +1076,93 @@
         </div>
     </div>
 
+    <!-- ==================== 13. نافذة التحقق وتغيير كلمة المرور المنبثقة (Verify Code & Reset Modal) ==================== -->
+    <div class="modal fade" id="verifyCodeModal" tabindex="-1" aria-labelledby="verifyCodeModalLabel" aria-hidden="true" style="backdrop-filter: blur(8px);">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+            <div class="modal-content modal-login-content">
+                <div class="modal-login-header">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 start-0 m-3 shadow-none" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                    <img src="{{ asset('storage/logo.jpg') }}" alt="شعار الجامعة" class="modal-login-logo d-block" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                    <h4 class="fw-bold mb-1" id="verifyCodeModalLabel">تغيير كلمة المرور</h4>
+                    <p class="mb-0 text-white-50 small">أدخل الرمز المرسل إلى بريدك الإلكتروني</p>
+                </div>
+                <div class="modal-login-body">
+                    @if(session('status_code_sent'))
+                        <div class="alert alert-success border-0 rounded-3 py-2 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
+                            <i class="fas fa-check-circle flex-shrink-0 fs-6 text-success"></i>
+                            <span>{{ session('status_code_sent') }}</span>
+                        </div>
+                    @endif
+
+                    @if($errors->any() && (request('open_verify') || old('verify_form')))
+                        <div class="alert alert-danger border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
+                            <i class="fas fa-exclamation-circle flex-shrink-0 fs-6 text-danger"></i>
+                            <span class="fw-semibold">{{ $errors->first() }}</span>
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('password.code.update') }}" id="modalVerifyCodeForm">
+                        @csrf
+                        <input type="hidden" name="verify_form" value="1">
+                        <input type="hidden" name="email" id="verifyModalEmailInput" value="{{ request('email') ?? old('email') }}">
+
+                        <div class="p-2.5 rounded-3 bg-light border mb-3 d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center gap-1.5 overflow-hidden">
+                                <i class="fas fa-envelope text-primary small"></i>
+                                <span class="text-muted small">البريد:</span>
+                                <strong class="text-dark small text-truncate" id="verifyModalEmailDisplay">{{ request('email') ?? old('email') }}</strong>
+                            </div>
+                            <a href="javascript:void(0)" id="btnChangeEmailInVerify" class="small fw-bold text-decoration-none flex-shrink-0" style="color: #1565c0; font-size: 0.78rem; cursor: pointer;">
+                                تغيير
+                            </a>
+                        </div>
+
+                        <div class="mb-3 text-start text-rtl">
+                            <label for="verifyCodeInput" class="form-label fw-bold text-dark small mb-1">
+                                <i class="fas fa-key text-primary me-1"></i>رمز التحقق (6 أرقام)
+                            </label>
+                            <input type="text" class="form-control modal-login-input text-center fw-bold fs-5 @error('code') is-invalid @enderror" id="verifyCodeInput" name="code" value="{{ old('code') }}" placeholder="123456" maxlength="6" required autofocus style="letter-spacing: 4px;">
+                        </div>
+
+                        <div class="mb-3 text-start text-rtl">
+                            <label for="verifyNewPassword" class="form-label fw-bold text-dark small mb-1">
+                                <i class="fas fa-lock text-primary me-1"></i>كلمة المرور الجديدة
+                            </label>
+                            <div class="position-relative">
+                                <input type="password" class="form-control modal-login-input pe-5 @error('password') is-invalid @enderror" id="verifyNewPassword" name="password" placeholder="••••••••" required>
+                                <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 shadow-none border-0" id="btnToggleVerifyPass" style="z-index: 5;">
+                                    <i class="far fa-eye" id="iconToggleVerifyPass"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 text-start text-rtl">
+                            <label for="verifyConfirmPassword" class="form-label fw-bold text-dark small mb-1">
+                                <i class="fas fa-lock text-primary me-1"></i>تأكيد كلمة المرور الجديدة
+                            </label>
+                            <div class="position-relative">
+                                <input type="password" class="form-control modal-login-input pe-5" id="verifyConfirmPassword" name="password_confirmation" placeholder="••••••••" required>
+                                <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 shadow-none border-0" id="btnToggleVerifyConfirmPass" style="z-index: 5;">
+                                    <i class="far fa-eye" id="iconToggleVerifyConfirmPass"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-modal-login w-100 d-flex align-items-center justify-content-center gap-2 mb-3">
+                            <i class="fas fa-check-circle"></i><span>تأكيد وتغيير كلمة المرور</span>
+                        </button>
+
+                        <div class="text-center pt-2 border-top">
+                            <a href="javascript:void(0)" id="btnBackToLoginFromVerify" class="fw-bold text-decoration-none small" style="color: #1565c0; cursor: pointer;">
+                                <i class="fas fa-arrow-right me-1"></i>العودة لتسجيل الدخول
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -1080,55 +1174,82 @@
 
         // تفعيل النوافذ المنبثقة وإظهار/إخفاء كلمة المرور
         document.addEventListener('DOMContentLoaded', function () {
-            const btnToggle = document.getElementById('btnToggleModalPass');
-            const inputPass = document.getElementById('modalPassword');
-            const iconToggle = document.getElementById('iconToggleModalPass');
-            if (btnToggle && inputPass && iconToggle) {
-                btnToggle.addEventListener('click', function () {
-                    const isPass = inputPass.type === 'password';
-                    inputPass.type = isPass ? 'text' : 'password';
-                    iconToggle.className = isPass ? 'far fa-eye-slash' : 'far fa-eye';
-                });
+            // أزرار إظهار وإخفاء كلمات المرور
+            function setupEyeToggle(btnId, inputId, iconId) {
+                const btn = document.getElementById(btnId);
+                const input = document.getElementById(inputId);
+                const icon = document.getElementById(iconId);
+                if (btn && input && icon) {
+                    btn.addEventListener('click', function () {
+                        const isPass = input.type === 'password';
+                        input.type = isPass ? 'text' : 'password';
+                        icon.className = isPass ? 'far fa-eye-slash' : 'far fa-eye';
+                    });
+                }
             }
 
+            setupEyeToggle('btnToggleModalPass', 'modalPassword', 'iconToggleModalPass');
+            setupEyeToggle('btnToggleVerifyPass', 'verifyNewPassword', 'iconToggleVerifyPass');
+            setupEyeToggle('btnToggleVerifyConfirmPass', 'verifyConfirmPassword', 'iconToggleVerifyConfirmPass');
+
+            // تهيئة النوافذ المنبثقة الثلاث
             const loginModalEl = document.getElementById('loginModal');
             const forgotModalEl = document.getElementById('forgotPasswordModal');
+            const verifyModalEl = document.getElementById('verifyCodeModal');
+
             const loginModal = loginModalEl ? new bootstrap.Modal(loginModalEl) : null;
             const forgotModal = forgotModalEl ? new bootstrap.Modal(forgotModalEl) : null;
+            const verifyModal = verifyModalEl ? new bootstrap.Modal(verifyModalEl) : null;
 
-            // التبديل من نافذة تسجيل الدخول إلى نافذة استعادة كلمة المرور
+            // التبديل من تسجيل الدخول إلى استعادة كلمة المرور
             const btnOpenForgot = document.getElementById('btnOpenForgotModal');
-            if (btnOpenForgot && forgotModal && loginModal) {
+            if (btnOpenForgot && forgotModal && loginModalEl) {
                 btnOpenForgot.addEventListener('click', function () {
-                    const modalInst = bootstrap.Modal.getInstance(loginModalEl);
-                    if (modalInst) {
-                        modalInst.hide();
-                    }
+                    bootstrap.Modal.getInstance(loginModalEl)?.hide();
                     setTimeout(() => forgotModal.show(), 350);
                 });
             }
 
-            // التبديل من نافذة استعادة كلمة المرور إلى نافذة تسجيل الدخول
+            // التبديل من استعادة كلمة المرور إلى تسجيل الدخول
             const btnBackToLogin = document.getElementById('btnBackToLoginModal');
-            if (btnBackToLogin && forgotModal && loginModal) {
+            if (btnBackToLogin && loginModal && forgotModalEl) {
                 btnBackToLogin.addEventListener('click', function () {
-                    const modalInst = bootstrap.Modal.getInstance(forgotModalEl);
-                    if (modalInst) {
-                        modalInst.hide();
-                    }
+                    bootstrap.Modal.getInstance(forgotModalEl)?.hide();
+                    setTimeout(() => loginModal.show(), 350);
+                });
+            }
+
+            // التبديل من التحقق إلى استعادة كلمة المرور (لتغيير البريد)
+            const btnChangeEmail = document.getElementById('btnChangeEmailInVerify');
+            if (btnChangeEmail && forgotModal && verifyModalEl) {
+                btnChangeEmail.addEventListener('click', function () {
+                    bootstrap.Modal.getInstance(verifyModalEl)?.hide();
+                    setTimeout(() => forgotModal.show(), 350);
+                });
+            }
+
+            // التبديل من التحقق إلى تسجيل الدخول
+            const btnBackToLoginFromVerify = document.getElementById('btnBackToLoginFromVerify');
+            if (btnBackToLoginFromVerify && loginModal && verifyModalEl) {
+                btnBackToLoginFromVerify.addEventListener('click', function () {
+                    bootstrap.Modal.getInstance(verifyModalEl)?.hide();
                     setTimeout(() => loginModal.show(), 350);
                 });
             }
 
             // الفتح التلقائي للنوافذ بحسب رابط الصفحة والأخطاء
             const urlParams = new URLSearchParams(window.location.search);
+            const isVerifyRequested = urlParams.has('open_verify') || {{ old('verify_form') ? 'true' : 'false' }};
             const isForgotRequested = urlParams.has('open_forgot') || {{ old('reset_form') ? 'true' : 'false' }};
             const isLoginRequested = urlParams.has('open_login') || urlParams.has('login');
+            const hasStatus = {{ session('status') ? 'true' : 'false' }};
             const hasErrors = {{ $errors->any() ? 'true' : 'false' }};
 
-            if (isForgotRequested) {
+            if (isVerifyRequested) {
+                verifyModal?.show();
+            } else if (isForgotRequested) {
                 forgotModal?.show();
-            } else if (isLoginRequested || hasErrors) {
+            } else if (isLoginRequested || hasErrors || hasStatus) {
                 loginModal?.show();
             }
         });

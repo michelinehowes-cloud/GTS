@@ -11,16 +11,14 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
     <style>
-        /* الألوان الأساسية */
+        /* الألوان الأساسية - اللون الأزرق الجديد المتناسق */
         :root {
-            --primary-blue: #0A2647;
-            /* أزرق داكن جداً وفخم */
-            --secondary-blue: #144272;
-            /* أزرق ثانوي عميق */
+            --primary-blue: #0d3882;
+            --secondary-blue: #1565c0;
+            --accent-blue: #1e88e5;
             --gold-accent: #FFC300;
-            /* ذهبي ملكي */
             --light-bg: #F8F9FA;
-            --dark-bg: #0A1C30;
+            --dark-bg: #0b1f3a;
         }
 
         body {
@@ -35,15 +33,82 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
         }
 
-        /* قسم البطل الفخم */
+        /* قسم البطل الفخم بالتدرج الأزرق الجديد */
         .hero-section {
-            /* تدرج لوني عمودي فاخر مع لمعة خفيفة */
-            background: linear-gradient(160deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            background: linear-gradient(135deg, #0d3882 0%, #1565c0 50%, #1e88e5 100%);
             color: white;
-            padding: 120px 0;
+            padding: 110px 0;
             text-align: center;
-            /* إضافة ظل سفلي لجعل القسم يبرز */
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(13, 56, 130, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* نافذة تسجيل الدخول المنبثقة الحديثة */
+        .modal-login-content {
+            border: none;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(13, 56, 130, 0.35);
+        }
+        .modal-login-header {
+            background: linear-gradient(135deg, #0d3882 0%, #1565c0 50%, #1e88e5 100%);
+            color: white;
+            padding: 2.2rem 2rem 1.8rem;
+            position: relative;
+            text-align: center;
+        }
+        .modal-login-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 90% 10%, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .modal-login-logo {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: white;
+            padding: 4px;
+            border: 3px solid #FFC300;
+            margin: 0 auto 12px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            object-fit: cover;
+        }
+        .modal-login-body {
+            padding: 2rem 2.2rem;
+            background: #ffffff;
+        }
+        .modal-login-input {
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        .modal-login-input:focus {
+            border-color: #1565c0;
+            box-shadow: 0 0 0 4px rgba(21, 101, 192, 0.12);
+        }
+        .btn-modal-login {
+            background: linear-gradient(135deg, #0d3882 0%, #1565c0 50%, #1e88e5 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 0.85rem;
+            font-weight: 700;
+            font-size: 1.05rem;
+            transition: all 0.25s ease;
+        }
+        .btn-modal-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(21, 101, 192, 0.35);
+            color: #ffffff;
+        }
             position: relative;
             overflow: hidden;
         }
@@ -277,13 +342,19 @@
 
             <h1 class="display-3 fw-bolder mb-3" data-aos="fade-up" data-aos-delay="200">مكتب تدريب الخريجين</h1>
 
-            <div class="d-flex justify-content-center gap-3" data-aos="fade-up" data-aos-delay="400">
-                <a href="{{ route('login') }}" class="btn btn-gold btn-lg">
-                    <i class="fas fa-sign-in-alt me-2"></i>تسجيل الدخول
-                </a>
-                <a href="{{ route('graduate.register') }}" class="btn btn-outline-light btn-lg fw-bold">
-                    <i class="fas fa-user-plus me-2"></i>تسجيل خريج جديد
-                </a>
+            <div class="d-flex justify-content-center gap-3 flex-wrap" data-aos="fade-up" data-aos-delay="400">
+                @auth
+                    <a href="{{ route('dashboard') }}" class="btn btn-gold btn-lg shadow-sm">
+                        <i class="fas fa-th-large me-2"></i>لوحة التحكم
+                    </a>
+                @else
+                    <button type="button" class="btn btn-gold btn-lg shadow-sm" data-bs-toggle="modal" data-bs-target="#loginModal">
+                        <i class="fas fa-sign-in-alt me-2"></i>تسجيل الدخول
+                    </button>
+                    <a href="{{ route('graduate.register') }}" class="btn btn-outline-light btn-lg fw-bold">
+                        <i class="fas fa-user-plus me-2"></i>تسجيل خريج جديد
+                    </a>
+                @endauth
             </div>
         </div>
     </section>
@@ -546,6 +617,77 @@
 
     <hr class="my-5 border-gold-accent"> <!-- Enhanced separator -->
 
+    <!-- نافذة تسجيل الدخول المنبثقة الجميلة (Login Modal) -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true" style="backdrop-filter: blur(8px);">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+            <div class="modal-content modal-login-content">
+                <div class="modal-login-header">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 start-0 m-3 shadow-none" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                    <img src="{{ asset('storage/logo.jpg') }}" alt="شعار الجامعة" class="modal-login-logo d-block" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                    <h4 class="fw-bold mb-1" id="loginModalLabel">تسجيل الدخول</h4>
+                    <p class="mb-0 text-white-50 small">مكتب تدريب وتأهيل الخريجين — جامعة طرابلس</p>
+                </div>
+                <div class="modal-login-body">
+                    @if($errors->any())
+                        <div class="alert alert-danger border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
+                            <i class="fas fa-exclamation-circle flex-shrink-0 fs-6 text-danger"></i>
+                            <span class="fw-semibold">{{ $errors->first() }}</span>
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('login') }}" id="modalLoginForm">
+                        @csrf
+                        <div class="mb-3 text-start text-rtl">
+                            <label for="modalEmail" class="form-label fw-bold text-dark small mb-1">
+                                <i class="fas fa-envelope text-primary me-1"></i>البريد الإلكتروني
+                            </label>
+                            <input type="email" class="form-control modal-login-input @error('email') is-invalid @enderror" id="modalEmail" name="email" value="{{ old('email') }}" placeholder="example@uot.edu.ly" required autofocus>
+                        </div>
+
+                        <div class="mb-3 text-start text-rtl">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label for="modalPassword" class="form-label fw-bold text-dark small mb-0">
+                                    <i class="fas fa-lock text-primary me-1"></i>كلمة المرور
+                                </label>
+                                @if (Route::has('password.request'))
+                                    <a class="small text-decoration-none fw-bold" href="{{ route('password.request') }}" style="color: #1565c0; font-size: 0.8rem;">
+                                        نسيت كلمة المرور؟
+                                    </a>
+                                @endif
+                            </div>
+                            <div class="position-relative">
+                                <input type="password" class="form-control modal-login-input pe-5 @error('password') is-invalid @enderror" id="modalPassword" name="password" placeholder="••••••••" required>
+                                <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 shadow-none border-0" id="btnToggleModalPass" style="z-index: 5;">
+                                    <i class="far fa-eye" id="iconToggleModalPass"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-4 text-start text-rtl">
+                            <input class="form-check-input" type="checkbox" name="remember" id="modalRemember">
+                            <label class="form-check-label text-muted small" for="modalRemember">
+                                تذكر بياناتي على هذا الجهاز
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-modal-login w-100 d-flex align-items-center justify-content-center gap-2">
+                            <i class="fas fa-sign-in-alt"></i><span>دخول إلى النظام</span>
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-4 pt-3 border-top">
+                        <p class="text-muted small mb-0">
+                            خريج جديد ولم تسجل بعد؟
+                            <a href="{{ route('graduate.register') }}" class="fw-bold text-decoration-none ms-1" style="color: #1565c0;">
+                                تسجيل خريج جديد <i class="fas fa-arrow-left ms-1 small"></i>
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer class="footer">
         <div class="container text-center">
             <p><strong>جامعة طرابلس</strong> - مكتب تدريب الخريجين</p>
@@ -559,6 +701,37 @@
         AOS.init({
             duration: 1000,
             once: true,
+        });
+
+        // تفعيل إظهار وإخفاء كلمة المرور في نافذة تسجيل الدخول
+        document.addEventListener('DOMContentLoaded', function () {
+            const btnToggle = document.getElementById('btnToggleModalPass');
+            const inputPass = document.getElementById('modalPassword');
+            const iconToggle = document.getElementById('iconToggleModalPass');
+            if (btnToggle && inputPass && iconToggle) {
+                btnToggle.addEventListener('click', function () {
+                    const isPass = inputPass.type === 'password';
+                    inputPass.type = isPass ? 'text' : 'password';
+                    iconToggle.className = isPass ? 'far fa-eye-slash' : 'far fa-eye';
+                });
+            }
+
+            // الفتح التلقائي لنافذة تسجيل الدخول عند وجود أخطاء أو طلب الرابط
+            const urlParams = new URLSearchParams(window.location.search);
+            const shouldOpen = urlParams.has('open_login') || urlParams.has('login');
+            @if($errors->any())
+                const hasErrors = true;
+            @else
+                const hasErrors = false;
+            @endif
+
+            if (shouldOpen || hasErrors) {
+                const loginModalEl = document.getElementById('loginModal');
+                if (loginModalEl) {
+                    const loginModal = new bootstrap.Modal(loginModalEl);
+                    loginModal.show();
+                }
+            }
         });
         // دالة لعرض/إخفاء التدريبات الإضافية
         let trainingsExpanded = false;

@@ -52,7 +52,7 @@
         }
 
         .card-header {
-            background: #1e3a8a; /* University Blue */
+            background: linear-gradient(135deg, #0d3882 0%, #1565c0 50%, #1e88e5 100%);
             color: white;
             padding: 40px 30px;
             text-align: center;
@@ -68,20 +68,7 @@
             right: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            animation: pulse 3s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.1);
-            }
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%);
         }
 
         .card-header h2 {
@@ -105,7 +92,7 @@
         }
 
         .section-title {
-            color: #1e3a8a;
+            color: #1565c0;
             font-weight: 700;
             font-size: 1.3rem;
             margin-bottom: 25px;
@@ -118,7 +105,7 @@
 
         .section-title i {
             font-size: 1.5rem;
-            color: #1e3a8a;
+            color: #1565c0;
         }
 
         .form-label {
@@ -144,8 +131,8 @@
 
         .form-control:focus,
         .form-select:focus {
-            border-color: #1e3a8a;
-            box-shadow: 0 0 0 0.25rem rgba(30, 58, 138, 0.15);
+            border-color: #1565c0;
+            box-shadow: 0 0 0 0.25rem rgba(21, 101, 192, 0.15);
         }
 
         .form-control.is-invalid {
@@ -169,7 +156,7 @@
         }
 
         .password-toggle:hover {
-            color: #1e3a8a;
+            color: #1565c0;
         }
 
         .password-field {
@@ -177,7 +164,7 @@
         }
 
         .btn-register {
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e3a8a 100%);
+            background: linear-gradient(135deg, #0d3882 0%, #1565c0 50%, #1e88e5 100%);
             border: none;
             border-radius: 14px;
             padding: 16px 50px;
@@ -185,12 +172,12 @@
             font-size: 1.2rem;
             color: white;
             transition: all 0.3s ease;
-            box-shadow: 0 10px 25px rgba(30, 58, 138, 0.3);
+            box-shadow: 0 10px 25px rgba(21, 101, 192, 0.3);
         }
 
         .btn-register:hover {
             transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(30, 58, 138, 0.4);
+            box-shadow: 0 15px 35px rgba(21, 101, 192, 0.4);
         }
 
         .btn-register:active {
@@ -205,14 +192,14 @@
         }
 
         .card-footer a {
-            color: #1e3a8a;
+            color: #1565c0;
             font-weight: 700;
             text-decoration: none;
             transition: color 0.3s ease;
         }
 
         .card-footer a:hover {
-            color: #1e3a8a;
+            color: #0d3882;
         }
 
         .alert {
@@ -277,9 +264,9 @@
         }
 
         .step.active .step-circle {
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e3a8a 100%);
+            background: linear-gradient(135deg, #0d3882 0%, #1565c0 100%);
             color: white;
-            box-shadow: 0 5px 15px rgba(30, 58, 138, 0.4);
+            box-shadow: 0 5px 15px rgba(21, 101, 192, 0.35);
         }
 
         .step-label {
@@ -290,7 +277,7 @@
         }
 
         .step.active .step-label {
-            color: #045db0;
+            color: #1565c0;
         }
 
         /* Mobile Responsive */

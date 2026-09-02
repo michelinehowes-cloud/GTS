@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\User;
+use App\Models\Nomination;
+use App\Models\JobOpportunity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Services\NotificationService;
@@ -136,7 +138,7 @@ class CompanyController extends Controller
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $company->update($request->only([
+        $data = $request->only([
             'name',
             'email',
             'phone',
@@ -152,7 +154,19 @@ class CompanyController extends Controller
             'contact_position',
             'contact_phone',
             'contact_email'
-        ]));
+        ]);
+
+        if ($request->has('partnership_status')) {
+            $status = $request->partnership_status;
+            $data['partnership_status'] = $status;
+            $data['is_approved'] = ($status === 'active');
+        } elseif ($request->has('is_approved')) {
+            $isApproved = $request->boolean('is_approved');
+            $data['is_approved'] = $isApproved;
+            $data['partnership_status'] = $isApproved ? 'active' : 'under_review';
+        }
+
+        $company->update($data);
 
         if ($request->hasFile('logo')) {
             if ($company->logo_path) {
@@ -173,6 +187,23 @@ class CompanyController extends Controller
 
         return redirect()->route('admin.companies')
             ->with('success', 'تم تحديث بيانات الشركة بنجاح');
+    }
+
+    /**
+     * تبديل حالة اعتماد الشركة (معتمدة / قيد المراجعة)
+     */
+    public function toggleApproval($id)
+    {
+        $company = Company::findOrFail($id);
+        $company->is_approved = !$company->is_approved;
+        $company->partnership_status = $company->is_approved ? 'active' : 'under_review';
+        $company->save();
+
+        $message = $company->is_approved 
+            ? "تم اعتماد وتفعيل شركة ({$company->name}) بنجاح." 
+            : "تم إلغاء اعتماد شركة ({$company->name}) وتحويلها إلى قيد المراجعة.";
+
+        return redirect()->back()->with('success', $message);
     }
 
     public function destroy($id)
@@ -239,5 +270,109 @@ class CompanyController extends Controller
         ]);
 
         return redirect()->route('company.profile')->with('success', 'تم تحديث الملف الشخصي بنجاح');
+    }
+
+    // ==========================================
+    // مسارات التوظيف والمرشحين (Company ATS)
+    // ==========================================
+
+    public function nominations(Request $request)
+    {
+        $user = auth()->user();
+        $company = Company::where('user_id', $user->id)->first();
+
+        if (!$company) {
+            return redirect()->route('company.dashboard')->with('error', 'يجب استكمال بيانات الشركة أولاً.');
+        }
+
+        // جلب الترشيحات الخاصة بوظائف هذه الشركة فقط
+        $query = Nomination::with(['graduate', 'jobOpportunity'])
+            ->whereHas('jobOpportunity', function ($q) use ($company) {
+                $q->where('company_id', $company->id);
+            });
+
+        // الفلاتر
+        if ($request->has('opportunity_id') && $request->opportunity_id) {
+            $query->where('job_opportunity_id', $request->opportunity_id);
+        }
+
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('from_date') && $request->from_date) {
+            $query->whereDate('nominated_at', '>=', $request->from_date);
+        }
+
+        if ($request->has('to_date') && $request->to_date) {
+            $query->whereDate('nominated_at', '<=', $request->to_date);
+        }
+
+        $nominations = $query->latest()->get();
+        $opportunities = JobOpportunity::where('company_id', $company->id)->latest()->get();
+
+        return view('company.nominations.index', compact('nominations', 'opportunities', 'company'));
+    }
+
+    public function showNomination($id)
+    {
+        $user = auth()->user();
+        $company = Company::where('user_id', $user->id)->first();
+
+        $nomination = Nomination::with(['graduate', 'jobOpportunity.company', 'nominator'])
+            ->whereHas('jobOpportunity', function ($q) use ($company) {
+                $q->where('company_id', $company->id);
+            })->findOrFail($id);
+
+        return view('company.nominations.show', compact('nomination', 'company'));
+    }
+
+    public function updateNominationStatus(Request $request, $id)
+    {
+        $user = auth()->user();
+        $company = Company::where('user_id', $user->id)->first();
+
+        $nomination = Nomination::whereHas('jobOpportunity', function ($q) use ($company) {
+            $q->where('company_id', $company->id);
+        })->findOrFail($id);
+
+        $request->validate([
+            'status' => 'required|string|in:pending,under_review,interview_scheduled,accepted,rejected',
+            'final_status' => 'nullable|string|in:hired,not_hired,in_progress',
+            'interview_date' => 'nullable|date',
+            'interview_time' => 'nullable|string|max:20',
+            'interview_location' => 'nullable|string|max:255',
+            'interview_notes' => 'nullable|string',
+            'nomination_notes' => 'nullable|string',
+        ]);
+
+        $nomination->update([
+            'status' => $request->status,
+            'final_status' => $request->final_status,
+            'interview_date' => $request->interview_date,
+            'interview_time' => $request->interview_time,
+            'interview_location' => $request->interview_location,
+            'interview_notes' => $request->interview_notes,
+            'nomination_notes' => $request->nomination_notes,
+            // Update timestamps based on status changes
+            'company_response_at' => (in_array($request->status, ['accepted', 'rejected']) && !$nomination->company_response_at) ? now() : $nomination->company_response_at,
+            'interview_at' => ($request->status === 'interview_scheduled' && !$nomination->interview_at) ? now() : $nomination->interview_at,
+            'final_decision_at' => ($request->final_status && $request->final_status !== 'in_progress' && !$nomination->final_decision_at) ? now() : $nomination->final_decision_at,
+        ]);
+
+        // يمكن هنا إضافة إشعار للخريج بخصوص تغير حالته
+        try {
+            $this->notificationService->sendToUser(
+                $nomination->graduate->user,
+                'تحديث حالة طلب التوظيف',
+                "قامت شركة {$company->name} بتحديث حالة طلبك للوظيفة: {$nomination->jobOpportunity->title}",
+                'info',
+                ['model_type' => get_class($nomination), 'model_id' => $nomination->id]
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to send nomination status update notification: ' . $e->getMessage());
+        }
+
+        return redirect()->back()->with('success', 'تم تحديث حالة المرشح بنجاح.');
     }
 }

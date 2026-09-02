@@ -2,78 +2,127 @@
 
 @section('title', $fair->title . ' - تفاصيل المعرض')
 
-@section('focus_mode', true)
+@push('styles')
+<style>
+    .job-fair-detail-hero {
+        background: linear-gradient(135deg, #045db0 0%, #1e40af 100%) !important;
+        color: #ffffff !important;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(4, 93, 176, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .fair-actions-toolbar {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    @media (min-width: 992px) {
+        .fair-actions-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            width: auto;
+            margin-top: 0;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .fair-actions-toolbar {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.4rem;
+        }
+        .fair-actions-toolbar .btn,
+        .fair-actions-toolbar .form-select {
+            font-size: 0.78rem !important;
+            padding: 0.45rem 0.5rem !important;
+            width: 100% !important;
+            text-align: center;
+            justify-content: center;
+        }
+    }
+
+    .reg-mobile-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        padding: 0.85rem;
+        margin-bottom: 0.6rem;
+    }
+</style>
+@endpush
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container-fluid">
 
-    <style>
-        .stat-card-custom {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .stat-card-custom:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.08) !important;
-        }
-        .stat-card-custom:hover i {
-            transform: scale(1.15) rotate(5deg);
-        }
+    {{-- Breadcrumbs --}}
+    @include('components.breadcrumbs', [
+        'items' => [
+            ['label' => 'الرئيسية', 'url' => route('home')],
+            ['label' => 'إدارة معارض التوظيف', 'url' => route('job-fair.admin.index')],
+            ['label' => $fair->title, 'active' => true],
+        ]
+    ])
 
-        .list-item-custom {
-            transition: all 0.2s;
-            border: 1px solid transparent;
-        }
-        .list-item-custom:hover {
-            transform: translateX(-5px);
-            background: #fff !important;
-            border-color: rgba(4,93,176,0.1);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-    </style>
     <!-- Hero Header -->
-    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center mb-4 p-4 rounded-4 shadow flex-wrap gap-4" style="background: linear-gradient(135deg, #03488a 0%, #045db0 100%); color: white; position: relative; overflow: hidden;">
-        
-        <!-- Decoration -->
-        <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(238,202,62,0.2) 0%, transparent 70%); border-radius: 50%;"></div>
-
-        <div class="d-flex align-items-center gap-4 position-relative z-1">
-            <a href="{{ route('job-fair.admin.index') }}" class="btn rounded-circle" style="width:50px;height:50px;display:flex;align-items:center;justify-content:center; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-                <i class="fas fa-arrow-right"></i>
-            </a>
-            <!-- Logos -->
+    <div class="job-fair-detail-hero mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div class="d-flex align-items-center gap-3">
-                <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="شعار المعرض" style="height: 55px; width: auto;">
-            </div>
-            <div>
-                <h2 class="fw-bold mb-1" style="color: #eeca3e; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">{{ $fair->title }}</h2>
-                <div class="d-flex align-items-center gap-3" style="color: rgba(255,255,255,0.9); font-size: 0.95rem;">
-                    <span><i class="fas fa-calendar-alt me-1 text-warning"></i>{{ $fair->event_date->format('d/m/Y') }}</span>
-                    <span><i class="fas fa-map-marker-alt me-1 text-warning"></i>{{ $fair->location }}</span>
+                <a href="{{ route('job-fair.admin.index') }}" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px;">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+                <div>
+                    <h2 class="fw-bold mb-1 fs-4" style="color: #fef08a !important;">
+                        <i class="fas fa-store me-2"></i>{{ $fair->title }}
+                    </h2>
+                    <div class="d-flex align-items-center flex-wrap gap-3 text-white-50 small">
+                        <span><i class="fas fa-calendar-alt me-1 text-warning"></i>{{ $fair->event_date->format('d/m/Y') }}</span>
+                        @if($fair->location)
+                        <span><i class="fas fa-map-marker-alt me-1 text-danger"></i>{{ $fair->location }}</span>
+                        @endif
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="d-flex gap-2 flex-wrap position-relative z-1 align-items-center">
-            <!-- تغيير الحالة -->
-            <form action="{{ route('job-fair.admin.status', $fair->id) }}" method="POST" class="m-0">
-                @csrf
-                <select name="status" class="form-select form-select-sm rounded-pill border-0 px-3 py-2 shadow-sm" style="width:auto; font-weight: bold; background: white; color: #03488a; cursor: pointer;" onchange="this.form.submit()">
-                    @foreach(['draft'=>'مسودة','published'=>'منشور','ongoing'=>'جارٍ الآن','completed'=>'منتهي'] as $val => $label)
-                    <option value="{{ $val }}" {{ $fair->status == $val ? 'selected' : '' }}>{{ $label }}</option>
-                    @endforeach
-                </select>
-            </form>
-            <a href="{{ route('job-fair.admin.live', $fair->id) }}" class="btn rounded-pill text-white px-3 py-2" target="_blank" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-                <i class="fas fa-tv me-2 text-danger"></i>بث مباشر
-            </a>
-            <a href="{{ route('job-fair.admin.attendance', $fair->id) }}" class="btn rounded-pill fw-bold px-4 py-2 shadow-sm" style="background: #eeca3e; color: #03488a; border: none; transition: 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                <i class="fas fa-qrcode me-2"></i>ماسح QR
-            </a>
-            <a href="{{ route('job-fair.admin.export', $fair->id) }}" class="btn rounded-pill text-white px-3 py-2" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-                <i class="fas fa-file-export me-2"></i>تصدير
-            </a>
-            <a href="{{ route('job-fair.public') }}" class="btn rounded-pill text-white px-3 py-2" target="_blank" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-                <i class="fas fa-external-link-alt me-2"></i>صفحة عامة
-            </a>
+
+            <!-- شبكة الإجراءات السريعة -->
+            <div class="fair-actions-toolbar">
+                <!-- تغيير الحالة -->
+                <form action="{{ route('job-fair.admin.status', $fair->id) }}" method="POST" class="m-0">
+                    @csrf
+                    <select name="status" class="form-select form-select-sm rounded-pill fw-bold" style="background: #ffffff; color: #045db0; border: none;" onchange="this.form.submit()">
+                        @foreach(['draft'=>'مسودة','published'=>'منشور','ongoing'=>'جارٍ الآن','completed'=>'منتهي'] as $val => $label)
+                        <option value="{{ $val }}" {{ $fair->status == $val ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </form>
+                
+                <a href="{{ route('job-fair.admin.attendance', $fair->id) }}" class="btn btn-sm btn-warning rounded-pill fw-bold text-dark d-inline-flex align-items-center justify-content-center" style="background: #fef08a; border: none;">
+                    <i class="fas fa-qrcode me-1"></i>ماسح QR
+                </a>
+
+                <a href="{{ route('job-fair.admin.live', $fair->id) }}" class="btn btn-sm btn-danger rounded-pill d-inline-flex align-items-center justify-content-center" target="_blank">
+                    <i class="fas fa-tv me-1"></i>بث مباشر
+                </a>
+
+                <a href="{{ route('job-fair.admin.export', $fair->id) }}" class="btn btn-sm btn-outline-light rounded-pill d-inline-flex align-items-center justify-content-center">
+                    <i class="fas fa-file-excel me-1"></i>تصدير
+                </a>
+
+                <a href="{{ route('job-fair.public') }}" class="btn btn-sm btn-outline-light rounded-pill d-inline-flex align-items-center justify-content-center" target="_blank">
+                    <i class="fas fa-external-link-alt me-1"></i>صفحة عامة
+                </a>
+
+                <form action="{{ route('job-fair.admin.reset-attendance', $fair->id) }}" method="POST" class="m-0">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-outline-light rounded-pill w-100 d-inline-flex align-items-center justify-content-center" onclick="return confirm('هل أنت متأكد من رغبتك في إعادة تهيئة الحضور؟')">
+                        <i class="fas fa-undo me-1"></i>تصفير
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -83,195 +132,202 @@
     </div>
     @endif
 
-    <!-- Stats Cards -->
-    <div class="row g-3 mb-4">
-        <!-- Registered -->
-        <div class="col-6 col-md-3">
-            <div class="card stat-card-custom rounded-4 p-4 shadow-sm text-end h-100" style="background: white; border: none; border-right: 5px solid #03488a; box-shadow: 0 4px 15px rgba(0,0,0,0.04) !important;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div style="font-size: 2.2rem; font-weight: 900; color: #1e293b;">{{ $stats['total_registered'] }}</div>
-                    <div style="width:55px;height:55px;background:rgba(3,72,138,0.08);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem; transition: transform 0.3s;">
-                        <i class="fas fa-user-graduate" style="color: #03488a;"></i>
-                    </div>
-                </div>
-                <h6 class="fw-bold mb-0 text-start text-muted">خريج مسجل</h6>
-            </div>
-        </div>
-        <!-- Attended -->
-        <div class="col-6 col-md-3">
-            <div class="card stat-card-custom rounded-4 p-4 shadow-sm text-end h-100" style="background: white; border: none; border-right: 5px solid #045db0; box-shadow: 0 4px 15px rgba(0,0,0,0.04) !important;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div style="font-size: 2.2rem; font-weight: 900; color: #1e293b;">{{ $stats['total_attended'] }}</div>
-                    <div style="width:55px;height:55px;background:rgba(4,93,176,0.08);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem; transition: transform 0.3s;">
-                        <i class="fas fa-user-check" style="color: #045db0;"></i>
-                    </div>
-                </div>
-                <h6 class="fw-bold mb-0 text-start text-muted">حضروا المعرض</h6>
-            </div>
-        </div>
-        <!-- Companies -->
-        <div class="col-6 col-md-3">
-            <div class="card stat-card-custom rounded-4 p-4 shadow-sm text-end h-100" style="background: white; border: none; border-right: 5px solid #eeca3e; box-shadow: 0 4px 15px rgba(0,0,0,0.04) !important;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div style="font-size: 2.2rem; font-weight: 900; color: #1e293b;">{{ $stats['total_companies'] }}</div>
-                    <div style="width:55px;height:55px;background:rgba(238,202,62,0.15);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem; transition: transform 0.3s;">
-                        <i class="fas fa-building" style="color: #d97706;"></i>
-                    </div>
-                </div>
-                <h6 class="fw-bold mb-0 text-start text-muted">شركة مشاركة</h6>
-            </div>
-        </div>
-        <!-- Days Remaining -->
-        <div class="col-6 col-md-3">
-            <div class="card stat-card-custom rounded-4 p-4 shadow-sm text-end h-100" style="background: white; border: none; border-right: 5px solid #10b981; box-shadow: 0 4px 15px rgba(0,0,0,0.04) !important;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div style="font-size: 2.2rem; font-weight: 900; color: #1e293b;">{{ $stats['days_remaining'] }}</div>
-                    <div style="width:55px;height:55px;background:rgba(16,185,129,0.1);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem; transition: transform 0.3s;">
-                        <i class="fas fa-clock" style="color: #10b981;"></i>
-                    </div>
-                </div>
-                <h6 class="fw-bold mb-0 text-start text-muted">يوم متبقي</h6>
-            </div>
-        </div>
+    <!-- بطاقات الإحصائيات (2x2 على الموبايل و4 على الديسكتوب) -->
+    <div class="row g-2 g-md-3 mb-4">
+        @include('components.stat-card', [
+            'col' => 'col-6 col-md-3',
+            'title' => 'خريج مسجل',
+            'value' => $stats['total_registered'] ?? 0,
+            'icon' => 'fas fa-user-graduate',
+            'color' => 'primary'
+        ])
+        @include('components.stat-card', [
+            'col' => 'col-6 col-md-3',
+            'title' => 'حضروا المعرض',
+            'value' => $stats['total_attended'] ?? 0,
+            'icon' => 'fas fa-user-check',
+            'color' => 'success'
+        ])
+        @include('components.stat-card', [
+            'col' => 'col-6 col-md-3',
+            'title' => 'شركة مشاركة',
+            'value' => $stats['total_companies'] ?? 0,
+            'icon' => 'fas fa-building',
+            'color' => 'warning'
+        ])
+        @include('components.stat-card', [
+            'col' => 'col-6 col-md-3',
+            'title' => 'يوم متبقي',
+            'value' => $stats['days_remaining'] ?? 0,
+            'icon' => 'fas fa-clock',
+            'color' => 'info'
+        ])
     </div>
 
-    <div class="row g-4">
+    <div class="row g-3 g-md-4">
         <!-- الشركات المشاركة -->
-        <div class="col-lg-5">
-            <div class="card border-0 shadow-sm rounded-4 mb-4">
-                <div class="card-header border-0 bg-transparent p-4 pb-0 d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0">
-                        <i class="fas fa-building me-2" style="color: #6366F1"></i>
-                        الشركات المشاركة
+        <div class="col-12 col-lg-5">
+            <div class="card-modern h-100 p-3 p-md-4">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                    <h5 class="fw-bold mb-0 text-dark fs-6">
+                        <i class="fas fa-building me-2 text-primary"></i>الشركات المشاركة
                     </h5>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill" data-bs-toggle="collapse" data-bs-target="#addCompanyForm">
-                        <i class="fas fa-plus me-1"></i>إضافة
+                    <button class="btn btn-sm btn-primary-modern rounded-pill" data-bs-toggle="collapse" data-bs-target="#addCompanyForm">
+                        <i class="fas fa-plus me-1"></i>إضافة شركة
                     </button>
                 </div>
-                <div class="card-body p-4">
 
-                    <!-- Add Company Form -->
-                    <div class="collapse mb-3" id="addCompanyForm">
-                        <form action="{{ route('job-fair.admin.add-company', $fair->id) }}" method="POST"
-                              class="p-3 rounded-3" style="background: #f8fafc; border: 1px dashed #cbd5e1">
-                            @csrf
-                            <div class="row g-2">
-                                <div class="col-12">
-                                    <select name="company_id" class="form-select form-select-sm rounded-3" required>
-                                        <option value="">-- اختر شركة --</option>
-                                        @foreach($fair->companies->pluck('company_id')->toArray() as $cid)
-                                        @endforeach
-                                        @php $existingIds = $fair->companies->pluck('company_id')->toArray(); @endphp
-                                        @foreach(App\Models\Company::whereNotIn('id', $existingIds)->get() as $co)
-                                        <option value="{{ $co->id }}">{{ $co->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-6">
-                                    <input type="text" name="booth_number" class="form-control form-control-sm rounded-3" placeholder="رقم الجناح (A1)">
-                                </div>
-                                <div class="col-6">
-                                    <input type="number" name="available_positions" class="form-control form-control-sm rounded-3" placeholder="عدد الوظائف" min="0">
-                                </div>
-                                <div class="col-12">
-                                    <textarea name="requirements" class="form-control form-control-sm rounded-3" rows="2" placeholder="متطلبات التوظيف..."></textarea>
-                                </div>
-                                <div class="col-12">
-                                    <button type="submit" class="btn btn-sm btn-primary rounded-pill w-100">
-                                        <i class="fas fa-check me-1"></i>إضافة الشركة
-                                    </button>
-                                </div>
+                <!-- Add Company Form Collapse -->
+                <div class="collapse mb-3" id="addCompanyForm">
+                    <form action="{{ route('job-fair.admin.add-company', $fair->id) }}" method="POST"
+                          class="p-3 rounded-3" style="background: #f8fafc; border: 1px dashed #cbd5e1">
+                        @csrf
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <label class="form-label-modern small fw-bold">اختر الشركة</label>
+                                <select name="company_id" class="form-select form-select-sm" required>
+                                    <option value="">-- اختر شركة --</option>
+                                    @php $existingIds = $fair->companies->pluck('company_id')->toArray(); @endphp
+                                    @foreach(App\Models\Company::whereNotIn('id', $existingIds)->get() as $co)
+                                    <option value="{{ $co->id }}">{{ $co->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
-                        </form>
-                    </div>
+                            <div class="col-6">
+                                <input type="text" name="booth_number" class="form-control form-control-sm" placeholder="رقم الجناح (A1)">
+                            </div>
+                            <div class="col-6">
+                                <input type="number" name="available_positions" class="form-control form-control-sm" placeholder="عدد الوظائف" min="0">
+                            </div>
+                            <div class="col-12">
+                                <textarea name="requirements" class="form-control form-control-sm" rows="2" placeholder="متطلبات التوظيف..."></textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-sm btn-primary-modern w-100 rounded-pill">
+                                    <i class="fas fa-check me-1"></i>تأكيد إضافة الشركة
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
 
-                    <!-- Companies List -->
-                    @if($fair->companies->isEmpty())
-                    <p class="text-muted text-center py-3">لا توجد شركات مضافة بعد</p>
-                    @else
-                    <div class="d-flex flex-column gap-2">
-                        @foreach($fair->companies as $fc)
-                        <div class="d-flex align-items-center gap-3 p-3 rounded-3 list-item-custom" style="background: #f8fafc">
-                            <div class="d-flex align-items-center justify-content-center rounded-3" style="width:40px;height:40px;background:#e8f0fe;font-size:1.2rem">🏢</div>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold small">{{ $fc->company->name }}</div>
-                                <div class="d-flex gap-2 mt-1">
+                <!-- Companies List -->
+                @if($fair->companies->isEmpty())
+                <p class="text-muted text-center py-4 mb-0 small">لا توجد شركات مضافة في هذا المعرض حتى الآن</p>
+                @else
+                <div class="d-flex flex-column gap-2">
+                    @foreach($fair->companies as $fc)
+                    <div class="d-flex align-items-center justify-content-between p-2 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-light text-primary d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; font-size: 1rem;">
+                                <i class="fas fa-industry"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-0 fs-6">{{ $fc->company->name }}</h6>
+                                <div class="d-flex gap-1 flex-wrap mt-1">
                                     @if($fc->booth_number)
-                                    <span class="badge bg-primary rounded-pill" style="font-size:0.7rem">جناح {{ $fc->booth_number }}</span>
+                                    <span class="badge bg-light text-primary border" style="font-size: 0.7rem;">جناح {{ $fc->booth_number }}</span>
                                     @endif
                                     @if($fc->available_positions)
-                                    <span class="badge bg-success rounded-pill" style="font-size:0.7rem">{{ $fc->available_positions }} وظيفة</span>
+                                    <span class="badge bg-light text-success border" style="font-size: 0.7rem;">{{ $fc->available_positions }} وظائف</span>
                                     @endif
                                 </div>
                             </div>
-                            <form action="{{ route('job-fair.admin.remove-company', [$fair->id, $fc->company_id]) }}" method="POST">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle"
-                                        onclick="return confirm('حذف الشركة من المعرض؟')" style="width:30px;height:30px;padding:0">
-                                    <i class="fas fa-times" style="font-size:0.7rem"></i>
-                                </button>
-                            </form>
                         </div>
-                        @endforeach
+                        <form action="{{ route('job-fair.admin.remove-company', [$fair->id, $fc->company_id]) }}" method="POST">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle d-flex align-items-center justify-content-center"
+                                    onclick="return confirm('هل أنت متأكد من حذف الشركة من المعرض؟')" style="width: 32px; height: 32px;" title="حذف">
+                                <i class="fas fa-trash-alt" style="font-size: 0.75rem;"></i>
+                            </button>
+                        </form>
                     </div>
-                    @endif
+                    @endforeach
                 </div>
+                @endif
             </div>
         </div>
 
         <!-- قائمة الخريجين المسجلين -->
-        <div class="col-lg-7">
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-header border-0 bg-transparent p-4 pb-0">
-                    <h5 class="fw-bold mb-0">
-                        <i class="fas fa-user-graduate me-2" style="color: #0284C7"></i>
-                        الخريجون المسجلون
-                        <span class="badge bg-primary rounded-pill ms-2">{{ $stats['total_registered'] }}</span>
+        <div class="col-12 col-lg-7">
+            <div class="card-modern h-100 p-3 p-md-4">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                    <h5 class="fw-bold mb-0 text-dark fs-6">
+                        <i class="fas fa-user-graduate me-2 text-primary"></i>الخريجون المسجلون
                     </h5>
+                    <span class="badge bg-primary rounded-pill px-2 py-1">{{ $stats['total_registered'] ?? 0 }}</span>
                 </div>
-                <div class="card-body p-4">
-                    @if($registrations->isEmpty())
-                    <p class="text-muted text-center py-3">لا يوجد تسجيلات بعد</p>
-                    @else
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>الرقم</th>
-                                    <th>الاسم</th>
-                                    <th>التخصص</th>
-                                    <th>الحضور</th>
-                                    <th>البطاقة</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($registrations as $reg)
-                                <tr class="list-item-custom">
-                                    <td><small class="fw-bold text-primary">{{ $reg->registration_number }}</small></td>
-                                    <td>{{ $reg->graduate->name }}</td>
-                                    <td><small class="text-muted">{{ $reg->graduate->major ?? '—' }}</small></td>
-                                    <td>
-                                        @if($reg->attended)
-                                        <span class="badge bg-success rounded-pill">حضر</span>
-                                        @else
-                                        <span class="badge bg-secondary rounded-pill">غائب</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('job-fair.my-ticket', $reg->id) }}" class="btn btn-xs btn-outline-primary rounded-pill" target="_blank" style="font-size:0.7rem;padding:2px 8px">
-                                            <i class="fas fa-qrcode"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+
+                @if($registrations->isEmpty())
+                <p class="text-muted text-center py-4 mb-0 small">لا توجد تسجيلات حتى الآن</p>
+                @else
+                {{-- 🖥️ عرض سطح المكتب --}}
+                <div class="table-responsive d-none d-md-block">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="py-2 px-3 border-0 small fw-bold">الرقم</th>
+                                <th class="py-2 border-0 small fw-bold">الاسم</th>
+                                <th class="py-2 border-0 small fw-bold">التخصص</th>
+                                <th class="py-2 border-0 small fw-bold">الحضور</th>
+                                <th class="py-2 border-0 text-center small fw-bold">البطاقة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($registrations as $reg)
+                            <tr>
+                                <td class="px-3"><span class="badge bg-light text-primary border" style="font-size: 0.72rem;">{{ $reg->registration_number }}</span></td>
+                                <td class="fw-bold text-dark">{{ $reg->graduate->name }}</td>
+                                <td><span class="text-muted small">{{ $reg->graduate->major ?? '—' }}</span></td>
+                                <td>
+                                    @if($reg->attended)
+                                    <span class="badge bg-success text-white rounded-pill px-2 py-1" style="font-size: 0.7rem;"><i class="fas fa-check me-1"></i>حضر</span>
+                                    @else
+                                    <span class="badge bg-secondary text-white rounded-pill px-2 py-1" style="font-size: 0.7rem;">غائب</span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    <a href="{{ route('job-fair.my-ticket', $reg->id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-2 py-1" target="_blank" style="font-size: 0.75rem;">
+                                        <i class="fas fa-ticket-alt me-1"></i>عرض
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- 📱 عرض الموبايل --}}
+                <div class="d-md-none">
+                    @foreach($registrations as $reg)
+                    <div class="reg-mobile-card">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="fw-bold text-dark mb-0 fs-6">{{ $reg->graduate->name }}</h6>
+                            @if($reg->attended)
+                            <span class="badge bg-success text-white rounded-pill" style="font-size: 0.68rem;">حضر</span>
+                            @else
+                            <span class="badge bg-secondary text-white rounded-pill" style="font-size: 0.68rem;">غائب</span>
+                            @endif
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center text-muted small mt-2">
+                            <span><i class="fas fa-graduation-cap me-1"></i>{{ $reg->graduate->major ?? '—' }}</span>
+                            <a href="{{ route('job-fair.my-ticket', $reg->id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0" target="_blank" style="font-size: 0.75rem;">
+                                <i class="fas fa-ticket-alt me-1"></i>التذكرة
+                            </a>
+                        </div>
                     </div>
-                    {{ $registrations->links() }}
-                    @endif
+                    @endforeach
                 </div>
+
+                @if(method_exists($registrations, 'links'))
+                    <div class="mt-3 d-flex justify-content-center">
+                        {{ $registrations->links() }}
+                    </div>
+                @endif
+                @endif
             </div>
         </div>
     </div>
+
 </div>
 @endsection

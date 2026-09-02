@@ -150,7 +150,7 @@
                                 <span class="text-muted">{{ $major->total }} خريج</span>
                             </div>
                             <div class="progress" style="height: 8px;">
-                                <div class="progress-bar bg-info" role="progressbar" style="width: {{ ($major->total / max($stats['attended'], 1)) * 100 }}%" aria-valuenow="{{ $major->total }}" aria-valuemin="0" aria-valuemax="{{ $stats['attended'] }}"></div>
+                                <div class="progress-bar bg-info" role="progressbar" style="width: {{ ($major->total / max($stats['total_attended'], 1)) * 100 }}%" aria-valuenow="{{ $major->total }}" aria-valuemin="0" aria-valuemax="{{ $stats['total_attended'] }}"></div>
                             </div>
                         </div>
                     @empty

@@ -342,11 +342,43 @@
 
         {{-- Result Area --}}
         <div id="result-container" class="mt-4">
-            <div id="result-success" class="result-card result-success d-none">
-                <div class="result-icon"><i class="fas fa-check-circle"></i></div>
-                <h5 class="fw-bold mb-1 text-success">تم الاستلام بنجاح! ✅</h5>
-                <p class="fs-5 fw-bold mb-1 text-dark" id="result-name"></p>
-                <p class="text-muted mb-0 small" id="result-major"></p>
+            <div id="result-success" class="result-card result-success d-none text-start px-4">
+                <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+                    <div class="result-icon m-0"><i class="fas fa-check-circle"></i></div>
+                    <div>
+                        <h5 class="fw-bold mb-1 text-success">تم الاستلام بنجاح! ✅</h5>
+                        <p class="fs-5 fw-bold mb-0 text-dark" id="result-name"></p>
+                    </div>
+                </div>
+                
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <small class="text-muted d-block"><i class="fas fa-graduation-cap me-1"></i> التخصص</small>
+                        <span class="fw-semibold text-dark" id="result-major"></span>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block"><i class="fas fa-university me-1"></i> الجامعة</small>
+                        <span class="fw-semibold text-dark" id="result-university"></span>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block"><i class="fas fa-calendar-alt me-1"></i> سنة التخرج</small>
+                        <span class="fw-semibold text-dark" id="result-grad-year"></span>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block"><i class="fas fa-star me-1"></i> المعدل التراكمي (%)</small>
+                        <span class="fw-semibold text-dark" id="result-gpa"></span>
+                    </div>
+                    <div class="col-12 mt-2">
+                        <small class="text-muted d-block"><i class="fas fa-phone me-1"></i> رقم الهاتف</small>
+                        <span class="fw-semibold text-dark" id="result-phone" dir="ltr"></span>
+                    </div>
+                </div>
+
+                <div id="result-trainings-container" class="d-none mt-3 pt-3 border-top">
+                    <h6 class="fw-bold text-primary mb-2"><i class="fas fa-certificate me-1"></i> الدورات التدريبية المنجزة</h6>
+                    <ul class="list-unstyled mb-0" id="result-trainings-list" style="font-size: 0.9rem;">
+                    </ul>
+                </div>
             </div>
 
             <div id="result-warning" class="result-card result-warning d-none">
@@ -440,10 +472,32 @@ function onScanSuccess(decodedText) {
 // ── API Call ──────────────────────────────────────────────
 function processQR(code) {
     hideAllResults();
+
+    let graduateId = null;
+    const patterns = [
+        /\/graduate\/profile\/(\d+)/i,   
+        /\/profile\/(\d+)/i,             
+        /profile[\/=](\d+)/i,            
+        /[&?]id=(\d+)/i,                 
+        /[\/\-_=](\d+)[\/\s]*$/,         
+        /^JF-\d+-(\d+)-/i,               
+        /^(\d+)$/,                        
+    ];
+
+    for (const pattern of patterns) {
+        const m = code.match(pattern);
+        if (m) { graduateId = m[1]; break; }
+    }
+
+    if (!graduateId) {
+        showResultError("رمز QR غير صالح. تأكد من مسح البطاقة الصحيحة.");
+        return;
+    }
+
     fetch(checkInUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-        body: JSON.stringify({ qr_code: code })
+        body: JSON.stringify({ graduate_id: parseInt(graduateId) })
     })
     .then(r => r.json())
     .then(data => {
@@ -455,13 +509,35 @@ function processQR(code) {
             document.getElementById('result-warning').classList.remove('d-none');
         } else {
             document.getElementById('result-name').textContent   = data.graduate_name || '';
-            document.getElementById('result-major').textContent  = data.major || '';
+            document.getElementById('result-major').textContent  = data.major || '—';
+            document.getElementById('result-university').textContent = data.university || '—';
+            document.getElementById('result-grad-year').textContent = data.graduation_year || '—';
+            document.getElementById('result-gpa').textContent = data.gpa ? data.gpa + '%' : '—';
+            document.getElementById('result-phone').textContent = data.phone || '—';
+            
+            const trainingsContainer = document.getElementById('result-trainings-container');
+            const trainingsList = document.getElementById('result-trainings-list');
+            trainingsList.innerHTML = '';
+            
+            if (data.trainings && data.trainings.length > 0) {
+                data.trainings.forEach(t => {
+                    const li = document.createElement('li');
+                    li.className = 'mb-1 text-dark';
+                    li.innerHTML = '<i class="fas fa-check text-success me-1"></i> ' + t.title + ' <small class="text-muted ms-1">(' + t.date + ')</small>';
+                    trainingsList.appendChild(li);
+                });
+                trainingsContainer.classList.remove('d-none');
+            } else {
+                trainingsContainer.classList.add('d-none');
+            }
+
             document.getElementById('result-success').classList.remove('d-none');
             // Increment counter
             scanCount++;
             document.getElementById('scan-count').textContent = scanCount;
         }
-        setTimeout(hideAllResults, 4500);
+        // Increase timeout to 8 seconds so they have time to read the details
+        setTimeout(hideAllResults, 8000);
         input.focus();
     })
     .catch(() => {

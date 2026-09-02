@@ -62,15 +62,15 @@
                                         </td>
                                         <td>
                                             @if($training->status == 'active')
-                                                <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">
+                                                <span class="badge bg-light text-success text-success px-3 py-2 rounded-pill">
                                                     <i class="fas fa-check-circle me-1 small"></i>نشط
                                                 </span>
                                             @elseif($training->status == 'inactive')
-                                                <span class="badge bg-warning-subtle text-warning px-3 py-2 rounded-pill">
+                                                <span class="badge bg-light text-warning text-warning px-3 py-2 rounded-pill">
                                                     <i class="fas fa-pause-circle me-1 small"></i>متوقف
                                                 </span>
                                             @else
-                                                <span class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill">
+                                                <span class="badge bg-light text-secondary text-secondary px-3 py-2 rounded-pill">
                                                     {{ $training->status }}
                                                 </span>
                                             @endif

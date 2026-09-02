@@ -122,6 +122,15 @@ class GraduateController extends Controller
     }
 
     /**
+     * عرض بطاقة الخريج الرقمية
+     */
+    public function idCard()
+    {
+        $graduate = Auth::user();
+        return view('graduate.id-card', compact('graduate'));
+    }
+
+    /**
      * عرض الملف الشخصي للخريج
      */
     public function profile()
@@ -155,7 +164,7 @@ class GraduateController extends Controller
             'faculty' => 'nullable|string|max:255',
             'specialization' => 'nullable|string|max:100',
             'graduation_year' => 'nullable|integer|min:1950|max:' . (date('Y') + 1),
-            'gpa' => 'nullable|numeric|min:0|max:4',
+            'gpa' => 'nullable|numeric|min:0|max:100',
             'languages' => 'nullable|string|max:500',
         ]);
 

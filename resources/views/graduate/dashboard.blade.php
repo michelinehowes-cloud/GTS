@@ -3,163 +3,241 @@
 @section('title', 'لوحة تحكم الخريج')
 
 @section('content')
-    <div class="container-fluid py-4">
-        @if(session('success'))
-            @include('components.alert', [
-                'type' => 'success',
-                'message' => session('success'),
-                'dismissible' => true
-            ])
-        @endif
+<div class="container-fluid px-2 px-md-3">
+    @php
+        $myFairRegistration = \App\Models\JobFairRegistration::where('user_id', auth()->id())->latest()->first();
+    @endphp
 
-        @if(session('error'))
-            @include('components.alert', [
-                'type' => 'danger',
-                'message' => session('error'),
-                'dismissible' => true
-            ])
-        @endif
+    <!-- Unified Single Graduate Hero Banner (Rich & Spacious) -->
+    <div class="card border-0 rounded-4 shadow mb-4 overflow-hidden position-relative" style="background: linear-gradient(135deg, #0d3882 0%, #1565c0 50%, #1e88e5 100%); color: white; box-shadow: 0 10px 30px rgba(13, 71, 161, 0.18) !important;">
+        <!-- Ambient decorative glow -->
+        <div class="position-absolute end-0 top-0 w-100 h-100 opacity-25 pointer-events-none" style="background: radial-gradient(circle at 90% 10%, rgba(255,255,255,0.3) 0%, transparent 60%);"></div>
 
-        @php
-            $myFairRegistration = \App\Models\JobFairRegistration::where('user_id', auth()->id())->latest()->first();
-        @endphp
-        @if($myFairRegistration)
-            <div class="bento-card mb-4 p-4" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border-left: 4px solid var(--bento-gold);">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="bento-card-icon bento-icon-gold">
-                            <i class="fas fa-store"></i>
+        <div class="p-4 p-lg-5 position-relative" style="z-index: 2;">
+            <!-- Mobile Header Top Bar (Brand + Menu Trigger) -->
+            <div class="d-flex justify-content-between align-items-center w-100 mb-3 d-md-none">
+                <span class="badge rounded-pill px-3 py-1.5 small" style="background: rgba(255, 255, 255, 0.22) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.3) !important; font-size: 0.75rem; backdrop-filter: blur(6px);">
+                    <i class="fas fa-graduation-cap me-1 text-warning"></i>منصة الخريجين
+                </span>
+                <button type="button" class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 36px; height: 36px;" onclick="window.toggleSidebarFunc ? window.toggleSidebarFunc() : null">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <div class="row align-items-center g-4">
+                <!-- Graduate User Info -->
+                <div class="col-12 col-lg-7">
+                    <div class="d-flex align-items-center gap-3 gap-md-4">
+                        <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center shadow flex-shrink-0" style="width: 64px; height: 64px; font-size: 1.75rem; font-weight: 700; border: 3px solid rgba(255,255,255,0.4);">
+                            <i class="fas fa-user-graduate"></i>
                         </div>
                         <div>
-                            <h4 class="mb-1 fw-bold text-white">أنت مسجل في معرض التوظيف 2026! 🎉</h4>
-                            <p class="mb-0 text-white-50 fs-6">رقم التسجيل: <span class="badge bg-secondary ms-1">{{ $myFairRegistration->registration_number }}</span></p>
+                            <h2 class="fw-bold mb-1 text-white fs-4 fs-md-3">مرحباً بك، {{ auth()->user()->name }}</h2>
+                            <p class="text-white text-opacity-75 small mb-2" style="font-size: 0.85rem;">
+                                <i class="fas fa-university me-1 text-white-50"></i>منصة تدريب وتأهيل الخريجين — جامعة طرابلس
+                            </p>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <span class="badge rounded-pill px-3 py-1.5 small fw-bold" style="background: rgba(255, 255, 255, 0.22) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.35) !important; font-size: 0.78rem; backdrop-filter: blur(6px);">
+                                    <i class="fas fa-check-circle me-1 text-warning"></i>خريج مسجل
+                                </span>
+                                @if($myFairRegistration)
+                                    <a href="{{ route('job-fair.my-ticket', $myFairRegistration->id) }}" class="badge rounded-pill px-2.5 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 text-decoration-none" style="background: #fbbf24; color: #1e293b; border: 1px solid #f59e0b; box-shadow: none !important; font-size: 0.76rem;">
+                                        <i class="fas fa-ticket-alt text-dark"></i>
+                                        <span>تذكرة المعرض</span>
+                                        <span class="d-none d-sm-inline">(#{{ $myFairRegistration->registration_number }})</span>
+                                        <i class="fas fa-arrow-left ms-0.5" style="font-size: 0.65rem;"></i>
+                                    </a>
+                                @endif
+                            </div>
                         </div>
                     </div>
-                    <a href="{{ route('job-fair.my-ticket', $myFairRegistration->id) }}" class="btn-bento-outline" style="border-color: var(--bento-gold); color: var(--bento-gold);">
-                        <i class="fas fa-qrcode me-2"></i>عرض بطاقة الدخول
-                    </a>
                 </div>
-            </div>
-        @endif
 
-        <!-- بطاقات الإحصائيات (Bento Grid) -->
-        <div class="bento-grid">
-            <div class="bento-card">
-                <div class="bento-card-header">
-                    <h3 class="bento-card-title">البرامج التدريبية</h3>
-                    <div class="bento-card-icon bento-icon-primary">
-                        <i class="fas fa-briefcase"></i>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-end mt-1">
-                    <div class="bento-stat">{{ $totalTrainings ?? 0 }}</div>
-                    <div class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-3 py-2 mb-2">
-                        متاح <i class="fas fa-check-circle ms-1"></i>
-                    </div>
-                </div>
-                <div class="bento-desc mt-2">إجمالي البرامج التدريبية المتاحة للتسجيل بها</div>
-                <a href="{{ route('graduate.trainings') }}" class="btn-bento-outline mt-3 text-center text-decoration-none">تصفح البرامج <i class="fas fa-arrow-left ms-1"></i></a>
-            </div>
-
-            <div class="bento-card">
-                <div class="bento-card-header">
-                    <h3 class="bento-card-title">فرص العمل</h3>
-                    <div class="bento-card-icon bento-icon-success">
-                        <i class="fas fa-building"></i>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-end mt-1">
-                    <div class="bento-stat">{{ \App\Models\JobOpportunity::where('status', 'open')->count() ?? 0 }}</div>
-                    <div class="badge rounded-pill bg-success bg-opacity-10 text-success px-3 py-2 mb-2">
-                        مفتوح <i class="fas fa-bolt ms-1"></i>
-                    </div>
-                </div>
-                <div class="bento-desc mt-2">فرص العمل المتاحة من الشركات</div>
-                <a href="{{ route('graduate.job-opportunities.index') }}" class="btn-bento-outline mt-3 text-center text-decoration-none">تصفح الفرص <i class="fas fa-arrow-left ms-1"></i></a>
-            </div>
-
-            <div class="bento-card">
-                <div class="bento-card-header">
-                    <h3 class="bento-card-title">طلباتي</h3>
-                    <div class="bento-card-icon bento-icon-warning">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-end mt-1">
-                    <div class="bento-stat">{{ $myApplications ?? 0 }}</div>
-                    <div class="badge rounded-pill bg-warning bg-opacity-10 text-warning px-3 py-2 mb-2" style="color: #d97706 !important;">
-                        مستمر <i class="fas fa-arrow-trend-up ms-1"></i>
-                    </div>
-                </div>
-                <div class="bento-desc mt-2">طلبات التقديم على الوظائف والتدريب</div>
-                <a href="{{ route('graduate.my-applications') }}" class="btn-bento-outline mt-3 text-center text-decoration-none">متابعة الطلبات <i class="fas fa-arrow-left ms-1"></i></a>
-            </div>
-
-            <div class="bento-card">
-                <div class="bento-card-header">
-                    <h3 class="bento-card-title">تسجيل حضور</h3>
-                    <div class="bento-card-icon bento-icon-danger">
-                        <i class="fas fa-qrcode"></i>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-end mt-1">
-                    <div class="bento-stat"><i class="fas fa-camera"></i></div>
-                    <div class="badge rounded-pill bg-danger bg-opacity-10 text-danger px-3 py-2 mb-2">
-                        مباشر <i class="fas fa-circle-dot ms-1"></i>
-                    </div>
-                </div>
-                <div class="bento-desc mt-2">استخدم كاميرا الهاتف لتسجيل الحضور</div>
-                <button class="btn-bento mt-3 w-100" data-bs-toggle="modal" data-bs-target="#qrScannerModal">مسح باركود (QR)</button>
-            </div>
-        </div>
-
-        <div class="row">
-            <!-- التقويم التفاعلي -->
-            <div class="col-lg-8 mb-4">
-                <div class="bento-card h-100">
-                    <div class="bento-card-header border-bottom border-secondary pb-3 mb-3">
-                        <h3 class="bento-card-title text-white fs-5">
-                            <i class="fas fa-calendar-alt me-2 text-primary"></i>تقويم التدريبات والفعاليات
-                        </h3>
-                    </div>
-                    <div class="card-body p-0">
-                        <div id="calendar" style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- الجانب الأيسر: الرسم البياني والإشعارات -->
-            <div class="col-lg-4 mb-4">
-                <!-- إشعارات ذكية -->
-                <div class="bento-card h-100">
-                    <div class="bento-card-header border-bottom border-secondary pb-3 mb-3">
-                        <h3 class="bento-card-title text-white fs-5">
-                            <i class="fas fa-bell me-2 text-warning"></i>آخر الإشعارات
-                        </h3>
-                    </div>
-                    <div class="card-body p-0 d-flex flex-column justify-content-center align-items-center h-100" style="min-height: 200px;">
-                        <i class="fas fa-bell-slash fa-3x text-secondary mb-3"></i>
-                        <p class="text-white-50 text-center fs-6">لا توجد إشعارات جديدة حالياً</p>
+                <!-- 3 Quick Action Buttons -->
+                <div class="col-12 col-lg-5 text-lg-start">
+                    <div class="d-flex gap-2 gap-md-3 justify-content-between justify-content-lg-end flex-wrap flex-sm-nowrap">
+                        <a href="{{ route('graduate.trainings') }}" class="btn btn-light bg-white text-primary fw-bold py-2 px-2.5 py-sm-2.5 px-sm-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-1.5 gap-sm-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.84rem; transition: transform 0.2s ease;">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>التدريبات</span>
+                        </a>
+                        <a href="{{ route('graduate.job-opportunities.index') }}" class="btn btn-warning text-dark fw-bold py-2 px-2.5 py-sm-2.5 px-sm-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-1.5 gap-sm-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.84rem; transition: transform 0.2s ease;">
+                            <i class="fas fa-briefcase"></i>
+                            <span>فرص العمل</span>
+                        </a>
+                        <button class="btn btn-info text-white fw-bold py-2 px-2.5 py-sm-2.5 px-sm-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-1.5 gap-sm-2 border-0 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.84rem; transition: transform 0.2s ease;" data-bs-toggle="modal" data-bs-target="#qrScannerModal">
+                            <i class="fas fa-qrcode"></i>
+                            <span>مسح QR</span>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- QR Scanner Modal -->
-    <div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="qrScannerModalLabel">ماسح الباركود (QR)</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show border-0 rounded-3 shadow-sm mb-3" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show border-0 rounded-3 shadow-sm mb-3" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <!-- بطاقات الإحصائيات (2x2 على الموبايل و 4 أعمدة على الديسكتوب) -->
+    <div class="row g-2 g-md-3 mb-4">
+        <!-- البرامج التدريبية -->
+        <div class="col-6 col-xl-3">
+            <a href="{{ route('graduate.trainings') }}" class="text-decoration-none">
+                <div class="card border-0 rounded-4 shadow-sm p-3 h-100 transition-hover" style="background: #ffffff;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted fw-bold" style="font-size: 0.78rem;">البرامج المتاحة</span>
+                        <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background: rgba(37, 99, 235, 0.1); color: #2563eb;">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                    </div>
+                    <div class="fs-3 fw-bolder text-primary mb-1">{{ $totalTrainings ?? 0 }}</div>
+                    <div class="text-muted small d-flex align-items-center justify-content-between" style="font-size: 0.7rem;">
+                        <span>تصفح التدريبات</span>
+                        <i class="fas fa-arrow-left text-primary" style="font-size: 0.65rem;"></i>
+                    </div>
                 </div>
-                <div class="modal-body text-center">
-                    <p class="text-muted mb-3">قم بتوجيه الكاميرا نحو باركود جناح الشركة لتسليم سيرتك الذاتية</p>
-                    <div id="reader" style="width: 100%; max-width: 400px; margin: 0 auto;"></div>
+            </a>
+        </div>
+
+        <!-- فرص العمل -->
+        <div class="col-6 col-xl-3">
+            <a href="{{ route('graduate.job-opportunities.index') }}" class="text-decoration-none">
+                <div class="card border-0 rounded-4 shadow-sm p-3 h-100 transition-hover" style="background: #ffffff;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted fw-bold" style="font-size: 0.78rem;">فرص العمل</span>
+                        <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                    </div>
+                    <div class="fs-3 fw-bolder text-success mb-1">{{ \App\Models\JobOpportunity::where('status', 'open')->count() ?? 0 }}</div>
+                    <div class="text-muted small d-flex align-items-center justify-content-between" style="font-size: 0.7rem;">
+                        <span>الوظائف النشطة</span>
+                        <i class="fas fa-arrow-left text-success" style="font-size: 0.65rem;"></i>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+            </a>
+        </div>
+
+        <!-- طلباتي وترشيحاتي -->
+        <div class="col-6 col-xl-3">
+            <a href="{{ route('graduate.my-applications') }}" class="text-decoration-none">
+                <div class="card border-0 rounded-4 shadow-sm p-3 h-100 transition-hover" style="background: #ffffff;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted fw-bold" style="font-size: 0.78rem;">طلباتي</span>
+                        <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                    </div>
+                    <div class="fs-3 fw-bolder text-warning mb-1">{{ $myApplications ?? 0 }}</div>
+                    <div class="text-muted small d-flex align-items-center justify-content-between" style="font-size: 0.7rem;">
+                        <span>متابعة الطلبات</span>
+                        <i class="fas fa-arrow-left text-warning" style="font-size: 0.65rem;"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- تسجيل الحضور الذكي -->
+        <div class="col-6 col-xl-3">
+            <div class="card border-0 rounded-4 shadow-sm p-3 h-100 transition-hover" style="background: #ffffff; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#qrScannerModal">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted fw-bold" style="font-size: 0.78rem;">تسجيل الحضور</span>
+                    <div class="rounded-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background: rgba(14, 165, 233, 0.1); color: #0ea5e9;">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                </div>
+                <div class="fs-4 fw-bolder text-info mb-1"><i class="fas fa-camera"></i></div>
+                <div class="text-muted small d-flex align-items-center justify-content-between" style="font-size: 0.7rem;">
+                    <span>مسح الباركود</span>
+                    <i class="fas fa-expand text-info" style="font-size: 0.65rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- التقويم والإشعارات -->
+    <div class="row g-3 g-md-4 mb-4">
+        <!-- التقويم التفاعلي / الأجندة -->
+        <div class="col-lg-8">
+            <div class="card border-0 rounded-4 shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h5 class="card-title mb-0 text-primary fw-bold fs-6 fs-md-5">
+                        <i class="fas fa-calendar-alt me-2"></i>تقويم التدريبات والفعاليات
+                    </h5>
+                    <!-- Switcher for Mobile -->
+                    <div class="btn-group btn-group-sm d-md-none" role="group">
+                        <button type="button" class="btn btn-outline-primary active" id="btnShowAgenda" onclick="toggleCalendarView('agenda')">
+                            <i class="fas fa-list me-1"></i>الأجندة
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" id="btnShowCalendar" onclick="toggleCalendarView('calendar')">
+                            <i class="fas fa-calendar me-1"></i>التقويم
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-3">
+                    <!-- Agenda List for Mobile -->
+                    <div id="mobile-agenda-view" class="d-md-none">
+                        @if(isset($calendarTrainings) && count($calendarTrainings) > 0)
+                            <div class="d-flex flex-column gap-2">
+                                @foreach($calendarTrainings as $event)
+                                    <div class="p-3 rounded-3 border-start border-4 border-primary bg-light d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="fw-bold text-dark mb-1 fs-6">{{ $event['title'] ?? 'برنامج تدريبي' }}</h6>
+                                            <div class="text-muted small d-flex align-items-center gap-2">
+                                                <span><i class="fas fa-calendar-day text-primary me-1"></i> {{ \Carbon\Carbon::parse($event['start'])->format('Y-m-d') }}</span>
+                                            </div>
+                                        </div>
+                                        @if(!empty($event['url']))
+                                            <a href="{{ $event['url'] }}" class="btn btn-sm btn-primary rounded-pill px-3">
+                                                عرض التفاصيل
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-4 text-muted">
+                                <i class="fas fa-calendar-check fa-2x mb-2 opacity-50"></i>
+                                <p class="small mb-0">لا توجد تدريبات مجدولة حالياً</p>
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Full Calendar Container -->
+                    <div id="calendar-container">
+                        <div id="calendar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- الجانب الأيسر: الإشعارات وحالة الطلبات -->
+        <div class="col-lg-4">
+            <div class="card border-0 rounded-4 shadow-sm h-100 d-flex flex-column">
+                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 text-primary fw-bold fs-6 fs-md-5">
+                        <i class="fas fa-bell me-2 text-warning"></i>آخر التنبيهات
+                    </h5>
+                    <a href="{{ route('notifications.index') }}" class="small text-decoration-none fw-bold text-primary">
+                        عرض الكل
+                    </a>
+                </div>
+                <div class="card-body p-4 d-flex flex-column justify-content-center align-items-center flex-grow-1 text-center" style="min-height: 200px;">
+                    <div class="rounded-circle bg-light text-muted d-flex align-items-center justify-content-center mb-3" style="width: 54px; height: 54px;">
+                        <i class="fas fa-bell-slash fa-xl opacity-50"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-1 fs-6">مركز الإشعارات</h6>
+                    <p class="text-muted small mb-0">سيتم إعلامك فور تحديث حالة طلباتك أو جدولة المقابلات والتدريبات</p>
                 </div>
             </div>
         </div>
@@ -167,139 +245,260 @@
 
     <!-- تتبع التقدم في التدريبات الحالية -->
     @if($activeTrainings->count() > 0)
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
-                            <i class="fas fa-tasks me-2"></i>
-                            التدريبات الحالية والتقدم
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            @foreach($activeTrainings as $app)
-                                <div class="col-md-6 mb-3">
-                                    <div class="p-3 border rounded bg-light">
-                                        <div class="d-flex justify-content-between mb-2">
-                                            <span class="fw-bold">{{ $app->training->title }}</span>
-                                            <span class="badge bg-info">{{ $app->progress }}% مكتمل</span>
-                                        </div>
-                                        <div class="progress" style="height: 10px;">
-                                            <div class="progress-bar bg-success" role="progressbar"
-                                                style="width: {{ $app->progress }}%" aria-valuenow="{{ $app->progress }}"
-                                                aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                        <div class="mt-2 d-flex justify-content-between text-muted small">
-                                            <span><i class="fas fa-calendar-start me-1"></i> البداية:
-                                                {{ $app->training->start_date->format('Y-m-d') }}</span>
-                                            <span><i class="fas fa-calendar-check me-1"></i> النهاية:
-                                                {{ $app->training->end_date ? $app->training->end_date->format('Y-m-d') : 'غير محدد' }}</span>
-                                        </div>
-                                    </div>
+        <div class="card-modern mb-4">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="card-title mb-0 text-primary fw-bold">
+                    <i class="fas fa-tasks me-2"></i>التدريبات الحالية والتقدم
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    @foreach($activeTrainings as $app)
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-3 bg-light">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="fw-bold text-dark">{{ $app->training->title }}</span>
+                                    <span class="badge rounded-pill px-2.5 py-1 small fw-bold" style="background: #eff6ff; color: #2563eb; border: 1.5px solid #3b82f6; box-shadow: none !important; font-size: 0.75rem;">{{ $app->progress }}% مكتمل</span>
                                 </div>
-                            @endforeach
+                                <div class="progress rounded-pill" style="height: 8px;">
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                        style="width: {{ $app->progress }}%" aria-valuenow="{{ $app->progress }}"
+                                        aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <div class="mt-2 d-flex justify-content-between text-muted small">
+                                    <span><i class="fas fa-calendar-alt me-1"></i> البداية: {{ $app->training->start_date->format('Y-m-d') }}</span>
+                                    <span><i class="fas fa-calendar-check me-1"></i> النهاية: {{ $app->training->end_date ? $app->training->end_date->format('Y-m-d') : 'غير محدد' }}</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
     @endif
 
-    <!-- حالة الترشيحات -->
+    <!-- حالة الترشيحات الوظيفية (Bento Cards Layout) -->
     @if($nominations->count() > 0)
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
-                            <i class="fas fa-user-check me-2"></i>
-                            حالة الترشيحات الوظيفية
-                        </h6>
+        <div class="card border-0 rounded-4 shadow-sm mb-4 overflow-hidden" style="background: #ffffff;">
+            <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px; background: rgba(37, 99, 235, 0.1); color: #2563eb; font-size: 1.2rem;">
+                        <i class="fas fa-briefcase"></i>
                     </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th>الشركة</th>
-                                        <th>الوظيفة</th>
-                                        <th>تاريخ الترشيح</th>
-                                        <th>الحالة</th>
-                                        <th>ملاحظات</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($nominations as $nomination)
-                                        <tr>
-                                            <td>{{ $nomination->jobOpportunity->company->name ?? 'غير محدد' }}</td>
-                                            <td>{{ $nomination->jobOpportunity->title ?? 'غير محدد' }}</td>
-                                            <td>{{ $nomination->created_at->format('Y-m-d') }}</td>
-                                            <td>
-                                                <span
-                                                    class="badge bg-{{ $nomination->status == 'accepted' ? 'success' : ($nomination->status == 'rejected' ? 'danger' : 'warning') }}">
-                                                    {{ $nomination->status_text }}
-                                                </span>
-                                            </td>
-                                            <td>{{ Str::limit($nomination->nomination_notes, 50) }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h5 class="card-title mb-0 text-dark fw-bold">حالة الترشيحات الوظيفية</h5>
+                            <span class="badge rounded-pill px-2.5 py-1 small fw-bold" style="background: #eff6ff; color: #2563eb; border: 1.5px solid #93c5fd; box-shadow: none !important; font-size: 0.72rem;">{{ $nominations->count() }} ترشيح</span>
                         </div>
+                        <small class="text-muted" style="font-size: 0.78rem;">متابعة طلبات التوظيف، مواعيد المقابلات، والردود الرسمية للشركات</small>
                     </div>
+                </div>
+                <a href="{{ route('graduate.my-applications') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">
+                    عرض جميع الترشيحات <i class="fas fa-arrow-left ms-1"></i>
+                </a>
+            </div>
+            <div class="card-body p-3 p-md-4">
+                <div class="row g-3">
+                    @foreach($nominations as $nomination)
+                        @php
+                            $company = $nomination->jobOpportunity->company ?? null;
+                            $companyName = $company->name ?? 'شركة معتمدة';
+                            $companyLogo = $company->logo_path ?? null;
+                            
+                            // Stepper stages: 1: submitted, 2: review, 3: interview, 4: final
+                            $step = 1;
+                            if ($nomination->status == 'pending') $step = 2;
+                            elseif ($nomination->status == 'interview_scheduled') $step = 3;
+                            elseif (in_array($nomination->status, ['accepted', 'rejected', 'withdrawn'])) $step = 4;
+
+                            $progressPercent = ($step - 1) * 33.33;
+                            $progressColor = '#2563eb';
+                            if ($step == 2) $progressColor = '#f59e0b';
+                            elseif ($step == 3) $progressColor = '#0ea5e9';
+                            elseif ($step == 4) $progressColor = ($nomination->status == 'accepted' ? '#10b981' : '#ef4444');
+                        @endphp
+                        <div class="col-12">
+                            <div class="p-3 p-md-4 rounded-4 border transition-hover position-relative" style="background: #f8fafc; border-color: #e2e8f0 !important;">
+                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                                    <!-- Company & Opportunity Details -->
+                                    <div class="d-flex align-items-center gap-3">
+                                        @if($companyLogo)
+                                            <img src="{{ asset('storage/' . $companyLogo) }}" alt="{{ $companyName }}" class="rounded-3 shadow-sm object-fit-cover flex-shrink-0" style="width: 52px; height: 52px; border: 1px solid #e2e8f0;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <div class="rounded-3 bg-white text-primary fw-bold shadow-sm align-items-center justify-content-center flex-shrink-0 border" style="width: 52px; height: 52px; font-size: 1.4rem; display: none;">
+                                                {{ mb_substr($companyName, 0, 1) }}
+                                            </div>
+                                        @else
+                                            <div class="rounded-3 bg-white text-primary fw-bold shadow-sm d-flex align-items-center justify-content-center flex-shrink-0 border" style="width: 52px; height: 52px; font-size: 1.4rem;">
+                                                {{ mb_substr($companyName, 0, 1) }}
+                                            </div>
+                                        @endif
+                                        <div>
+                                            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                                                <h6 class="fw-bold text-dark mb-0 fs-6">{{ $nomination->jobOpportunity->title ?? 'فرصة عمل' }}</h6>
+                                                @if($nomination->nomination_type == 'self')
+                                                    <span class="badge rounded-pill px-2.5 py-1 small fw-bold" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; box-shadow: none !important; font-size: 0.7rem;">
+                                                        <i class="fas fa-user me-1"></i>تقديم مباشر
+                                                    </span>
+                                                @else
+                                                    <span class="badge rounded-pill px-2.5 py-1 small fw-bold" style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; box-shadow: none !important; font-size: 0.7rem;">
+                                                        <i class="fas fa-star me-1"></i>ترشيح من المكتب
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2 text-muted small flex-wrap" style="font-size: 0.78rem;">
+                                                <span class="d-flex align-items-center gap-1"><i class="fas fa-building text-primary"></i> {{ $companyName }}</span>
+                                                <span class="text-muted">•</span>
+                                                <span class="d-flex align-items-center gap-1"><i class="fas fa-map-marker-alt text-danger"></i> {{ $nomination->jobOpportunity->location ?? 'ليبيا' }}</span>
+                                                <span class="text-muted">•</span>
+                                                <span class="d-flex align-items-center gap-1"><i class="far fa-calendar-alt text-secondary"></i> {{ $nomination->created_at->format('Y/m/d') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Status & Action (Clean Outline Style like Details Button) -->
+                                    <div class="d-flex align-items-center gap-2 w-100 w-md-auto justify-content-between justify-content-md-end">
+                                        @if($nomination->status == 'accepted')
+                                            <span class="badge rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5" style="background: #f0fdf4; color: #15803d; border: 1.5px solid #22c55e; box-shadow: none !important; font-size: 0.78rem;">
+                                                <i class="fas fa-check-circle"></i> تم القبول بنجاح
+                                            </span>
+                                        @elseif($nomination->status == 'interview_scheduled')
+                                            <span class="badge rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5" style="background: #eff6ff; color: #1d4ed8; border: 1.5px solid #3b82f6; box-shadow: none !important; font-size: 0.78rem;">
+                                                <i class="fas fa-calendar-check"></i> مقابلة مجدولة
+                                            </span>
+                                        @elseif($nomination->status == 'rejected' || $nomination->status == 'withdrawn')
+                                            <span class="badge rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5" style="background: #fef2f2; color: #b91c1c; border: 1.5px solid #ef4444; box-shadow: none !important; font-size: 0.78rem;">
+                                                <i class="fas fa-times-circle"></i> غير مكتمل
+                                            </span>
+                                        @else
+                                            <span class="badge rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5" style="background: #fffbeb; color: #b45309; border: 1.5px solid #f59e0b; box-shadow: none !important; font-size: 0.78rem;">
+                                                <i class="fas fa-hourglass-half"></i> قيد المراجعة
+                                            </span>
+                                        @endif
+
+                                        <a href="{{ route('graduate.job-opportunities.show', $nomination->job_opportunity_id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 text-nowrap fw-bold" style="box-shadow: none !important;">
+                                            التفاصيل <i class="fas fa-arrow-left ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Stepper Progress Tracker with Connecting Line -->
+                                <div class="mt-3 pt-3 border-top">
+                                    <div class="mx-auto" style="max-width: 580px;">
+                                        <div class="position-relative py-1">
+                                            <!-- Progress Line Background -->
+                                            <div class="position-absolute" style="top: 15px; right: 12.5%; left: 12.5%; height: 3px; background: #e2e8f0; z-index: 1;">
+                                                <!-- Active Progress Fill (RTL) -->
+                                                <div class="h-100" style="width: {{ $progressPercent }}%; background: {{ $progressColor }}; transition: width 0.4s ease;"></div>
+                                            </div>
+
+                                            <div class="row text-center g-0 position-relative" style="z-index: 2;">
+                                                <div class="col-3">
+                                                    <div class="d-flex flex-column align-items-center">
+                                                        <div class="rounded-circle d-flex align-items-center justify-content-center mb-1 text-white shadow-sm" style="width: 28px; height: 28px; font-size: 0.72rem; background: #2563eb; border: 3px solid #ffffff;">
+                                                            <i class="fas fa-check"></i>
+                                                        </div>
+                                                        <span class="small fw-bold text-primary" style="font-size: 0.72rem;">تم التقديم</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-3">
+                                                    <div class="d-flex flex-column align-items-center">
+                                                        <div class="rounded-circle d-flex align-items-center justify-content-center mb-1 text-white shadow-sm" style="width: 28px; height: 28px; font-size: 0.72rem; background: {{ $step >= 2 ? ($nomination->status == 'pending' ? '#f59e0b' : '#2563eb') : '#cbd5e1' }}; border: 3px solid #ffffff;">
+                                                            <i class="fas {{ $step > 2 ? 'fa-check' : 'fa-hourglass-half' }}"></i>
+                                                        </div>
+                                                        <span class="small fw-bold {{ $step >= 2 ? ($nomination->status == 'pending' ? 'text-warning' : 'text-primary') : 'text-muted' }}" style="font-size: 0.72rem;">قيد الفرز</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-3">
+                                                    <div class="d-flex flex-column align-items-center">
+                                                        <div class="rounded-circle d-flex align-items-center justify-content-center mb-1 text-white shadow-sm" style="width: 28px; height: 28px; font-size: 0.72rem; background: {{ $step >= 3 ? ($nomination->status == 'interview_scheduled' ? '#0ea5e9' : '#2563eb') : '#cbd5e1' }}; border: 3px solid #ffffff;">
+                                                            <i class="fas {{ $step > 3 ? 'fa-check' : 'fa-calendar-alt' }}"></i>
+                                                        </div>
+                                                        <span class="small fw-bold {{ $step >= 3 ? ($nomination->status == 'interview_scheduled' ? 'text-info' : 'text-primary') : 'text-muted' }}" style="font-size: 0.72rem;">المقابلة</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-3">
+                                                    <div class="d-flex flex-column align-items-center">
+                                                        <div class="rounded-circle d-flex align-items-center justify-content-center mb-1 text-white shadow-sm" style="width: 28px; height: 28px; font-size: 0.72rem; background: {{ $step >= 4 ? ($nomination->status == 'accepted' ? '#10b981' : '#ef4444') : '#cbd5e1' }}; border: 3px solid #ffffff;">
+                                                            <i class="fas {{ $nomination->status == 'accepted' ? 'fa-check' : ($nomination->status == 'rejected' ? 'fa-times' : 'fa-flag') }}"></i>
+                                                        </div>
+                                                        <span class="small fw-bold {{ $step >= 4 ? ($nomination->status == 'accepted' ? 'text-success' : 'text-danger') : 'text-muted' }}" style="font-size: 0.72rem;">القرار النهائي</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Interview Highlight Alert (if scheduled) -->
+                                @if($nomination->interview_date)
+                                    <div class="mt-3 p-2.5 px-3 rounded-3 bg-info bg-opacity-10 border border-info border-opacity-25 d-flex align-items-center justify-content-between flex-wrap gap-2 text-dark small" style="font-size: 0.78rem;">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fas fa-calendar-check text-info fs-6"></i>
+                                            <span><strong>موعد المقابلة:</strong> {{ $nomination->interview_date->format('Y-m-d') }} @if($nomination->interview_time) الساعة {{ $nomination->interview_time }} @endif</span>
+                                        </div>
+                                        @if($nomination->interview_location)
+                                            <div>
+                                                <i class="fas fa-map-marker-alt text-danger me-1"></i><strong>المكان:</strong> {{ $nomination->interview_location }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+
+                                @if($nomination->notes)
+                                    <div class="mt-2 text-muted small" style="font-size: 0.75rem;">
+                                        <i class="fas fa-info-circle text-primary me-1"></i>{{ $nomination->notes }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
     @endif
 
     <!-- الصف السفلي: التدريبات الموصى بها وطلباتي الأخيرة -->
-    <div class="row">
+    <div class="row g-4 mb-4">
         <!-- التدريبات الموصى بها -->
-        <div class="col-xl-6 col-lg-6 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-star me-2 text-warning"></i>
-                        التدريبات الموصى بها
-                    </h6>
-                    <a href="{{ route('graduate.trainings') }}" class="btn btn-sm btn-outline-primary">
+        <div class="col-lg-6">
+            <div class="card-modern h-100">
+                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0 text-primary fw-bold">
+                        <i class="fas fa-star me-2 text-warning"></i>التدريبات الموصى بها
+                    </h5>
+                    <a href="{{ route('graduate.trainings') }}" class="btn btn-sm btn-outline-primary-modern">
                         عرض الكل <i class="fas fa-arrow-left ms-1"></i>
                     </a>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-3">
                     @if($recommendedTrainings->count() > 0)
                         <div class="list-group list-group-flush">
                             @foreach($recommendedTrainings as $training)
-                                <div class="list-group-item border-0 px-0 py-3">
+                                <a href="{{ route('graduate.trainings.show', $training->id) }}" class="list-group-item list-group-item-action border-bottom px-2 py-3">
                                     <div class="d-flex align-items-start">
-                                        <div class="flex-shrink-0">
-                                            <div class="training-icon bg-light rounded p-2">
-                                                <i class="fas fa-graduation-cap text-primary"></i>
-                                            </div>
+                                        <div class="rounded-circle bg-light text-primary d-flex align-items-center justify-content-center p-3 me-3 flex-shrink-0" style="width: 44px; height: 44px;">
+                                            <i class="fas fa-graduation-cap"></i>
                                         </div>
-                                        <div class="flex-grow-1 ms-3">
-                                            <h6 class="mb-1">{{ $training->title }}</h6>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 fw-bold text-dark">{{ $training->title }}</h6>
                                             <p class="text-muted small mb-2">{{ Str::limit($training->description, 70) }}</p>
                                             <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <small class="text-muted">
-                                                        <i class="fas fa-calendar me-1"></i>
-                                                        {{ $training->start_date->format('Y-m-d') }}
-                                                    </small>
-                                                </div>
-                                                <span class="badge bg-primary">
-                                                    {{ $training->type_arabic }}
+                                                <small class="text-muted">
+                                                    <i class="fas fa-calendar me-1"></i>
+                                                    {{ $training->start_date->format('Y-m-d') }}
+                                                </small>
+                                                <span class="badge bg-light text-primary border border-primary rounded-pill px-2 py-1 small">
+                                                    {{ $training->type_arabic ?? 'تدريب' }}
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </a>
                             @endforeach
                         </div>
                     @else
-                        <div class="text-center py-4">
-                            <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                        <div class="text-center py-5">
+                            <i class="fas fa-graduation-cap fa-3x text-muted mb-3 opacity-50"></i>
                             <p class="text-muted mb-0">لا توجد تدريبات موصى بها حالياً</p>
                         </div>
                     @endif
@@ -308,47 +507,46 @@
         </div>
 
         <!-- طلباتي الأخيرة -->
-        <div class="col-xl-6 col-lg-6 mb-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-history me-2 text-info"></i>
-                        طلباتي الأخيرة
-                    </h6>
-                    <span class="badge bg-primary">{{ $myApplications }}</span>
+        <div class="col-lg-6">
+            <div class="card-modern h-100">
+                <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0 text-primary fw-bold">
+                        <i class="fas fa-history me-2 text-info"></i>طلباتي الأخيرة
+                    </h5>
+                    <span class="badge bg-light text-primary border border-primary rounded-pill px-3 py-1">{{ $myApplications }}</span>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-3">
                     @if($myRecentApplications->count() > 0)
                         <div class="list-group list-group-flush">
                             @foreach($myRecentApplications as $application)
-                                <div class="list-group-item border-0 px-0 py-3">
+                                <div class="list-group-item border-bottom px-2 py-3">
                                     <div class="d-flex align-items-center justify-content-between">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">{{ $application->training->title }}</h6>
-                                            <div class="d-flex align-items-center">
-                                                <span
-                                                    class="badge bg-{{ $application->status == 'approved' ? 'success' : ($application->status == 'rejected' ? 'danger' : 'warning') }} me-2">
-                                                    @if($application->status == 'pending') قيد المراجعة
-                                                    @elseif($application->status == 'approved') مقبول
-                                                    @elseif($application->status == 'rejected') مرفوض
-                                                    @endif
-                                                </span>
-                                                <small class="text-muted">
-                                                    <i class="fas fa-clock me-1"></i>
-                                                    {{ $application->created_at->diffForHumans() }}
-                                                </small>
-                                            </div>
+                                        <div>
+                                            <h6 class="mb-1 fw-bold text-dark">{{ $application->training->title }}</h6>
+                                            <small class="text-muted">
+                                                <i class="fas fa-clock me-1"></i>
+                                                {{ $application->created_at->diffForHumans() }}
+                                            </small>
+                                        </div>
+                                        <div>
+                                            @if($application->status == 'approved')
+                                                <span class="badge bg-light text-success border border-success rounded-pill px-3 py-1">مقبول</span>
+                                            @elseif($application->status == 'rejected')
+                                                <span class="badge bg-light text-danger border border-danger rounded-pill px-3 py-1">مرفوض</span>
+                                            @else
+                                                <span class="badge bg-light text-warning border border-warning rounded-pill px-3 py-1">قيد المراجعة</span>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
                     @else
-                        <div class="text-center py-4">
-                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                            <p class="text-muted mb-0">لا توجد طلبات سابقة</p>
-                            <a href="{{ route('graduate.trainings') }}" class="btn btn-primary mt-2">
-                                <i class="fas fa-paper-plane me-2"></i>تقديم طلب جديد
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3 opacity-50"></i>
+                            <p class="text-muted mb-3">لا توجد طلبات سابقة</p>
+                            <a href="{{ route('graduate.trainings') }}" class="btn btn-sm btn-primary-modern">
+                                <i class="fas fa-paper-plane me-1"></i> تقديم طلب جديد
                             </a>
                         </div>
                     @endif
@@ -356,378 +554,218 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- QR Scanner Modal -->
+<div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content card-modern p-0 overflow-hidden border-0">
+            <div class="modal-header bg-white py-3 border-bottom">
+                <h5 class="modal-title text-primary fw-bold" id="qrScannerModalLabel">
+                    <i class="fas fa-qrcode me-2"></i>ماسح الباركود (QR)
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <p class="text-muted mb-3">قم بتوجيه الكاميرا نحو باركود جناح الشركة أو الفعالية لتسجيل حضورك أو تسليم سيرتك الذاتية</p>
+                <div id="reader" style="width: 100%; max-width: 350px; margin: 0 auto; border-radius: 12px; overflow: hidden;"></div>
+            </div>
+            <div class="modal-footer bg-light border-top">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">إغلاق</button>
+            </div>
+        </div>
     </div>
+</div>
 
-    <style>
-        .stat-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border-right: 4px solid var(--university-gold);
+@push('styles')
+<style>
+    /* FullCalendar Responsive & Mobile Fixes */
+    .fc .fc-toolbar {
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-bottom: 1rem !important;
+    }
+    .fc .fc-toolbar-title {
+        font-size: 1.15rem !important;
+        font-weight: 700 !important;
+        color: var(--university-blue, #1e3a8a);
+    }
+    .fc .fc-button {
+        font-size: 0.8rem !important;
+        padding: 0.25rem 0.6rem !important;
+        border-radius: 6px !important;
+        box-shadow: none !important;
+    }
+    .fc .fc-button-primary {
+        background-color: var(--university-blue, #1e3a8a);
+        border-color: var(--university-blue, #1e3a8a);
+    }
+    .fc .fc-button-primary:hover, .fc .fc-button-primary:focus, .fc .fc-button-primary.fc-button-active {
+        background-color: #1e40af !important;
+        border-color: #1e40af !important;
+    }
+    .fc-col-header-cell-cushion {
+        font-size: 0.75rem !important;
+        padding: 4px 1px !important;
+        text-decoration: none !important;
+        color: #4b5563 !important;
+        font-weight: 600 !important;
+        display: block;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+    @media (max-width: 576px) {
+        .fc .fc-toolbar {
+            justify-content: center !important;
         }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
-        }
-
-        .card-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
+        .fc .fc-toolbar-chunk {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-        }
-
-        .bg-gradient-primary {
-            background: linear-gradient(135deg, var(--university-blue), #3b82f6);
-        }
-
-        .bg-gradient-success {
-            background: linear-gradient(135deg, #10b981, #059669);
-        }
-
-        .bg-gradient-warning {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-        }
-
-        .bg-gradient-info {
-            background: linear-gradient(135deg, #06b6d4, #0891b2);
-        }
-
-        .training-icon {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
             justify-content: center;
         }
-
-        /* Calendar Styling */
-        #calendar {
-            max-width: 100%;
-            margin: 0 auto;
-            font-family: 'Tajawal', sans-serif;
+        .fc .fc-toolbar-title {
+            font-size: 1.05rem !important;
+            width: 100%;
+            text-align: center;
+            order: -1;
+            margin-bottom: 0.25rem !important;
         }
-
-        .fc-event {
-            cursor: pointer;
+        .fc-col-header-cell-cushion {
+            font-size: 0.7rem !important;
+            padding: 3px 0 !important;
         }
-
-        /* ===== تحسينات الموبايل ===== */
-        @media (max-width: 768px) {
-
-            /* تقليل الهوامش العامة */
-            .container-fluid {
-                padding-left: 10px !important;
-                padding-right: 10px !important;
-            }
-
-            /* بطاقات الإحصائيات */
-            .stat-card {
-                margin-bottom: 15px;
-            }
-
-            .stat-card .card-body {
-                padding: 15px !important;
-            }
-
-            .card-icon {
-                width: 50px;
-                height: 50px;
-            }
-
-            .card-icon i {
-                font-size: 1.5rem !important;
-            }
-
-            .text-xs {
-                font-size: 0.75rem !important;
-            }
-
-            .h5 {
-                font-size: 1.1rem !important;
-            }
-
-            /* البطاقات العامة */
-            .card {
-                margin-bottom: 15px;
-            }
-
-            .card-header {
-                padding: 12px 15px !important;
-            }
-
-            .card-header h6 {
-                font-size: 0.95rem !important;
-            }
-
-            .card-body {
-                padding: 15px !important;
-            }
-
-            /* التقويم */
-            #calendar {
-                font-size: 0.85rem;
-            }
-
-            .fc .fc-toolbar {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .fc .fc-toolbar-title {
-                font-size: 1rem !important;
-                margin: 5px 0;
-            }
-
-            .fc .fc-button {
-                padding: 5px 10px !important;
-                font-size: 0.8rem !important;
-            }
-
-            .fc .fc-col-header-cell {
-                font-size: 0.75rem !important;
-                padding: 5px 2px !important;
-            }
-
-            .fc .fc-daygrid-day-number {
-                font-size: 0.8rem !important;
-            }
-
-            .fc .fc-event {
-                font-size: 0.7rem !important;
-                padding: 2px 4px !important;
-            }
-
-            /* الرسم البياني */
-            #applicationStatusChart {
-                height: 200px !important;
-            }
-
-            /* الجداول */
-            .table-responsive {
-                font-size: 0.85rem;
-            }
-
-            .table td,
-            .table th {
-                padding: 8px 5px !important;
-            }
-
-            /* الأزرار */
-            .btn {
-                font-size: 0.85rem;
-                padding: 6px 12px;
-            }
-
-            .btn-sm {
-                font-size: 0.75rem;
-                padding: 4px 8px;
-            }
-
-            /* القوائم */
-            .list-group-item {
-                padding: 10px !important;
-                font-size: 0.9rem;
-            }
-
-            /* شريط التقدم */
-            .progress {
-                height: 8px !important;
-            }
-
-            /* الشارات */
-            .badge {
-                font-size: 0.75rem;
-                padding: 4px 8px;
-            }
-
-            /* تحسين عرض الصفوف */
-            .row {
-                margin-left: -5px;
-                margin-right: -5px;
-            }
-
-            .row>[class*="col-"] {
-                padding-left: 5px;
-                padding-right: 5px;
-            }
-
-            /* إخفاء بعض العناصر غير الضرورية في الموبايل */
-            .d-none-mobile {
-                display: none !important;
-            }
+        .fc-daygrid-day-number {
+            font-size: 0.75rem !important;
+            padding: 2px 3px !important;
         }
-
-        /* شاشات صغيرة جداً (أقل من 576px) */
-        @media (max-width: 576px) {
-            .card-header h6 {
-                font-size: 0.85rem !important;
-            }
-
-            .h5 {
-                font-size: 1rem !important;
-            }
-
-            .fc .fc-toolbar-title {
-                font-size: 0.9rem !important;
-            }
-
-            .fc .fc-button {
-                padding: 4px 8px !important;
-                font-size: 0.75rem !important;
-            }
+        .fc-daygrid-event {
+            font-size: 0.68rem !important;
+            padding: 1px 3px !important;
+            border-radius: 3px !important;
         }
-    </style>
+    }
+</style>
+@endpush
 
-    @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-        <script src="https://unpkg.com/html5-qrcode"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                // --- HTML5 QR Code Scanner ---
-                let html5QrcodeScanner;
-                const qrModal = document.getElementById('qrScannerModal');
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // HTML5 QR Code Scanner
+            let html5QrcodeScanner;
+            const qrModal = document.getElementById('qrScannerModal');
 
-                qrModal.addEventListener('shown.bs.modal', function () {
-                    html5QrcodeScanner = new Html5QrcodeScanner(
-                        "reader",
-                        { fps: 10, qrbox: {width: 250, height: 250}, aspectRatio: 1.0 },
-                        /* verbose= */ false
-                    );
-                    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-                });
+            qrModal.addEventListener('shown.bs.modal', function () {
+                html5QrcodeScanner = new Html5QrcodeScanner(
+                    "reader",
+                    { fps: 10, qrbox: {width: 250, height: 250}, aspectRatio: 1.0 },
+                    /* verbose= */ false
+                );
+                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            });
 
-                qrModal.addEventListener('hidden.bs.modal', function () {
-                    if (html5QrcodeScanner) {
-                        html5QrcodeScanner.clear().catch(error => {
-                            console.error("Failed to clear html5QrcodeScanner. ", error);
-                        });
-                    }
-                });
-
-                function onScanSuccess(decodedText, decodedResult) {
-                    // Check if it's a URL
-                    if (decodedText.startsWith('http')) {
-                        // Stop scanning and redirect
-                        html5QrcodeScanner.clear();
-                        window.location.href = decodedText;
-                    } else {
-                        alert('هذا الباركود غير صالح للاستخدام هنا.');
-                    }
-                }
-
-                function onScanFailure(error) {
-                    // handle scan failure, usually better to ignore and keep scanning
-                }
-
-                // --- Chart.js: Application Status ---
-                var ctx = document.getElementById('applicationStatusChart').getContext('2d');
-                var applicationStats = @json($applicationStats);
-
-                var labels = {
-                    'pending': 'قيد المراجعة',
-                    'approved': 'مقبول',
-                    'rejected': 'مرفوض',
-                    'withdrawn': 'منسحب'
-                };
-
-                var colors = {
-                    'pending': '#f6c23e',
-                    'approved': '#1cc88a',
-                    'rejected': '#e74a3b',
-                    'withdrawn': '#858796'
-                };
-
-                var chartLabels = Object.keys(applicationStats).map(key => labels[key] || key);
-                var chartData = Object.values(applicationStats);
-                var chartColors = Object.keys(applicationStats).map(key => colors[key] || '#4e73df');
-
-                if (chartData.length === 0) {
-                    // Show empty state or placeholder if no data
-                    chartLabels = ['لا توجد بيانات'];
-                    chartData = [1];
-                    chartColors = ['#eaecf4'];
-                }
-
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: chartLabels,
-                        datasets: [{
-                            data: chartData,
-                            backgroundColor: chartColors,
-                            hoverBackgroundColor: chartColors,
-                            hoverBorderColor: "rgba(234, 236, 244, 1)",
-                        }],
-                    },
-                    options: {
-                        maintainAspectRatio: false,
-                        tooltips: {
-                            backgroundColor: "rgb(255,255,255)",
-                            bodyFontColor: "#858796",
-                            borderColor: '#dddfeb',
-                            borderWidth: 1,
-                            xPadding: 15,
-                            yPadding: 15,
-                            displayColors: false,
-                            caretPadding: 10,
-                        },
-                        legend: {
-                            display: true,
-                            position: 'bottom',
-                            labels: {
-                                fontFamily: 'Tajawal'
-                            }
-                        },
-                        cutoutPercentage: 80,
-                    },
-                });
-
-                // --- FullCalendar ---
-                // --- FullCalendar ---
-                var calendarEl = document.getElementById('calendar');
-                if (calendarEl) {
-                    // إجبار التقويم على أخذ ارتفاع مناسب للموبايل
-                    if (window.innerWidth < 768) {
-                        calendarEl.style.minHeight = "400px";
-                    }
-
-                    var calendar = new FullCalendar.Calendar(calendarEl, {
-                        initialView: 'dayGridMonth',
-                        locale: 'ar',
-                        direction: 'rtl',
-                        height: 'auto', // ارتفاع تلقائي مرن
-                        contentHeight: 'auto',
-                        headerToolbar: {
-                            left: 'prev,next',
-                            center: 'title',
-                            right: 'dayGridMonth,listMonth' // تبسيط الأزرار للموبايل
-                        },
-                        buttonText: {
-                            today: 'اليوم',
-                            month: 'شهر',
-                            week: 'أسبوع',
-                            list: 'قائمة'
-                        },
-                        events: @json($calendarTrainings),
-                        eventClick: function (info) {
-                            if (info.event.url) {
-                                window.location.href = info.event.url;
-                                info.jsEvent.preventDefault();
-                            }
-                        }
+            qrModal.addEventListener('hidden.bs.modal', function () {
+                if (html5QrcodeScanner) {
+                    html5QrcodeScanner.clear().catch(error => {
+                        console.error("Failed to clear html5QrcodeScanner. ", error);
                     });
-
-                    // تأخير بسيط للعرض لضمان تحميل العنصر
-                    setTimeout(function () {
-                        calendar.render();
-                        calendar.updateSize();
-                    }, 100);
                 }
             });
-        </script>
-    @endpush
-@endsection
+
+            function onScanSuccess(decodedText, decodedResult) {
+                if (decodedText.startsWith('http')) {
+                    html5QrcodeScanner.clear();
+                    window.location.href = decodedText;
+                } else {
+                    alert('هذا الباركود غير صالح للاستخدام هنا.');
+                }
+            }
+
+            function onScanFailure(error) {
+                // Ignore scanning cycle ticks
+            }
+
+            // FullCalendar
+            var calendarEl = document.getElementById('calendar');
+            var calendar;
+            if (calendarEl) {
+                var isSmallScreen = window.innerWidth < 480;
+                calendar = new FullCalendar.Calendar(calendarEl, {
+                    initialView: 'dayGridMonth',
+                    locale: 'ar',
+                    direction: 'rtl',
+                    height: 'auto',
+                    dayHeaderFormat: isSmallScreen ? { weekday: 'narrow' } : { weekday: 'short' },
+                    headerToolbar: {
+                        left: 'prev,next',
+                        center: 'title',
+                        right: 'dayGridMonth,listMonth'
+                    },
+                    buttonText: {
+                        today: 'اليوم',
+                        month: 'شهر',
+                        week: 'أسبوع',
+                        list: 'قائمة'
+                    },
+                    events: @json($calendarTrainings),
+                    eventClick: function (info) {
+                        if (info.event.url) {
+                            window.location.href = info.event.url;
+                            info.jsEvent.preventDefault();
+                        }
+                    }
+                });
+
+                setTimeout(function () {
+                    calendar.render();
+                    calendar.updateSize();
+                }, 100);
+
+                window.addEventListener('resize', function() {
+                    if (calendar) {
+                        calendar.setOption('dayHeaderFormat', window.innerWidth < 480 ? { weekday: 'narrow' } : { weekday: 'short' });
+                        calendar.updateSize();
+                    }
+                });
+            }
+
+            // Mobile Calendar / Agenda View Toggle
+            window.toggleCalendarView = function(view) {
+                const agendaView = document.getElementById('mobile-agenda-view');
+                const calendarContainer = document.getElementById('calendar-container');
+                const btnAgenda = document.getElementById('btnShowAgenda');
+                const btnCalendar = document.getElementById('btnShowCalendar');
+
+                if (view === 'agenda') {
+                    if (agendaView) agendaView.classList.remove('d-none');
+                    if (calendarContainer) calendarContainer.classList.add('d-none');
+                    btnAgenda?.classList.add('active');
+                    btnCalendar?.classList.remove('active');
+                } else {
+                    if (agendaView) agendaView.classList.add('d-none');
+                    if (calendarContainer) calendarContainer.classList.remove('d-none');
+                    btnCalendar?.classList.add('active');
+                    btnAgenda?.classList.remove('active');
+                    setTimeout(() => {
+                        if (calendar) {
+                            calendar.render();
+                            calendar.updateSize();
+                        }
+                    }, 50);
+                }
+            };
+
+            // Set initial state for mobile
+            if (window.innerWidth < 768) {
+                const calendarContainer = document.getElementById('calendar-container');
+                if (calendarContainer) {
+                    calendarContainer.classList.add('d-none');
+                }
+            }
+        });
+    </script>
+@endpush
+@endsection

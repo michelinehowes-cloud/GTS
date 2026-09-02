@@ -49,10 +49,10 @@
                             </div>
                             
                             <div class="col-md-6 mb-3">
-                                <label for="national_id" class="form-label">الرقم الوطني</label>
+                                <label for="national_id" class="form-label">رقم القيد الجامعي</label>
                                 <input type="text" class="form-control @error('national_id') is-invalid @enderror" 
                                        id="national_id" name="national_id" value="{{ old('national_id') }}"
-                                       placeholder="الرقم الوطني (اختياري)">
+                                       placeholder="رقم القيد بالجامعة (اختياري)">
                                 @error('national_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -85,15 +85,15 @@
                             </div>
                             
                             <div class="col-md-6 mb-3">
-                                <label for="gpa" class="form-label">المعدل التراكمي</label>
-                                <input type="number" step="0.01" min="0" max="4" 
+                                <label for="gpa" class="form-label">المعدل التراكمي (%)</label>
+                                <input type="number" step="0.01" min="0" max="100" 
                                        class="form-control @error('gpa') is-invalid @enderror" 
                                        id="gpa" name="gpa" value="{{ old('gpa') }}"
-                                       placeholder="مثال: 3.75">
+                                       placeholder="مثال: 85.50">
                                 @error('gpa')
                                     <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror>
-                                <small class="text-muted">من 0 إلى 4 (اختياري)</small>
+                                @enderror
+                                <small class="text-muted">النسبة المئوية من 0 إلى 100% (اختياري)</small>
                             </div>
                             
                             <div class="col-md-6 mb-3">

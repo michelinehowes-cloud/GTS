@@ -12,272 +12,210 @@
         $routePrefix = 'career-guidance';
     }
 @endphp
+
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3>إدارة الترشيحات</h3>
-                    <div class="d-flex gap-2">
-                        <span class="badge bg-primary fs-6">إجمالي الترشيحات: {{ $nominations->count() }}</span>
-                    </div>
+    <!-- Breadcrumbs -->
+    @include('components.breadcrumbs', [
+        'items' => [
+            ['label' => 'الرئيسية', 'url' => route('home')],
+            ['label' => 'لوحة الإرشاد المهني', 'url' => route($routePrefix . '.dashboard')],
+            ['label' => 'إدارة الترشيحات', 'active' => true],
+        ]
+    ])
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary fw-bold mb-0">
+            <i class="fas fa-paper-plane me-2"></i> إدارة الترشيحات
+        </h2>
+        <a href="{{ route($routePrefix . '.nominations.create') }}" class="btn btn-primary-modern">
+            <i class="fas fa-plus me-2"></i> إضافة ترشيح جديد
+        </a>
+    </div>
+
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
+            <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <!-- Search & Filter Card -->
+    <div class="card-modern mb-4">
+        <div class="card-body p-4">
+            <form method="GET" action="{{ route($routePrefix . '.nominations') }}" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label-modern"><i class="fas fa-briefcase me-1"></i> الفرصة الوظيفية</label>
+                    <select name="opportunity_id" class="form-select-modern">
+                        <option value="">جميع الفرص</option>
+                        @foreach($opportunities as $opportunity)
+                            <option value="{{ $opportunity->id }}" {{ request('opportunity_id') == $opportunity->id ? 'selected' : '' }}>
+                                {{ $opportunity->title }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
-                <div class="card-body">
-                    <!-- الفلاتر -->
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <label>فلترة حسب الفرصة:</label>
-                            <select class="form-select" onchange="window.location.href = this.value">
-    <option value="{{ route($routePrefix . '.nominations') }}">جميع الفرص</option>
-                                @foreach($opportunities as $opportunity)
-                                    <option value="{{ route($routePrefix . '.nominations', ['opportunity_id' => $opportunity->id]) }}" 
-                                        {{ request('opportunity_id') == $opportunity->id ? 'selected' : '' }}>
-                                        {{ $opportunity->title }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label>فلترة حسب الحالة:</label>
-                            <select class="form-select" onchange="window.location.href = this.value">
-                                <option value="{{ route($routePrefix . '.nominations') }}">جميع الحالات</option>
-                                @php
-                                    $statuses = [
-                                        'pending' => 'قيد المراجعة',
-                                        'sent_to_company' => 'مرسل للشركة',
-                                        'under_review' => 'قيد الدراسة',
-                                        'interview_scheduled' => 'مقابلة مجدولة',
-                                        'accepted' => 'مقبول',
-                                        'rejected' => 'مرفوض',
-                                        'withdrawn' => 'ملغي'
-                                    ];
-                                @endphp
-                                @foreach($statuses as $value => $text)
-                                    <option value="{{ route($routePrefix . '.nominations', ['status' => $value]) }}" 
-                                        {{ request('status') == $value ? 'selected' : '' }}>
-                                        {{ $text }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <label for="from_date">من تاريخ الترشيح:</label>
-                            <input type="date" id="from_date" name="from_date" class="form-control" 
-                                   value="{{ request('from_date') }}" 
-                                   onchange="applyDateFilter()">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="to_date">إلى تاريخ الترشيح:</label>
-                            <input type="date" id="to_date" name="to_date" class="form-control" 
-                                   value="{{ request('to_date') }}" 
-                                   onchange="applyDateFilter()">
-                        </div>
-                    </div>
 
-                    @if(session('success'))
-                        <div class="alert alert-success">
-                            <i class="fas fa-check-circle me-2"></i>
-                            {{ session('success') }}
-                        </div>
-                    @endif
+                <div class="col-md-3">
+                    <label class="form-label-modern"><i class="fas fa-tasks me-1"></i> حالة الترشيح</label>
+                    @php
+                        $statuses = [
+                            'pending' => 'قيد المراجعة',
+                            'sent_to_company' => 'مرسل للشركة',
+                            'under_review' => 'قيد الدراسة',
+                            'interview_scheduled' => 'مقابلة مجدولة',
+                            'accepted' => 'مقبول',
+                            'rejected' => 'مرفوض',
+                            'withdrawn' => 'ملغي'
+                        ];
+                    @endphp
+                    <select name="status" class="form-select-modern">
+                        <option value="">جميع الحالات</option>
+                        @foreach($statuses as $value => $text)
+                            <option value="{{ $value }}" {{ request('status') == $value ? 'selected' : '' }}>
+                                {{ $text }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-                    @if($nominations->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>الخريج</th>
-                                        <th>الفرصة</th>
-                                        <th>الشركة</th>
-                                        <th>تاريخ الترشيح</th>
-                                        <th>الحالة</th>
-                                        <th>النتيجة</th>
-                                        <th>الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($nominations as $nomination)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>
-                                            <strong>{{ $nomination->graduate->name }}</strong>
-                                            <br><small class="text-muted">{{ $nomination->graduate->major }}</small>
-                                        </td>
-                                        <td>{{ $nomination->jobOpportunity->title }}</td>
-                                        <td>{{ $nomination->jobOpportunity->company->name }}</td>
-                                        <td>{{ $nomination->nominated_at->format('Y-m-d') }}</td>
-                                        <td>
-                                            <span class="badge bg-{{ $nomination->status == 'accepted' ? 'success' : ($nomination->status == 'rejected' ? 'danger' : 'warning') }}">
-                                                {{ $nomination->status_text }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            @if($nomination->final_status)
-                                                <span class="badge bg-{{ $nomination->final_status == 'hired' ? 'success' : 'secondary' }}">
-                                                    {{ $nomination->final_status_text }}
-                                                </span>
-                                            @else
-                                                <span class="text-muted">لم يتم</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <!-- زر تحديث الحالة -->
-                                                <button type="button" class="btn btn-outline-primary btn-sm" 
-                                                        data-bs-toggle="modal" 
-                                                        data-bs-target="#updateStatusModal{{ $nomination->id }}"
-                                                        title="تحديث الحالة">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
+                <div class="col-md-2">
+                    <label class="form-label-modern"><i class="fas fa-calendar-alt me-1"></i> من تاريخ</label>
+                    <input type="date" name="from_date" class="form-control-modern" value="{{ request('from_date') }}">
+                </div>
 
-                                                <!-- زر عرض التفاصيل -->
-<a href="{{ route($routePrefix . '.nominations.show', $nomination->id) }}" class="btn btn-outline-info btn-sm" title="عرض التفاصيل">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                            </div>
+                <div class="col-md-2">
+                    <label class="form-label-modern"><i class="fas fa-calendar-check me-1"></i> إلى تاريخ</label>
+                    <input type="date" name="to_date" class="form-control-modern" value="{{ request('to_date') }}">
+                </div>
 
-                                            <!-- ✅ Modal لتحديث الحالة - هذا ما كان مفقودًا -->
-                                            <div class="modal fade" id="updateStatusModal{{ $nomination->id }}" tabindex="-1">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">تحديث حالة الترشيح</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                        </div>
-                                                        <form action="{{ route($routePrefix . '.nominations.update-status', $nomination->id) }}" method="POST">
-                                                            @csrf
-                                                            <div class="modal-body">
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">الحالة:</label>
-                                                                    <select name="status" class="form-select" required onchange="toggleFields('{{ $nomination->id }}', this.value)">
-                                                                        @foreach($statuses as $value => $text)
-                                                                            <option value="{{ $value }}" {{ $nomination->status == $value ? 'selected' : '' }}>
-                                                                                {{ $text }}
-                                                                            </option>
-                                                                        @endforeach
-                                                                    </select>
-                                                                </div>
-
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">النتيجة النهائية (اختياري):</label>
-                                                                    <select name="final_status" class="form-select">
-                                                                        <option value="">-- اختر النتيجة --</option>
-                                                                        <option value="hired" {{ $nomination->final_status == 'hired' ? 'selected' : '' }}>تم التوظيف</option>
-                                                                        <option value="not_hired" {{ $nomination->final_status == 'not_hired' ? 'selected' : '' }}>لم يتم التوظيف</option>
-                                                                        <option value="in_progress" {{ $nomination->final_status == 'in_progress' ? 'selected' : '' }}>قيد الإجراء</option>
-                                                                    </select>
-                                                                </div>
-                                                                
-                                                                <div id="interviewFields{{ $nomination->id }}" style="display: {{ $nomination->status == 'interview_scheduled' ? 'block' : 'none' }};">
-                                                                    <div class="border-top pt-3 mt-3 mb-3">
-                                                                        <h6 class="text-primary"><i class="fas fa-calendar-alt"></i> تفاصيل المقابلة</h6>
-                                                                        <div class="row g-2">
-                                                                            <div class="col-md-6">
-                                                                                <label class="form-label">التاريخ:</label>
-                                                                                <input type="date" name="interview_date" class="form-control" 
-                                                                                       value="{{ $nomination->interview_date ? $nomination->interview_date->format('Y-m-d') : '' }}">
-                                                                            </div>
-                                                                            <div class="col-md-6">
-                                                                                <label class="form-label">الوقت:</label>
-                                                                                <input type="time" name="interview_time" class="form-control" 
-                                                                                       value="{{ $nomination->interview_time }}">
-                                                                            </div>
-                                                                            <div class="col-12">
-                                                                                <label class="form-label">المكان:</label>
-                                                                                <input type="text" name="interview_location" class="form-control" 
-                                                                                       value="{{ $nomination->interview_location }}" 
-                                                                                       placeholder="رابط الاجتماع أو العنوان">
-                                                                            </div>
-                                                                            <div class="col-12">
-                                                                                <label class="form-label">ملاحظات المقابلة:</label>
-                                                                                <textarea name="interview_notes" class="form-control" rows="2">{{ $nomination->interview_notes }}</textarea>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">ملاحظات عامة:</label>
-                                                                    <textarea name="nomination_notes" class="form-control" rows="3" placeholder="أضف أي ملاحظات إضافية هنا...">{{ $nomination->nomination_notes }}</textarea>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                                                                <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- نهاية Modal -->
-
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-center py-5">
-                            <i class="fas fa-users fa-4x text-muted mb-3"></i>
-                            <h4 class="text-muted">لا توجد ترشيحات حالياً</h4>
-                            <p class="text-muted">سيظهر هنا جميع الترشيحات التي تم إجراؤها</p>
-                        </div>
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary-modern w-100">
+                        تصفية النتائج
+                    </button>
+                    @if(request()->hasAny(['opportunity_id', 'status', 'from_date', 'to_date']))
+                        <a href="{{ route($routePrefix . '.nominations') }}" class="btn btn-outline-secondary" title="إلغاء التصفية">
+                            <i class="fas fa-times"></i>
+                        </a>
                     @endif
                 </div>
-            </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Nominations Table -->
+    <div class="card-modern">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0 text-primary fw-bold">
+                <i class="fas fa-list me-2"></i>قائمة الترشيحات المسجلة
+            </h5>
+            <span class="badge bg-light text-primary border border-primary rounded-pill px-3 py-2">
+                {{ $nominations->count() }} ترشيح
+            </span>
+        </div>
+        <div class="card-body p-0">
+            @if($nominations->count() > 0)
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="py-3 px-4 border-0 text-secondary small text-uppercase fw-bold">الخريج</th>
+                                <th class="py-3 border-0 text-secondary small text-uppercase fw-bold">الفرصة والشركة</th>
+                                <th class="py-3 border-0 text-secondary small text-uppercase fw-bold text-center">حالة الترشيح</th>
+                                <th class="py-3 border-0 text-secondary small text-uppercase fw-bold text-center">القرار النهائي</th>
+                                <th class="py-3 border-0 text-secondary small text-uppercase fw-bold text-center">تاريخ الترشيح</th>
+                                <th class="py-3 px-4 border-0 text-secondary small text-uppercase fw-bold text-end">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-top-0">
+                            @foreach($nominations as $nomination)
+                            <tr>
+                                <td class="px-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-light text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; font-weight: 700;">
+                                            {{ mb_substr($nomination->graduate->name, 0, 1) }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">{{ $nomination->graduate->name }}</div>
+                                            <div class="small text-muted">{{ $nomination->graduate->major ?? 'خريج' }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark">{{ $nomination->jobOpportunity->title }}</div>
+                                    <div class="small text-primary">{{ $nomination->jobOpportunity->company->name ?? 'غير محدد' }}</div>
+                                </td>
+                                <td class="text-center">
+                                    @switch($nomination->status)
+                                        @case('pending')
+                                            <span class="badge bg-light text-warning border border-warning rounded-pill px-3 py-2">⏳ قيد المراجعة</span>
+                                            @break
+                                        @case('sent_to_company')
+                                            <span class="badge bg-light text-info border border-info rounded-pill px-3 py-2">📤 مرسل للشركة</span>
+                                            @break
+                                        @case('under_review')
+                                            <span class="badge bg-light text-primary border border-primary rounded-pill px-3 py-2">🔍 قيد الدراسة</span>
+                                            @break
+                                        @case('interview_scheduled')
+                                            <span class="badge bg-light text-info border border-info rounded-pill px-3 py-2">📅 مقابلة مجدولة</span>
+                                            @break
+                                        @case('accepted')
+                                            <span class="badge bg-light text-success border border-success rounded-pill px-3 py-2"><i class="fas fa-check-circle me-1"></i> مقبول</span>
+                                            @break
+                                        @case('rejected')
+                                            <span class="badge bg-light text-danger border border-danger rounded-pill px-3 py-2"><i class="fas fa-times-circle me-1"></i> مرفوض</span>
+                                            @break
+                                        @case('withdrawn')
+                                            <span class="badge bg-light text-secondary border border-secondary rounded-pill px-3 py-2">مسحوب</span>
+                                            @break
+                                        @default
+                                            <span class="badge bg-light text-secondary border rounded-pill px-3 py-2">{{ $nomination->status_text }}</span>
+                                    @endswitch
+                                </td>
+                                <td class="text-center">
+                                    @if($nomination->final_status == 'hired')
+                                        <span class="badge bg-light text-success border border-success rounded-pill px-3 py-2">
+                                            <i class="fas fa-check-circle me-1"></i> تم التوظيف
+                                        </span>
+                                    @elseif($nomination->final_status == 'not_hired')
+                                        <span class="badge bg-light text-danger border border-danger rounded-pill px-3 py-2">
+                                            <i class="fas fa-times-circle me-1"></i> لم يتم التوظيف
+                                        </span>
+                                    @elseif($nomination->final_status == 'in_progress')
+                                        <span class="badge bg-light text-primary border border-primary rounded-pill px-3 py-2">
+                                            قيد المعالجة
+                                        </span>
+                                    @else
+                                        <span class="text-muted small">لم يحدد بعد</span>
+                                    @endif
+                                </td>
+                                <td class="text-center text-muted small">
+                                    {{ $nomination->nominated_at ? $nomination->nominated_at->format('Y-m-d') : '-' }}
+                                </td>
+                                <td class="px-4 text-end">
+                                    <div class="btn-group">
+                                        <a href="{{ route($routePrefix . '.nominations.show', $nomination->id) }}" class="btn btn-sm btn-outline-info-modern" title="عرض التفاصيل">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ route($routePrefix . '.nominations.edit-status', $nomination->id) }}" class="btn btn-sm btn-outline-warning-modern" title="تحديث حالة الترشيح">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox text-muted display-4 mb-3 opacity-50"></i>
+                    <h5 class="text-dark fw-bold">لا توجد ترشيحات لعرضها</h5>
+                    <p class="text-muted">لم يتم العثور على أي ترشيحات تتطابق مع بحثك أو لم يتم إضافة ترشيحات بعد.</p>
+                </div>
+            @endif
         </div>
     </div>
 </div>
 @endsection
 
-@section('scripts')
-<script>
-function applyDateFilter() {
-    const fromDate = document.getElementById('from_date').value;
-    const toDate = document.getElementById('to_date').value;
-    let url = "{{ route($routePrefix . '.nominations') }}";
-    const params = new URLSearchParams(window.location.search);
-
-    if (params.has('status')) {
-        url += `?status=${params.get('status')}`;
-    } else if (params.has('opportunity_id')) {
-        url += `?opportunity_id=${params.get('opportunity_id')}`;
-    } else {
-        url += `?`;
-    }
-
-    if (fromDate) {
-        url += `${url.includes('?') ? '&' : '?'}from_date=${fromDate}`;
-    }
-    if (toDate) {
-        url += `${url.includes('?') ? '&' : '?'}to_date=${toDate}`;
-    }
-    window.location.href = url;
-}
-
-function toggleFields(nominationId, status) {
-    const interviewFields = document.getElementById(`interviewFields${nominationId}`);
-    
-    if (interviewFields) {
-        if (status === 'interview_scheduled') {
-            interviewFields.style.display = 'block';
-            // جعل الحقول مطلوبة
-            interviewFields.querySelectorAll('input[type="date"], input[type="time"]').forEach(input => {
-                input.required = true;
-            });
-        } else {
-            interviewFields.style.display = 'none';
-            // إزالة الصفة المطلوبة
-            interviewFields.querySelectorAll('input').forEach(input => {
-                input.required = false;
-            });
-        }
-    }
-}
-</script>
-@endsection

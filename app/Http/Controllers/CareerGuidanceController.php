@@ -93,7 +93,7 @@ class CareerGuidanceController extends Controller
                 'faculty' => 'required|string|max:255',
                 'major' => 'required|string|max:255',
                 'graduation_year' => 'required|integer|min:2000|max:' . (date('Y') + 1),
-                'gpa' => 'nullable|numeric|min:0|max:4',
+                'gpa' => 'nullable|numeric|min:0|max:100',
                 'employment_status' => 'required|in:employed,seeking_opportunities,unemployed,further_study',
                 'current_job_title' => 'nullable|string|max:255',
                 'current_company' => 'nullable|string|max:255',
@@ -257,7 +257,7 @@ class CareerGuidanceController extends Controller
             'faculty' => 'required|string|max:255',
             'major' => 'required|string|max:255',
             'graduation_year' => 'required|integer|min:2000|max:' . date('Y'),
-            'gpa' => 'nullable|numeric|min:0|max:4',
+            'gpa' => 'nullable|numeric|min:0|max:100',
             'degree' => 'required|string|max:255',
             'skills' => 'nullable|string', // Will be converted to array
             'languages' => 'nullable|string', // Will be converted to array
@@ -407,9 +407,13 @@ class CareerGuidanceController extends Controller
      */
     public function nominations(Request $request)
     {
-        $query = Nomination::query();
+        $query = Nomination::with(['graduate', 'jobOpportunity.company', 'nominator']);
 
         // تطبيق الفلاتر
+        if ($request->has('opportunity_id') && $request->opportunity_id) {
+            $query->where('job_opportunity_id', $request->opportunity_id);
+        }
+
         if ($request->has('status') && $request->status) {
             $query->where('status', $request->status);
         }
@@ -518,10 +522,61 @@ class CareerGuidanceController extends Controller
      */
     public function editNominationStatusForm($id)
     {
-        $nomination = Nomination::with(['graduate', 'jobOpportunity.company'])->findOrFail($id);
+        $nomination = Nomination::with(['graduate', 'jobOpportunity.company', 'nominator'])->findOrFail($id);
         $this->authorize('updateStatus', $nomination); // Use the same policy for viewing the edit form
 
         return view('career-guidance.nominations.edit-status', compact('nomination'));
+    }
+
+    /**
+     * تحديث حالة الترشيح من صفحة كاملة (Full Page)
+     */
+    public function updateNominationStatusFullPage(Request $request, $id)
+    {
+        $nomination = Nomination::findOrFail($id);
+
+        // Authorize the action using the NominationPolicy
+        $this->authorize('updateStatus', $nomination);
+
+        $request->validate([
+            'status' => 'required|in:pending,sent_to_company,under_review,interview_scheduled,accepted,rejected,withdrawn',
+            'final_status' => 'nullable|in:hired,not_hired,in_progress',
+            'nomination_notes' => 'nullable|string',
+            'matching_reasons' => 'nullable|string',
+            'interview_date' => 'nullable|date',
+            'interview_time' => 'nullable|string',
+            'interview_location' => 'nullable|string',
+            'interview_notes' => 'nullable|string',
+            'company_feedback' => 'nullable|string',
+            'graduate_feedback' => 'nullable|string',
+        ]);
+
+        $nomination->update([
+            'status' => $request->status,
+            'final_status' => $request->final_status,
+            'nomination_notes' => $request->nomination_notes,
+            'matching_reasons' => $request->matching_reasons,
+            'interview_date' => $request->interview_date,
+            'interview_time' => $request->interview_time,
+            'interview_location' => $request->interview_location,
+            'interview_notes' => $request->interview_notes,
+            'company_feedback' => $request->company_feedback,
+            'graduate_feedback' => $request->graduate_feedback,
+            'sent_to_company_at' => ($request->status === 'sent_to_company' && !$nomination->sent_to_company_at) ? now() : $nomination->sent_to_company_at,
+            'interview_at' => ($request->status === 'interview_scheduled' && !$nomination->interview_at) ? now() : $nomination->interview_at,
+            'final_decision_at' => ($request->final_status && !$nomination->final_decision_at) ? now() : $nomination->final_decision_at,
+        ]);
+
+        // إرسال إشعار بتحديث حالة الترشيح
+        try {
+            $nomination->load(['graduate.user', 'jobOpportunity']);
+            $this->notificationService->notifyNominationStatusUpdate($nomination, $request->status);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send nomination status update notification: ' . $e->getMessage());
+        }
+
+        return redirect()->route('career-guidance.nominations.edit-status', $id)
+            ->with('success', 'تم تحديث حالة الترشيح بنجاح');
     }
 
     /**
@@ -829,19 +884,13 @@ class CareerGuidanceController extends Controller
             $filters = $request->only(['major', 'year', 'status']);
             $stats = $this->getAdvancedStats($filters);
 
-            // بيانات المخططات مع التحقق من الصحة
+            // بيانات المخططات الفعلية من قاعدة البيانات
             $chartData = $this->getChartData($filters);
 
-            // إذا لم تكن هناك بيانات كافية، استخدم بيانات نموذجية
-            if ($stats['totalGraduates'] == 0 || !$this->validateChartData($chartData)) {
-                $chartData = $this->getSampleChartData();
-                \Log::info('Using sample chart data - no real data available');
-            }
-
-            // استنتاجات ذكية
+            // استنتاجات ذكية مبنية على الإحصائيات الفعلية
             $insights = $this->getAIInsights($stats);
 
-            \Log::info('Advanced Reports Loaded', [
+            \Log::info('Advanced Reports Loaded with real database data', [
                 'graduates' => $stats['totalGraduates'],
                 'charts' => count($chartData),
                 'insights' => count($insights)
@@ -852,15 +901,14 @@ class CareerGuidanceController extends Controller
         } catch (\Exception $e) {
             \Log::error('Advanced Reports Error: ' . $e->getMessage());
 
-            // في حالة الخطأ، عرض بيانات نموذجية
             $stats = $this->getAdvancedStats();
-            $chartData = $this->getSampleChartData();
+            $chartData = $this->getChartData();
             $insights = $this->getAIInsights($stats);
             $majors = [];
             $years = [];
 
             return view('career-guidance.advanced-reports', compact('stats', 'chartData', 'insights', 'majors', 'years'))
-                ->with('error', 'تم تحميل التقارير ببيانات نموذجية بسبب وجود خطأ في البيانات الفعلية');
+                ->with('error', 'حدث خطأ أثناء تحميل بعض بيانات التقارير: ' . $e->getMessage());
         }
     }
 
@@ -1027,63 +1075,62 @@ class CareerGuidanceController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Chart Data Error: ' . $e->getMessage());
-            return $this->getSampleChartData();
+            return $this->getEmptyChartData();
         }
     }
 
     /**
-     * بيانات نموذجية في حالة وجود خطأ
+     * هيكل بيانات فارغ في حالة عدم وجود بيانات أو حدوث استثناء
      */
-    private function getSampleChartData()
+    private function getEmptyChartData()
     {
         return [
             'majorsDistribution' => [
-                'labels' => ['هندسة حاسوب', 'إدارة أعمال', 'طب', 'هندسة مدنية', 'صيدلة'],
+                'labels' => [],
                 'datasets' => [
                     [
                         'label' => 'عدد الخريجين',
-                        'data' => [25, 18, 12, 8, 6],
-                        'backgroundColor' => ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
-                        'borderColor' => ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'],
-                        'borderWidth' => 2
+                        'data' => [],
+                        'backgroundColor' => [],
+                        'borderWidth' => 1
                     ]
                 ]
             ],
             'employmentStatus' => [
-                'labels' => ['موظف', 'باحث عن عمل', 'غير موظف', 'مستكمل للدراسة'],
+                'labels' => [],
                 'datasets' => [
                     [
-                        'data' => [45, 30, 15, 10],
-                        'backgroundColor' => ['#1cc88a', '#f6c23e', '#e74a3b', '#36b9cc'],
+                        'data' => [],
+                        'backgroundColor' => [],
                         'borderWidth' => 2,
                         'borderColor' => '#fff'
                     ]
                 ]
             ],
             'nominationsStatus' => [
-                'labels' => ['قيد المراجعة', 'مرسل للشركة', 'مقابلة مجدولة', 'مقبول', 'مرفوض'],
+                'labels' => [],
                 'datasets' => [
                     [
-                        'data' => [20, 15, 10, 8, 5],
-                        'backgroundColor' => ['#f6c23e', '#36b9cc', '#858796', '#1cc88a', '#e74a3b'],
+                        'data' => [],
+                        'backgroundColor' => [],
                         'borderWidth' => 2,
                         'borderColor' => '#fff'
                     ]
                 ]
             ],
             'monthlyPerformance' => [
-                'labels' => ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+                'labels' => [],
                 'datasets' => [
                     [
                         'label' => 'إجمالي الترشيحات',
-                        'data' => [12, 19, 15, 22, 18, 25],
+                        'data' => [],
                         'borderColor' => '#4e73df',
                         'backgroundColor' => 'rgba(78, 115, 223, 0.1)',
                         'fill' => true
                     ],
                     [
                         'label' => 'الترشيحات الناجحة',
-                        'data' => [5, 8, 6, 12, 9, 15],
+                        'data' => [],
                         'borderColor' => '#1cc88a',
                         'backgroundColor' => 'rgba(28, 200, 138, 0.1)',
                         'fill' => true
@@ -1091,24 +1138,22 @@ class CareerGuidanceController extends Controller
                 ]
             ],
             'successByMajor' => [
-                'labels' => ['هندسة حاسوب', 'إدارة أعمال', 'طب', 'هندسة مدنية'],
+                'labels' => [],
                 'datasets' => [
                     [
                         'label' => 'معدل النجاح %',
-                        'data' => [75, 60, 80, 55],
+                        'data' => [],
                         'backgroundColor' => 'rgba(78, 115, 223, 0.2)',
                         'borderColor' => '#4e73df',
-                        'pointBackgroundColor' => '#4e73df',
-                        'pointBorderColor' => '#fff'
                     ]
                 ]
             ],
             'opportunitiesDistribution' => [
-                'labels' => ['وظائف', 'تدريبات', 'تدريب عملي'],
+                'labels' => [],
                 'datasets' => [
                     [
-                        'data' => [35, 25, 15],
-                        'backgroundColor' => ['#4e73df', '#1cc88a', '#36b9cc'],
+                        'data' => [],
+                        'backgroundColor' => [],
                         'borderWidth' => 2,
                         'borderColor' => '#fff'
                     ]

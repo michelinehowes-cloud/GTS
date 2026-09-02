@@ -218,6 +218,22 @@ class User extends Authenticatable
     }
 
     /**
+     * الإشعارات الخاصة بالمستخدم
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    /**
+     * التدريبات التي تقدم أو حضرها الخريج
+     */
+    public function trainingApplications()
+    {
+        return $this->hasMany(TrainingApplication::class, 'user_id');
+    }
+
+    /**
      * العلاقة مع الترشيحات التي قام بها المستخدم
      */
     public function nominations()

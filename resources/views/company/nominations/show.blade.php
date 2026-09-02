@@ -1,25 +1,198 @@
 @extends('layouts.app')
 
+@section('title', 'عرض مرشح للتوظيف')
+@section('page-title', 'تفاصيل وتحديث حالة المرشح')
+
+@push('styles')
+<style>
+    .graduate-profile-header {
+        background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+    .graduate-profile-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+    }
+    .graduate-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: white;
+        font-weight: 700;
+        flex-shrink: 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    .info-card {
+        background: var(--bento-card-bg, rgba(255,255,255,0.03));
+        border: 1px solid var(--bento-border, rgba(255,255,255,0.08));
+        border-radius: 12px;
+        padding: 16px;
+    }
+    .info-card-label {
+        font-size: 0.72rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .info-card-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--bento-text, #e2e8f0);
+    }
+    .status-decision-panel {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .status-btn {
+        padding: 18px 16px;
+        border-radius: 14px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.25s ease;
+        background: rgba(255,255,255,0.03);
+        position: relative;
+    }
+    .status-btn:hover {
+        transform: translateY(-2px);
+    }
+    .status-btn.accepted-btn {
+        border-color: rgba(34,197,94,0.3);
+    }
+    .status-btn.accepted-btn:hover, .status-btn.accepted-btn.selected {
+        background: rgba(34,197,94,0.15);
+        border-color: #22c55e;
+        box-shadow: 0 0 20px rgba(34,197,94,0.2);
+    }
+    .status-btn.rejected-btn {
+        border-color: rgba(239,68,68,0.3);
+    }
+    .status-btn.rejected-btn:hover, .status-btn.rejected-btn.selected {
+        background: rgba(239,68,68,0.15);
+        border-color: #ef4444;
+        box-shadow: 0 0 20px rgba(239,68,68,0.2);
+    }
+    .status-btn .btn-icon {
+        font-size: 2rem;
+        margin-bottom: 8px;
+    }
+    .status-btn .btn-label {
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+    .status-btn .btn-desc {
+        font-size: 0.78rem;
+        opacity: 0.7;
+        margin-top: 4px;
+    }
+    .status-btn input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .skills-tag {
+        display: inline-block;
+        background: rgba(28,200,138,0.15);
+        border: 1px solid rgba(28,200,138,0.3);
+        color: #1cc88a;
+        border-radius: 20px;
+        padding: 3px 12px;
+        font-size: 0.75rem;
+        margin: 3px;
+    }
+    .step-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+    .step-badge {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1cc88a, #13855c);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+    .collapsible-section {
+        border: 1px solid var(--bento-border, rgba(255,255,255,0.08));
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 16px;
+    }
+    .collapsible-header {
+        background: rgba(255,255,255,0.03);
+        padding: 14px 18px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        user-select: none;
+    }
+    .collapsible-header:hover {
+        background: rgba(255,255,255,0.06);
+    }
+    .collapsible-body {
+        padding: 18px;
+        border-top: 1px solid var(--bento-border, rgba(255,255,255,0.08));
+    }
+    .bento-card {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    /* Dark mode adjustments for specific elements */
+    [data-bs-theme="dark"] .bento-card {
+        background: #1e293b;
+        border-color: #334155;
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <h2 class="mb-0 fw-bold">تفاصيل ترشيح الخريج: {{ $nomination->graduate->name_ar ?? 'غير متوفر' }}</h2>
-            <a href="{{ route('company.nominations') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-right"></i> عودة للقائمة
-            </a>
-        </div>
-    </div>
+<div class="container-fluid py-2">
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="alert alert-success border-0 rounded-3 mb-4" style="background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3) !important;">
+            <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
         </div>
     @endif
-
     @if($errors->any())
-        <div class="alert alert-danger">
+        <div class="alert alert-danger border-0 rounded-3 mb-4">
             <ul class="mb-0">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -28,148 +201,351 @@
         </div>
     @endif
 
-    <div class="row g-4">
-        <!-- بيانات المرشح والفرصة -->
-        <div class="col-md-7">
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-primary text-white py-3">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-user-graduate me-2"></i> بيانات الخريج</h5>
+    <form action="{{ route('company.nominations.update-status', $nomination->id) }}" method="POST">
+        @csrf
+        @method('PUT')
+
+        <div class="row g-4">
+
+            {{-- ======= Right Column: Graduate Info ======= --}}
+            <div class="col-lg-5">
+
+                @php
+                    $grad = $nomination->graduate;
+                    $gData = $grad->graduateData;
+                    $major = $gData->major ?? $grad->major ?? $grad->specialization ?? 'غير محدد';
+                    $gradYear = $gData->graduation_year ?? $grad->graduation_year;
+                    $gpa = $gData->gpa ?? $grad->gpa;
+                    $degree = $gData->degree ?? $grad->degree;
+                    $email = $gData->email ?? $grad->email;
+                    $phone = $gData->phone ?? $grad->phone;
+                    $university = $gData->university ?? $grad->university;
+                    $faculty = $gData->faculty ?? $grad->faculty;
+                    $skills = $gData->skills ?? $grad->skills ?? [];
+                    $languages = $gData->languages ?? $grad->languages ?? [];
+                    $cvPath = $gData->cv_path ?? $grad->cv_path;
+                    $linkedinUrl = $gData->linkedin_url ?? $grad->linkedin_url;
+                @endphp
+
+                {{-- Graduate Profile Header --}}
+                <div class="graduate-profile-header mb-4">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="graduate-avatar">
+                            {{ mb_substr($grad->name, 0, 1) }}
+                        </div>
+                        <div>
+                            <h4 class="text-white fw-bold mb-1 fs-5">{{ $grad->name }}</h4>
+                            <div class="text-white-50 small">
+                                <i class="fas fa-graduation-cap me-1"></i>
+                                {{ $major }}
+                                @if($gradYear)
+                                    &nbsp;·&nbsp; {{ $gradYear }}
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-2">
+                        @if($gpa)
+                        <div class="col-6">
+                            <div style="background:rgba(255,255,255,0.1); border-radius:10px; padding:10px 14px;">
+                                <div class="text-white-50" style="font-size:0.7rem">المعدل التراكمي</div>
+                                <div class="text-white fw-bold fs-5">{{ $gpa }}%</div>
+                            </div>
+                        </div>
+                        @endif
+                        @if($degree)
+                        <div class="col-6">
+                            <div style="background:rgba(255,255,255,0.1); border-radius:10px; padding:10px 14px;">
+                                <div class="text-white-50" style="font-size:0.7rem">الدرجة العلمية</div>
+                                <div class="text-white fw-bold">{{ $degree }}</div>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
                 </div>
-                <div class="card-body">
-                    <table class="table table-borderless">
-                        <tbody>
-                            <tr>
-                                <th style="width: 30%">الاسم:</th>
-                                <td>{{ $nomination->graduate->name_ar ?? 'غير متوفر' }}</td>
-                            </tr>
-                            <tr>
-                                <th>التخصص:</th>
-                                <td>{{ $nomination->graduate->university_specialization ?? 'غير متوفر' }}</td>
-                            </tr>
-                            <tr>
-                                <th>المعدل التراكمي:</th>
-                                <td>{{ $nomination->graduate->gpa ?? 'غير متوفر' }}</td>
-                            </tr>
-                            <tr>
-                                <th>رقم الهاتف:</th>
-                                <td><a href="tel:{{ $nomination->graduate->phone }}" class="text-decoration-none">{{ $nomination->graduate->phone ?? 'غير متوفر' }}</a></td>
-                            </tr>
-                            <tr>
-                                <th>البريد الإلكتروني:</th>
-                                <td><a href="mailto:{{ $nomination->graduate->email }}" class="text-decoration-none">{{ $nomination->graduate->email ?? 'غير متوفر' }}</a></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    @if($nomination->graduate->cv_path)
-                        <div class="mt-3">
-                            <a href="{{ Storage::url($nomination->graduate->cv_path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-file-pdf"></i> عرض السيرة الذاتية
-                            </a>
+
+                {{-- Graduate Details --}}
+                <div class="bento-card p-4 mb-4" style="background: var(--bento-card-bg, rgba(255,255,255,0.03)); border-color: var(--bento-border, rgba(255,255,255,0.08));">
+                    <h6 class="fw-bold mb-3" style="color: var(--bento-text);">
+                        <i class="fas fa-id-card me-2" style="color: #1cc88a;"></i>
+                        معلومات المرشح
+                    </h6>
+
+                    <div class="info-grid" style="grid-template-columns: 1fr 1fr;">
+                        @if($email)
+                        <div class="info-card">
+                            <div class="info-card-label"><i class="fas fa-envelope"></i> البريد الإلكتروني</div>
+                            <div class="info-card-value" style="font-size:0.82rem; word-break:break-all;">{{ $email }}</div>
+                        </div>
+                        @endif
+
+                        @if($phone)
+                        <div class="info-card">
+                            <div class="info-card-label"><i class="fas fa-phone"></i> الهاتف</div>
+                            <div class="info-card-value">{{ $phone }}</div>
+                        </div>
+                        @endif
+
+                        @if($university)
+                        <div class="info-card">
+                            <div class="info-card-label"><i class="fas fa-university"></i> الجامعة</div>
+                            <div class="info-card-value">{{ $university }}</div>
+                        </div>
+                        @endif
+
+                        @if($faculty)
+                        <div class="info-card">
+                            <div class="info-card-label"><i class="fas fa-building-columns"></i> الكلية</div>
+                            <div class="info-card-value">{{ $faculty }}</div>
+                        </div>
+                        @endif
+                    </div>
+
+                    {{-- Skills --}}
+                    @if($skills && count($skills) > 0)
+                    <div class="mt-3">
+                        <div class="info-card-label mb-2"><i class="fas fa-tools"></i> المهارات</div>
+                        <div>
+                            @foreach($skills as $skill)
+                                <span class="skills-tag">{{ $skill }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
+                    {{-- Languages --}}
+                    @if($languages && count($languages) > 0)
+                    <div class="mt-3">
+                        <div class="info-card-label mb-2"><i class="fas fa-language"></i> اللغات</div>
+                        <div>
+                            @foreach($languages as $lang)
+                                <span class="skills-tag" style="background:rgba(139,92,246,0.15); border-color:rgba(139,92,246,0.3); color:#c4b5fd;">{{ $lang }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
+                    <div class="mt-4 d-flex gap-2">
+                        @if($linkedinUrl)
+                        <a href="{{ $linkedinUrl }}" target="_blank" class="btn btn-sm" style="background: #0077b5; color: white;">
+                            <i class="fab fa-linkedin me-1"></i> LinkedIn
+                        </a>
+                        @endif
+
+                        @if($cvPath)
+                        <a href="{{ Storage::url($cvPath) }}" target="_blank" class="btn btn-sm btn-outline-secondary" style="color: var(--bento-text); border-color: var(--bento-border);">
+                            <i class="fas fa-file-pdf me-1"></i> عرض السيرة الذاتية
+                        </a>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Job Opportunity Info --}}
+                <div class="bento-card p-4" style="background: var(--bento-card-bg, rgba(255,255,255,0.03)); border-color: var(--bento-border, rgba(255,255,255,0.08));">
+                    <h6 class="fw-bold mb-3" style="color: var(--bento-text);">
+                        <i class="fas fa-briefcase me-2 text-warning"></i>
+                        الفرصة الوظيفية المرشح لها
+                    </h6>
+                    <div class="fw-semibold fs-6 mb-2" style="color: var(--bento-text);">{{ $nomination->jobOpportunity->title }}</div>
+                    @if($nomination->jobOpportunity->location)
+                        <div class="small mb-2" style="color: #94a3b8;">
+                            <i class="fas fa-map-marker-alt me-1"></i>
+                            {{ $nomination->jobOpportunity->location }}
+                        </div>
+                    @endif
+                    @if($nomination->nominated_at)
+                        <hr style="border-color: var(--bento-border);">
+                        <div class="small" style="color: #94a3b8;">
+                            <i class="fas fa-calendar me-1"></i>
+                            تاريخ التقدم: {{ $nomination->nominated_at->format('d/m/Y H:i') }}
                         </div>
                     @endif
                 </div>
             </div>
 
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-info text-white py-3">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-briefcase me-2"></i> بيانات الوظيفة والترشيح</h5>
+            {{-- ======= Left Column: Status Update Form ======= --}}
+            <div class="col-lg-7">
+
+                <div class="bento-card p-4 mb-4" style="background: var(--bento-card-bg, rgba(255,255,255,0.03)); border-color: var(--bento-border, rgba(255,255,255,0.08));">
+                    <div class="step-indicator">
+                        <div class="step-badge">1</div>
+                        <h6 class="fw-bold mb-0" style="color: var(--bento-text);">حالة التقديم الحالية</h6>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold" style="color: #94a3b8;">حالة التقديم</label>
+                        <select name="status" id="status" class="form-select @error('status') is-invalid @enderror"
+                            style="background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: var(--bento-text); border-radius:10px;">
+                            <option value="pending" {{ $nomination->status == 'pending' ? 'selected' : '' }}>⏳ قيد المراجعة</option>
+                            <option value="under_review" {{ $nomination->status == 'under_review' ? 'selected' : '' }}>🔍 قيد الدراسة (لدينا)</option>
+                            <option value="interview_scheduled" {{ $nomination->status == 'interview_scheduled' ? 'selected' : '' }}>📅 مقابلة مجدولة</option>
+                            <option value="accepted" {{ $nomination->status == 'accepted' ? 'selected' : '' }}>✅ مجتاز (تأهيل مبدئي)</option>
+                            <option value="rejected" {{ $nomination->status == 'rejected' ? 'selected' : '' }}>❌ مرفوض (استبعاد)</option>
+                        </select>
+                        <div class="form-text" style="color: #64748b; font-size: 0.8rem;">استخدم هذه الحالة لتتبع مرحلة المرشح في عملية التوظيف.</div>
+                        @error('status')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
-                <div class="card-body">
-                    <table class="table table-borderless mb-0">
-                        <tbody>
-                            <tr>
-                                <th style="width: 30%">المسمى الوظيفي:</th>
-                                <td>{{ $nomination->jobOpportunity->title ?? 'غير متوفر' }}</td>
-                            </tr>
-                            <tr>
-                                <th>تاريخ الترشيح:</th>
-                                <td>{{ $nomination->created_at->format('Y-m-d H:i') }}</td>
-                            </tr>
-                            <tr>
-                                <th>ملاحظات الإرشاد المهني:</th>
-                                <td>{{ $nomination->nomination_notes ?? 'لا توجد ملاحظات' }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                {{-- Employment Decision --}}
+                <div class="bento-card p-4 mb-4" style="background: var(--bento-card-bg, rgba(255,255,255,0.03)); border-color: var(--bento-border, rgba(255,255,255,0.08));">
+                    <div class="step-indicator">
+                        <div class="step-badge">2</div>
+                        <h6 class="fw-bold mb-0" style="color: var(--bento-text);">قرار التوظيف النهائي</h6>
+                    </div>
+
+                    <div class="status-decision-panel">
+                        <label class="status-btn accepted-btn {{ $nomination->final_status == 'hired' ? 'selected' : '' }}" id="accepted-btn-label">
+                            <input type="radio" name="final_status" value="hired"
+                                {{ $nomination->final_status == 'hired' ? 'checked' : '' }}
+                                onchange="selectStatusBtn(this)">
+                            <div class="btn-icon">✅</div>
+                            <div class="btn-label text-success">مقبول / تم التوظيف</div>
+                            <div class="btn-desc text-white-50">تم اختيار المرشح وتوظيفه بالوظيفة</div>
+                        </label>
+
+                        <label class="status-btn rejected-btn {{ $nomination->final_status == 'not_hired' ? 'selected' : '' }}" id="rejected-btn-label">
+                            <input type="radio" name="final_status" value="not_hired"
+                                {{ $nomination->final_status == 'not_hired' ? 'checked' : '' }}
+                                onchange="selectStatusBtn(this)">
+                            <div class="btn-icon">❌</div>
+                            <div class="btn-label text-danger">مرفوض / لم يتم التوظيف</div>
+                            <div class="btn-desc text-white-50">تم رفض المرشح لعدم المطابقة</div>
+                        </label>
+                    </div>
+
+                    <div class="text-center">
+                        <label class="d-inline-flex align-items-center gap-2 small cursor-pointer" style="color: #94a3b8;">
+                            <input type="radio" name="final_status" value="in_progress"
+                                {{ ($nomination->final_status == 'in_progress' || !$nomination->final_status) ? 'checked' : '' }}
+                                onchange="selectStatusBtn(this)">
+                            لا يزال قيد المعالجة ولم يتم اتخاذ قرار نهائي
+                        </label>
+                    </div>
                 </div>
+
+                {{-- Interview Details (Collapsible) --}}
+                <div class="collapsible-section mb-4">
+                    <div class="collapsible-header" onclick="toggleSection('interview-section', this)">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="step-badge">3</div>
+                            <span class="fw-semibold" style="color: var(--bento-text);">تفاصيل المقابلة</span>
+                            @if($nomination->interview_date)
+                                <span class="badge" style="background:rgba(59,130,246,0.2); color:#93c5fd; border:1px solid rgba(59,130,246,0.3); border-radius:20px; padding:2px 10px; font-size:0.7rem;">
+                                    {{ $nomination->interview_date->format('d/m/Y') }}
+                                </span>
+                            @endif
+                        </div>
+                        <i class="fas fa-chevron-down transition-icon" id="interview-section-icon" style="color: #94a3b8;"></i>
+                    </div>
+                    <div class="collapsible-body" id="interview-section" style="display: {{ $nomination->interview_date ? 'block' : 'none' }};">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small" style="color: #94a3b8;">تاريخ المقابلة</label>
+                                <input type="date" name="interview_date" class="form-control"
+                                    value="{{ old('interview_date', optional($nomination->interview_date)->format('Y-m-d')) }}"
+                                    style="background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: var(--bento-text); border-radius:10px;">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small" style="color: #94a3b8;">وقت المقابلة</label>
+                                <input type="text" name="interview_time" class="form-control" placeholder="مثال: 10:00 صباحاً"
+                                    value="{{ old('interview_time', $nomination->interview_time) }}"
+                                    style="background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: var(--bento-text); border-radius:10px;">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small" style="color: #94a3b8;">مكان المقابلة</label>
+                                <input type="text" name="interview_location" class="form-control" placeholder="عنوان أو رابط اجتماع..."
+                                    value="{{ old('interview_location', $nomination->interview_location) }}"
+                                    style="background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: var(--bento-text); border-radius:10px;">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small" style="color: #94a3b8;">ملاحظات المقابلة (تظهر للخريج)</label>
+                                <textarea name="interview_notes" rows="3" class="form-control" placeholder="أي ملاحظات عن المقابلة..."
+                                    style="background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: var(--bento-text); border-radius:10px;">{{ old('interview_notes', $nomination->interview_notes) }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Feedback & Notes (Collapsible) --}}
+                <div class="collapsible-section mb-4">
+                    <div class="collapsible-header" onclick="toggleSection('feedback-section', this)">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="step-badge">4</div>
+                            <span class="fw-semibold" style="color: var(--bento-text);">ملاحظات التقييم</span>
+                        </div>
+                        <i class="fas fa-chevron-down transition-icon" id="feedback-section-icon" style="color: #94a3b8;"></i>
+                    </div>
+                    <div class="collapsible-body" id="feedback-section" style="display:none;">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label small" style="color: #94a3b8;">ملاحظات الشركة عن المرشح (داخلية)</label>
+                                <textarea name="nomination_notes" rows="4" class="form-control" placeholder="أضف انطباعاتك وملاحظاتك الفنية والشخصية عن المرشح هنا..."
+                                    style="background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: var(--bento-text); border-radius:10px;">{{ old('nomination_notes', $nomination->nomination_notes) }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Action Buttons --}}
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn flex-grow-1 py-3" style="font-size:1rem; font-weight:700; background: #1cc88a; color: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(28,200,138,0.3);">
+                        <i class="fas fa-save me-2"></i>
+                        حفظ التحديثات
+                    </button>
+                    <a href="{{ route('company.nominations') }}" class="btn btn-outline-secondary px-4 py-3" style="border-radius: 12px; border-color: var(--bento-border); color: var(--bento-text);">
+                        <i class="fas fa-arrow-right me-1"></i>
+                        رجوع
+                    </a>
+                </div>
+
             </div>
         </div>
-
-        <!-- تحديث الحالة والمقابلة -->
-        <div class="col-md-5">
-            <div class="card shadow-sm border-0 border-top border-4 border-warning">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-tasks me-2"></i> تحديث حالة الطلب</h5>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('company.nominations.update-status', $nomination->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">حالة المرشح <span class="text-danger">*</span></label>
-                            <select name="status" class="form-select @error('status') is-invalid @enderror" required id="statusSelect">
-                                <option value="under_review" {{ $nomination->status === 'under_review' ? 'selected' : '' }}>قيد الدراسة (تحت المراجعة)</option>
-                                <option value="interview_scheduled" {{ $nomination->status === 'interview_scheduled' ? 'selected' : '' }}>تحديد موعد مقابلة</option>
-                                <option value="accepted" {{ $nomination->status === 'accepted' ? 'selected' : '' }}>قبول وتوظيف (تم اجتياز المقابلة)</option>
-                                <option value="rejected" {{ $nomination->status === 'rejected' ? 'selected' : '' }}>رفض (لم يتم القبول)</option>
-                            </select>
-                            @error('status')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div id="interviewDetails" class="p-3 bg-light rounded mb-3 border d-none">
-                            <h6 class="fw-bold mb-3"><i class="far fa-calendar-alt me-2"></i> تفاصيل المقابلة</h6>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">تاريخ المقابلة</label>
-                                <input type="date" name="interview_date" class="form-control" value="{{ $nomination->interview_date ? $nomination->interview_date->format('Y-m-d') : '' }}">
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label class="form-label">وقت المقابلة</label>
-                                <input type="time" name="interview_time" class="form-control" value="{{ $nomination->interview_time ?? '' }}">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">مكان المقابلة / رابط الاجتماع</label>
-                                <input type="text" name="interview_location" class="form-control" value="{{ $nomination->interview_location ?? '' }}" placeholder="مقر الشركة أو رابط زووم...">
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">ملاحظات ورسالة للخريج (اختياري)</label>
-                            <textarea name="company_feedback" class="form-control" rows="3" placeholder="أضف أي ملاحظات سيراها قسم الإرشاد المهني أو الخريج...">{{ $nomination->company_feedback ?? '' }}</textarea>
-                        </div>
-
-                        <button type="submit" class="btn btn-warning w-100 fw-bold shadow-sm">
-                            <i class="fas fa-save me-2"></i> حفظ التحديثات
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    </form>
 </div>
+@endsection
 
-@section('scripts')
+@push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const statusSelect = document.getElementById('statusSelect');
-        const interviewDetails = document.getElementById('interviewDetails');
+    // Status button selection
+    function selectStatusBtn(radio) {
+        document.querySelectorAll('.status-btn').forEach(btn => btn.classList.remove('selected'));
+        const label = radio.closest('label.status-btn');
+        if (label) label.classList.add('selected');
+    }
 
-        function toggleInterviewFields() {
-            if (statusSelect.value === 'interview_scheduled') {
-                interviewDetails.classList.remove('d-none');
-            } else {
-                interviewDetails.classList.add('d-none');
-            }
+    // Collapsible sections
+    function toggleSection(sectionId, headerEl) {
+        const section = document.getElementById(sectionId);
+        const icon = headerEl.querySelector('.transition-icon');
+        if (section.style.display === 'none') {
+            section.style.display = 'block';
+            if (icon) icon.style.transform = 'rotate(180deg)';
+        } else {
+            section.style.display = 'none';
+            if (icon) icon.style.transform = 'rotate(0deg)';
+        }
+    }
+
+    // Set icon rotation for pre-open sections
+    document.addEventListener('DOMContentLoaded', function() {
+        const interviewSection = document.getElementById('interview-section');
+        if (interviewSection && interviewSection.style.display !== 'none') {
+            const icon = document.getElementById('interview-section-icon');
+            if (icon) icon.style.transform = 'rotate(180deg)';
         }
 
-        statusSelect.addEventListener('change', toggleInterviewFields);
-        toggleInterviewFields(); // Run on page load
+        // Form select styling fix based on theme
+        const isDarkMode = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+        if(isDarkMode) {
+            document.querySelectorAll('select.form-select option').forEach(opt => {
+                opt.style.background = '#1e293b';
+                opt.style.color = '#e2e8f0';
+            });
+        }
     });
 </script>
-@endsection
-@endsection
+@endpush

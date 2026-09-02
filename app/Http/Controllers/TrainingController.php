@@ -26,7 +26,7 @@ class TrainingController extends Controller
 
     public function index()
     {
-        $trainings = Training::with('company')->latest()->get();
+        $trainings    = Training::with(['company', 'coordinator'])->latest()->get();
         $applications = TrainingApplication::with(['user', 'training'])->latest()->get();
 
         return view('admin.trainings.index', compact('trainings', 'applications'));
@@ -88,18 +88,26 @@ class TrainingController extends Controller
 
     public function show($id)
     {
-        $training = Training::with('company')->findOrFail($id);
+        $training = Training::with(['company', 'coordinator'])->findOrFail($id);
+        
+        $evaluations = Evaluation::with(['evaluator', 'trainerEvaluations.trainer'])
+            ->where('training_id', $id)
+            ->when(auth()->user()->role == 'training_coordinator', function($query) {
+                return $query->whereHas('evaluator', function ($q) {
+                    $q->where('role', 'evaluation_followup');
+                });
+            })
+            ->get();
 
+        $applications = \App\Models\TrainingApplication::with('user')
+            ->where('training_id', $id)
+            ->latest()
+            ->get();
+            
         if (auth()->user()->role == 'training_coordinator') {
-            $evaluations = Evaluation::with('evaluator')->where('training_id', $id)
-                ->whereHas('evaluator', function ($query) {
-                    $query->where('role', 'evaluation_followup');
-                })
-                ->get();
-            return view('training-coordinator.trainings.show', compact('training', 'evaluations'));
+            return view('training-coordinator.trainings.show', compact('training', 'evaluations', 'applications'));
         } else {
-            $evaluations = Evaluation::with('evaluator')->where('training_id', $id)->get();
-            return view('admin.trainings.show', compact('training', 'evaluations'));
+            return view('admin.trainings.show', compact('training', 'evaluations', 'applications'));
         }
     }
 
@@ -188,27 +196,10 @@ class TrainingController extends Controller
     public function coordinatorTrainings()
     {
         $trainings = Training::with(['company', 'coordinator'])
-            ->withCount([
-                'applications',
-                'applications as pending_applications_count' => function ($query) {
-                    $query->where('status', 'pending');
-                }
-            ])
             ->latest()
             ->get();
 
-        $myTrainingsCount = $trainings->count();
-        $activeTrainingsCount = $trainings->where('status', 'active')->count();
-        $inactiveTrainingsCount = $trainings->where('status', 'inactive')->count();
-        $completedTrainingsCount = $trainings->where('status', 'completed')->count();
-
-        return view('training-coordinator.trainings.index', compact(
-            'trainings',
-            'myTrainingsCount',
-            'activeTrainingsCount',
-            'inactiveTrainingsCount',
-            'completedTrainingsCount'
-        ));
+        return view('training-coordinator.trainings.index', compact('trainings'));
     }
 
     public function availableTrainings()
@@ -217,7 +208,11 @@ class TrainingController extends Controller
             ->latest()
             ->get();
 
-        return view('graduate.trainings.index', compact('trainings'));
+        $myApplications = TrainingApplication::where('user_id', auth()->id())
+            ->get()
+            ->keyBy('training_id');
+
+        return view('graduate.trainings.index', compact('trainings', 'myApplications'));
     }
 
     // ========== 📝 إدارة الطلبات ==========
@@ -233,60 +228,156 @@ class TrainingController extends Controller
         return view('training-coordinator.applications.index', compact('applications', 'pendingCount'));
     }
 
-    public function approveApplication($id)
+    public function approveApplication(Request $request, $id)
     {
-        $application = TrainingApplication::findOrFail($id);
+        $application = TrainingApplication::with(['training.company', 'user'])->findOrFail($id);
         $application->update(['status' => 'approved']);
 
         // Send notification to the graduate with email and details
-        $this->notificationService->sendToUser(
-            $application->user,
-            'تم قبول طلب التدريب',
-            "تم قبول طلبك للتسجيل في برنامج التدريب: {$application->training->title}. يمكنك الآن البدء في التدريب.",
-            'success',
-            [
-                'model_type' => 'App\Models\TrainingApplication',
-                'model_id' => $application->id,
-                'send_email' => true,
-                'data' => [
-                    'details' => [
-                        'البرنامج التدريبي' => $application->training->title,
-                        'الشركة المقدمة' => $application->training->company->name ?? 'غير محدد',
-                        'الموقع' => $application->training->location,
-                        'تاريخ البدء' => $application->training->start_date,
-                        'المدة' => $application->training->duration,
+        try {
+            $this->notificationService->sendToUser(
+                $application->user,
+                'تم قبول طلب التدريب',
+                "تم قبول طلبك للتسجيل في برنامج التدريب: {$application->training->title}. يمكنك الآن البدء في التدريب.",
+                'success',
+                [
+                    'model_type' => 'App\Models\TrainingApplication',
+                    'model_id' => $application->id,
+                    'send_email' => true,
+                    'data' => [
+                        'details' => [
+                            'البرنامج التدريبي' => $application->training->title,
+                            'الشركة المقدمة' => $application->training->company->name ?? 'غير محدد',
+                            'الموقع' => $application->training->location,
+                            'تاريخ البدء' => $application->training->start_date,
+                            'المدة' => $application->training->duration,
+                        ]
                     ]
                 ]
-            ]
-        );
+            );
+        } catch (\Exception $e) {}
 
         return redirect()->back()->with('success', 'تم الموافقة على طلب التدريب بنجاح');
     }
 
-    public function rejectApplication($id)
+    /**
+     * قبول طلبات التدريب دفعة واحدة (للمنسق)
+     */
+    public function bulkApproveApplications(Request $request)
     {
-        $application = TrainingApplication::findOrFail($id);
+        $request->validate([
+            'application_ids' => 'required|array',
+            'application_ids.*' => 'exists:training_applications,id'
+        ]);
+
+        $ids = $request->application_ids;
+
+        $applications = TrainingApplication::with(['user', 'training.company'])
+            ->whereIn('id', $ids)
+            ->where('status', 'pending')
+            ->get();
+
+        foreach ($applications as $application) {
+            $application->update(['status' => 'approved']);
+            try {
+                $this->notificationService->sendToUser(
+                    $application->user,
+                    'تم قبول طلب التدريب',
+                    "تم قبول طلبك للتسجيل في برنامج التدريب: {$application->training->title}.",
+                    'success',
+                    [
+                        'model_type' => 'App\Models\TrainingApplication',
+                        'model_id'   => $application->id,
+                        'send_email' => true,
+                        'data' => [
+                            'details' => [
+                                'البرنامج التدريبي' => $application->training->title,
+                                'الشركة المقدمة'    => $application->training->company->name ?? 'غير محدد',
+                                'الموقع'           => $application->training->location,
+                                'تاريخ البدء'      => $application->training->start_date,
+                                'المدة'            => $application->training->duration,
+                            ]
+                        ]
+                    ]
+                );
+            } catch (\Exception $e) {}
+        }
+
+        return redirect()->back()->with('success', 'تم الموافقة على ' . count($ids) . ' طلب(ات) بنجاح');
+    }
+
+    public function bulkRejectApplications(Request $request)
+    {
+        $request->validate([
+            'application_ids' => 'required|array',
+            'application_ids.*' => 'exists:training_applications,id'
+        ]);
+
+        $ids = $request->application_ids;
+
+        $applications = TrainingApplication::with(['user', 'training'])
+            ->whereIn('id', $ids)
+            ->get();
+
+        foreach ($applications as $application) {
+            $application->update(['status' => 'rejected']);
+            try {
+                $this->notificationService->sendToUser(
+                    $application->user,
+                    'تم رفض طلب التدريب',
+                    "نأسف لإبلاغك بأنه تم رفض طلبك للتسجيل في برنامج التدريب: {$application->training->title}.",
+                    'warning',
+                    [
+                        'model_type' => 'App\Models\TrainingApplication',
+                        'model_id'   => $application->id,
+                        'send_email' => true
+                    ]
+                );
+            } catch (\Exception $e) {}
+        }
+
+        return redirect()->back()->with('success', 'تم رفض ' . count($ids) . ' طلب(ات) بنجاح');
+    }
+
+    public function bulkDeleteApplications(Request $request)
+    {
+        $request->validate([
+            'application_ids' => 'required|array',
+            'application_ids.*' => 'exists:training_applications,id'
+        ]);
+
+        $ids = $request->application_ids;
+        TrainingApplication::whereIn('id', $ids)->delete();
+
+        return redirect()->back()->with('success', 'تم إلغاء وحذف ' . count($ids) . ' طلب(ات) بنجاح');
+    }
+
+    public function rejectApplication(Request $request, $id)
+    {
+        $application = TrainingApplication::with(['training', 'user'])->findOrFail($id);
         $application->update(['status' => 'rejected']);
 
         // Send notification to the graduate with email
-        $this->notificationService->sendToUser(
-            $application->user,
-            'تم رفض طلب التدريب',
-            "نأسف لإبلاغك بأنه تم رفض طلبك للتسجيل في برنامج التدريب: {$application->training->title}. يمكنك التقديم على برامج تدريب أخرى.",
-            'warning',
-            [
-                'model_type' => 'App\Models\TrainingApplication',
-                'model_id' => $application->id,
-                'send_email' => true  // ✅ إرسال بريد إلكتروني
-            ]
-        );
+        try {
+            $this->notificationService->sendToUser(
+                $application->user,
+                'تم رفض طلب التدريب',
+                "نأسف لإبلاغك بأنه تم رفض طلبك للتسجيل في برنامج التدريب: {$application->training->title}. يمكنك التقديم على برامج تدريب أخرى.",
+                'warning',
+                [
+                    'model_type' => 'App\Models\TrainingApplication',
+                    'model_id' => $application->id,
+                    'send_email' => true
+                ]
+            );
+        } catch (\Exception $e) {}
 
         return redirect()->back()->with('success', 'تم رفض طلب التدريب بنجاح');
     }
 
-    public function pendingApplication($id)
+    public function pendingApplication(Request $request, $id)
     {
-        $application = TrainingApplication::findOrFail($id);
+        $application = TrainingApplication::with('training')->findOrFail($id);
         $application->update(['status' => 'pending']);
 
         return redirect()->back()->with('success', 'تم إعادة الطلب إلى قيد المراجعة');
@@ -487,43 +578,93 @@ class TrainingController extends Controller
      */
     private function generateAdvancedCharts()
     {
-        // 1. مخطط توزيع أنواع التدريبات
-        $trainingTypes = Training::selectRaw('type, COUNT(*) as count')
+        $typeMap = [
+            'summer' => 'تدريب صيفي',
+            'semester' => 'تدريب فصلي',
+            'coop' => 'تدريب تعاوني',
+            'field' => 'تدريب ميداني',
+            'remote' => 'عن بُعد',
+            'in_person' => 'حضوري',
+            'hybrid' => 'مدمج',
+            'academic' => 'أكاديمي',
+            'vocational' => 'مهني',
+        ];
+
+        $statusMap = [
+            'active' => 'نشط ومتاح',
+            'completed' => 'مكتمل',
+            'cancelled' => 'ملغي',
+            'pending' => 'قيد الانتظار',
+            'draft' => 'مسودة',
+            'upcoming' => 'قادم',
+        ];
+
+        $appStatusMap = [
+            'pending' => 'قيد المراجعة',
+            'approved' => 'مقبول',
+            'rejected' => 'مرفوض',
+            'completed' => 'مكتمل',
+            'withdrawn' => 'منسحب',
+        ];
+
+        // 1. مخطط توزيع أنواع التدريبات الفعلي
+        $trainingTypesRaw = Training::selectRaw('type, COUNT(*) as count')
+            ->whereNotNull('type')
             ->groupBy('type')
-            ->get()
             ->pluck('count', 'type')
             ->toArray();
 
-        // 2. مخطط توزيع حالات التدريبات
-        $trainingStatus = Training::selectRaw('status, COUNT(*) as count')
+        $trainingTypeLabels = [];
+        $trainingTypeData = [];
+        foreach ($trainingTypesRaw as $type => $count) {
+            $trainingTypeLabels[] = $typeMap[$type] ?? $type;
+            $trainingTypeData[] = (int) $count;
+        }
+
+        // 2. مخطط توزيع حالات التدريبات الفعلي
+        $trainingStatusRaw = Training::selectRaw('status, COUNT(*) as count')
+            ->whereNotNull('status')
             ->groupBy('status')
-            ->get()
             ->pluck('count', 'status')
             ->toArray();
 
-        // 3. مخطط توزيع طلبات التدريب
-        $applicationStatus = TrainingApplication::selectRaw('status, COUNT(*) as count')
+        $trainingStatusLabels = [];
+        $trainingStatusData = [];
+        foreach ($trainingStatusRaw as $status => $count) {
+            $trainingStatusLabels[] = $statusMap[$status] ?? $status;
+            $trainingStatusData[] = (int) $count;
+        }
+
+        // 3. مخطط توزيع طلبات التدريب الفعلي
+        $applicationStatusRaw = TrainingApplication::selectRaw('status, COUNT(*) as count')
+            ->whereNotNull('status')
             ->groupBy('status')
-            ->get()
             ->pluck('count', 'status')
             ->toArray();
 
-        // 4. مخطط التدريبات الشهرية
+        $applicationStatusLabels = [];
+        $applicationStatusData = [];
+        foreach ($applicationStatusRaw as $status => $count) {
+            $applicationStatusLabels[] = $appStatusMap[$status] ?? $status;
+            $applicationStatusData[] = (int) $count;
+        }
+
+        // 4. مخطط التدريبات الشهرية الفعلي
         $monthlyTrainings = Training::selectRaw('YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as count')
             ->where('created_at', '>=', now()->subYear())
             ->groupBy('year', 'month')
-            ->orderBy('year', 'desc')
-            ->orderBy('month', 'desc')
+            ->orderBy('year', 'asc')
+            ->orderBy('month', 'asc')
             ->get();
 
         $monthlyLabels = [];
         $monthlyData = [];
         foreach ($monthlyTrainings as $training) {
             $monthlyLabels[] = $this->getArabicMonthName($training->month) . ' ' . $training->year;
-            $monthlyData[] = $training->count;
+            $monthlyData[] = (int) $training->count;
         }
 
-        // 5. مخطط نسبة الإشغال
+        // 5. مخطط نسبة الإشغال الفعلي
         $occupancyRates = [];
         $trainings = Training::withCount(['applications'])->get();
         foreach ($trainings as $training) {
@@ -531,14 +672,17 @@ class TrainingController extends Controller
                 $occupancyRate = ($training->applications_count / $training->seats) * 100;
                 $occupancyRates[] = [
                     'training' => $training->title,
-                    'rate' => min($occupancyRate, 100) // لا تتجاوز 100%
+                    'rate' => min($occupancyRate, 100)
                 ];
             }
         }
 
-        // 6. مخطط توزيع الشركات
+        // 6. مخطط توزيع الشركات الفعلي
         $companyDistribution = Training::with('company')
             ->get()
+            ->filter(function ($training) {
+                return $training->company !== null;
+            })
             ->groupBy('company.name')
             ->map(function ($trainings) {
                 return $trainings->count();
@@ -549,23 +693,23 @@ class TrainingController extends Controller
 
         return [
             'training_types' => [
-                'labels' => array_keys($trainingTypes),
-                'data' => array_values($trainingTypes),
-                'colors' => ['#4f46e5', '#10b981', '#f59e0b', '#ef4444']
+                'labels' => $trainingTypeLabels,
+                'data' => $trainingTypeData,
+                'colors' => ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4']
             ],
             'training_status' => [
-                'labels' => array_keys($trainingStatus),
-                'data' => array_values($trainingStatus),
-                'colors' => ['#10b981', '#6b7280', '#3b82f6']
+                'labels' => $trainingStatusLabels,
+                'data' => $trainingStatusData,
+                'colors' => ['#10b981', '#6b7280', '#3b82f6', '#f59e0b']
             ],
             'application_status' => [
-                'labels' => array_keys($applicationStatus),
-                'data' => array_values($applicationStatus),
+                'labels' => $applicationStatusLabels,
+                'data' => $applicationStatusData,
                 'colors' => ['#f59e0b', '#10b981', '#ef4444', '#6b7280']
             ],
             'monthly_trends' => [
-                'labels' => array_reverse($monthlyLabels),
-                'data' => array_reverse($monthlyData),
+                'labels' => $monthlyLabels,
+                'data' => $monthlyData,
                 'color' => '#8b5cf6'
             ],
             'occupancy_rates' => $occupancyRates,
@@ -768,5 +912,422 @@ class TrainingController extends Controller
         $report->delete();
 
         return redirect()->back()->with('success', 'تم حذف التقرير بنجاح');
+    }
+
+    /**
+     * عرض صفحة الماسح الضوئي لتسجيل حضور الدورة
+     */
+    public function scanner(Training $training)
+    {
+        $todayDate = now()->format('Y-m-d');
+        $trainingDays = $training->training_days;
+        $totalDays = $training->total_days_count;
+        
+        $totalApproved = \App\Models\TrainingApplication::where('training_id', $training->id)
+            ->where('status', 'approved')
+            ->count();
+
+        $todayAttended = \App\Models\TrainingAttendance::where('training_id', $training->id)
+            ->where('date', $todayDate)
+            ->count();
+
+        $currentDayInfo = $trainingDays->firstWhere('date', $todayDate) ?? [
+            'day_number' => 1,
+            'day_name' => 'اليوم',
+            'date' => $todayDate
+        ];
+
+        $viewData = compact('training', 'todayDate', 'trainingDays', 'totalDays', 'totalApproved', 'todayAttended', 'currentDayInfo');
+
+        if (auth()->user()->role === 'admin') {
+            return view('admin.trainings.scanner', $viewData);
+        }
+        return view('training-coordinator.trainings.scanner', $viewData);
+    }
+
+    /**
+     * معالجة مسح QR وتسجيل الحضور متعدد الأيام
+     */
+    public function processScan(Request $request, Training $training)
+    {
+        $request->validate([
+            'graduate_id' => 'required|integer|exists:users,id',
+            'date' => 'nullable|date_format:Y-m-d'
+        ]);
+
+        $graduateId = $request->graduate_id;
+        $targetDate = $request->input('date', now()->format('Y-m-d'));
+
+        // البحث عن طلب التسجيل (يجب أن يكون مقبولاً)
+        $application = \App\Models\TrainingApplication::with('user.graduateData')
+            ->where('training_id', $training->id)
+            ->where('user_id', $graduateId)
+            ->where('status', 'approved')
+            ->first();
+
+        if (!$application) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'هذا الخريج غير مسجل أو لم يتم قبول طلبه في هذه الدورة التدريبية.'
+            ], 400);
+        }
+
+        $studentName = $application->user->name;
+        $totalDays = $training->total_days_count;
+        $totalApproved = \App\Models\TrainingApplication::where('training_id', $training->id)
+            ->where('status', 'approved')
+            ->count();
+
+        // التحقق من تسجيل الحضور في هذا اليوم المحدد
+        $existing = \App\Models\TrainingAttendance::where('training_id', $training->id)
+            ->where('user_id', $graduateId)
+            ->where('date', $targetDate)
+            ->first();
+
+        $userTotalAttended = \App\Models\TrainingAttendance::where('training_id', $training->id)
+            ->where('user_id', $graduateId)
+            ->count();
+
+        $todayAttendedCount = \App\Models\TrainingAttendance::where('training_id', $training->id)
+            ->where('date', $targetDate)
+            ->count();
+
+        if ($existing) {
+            $timeStr = $existing->attended_at ? $existing->attended_at->format('h:i A') : 'سابقاً';
+            return response()->json([
+                'success' => true,
+                'already_attended' => true,
+                'message' => "تم تسجيل حضور الخريج ({$studentName}) مسبقاً لهذا اليوم في تمام الساعة {$timeStr}.",
+                'student_name' => $studentName,
+                'faculty' => $application->user->graduateData->faculty ?? '---',
+                'department' => $application->user->graduateData->department ?? '---',
+                'national_id' => $application->user->graduateData->national_id ?? $application->user->graduateData->university_id ?? '---',
+                'attended_time' => $timeStr,
+                'user_attended_days' => $userTotalAttended,
+                'total_days' => $totalDays,
+                'today_attended_count' => $todayAttendedCount,
+                'total_approved' => $totalApproved
+            ]);
+        }
+
+        // إنشاء سجل حضور لليوم المحدد
+        $attendance = \App\Models\TrainingAttendance::create([
+            'training_id' => $training->id,
+            'user_id' => $graduateId,
+            'training_application_id' => $application->id,
+            'date' => $targetDate,
+            'attended_at' => now(),
+            'recorded_by' => auth()->id(),
+            'status' => 'present',
+        ]);
+
+        $application->update([
+            'attended_at' => now()
+        ]);
+
+        $newUserTotalAttended = $userTotalAttended + 1;
+        $newTodayAttendedCount = $todayAttendedCount + 1;
+        $currentTimeStr = now()->format('h:i A');
+
+        return response()->json([
+            'success' => true,
+            'already_attended' => false,
+            'message' => "تم تسجيل حضور الخريج ({$studentName}) بنجاح (حضور {$newUserTotalAttended} من أصل {$totalDays} أيام).",
+            'student_name' => $studentName,
+            'faculty' => $application->user->graduateData->faculty ?? '---',
+            'department' => $application->user->graduateData->department ?? '---',
+            'national_id' => $application->user->graduateData->national_id ?? $application->user->graduateData->university_id ?? '---',
+            'attended_time' => $currentTimeStr,
+            'user_attended_days' => $newUserTotalAttended,
+            'total_days' => $totalDays,
+            'today_attended_count' => $newTodayAttendedCount,
+            'total_approved' => $totalApproved
+        ]);
+    }
+
+    /**
+     * عرض مصفوفة وجدول الحضور اليومي الشامل للتدريب
+     */
+    public function attendance(Request $request, Training $training)
+    {
+        $training->load(['company', 'coordinator', 'trainer']);
+        
+        $applications = \App\Models\TrainingApplication::with(['user.graduateData'])
+            ->where('training_id', $training->id)
+            ->where('status', 'approved')
+            ->get();
+
+        $trainingDays = $training->training_days;
+        $totalDays = $training->total_days_count;
+        $todayDate = now()->format('Y-m-d');
+
+        // جلب جميع سجلات الحضور لهذه الدورة وتجميعها بحسب المستخدم
+        $allAttendances = \App\Models\TrainingAttendance::where('training_id', $training->id)
+            ->get();
+
+        $attendancesByUser = $allAttendances->groupBy('user_id');
+
+        // إحصائيات الحضور
+        $totalApproved = $applications->count();
+        $todayAttendedCount = \App\Models\TrainingAttendance::where('training_id', $training->id)
+            ->whereDate('date', $todayDate)
+            ->where('status', 'present')
+            ->count();
+        
+        $totalPossibleAttendances = $totalApproved * $totalDays;
+        $totalActualAttendances = \App\Models\TrainingAttendance::where('training_id', $training->id)
+            ->where('status', 'present')
+            ->count();
+        
+        $overallAttendanceRate = $totalPossibleAttendances > 0 
+            ? round(($totalActualAttendances / $totalPossibleAttendances) * 100, 1) 
+            : 0;
+
+        $isAdmin = auth()->user()->role === 'admin';
+
+        return view('training-coordinator.trainings.attendance', compact(
+            'training',
+            'applications',
+            'trainingDays',
+            'totalDays',
+            'todayDate',
+            'attendancesByUser',
+            'totalApproved',
+            'todayAttendedCount',
+            'overallAttendanceRate',
+            'isAdmin'
+        ));
+    }
+
+    /**
+     * تعديل / تبديل حالة حضور خريج يدوياً في تاريخ محدد (AJAX)
+     */
+    public function toggleAttendance(Request $request, Training $training)
+    {
+        $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+            'date' => 'required|date_format:Y-m-d',
+            'status' => 'nullable|string|in:present,late,excused,absent,toggle'
+        ]);
+
+        $userId = $request->user_id;
+        $date = $request->date;
+        $reqStatus = $request->input('status', 'toggle');
+
+        $application = \App\Models\TrainingApplication::where('training_id', $training->id)
+            ->where('user_id', $userId)
+            ->where('status', 'approved')
+            ->firstOrFail();
+
+        $attendance = \App\Models\TrainingAttendance::where('training_id', $training->id)
+            ->where('user_id', $userId)
+            ->whereDate('date', $date)
+            ->first();
+
+        if ($reqStatus === 'toggle') {
+            if ($attendance) {
+                // إذا كان حاضراً، إزالته (تغييره إلى غائب)
+                $attendance->delete();
+                $newStatus = 'absent';
+                $message = 'تم إلغاء الحضور وجعله غائباً.';
+            } else {
+                // تسجيله كحاضر
+                $attendance = \App\Models\TrainingAttendance::create([
+                    'training_id' => $training->id,
+                    'user_id' => $userId,
+                    'training_application_id' => $application->id,
+                    'date' => $date,
+                    'attended_at' => now(),
+                    'recorded_by' => auth()->id(),
+                    'status' => 'present',
+                ]);
+                $newStatus = 'present';
+                $message = 'تم تسجيل الحضور بنجاح.';
+            }
+        } elseif ($reqStatus === 'absent') {
+            if ($attendance) {
+                $attendance->delete();
+            }
+            $newStatus = 'absent';
+            $message = 'تم تسجيل الغياب.';
+        } else {
+            // present, late, excused
+            if ($attendance) {
+                $attendance->update([
+                    'status' => $reqStatus,
+                    'attended_at' => $attendance->attended_at ?? now(),
+                    'recorded_by' => auth()->id(),
+                ]);
+            } else {
+                $attendance = \App\Models\TrainingAttendance::create([
+                    'training_id' => $training->id,
+                    'user_id' => $userId,
+                    'training_application_id' => $application->id,
+                    'date' => $date,
+                    'attended_at' => now(),
+                    'recorded_by' => auth()->id(),
+                    'status' => $reqStatus,
+                ]);
+            }
+            $newStatus = $reqStatus;
+            $message = 'تم تحديث الحالة بنجاح.';
+        }
+
+        // إعادة حساب إحصائيات هذا الخريج
+        $totalDays = $training->total_days_count;
+        $userAttendedCount = \App\Models\TrainingAttendance::where('training_id', $training->id)
+            ->where('user_id', $userId)
+            ->where('status', 'present')
+            ->count();
+
+        $userPct = $totalDays > 0 ? round(($userAttendedCount / $totalDays) * 100) : 0;
+
+        // إعادة حساب إحصائيات اليوم والإجمالي
+        $todayDate = now()->format('Y-m-d');
+        $totalApproved = \App\Models\TrainingApplication::where('training_id', $training->id)
+            ->where('status', 'approved')
+            ->count();
+        $todayAttendedCount = \App\Models\TrainingAttendance::where('training_id', $training->id)
+            ->whereDate('date', $todayDate)
+            ->where('status', 'present')
+            ->count();
+        $todayPercentage = $totalApproved > 0 ? round(($todayAttendedCount / $totalApproved) * 100) : 0;
+
+        $totalPossibleAttendances = $totalApproved * $totalDays;
+        $totalActualAttendances = \App\Models\TrainingAttendance::where('training_id', $training->id)
+            ->where('status', 'present')
+            ->count();
+        $overallAttendanceRate = $totalPossibleAttendances > 0 
+            ? round(($totalActualAttendances / $totalPossibleAttendances) * 100, 1) 
+            : 0;
+
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'new_status' => $newStatus,
+            'user_attended_count' => $userAttendedCount,
+            'total_days' => $totalDays,
+            'user_percentage' => $userPct,
+            'attended_time' => isset($attendance) && $attendance->attended_at ? $attendance->attended_at->format('h:i A') : '',
+            'today_attended_count' => $todayAttendedCount,
+            'today_percentage' => $todayPercentage,
+            'overall_attendance_rate' => $overallAttendanceRate,
+            'total_approved' => $totalApproved
+        ]);
+    }
+
+    /**
+     * تصدير مصفوفة الحضور بصيغة CSV المتوافقة مع Excel باللغة العربية
+     */
+    public function exportAttendance(Request $request, Training $training)
+    {
+        $applications = \App\Models\TrainingApplication::with(['user.graduateData'])
+            ->where('training_id', $training->id)
+            ->where('status', 'approved')
+            ->get();
+
+        $trainingDays = $training->training_days;
+        $totalDays = $training->total_days_count;
+
+        $allAttendances = \App\Models\TrainingAttendance::where('training_id', $training->id)
+            ->get()
+            ->groupBy('user_id');
+
+        $fileName = 'attendance_' . Str::slug($training->title) . '_' . date('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ];
+
+        $callback = function () use ($applications, $trainingDays, $allAttendances, $totalDays) {
+            $file = fopen('php://output', 'w');
+            // Add UTF-8 BOM for Arabic support in Excel
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            // Header row
+            $header = ['#', 'اسم الخريج', 'الرقم الجامعي/الوطني', 'الكلية', 'القسم'];
+            foreach ($trainingDays as $day) {
+                $header[] = "يوم {$day['day_number']} ({$day['date']})";
+            }
+            $header[] = 'أيام الحضور';
+            $header[] = 'نسبة الحضور (%)';
+
+            fputcsv($file, $header);
+
+            // Rows
+            foreach ($applications as $index => $app) {
+                $user = $app->user;
+                $userAttendances = $allAttendances[$user->id] ?? collect();
+                $userAttendancesByDate = $userAttendances->keyBy(fn($a) => $a->date->format('Y-m-d'));
+
+                $row = [
+                    $index + 1,
+                    $user->name,
+                    $user->graduateData->national_id ?? $user->graduateData->university_id ?? '---',
+                    $user->graduateData->faculty ?? '---',
+                    $user->graduateData->department ?? '---',
+                ];
+
+                $attendedCount = 0;
+                foreach ($trainingDays as $day) {
+                    $att = $userAttendancesByDate[$day['date']] ?? null;
+                    if ($att && $att->status === 'present') {
+                        $row[] = 'حاضر (' . ($att->attended_at ? $att->attended_at->format('H:i') : '') . ')';
+                        $attendedCount++;
+                    } elseif ($att && $att->status === 'late') {
+                        $row[] = 'متأخر';
+                        $attendedCount++;
+                    } elseif ($att && $att->status === 'excused') {
+                        $row[] = 'معذور';
+                    } else {
+                        $row[] = 'غائب';
+                    }
+                }
+
+                $row[] = "{$attendedCount} / {$totalDays}";
+                $row[] = ($totalDays > 0 ? round(($attendedCount / $totalDays) * 100, 1) : 0) . '%';
+
+                fputcsv($file, $row);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * قبول طلبات التدريب دفعة واحدة
+     */
+    public function bulkAcceptApplications(Request $request, Training $training)
+    {
+        $request->validate([
+            'application_ids' => 'required|array',
+            'application_ids.*' => 'exists:training_applications,id'
+        ]);
+
+        $ids = $request->application_ids;
+
+        // تحديث حالة الطلبات المحددة إلى "مقبول"
+        \App\Models\TrainingApplication::whereIn('id', $ids)
+            ->where('training_id', $training->id)
+            ->update(['status' => 'approved']);
+
+        // Send notifications (Optional, if notification logic supports bulk or you can loop)
+        $applications = \App\Models\TrainingApplication::whereIn('id', $ids)->get();
+        foreach($applications as $app) {
+            try {
+                $this->notificationService->sendToUser(
+                    $app->user,
+                    'تم قبول طلب التدريب',
+                    "تم قبول طلبك للالتحاق ببرنامج: {$training->title}",
+                    'application_approved',
+                    ['training_id' => $training->id]
+                );
+            } catch (\Exception $e) {}
+        }
+
+        return redirect()->back()->with('success', 'تم قبول ' . count($ids) . ' طلب(ات) بنجاح');
     }
 }

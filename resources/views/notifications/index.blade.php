@@ -1,93 +1,133 @@
 @extends('layouts.app')
 
-@section('title', 'الإشعارات')
+@section('title', 'مركز الإشعارات')
 
 @section('content')
-    <div class="container">
-        <div class="row">
-            <div class="col-md-10 offset-md-1">
-                <h1 class="mb-4">إشعاراتي</h1>
+<div class="container-fluid px-2 px-md-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <!-- Header & Action Bar -->
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
+                <div>
+                    <h2 class="fw-bold text-primary mb-1 fs-4 fs-md-3">
+                        <i class="fas fa-bell me-2 text-warning"></i>مركز الإشعارات
+                    </h2>
+                    <p class="text-muted small mb-0">تابع آخر التحديثات والأنشطة المتعلقة بحسابك</p>
+                </div>
+                <div class="d-flex gap-2 w-100 w-sm-auto">
+                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3 flex-fill flex-sm-grow-0" id="markAllAsReadBtn">
+                        <i class="fas fa-check-double me-1"></i> تحديد الكل كمقروء
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm rounded-pill px-3 flex-fill flex-sm-grow-0" id="deleteAllReadBtn">
+                        <i class="fas fa-trash me-1"></i> حذف المقروء
+                    </button>
+                </div>
+            </div>
 
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-white py-3">
-                        <div class="row g-2 align-items-center justify-content-between">
-                            <!-- Buttons Section -->
-                            <div class="col-12 col-md-auto order-2 order-md-1">
-                                <div class="d-flex gap-2 w-100">
-                                    <button class="btn btn-outline-primary btn-sm flex-fill flex-md-grow-0"
-                                        id="markAllAsReadBtn">
-                                        <i class="fas fa-check-double me-1"></i> الكل مقروء
-                                    </button>
-                                    <button class="btn btn-outline-danger btn-sm flex-fill flex-md-grow-0"
-                                        id="deleteAllReadBtn">
-                                        <i class="fas fa-trash me-1"></i> حذف المقروء
-                                    </button>
+            <!-- Filter Tabs -->
+            <div class="card border-0 rounded-4 shadow-sm mb-3">
+                <div class="card-body p-2 p-md-3">
+                    <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
+                        <div class="d-flex gap-1 flex-wrap">
+                            <a href="{{ route('notifications.index') }}" 
+                               class="btn btn-sm rounded-pill px-3 {{ !request('read') ? 'btn-primary' : 'btn-light text-muted' }}">
+                                الكل
+                            </a>
+                            <a href="{{ route('notifications.index', ['read' => 'unread']) }}" 
+                               class="btn btn-sm rounded-pill px-3 {{ request('read') == 'unread' ? 'btn-primary' : 'btn-light text-muted' }}">
+                                غير مقروءة
+                            </a>
+                            <a href="{{ route('notifications.index', ['read' => 'read']) }}" 
+                               class="btn btn-sm rounded-pill px-3 {{ request('read') == 'read' ? 'btn-primary' : 'btn-light text-muted' }}">
+                                المقروءة
+                            </a>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mt-2 mt-sm-0 w-100 w-sm-auto">
+                            <select class="form-select form-select-sm rounded-pill" id="filterByType" style="max-width: 160px;">
+                                <option value="">كل الأنواع</option>
+                                <option value="info" {{ request('type') == 'info' ? 'selected' : '' }}>معلومات</option>
+                                <option value="success" {{ request('type') == 'success' ? 'selected' : '' }}>نجاح</option>
+                                <option value="warning" {{ request('type') == 'warning' ? 'selected' : '' }}>تحذير</option>
+                                <option value="danger" {{ request('type') == 'danger' ? 'selected' : '' }}>تنبيه مهم</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications List -->
+            <div class="d-flex flex-column gap-2 mb-4">
+                @forelse ($notifications as $notification)
+                    <div class="card border-0 rounded-4 shadow-sm notification-item {{ $notification->is_read ? 'bg-white' : 'border-start border-4 border-primary' }}"
+                         style="{{ $notification->is_read ? '' : 'background-color: #f8faff;' }}"
+                         data-notification-id="{{ $notification->id }}">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-start gap-3">
+                                <!-- Icon Circle -->
+                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 mt-1" 
+                                     style="width: 42px; height: 42px; background: {{ $notification->is_read ? '#f1f5f9' : '#e0e7ff' }}; color: {{ $notification->is_read ? '#64748b' : '#3b82f6' }};">
+                                    <i class="fas fa-{{ $notification->icon ?? 'bell' }} fa-lg"></i>
                                 </div>
-                            </div>
 
-                            <!-- Filters Section -->
-                            <div class="col-12 col-md-auto order-1 order-md-2 mb-2 mb-md-0">
-                                <div class="d-flex gap-2 w-100">
-                                    <select class="form-select form-select-sm flex-fill" id="filterByType">
-                                        <option value="">كل الأنواع</option>
-                                        <option value="info" {{ request('type') == 'info' ? 'selected' : '' }}>معلومات
-                                        </option>
-                                        <option value="success" {{ request('type') == 'success' ? 'selected' : '' }}>نجاح
-                                        </option>
-                                        <option value="warning" {{ request('type') == 'warning' ? 'selected' : '' }}>تحذير
-                                        </option>
-                                        <option value="danger" {{ request('type') == 'danger' ? 'selected' : '' }}>خطر
-                                        </option>
-                                    </select>
-                                    <select class="form-select form-select-sm flex-fill" id="filterByReadStatus">
-                                        <option value="">الكل</option>
-                                        <option value="unread" {{ request('read') == 'unread' ? 'selected' : '' }}>غير مقروءة
-                                        </option>
-                                        <option value="read" {{ request('read') == 'read' ? 'selected' : '' }}>مقروءة</option>
-                                    </select>
+                                <!-- Content -->
+                                <div class="flex-grow-1 min-w-0">
+                                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-1 mb-1">
+                                        <h6 class="fw-bold text-dark mb-0 fs-6 {{ $notification->is_read ? 'opacity-85' : '' }}">
+                                            {{ $notification->title }}
+                                            @if(!$notification->is_read)
+                                                <span class="badge bg-primary rounded-pill ms-1" style="font-size: 0.65rem;">جديد</span>
+                                            @endif
+                                        </h6>
+                                        <span class="text-muted small" style="font-size: 0.72rem;">
+                                            <i class="far fa-clock me-1"></i>{{ $notification->created_at->locale('ar')->diffForHumans() }}
+                                        </span>
+                                    </div>
+                                    <p class="text-muted small mb-2 text-break" style="line-height: 1.4;">
+                                        {{ $notification->message }}
+                                    </p>
+                                    @if($notification->sender)
+                                        <div class="small text-secondary" style="font-size: 0.72rem;">
+                                            <i class="fas fa-user-circle me-1"></i>من: {{ $notification->sender->name }}
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <!-- Actions -->
+                                <div class="d-flex flex-column gap-1 flex-shrink-0">
+                                    @if(!$notification->is_read)
+                                        <button class="btn btn-sm btn-light text-success border mark-as-read-btn rounded-circle" 
+                                                style="width: 32px; height: 32px; padding: 0;" title="تحديد كمقروء">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    @endif
+                                    <button class="btn btn-sm btn-light text-danger border delete-notification-btn rounded-circle" 
+                                            style="width: 32px; height: 32px; padding: 0;" title="حذف الإشعار">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <ul class="list-group list-group-flush">
-                        @forelse ($notifications as $notification)
-                            <li class="list-group-item notification-item {{ $notification->is_read ? 'read' : 'unread' }}"
-                                data-notification-id="{{ $notification->id }}">
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-{{ $notification->icon }} me-3 fs-4 text-{{ $notification->color }}"></i>
-                                    <div class="flex-grow-1">
-                                        <h5 class="mb-1">{{ $notification->title }}</h5>
-                                        <p class="mb-1 text-muted">{{ $notification->message }}</p>
-                                        <small class="text-secondary">
-                                            {{ $notification->created_at->diffForHumans() }}
-                                            @if($notification->sender)
-                                                من {{ $notification->sender->name }}
-                                            @endif
-                                        </small>
-                                    </div>
-                                    <div class="notification-actions">
-                                        @if(!$notification->is_read)
-                                            <button class="btn btn-sm btn-outline-success mark-as-read-btn" title="وضع كمقروء">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                        @endif
-                                        <button class="btn btn-sm btn-outline-danger delete-notification-btn" title="حذف">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </li>
-                        @empty
-                            <li class="list-group-item text-center text-muted">لا توجد إشعارات حالياً.</li>
-                        @endforelse
-                    </ul>
-                    <div class="card-footer">
-                        {{ $notifications->links() }}
+                @empty
+                    <div class="card border-0 rounded-4 shadow-sm p-5 text-center bg-white">
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px;">
+                            <i class="fas fa-bell-slash fa-2x text-muted opacity-50"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-1">لا توجد إشعارات حالياً</h5>
+                        <p class="text-muted small mb-0">جميع الإشعارات والتنبيهات ستظهر لك هنا فور وصولها</p>
                     </div>
-                </div>
+                @endforelse
             </div>
+
+            <!-- Pagination -->
+            @if($notifications->hasPages())
+                <div class="d-flex justify-content-center">
+                    {{ $notifications->links() }}
+                </div>
+            @endif
         </div>
     </div>
+</div>
 @endsection
 
 @push('scripts')

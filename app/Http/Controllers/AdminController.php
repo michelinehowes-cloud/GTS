@@ -53,7 +53,7 @@ class AdminController extends Controller
         $recentJobOpportunities = Schema::hasTable('job_opportunities') ? JobOpportunity::latest()->take(5)->get() : collect();
         $recentNominations = Schema::hasTable('nominations') ? Nomination::with('graduate', 'jobOpportunity')->latest()->take(5)->get() : collect();
 
-        // بيانات المخططات للوحة التحكم التفاعلية
+        // بيانات المخططات للوحة التحكم التفاعلية الحقيقية
         $chartData = $this->getDashboardChartData();
 
         return view('admin.dashboard', [
@@ -77,6 +77,7 @@ class AdminController extends Controller
             'recentTrainingApplications' => $recentTrainingApplications,
             'recentJobOpportunities' => $recentJobOpportunities,
             'recentNominations' => $recentNominations,
+            'chartsData' => $chartData,
             'chartData' => $chartData,
         ]);
     }
@@ -103,156 +104,113 @@ class AdminController extends Controller
     }
 
     /**
-     * إرجاع بيانات المخططات (Charts) للوحة التحكم
+     * إرجاع بيانات المخططات الحقيقية من قاعدة البيانات
      */
     private function getDashboardChartData()
     {
-        try {
-            // مخطط توزيع المستخدمين حسب الدور
-            $usersByRole = User::selectRaw('role, COUNT(*) as count')
-                ->groupBy('role')
-                ->pluck('count', 'role')
-                ->toArray();
+        // 1. مخطط توزيع المستخدمين حسب الدور من قاعدة البيانات الفعلية
+        $roleMap = [
+            'admin' => 'مدير النظام',
+            'graduate' => 'الخريجين',
+            'company' => 'الشركات',
+            'training_coordinator' => 'منسق التدريب',
+            'career_guidance_officer' => 'مسؤول الإرشاد المهني',
+            'partnership_officer' => 'مسؤول الشراكات والتوظيف',
+            'evaluation_followup' => 'مسؤول التقييم والمتابعة',
+            'media_officer' => 'المسؤول الإعلامي',
+        ];
 
-            $userRoleLabels = [];
-            $userRoleData = [];
-            foreach ($usersByRole as $role => $count) {
-                $userRoleLabels[] = __('roles.' . $role, [], 'en') ?: ucfirst(str_replace('_', ' ', $role));
-                $userRoleData[] = $count;
-            }
+        $usersByRoleRaw = User::selectRaw('role, COUNT(*) as count')
+            ->groupBy('role')
+            ->pluck('count', 'role')
+            ->toArray();
 
-            // مخطط حالة الشركات
-            $companiesByStatus = Company::selectRaw('is_approved, COUNT(*) as count')
-                ->groupBy('is_approved')
-                ->pluck('count', 'is_approved')
-                ->toArray();
-
-            $companyStatusLabels = [];
-            $companyStatusData = [];
-            foreach ($companiesByStatus as $approved => $count) {
-                $companyStatusLabels[] = $approved ? 'معتمدة' : 'قيد الانتظار';
-                $companyStatusData[] = $count;
-            }
-
-            // مخطط حالة التوظيف للخريجين
-            $employmentStatus = GraduateData::selectRaw('employment_status, COUNT(*) as count')
-                ->whereNotNull('employment_status')
-                ->groupBy('employment_status')
-                ->pluck('count', 'employment_status')
-                ->toArray();
-
-            $employmentLabels = [];
-            $employmentData = [];
-            foreach ($employmentStatus as $status => $count) {
-                $employmentLabels[] = $this->getEmploymentStatusLabel($status);
-                $employmentData[] = $count;
-            }
-
-            // مخطط النشاط الشهري (طلبات التدريب)
-            $monthlyActivity = TrainingApplication::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
-                ->whereYear('created_at', date('Y'))
-                ->groupBy('month')
-                ->orderBy('month')
-                ->pluck('count', 'month')
-                ->toArray();
-
-            $monthlyLabels = [];
-            $monthlyData = [];
-            for ($i = 1; $i <= 12; $i++) {
-                $monthlyLabels[] = date('M', mktime(0, 0, 0, $i, 1));
-                $monthlyData[] = $monthlyActivity[$i] ?? 0;
-            }
-
-            return [
-                'usersByRole' => [
-                    'labels' => $userRoleLabels,
-                    'datasets' => [[
-                        'label' => 'عدد المستخدمين',
-                        'data' => $userRoleData,
-                        'backgroundColor' => [
-                            'rgba(255, 99, 132, 0.8)',
-                            'rgba(54, 162, 235, 0.8)',
-                            'rgba(255, 205, 86, 0.8)',
-                            'rgba(75, 192, 192, 0.8)',
-                            'rgba(153, 102, 255, 0.8)',
-                            'rgba(255, 159, 64, 0.8)',
-                        ],
-                    ]]
-                ],
-                'companiesByStatus' => [
-                    'labels' => $companyStatusLabels,
-                    'datasets' => [[
-                        'label' => 'عدد الشركات',
-                        'data' => $companyStatusData,
-                        'backgroundColor' => [
-                            'rgba(75, 192, 192, 0.8)',
-                            'rgba(255, 99, 132, 0.8)',
-                        ],
-                    ]]
-                ],
-                'employmentStatus' => [
-                    'labels' => $employmentLabels,
-                    'datasets' => [[
-                        'label' => 'عدد الخريجين',
-                        'data' => $employmentData,
-                        'backgroundColor' => [
-                            'rgba(255, 99, 132, 0.8)',
-                            'rgba(54, 162, 235, 0.8)',
-                            'rgba(255, 205, 86, 0.8)',
-                            'rgba(75, 192, 192, 0.8)',
-                        ],
-                    ]]
-                ],
-                'monthlyActivity' => [
-                    'labels' => $monthlyLabels,
-                    'datasets' => [[
-                        'label' => 'طلبات التدريب',
-                        'data' => $monthlyData,
-                        'borderColor' => 'rgba(75, 192, 192, 1)',
-                        'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
-                        'tension' => 0.4,
-                    ]]
-                ],
-            ];
-        } catch (\Exception $e) {
-            // في حالة الخطأ، إرجاع بيانات افتراضية
-            return [
-                'usersByRole' => [
-                    'labels' => ['مدير', 'منسق تدريب', 'خريج', 'شركة'],
-                    'datasets' => [[
-                        'label' => 'عدد المستخدمين',
-                        'data' => [1, 0, 0, 0],
-                        'backgroundColor' => ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 205, 86, 0.8)', 'rgba(75, 192, 192, 0.8)'],
-                    ]]
-                ],
-                'companiesByStatus' => [
-                    'labels' => ['معتمدة', 'قيد الانتظار'],
-                    'datasets' => [[
-                        'label' => 'عدد الشركات',
-                        'data' => [0, 0],
-                        'backgroundColor' => ['rgba(75, 192, 192, 0.8)', 'rgba(255, 99, 132, 0.8)'],
-                    ]]
-                ],
-                'employmentStatus' => [
-                    'labels' => ['موظف', 'غير موظف', 'باحث عن عمل'],
-                    'datasets' => [[
-                        'label' => 'عدد الخريجين',
-                        'data' => [0, 0, 0],
-                        'backgroundColor' => ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 205, 86, 0.8)'],
-                    ]]
-                ],
-                'monthlyActivity' => [
-                    'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    'datasets' => [[
-                        'label' => 'طلبات التدريب',
-                        'data' => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        'borderColor' => 'rgba(75, 192, 192, 1)',
-                        'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
-                        'tension' => 0.4,
-                    ]]
-                ],
-            ];
+        $userRoleLabels = [];
+        $userRoleData = [];
+        foreach ($usersByRoleRaw as $role => $count) {
+            $userRoleLabels[] = $roleMap[$role] ?? $role;
+            $userRoleData[] = (int) $count;
         }
+
+        // 2. مخطط حالة الشركات الفعلي
+        $approvedCompanies = Company::where('is_approved', true)->count();
+        $pendingCompanies = Company::where('is_approved', false)->count();
+
+        $companyStatusLabels = ['معتمدة', 'قيد الانتظار'];
+        $companyStatusData = [(int) $approvedCompanies, (int) $pendingCompanies];
+
+        // 3. مخطط حالة التوظيف للخريجين الفعلي
+        $employmentStatusLabelsMap = [
+            'employed' => 'تم التوظيف',
+            'seeking_opportunities' => 'يبحث عن فرصة عمل',
+            'seeking' => 'باحث عن عمل',
+            'searching' => 'يبحث عن عمل',
+            'training' => 'تحت التدريب',
+            'internship' => 'تدريب داخلي',
+            'student' => 'طالب / دراسات عليا',
+            'further_study' => 'مستكمل للدراسة',
+            'unemployed' => 'غير موظف',
+        ];
+
+        $employmentRaw = GraduateData::selectRaw('employment_status, COUNT(*) as count')
+            ->whereNotNull('employment_status')
+            ->groupBy('employment_status')
+            ->pluck('count', 'employment_status')
+            ->toArray();
+
+        $employmentLabels = [];
+        $employmentData = [];
+        foreach ($employmentRaw as $status => $count) {
+            $employmentLabels[] = $employmentStatusLabelsMap[$status] ?? $status;
+            $employmentData[] = (int) $count;
+        }
+
+        if (empty($employmentLabels)) {
+            $employmentLabels = ['لا توجد بيانات مسجلة'];
+            $employmentData = [0];
+        }
+
+        // 4. مخطط النشاط الشهري لطلبات التدريب (آخر 6 أشهر من قاعدة البيانات)
+        $monthlyLabels = [];
+        $monthlyData = [];
+        $arabicMonths = [
+            1 => 'يناير', 2 => 'فبراير', 3 => 'مارس', 4 => 'أبريل',
+            5 => 'مايو', 6 => 'يونيو', 7 => 'يوليو', 8 => 'أغسطس',
+            9 => 'سبتمبر', 10 => 'أكتوبر', 11 => 'نوفمبر', 12 => 'ديسمبر'
+        ];
+
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $year = $date->year;
+            $month = $date->month;
+            $monthName = $arabicMonths[$month] . ' ' . $year;
+
+            $count = TrainingApplication::whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->count();
+
+            $monthlyLabels[] = $monthName;
+            $monthlyData[] = (int) $count;
+        }
+
+        return [
+            'usersByRole' => [
+                'labels' => $userRoleLabels,
+                'data' => $userRoleData,
+            ],
+            'companiesByStatus' => [
+                'labels' => $companyStatusLabels,
+                'data' => $companyStatusData,
+            ],
+            'employmentStatus' => [
+                'labels' => $employmentLabels,
+                'data' => $employmentData,
+            ],
+            'monthlyActivity' => [
+                'labels' => $monthlyLabels,
+                'data' => $monthlyData,
+            ],
+        ];
     }
 
     /**
@@ -387,44 +345,61 @@ public function reports()
     /**
      * الموافقة على طلب التدريب
      */
-    public function approveApplication($id)
+    public function approveApplication(Request $request, $id)
     {
         if (!Schema::hasTable('training_applications')) {
-            return redirect()->route('admin.applications.index')
-                ->with('error', 'جدول طلبات التدريب غير متوفر حالياً');
+            return redirect()->back()
+                ->with('error', 'جدول طلبات التدريب غير موجود في قاعدة البيانات');
         }
-        
-        $application = TrainingApplication::findOrFail($id);
+
+        $application = TrainingApplication::with('training')->findOrFail($id);
         $application->update(['status' => 'approved']);
-        
-        return redirect()->route('admin.applications.index')
-            ->with('success', 'تم الموافقة على طلب التدريب بنجاح');
+
+        return redirect()->back()->with('success', 'تم الموافقة على طلب التدريب بنجاح');
+    }
+
+    /**
+     * الموافقة على طلبات التدريب دفعة واحدة
+     */
+    public function bulkApproveApplications(Request $request)
+    {
+        $request->validate([
+            'application_ids' => 'required|array',
+            'application_ids.*' => 'exists:training_applications,id'
+        ]);
+
+        $ids = $request->application_ids;
+
+        TrainingApplication::whereIn('id', $ids)
+            ->update(['status' => 'approved']);
+
+        return redirect()->back()
+            ->with('success', 'تم الموافقة على ' . count($ids) . ' طلب(ات) بنجاح');
     }
     /**
- * إعادة الطلب إلى قيد المراجعة
- */
-public function pendingApplication($id)
-{
-    $application = TrainingApplication::findOrFail($id);
-    $application->update(['status' => 'pending']);
-    
-    return redirect()->back()->with('success', 'تم إعادة الطلب إلى قيد المراجعة');
-}
+     * إعادة الطلب إلى قيد المراجعة
+     */
+    public function pendingApplication(Request $request, $id)
+    {
+        $application = TrainingApplication::with('training')->findOrFail($id);
+        $application->update(['status' => 'pending']);
+
+        return redirect()->back()->with('success', 'تم إعادة الطلب إلى قيد المراجعة');
+    }
 
     /**
      * رفض طلب التدريب
      */
-    public function rejectApplication($id)
+    public function rejectApplication(Request $request, $id)
     {
-        if (!Schema::hasTable('training_applications')) {
-            return redirect()->route('admin.applications.index')
+        if (!\Illuminate\Support\Facades\Schema::hasTable('training_applications')) {
+            return redirect()->back()
                 ->with('error', 'جدول طلبات التدريب غير متوفر حالياً');
         }
-        
-        $application = TrainingApplication::findOrFail($id);
+
+        $application = TrainingApplication::with('training')->findOrFail($id);
         $application->update(['status' => 'rejected']);
-        
-        return redirect()->route('admin.applications.index')
-            ->with('success', 'تم رفض طلب التدريب بنجاح');
+
+        return redirect()->back()->with('success', 'تم رفض طلب التدريب بنجاح');
     }
 }

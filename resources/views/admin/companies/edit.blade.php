@@ -25,7 +25,7 @@
                 </div>
                 <div class="card-body p-4">
                     @if($errors->any())
-                    <div class="alert alert-danger border-0 bg-danger-subtle text-danger-emphasis mb-4">
+                    <div class="alert alert-danger border-0 bg-light text-danger text-danger mb-4">
                         <ul class="mb-0">
                             @foreach($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -153,16 +153,16 @@
                                 @enderror
                             </div>
 
-                            <!-- حالة الشراكة -->
+                            <!-- حالة الشراكة والاعتماد -->
                             <div class="col-md-6">
-                                <label for="partnership_status" class="form-label-modern">حالة الشراكة <span class="text-danger">*</span></label>
+                                <label for="partnership_status" class="form-label-modern">حالة الشركة والاعتماد <span class="text-danger">*</span></label>
                                 <select class="form-select-modern w-100 @error('partnership_status') is-invalid @enderror" 
                                         id="partnership_status" name="partnership_status" required>
-                                    <option value="">اختر حالة الشراكة...</option>
-                                    <option value="active" {{ old('partnership_status', $company->partnership_status) == 'active' ? 'selected' : '' }}>نشطة</option>
-                                    <option value="expired" {{ old('partnership_status', $company->partnership_status) == 'expired' ? 'selected' : '' }}>منتهية</option>
-                                    <option value="under_review" {{ old('partnership_status', $company->partnership_status) == 'under_review' ? 'selected' : '' }}>قيد المراجعة</option>
+                                    <option value="active" {{ old('partnership_status', ($company->is_approved && $company->partnership_status === 'active') ? 'active' : $company->partnership_status) === 'active' ? 'selected' : '' }}>🟢 نشطة ومعتمدة (مفعلة)</option>
+                                    <option value="under_review" {{ old('partnership_status', $company->partnership_status) === 'under_review' || !$company->is_approved ? 'selected' : '' }}>⏳ قيد المراجعة (معلقة)</option>
+                                    <option value="expired" {{ old('partnership_status', $company->partnership_status) === 'expired' ? 'selected' : '' }}>⚪ منتهية الشراكة</option>
                                 </select>
+                                <div class="form-text text-muted small mt-1">تحديد "نشطة ومعتمدة" يمنح الشركة صلاحية تسجيل الدخول وإضافة وظائف فوراً.</div>
                                 @error('partnership_status')
                                     <div class="text-danger small mt-1 fw-bold">{{ $message }}</div>
                                 @enderror

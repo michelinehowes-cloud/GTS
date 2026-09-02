@@ -36,7 +36,7 @@
                 </div>
                 
                 <div class="col-md-3">
-                    <label class="form-label fw-bold">الحد الأدنى للمعدل التراكمي (GPA)</label>
+                    <label class="form-label fw-bold">الحد الأدنى للمعدل التراكمي (%)</label>
                     <div class="input-group">
                         <span class="input-group-text bg-white"><i class="fas fa-star text-muted"></i></span>
                         <input type="number" step="0.01" min="0" max="100" name="gpa_min" class="form-control" placeholder="مثال: 75" value="{{ request('gpa_min') }}">
@@ -66,7 +66,7 @@
                     <p class="text-muted small mb-3">{{ $graduate->major ?? 'تخصص غير محدد' }}</p>
                     
                     <div class="d-flex justify-content-center gap-2 mb-4">
-                        <span class="badge bg-light text-dark border"><i class="fas fa-star text-warning"></i> GPA: {{ $graduate->graduateData->gpa ?? 'N/A' }}</span>
+                        <span class="badge bg-light text-dark border"><i class="fas fa-star text-warning"></i> المعدل: {{ $graduate->graduateData->gpa ? $graduate->graduateData->gpa . '%' : 'N/A' }}</span>
                         <span class="badge bg-light text-dark border"><i class="fas fa-calendar-alt text-secondary"></i> دفعة: {{ $graduate->graduateData->graduation_year ?? 'N/A' }}</span>
                     </div>
                     

@@ -2,162 +2,189 @@
 
 @section('title', 'ترشيح خريج لفرصة عمل')
 
+@php
+    $routePrefix = request()->routeIs('admin.*') ? 'admin.career-guidance' : (request()->routeIs('partnership.*') ? 'partnership' : 'career-guidance');
+@endphp
+
 @section('content')
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3>ترشيح خريج لفرصة عمل</h3>
-                    <a href="{{ route('career-guidance.nominations') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
-                    </a>
+    <!-- Breadcrumbs -->
+    @include('components.breadcrumbs', [
+        'items' => [
+            ['label' => 'الرئيسية', 'url' => route('home')],
+            ['label' => 'لوحة الإرشاد المهني', 'url' => route($routePrefix . '.dashboard')],
+            ['label' => 'إدارة الترشيحات', 'url' => route($routePrefix . '.nominations')],
+            ['label' => 'ترشيح خريج لفرصة', 'active' => true],
+        ]
+    ])
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary fw-bold mb-0">
+            <i class="fas fa-paper-plane me-2"></i> ترشيح خريج لفرصة عمل
+        </h2>
+        <a href="{{ route($routePrefix . '.nominations') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-right me-1"></i> العودة للقائمة
+        </a>
+    </div>
+
+    <div class="card-modern">
+        <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="card-title mb-0 text-primary fw-bold">
+                <i class="fas fa-plus-circle me-2"></i>نموذج إنشاء ترشيح جديد
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <form action="{{ route($routePrefix . '.nominations.store') }}" method="POST">
+                @csrf
+                
+                <div class="row g-4">
+                    <!-- اختيار الخريج -->
+                    <div class="col-lg-6">
+                        <div class="p-4 border rounded-3 bg-light h-100">
+                            <h6 class="fw-bold text-primary mb-3">
+                                <i class="fas fa-user-graduate me-2"></i>1. اختيار الخريج
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="graduate_id" class="form-label-modern">الخريج المستهدف <span class="text-danger">*</span></label>
+                                <select class="form-select-modern @error('graduate_id') is-invalid @enderror" 
+                                        id="graduate_id" name="graduate_id" required>
+                                    <option value="">-- اختر الخريج من القائمة --</option>
+                                    @foreach($graduates as $graduate)
+                                        <option value="{{ $graduate->id }}" 
+                                                {{ (old('graduate_id') == $graduate->id || request('graduate_id') == $graduate->id) ? 'selected' : '' }}>
+                                            {{ $graduate->name }} - {{ $graduate->major }} ({{ $graduate->graduation_year }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('graduate_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- بطاقة معلومات الخريج المختار -->
+                            <div id="graduate-info" class="p-3 bg-white border rounded-3 mt-3" style="display: none;">
+                                <h6 class="fw-bold text-dark mb-2 border-bottom pb-2">بطاقة الخريج:</h6>
+                                <div class="row g-2 small">
+                                    <div class="col-6">
+                                        <span class="text-muted d-block">التخصص:</span>
+                                        <strong id="info-major" class="text-dark"></strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="text-muted d-block">سنة التخرج:</span>
+                                        <strong id="info-year" class="text-dark"></strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="text-muted d-block">المعدل:</span>
+                                        <strong id="info-gpa" class="text-dark"></strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="text-muted d-block">حالة التوظيف:</span>
+                                        <strong id="info-status" class="text-dark"></strong>
+                                    </div>
+                                    <div class="col-12 mt-2">
+                                        <span class="text-muted d-block">المهارات المسجلة:</span>
+                                        <span id="info-skills" class="badge bg-light text-primary border border-primary mt-1"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- اختيار فرصة العمل -->
+                    <div class="col-lg-6">
+                        <div class="p-4 border rounded-3 bg-light h-100">
+                            <h6 class="fw-bold text-success mb-3">
+                                <i class="fas fa-briefcase me-2"></i>2. اختيار الفرصة الوظيفية
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="job_opportunity_id" class="form-label-modern">فرصة العمل أو التدريب <span class="text-danger">*</span></label>
+                                <select class="form-select-modern @error('job_opportunity_id') is-invalid @enderror" 
+                                        id="job_opportunity_id" name="job_opportunity_id" required>
+                                    <option value="">-- اختر الفرصة المتاحة --</option>
+                                    @foreach($opportunities as $opportunity)
+                                        <option value="{{ $opportunity->id }}" 
+                                                {{ (old('job_opportunity_id') == $opportunity->id || request('opportunity_id') == $opportunity->id) ? 'selected' : '' }}>
+                                            {{ $opportunity->title }} - {{ $opportunity->company->name ?? 'غير محدد' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('job_opportunity_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- بطاقة معلومات الفرصة المختارة -->
+                            <div id="opportunity-info" class="p-3 bg-white border rounded-3 mt-3" style="display: none;">
+                                <h6 class="fw-bold text-dark mb-2 border-bottom pb-2">تفاصيل الفرصة:</h6>
+                                <div class="row g-2 small">
+                                    <div class="col-6">
+                                        <span class="text-muted d-block">الشركة:</span>
+                                        <strong id="info-company" class="text-dark"></strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="text-muted d-block">النوع:</span>
+                                        <strong id="info-type" class="text-dark"></strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="text-muted d-block">الموقع:</span>
+                                        <strong id="info-location" class="text-dark"></strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="text-muted d-block">المقاعد المتاحة:</span>
+                                        <strong id="info-seats" class="text-dark"></strong>
+                                    </div>
+                                    <div class="col-12 mt-2">
+                                        <span class="text-muted d-block">المهارات المطلوبة:</span>
+                                        <span id="info-required-skills" class="badge bg-light text-success border border-success mt-1"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- أسباب الترشيح والملاحظات -->
+                    <div class="col-12">
+                        <div class="p-4 border rounded-3 bg-light">
+                            <h6 class="fw-bold text-dark mb-3">
+                                <i class="fas fa-clipboard-check me-2 text-warning"></i>3. مبررات وأسباب الترشيح
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="matching_reasons" class="form-label-modern">أسباب التطابق ومبررات الترشيح <span class="text-danger">*</span></label>
+                                <textarea class="form-control-modern @error('matching_reasons') is-invalid @enderror" 
+                                          id="matching_reasons" name="matching_reasons" rows="3" 
+                                          placeholder="اذكر أسباب مناسبة الخريج لهذه الفرصة (التخصص، الكفاءة، الدورات التدريبية، التميز الأكاديمي...)" required>{{ old('matching_reasons') }}</textarea>
+                                @error('matching_reasons')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-0">
+                                <label for="nomination_notes" class="form-label-modern">ملاحظات إضافية (اختياري)</label>
+                                <textarea class="form-control-modern @error('nomination_notes') is-invalid @enderror" 
+                                          id="nomination_notes" name="nomination_notes" rows="2" 
+                                          placeholder="أي ملاحظات إضافية لمسؤول التوظيف بالشركة...">{{ old('nomination_notes') }}</textarea>
+                                @error('nomination_notes')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- أزرار الإجراء -->
+                    <div class="col-12 d-flex justify-content-between align-items-center pt-2">
+                        <a href="{{ route($routePrefix . '.nominations') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i> إلغاء
+                        </a>
+                        <button type="submit" class="btn btn-primary-modern px-5 py-2">
+                            <i class="fas fa-paper-plane me-2"></i> إرسال الترشيح
+                        </button>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form action="{{ route('career-guidance.nominations.store') }}" method="POST">
-                        @csrf
-                        
-                        <div class="row">
-                            <!-- اختيار الخريج -->
-                            <div class="col-md-6">
-                                <div class="card mb-4">
-                                    <div class="card-header bg-light">
-                                        <h5 class="mb-0">اختيار الخريج</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label for="graduate_id" class="form-label">الخريج *</label>
-                                            <select class="form-select @error('graduate_id') is-invalid @enderror" 
-                                                    id="graduate_id" name="graduate_id" required>
-                                                <option value="">اختر الخريج</option>
-                                                @foreach($graduates as $graduate)
-                                                    <option value="{{ $graduate->id }}" 
-                                                            {{ (old('graduate_id') == $graduate->id || request('graduate_id') == $graduate->id) ? 'selected' : '' }}>
-                                                        {{ $graduate->name }} - {{ $graduate->major }} ({{ $graduate->graduation_year }})
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            @error('graduate_id')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <!-- معلومات الخريج المختار -->
-                                        <div id="graduate-info" class="mt-3 p-3 bg-light rounded" style="display: none;">
-                                            <h6>معلومات الخريج:</h6>
-                                            <div class="row">
-                                                <div class="col-6">
-                                                    <small><strong>التخصص:</strong> <span id="info-major"></span></small>
-                                                </div>
-                                                <div class="col-6">
-                                                    <small><strong>سنة التخرج:</strong> <span id="info-year"></span></small>
-                                                </div>
-                                                <div class="col-6">
-                                                    <small><strong>المعدل:</strong> <span id="info-gpa"></span></small>
-                                                </div>
-                                                <div class="col-6">
-                                                    <small><strong>الحالة:</strong> <span id="info-status"></span></small>
-                                                </div>
-                                                <div class="col-12 mt-2">
-                                                    <small><strong>المهارات:</strong> <span id="info-skills"></span></small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- اختيار فرصة العمل -->
-                            <div class="col-md-6">
-                                <div class="card mb-4">
-                                    <div class="card-header bg-light">
-                                        <h5 class="mb-0">اختيار فرصة العمل</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label for="job_opportunity_id" class="form-label">فرصة العمل *</label>
-                                            <select class="form-select @error('job_opportunity_id') is-invalid @enderror" 
-                                                    id="job_opportunity_id" name="job_opportunity_id" required>
-                                                <option value="">اختر فرصة العمل</option>
-                                                @foreach($opportunities as $opportunity)
-                                                    <option value="{{ $opportunity->id }}" 
-                                                            {{ old('job_opportunity_id') == $opportunity->id ? 'selected' : '' }}>
-                                                        {{ $opportunity->title }} - {{ $opportunity->company->name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            @error('job_opportunity_id')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <!-- معلومات الفرصة المختارة -->
-                                        <div id="opportunity-info" class="mt-3 p-3 bg-light rounded" style="display: none;">
-                                            <h6>معلومات الفرصة:</h6>
-                                            <div class="row">
-                                                <div class="col-6">
-                                                    <small><strong>الشركة:</strong> <span id="info-company"></span></small>
-                                                </div>
-                                                <div class="col-6">
-                                                    <small><strong>النوع:</strong> <span id="info-type"></span></small>
-                                                </div>
-                                                <div class="col-6">
-                                                    <small><strong>المكان:</strong> <span id="info-location"></span></small>
-                                                </div>
-                                                <div class="col-6">
-                                                    <small><strong>المقاعد:</strong> <span id="info-seats"></span></small>
-                                                </div>
-                                                <div class="col-12 mt-2">
-                                                    <small><strong>المهارات المطلوبة:</strong> <span id="info-required-skills"></span></small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- أسباب الترشيح -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-light">
-                                <h5 class="mb-0">أسباب الترشيح</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="matching_reasons" class="form-label">أسباب التطابق بين الخريج والفرصة *</label>
-                                    <textarea class="form-control @error('matching_reasons') is-invalid @enderror" 
-                                              id="matching_reasons" name="matching_reasons" rows="4" 
-                                              placeholder="اذكر أسباب مناسبة الخريج لهذه الفرصة..." required>{{ old('matching_reasons') }}</textarea>
-                                    @error('matching_reasons')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <small class="text-muted">مثال: تطابق التخصص، المهارات المتوافقة، الخبرات السابقة، إلخ.</small>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="nomination_notes" class="form-label">ملاحظات إضافية</label>
-                                    <textarea class="form-control @error('nomination_notes') is-invalid @enderror" 
-                                              id="nomination_notes" name="nomination_notes" rows="3" 
-                                              placeholder="ملاحظات إضافية حول الترشيح...">{{ old('nomination_notes') }}</textarea>
-                                    @error('nomination_notes')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- أزرار الإجراء -->
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ route('career-guidance.nominations') }}" class="btn btn-secondary">
-                                <i class="fas fa-times me-2"></i>إلغاء
-                            </a>
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-paper-plane me-2"></i>ترشيح الخريج
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
@@ -170,50 +197,61 @@ const graduatesData = @json($graduates->keyBy('id'));
 // بيانات فرص العمل
 const opportunitiesData = @json($opportunities->keyBy('id'));
 
-// تحديث معلومات الخريج عند الاختيار
-document.getElementById('graduate_id').addEventListener('change', function() {
-    const graduateId = this.value;
+function updateGraduateDetails() {
+    const graduateId = document.getElementById('graduate_id').value;
     const graduateInfo = document.getElementById('graduate-info');
-    const summaryGraduate = document.getElementById('summary-graduate');
     
     if (graduateId && graduatesData[graduateId]) {
         const graduate = graduatesData[graduateId];
         
-        // تحديث معلومات الخريج
-        document.getElementById('info-major').textContent = graduate.major;
-        document.getElementById('info-year').textContent = graduate.graduation_year;
+        document.getElementById('info-major').textContent = graduate.major || '--';
+        document.getElementById('info-year').textContent = graduate.graduation_year || '--';
         document.getElementById('info-gpa').textContent = graduate.gpa || 'غير محدد';
         document.getElementById('info-status').textContent = getEmploymentStatusText(graduate.employment_status);
-        document.getElementById('info-skills').textContent = graduate.skills ? graduate.skills.join(', ') : 'لا توجد مهارات';
         
-        // إظهار قسم المعلومات
+        let skillsText = 'لا توجد مهارات مسجلة';
+        if (graduate.skills) {
+            skillsText = Array.isArray(graduate.skills) ? graduate.skills.join(', ') : graduate.skills;
+        }
+        document.getElementById('info-skills').textContent = skillsText;
+        
         graduateInfo.style.display = 'block';
     } else {
         graduateInfo.style.display = 'none';
     }
-});
+}
 
-// تحديث معلومات فرصة العمل عند الاختيار
-document.getElementById('job_opportunity_id').addEventListener('change', function() {
-    const opportunityId = this.value;
+function updateOpportunityDetails() {
+    const opportunityId = document.getElementById('job_opportunity_id').value;
     const opportunityInfo = document.getElementById('opportunity-info');
     
     if (opportunityId && opportunitiesData[opportunityId]) {
         const opportunity = opportunitiesData[opportunityId];
         
-        // تحديث معلومات الفرصة
-        document.getElementById('info-company').textContent = opportunity.company.name;
+        document.getElementById('info-company').textContent = opportunity.company ? opportunity.company.name : 'غير محدد';
         document.getElementById('info-type').textContent = getOpportunityTypeText(opportunity.type);
-        document.getElementById('info-location').textContent = opportunity.location;
-        document.getElementById('info-seats').textContent = opportunity.seats;
-        document.getElementById('info-required-skills').textContent = opportunity.required_skills ? 
-            opportunity.required_skills.join(', ') : 'غير محدد';
+        document.getElementById('info-location').textContent = opportunity.location || 'غير محدد';
+        document.getElementById('info-seats').textContent = opportunity.seats || '1';
         
-        // إظهار قسم المعلومات
+        let skillsText = 'غير محدد';
+        if (opportunity.required_skills) {
+            skillsText = Array.isArray(opportunity.required_skills) ? opportunity.required_skills.join(', ') : opportunity.required_skills;
+        }
+        document.getElementById('info-required-skills').textContent = skillsText;
+        
         opportunityInfo.style.display = 'block';
     } else {
         opportunityInfo.style.display = 'none';
     }
+}
+
+document.getElementById('graduate_id').addEventListener('change', updateGraduateDetails);
+document.getElementById('job_opportunity_id').addEventListener('change', updateOpportunityDetails);
+
+// تشغيل الفحص عند التحميل الأولي
+document.addEventListener('DOMContentLoaded', function() {
+    updateGraduateDetails();
+    updateOpportunityDetails();
 });
 
 // دوال مساعدة
@@ -221,10 +259,10 @@ function getEmploymentStatusText(status) {
     const statuses = {
         'employed': 'موظف',
         'unemployed': 'غير موظف',
-        'seeking_opportunities': 'باحث عن فرص',
-        'continuing_education': 'مستمر في التعليم'
+        'seeking_opportunities': 'باحث عن عمل',
+        'continuing_education': 'يواصل دراسته'
     };
-    return statuses[status] || status;
+    return statuses[status] || status || 'غير محدد';
 }
 
 function getOpportunityTypeText(type) {
@@ -233,7 +271,9 @@ function getOpportunityTypeText(type) {
         'training': 'تدريب',
         'internship': 'تدريب عملي'
     };
-    return types[type] || type;
+    return types[type] || type || 'وظيفة';
 }
 </script>
 @endsection
+
+

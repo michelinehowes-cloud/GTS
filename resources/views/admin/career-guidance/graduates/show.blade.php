@@ -41,7 +41,7 @@
                                             <p class="mb-0">{{ $graduate->phone ?? 'غير محدد' }}</p>
                                         </div>
                                         <div class="col-6 mb-3">
-                                            <strong>الرقم الوطني:</strong>
+                                            <strong>رقم القيد الجامعي:</strong>
                                             <p class="mb-0">{{ $graduate->national_id ?? 'غير محدد' }}</p>
                                         </div>
                                         <div class="col-12 mb-3">
@@ -75,7 +75,7 @@
                                         </div>
                                         <div class="col-6 mb-3">
                                             <strong>المعدل التراكمي:</strong>
-                                            <p class="mb-0">{{ $graduate->gpa ?? 'غير محدد' }}</p>
+                                            <p class="mb-0">{{ $graduate->gpa ? $graduate->gpa . '%' : 'غير محدد' }}</p>
                                         </div>
                                         <div class="col-6 mb-3">
                                             <strong>الدرجة العلمية:</strong>

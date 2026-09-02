@@ -1,71 +1,186 @@
 @extends('layouts.app')
 
 @section('title', 'إدارة معارض التوظيف')
+@section('page-title', 'إدارة معارض التوظيف')
 
-@section('focus_mode', true)
+@push('styles')
+<style>
+    .job-fair-hero {
+        background: linear-gradient(135deg, #045db0 0%, #1e40af 100%);
+        border-radius: 16px;
+        color: #ffffff;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(4, 93, 176, 0.15);
+    }
+
+    .job-fair-hero h2 {
+        color: #fef08a !important;
+        font-weight: 800;
+    }
+
+    .job-fair-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+        transition: all 0.25s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .job-fair-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .stat-pill-box {
+        text-align: center;
+        padding: 0.75rem 0.5rem;
+        border-radius: 12px;
+        height: 100%;
+    }
+
+    .stat-pill-val {
+        font-size: 1.45rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 0.2rem;
+    }
+
+    .stat-pill-lbl {
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .fair-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .fair-actions-grid .btn {
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.5rem 0.6rem;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+    }
+
+    @media (max-width: 767.98px) {
+        .job-fair-hero {
+            padding: 1.25rem 1rem !important;
+            border-radius: 14px !important;
+        }
+
+        .job-fair-hero h2 {
+            font-size: 1.3rem !important;
+        }
+
+        .job-fair-card {
+            padding: 1.1rem 0.9rem !important;
+            border-radius: 14px !important;
+        }
+
+        .fair-actions-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 0.4rem !important;
+        }
+
+        .fair-actions-grid .btn {
+            font-size: 0.78rem !important;
+            padding: 0.45rem 0.5rem !important;
+        }
+    }
+</style>
+@endpush
 
 @section('content')
-<div class="container-fluid py-4">
+<div class="container-fluid">
+
+    {{-- Breadcrumbs --}}
+    @include('components.breadcrumbs', [
+        'items' => [
+            ['label' => 'الرئيسية', 'url' => route('home')],
+            ['label' => 'لوحة تحكم المدير', 'url' => route('admin.dashboard')],
+            ['label' => 'إدارة معارض التوظيف', 'active' => true],
+        ]
+    ])
 
     <!-- Hero Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4 p-4 rounded-4 shadow-sm flex-wrap gap-3" style="background: linear-gradient(135deg, var(--navy, #045db0) 0%, var(--navy-md, #03488a) 100%); color: white;">
-        <div class="d-flex align-items-center gap-3">
-            <!-- Logo -->
+    <div class="job-fair-hero mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div class="d-flex align-items-center gap-3">
-                <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="معرض التوظيف" style="height: 55px; width: auto;">
+                <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="معرض التوظيف" style="height: 48px; width: auto; object-fit: contain;">
+                <div>
+                    <h2 class="mb-1 fs-4">
+                        <i class="fas fa-store me-2" style="color: #fef08a;"></i>
+                        إدارة معارض التوظيف
+                    </h2>
+                    <p class="mb-0 text-white-50 small">إدارة وتنظيم فعاليات معارض التوظيف ومتابعة حضور الخريجين والشركات</p>
+                </div>
             </div>
-            <div>
-                <h2 class="fw-bold mb-1" style="color: var(--gold, #eeca3e); text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                    <i class="fas fa-store me-2" style="color: rgba(255,255,255,0.7);"></i>
-                    إدارة معارض التوظيف
-                </h2>
-                <small style="color: rgba(255,255,255,0.8);">إدارة وإنشاء معارض التوظيف والتحكم في إعداداتها</small>
+            <div class="d-flex gap-2 flex-wrap w-100 w-md-auto">
+                <a href="{{ route('job-fair.public') }}" class="btn btn-sm btn-outline-light rounded-pill flex-grow-1 flex-md-grow-0" target="_blank">
+                    <i class="fas fa-external-link-alt me-1"></i> الصفحة العامة
+                </a>
+                <a href="{{ route('job-fair.admin.create') }}" class="btn btn-sm btn-warning rounded-pill fw-bold text-dark flex-grow-1 flex-md-grow-0" style="background: #fef08a; border: none;">
+                    <i class="fas fa-plus me-1"></i> إنشاء معرض جديد
+                </a>
             </div>
-        </div>
-        <div class="d-flex gap-2 flex-wrap">
-            <a href="{{ route('job-fair.public') }}" class="btn rounded-pill text-white" target="_blank" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);">
-                <i class="fas fa-eye me-2"></i>الصفحة العامة
-            </a>
-            <a href="{{ route('job-fair.admin.create') }}" class="btn rounded-pill fw-bold" style="background: var(--gold, #eeca3e); color: var(--navy-md, #03488a); border: none;">
-                <i class="fas fa-plus me-2"></i>معرض جديد
-            </a>
         </div>
     </div>
 
     @if(session('success'))
-    <div class="alert alert-success rounded-3 border-0 shadow-sm">
+    <div class="alert alert-success rounded-3 border-0 shadow-sm mb-4">
         <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
     </div>
     @endif
 
     @if($fairs->isEmpty())
-    <div class="text-center py-5">
-        <div style="font-size: 4rem">🎪</div>
-        <h4 class="text-muted mt-3">لا يوجد معارض بعد</h4>
-        <a href="{{ route('job-fair.admin.create') }}" class="btn btn-warning mt-3 rounded-pill px-4 fw-bold">
-            <i class="fas fa-plus me-2"></i>إنشاء أول معرض
+    <div class="card-modern text-center py-5">
+        <div style="font-size: 3.5rem">🎪</div>
+        <h5 class="fw-bold text-dark mt-3">لا توجد معارض توظيف مسجلة حتى الآن</h5>
+        <p class="text-muted small mb-4">يمكنك إنشاء أول معرض توظيف وإتاحة تسجيل الخريجين والشركات</p>
+        <a href="{{ route('job-fair.admin.create') }}" class="btn btn-primary-modern rounded-pill px-4 mx-auto">
+            <i class="fas fa-plus me-2"></i> إنشاء أول معرض
         </a>
     </div>
     @else
-    <div class="row g-4">
+    <div class="row g-3 g-md-4">
         @foreach($fairs as $fair)
-        <div class="col-lg-6">
-            <div class="card-modern" style="border-right: 4px solid
-                @if($fair->status === 'published') #3B82F6
-                @elseif($fair->status === 'ongoing') #10B981
-                @elseif($fair->status === 'completed') #6B7280
-                @else #eeca3e
-                @endif !important; padding: 1.5rem;">
-                <div class="card-body p-0">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div class="col-12 col-lg-6">
+            <div class="job-fair-card" style="border-right: 5px solid
+                @if($fair->status === 'published') #3b82f6
+                @elseif($fair->status === 'ongoing') #10b981
+                @elseif($fair->status === 'completed') #64748b
+                @else #f59e0b
+                @endif !important;">
+                
+                <div>
+                    {{-- رأس بطاقة المعرض --}}
+                    <div class="d-flex justify-content-between align-items-start mb-3 gap-2">
                         <div>
-                            <h5 class="fw-bold mb-1">{{ $fair->title }}</h5>
-                            <div class="text-muted small">
-                                <i class="fas fa-calendar me-1"></i>{{ $fair->event_date->format('d/m/Y') }}
-                                <span class="ms-3"><i class="fas fa-map-marker-alt me-1"></i>{{ $fair->location }}</span>
+                            <h5 class="fw-bold text-dark mb-1 fs-6">{{ $fair->title }}</h5>
+                            <div class="text-muted small d-flex flex-wrap gap-2">
+                                <span><i class="fas fa-calendar-alt me-1 text-primary"></i>{{ $fair->event_date->format('d/m/Y') }}</span>
+                                @if($fair->location)
+                                <span><i class="fas fa-map-marker-alt me-1 text-danger"></i>{{ $fair->location }}</span>
+                                @endif
                             </div>
                         </div>
-                        <span class="badge rounded-pill px-3 py-2 @if($fair->status === 'published') bg-primary @elseif($fair->status === 'ongoing') bg-success @elseif($fair->status === 'completed') bg-secondary @else bg-warning text-dark @endif">
+                        <span class="badge rounded-pill px-3 py-1 text-nowrap
+                            @if($fair->status === 'published') bg-primary text-white
+                            @elseif($fair->status === 'ongoing') bg-success text-white
+                            @elseif($fair->status === 'completed') bg-secondary text-white
+                            @else bg-warning text-dark
+                            @endif">
                             @php
                                 $statusLabels = ['draft'=>'مسودة','published'=>'منشور','ongoing'=>'جارٍ الآن','completed'=>'منتهي','cancelled'=>'ملغي'];
                             @endphp
@@ -73,40 +188,50 @@
                         </span>
                     </div>
 
+                    {{-- إحصائيات المعرض الثلاثية --}}
                     <div class="row g-2 mb-3">
-                        <div class="col-4 text-center p-2 rounded-3" style="background: #f0f9ff">
-                            <div class="fw-bold" style="font-size: 1.4rem; color: #2563EB">{{ $fair->registrations_count }}</div>
-                            <small class="text-muted">خريج مسجل</small>
+                        <div class="col-4">
+                            <div class="stat-pill-box" style="background: #eff6ff;">
+                                <div class="stat-pill-val" style="color: #1d4ed8;">{{ $fair->registrations_count }}</div>
+                                <div class="stat-pill-lbl" style="color: #3b82f6;">خريج مسجل</div>
+                            </div>
                         </div>
-                        <div class="col-4 text-center p-2 rounded-3" style="background: #f0fdf4">
-                            <div class="fw-bold" style="font-size: 1.4rem; color: #059669">{{ $fair->companies_count }}</div>
-                            <small class="text-muted">شركة</small>
+                        <div class="col-4">
+                            <div class="stat-pill-box" style="background: #ecfdf5;">
+                                <div class="stat-pill-val" style="color: #047857;">{{ $fair->companies_count }}</div>
+                                <div class="stat-pill-lbl" style="color: #10b981;">شركة مشاركة</div>
+                            </div>
                         </div>
-                        <div class="col-4 text-center p-2 rounded-3" style="background: #fef3c7">
-                            <div class="fw-bold" style="font-size: 1.4rem; color: #f7df81">{{ $fair->days_remaining }}</div>
-                            <small class="text-muted">يوم متبقي</small>
+                        <div class="col-4">
+                            <div class="stat-pill-box" style="background: #fefce8;">
+                                <div class="stat-pill-val" style="color: #b45309;">{{ $fair->days_remaining }}</div>
+                                <div class="stat-pill-lbl" style="color: #d97706;">يوم متبقي</div>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="d-flex gap-2 flex-wrap mt-3">
-                        <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="btn btn-sm btn-primary-modern">
-                            <i class="fas fa-eye me-1"></i>التفاصيل
-                        </a>
-                        <a href="{{ route('job-fair.admin.attendance', $fair->id) }}" class="btn btn-sm btn-success text-white" style="border-radius: var(--bento-radius-sm);">
-                            <i class="fas fa-qrcode me-1"></i>الحضور
-                        </a>
-                        <a href="{{ route('job-fair.admin.edit', $fair->id) }}" class="btn btn-sm btn-secondary-modern">
-                            <i class="fas fa-edit me-1"></i>تعديل
-                        </a>
-                        <a href="{{ route('job-fair.admin.export', $fair->id) }}" class="btn btn-sm btn-info text-white" style="border-radius: var(--bento-radius-sm);">
-                            <i class="fas fa-download me-1"></i>تصدير
-                        </a>
                     </div>
                 </div>
+
+                {{-- شبكة أزرار الإجراءات --}}
+                <div class="fair-actions-grid">
+                    <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="btn btn-primary-modern">
+                        <i class="fas fa-eye me-1"></i> التفاصيل
+                    </a>
+                    <a href="{{ route('job-fair.admin.attendance', $fair->id) }}" class="btn btn-success text-white">
+                        <i class="fas fa-qrcode me-1"></i> الحضور
+                    </a>
+                    <a href="{{ route('job-fair.admin.edit', $fair->id) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-edit me-1"></i> تعديل
+                    </a>
+                    <a href="{{ route('job-fair.admin.export', $fair->id) }}" class="btn btn-info text-white">
+                        <i class="fas fa-file-excel me-1"></i> تصدير
+                    </a>
+                </div>
+
             </div>
         </div>
         @endforeach
     </div>
     @endif
+
 </div>
 @endsection

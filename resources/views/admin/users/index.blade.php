@@ -86,7 +86,7 @@
                         <tr>
                             <td class="px-4">
                                 <div class="d-flex align-items-center">
-                                    <div class="avatar-sm bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                    <div class="avatar-sm bg-light text-primary text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
                                         <span class="fw-bold">{{ substr($user->name, 0, 1) }}</span>
                                     </div>
                                     <div>
@@ -97,20 +97,20 @@
                             </td>
                             <td>
                                 @switch($user->role)
-                                    @case('admin') <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3">مدير النظام</span> @break
-                                    @case('graduate') <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3">خريج</span> @break
-                                    @case('company') <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3">شركة</span> @break
-                                    @case('career_guidance_officer') <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3">إرشاد مهني</span> @break
-                                    @case('training_coordinator') <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">منسق تدريب</span> @break
-                                    @case('partnership_officer') <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-3">مسؤول شراكات</span> @break
+                                    @case('admin') <span class="badge bg-light text-danger text-danger border border-danger rounded-pill px-3">مدير النظام</span> @break
+                                    @case('graduate') <span class="badge bg-light text-primary text-primary border border-primary rounded-pill px-3">خريج</span> @break
+                                    @case('company') <span class="badge bg-light text-info text-info border border-info rounded-pill px-3">شركة</span> @break
+                                    @case('career_guidance_officer') <span class="badge bg-light text-warning text-warning border border-warning rounded-pill px-3">إرشاد مهني</span> @break
+                                    @case('training_coordinator') <span class="badge bg-light text-success text-success border border-success rounded-pill px-3">منسق تدريب</span> @break
+                                    @case('partnership_officer') <span class="badge bg-light text-secondary text-secondary border border-secondary rounded-pill px-3">مسؤول شراكات</span> @break
                                     @default <span class="badge bg-light text-dark border rounded-pill px-3">{{ $user->role }}</span>
                                 @endswitch
                             </td>
                             <td>
                                 @if($user->is_active)
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="fas fa-check-circle me-1"></i> نشط</span>
+                                    <span class="badge bg-light text-success text-success border border-success"><i class="fas fa-check-circle me-1"></i> نشط</span>
                                 @else
-                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle"><i class="fas fa-ban me-1"></i> مجمد</span>
+                                    <span class="badge bg-light text-secondary text-secondary border border-secondary"><i class="fas fa-ban me-1"></i> مجمد</span>
                                 @endif
                             </td>
                             <td><span class="text-muted">{{ $user->created_at->format('Y-m-d') }}</span></td>

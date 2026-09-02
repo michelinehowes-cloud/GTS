@@ -101,14 +101,11 @@ class JobFairController extends Controller
      */
     public function checkIn(Request $request)
     {
-        $qrCode = trim($request->qr_code);
-        $cleanNumber = ltrim($qrCode, '#');
+        $graduateId = $request->graduate_id;
+        $jobFairId = $request->job_fair_id;
 
-        $registration = JobFairRegistration::where(function($query) use ($qrCode, $cleanNumber) {
-                $query->where('qr_code', $qrCode)
-                      ->orWhere('registration_number', $qrCode)
-                      ->orWhere('registration_number', $cleanNumber);
-            })
+        $registration = JobFairRegistration::where('user_id', $graduateId)
+            ->where('job_fair_id', $jobFairId)
             ->with(['graduate', 'jobFair'])
             ->first();
 
@@ -248,6 +245,17 @@ class JobFairController extends Controller
             ->get();
 
         return view('job-fair.admin.live_dashboard', compact('fair', 'stats', 'recentCheckins', 'topMajors'));
+    }
+
+    public function resetAttendance(JobFair $fair)
+    {
+        JobFairRegistration::where('job_fair_id', $fair->id)
+            ->update([
+                'attended' => false,
+                'status' => 'registered'
+            ]);
+
+        return back()->with('success', 'تم إعادة تهيئة الحضور ومسح السجلات بنجاح لهذا المعرض.');
     }
 
     /**

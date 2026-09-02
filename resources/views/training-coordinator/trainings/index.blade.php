@@ -1,105 +1,240 @@
 @extends('layouts.app')
 
-@section('title', 'لوحة تحكم منسق التدريب')
-@section('page-title', 'لوحة تحكم منسق التدريب')
+@section('title', 'إدارة برامج التدريب')
 
 @section('content')
-
 <div class="container-fluid">
+    <!-- Breadcrumbs -->
+    @include('components.breadcrumbs', [
+        'items' => [
+            ['label' => 'الرئيسية', 'url' => route('home')],
+            ['label' => 'لوحة تحكم منسق التدريب', 'url' => route('training-coordinator.dashboard')],
+            ['label' => 'إدارة برامج التدريب', 'active' => true],
+        ]
+    ])
+
+    <!-- رأس الصفحة -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="text-primary fw-bold mb-0">
+                <i class="fas fa-graduation-cap me-2"></i>إدارة برامج التدريب والتأهيل
+            </h2>
+            <div class="text-muted small mt-1">إنشاء ومتابعة الدورات والورش التدريبية وإدارة حضور المتدربين والطلبات المسجلة</div>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ route('training-coordinator.applications') }}" class="btn btn-outline-primary-modern">
+                <i class="fas fa-clipboard-list me-1"></i> إدارة طلبات التدريب
+            </a>
+            <a href="{{ route('training-coordinator.trainings.create') }}" class="btn btn-primary-modern">
+                <i class="fas fa-plus-circle me-1"></i> إضافة برنامج جديد
+            </a>
+        </div>
+    </div>
+
+    <!-- بطاقات الإحصائيات -->
+    <div class="row mb-4">
+        @include('components.stat-card', [
+            'col' => 'col-xl-3 col-md-6 mb-4',
+            'title' => 'إجمالي البرامج',
+            'value' => $trainings->count(),
+            'icon' => 'fas fa-graduation-cap',
+            'color' => 'primary',
+            'description' => 'جميع البرامج المسجلة'
+        ])
+        @include('components.stat-card', [
+            'col' => 'col-xl-3 col-md-6 mb-4',
+            'title' => 'برامج نشطة',
+            'value' => $trainings->where('status', 'active')->count(),
+            'icon' => 'fas fa-play-circle',
+            'color' => 'success',
+            'description' => 'متاحة للتسجيل والحضور'
+        ])
+        @include('components.stat-card', [
+            'col' => 'col-xl-3 col-md-6 mb-4',
+            'title' => 'برامج مكتملة',
+            'value' => $trainings->where('status', 'completed')->count(),
+            'icon' => 'fas fa-check-double',
+            'color' => 'info',
+            'description' => 'انتهت فترتها التدريبية'
+        ])
+        @include('components.stat-card', [
+            'col' => 'col-xl-3 col-md-6 mb-4',
+            'title' => 'متوقفة / غير نشطة',
+            'value' => $trainings->where('status', 'inactive')->count(),
+            'icon' => 'fas fa-pause-circle',
+            'color' => 'secondary',
+            'description' => 'موقوفة مؤقتاً'
+        ])
+    </div>
+
+    <!-- جدول البرامج التدريبية -->
     <div class="row">
         <div class="col-12">
-            <div class="card shadow mb-4">
-                <div class="card-header bg-primary text-white py-3">
-                    <h3 class="h5 mb-0"><i class="fas fa-graduation-cap me-2"></i> إدارة برامج التدريب</h3>
+            <div class="card-modern">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h5 class="card-title mb-0 text-primary fw-bold">
+                        <i class="fas fa-list me-2"></i>قائمة البرامج والدورات التدريبية
+                    </h5>
+                    
+                    <div class="input-group input-group-sm" style="max-width: 250px;">
+                        <span class="input-group-text bg-light border-0"><i class="fas fa-search"></i></span>
+                        <input type="text" id="training-search" class="form-control bg-light border-0" placeholder="بحث بالبرنامج أو النوع...">
+                    </div>
                 </div>
-                <div class="card-body">
+
+                <div class="card-body p-0">
                     @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ session('success') }}
+                        <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif
 
-                    <div class="mb-4 d-flex justify-content-between align-items-center">
-                        <a href="{{ route('training-coordinator.trainings.create') }}" class="btn btn-success btn-lg">
-                            <i class="fas fa-plus me-2"></i>إضافة برنامج تدريب جديد
-                        </a>
-                        <span class="text-muted fw-bold">عدد البرامج: {{ $trainings->count() }}</span>
-                    </div>
-
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+                    
                     @if($trainings->count() > 0)
                         <div class="table-responsive">
-                            <table class="table table-striped table-hover align-middle">
-                                <thead>
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-light">
                                     <tr>
-                                        <th style="width: 25%;">اسم البرنامج</th>
-                                        <th style="width: 15%;">النوع</th>
-                                        <th style="width: 10%;">الحالة</th>
-                                        <th style="width: 15%;">تاريخ البدء</th>
-                                        <th style="width: 15%;">تاريخ الانتهاء</th>
-                                        <th style="width: 20%;" class="text-center">الإجراءات</th>
+                                        <th class="py-3 px-3 border-0" style="width: 40px;">#</th>
+                                        <th class="py-3 border-0">اسم البرنامج التدريبي</th>
+                                        <th class="py-3 border-0">النوع</th>
+                                        <th class="py-3 border-0 text-center">المقاعد والطلبات</th>
+                                        <th class="py-3 border-0">الفترة الزمنية</th>
+                                        <th class="py-3 border-0 text-center">الحالة</th>
+                                        <th class="py-3 border-0 text-center" style="min-width: 170px;">الإجراءات</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                @foreach($trainings as $training)
-                <tr>
-                    {{-- تم تصحيح ترتيب الخلايا ليطابق عناوين الجدول --}}
-                    <td>
-                        <strong class="text-primary">{{ $training->title }}</strong>
-                        <br><small class="text-muted">{{ Str::limit($training->description, 50) }}</small>
-                    </td>
-                    <td>
-                        @switch($training->type)
-                            @case('workshop') <span class="badge bg-info">ورشة عمل</span> @break
-                            @case('course') <span class="badge bg-primary">دورة</span> @break
-                            @case('seminar') <span class="badge bg-secondary">ندوة</span> @break
-                            @case('internship') <span class="badge bg-success">تدريب عملي</span> @break
-                            @default <span class="badge bg-warning">{{ $training->type }}</span>
-                        @endswitch
-                    </td>
-                    <td>
-                        <span class="badge bg-{{ $training->status == 'active' ? 'success' : ($training->status == 'inactive' ? 'warning' : 'secondary') }}">
-                            {{ $training->status == 'active' ? 'نشط' : ($training->status == 'inactive' ? 'متوقف' : 'مكتمل') }}
-                        </span>
-                    </td>
-                    <td><small>{{ $training->start_date }}</small></td>
-                    <td><small>{{ $training->end_date ?? 'غير محدد' }}</small></td>
-                    
-                   <td class="text-center">
-                        <div class="btn-group btn-group-sm" role="group">
-                            <a href="{{ route('training-coordinator.trainings.show', $training->id) }}" class="btn btn-info" title="عرض التفاصيل">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="{{ route('training-coordinator.trainings.edit', $training->id) }}" class="btn btn-warning" title="تعديل البرنامج">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <form action="{{ route('training-coordinator.trainings.destroy', $training->id) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('هل أنت متأكد من حذف هذا البرنامج؟')" title="حذف البرنامج">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
+                                    @foreach($trainings as $training)
+                                    <tr class="training-row" data-title="{{ $training->title }}" data-type="{{ $training->type_arabic }}">
+                                        <td class="px-3 fw-bold text-muted small">{{ $loop->iteration }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="rounded-circle bg-light text-primary fw-bold d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width: 38px; height: 38px;">
+                                                    <i class="fas fa-graduation-cap"></i>
+                                                </div>
+                                                <div>
+                                                    <a href="{{ route('training-coordinator.trainings.show', $training->id) }}" class="fw-bold text-dark text-decoration-none hover-primary d-block">
+                                                        {{ $training->title }}
+                                                    </a>
+                                                    <small class="text-muted d-block text-truncate" style="max-width: 280px; font-size: 0.75rem;">
+                                                        {{ $training->description ? Str::limit($training->description, 60) : 'لا يوجد وصف مضاف' }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-primary border rounded-pill px-2 py-1">
+                                                {{ $training->type_arabic ?? 'تدريب' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            @php
+                                                $appsCount = $training->applications ? $training->applications->count() : 0;
+                                                $approvedCount = $training->applications ? $training->applications->where('status', 'approved')->count() : 0;
+                                            @endphp
+                                            <a href="{{ route('training-coordinator.trainings.show', $training->id) }}" class="badge bg-light text-dark border text-decoration-none rounded-pill px-2 py-1 small" title="عرض المسجلين">
+                                                <i class="fas fa-users me-1 text-primary"></i>{{ $approvedCount }} / {{ $training->seats }} مقبول
+                                                @if($appsCount > $approvedCount)
+                                                    <span class="text-warning fw-bold ms-1">({{ $appsCount }} طلب)</span>
+                                                @endif
+                                            </a>
+                                        </td>
+                                        <td class="text-muted small">
+                                            <div><i class="far fa-calendar-alt me-1 text-success"></i>{{ $training->start_date ? $training->start_date->format('Y-m-d') : 'غير محدد' }}</div>
+                                            @if($training->end_date)
+                                                <div class="mt-1"><i class="far fa-calendar-check me-1 text-danger"></i>{{ $training->end_date->format('Y-m-d') }}</div>
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            @if($training->status == 'active')
+                                                <span class="badge bg-light text-success border border-success rounded-pill px-3 py-1">
+                                                    <i class="fas fa-check-circle me-1 small"></i>نشط
+                                                </span>
+                                            @elseif($training->status == 'completed')
+                                                <span class="badge bg-light text-info border border-info rounded-pill px-3 py-1">
+                                                    <i class="fas fa-flag-checkered me-1 small"></i>مكتمل
+                                                </span>
+                                            @else
+                                                <span class="badge bg-light text-secondary border rounded-pill px-3 py-1">
+                                                    <i class="fas fa-pause-circle me-1 small"></i>متوقف
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <!-- سجل الحضور اليومي -->
+                                                <a href="{{ route('training-coordinator.trainings.attendance', $training->id) }}" class="btn btn-outline-warning-modern" title="سجل ومصفوفة الحضور">
+                                                    <i class="fas fa-clipboard-check"></i>
+                                                </a>
+
+                                                <!-- ماسح QR -->
+                                                @if($training->status == 'active')
+                                                <a href="{{ route('training-coordinator.trainings.scanner', $training->id) }}" class="btn btn-outline-primary-modern ms-1" title="ماسح الـ QR اليومي">
+                                                    <i class="fas fa-qrcode"></i>
+                                                </a>
+                                                @endif
+
+                                                <!-- عرض التفاصيل -->
+                                                <a href="{{ route('training-coordinator.trainings.show', $training->id) }}" class="btn btn-outline-info-modern ms-1" title="عرض التفاصيل">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+
+                                                <!-- تعديل -->
+                                                <a href="{{ route('training-coordinator.trainings.edit', $training->id) }}" class="btn btn-outline-primary-modern ms-1" title="تعديل البرنامج">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+
+                                                <!-- حذف -->
+                                                <form action="{{ route('training-coordinator.trainings.destroy', $training->id) }}" method="POST" class="d-inline ms-1" onsubmit="return confirm('هل أنت متأكد من حذف هذا البرنامج التدريبي؟')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-outline-danger-modern" title="حذف البرنامج">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-@else
-    <div class="text-center py-5">
-        <i class="fas fa-graduation-cap fa-4x text-muted mb-3"></i>
-        <h4 class="text-muted">لا توجد برامج تدريب حتى الآن</h4>
-        <p class="text-muted mb-4">يمكنك البدء بإضافة أول برنامج تدريب</p>
-        <a href="{{ route('training-coordinator.trainings.create') }}" class="btn btn-primary btn-lg">
-            <i class="fas fa-plus me-2"></i>إضافة أول برنامج تدريب
-        </a>
-    </div>
-@endif
+                    @else
+                        <div class="text-center py-5">
+                            <div class="d-flex flex-column align-items-center">
+                                <i class="fas fa-graduation-cap fa-4x text-muted mb-3 opacity-50"></i>
+                                <h4 class="text-muted fw-bold">لا توجد برامج تدريب مسجلة حالياً</h4>
+                                <p class="text-muted small">ابدأ بإضافة أول برنامج تدريبي ليتمكن الخريجون من التقديم عليه</p>
+                                <a href="{{ route('training-coordinator.trainings.create') }}" class="btn btn-primary-modern mt-2">
+                                    <i class="fas fa-plus-circle me-1"></i> إضافة برنامج جديد
+                                </a>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.getElementById('training-search')?.addEventListener('input', function() {
+        const q = this.value.toLowerCase().trim();
+        document.querySelectorAll('.training-row').forEach(row => {
+            const title = (row.getAttribute('data-title') || '').toLowerCase();
+            const type = (row.getAttribute('data-type') || '').toLowerCase();
+            row.style.display = (title.includes(q) || type.includes(q)) ? '' : 'none';
+        });
+    });
+</script>
+@endpush

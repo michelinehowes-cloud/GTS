@@ -1,215 +1,278 @@
 @extends('layouts.app')
+
 @section('title', $jobOpportunity->title)
+
 @section('content')
-    <div class="container-fluid px-4">
-        <div class="mb-4">
-            <a href="{{ route('graduate.job-opportunities.index') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-right"></i> العودة إلى القائمة
-            </a>
+<div class="container-fluid px-2 px-md-3">
+    @php
+        $contractTypeName = match($jobOpportunity->contract_type) {
+            'full_time' => 'دوام كامل',
+            'part_time' => 'دوام جزئي',
+            'contract' => 'عقد عمل',
+            default => 'عمل حر',
+        };
+    @endphp
+
+    <!-- Unified Page Hero Banner -->
+    <x-page-hero
+        title="{{ $jobOpportunity->title }}"
+        subtitle="{{ $jobOpportunity->company->name ?? 'شركة شريكة' }} • {{ $jobOpportunity->location ?? 'طرابلس' }}"
+        icon="fas fa-briefcase"
+        :breadcrumbs="[
+            ['label' => 'منصة الخريجين', 'url' => route('graduate.dashboard')],
+            ['label' => 'فرص العمل المتاحة', 'url' => route('graduate.job-opportunities.index')],
+            ['label' => $jobOpportunity->title]
+        ]"
+        badge="{{ $contractTypeName }}"
+        badgeIcon="fas fa-clock"
+        :secondaryBadge="$jobOpportunity->salary ? $jobOpportunity->salary . ' د.ل' : ($jobOpportunity->status == 'open' ? 'مفتوحة للتقديم' : 'مغلقة')"
+        secondaryBadgeIcon="fas fa-money-bill-wave"
+    >
+        <a href="{{ route('graduate.job-opportunities.index') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-arrow-right fs-6"></i>
+            <span>العودة للفرص</span>
+        </a>
+        <a href="{{ route('graduate.dashboard') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-home fs-6"></i>
+            <span>لوحة التحكم</span>
+        </a>
+    </x-page-hero>
+
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show border-0 rounded-4 shadow-sm mb-4" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                        <h3 class="m-0 font-weight-bold text-primary">{{ $jobOpportunity->title }}</h3>
-                        @if($nomination)
-                            <span
-                                class="badge bg-{{ $nomination->status == 'pending' ? 'warning' : ($nomination->status == 'accepted' ? 'success' : 'info') }} fs-6">
-                                {{ $nomination->status_text }}
-                            </span>
+    @endif
+
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show border-0 rounded-4 shadow-sm mb-4" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ $errors->first() }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <div class="row g-4">
+        <!-- تفاصيل الفرصة الرئيسية -->
+        <div class="col-lg-8">
+            <div class="card border-0 rounded-4 shadow-sm mb-4" style="background: #ffffff;">
+                <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h5 class="card-title mb-0 text-dark fw-bold fs-6">
+                        <i class="fas fa-info-circle text-primary me-2"></i>تفاصيل فرصة العمل
+                    </h5>
+                    @if($nomination)
+                        @if($nomination->status == 'accepted')
+                            <span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;">مقبول</span>
+                        @elseif($nomination->status == 'interview_scheduled')
+                            <span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;">مقابلة مجدولة</span>
+                        @elseif($nomination->status == 'rejected' || $nomination->status == 'withdrawn')
+                            <span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;">مرفوض/ملغي</span>
+                        @else
+                            <span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: #fffbeb; color: #d97706; border: 1px solid #fde68a;">قيد المراجعة</span>
+                        @endif
+
+                        @if($nomination->final_status && $nomination->final_status !== 'in_progress')
+                            @if($nomination->final_status == 'hired')
+                                <span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;">
+                                    <i class="fas fa-user-check me-1"></i>تم التوظيف
+                                </span>
+                            @elseif($nomination->final_status == 'not_hired')
+                                <span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;">
+                                    <i class="fas fa-user-times me-1"></i>لم يتم التوظيف
+                                </span>
+                            @endif
+                        @endif
+                    @endif
+                </div>
+                <div class="card-body p-4">
+                    <!-- تفاصيل سريعة في شبكة بينتو أنيقة -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6 col-sm-6">
+                            <div class="p-3 border rounded-4 bg-light bg-opacity-50 h-100">
+                                <div class="small text-muted mb-1 d-flex align-items-center gap-1.5"><i class="fas fa-clock text-info"></i> نوع العقد</div>
+                                <div class="fw-bold text-dark fs-6">{{ $contractTypeName }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-sm-6">
+                            <div class="p-3 border rounded-4 bg-light bg-opacity-50 h-100">
+                                <div class="small text-muted mb-1 d-flex align-items-center gap-1.5"><i class="fas fa-map-marker-alt text-danger"></i> الموقع</div>
+                                <div class="fw-bold text-dark fs-6">{{ $jobOpportunity->location ?? 'غير محدد' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-sm-6">
+                            <div class="p-3 border rounded-4 bg-light bg-opacity-50 h-100">
+                                <div class="small text-muted mb-1 d-flex align-items-center gap-1.5"><i class="fas fa-calendar-alt text-warning"></i> آخر موعد للتقديم</div>
+                                <div class="fw-bold text-dark fs-6">{{ $jobOpportunity->application_deadline ? $jobOpportunity->application_deadline->format('Y-m-d') : 'مفتوح للتسجيل' }}</div>
+                            </div>
+                        </div>
+
+                        @if($jobOpportunity->salary)
+                            <div class="col-md-6 col-sm-6">
+                                <div class="p-3 border rounded-4 bg-light bg-opacity-50 h-100">
+                                    <div class="small text-muted mb-1 d-flex align-items-center gap-1.5"><i class="fas fa-money-bill-wave text-success"></i> الراتب المتوقع</div>
+                                    <div class="fw-bold text-success fs-6">{{ $jobOpportunity->salary }} د.ل</div>
+                                </div>
+                            </div>
                         @endif
                     </div>
-                    <div class="card-body">
-                        @if($jobOpportunity->company)
-                            <div class="mb-4">
-                                <h5><i class="fas fa-building text-primary"></i> الشركة</h5>
-                                <p class="lead">{{ $jobOpportunity->company->name }}</p>
-                            </div>
-                        @endif
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <p><strong><i class="fas fa-map-marker-alt text-danger"></i> الموقع:</strong>
-                                    {{ $jobOpportunity->location }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong><i class="fas fa-clock text-info"></i> نوع الوظيفة:</strong>
-                                    @if($jobOpportunity->contract_type == 'full_time')
-                                        دوام كامل
-                                    @elseif($jobOpportunity->contract_type == 'part_time')
-                                        دوام جزئي
-                                    @elseif($jobOpportunity->contract_type == 'contract')
-                                        عقد
-                                    @else
-                                        عمل حر
-                                    @endif
-                                </p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong><i class="fas fa-calendar text-warning"></i> آخر موعد للتقديم:</strong>
-                                    {{ $jobOpportunity->application_deadline ? $jobOpportunity->application_deadline->format('Y-m-d') : 'غير محدد' }}
-                                </p>
-                            </div>
-                            @if($jobOpportunity->salary)
-                                <div class="col-md-6">
-                                    <p><strong><i class="fas fa-money-bill text-success"></i> الراتب:</strong>
-                                        {{ $jobOpportunity->salary }}</p>
-                                </div>
+
+                    <!-- الوصف الوظيفي -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-dark border-bottom pb-2 mb-3 d-flex align-items-center gap-2">
+                            <i class="fas fa-align-right text-primary"></i>الوصف الوظيفي
+                        </h6>
+                        <div class="p-3 bg-light rounded-4 text-dark lh-lg border border-light-subtle">{!! nl2br(e($jobOpportunity->description)) !!}</div>
+                    </div>
+
+                    <!-- المتطلبات -->
+                    @if($jobOpportunity->requirements)
+                        <div class="mb-4">
+                            <h6 class="fw-bold text-dark border-bottom pb-2 mb-3 d-flex align-items-center gap-2">
+                                <i class="fas fa-list-check text-primary"></i>المتطلبات والشروط
+                            </h6>
+                            <div class="p-3 bg-light rounded-4 text-dark lh-lg border border-light-subtle">{!! nl2br(e($jobOpportunity->requirements)) !!}</div>
+                        </div>
+                    @endif
+
+                    <!-- المزايا -->
+                    @if($jobOpportunity->benefits)
+                        <div class="mb-3">
+                            <h6 class="fw-bold text-dark border-bottom pb-2 mb-3 d-flex align-items-center gap-2">
+                                <i class="fas fa-gift text-primary"></i>المزايا والحوافز
+                            </h6>
+                            <div class="p-3 bg-light rounded-4 text-dark lh-lg border border-light-subtle">{!! nl2br(e($jobOpportunity->benefits)) !!}</div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- الجانب الأيسر: حالة الطلب أو نموذج التقديم -->
+        <div class="col-lg-4">
+            @if($nomination)
+                <!-- حالة الترشيح الحالية -->
+                <div class="card border-0 rounded-4 shadow-sm mb-4" style="background: #ffffff;">
+                    <div class="card-header bg-white py-3 px-4 border-bottom">
+                        <h5 class="card-title mb-0 text-dark fw-bold fs-6">
+                            <i class="fas fa-clipboard-check text-primary me-2"></i>حالة طلبك
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted small">حالة الطلب:</span>
+                            @if($nomination->status == 'accepted')
+                                <span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;">مقبول</span>
+                            @elseif($nomination->status == 'interview_scheduled')
+                                <span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;">مقابلة مجدولة</span>
+                            @elseif($nomination->status == 'rejected' || $nomination->status == 'withdrawn')
+                                <span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;">مرفوض/ملغي</span>
+                            @else
+                                <span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: #fffbeb; color: #d97706; border: 1px solid #fde68a;">قيد المراجعة</span>
                             @endif
                         </div>
-                        <hr>
-                        <div class="mb-4">
-                            <h5><i class="fas fa-align-left text-primary"></i> الوصف الوظيفي</h5>
-                            <p class="text-justify">{!! nl2br(e($jobOpportunity->description)) !!}</p>
-                        </div>
-                        @if($jobOpportunity->requirements)
-                            <div class="mb-4">
-                                <h5><i class="fas fa-list-check text-primary"></i> المتطلبات</h5>
-                                <p class="text-justify">{!! nl2br(e($jobOpportunity->requirements)) !!}</p>
+
+                        @if($nomination->nomination_type == 'self')
+                            <div class="alert alert-info bg-info bg-opacity-10 border-0 rounded-4 text-info small mb-3">
+                                <i class="fas fa-user me-1"></i> لقد قمت بالتقديم على هذه الفرصة بنفسك
+                            </div>
+                        @else
+                            <div class="alert alert-success bg-success bg-opacity-10 border-0 rounded-4 text-success small mb-3">
+                                <i class="fas fa-user-check me-1"></i> تم ترشيحك من قبل مكتب الإرشاد المهني
                             </div>
                         @endif
-                        @if($jobOpportunity->benefits)
-                            <div class="mb-4">
-                                <h5><i class="fas fa-gift text-primary"></i> المزايا</h5>
-                                <p class="text-justify">{!! nl2br(e($jobOpportunity->benefits)) !!}</p>
+
+                        @if($nomination->interview_date)
+                            <div class="p-3 bg-light rounded-4 border border-info border-opacity-25 mb-3">
+                                <div class="fw-bold text-info small mb-2"><i class="fas fa-calendar-check me-1"></i> موعد المقابلة الشخصية</div>
+                                <div class="small text-dark mb-1"><strong>التاريخ:</strong> {{ $nomination->interview_date->format('Y-m-d') }}</div>
+                                @if($nomination->interview_time)
+                                    <div class="small text-dark mb-1"><strong>الوقت:</strong> {{ $nomination->interview_time }}</div>
+                                @endif
+                                @if($nomination->interview_location)
+                                    <div class="small text-dark"><strong>المكان:</strong> {{ $nomination->interview_location }}</div>
+                                @endif
                             </div>
+                        @endif
+
+                        @if($nomination->notes)
+                            <div class="small text-muted p-3 bg-light rounded-4 border border-light-subtle mb-3">
+                                <strong class="text-dark">ملاحظات:</strong> {{ $nomination->notes }}
+                            </div>
+                        @endif
+
+                        @if($nomination->status == 'pending')
+                            <form action="{{ route('graduate.my-applications.cancel', $nomination->id) }}" method="POST"
+                                onsubmit="return confirm('هل أنت متأكد من إلغاء هذا الترشيح؟')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger rounded-3 w-100 py-2.5 mt-2 fw-bold d-flex align-items-center justify-content-center gap-2">
+                                    <i class="fas fa-times"></i>
+                                    <span>إلغاء التقديم</span>
+                                </button>
+                            </form>
                         @endif
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-4">
-                <!-- حالة الترشيح -->
-                @if($nomination)
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3 bg-success text-white">
-                            <h6 class="m-0 font-weight-bold">
-                                <i class="fas fa-check-circle"></i> حالة طلبك
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <strong>الحالة:</strong>
-                                <span
-                                    class="badge bg-{{ $nomination->status == 'pending' ? 'warning' : ($nomination->status == 'accepted' ? 'success' : 'info') }}">
-                                    {{ $nomination->status_text }}
-                                </span>
+            @else
+                <!-- نموذج التقديم -->
+                <div class="card border-0 rounded-4 shadow-sm mb-4" style="background: #ffffff;">
+                    <div class="card-header bg-white py-3 px-4 border-bottom">
+                        <h5 class="card-title mb-0 text-dark fw-bold fs-6">
+                            <i class="fas fa-paper-plane text-primary me-2"></i>التقديم على الفرصة
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        @if(!$graduateData)
+                            <div class="alert alert-warning bg-warning bg-opacity-10 border-0 rounded-4 text-dark small mb-0">
+                                <i class="fas fa-exclamation-triangle me-1 text-warning"></i>
+                                يجب إكمال بياناتك الشخصية والأكاديمية أولاً قبل التقديم.
                             </div>
-                            @if($nomination->nomination_type == 'self')
-                                <div class="alert alert-info">
-                                    <i class="fas fa-info-circle"></i>
-                                    قدمت طلبك بنفسك
+                        @elseif($jobOpportunity->application_deadline && $jobOpportunity->application_deadline < now())
+                            <div class="alert alert-danger bg-danger bg-opacity-10 border-0 rounded-4 text-danger small mb-0">
+                                <i class="fas fa-times-circle me-1"></i>
+                                انتهى موعد التقديم لهذه الفرصة.
+                            </div>
+                        @else
+                            <form action="{{ route('graduate.job-opportunities.apply', $jobOpportunity->id) }}" method="POST">
+                                @csrf
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-secondary">ملاحظات أو رسالة تقديمية (اختياري)</label>
+                                    <textarea name="notes" class="form-control rounded-3" rows="4"
+                                        placeholder="اكتب نبذة موجزة عن خبراتك ومؤهلاتك المناسبة لهذه الوظيفة..."></textarea>
                                 </div>
-                            @else
-                                <div class="alert alert-success">
-                                    <i class="fas fa-user-check"></i>
-                                    تم ترشيحك من قبل مسؤول الإرشاد المهني
-                                </div>
-                            @endif
-                            @if($nomination->interview_date)
-                                <div class="alert alert-warning">
-                                    <h6><i class="fas fa-calendar-check"></i> موعد المقابلة</h6>
-                                    <p class="mb-1"><strong>التاريخ:</strong> {{ $nomination->interview_date->format('Y-m-d') }}</p>
-                                    @if($nomination->interview_time)
-                                        <p class="mb-1"><strong>الوقت:</strong> {{ $nomination->interview_time }}</p>
-                                    @endif
-                                    @if($nomination->interview_location)
-                                        <p class="mb-0"><strong>المكان:</strong> {{ $nomination->interview_location }}</p>
-                                    @endif
-                                </div>
-                            @endif
-                            @if($nomination->notes)
-                                <div class="mt-3">
-                                    <strong>ملاحظات:</strong>
-                                    <p class="text-muted">{{ $nomination->notes }}</p>
-                                </div>
-                            @endif
-                            @if($nomination->status == 'pending')
-                                <form action="{{ route('graduate.my-applications.cancel', $nomination->id) }}" method="POST"
-                                    onsubmit="return confirm('هل أنت متأكد من إلغاء هذا الترشيح؟')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm w-100">
-                                        <i class="fas fa-times"></i> إلغاء الترشيح
-                                    </button>
-                                </form>
-                            @endif
-                        </div>
+                                <button type="submit" class="btn btn-primary rounded-3 w-100 py-2.5 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
+                                    <i class="fas fa-paper-plane"></i>
+                                    <span>تأكيد التقديم الآن</span>
+                                </button>
+                            </form>
+                        @endif
                     </div>
-                @else
-                    <!-- نموذج التقديم -->
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3 bg-primary text-white">
-                            <h6 class="m-0 font-weight-bold">
-                                <i class="fas fa-paper-plane"></i> قدم الآن
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            @if(!$graduateData)
-                                <div class="alert alert-warning">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    يجب إكمال بياناتك الشخصية أولاً قبل التقديم
-                                </div>
-                            @elseif($jobOpportunity->application_deadline && $jobOpportunity->application_deadline < now())
-                                <div class="alert alert-danger">
-                                    <i class="fas fa-times-circle"></i>
-                                    انتهى موعد التقديم لهذه الفرصة
-                                </div>
-                            @else
-                                <form action="{{ route('graduate.job-opportunities.apply', $jobOpportunity->id) }}" method="POST">
-                                    @csrf
-                                    <div class="mb-3">
-                                        <label class="form-label">ملاحظات إضافية (اختياري)</label>
-                                        <textarea name="notes" class="form-control" rows="4"
-                                            placeholder="أضف أي ملاحظات أو معلومات إضافية..."></textarea>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        <i class="fas fa-paper-plane"></i> تقديم الطلب
-                                    </button>
-                                </form>
-                            @endif
-                        </div>
+                </div>
+            @endif
+
+            <!-- بطاقة معلومات إضافية -->
+            <div class="card border-0 rounded-4 shadow-sm" style="background: #ffffff;">
+                <div class="card-header bg-white py-3 px-4 border-bottom">
+                    <h6 class="card-title mb-0 text-dark fw-bold fs-6">
+                        <i class="fas fa-info-circle text-primary me-2"></i>معلومات إضافية
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between mb-3 pb-2 border-bottom border-light-subtle">
+                        <small class="text-muted">تاريخ النشر:</small>
+                        <small class="fw-bold text-dark">{{ $jobOpportunity->created_at->format('Y-m-d') }}</small>
                     </div>
-                @endif
-                <!-- معلومات إضافية -->
-                <div class="card shadow">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">
-                            <i class="fas fa-info-circle"></i> معلومات إضافية
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-2">
-                            <strong>تاريخ النشر:</strong><br>
-                            {{ $jobOpportunity->created_at->format('Y-m-d') }}
-                        </p>
-                        <p class="mb-0">
-                            <strong>الحالة:</strong><br>
-                            <span class="badge bg-{{ $jobOpportunity->status == 'open' ? 'success' : 'secondary' }}">
-                                {{ $jobOpportunity->status == 'open' ? 'نشط' : 'غير نشط' }}
-                            </span>
-                        </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">حالة الفرصة:</small>
+                        <span class="badge rounded-pill px-3 py-1 small fw-bold" style="background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0;">
+                            {{ $jobOpportunity->status == 'open' ? 'مفتوحة للتسجيل' : 'مغلقة' }}
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    @if(session('success'))
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'نجح!',
-                text: '{{ session('success') }}',
-                confirmButtonText: 'حسناً'
-            });
-        </script>
-    @endif
-    @if($errors->any())
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'خطأ!',
-                text: '{{ $errors->first() }}',
-                confirmButtonText: 'حسناً'
-            });
-        </script>
-    @endif
-@endsection
+</div>
+@endsection

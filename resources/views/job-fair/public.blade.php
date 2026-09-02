@@ -918,6 +918,13 @@
     </a>
 
     <div class="nav-links">
+        <button type="button" class="nav-btn nav-btn-outline d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#liveStreamModal" style="border-color: #ef4444; color: #fca5a5; background: rgba(239, 68, 68, 0.15);">
+            <span style="width: 8px; height: 8px; background: #ef4444; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #ef4444;"></span>
+            <span>البث المباشر</span>
+        </button>
+        <a href="{{ route('home') }}" class="nav-btn nav-btn-outline">
+            <i class="fas fa-home me-1"></i>الرئيسية
+        </a>
         @auth
             <a href="{{ route('dashboard') }}" class="nav-btn nav-btn-outline">
                 <i class="fas fa-th-large me-1"></i>لوحة التحكم
@@ -1048,8 +1055,12 @@
                         @endif
                     @endauth
                     
-                    <a href="#about" class="nav-btn nav-btn-outline px-4 py-2" style="font-size: 1.1rem">
-                        <i class="fas fa-info-circle me-2"></i>اعرف أكثر
+                    <button type="button" class="nav-btn px-4 py-2 d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#liveStreamModal" style="background: rgba(239, 68, 68, 0.22); border: 1.5px solid #ef4444; color: #ffffff; font-size: 1.1rem; box-shadow: 0 4px 18px rgba(239,68,68,0.35); cursor: pointer;">
+                        <span style="width: 10px; height: 10px; background: #ef4444; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #ef4444;"></span>
+                        <span>مشاهدة البث المباشر</span>
+                    </button>
+                    <a href="{{ route('home') }}" class="nav-btn nav-btn-outline px-4 py-2" style="font-size: 1.1rem">
+                        <i class="fas fa-home me-2"></i>الرئيسية
                     </a>
                 </div>
             </div>
@@ -1122,131 +1133,56 @@
     </div>
 </section>
 
-{{-- INFO SECTION (Bento Box) --}}
-<section class="info-section" id="info">
-    <div class="container">
-
-        <div class="text-center mb-5">
-            <div class="section-badge"><i class="fas fa-info-circle"></i>عن المعرض</div>
-            <div class="title-line"></div>
-            <h2 class="section-title">كل ما تحتاج معرفته</h2>
-            <p class="section-subtitle">تفاصيل شاملة عن معرض التوظيف 2026</p>
-        </div>
-
-        <div class="bento-grid">
-            
-            <!-- Registration Block (Large) -->
-            <div class="bento-item bento-reg">
-                <div class="bento-glow" style="bottom: -20px; left: -20px; background: #10B981;"></div>
-                <div class="bento-icon-wrapper" style="color: #34D399; border-color: rgba(52, 211, 153, 0.2);">
-                    <i class="fas fa-user-check"></i>
+{{-- LIVE STREAM MODAL (نافذة البث المباشر) --}}
+<div class="modal fade" id="liveStreamModal" tabindex="-1" aria-labelledby="liveStreamModalLabel" aria-hidden="true" style="backdrop-filter: blur(12px);">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 860px;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px; overflow: hidden; background: #071739; border: 1.5px solid rgba(255,255,255,0.15) !important;">
+            <div class="modal-header border-0 px-4 py-3 d-flex align-items-center justify-content-between" style="background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.08) !important;">
+                <div class="d-flex align-items-center gap-2">
+                    <span style="width: 10px; height: 10px; background: #ef4444; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #ef4444;"></span>
+                    <h5 class="modal-title text-white fw-bold mb-0" id="liveStreamModalLabel">
+                        البث المباشر — {{ $fair ? $fair->title : 'معرض التوظيف 2026' }}
+                    </h5>
                 </div>
-                <h3 class="bento-title">حالة التسجيل</h3>
-                <div class="bento-text">
-                    @if($fair->can_register)
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                            <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34D399; padding: 8px 16px; font-size: 1rem; border: 1px solid rgba(16, 185, 129, 0.3);">
-                                <i class="fas fa-circle me-1" style="font-size: 0.6rem;"></i> التسجيل متاح الآن
-                            </span>
+                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div style="position: relative; width: 100%; aspect-ratio: 16/9; background: #020817; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                    @if($fair && $fair->status === 'ongoing')
+                        <div class="w-100 h-100 d-flex align-items-center justify-content-center flex-column text-center p-4">
+                            <div class="rounded-circle p-4 mb-3 d-inline-flex align-items-center justify-content-center shadow-lg" style="background: rgba(239, 68, 68, 0.2); border: 2px solid rgba(239, 68, 68, 0.5);">
+                                <i class="fas fa-play text-white fs-1"></i>
+                            </div>
+                            <h4 class="fw-bold text-white mb-2">البث المباشر نشط الآن</h4>
+                            <p class="text-white-50 small mb-0" style="max-width: 480px;">
+                                تجري الآن فعاليات {{ $fair->title }} وجلسات الإرشاد المهني والمقابلات المباشرة.
+                            </p>
                         </div>
-                        @if($fair->registration_deadline)
-                            <p class="mb-2"><i class="far fa-clock me-2 opacity-75"></i> ينتهي التسجيل في: <strong class="text-white">{{ \Carbon\Carbon::parse($fair->registration_deadline)->format('d/m/Y') }}</strong></p>
-                        @endif
-                        @if($fair->max_graduates)
-                            <p class="mb-0"><i class="fas fa-users me-2 opacity-75"></i> المقاعد المحجوزة: <strong class="text-white">{{ $stats['total_registered'] ?? 0 }} من {{ $fair->max_graduates }}</strong></p>
-                        @endif
                     @else
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                            <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #F87171; padding: 8px 16px; font-size: 1rem; border: 1px solid rgba(239, 68, 68, 0.3);">
-                                <i class="fas fa-times-circle me-1"></i> التسجيل مغلق
-                            </span>
+                        <div class="w-100 h-100 d-flex align-items-center justify-content-center flex-column text-center p-4" style="background: linear-gradient(160deg, #071739 0%, #030a17 100%);">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px; background: rgba(245, 158, 11, 0.15); border: 2px solid rgba(245, 158, 11, 0.4); color: #f59e0b; font-size: 1.8rem;">
+                                <i class="fas fa-satellite-dish"></i>
+                            </div>
+                            <h4 class="fw-bold text-white mb-1">قناة البث المباشر والفعاليات الافتراضية</h4>
+                            <p class="text-white-50 small mb-3" style="max-width: 460px;">
+                                سينطلق البث الحي المباشر لجميع مراسم الافتتاح وورش العمل وجلسات التوظيف مع بدء موعد المعرض.
+                            </p>
+                            @if($fair && $fair->is_upcoming)
+                                <div class="badge px-3 py-2 rounded-pill mb-2" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fde68a; font-size: 0.9rem;">
+                                    <i class="far fa-clock me-1"></i> موعد الانطلاق: {{ \Carbon\Carbon::parse($fair->event_date)->locale('ar')->translatedFormat('l، j F Y') }}
+                                </div>
+                            @endif
                         </div>
-                        <p class="mb-0">نعتذر، تم إغلاق باب التسجيل في المعرض حالياً.</p>
                     @endif
                 </div>
             </div>
-
-            <!-- Date & Time Block -->
-            <div class="bento-item bento-date">
-                <div class="bento-glow" style="top: -20px; right: -20px; background: #3B82F6;"></div>
-                <div class="bento-icon-wrapper" style="color: #60A5FA; border-color: rgba(96, 165, 250, 0.2);">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <h4 class="bento-title">التاريخ والوقت</h4>
-                <div class="bento-text">
-                    <p class="mb-1 text-white fw-bold">{{ \Carbon\Carbon::parse($fair->event_date)->locale('ar')->translatedFormat('l، j F Y') }}</p>
-                    @if($fair->start_time)
-                        <p class="mb-0 opacity-75">
-                            من {{ \Str::substr($fair->start_time,0,5) }} 
-                            @if($fair->end_time) إلى {{ \Str::substr($fair->end_time,0,5) }} @endif
-                        </p>
-                    @endif
-                </div>
+            <div class="modal-footer border-0 px-4 py-3 d-flex justify-content-between align-items-center" style="background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.08) !important;">
+                <small class="text-white-50"><i class="fas fa-university me-1 text-warning"></i>جامعة طرابلس — مكتب تدريب وتأهيل الخريجين</small>
+                <button type="button" class="btn btn-outline-light btn-sm rounded-pill px-4" data-bs-dismiss="modal">إغلاق</button>
             </div>
-
-            <!-- Location Block -->
-            <div class="bento-item bento-loc">
-                <div class="bento-glow" style="bottom: -20px; right: -20px; background: #F59E0B;"></div>
-                <div class="bento-icon-wrapper" style="color: var(--gold); border-color: rgba(245, 158, 11, 0.2);">
-                    <i class="fas fa-map-marker-alt"></i>
-                </div>
-                <h4 class="bento-title">الموقع</h4>
-                <div class="bento-text">
-                    <p class="mb-0 text-white fw-bold">{{ $fair->location }}</p>
-                    <p class="mb-0 opacity-75 mt-2"><i class="fas fa-location-arrow me-1"></i> طرابلس، ليبيا</p>
-                </div>
-            </div>
-
-            <!-- Description Block -->
-            @if($fair->description)
-            <div class="bento-item bento-desc">
-                <h4 class="bento-title" style="color: #38BDF8;"><i class="fas fa-align-right me-2"></i>تفاصيل الحدث</h4>
-                <p class="bento-text mt-2">{{ $fair->description }}</p>
-            </div>
-            @endif
-
         </div>
     </div>
-</section>
-
-{{-- COMPANIES SECTION (Logos Only) --}}
-@if($companies->count() > 0)
-<section class="companies-section" id="companies">
-    <div class="container">
-
-        <div class="text-center mb-5">
-            <div class="section-badge"><i class="fas fa-building"></i>الشركاء</div>
-            <div class="title-line"></div>
-            <h2 class="section-title">الشركات المشاركة</h2>
-            <p class="section-subtitle">{{ $companies->count() }} شركة رائدة ستتواجد في المعرض</p>
-        </div>
-
-        <div class="companies-logo-grid">
-            @foreach($companies as $fc)
-            <a href="javascript:void(0)" class="company-logo-item" title="{{ $fc->company->name ?? 'شركة' }}">
-                
-                @if($fc->booth_number)
-                    <span class="booth-badge"><i class="fas fa-map-marker-alt me-1"></i>{{ $fc->booth_number }}</span>
-                @endif
-
-                @if($fc->available_positions)
-                    <span class="jobs-badge">{{ $fc->available_positions }} فرصة</span>
-                @endif
-
-                @if($fc->company->logo_path)
-                    <img src="{{ Storage::url($fc->company->logo_path) }}" alt="{{ $fc->company->name }}">
-                @else
-                    <i class="fas fa-building fallback-icon"></i>
-                    <span class="fallback-text">{{ $fc->company->name ?? 'شركة' }}</span>
-                @endif
-                
-            </a>
-            @endforeach
-        </div>
-
-    </div>
-</section>
-@endif
+</div>
 
 {{-- REGISTRATION MODAL --}}
 @auth

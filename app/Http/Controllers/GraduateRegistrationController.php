@@ -18,11 +18,11 @@ class GraduateRegistrationController extends Controller
     }
 
     /**
-     * عرض صفحة التسجيل
+     * عرض صفحة التسجيل (تحويلها للنافذة المنبثقة بالرئيسية)
      */
     public function showRegistrationForm()
     {
-        return view('auth.graduate-register');
+        return redirect('/?open_register=1');
     }
 
     /**

@@ -21,10 +21,16 @@ class MediaOfficerMiddleware
             return redirect()->route('login');
         }
 
-        if (Auth::user()->role !== 'media_officer') {
-            abort(403, 'غير مصرح لك بالوصول إلى هذه الصفحة');
+        $user = Auth::user();
+
+        if (
+            $user->role === 'media_officer' ||
+            $user->isAdmin() ||
+            $user->hasAnyPermission(['media.manage', 'news.manage'])
+        ) {
+            return $next($request);
         }
 
-        return $next($request);
+        abort(403, 'غير مصرح لك بالوصول إلى هذه الصفحة');
     }
 }

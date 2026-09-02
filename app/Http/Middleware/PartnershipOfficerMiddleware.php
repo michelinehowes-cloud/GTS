@@ -19,10 +19,24 @@ class PartnershipOfficerMiddleware
 
         $user = auth()->user();
         
-        if (!$user->isPartnershipOfficer() && !$user->isAdmin()) {
-            abort(403, 'غير مصرح بالوصول. يجب أن تكون مسؤول الشراكات والتوظيف.');
+        if (
+            $user->isPartnershipOfficer() ||
+            $user->isAdmin() ||
+            $user->hasAnyPermission([
+                'companies.view',
+                'companies.create',
+                'companies.edit',
+                'jobs.view',
+                'jobs.manage',
+                'nominations.manage',
+                'job_fair.view',
+                'job_fair.manage',
+                'partnerships.documents'
+            ])
+        ) {
+            return $next($request);
         }
 
-        return $next($request);
+        abort(403, 'غير مصرح بالوصول. يتطلب هذا القسم صلاحيات مسؤول الشراكات أو المعرض.');
     }
 }

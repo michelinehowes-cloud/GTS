@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\User;
 use App\Models\Nomination;
 use App\Models\JobOpportunity;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Services\NotificationService;
@@ -37,17 +38,32 @@ class CompanyController extends Controller
 
     public function index()
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('companies.view') && $user->role !== 'partnership_officer') {
+            abort(403, 'غير مصرح لك بعرض قائمة الشركات');
+        }
+
         $companies = Company::latest()->get();
         return view('admin.companies.index', compact('companies'));
     }
 
     public function create()
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('companies.create') && $user->role !== 'partnership_officer') {
+            abort(403, 'غير مصرح لك بإضافة شركة جديدة');
+        }
+
         return view('admin.companies.create');
     }
 
     public function store(Request $request)
     {
+        $userAuth = auth()->user();
+        if (!$userAuth->isAdmin() && !$userAuth->hasPermission('companies.create') && $userAuth->role !== 'partnership_officer') {
+            abort(403, 'غير مصرح لك بإضافة شركة جديدة');
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -89,6 +105,15 @@ class CompanyController extends Controller
             $company->save();
         }
 
+        // تسجيل في سجل الرقابة
+        AuditLog::logAction(
+            'COMPANY_CREATED',
+            'Company',
+            $company->id,
+            null,
+            ['name' => $company->name, 'email' => $company->email, 'industry' => $company->industry]
+        );
+
         // إرسال إشعارات
         try {
             // إشعار للشركة
@@ -118,13 +143,24 @@ class CompanyController extends Controller
 
     public function edit($id)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('companies.edit') && $user->role !== 'partnership_officer') {
+            abort(403, 'غير مصرح لك بتعديل بيانات الشركة');
+        }
+
         $company = Company::findOrFail($id);
         return view('admin.companies.edit', compact('company'));
     }
 
     public function update(Request $request, $id)
     {
+        $userAuth = auth()->user();
+        if (!$userAuth->isAdmin() && !$userAuth->hasPermission('companies.edit') && $userAuth->role !== 'partnership_officer') {
+            abort(403, 'غير مصرح لك بتعديل بيانات الشركة');
+        }
+
         $company = Company::findOrFail($id);
+        $oldData = $company->only(['name', 'email', 'phone', 'industry', 'partnership_status', 'is_approved']);
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -185,6 +221,15 @@ class CompanyController extends Controller
             ]);
         }
 
+        // تسجيل في سجل الرقابة
+        AuditLog::logAction(
+            'COMPANY_UPDATED',
+            'Company',
+            $company->id,
+            $oldData,
+            $company->only(['name', 'email', 'phone', 'industry', 'partnership_status', 'is_approved'])
+        );
+
         return redirect()->route('admin.companies')
             ->with('success', 'تم تحديث بيانات الشركة بنجاح');
     }
@@ -194,10 +239,24 @@ class CompanyController extends Controller
      */
     public function toggleApproval($id)
     {
+        $userAuth = auth()->user();
+        if (!$userAuth->isAdmin() && !$userAuth->hasPermission('companies.edit') && $userAuth->role !== 'partnership_officer') {
+            abort(403, 'غير مصرح لك بتعديل اعتماد الشركات');
+        }
+
         $company = Company::findOrFail($id);
+        $oldStatus = $company->is_approved;
         $company->is_approved = !$company->is_approved;
         $company->partnership_status = $company->is_approved ? 'active' : 'under_review';
         $company->save();
+
+        AuditLog::logAction(
+            'COMPANY_STATUS_TOGGLED',
+            'Company',
+            $company->id,
+            ['is_approved' => $oldStatus],
+            ['is_approved' => $company->is_approved, 'partnership_status' => $company->partnership_status]
+        );
 
         $message = $company->is_approved 
             ? "تم اعتماد وتفعيل شركة ({$company->name}) بنجاح." 
@@ -208,7 +267,13 @@ class CompanyController extends Controller
 
     public function destroy($id)
     {
+        $userAuth = auth()->user();
+        if (!$userAuth->isAdmin() && !$userAuth->hasPermission('companies.delete') && $userAuth->role !== 'partnership_officer') {
+            abort(403, 'غير مصرح لك بحذف الشركات');
+        }
+
         $company = Company::findOrFail($id);
+        $snapshot = ['name' => $company->name, 'email' => $company->email];
 
         // حذف المستخدم المرتبط أولاً
         if ($company->user) {
@@ -217,6 +282,14 @@ class CompanyController extends Controller
 
         // ثم حذف الشركة
         $company->delete();
+
+        AuditLog::logAction(
+            'COMPANY_DELETED',
+            'Company',
+            $id,
+            $snapshot,
+            null
+        );
 
         return redirect()->route('admin.companies')
             ->with('success', 'تم حذف الشركة بنجاح');

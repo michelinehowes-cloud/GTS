@@ -246,8 +246,7 @@
                     <i class="fas fa-chevron-right"></i>
                 </button>
                 <div class="logo-container">
-                    <div
-                        class="university-logo d-flex align-items-center justify-content-center mx-auto">
+                    <div class="university-logo d-flex align-items-center justify-content-center mx-auto">
                         <img src="{{ asset('images/office_logo_white.png') }}" alt="شعار مكتب الخريجين" class="logo-img"
                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="d-none align-items-center justify-content-center w-100 h-100">
@@ -262,7 +261,9 @@
                 <small class="text-light opacity-85 mt-2 d-block">
                     @auth
                         @if(auth()->user()->role == 'admin')
-                            لوحة تحكم المدير
+                            لوحة تحكم المدير العام
+                        @elseif(auth()->user()->role == 'staff')
+                            لوحة الموظف (صلاحيات مخصصة)
                         @elseif(auth()->user()->role == 'training_coordinator')
                             لوحة التدريب والتأهيل
                         @elseif(auth()->user()->role == 'placement_coordinator')
@@ -289,15 +290,7 @@
                             <!-- لوحة التحكم لجميع المستخدمين -->
                             <li class="nav-item">
                                 <a class="nav-link {{ Request::is('*dashboard*') ? 'active' : '' }}"
-                                    href="{{ 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        auth()->user()->role == 'graduate' ? route('graduate.dashboard') :
-                    (auth()->user()->role == 'training_coordinator' ? route('training-coordinator.dashboard') :
-                        (auth()->user()->role == 'evaluation_followup' ? route('evaluation-followup.dashboard') :
-                            (auth()->user()->role == 'career_guidance_officer' ? route('career-guidance.dashboard') :
-                                (auth()->user()->role == 'partnership_officer' ? route('partnership.dashboard') :
-                                    (auth()->user()->role == 'company' ? route('company.dashboard') :
-                                        route('admin.dashboard')))))) 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }}">
+                                    href="{{ auth()->user()->dashboard_route }}">
                                     <i class="fas fa-tachometer-alt"></i>
                                     لوحة التحكم
                                 </a>
@@ -357,15 +350,19 @@
                                 @endif
                             @endif
 
-                            <!-- الأقسام الإدارية (للمسؤول فقط) -->
-                            @if(auth()->user()->role == 'admin')
+                            <!-- إدارة المستخدمين والموظفين والصلاحيات -->
+                            @if(auth()->user()->isAdmin() || auth()->user()->hasAnyPermission(['users.view', 'users.manage', 'users.create', 'users.edit']))
                                 <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('admin.users*') ? 'active' : '' }}"
                                         href="{{ route('admin.users') }}">
                                         <i class="fas fa-users-cog"></i>
-                                        إدارة المستخدمين
+                                        إدارة الموظفين والصلاحيات
                                     </a>
                                 </li>
+                            @endif
+
+                            <!-- الأقسام الإدارية (للمسؤول فقط) -->
+                            @if(auth()->user()->role == 'admin')
 
                                 <!-- ادارة الشراكات والتوظيف -->
                                 <li class="nav-item menu-group">
@@ -483,6 +480,193 @@
                                     </div>
                                 </li>
                             @endif
+
+                            <!-- أقسام الموظف مخصص الصلاحيات (Staff RBAC) -->
+                            @if(auth()->user()->role == 'staff')
+                                <!-- إدارة التدريب والتأهيل -->
+                                @if(auth()->user()->hasAnyPermission(['trainings.view', 'trainings.create', 'trainings.applications', 'trainings.attendance', 'trainings.trainers']))
+                                    <li class="nav-item menu-group">
+                                        <a class="nav-link {{ request()->routeIs('training-coordinator.*') || request()->routeIs('admin.trainings*') ? 'active' : '' }}" href="#"
+                                            onclick="toggleSubmenu('staff-trainings-menu')">
+                                            <i class="fas fa-graduation-cap"></i>
+                                            برامج التدريب والتأهيل
+                                            <i class="fas fa-chevron-down menu-arrow"></i>
+                                        </a>
+                                        <div class="submenu {{ request()->routeIs('training-coordinator.*') || request()->routeIs('admin.trainings*') ? 'show' : '' }}" id="staff-trainings-menu">
+                                            @if(auth()->user()->hasPermission('trainings.view'))
+                                                <a href="{{ route('training-coordinator.trainings') }}" class="submenu-item {{ request()->routeIs('training-coordinator.trainings') ? 'active' : '' }}">
+                                                    عرض البرامج
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('trainings.create'))
+                                                <a href="{{ route('training-coordinator.trainings.create') }}" class="submenu-item {{ request()->routeIs('training-coordinator.trainings.create') ? 'active' : '' }}">
+                                                    إضافة برنامج تدريبي
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('trainings.applications'))
+                                                <a href="{{ route('training-coordinator.applications') }}" class="submenu-item {{ request()->routeIs('training-coordinator.applications*') ? 'active' : '' }}">
+                                                    طلبات التدريب
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('trainings.attendance'))
+                                                <a href="{{ route('training-coordinator.calendar') }}" class="submenu-item {{ request()->routeIs('training-coordinator.calendar') ? 'active' : '' }}">
+                                                    تقويم التدريبات
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('trainings.trainers'))
+                                                <a href="{{ route('training-coordinator.trainers.index') }}" class="submenu-item {{ request()->routeIs('training-coordinator.trainers*') ? 'active' : '' }}">
+                                                    إدارة المدربين
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('reports.view'))
+                                                <a href="{{ route('training-coordinator.reports') }}" class="submenu-item {{ request()->routeIs('training-coordinator.reports') ? 'active' : '' }}">
+                                                    تقارير التدريب
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </li>
+                                @endif
+
+                                <!-- الشراكات وفرص العمل ومعرض التوظيف -->
+                                @if(auth()->user()->hasAnyPermission(['companies.view', 'companies.create', 'jobs.view', 'jobs.manage', 'job_fair.view', 'job_fair.manage', 'partnerships.documents']))
+                                    <li class="nav-item menu-group">
+                                        <a class="nav-link {{ request()->routeIs('partnership.*') || request()->routeIs('job-opportunities*') || request()->routeIs('job-fair.*') ? 'active' : '' }}" href="#"
+                                            onclick="toggleSubmenu('staff-partnerships-menu')">
+                                            <i class="fas fa-handshake"></i>
+                                            الشراكات والتوظيف
+                                            <i class="fas fa-chevron-down menu-arrow"></i>
+                                        </a>
+                                        <div class="submenu {{ request()->routeIs('partnership.*') || request()->routeIs('job-opportunities*') || request()->routeIs('job-fair.*') ? 'show' : '' }}" id="staff-partnerships-menu">
+                                            @if(auth()->user()->hasPermission('companies.view'))
+                                                <a href="{{ route('partnership.companies') }}" class="submenu-item {{ request()->routeIs('partnership.companies*') ? 'active' : '' }}">
+                                                    دليل الشركات
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('jobs.view'))
+                                                <a href="{{ route('job-opportunities.index') }}" class="submenu-item {{ request()->routeIs('job-opportunities*') ? 'active' : '' }}">
+                                                    فرص العمل
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('job_fair.view'))
+                                                <a href="{{ route('job-fair.admin.index') }}" class="submenu-item {{ request()->routeIs('job-fair.*') ? 'active' : '' }}">
+                                                    معرض التوظيف 2026
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('partnerships.documents'))
+                                                <a href="{{ route('partnership.documents') }}" class="submenu-item {{ request()->routeIs('partnership.documents*') ? 'active' : '' }}">
+                                                    إدارة الوثائق
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('reports.view'))
+                                                <a href="{{ route('partnership.reports') }}" class="submenu-item {{ request()->routeIs('partnership.reports') ? 'active' : '' }}">
+                                                    تقارير الشراكات
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </li>
+                                @endif
+
+                                <!-- الإرشاد المهني والخريجون -->
+                                @if(auth()->user()->hasAnyPermission(['graduates.view', 'graduates.create', 'graduates.approve', 'nominations.manage', 'graduates.import_export']))
+                                    <li class="nav-item menu-group">
+                                        <a class="nav-link {{ request()->routeIs('career-guidance.*') ? 'active' : '' }}" href="#"
+                                            onclick="toggleSubmenu('staff-career-menu')">
+                                            <i class="fas fa-compass"></i>
+                                            الإرشاد المهني والخريجون
+                                            <i class="fas fa-chevron-down menu-arrow"></i>
+                                        </a>
+                                        <div class="submenu {{ request()->routeIs('career-guidance.*') ? 'show' : '' }}" id="staff-career-menu">
+                                            @if(auth()->user()->hasPermission('graduates.view'))
+                                                <a href="{{ route('career-guidance.graduates') }}" class="submenu-item {{ request()->routeIs('career-guidance.graduates') ? 'active' : '' }}">
+                                                    بيانات الخريجين
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('graduates.approve'))
+                                                <a href="{{ route('career-guidance.pending-approvals') }}" class="submenu-item {{ request()->routeIs('career-guidance.pending-approvals') ? 'active' : '' }}">
+                                                    طلبات التسجيل
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('graduates.create'))
+                                                <a href="{{ route('career-guidance.graduates.create') }}" class="submenu-item {{ request()->routeIs('career-guidance.graduates.create') ? 'active' : '' }}">
+                                                    إضافة خريج جديد
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('nominations.manage'))
+                                                <a href="{{ route('career-guidance.nominations') }}" class="submenu-item {{ request()->routeIs('career-guidance.nominations*') ? 'active' : '' }}">
+                                                    إدارة الترشيحات
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('graduates.import_export'))
+                                                <a href="{{ route('career-guidance.import.graduates.create') }}" class="submenu-item {{ request()->routeIs('career-guidance.import.graduates*') ? 'active' : '' }}">
+                                                    استيراد Excel
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('reports.view'))
+                                                <a href="{{ route('career-guidance.advanced-reports') }}" class="submenu-item {{ request()->routeIs('career-guidance.advanced-reports*') ? 'active' : '' }}">
+                                                    التقارير المتقدمة
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </li>
+                                @endif
+
+                                <!-- التقييم والمتابعة الاستبيانات -->
+                                @if(auth()->user()->hasAnyPermission(['surveys.manage', 'evaluations.manage', 'reports.view']))
+                                    <li class="nav-item menu-group">
+                                        <a class="nav-link {{ request()->routeIs('evaluation-followup.*') ? 'active' : '' }}" href="#"
+                                            onclick="toggleSubmenu('staff-eval-menu')">
+                                            <i class="fas fa-poll-h"></i>
+                                            التقييم والمتابعة
+                                            <i class="fas fa-chevron-down menu-arrow"></i>
+                                        </a>
+                                        <div class="submenu {{ request()->routeIs('evaluation-followup.*') ? 'show' : '' }}" id="staff-eval-menu">
+                                            @if(auth()->user()->hasPermission('surveys.manage'))
+                                                <a href="{{ route('evaluation-followup.surveys.index') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.surveys*') ? 'active' : '' }}">
+                                                    إدارة الاستبيانات
+                                                </a>
+                                                <a href="{{ route('evaluation-followup.survey-responses.index') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.survey-responses*') ? 'active' : '' }}">
+                                                    ردود الاستبيانات
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('evaluations.manage'))
+                                                <a href="{{ route('evaluation-followup.evaluations.index') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.evaluations*') ? 'active' : '' }}">
+                                                    إدارة التقييمات
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('reports.view'))
+                                                <a href="{{ route('evaluation-followup.performance-reports') }}" class="submenu-item {{ request()->routeIs('evaluation-followup.performance-reports') ? 'active' : '' }}">
+                                                    تقارير الأداء
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </li>
+                                @endif
+
+                                <!-- الميديا والأخبار -->
+                                @if(auth()->user()->hasAnyPermission(['media.manage', 'news.manage']))
+                                    <li class="nav-item menu-group">
+                                        <a class="nav-link {{ request()->routeIs('media.*') ? 'active' : '' }}" href="#"
+                                            onclick="toggleSubmenu('staff-media-menu')">
+                                            <i class="fas fa-photo-video"></i>
+                                            الوسائط والمحتوى
+                                            <i class="fas fa-chevron-down menu-arrow"></i>
+                                        </a>
+                                        <div class="submenu {{ request()->routeIs('media.*') ? 'show' : '' }}" id="staff-media-menu">
+                                            @if(auth()->user()->hasPermission('media.manage'))
+                                                <a href="{{ route('media.gallery') }}" class="submenu-item {{ request()->routeIs('media.gallery') ? 'active' : '' }}">
+                                                    معرض الوسائط
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('news.manage'))
+                                                <a href="{{ route('media.news.index') }}" class="submenu-item {{ request()->routeIs('media.news*') ? 'active' : '' }}">
+                                                    إدارة الأخبار
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </li>
+                                @endif
+                            @endif
+
                             <!-- التدريبات المتاحة (للخريج فقط) -->
                             @if(auth()->user()->role == 'graduate')
                                 <!-- فاصل -->
@@ -980,6 +1164,7 @@
                         @php
                             $roleIcons = [
                                 'admin' => 'fas fa-user-shield',
+                                'staff' => 'fas fa-user-cog',
                                 'training_coordinator' => 'fas fa-chalkboard-teacher',
                                 'placement_coordinator' => 'fas fa-briefcase',
                                 'company' => 'fas fa-building',

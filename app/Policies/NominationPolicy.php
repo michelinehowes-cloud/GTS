@@ -18,7 +18,7 @@ class NominationPolicy
      */
     public function viewAny(User $user)
     {
-        return in_array($user->role, ['admin', 'partnership_officer', 'career_guidance_officer']);
+        return $user->isAdmin() || $user->hasPermission('nominations.manage') || in_array($user->role, ['partnership_officer', 'career_guidance_officer']);
     }
 
     /**
@@ -30,8 +30,9 @@ class NominationPolicy
      */
     public function view(User $user, Nomination $nomination)
     {
-        return in_array($user->role, ['admin', 'partnership_officer', 'career_guidance_officer']) ||
-            ($user->id === $nomination->nominator->id); // Allow nominator to view their own nominations
+        return $user->isAdmin() || $user->hasPermission('nominations.manage') ||
+            in_array($user->role, ['partnership_officer', 'career_guidance_officer']) ||
+            ($user->id === $nomination->nominator_id);
     }
 
     /**
@@ -42,7 +43,7 @@ class NominationPolicy
      */
     public function create(User $user)
     {
-        return in_array($user->role, ['admin', 'career_guidance_officer']);
+        return $user->isAdmin() || $user->hasPermission('nominations.manage') || in_array($user->role, ['career_guidance_officer', 'partnership_officer']);
     }
 
     /**
@@ -54,10 +55,9 @@ class NominationPolicy
      */
     public function update(User $user, Nomination $nomination)
     {
-        // Admin and partnership_officer can update any nomination
-        // Career_guidance_officer can update their own nominations if status is pending
-        return in_array($user->role, ['admin', 'partnership_officer']) ||
-            ($user->role === 'career_guidance_officer' && $user->id === $nomination->nominator->id && $nomination->status === 'pending');
+        return $user->isAdmin() || $user->hasPermission('nominations.manage') ||
+            in_array($user->role, ['partnership_officer']) ||
+            ($user->role === 'career_guidance_officer' && $user->id === $nomination->nominator_id && $nomination->status === 'pending');
     }
 
     /**
@@ -70,8 +70,8 @@ class NominationPolicy
      */
     public function updateStatus(User $user, Nomination $nomination)
     {
-        // Admin, partnership_officer, and career_guidance_officer can update nomination status
-        return in_array($user->role, ['admin', 'partnership_officer', 'career_guidance_officer']);
+        return $user->isAdmin() || $user->hasPermission('nominations.manage') ||
+            in_array($user->role, ['partnership_officer', 'career_guidance_officer']);
     }
 
     /**

@@ -42,33 +42,44 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        // تسجيل صلاحيات إضافية باستخدام Gates
+        // 1. مدير النظام العام (Super Admin) يملك كافة الصلاحيات تلقائياً
+        // كما يتم التحقق مباشرة من الصلاحيات الممنوحة للمستخدم في حال تطابق اسم الصلاحية
+        \Gate::before(function ($user, $ability) {
+            if ($user->isAdmin()) {
+                return true;
+            }
+            if ($user->hasPermission($ability)) {
+                return true;
+            }
+        });
+
+        // 2. تسجيل صلاحيات إضافية باستخدام Gates ودعم الصلاحيات المخصصة
         \Gate::define('manage-users', function ($user) {
-            return $user->role === 'admin';
+            return $user->isAdmin() || $user->hasPermission('users.manage');
         });
 
         \Gate::define('manage-companies', function ($user) {
-            return in_array($user->role, ['admin', 'partnership_officer']);
+            return $user->hasPermission('companies.view') || in_array($user->role, ['admin', 'partnership_officer']);
         });
 
         \Gate::define('manage-trainings', function ($user) {
-            return in_array($user->role, ['admin', 'training_coordinator']);
+            return $user->hasPermission('trainings.view') || in_array($user->role, ['admin', 'training_coordinator']);
         });
 
         \Gate::define('manage-job-opportunities', function ($user) {
-            return in_array($user->role, ['admin', 'partnership_officer']);
+            return $user->hasPermission('jobs.manage') || in_array($user->role, ['admin', 'partnership_officer']);
         });
 
         \Gate::define('manage-graduates', function ($user) {
-            return in_array($user->role, ['admin', 'career_guidance_officer']);
+            return $user->hasPermission('graduates.view') || in_array($user->role, ['admin', 'career_guidance_officer']);
         });
 
         \Gate::define('manage-nominations', function ($user) {
-            return in_array($user->role, ['admin', 'partnership_officer', 'career_guidance_officer']);
+            return $user->hasPermission('nominations.manage') || in_array($user->role, ['admin', 'partnership_officer', 'career_guidance_officer']);
         });
 
         \Gate::define('view-reports', function ($user) {
-            return in_array($user->role, [
+            return $user->hasPermission('reports.view') || in_array($user->role, [
                 'admin',
                 'training_coordinator',
                 'partnership_officer',
@@ -78,7 +89,7 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         \Gate::define('export-data', function ($user) {
-            return in_array($user->role, [
+            return $user->hasPermission('graduates.import_export') || in_array($user->role, [
                 'admin',
                 'training_coordinator',
                 'partnership_officer',

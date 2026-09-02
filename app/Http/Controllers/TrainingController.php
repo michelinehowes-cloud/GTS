@@ -8,6 +8,7 @@ use App\Models\TrainingApplication;
 use App\Models\Company;
 use App\Models\TrainingReport;
 use App\Models\Evaluation;
+use App\Models\AuditLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
@@ -26,6 +27,11 @@ class TrainingController extends Controller
 
     public function index()
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('trainings.view') && $user->role !== 'training_coordinator') {
+            abort(403, 'غير مصرح لك بعرض البرامج التدريبية');
+        }
+
         $trainings    = Training::with(['company', 'coordinator'])->latest()->get();
         $applications = TrainingApplication::with(['user', 'training'])->latest()->get();
 
@@ -34,10 +40,15 @@ class TrainingController extends Controller
 
     public function create()
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('trainings.create') && $user->role !== 'training_coordinator') {
+            abort(403, 'غير مصرح لك بإضافة برامج تدريبية');
+        }
+
         $companies = Company::all();
         $trainers = \App\Models\Trainer::all();
         $categories = ['برمجة', 'تصميم', 'شبكات', 'إدارة', 'لغات', 'أخرى'];
-        if (auth()->user()->role == 'training_coordinator') {
+        if ($user->role == 'training_coordinator') {
             return view('training-coordinator.trainings.create', compact('companies', 'trainers', 'categories'));
         } else {
             return view('admin.trainings.create', compact('companies', 'trainers', 'categories'));
@@ -46,6 +57,11 @@ class TrainingController extends Controller
 
     public function store(Request $request)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('trainings.create') && $user->role !== 'training_coordinator') {
+            abort(403, 'غير مصرح لك بإضافة برامج تدريبية');
+        }
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -64,11 +80,20 @@ class TrainingController extends Controller
 
         $data = $request->all();
 
-        if (auth()->user()->role == 'training_coordinator') {
-            $data['coordinator_id'] = auth()->id();
+        if ($user->role == 'training_coordinator') {
+            $data['coordinator_id'] = $user->id;
         }
 
         $training = Training::create($data);
+
+        // تسجيل في سجل الرقابة
+        AuditLog::logAction(
+            'TRAINING_CREATED',
+            'Training',
+            $training->id,
+            null,
+            ['title' => $training->title, 'type' => $training->type, 'seats' => $training->seats]
+        );
 
         // إرسال إشعار
         try {
@@ -77,7 +102,7 @@ class TrainingController extends Controller
             \Log::error('Failed to send training notification: ' . $e->getMessage());
         }
 
-        if (auth()->user()->role == 'training_coordinator') {
+        if ($user->role == 'training_coordinator') {
             return redirect()->route('training-coordinator.trainings')
                 ->with('success', 'تم إضافة برنامج التدريب بنجاح');
         } else {
@@ -88,11 +113,16 @@ class TrainingController extends Controller
 
     public function show($id)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('trainings.view') && $user->role !== 'training_coordinator') {
+            abort(403, 'غير مصرح لك بعرض تفاصيل التدريب');
+        }
+
         $training = Training::with(['company', 'coordinator'])->findOrFail($id);
         
         $evaluations = Evaluation::with(['evaluator', 'trainerEvaluations.trainer'])
             ->where('training_id', $id)
-            ->when(auth()->user()->role == 'training_coordinator', function($query) {
+            ->when($user->role == 'training_coordinator', function($query) {
                 return $query->whereHas('evaluator', function ($q) {
                     $q->where('role', 'evaluation_followup');
                 });
@@ -104,7 +134,7 @@ class TrainingController extends Controller
             ->latest()
             ->get();
             
-        if (auth()->user()->role == 'training_coordinator') {
+        if ($user->role == 'training_coordinator') {
             return view('training-coordinator.trainings.show', compact('training', 'evaluations', 'applications'));
         } else {
             return view('admin.trainings.show', compact('training', 'evaluations', 'applications'));
@@ -113,20 +143,33 @@ class TrainingController extends Controller
 
     public function edit($id)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('trainings.edit') && $user->role !== 'training_coordinator') {
+            abort(403, 'غير مصرح لك بتعديل هذا البرنامج التدريبي');
+        }
+
         $training = Training::findOrFail($id);
         $companies = Company::all();
         $trainers = \App\Models\Trainer::all();
-        $categories = ['برمجة', 'تصميم', 'شبكات', 'إدارة', 'لغات', 'أخرى']; // مثال للفئات
+        $categories = ['برمجة', 'تصميم', 'شبكات', 'إدارة', 'لغات', 'أخرى'];
 
-        if (auth()->user()->role == 'training_coordinator') {
+        if ($user->role == 'training_coordinator') {
             return view('training-coordinator.trainings.edit', compact('training', 'companies', 'trainers', 'categories'));
         } else {
             return view('admin.trainings.edit', compact('training', 'companies', 'trainers', 'categories'));
         }
     }
+
     public function update(Request $request, $id)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('trainings.edit') && $user->role !== 'training_coordinator') {
+            abort(403, 'غير مصرح لك بتعديل هذا البرنامج التدريبي');
+        }
+
         $training = Training::findOrFail($id);
+        $oldData = $training->only(['title', 'status', 'seats', 'type']);
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -140,8 +183,18 @@ class TrainingController extends Controller
             'company_id' => 'nullable|exists:companies,id',
             'trainer_id' => 'nullable|exists:trainers,id',
         ]);
+
         $training->update($request->all());
-        if (auth()->user()->role == 'training_coordinator') {
+
+        AuditLog::logAction(
+            'TRAINING_UPDATED',
+            'Training',
+            $training->id,
+            $oldData,
+            $training->only(['title', 'status', 'seats', 'type'])
+        );
+
+        if ($user->role == 'training_coordinator') {
             return redirect()->route('training-coordinator.trainings')
                 ->with('success', 'تم تحديث برنامج التدريب بنجاح');
         } else {
@@ -152,10 +205,24 @@ class TrainingController extends Controller
 
     public function destroy($id)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('trainings.delete') && $user->role !== 'training_coordinator') {
+            abort(403, 'غير مصرح لك بحذف هذا البرنامج التدريبي');
+        }
+
         $training = Training::findOrFail($id);
+        $snapshot = ['title' => $training->title];
         $training->delete();
 
-        if (auth()->user()->role == 'training_coordinator') {
+        AuditLog::logAction(
+            'TRAINING_DELETED',
+            'Training',
+            $id,
+            $snapshot,
+            null
+        );
+
+        if ($user->role == 'training_coordinator') {
             return redirect()->route('training-coordinator.trainings')
                 ->with('success', 'تم حذف برنامج التدريب بنجاح');
         } else {
@@ -919,6 +986,11 @@ class TrainingController extends Controller
      */
     public function scanner(Training $training)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('trainings.attendance') && $user->role !== 'training_coordinator') {
+            abort(403, 'غير مصرح لك باستخدام ماسح الحضور');
+        }
+
         $todayDate = now()->format('Y-m-d');
         $trainingDays = $training->training_days;
         $totalDays = $training->total_days_count;
@@ -939,7 +1011,7 @@ class TrainingController extends Controller
 
         $viewData = compact('training', 'todayDate', 'trainingDays', 'totalDays', 'totalApproved', 'todayAttended', 'currentDayInfo');
 
-        if (auth()->user()->role === 'admin') {
+        if ($user->role === 'admin') {
             return view('admin.trainings.scanner', $viewData);
         }
         return view('training-coordinator.trainings.scanner', $viewData);
@@ -950,6 +1022,11 @@ class TrainingController extends Controller
      */
     public function processScan(Request $request, Training $training)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('trainings.attendance') && $user->role !== 'training_coordinator') {
+            return response()->json(['success' => false, 'message' => 'غير مصرح لك بتسجيل الحضور'], 403);
+        }
+
         $request->validate([
             'graduate_id' => 'required|integer|exists:users,id',
             'date' => 'nullable|date_format:Y-m-d'
@@ -1050,6 +1127,11 @@ class TrainingController extends Controller
      */
     public function attendance(Request $request, Training $training)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('trainings.attendance') && $user->role !== 'training_coordinator') {
+            abort(403, 'غير مصرح لك بإدارة حضور وغياب التدريب');
+        }
+
         $training->load(['company', 'coordinator', 'trainer']);
         
         $applications = \App\Models\TrainingApplication::with(['user.graduateData'])
@@ -1104,6 +1186,11 @@ class TrainingController extends Controller
      */
     public function toggleAttendance(Request $request, Training $training)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('trainings.attendance') && $user->role !== 'training_coordinator') {
+            return response()->json(['success' => false, 'message' => 'غير مصرح لك بتعديل الحضور'], 403);
+        }
+
         $request->validate([
             'user_id' => 'required|integer|exists:users,id',
             'date' => 'required|date_format:Y-m-d',
@@ -1221,6 +1308,11 @@ class TrainingController extends Controller
      */
     public function exportAttendance(Request $request, Training $training)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('trainings.attendance') && $user->role !== 'training_coordinator') {
+            abort(403, 'غير مصرح لك بتصدير كشف الحضور');
+        }
+
         $applications = \App\Models\TrainingApplication::with(['user.graduateData'])
             ->where('training_id', $training->id)
             ->where('status', 'approved')
@@ -1302,6 +1394,11 @@ class TrainingController extends Controller
      */
     public function bulkAcceptApplications(Request $request, Training $training)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('trainings.applications') && $user->role !== 'training_coordinator') {
+            abort(403, 'غير مصرح لك بالبت في طلبات التدريب');
+        }
+
         $request->validate([
             'application_ids' => 'required|array',
             'application_ids.*' => 'exists:training_applications,id'

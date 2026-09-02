@@ -10,10 +10,27 @@ class TrainingCoordinatorMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->check() && auth()->user()->role === 'training_coordinator') {
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
+        $user = auth()->user();
+
+        if (
+            $user->role === 'training_coordinator' ||
+            $user->isAdmin() ||
+            $user->hasAnyPermission([
+                'trainings.view',
+                'trainings.create',
+                'trainings.edit',
+                'trainings.applications',
+                'trainings.attendance',
+                'trainings.trainers'
+            ])
+        ) {
             return $next($request);
         }
 
-        return redirect('/dashboard')->with('error', 'ليس لديك صلاحية للوصول إلى هذه الصفحة');
+        return redirect('/dashboard')->with('error', 'ليس لديك صلاحية للوصول إلى قسم التدريب');
     }
 }

@@ -15,8 +15,7 @@ class JobOpportunityPolicy
      */
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, [
-            'admin',
+        return $user->isAdmin() || $user->hasPermission('jobs.view') || in_array($user->role, [
             'partnership_officer',
             'career_guidance_officer',
             'graduate',
@@ -29,8 +28,8 @@ class JobOpportunityPolicy
      */
     public function view(User $user, JobOpportunity $jobOpportunity): bool
     {
-        // المدراء ومسؤولي الشراكات يرون جميع فرص العمل
-        if (in_array($user->role, ['admin', 'partnership_officer'])) {
+        // المدراء ومسؤولي الشراكات وأصحاب الصلاحية يرون جميع فرص العمل
+        if ($user->isAdmin() || $user->hasPermission('jobs.view') || in_array($user->role, ['partnership_officer'])) {
             return true;
         }
 
@@ -57,7 +56,7 @@ class JobOpportunityPolicy
      */
     public function create(User $user): bool
     {
-        return in_array($user->role, ['admin', 'partnership_officer', 'company']);
+        return $user->isAdmin() || $user->hasPermission('jobs.manage') || in_array($user->role, ['partnership_officer', 'company']);
     }
 
     /**
@@ -65,13 +64,8 @@ class JobOpportunityPolicy
      */
     public function update(User $user, JobOpportunity $jobOpportunity): bool
     {
-        // المدراء يحدثون جميع الفرص
-        if ($user->role === 'admin') {
-            return true;
-        }
-
-        // مسؤولي الشراكات يحدثون جميع الفرص
-        if ($user->role === 'partnership_officer') {
+        // المدراء ومسؤولي الشراكات وأصحاب الصلاحية يحدثون جميع الفرص
+        if ($user->isAdmin() || $user->hasPermission('jobs.manage') || $user->role === 'partnership_officer') {
             return true;
         }
 
@@ -88,13 +82,8 @@ class JobOpportunityPolicy
      */
     public function delete(User $user, JobOpportunity $jobOpportunity): bool
     {
-        // المدراء يحذفون جميع الفرص
-        if ($user->role === 'admin') {
-            return true;
-        }
-
-        // مسؤولي الشراكات يحذفون جميع الفرص
-        if ($user->role === 'partnership_officer') {
+        // المدراء ومسؤولي الشراكات وأصحاب الصلاحية يحذفون الفرص
+        if ($user->isAdmin() || $user->hasPermission('jobs.manage') || $user->role === 'partnership_officer') {
             return true;
         }
 

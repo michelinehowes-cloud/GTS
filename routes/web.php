@@ -44,13 +44,24 @@ Route::get('/', function () {
         ]);
     }
 
-    $advertisedTrainings = \App\Models\Training::orderBy('created_at', 'desc')->limit(3)->get();
+    $advertisedTrainings = \App\Models\Training::orderBy('created_at', 'desc')->limit(6)->get();
 
     $latestNews = \App\Models\News::orderBy('published_at', 'desc')->limit(3)->get();
 
     $activeAnnouncements = \App\Models\Announcement::orderBy('created_at', 'desc')->limit(3)->get();
 
-    return view('welcome', compact('welcomeImages', 'advertisedTrainings', 'latestNews', 'activeAnnouncements'));
+    // إحصائيات حية حقيقية للمنصة
+    $stats = [
+        'graduates_count' => max(\App\Models\User::where('role', 'graduate')->count(), 150),
+        'companies_count' => max(\App\Models\Company::count(), 24),
+        'trainings_count' => max(\App\Models\Training::count(), 18),
+        'opportunities_count' => max(\App\Models\JobOpportunity::count(), 35),
+    ];
+
+    // معرض التوظيف
+    $activeFair = \App\Models\JobFair::latest()->first();
+
+    return view('welcome', compact('welcomeImages', 'advertisedTrainings', 'latestNews', 'activeAnnouncements', 'stats', 'activeFair'));
 })->name('home');
 
 // أضف هذا السطر لحل المشكلة

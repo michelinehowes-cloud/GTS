@@ -987,11 +987,9 @@
                                 <label for="modalPassword" class="form-label fw-bold text-dark small mb-0">
                                     <i class="fas fa-lock text-primary me-1"></i>كلمة المرور
                                 </label>
-                                @if (Route::has('password.request'))
-                                    <a class="small text-decoration-none fw-bold" href="{{ route('password.request') }}" style="color: #1565c0; font-size: 0.8rem;">
-                                        نسيت كلمة المرور؟
-                                    </a>
-                                @endif
+                                <a class="small text-decoration-none fw-bold" href="javascript:void(0)" id="btnOpenForgotModal" style="color: #1565c0; font-size: 0.8rem; cursor: pointer;">
+                                    نسيت كلمة المرور؟
+                                </a>
                             </div>
                             <div class="position-relative">
                                 <input type="password" class="form-control modal-login-input pe-5 @error('password') is-invalid @enderror" id="modalPassword" name="password" placeholder="••••••••" required>
@@ -1026,6 +1024,51 @@
         </div>
     </div>
 
+    <!-- ==================== 12. نافذة استعادة كلمة المرور المنبثقة (Forgot Password Modal) ==================== -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true" style="backdrop-filter: blur(8px);">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
+            <div class="modal-content modal-login-content">
+                <div class="modal-login-header">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 start-0 m-3 shadow-none" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                    <img src="{{ asset('storage/logo.jpg') }}" alt="شعار الجامعة" class="modal-login-logo d-block" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                    <h4 class="fw-bold mb-1" id="forgotPasswordModalLabel">استعادة كلمة المرور</h4>
+                    <p class="mb-0 text-white-50 small">أدخل بريدك الإلكتروني لاستلام رمز التحقق</p>
+                </div>
+                <div class="modal-login-body">
+                    @if($errors->any() && (request('open_forgot') || old('reset_form')))
+                        <div class="alert alert-danger border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
+                            <i class="fas fa-exclamation-circle flex-shrink-0 fs-6 text-danger"></i>
+                            <span class="fw-semibold">{{ $errors->first() }}</span>
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('password.code.store') }}" id="modalForgotForm">
+                        @csrf
+                        <input type="hidden" name="reset_form" value="1">
+                        
+                        <div class="mb-3 text-start text-rtl">
+                            <label for="forgotEmail" class="form-label fw-bold text-dark small mb-1">
+                                <i class="fas fa-envelope text-primary me-1"></i>البريد الإلكتروني المسجل
+                            </label>
+                            <input type="email" class="form-control modal-login-input @error('email') is-invalid @enderror" id="forgotEmail" name="email" value="{{ old('email') }}" placeholder="example@uot.edu.ly" required autofocus>
+                            <small class="text-muted" style="font-size: 0.78rem;">سنرسل لك رمز تحقق مكون من 6 أرقام لإعادة تعيين كلمة المرور.</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-modal-login w-100 d-flex align-items-center justify-content-center gap-2 mb-3">
+                            <i class="fas fa-paper-plane"></i><span>إرسال رمز التحقق</span>
+                        </button>
+
+                        <div class="text-center pt-2 border-top">
+                            <a href="javascript:void(0)" id="btnBackToLoginModal" class="fw-bold text-decoration-none small" style="color: #1565c0; cursor: pointer;">
+                                <i class="fas fa-arrow-right me-1"></i>العودة لتسجيل الدخول
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
@@ -1035,7 +1078,7 @@
             once: true,
         });
 
-        // تفعيل إظهار وإخفاء كلمة المرور في نافذة تسجيل الدخول
+        // تفعيل النوافذ المنبثقة وإظهار/إخفاء كلمة المرور
         document.addEventListener('DOMContentLoaded', function () {
             const btnToggle = document.getElementById('btnToggleModalPass');
             const inputPass = document.getElementById('modalPassword');
@@ -1048,21 +1091,45 @@
                 });
             }
 
-            // الفتح التلقائي لنافذة تسجيل الدخول عند وجود أخطاء أو طلب الرابط
-            const urlParams = new URLSearchParams(window.location.search);
-            const shouldOpen = urlParams.has('open_login') || urlParams.has('login');
-            @if($errors->any())
-                const hasErrors = true;
-            @else
-                const hasErrors = false;
-            @endif
+            const loginModalEl = document.getElementById('loginModal');
+            const forgotModalEl = document.getElementById('forgotPasswordModal');
+            const loginModal = loginModalEl ? new bootstrap.Modal(loginModalEl) : null;
+            const forgotModal = forgotModalEl ? new bootstrap.Modal(forgotModalEl) : null;
 
-            if (shouldOpen || hasErrors) {
-                const loginModalEl = document.getElementById('loginModal');
-                if (loginModalEl) {
-                    const loginModal = new bootstrap.Modal(loginModalEl);
-                    loginModal.show();
-                }
+            // التبديل من نافذة تسجيل الدخول إلى نافذة استعادة كلمة المرور
+            const btnOpenForgot = document.getElementById('btnOpenForgotModal');
+            if (btnOpenForgot && forgotModal && loginModal) {
+                btnOpenForgot.addEventListener('click', function () {
+                    const modalInst = bootstrap.Modal.getInstance(loginModalEl);
+                    if (modalInst) {
+                        modalInst.hide();
+                    }
+                    setTimeout(() => forgotModal.show(), 350);
+                });
+            }
+
+            // التبديل من نافذة استعادة كلمة المرور إلى نافذة تسجيل الدخول
+            const btnBackToLogin = document.getElementById('btnBackToLoginModal');
+            if (btnBackToLogin && forgotModal && loginModal) {
+                btnBackToLogin.addEventListener('click', function () {
+                    const modalInst = bootstrap.Modal.getInstance(forgotModalEl);
+                    if (modalInst) {
+                        modalInst.hide();
+                    }
+                    setTimeout(() => loginModal.show(), 350);
+                });
+            }
+
+            // الفتح التلقائي للنوافذ بحسب رابط الصفحة والأخطاء
+            const urlParams = new URLSearchParams(window.location.search);
+            const isForgotRequested = urlParams.has('open_forgot') || {{ old('reset_form') ? 'true' : 'false' }};
+            const isLoginRequested = urlParams.has('open_login') || urlParams.has('login');
+            const hasErrors = {{ $errors->any() ? 'true' : 'false' }};
+
+            if (isForgotRequested) {
+                forgotModal?.show();
+            } else if (isLoginRequested || hasErrors) {
+                loginModal?.show();
             }
         });
 

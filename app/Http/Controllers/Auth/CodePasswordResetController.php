@@ -13,16 +13,26 @@ use Illuminate\Support\Str;
 
 class CodePasswordResetController extends Controller
 {
-    // عرض صفحة طلب الرمز (إدخال الإيميل)
+    // تحويل طلب استعادة كلمة المرور إلى النافذة المنبثقة بالصفحة الرئيسية
     public function create()
     {
-        return view('auth.passwords.code-request');
+        return redirect('/?open_forgot=1');
     }
 
     // إرسال الرمز
     public function store(Request $request)
     {
-        $request->validate(['email' => 'required|email|exists:users,email']);
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email'
+        ], [
+            'email.required' => 'يرجى إدخال البريد الإلكتروني.',
+            'email.email' => 'صيغة البريد الإلكتروني غير صحيحة.',
+            'email.exists' => 'البريد الإلكتروني المدخل غير مسجل في النظام.'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect('/?open_forgot=1')->withErrors($validator)->withInput();
+        }
 
         // حذف الرموز القديمة لهذا الإيميل
         DB::table('password_reset_codes')->where('email', $request->email)->delete();
@@ -37,17 +47,13 @@ class CodePasswordResetController extends Controller
         ]);
 
         // إرسال الإيميل
-        // هنا سنستخدم NotificationMail أو Mailable بسيط. للسرعة سأستخدم Mail::raw أو Mailable مخصص إذا لزم الأمر.
-        // سأستخدم NotificationService لإرسال إشعار يحتوي على الرمز، أو إرسال بريد مباشر.
-        // الأفضل إرسال بريد مباشر مخصص للرمز.
-
         try {
             Mail::send('emails.reset-code', ['code' => $code], function ($message) use ($request) {
                 $message->to($request->email);
-                $message->subject('رمز استعادة كلمة المرور');
+                $message->subject('رمز استعادة كلمة المرور - جامعة طرابلس');
             });
         } catch (\Exception $e) {
-            return back()->withErrors(['email' => 'فشل إرسال البريد الإلكتروني. حاول مرة أخرى.']);
+            return redirect('/?open_forgot=1')->withErrors(['email' => 'فشل إرسال البريد الإلكتروني. يرجى المحاولة لاحقاً.'])->withInput();
         }
 
         return redirect()->route('password.code.verify', ['email' => $request->email]);

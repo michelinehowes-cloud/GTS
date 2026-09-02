@@ -11,13 +11,13 @@
         rel="stylesheet">
     <style>
         :root {
-            --university-blue: #045db0;
-            --university-gold: #eeca3e;
+            --university-blue: #1565c0;
+            --university-gold: #f59e0b;
             --background-light: #f8fafc;
         }
 
         body {
-            background: linear-gradient(135deg, var(--university-blue), #1e40af);
+            background: linear-gradient(135deg, #0d3882 0%, #1565c0 50%, #1e88e5 100%);
             font-family: 'Tajawal', sans-serif;
             min-height: 100vh;
             display: flex;
@@ -28,15 +28,15 @@
 
         .login-container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(13, 56, 130, 0.35);
             overflow: hidden;
             width: 100%;
             max-width: 450px;
         }
 
         .login-header {
-            background: linear-gradient(135deg, var(--university-blue), #1e40af);
+            background: linear-gradient(135deg, #0d3882 0%, #1565c0 50%, #1e88e5 100%);
             color: white;
             padding: 30px;
             text-align: center;
@@ -46,7 +46,7 @@
         .login-logo {
             width: 80px;
             height: 80px;
-            border-radius: 10px;
+            border-radius: 50%;
             background: white;
             padding: 5px;
             border: 2px solid var(--university-gold);
@@ -54,6 +54,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
         }
 
         .login-body {
@@ -61,25 +62,31 @@
         }
 
         .btn-login {
-            background: linear-gradient(135deg, var(--university-blue), #1e40af);
+            background: linear-gradient(135deg, #0d3882 0%, #1565c0 50%, #1e88e5 100%);
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 12px;
             font-weight: 700;
             width: 100%;
             color: white;
+            transition: all 0.25s ease;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(21, 101, 192, 0.35);
+            color: white;
         }
 
         .form-control {
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
             padding: 12px 15px;
             font-size: 0.95rem;
         }
 
         .form-control:focus {
             border-color: var(--university-blue);
-            box-shadow: 0 0 0 0.2rem rgba(30, 58, 138, 0.15);
+            box-shadow: 0 0 0 0.25rem rgba(21, 101, 192, 0.15);
         }
     </style>
 </head>

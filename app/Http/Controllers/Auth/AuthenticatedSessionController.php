@@ -18,7 +18,8 @@ class AuthenticatedSessionController extends Controller
             return redirect('/dashboard');
         }
 
-        return view('auth.login');
+        // فتح نافذة تسجيل الدخول مباشرة في الصفحة الرئيسية
+        return redirect('/?open_login=1');
     }
 
     /**

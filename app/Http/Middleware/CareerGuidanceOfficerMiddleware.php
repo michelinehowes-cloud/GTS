@@ -14,11 +14,23 @@ class CareerGuidanceOfficerMiddleware
             return redirect()->route('login');
         }
 
-        // Allow both career_guidance_officer and admin users
-        if (!auth()->user()->isCareerGuidanceOfficer() && !auth()->user()->isAdmin()) {
-            return redirect('/dashboard')->with('error', 'ليس لديك صلاحية للوصول إلى هذه الصفحة');
+        $user = auth()->user();
+
+        if (
+            $user->isCareerGuidanceOfficer() ||
+            $user->isAdmin() ||
+            $user->hasAnyPermission([
+                'graduates.view',
+                'graduates.create',
+                'graduates.edit',
+                'graduates.approve',
+                'graduates.import_export',
+                'nominations.manage'
+            ])
+        ) {
+            return $next($request);
         }
 
-        return $next($request);
+        return redirect('/dashboard')->with('error', 'ليس لديك صلاحية للوصول إلى هذا القسم');
     }
 }

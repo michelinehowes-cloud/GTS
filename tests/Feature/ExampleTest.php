@@ -18,4 +18,14 @@ class ExampleTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    /** @test */
+    public function test_job_fair_live_broadcast_page_loads_successfully()
+    {
+        $response = $this->get('/job-fair');
+
+        $response->assertStatus(200);
+        $response->assertSee('منصة البث المباشر');
+        $response->assertSee('الدردشة المباشرة');
+    }
 }

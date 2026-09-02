@@ -25,6 +25,8 @@ class JobOpportunityController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', JobOpportunity::class);
+
         $query = JobOpportunity::with(['company', 'creator']);
 
         // تطبيق الفلاتر
@@ -54,6 +56,8 @@ class JobOpportunityController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', JobOpportunity::class);
+
         $companies = Company::all(); // Fetches all companies
 
         $specializations = [
@@ -196,6 +200,8 @@ class JobOpportunityController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', JobOpportunity::class);
+
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -249,6 +255,9 @@ class JobOpportunityController extends Controller
             \Log::error('Failed to send job opportunity notification: ' . $e->getMessage());
         }
 
+        // سجل النشاط
+        \App\Models\AuditLog::logAction('create_opportunity', "تم إنشاء فرصة عمل جديدة: {$jobOpportunity->title}", 'JobOpportunity', $jobOpportunity->id);
+
         return redirect()->route('job-opportunities.index')
             ->with('success', 'تم إنشاء فرصة العمل بنجاح');
     }
@@ -263,6 +272,8 @@ class JobOpportunityController extends Controller
             'creator',
             'nominations.graduate'
         ])->findOrFail($id);
+
+        $this->authorize('view', $opportunity);
 
         $nominationsCount = [
             'total' => $opportunity->nominations->count(),
@@ -280,6 +291,8 @@ class JobOpportunityController extends Controller
     public function edit($id)
     {
         $opportunity = JobOpportunity::findOrFail($id);
+        $this->authorize('update', $opportunity);
+
         $companies = Company::all();
 
         return view('job-opportunities.edit', compact('opportunity', 'companies'));
@@ -291,6 +304,7 @@ class JobOpportunityController extends Controller
     public function update(Request $request, $id)
     {
         $opportunity = JobOpportunity::findOrFail($id);
+        $this->authorize('update', $opportunity);
 
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
@@ -320,6 +334,8 @@ class JobOpportunityController extends Controller
 
         $opportunity->update($request->all());
 
+        \App\Models\AuditLog::logAction('update_opportunity', "تم تحديث بيانات فرصة العمل: {$opportunity->title}", 'JobOpportunity', $opportunity->id);
+
         return redirect()->route('job-opportunities.show', $opportunity->id)
             ->with('success', 'تم تحديث فرصة العمل بنجاح');
     }
@@ -330,12 +346,15 @@ class JobOpportunityController extends Controller
     public function destroy($id)
     {
         $opportunity = JobOpportunity::findOrFail($id);
+        $this->authorize('delete', $opportunity);
 
         // التحقق من عدم وجود ترشيحات مرتبطة
         if ($opportunity->nominations()->exists()) {
             return redirect()->back()
                 ->with('error', 'لا يمكن حذف الفرصة لأنها مرتبطة بترشيحات');
         }
+
+        \App\Models\AuditLog::logAction('delete_opportunity', "تم حذف فرصة العمل: {$opportunity->title}", 'JobOpportunity', $opportunity->id);
 
         $opportunity->delete();
 
@@ -349,6 +368,7 @@ class JobOpportunityController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $opportunity = JobOpportunity::findOrFail($id);
+        $this->authorize('update', $opportunity);
 
         $request->validate([
             'status' => 'required|in:new,open,closed,completed',
@@ -364,6 +384,8 @@ class JobOpportunityController extends Controller
      */
     public function importFromExcel(Request $request)
     {
+        $this->authorize('create', JobOpportunity::class);
+
         $request->validate([
             'excel_file' => 'required|file|mimes:csv,txt|max:5120',
             'company_id' => 'required|exists:companies,id',
@@ -623,6 +645,8 @@ class JobOpportunityController extends Controller
     public function nominations($id)
     {
         $opportunity = JobOpportunity::with(['nominations.graduate'])->findOrFail($id);
+        $this->authorize('view', $opportunity);
+
         $nominations = $opportunity->nominations()->latest()->get();
 
         $statuses = [
@@ -642,6 +666,11 @@ class JobOpportunityController extends Controller
      */
     public function statistics()
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('reports.view') && !in_array($user->role, ['partnership_officer', 'career_guidance_officer'])) {
+            abort(403, 'غير مصرح لك بعرض إحصائيات فرص العمل');
+        }
+
         $stats = [
             'byType' => JobOpportunity::selectRaw('type, count(*) as count')
                 ->groupBy('type')
@@ -666,6 +695,8 @@ class JobOpportunityController extends Controller
      */
     public function duplicate($id)
     {
+        $this->authorize('create', JobOpportunity::class);
+
         $originalOpportunity = JobOpportunity::findOrFail($id);
 
         $newOpportunity = $originalOpportunity->replicate();

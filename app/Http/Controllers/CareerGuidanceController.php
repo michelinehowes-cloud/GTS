@@ -31,6 +31,11 @@ class CareerGuidanceController extends Controller
      */
     public function dashboard()
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasAnyPermission(['graduates.view', 'nominations.manage']) && $user->role !== 'career_guidance_officer') {
+            abort(403, 'غير مصرح لك بالوصول إلى لوحة الإرشاد المهني');
+        }
+
         $stats = [
             'totalGraduates' => GraduateData::count(),
             'employedGraduates' => GraduateData::where('employment_status', 'employed')->count(),
@@ -196,6 +201,8 @@ class CareerGuidanceController extends Controller
      */
     public function graduates(Request $request)
     {
+        $this->authorize('viewAny', GraduateData::class);
+
         $query = GraduateData::query();
 
         // تطبيق الفلاتر
@@ -348,6 +355,7 @@ class CareerGuidanceController extends Controller
     public function resetGraduatePassword(Request $request, $id)
     {
         $graduate = GraduateData::findOrFail($id);
+        $this->authorize('update', $graduate);
 
         $request->validate([
             'new_password' => 'required|string|min:8|confirmed',
@@ -371,6 +379,7 @@ class CareerGuidanceController extends Controller
     public function createGraduateAccount(Request $request, $id)
     {
         $graduate = GraduateData::findOrFail($id);
+        $this->authorize('update', $graduate);
 
         if ($graduate->user_id) {
             return redirect()->back()->withErrors(['error' => 'هذا الخريج يمتلك حساباً بالفعل.']);
@@ -407,6 +416,8 @@ class CareerGuidanceController extends Controller
      */
     public function nominations(Request $request)
     {
+        $this->authorize('viewAny', Nomination::class);
+
         $query = Nomination::with(['graduate', 'jobOpportunity.company', 'nominator']);
 
         // تطبيق الفلاتر
@@ -505,6 +516,8 @@ class CareerGuidanceController extends Controller
      */
     public function createNomination()
     {
+        $this->authorize('create', Nomination::class);
+
         $graduates = GraduateData::where('is_active', true)
             // ->where('employment_status', 'seeking_opportunities') // Temporarily remove this filter for debugging
             ->get();
@@ -724,6 +737,7 @@ class CareerGuidanceController extends Controller
      */
     public function showImportForm()
     {
+        $this->authorize('create', GraduateData::class);
         return view('career-guidance.graduates.import');
     }
 
@@ -733,6 +747,8 @@ class CareerGuidanceController extends Controller
      */
     public function importGraduates(Request $request)
     {
+        $this->authorize('create', GraduateData::class);
+
         $request->validate([
             'file' => 'required|file|mimes:csv,txt|max:2048',
         ]);
@@ -875,6 +891,11 @@ class CareerGuidanceController extends Controller
      */
     public function advancedReports(Request $request)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('reports.view') && $user->role !== 'career_guidance_officer') {
+            abort(403, 'غير مصرح لك بعرض التقارير المتقدمة');
+        }
+
         try {
             // جلب البيانات للفلاتر
             $majors = GraduateData::distinct()->pluck('major');
@@ -917,6 +938,11 @@ class CareerGuidanceController extends Controller
      */
     public function exportReportsPDF(Request $request)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('reports.export') && $user->role !== 'career_guidance_officer') {
+            abort(403, 'غير مصرح لك بتصدير التقارير');
+        }
+
         try {
             $type = $request->get('type', 'full');
 
@@ -968,6 +994,11 @@ class CareerGuidanceController extends Controller
      */
     public function exportReportsExcel(Request $request)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('reports.export') && $user->role !== 'career_guidance_officer') {
+            abort(403, 'غير مصرح لك بتصدير التقارير');
+        }
+
         try {
             // تعطيل مؤقت: المكتبة المثبتة قديمة ولا تدعم الواجهات الحديثة
             // يمكن تفعيلها بعد تحديث maatwebsite/excel إلى الإصدار 3.x
@@ -1589,6 +1620,7 @@ class CareerGuidanceController extends Controller
     public function toggleGraduateStatus($id)
     {
         $graduate = GraduateData::findOrFail($id);
+        $this->authorize('update', $graduate);
 
         // البحث عن حساب المستخدم المرتبط
         $user = \App\Models\User::where('email', $graduate->email)->first();

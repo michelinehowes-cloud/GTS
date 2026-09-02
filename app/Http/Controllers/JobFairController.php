@@ -44,9 +44,11 @@ class JobFairController extends Controller
         }
 
         $companies = $fair ? $fair->companies()->with('company')->where('status', 'confirmed')->get() : collect();
+        $events = $fair ? $fair->events()->orderBy('start_time', 'asc')->get() : collect();
+        $recentJobs = \App\Models\JobOpportunity::where('status', 'open')->with('company')->latest()->take(6)->get();
         $stats = $this->getFairStats($fair);
 
-        return view('job-fair.public', compact('fair', 'myRegistration', 'companies', 'stats', 'favoriteCompanyIds'));
+        return view('job-fair.public', compact('fair', 'myRegistration', 'companies', 'events', 'recentJobs', 'stats', 'favoriteCompanyIds'));
     }
 
     /**
@@ -197,6 +199,8 @@ class JobFairController extends Controller
             }
         }
 
+        \App\Models\AuditLog::logAction('create_job_fair', "تم إنشاء معرض التوظيف: {$fair->title}", 'JobFair', $fair->id);
+
         return redirect()->route('job-fair.admin.show', $fair->id)
                          ->with('success', 'تم إنشاء المعرض بنجاح!');
     }
@@ -254,6 +258,8 @@ class JobFairController extends Controller
                 'attended' => false,
                 'status' => 'registered'
             ]);
+
+        \App\Models\AuditLog::logAction('reset_attendance', "تمت إعادة تهيئة حضور المعرض: {$fair->title}", 'JobFair', $fair->id);
 
         return back()->with('success', 'تم إعادة تهيئة الحضور ومسح السجلات بنجاح لهذا المعرض.');
     }
@@ -313,6 +319,8 @@ class JobFairController extends Controller
 
         $fair->update($data);
 
+        \App\Models\AuditLog::logAction('update_job_fair', "تم تحديث بيانات المعرض: {$fair->title}", 'JobFair', $fair->id);
+
         return redirect()->route('job-fair.admin.show', $fair->id)
                          ->with('success', 'تم تحديث المعرض بنجاح.');
     }
@@ -323,6 +331,9 @@ class JobFairController extends Controller
     public function updateStatus(Request $request, JobFair $fair)
     {
         $fair->update(['status' => $request->status]);
+
+        \App\Models\AuditLog::logAction('update_status', "تم تغيير حالة المعرض {$fair->title} إلى {$request->status}", 'JobFair', $fair->id);
+
         return back()->with('success', 'تم تحديث حالة المعرض.');
     }
 

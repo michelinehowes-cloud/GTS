@@ -124,6 +124,8 @@ Route::middleware('auth')->group(function () {
             return redirect()->route('career-guidance.dashboard');
         } elseif ($user->role === 'media_officer') {
             return redirect()->route('media.dashboard');
+        } elseif ($user->role === 'staff') {
+            return redirect($user->dashboard_route);
         }
         // إذا لم يكن هناك توجيه، ارجع للصفحة الرئيسية
         return redirect('/');
@@ -672,7 +674,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // إدارة المعرض (أدمن فقط)
-Route::middleware(['auth'])->prefix('admin/job-fair')->name('job-fair.admin.')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin/job-fair')->name('job-fair.admin.')->group(function () {
     Route::get('/', [App\Http\Controllers\JobFairController::class, 'index'])->name('index');
     Route::get('/live/{fair}', [App\Http\Controllers\JobFairController::class, 'liveDashboard'])->name('live');
     Route::get('/create', [App\Http\Controllers\JobFairController::class, 'create'])->name('create');

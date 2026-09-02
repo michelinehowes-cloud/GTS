@@ -15,8 +15,7 @@ class GraduateDataPolicy
      */
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, [
-            'admin',
+        return $user->isAdmin() || $user->hasPermission('graduates.view') || in_array($user->role, [
             'career_guidance_officer',
             'partnership_officer',
             'evaluation_followup'
@@ -28,8 +27,8 @@ class GraduateDataPolicy
      */
     public function view(User $user, GraduateData $graduateData): bool
     {
-        // المدراء يرون جميع بيانات الخريجين
-        if ($user->role === 'admin') {
+        // المدراء ومسؤولي الإرشاد وأصحاب الصلاحيات يرون جميع بيانات الخريجين
+        if ($user->isAdmin() || $user->hasPermission('graduates.view')) {
             return true;
         }
 
@@ -56,7 +55,7 @@ class GraduateDataPolicy
      */
     public function create(User $user): bool
     {
-        return in_array($user->role, ['admin', 'career_guidance_officer']);
+        return $user->isAdmin() || $user->hasPermission('graduates.create') || $user->role === 'career_guidance_officer';
     }
 
     /**
@@ -64,8 +63,7 @@ class GraduateDataPolicy
      */
     public function update(User $user, GraduateData $graduateData): bool
     {
-        // المدراء يحدثون جميع البيانات
-        if ($user->role === 'admin') {
+        if ($user->isAdmin() || $user->hasPermission('graduates.edit')) {
             return true;
         }
 
@@ -87,8 +85,7 @@ class GraduateDataPolicy
      */
     public function delete(User $user, GraduateData $graduateData): bool
     {
-        // المدراء ومسؤولي الإرشاد المهني يحذفون البيانات
-        return in_array($user->role, ['admin', 'career_guidance_officer']);
+        return $user->isAdmin() || $user->hasPermission('graduates.delete') || $user->role === 'career_guidance_officer';
     }
 
     /**
@@ -96,7 +93,7 @@ class GraduateDataPolicy
      */
     public function import(User $user): bool
     {
-        return in_array($user->role, ['admin', 'career_guidance_officer', 'partnership_officer']);
+        return $user->isAdmin() || $user->hasPermission('graduates.import_export') || in_array($user->role, ['career_guidance_officer', 'partnership_officer']);
     }
 
     /**
@@ -104,7 +101,7 @@ class GraduateDataPolicy
      */
     public function export(User $user): bool
     {
-        return in_array($user->role, ['admin', 'career_guidance_officer', 'evaluation_followup']);
+        return $user->isAdmin() || $user->hasPermission('graduates.import_export') || in_array($user->role, ['career_guidance_officer', 'evaluation_followup']);
     }
 
     /**

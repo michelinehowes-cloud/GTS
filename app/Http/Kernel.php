@@ -76,5 +76,6 @@ class Kernel extends HttpKernel
         'media_officer' => \App\Http\Middleware\MediaOfficerMiddleware::class,
         'password.must.change' => \App\Http\Middleware\EnsurePasswordChanged::class,
         'company' => \App\Http\Middleware\CompanyMiddleware::class,
+        'permission' => \App\Http\Middleware\CheckPermission::class,
     ];
 }

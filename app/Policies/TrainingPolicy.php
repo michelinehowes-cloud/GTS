@@ -15,8 +15,7 @@ class TrainingPolicy
      */
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, [
-            'admin',
+        return $user->isAdmin() || $user->hasPermission('trainings.view') || in_array($user->role, [
             'training_coordinator',
             'graduate',
             'evaluation_followup',
@@ -30,8 +29,8 @@ class TrainingPolicy
      */
     public function view(User $user, Training $training): bool
     {
-        // المدراء ومنسقي التدريب يرون جميع التدريبات
-        if (in_array($user->role, ['admin', 'training_coordinator', 'evaluation_followup'])) {
+        // المدراء ومنسقي التدريب وأصحاب الصلاحيات يرون التدريبات
+        if ($user->isAdmin() || $user->hasPermission('trainings.view') || in_array($user->role, ['training_coordinator', 'evaluation_followup'])) {
             return true;
         }
 
@@ -53,7 +52,7 @@ class TrainingPolicy
      */
     public function create(User $user): bool
     {
-        return in_array($user->role, ['admin', 'training_coordinator']);
+        return $user->isAdmin() || $user->hasPermission('trainings.create') || $user->role === 'training_coordinator';
     }
 
     /**
@@ -61,14 +60,13 @@ class TrainingPolicy
      */
     public function update(User $user, Training $training): bool
     {
-        // المدراء يحدثون جميع التدريبات
-        if ($user->role === 'admin') {
+        if ($user->isAdmin() || $user->hasPermission('trainings.edit')) {
             return true;
         }
 
-        // منسقي التدريب يحدثون تدريباتهم فقط
+        // منسقي التدريب يحدثون تدريباتهم
         if ($user->role === 'training_coordinator') {
-            return $training->coordinator_id === $user->id;
+            return $training->coordinator_id === $user->id || $training->coordinator_id === null;
         }
 
         return false;
@@ -79,14 +77,13 @@ class TrainingPolicy
      */
     public function delete(User $user, Training $training): bool
     {
-        // المدراء يحذفون جميع التدريبات
-        if ($user->role === 'admin') {
+        if ($user->isAdmin() || $user->hasPermission('trainings.delete')) {
             return true;
         }
 
-        // منسقي التدريب يحذفون تدريباتهم فقط
+        // منسقي التدريب يحذفون تدريباتهم
         if ($user->role === 'training_coordinator') {
-            return $training->coordinator_id === $user->id;
+            return $training->coordinator_id === $user->id || $training->coordinator_id === null;
         }
 
         return false;

@@ -70,14 +70,23 @@ class User extends Authenticatable
     {
         return [
             'admin' => 'مدير النظام',
-            'graduate' => 'خريج',
+            'staff' => 'موظف مخصص الصلاحيات (Staff)',
             'training_coordinator' => 'منسق التدريب',
             'partnership_officer' => 'مسؤول الشراكات والتوظيف',
             'career_guidance_officer' => 'مسؤول الإرشاد المهني',
             'evaluation_followup' => 'مسؤول التقييم والمتابعة',
             'media_officer' => 'مسؤول الميديا',
-            'company' => 'شركة'
+            'company' => 'شركة',
+            'graduate' => 'خريج',
         ];
+    }
+
+    /**
+     * العلاقة مع الصلاحيات الممنوحة للمستخدم
+     */
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'permission_user');
     }
 
     /**
@@ -86,6 +95,121 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return $this->role === 'admin';
+    }
+
+    /**
+     * التحقق إذا كان المستخدم موظف نظام أو إداري
+     */
+    public function isStaff()
+    {
+        return $this->role === 'staff' || in_array($this->role, [
+            'admin',
+            'training_coordinator',
+            'partnership_officer',
+            'career_guidance_officer',
+            'evaluation_followup',
+            'media_officer',
+        ]);
+    }
+
+    /**
+     * هل هذا المستخدم هو مدير النظام الأساسي المحمي؟
+     */
+    public function isProtectedSuperAdmin(): bool
+    {
+        return $this->id === 1 || ($this->role === 'admin' && $this->email === 'admin@tripoliuniversity.edu.ly');
+    }
+
+    /**
+     * التحقق من امتلاك المستخدم لصلاحية معينة
+     */
+    public function hasPermission(string $permission): bool
+    {
+        // مدير النظام يملك كافة الصلاحيات تلقائياً
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        // فحص الصلاحيات المحملة في الذاكرة لتجنب استعلامات N+1
+        if ($this->relationLoaded('permissions')) {
+            return $this->permissions->contains('name', $permission);
+        }
+
+        return $this->permissions()->where('name', $permission)->exists();
+    }
+
+    /**
+     * التحقق من امتلاك أي من الصلاحيات المحددة
+     */
+    public function hasAnyPermission(array $permissions): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        foreach ($permissions as $permission) {
+            if ($this->hasPermission($permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * التحقق من امتلاك جميع الصلاحيات المحددة
+     */
+    public function hasAllPermissions(array $permissions): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        foreach ($permissions as $permission) {
+            if (!$this->hasPermission($permission)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * منح صلاحية للمستخدم
+     */
+    public function givePermission($permission)
+    {
+        if (is_string($permission)) {
+            $permission = Permission::where('name', $permission)->first();
+        }
+        if ($permission && !$this->permissions()->where('permission_id', $permission->id)->exists()) {
+            $this->permissions()->attach($permission->id);
+            $this->unsetRelation('permissions');
+        }
+        return $this;
+    }
+
+    /**
+     * تعيين ومزامنة الصلاحيات للمستخدم (يقبل معرّفات أو كائنات أو أسماء صلاحيات)
+     */
+    public function syncPermissions(array $permissions)
+    {
+        $ids = [];
+        foreach ($permissions as $p) {
+            if (is_numeric($p)) {
+                $ids[] = (int) $p;
+            } elseif (is_string($p)) {
+                $perm = Permission::where('name', $p)->first();
+                if ($perm) {
+                    $ids[] = $perm->id;
+                }
+            } elseif ($p instanceof Permission) {
+                $ids[] = $p->id;
+            }
+        }
+        $result = $this->permissions()->sync($ids);
+        $this->unsetRelation('permissions');
+        return $result;
     }
 
     /**
@@ -141,7 +265,7 @@ class User extends Authenticatable
      */
     public function canManageCompanies()
     {
-        return in_array($this->role, ['admin', 'partnership']);
+        return $this->isAdmin() || $this->hasPermission('companies.view') || in_array($this->role, ['partnership_officer', 'partnership']);
     }
 
     /**
@@ -149,7 +273,7 @@ class User extends Authenticatable
      */
     public function canManageJobOpportunities()
     {
-        return in_array($this->role, ['admin', 'partnership']);
+        return $this->isAdmin() || $this->hasPermission('jobs.manage') || in_array($this->role, ['partnership_officer', 'partnership']);
     }
 
     /**
@@ -157,7 +281,7 @@ class User extends Authenticatable
      */
     public function canManageGraduates()
     {
-        return in_array($this->role, ['admin', 'career_guidance_officer']);
+        return $this->isAdmin() || $this->hasPermission('graduates.view') || in_array($this->role, ['career_guidance_officer']);
     }
 
     /**
@@ -165,7 +289,7 @@ class User extends Authenticatable
      */
     public function canManageNominations()
     {
-        return in_array($this->role, ['admin', 'career_guidance_officer', 'partnership_officer']);
+        return $this->isAdmin() || $this->hasPermission('nominations.manage') || in_array($this->role, ['career_guidance_officer', 'partnership_officer']);
     }
 
     /**
@@ -173,7 +297,7 @@ class User extends Authenticatable
      */
     public function canManagePartnershipDocuments()
     {
-        return in_array($this->role, ['admin', 'partnership_officer']);
+        return $this->isAdmin() || $this->hasPermission('partnerships.documents') || in_array($this->role, ['partnership_officer']);
     }
 
     /**
@@ -320,13 +444,45 @@ class User extends Authenticatable
     {
         return $query->where('role', 'career_guidance_officer');
     }
-    // app/Models/User.php
-
     /**
      * التحقق إذا كان المستخدم يمكنه إضافة خريجين
      */
     public function canAddGraduates()
     {
-        return in_array($this->role, ['admin', 'career_guidance_officer']);
+        return $this->isAdmin() || $this->hasPermission('graduates.create') || in_array($this->role, ['career_guidance_officer']);
+    }
+
+    /**
+     * مسار لوحة التحكم المناسب لدور وصلاحيات المستخدم
+     */
+    public function getDashboardRouteAttribute()
+    {
+        switch ($this->role) {
+            case 'admin':
+                return route('admin.dashboard');
+            case 'graduate':
+                return route('graduate.dashboard');
+            case 'company':
+                return route('company.dashboard');
+            case 'training_coordinator':
+                return route('training-coordinator.dashboard');
+            case 'partnership_officer':
+                return route('partnership.dashboard');
+            case 'career_guidance_officer':
+                return route('career-guidance.dashboard');
+            case 'evaluation_followup':
+                return route('evaluation-followup.dashboard');
+            case 'media_officer':
+                return route('media.dashboard');
+            case 'staff':
+            default:
+                if ($this->hasPermission('trainings.view')) return route('training-coordinator.dashboard');
+                if ($this->hasPermission('companies.view') || $this->hasPermission('job_fair.view')) return route('partnership.dashboard');
+                if ($this->hasPermission('graduates.view')) return route('career-guidance.dashboard');
+                if ($this->hasPermission('evaluations.manage') || $this->hasPermission('surveys.manage')) return route('evaluation-followup.dashboard');
+                if ($this->hasPermission('media.manage')) return route('media.dashboard');
+                if ($this->hasPermission('users.view') || $this->hasPermission('users.manage')) return route('admin.users');
+                return route('dashboard');
+        }
     }
 }

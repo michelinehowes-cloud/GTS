@@ -109,9 +109,6 @@
             box-shadow: 0 8px 20px rgba(21, 101, 192, 0.35);
             color: #ffffff;
         }
-            position: relative;
-            overflow: hidden;
-        }
 
         /* تراكب خفيف بنمط (Pattern Overlay) لزيادة الفخامة */
         .hero-section::before {

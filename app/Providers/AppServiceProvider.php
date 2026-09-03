@@ -30,19 +30,27 @@ class AppServiceProvider extends ServiceProvider
         View::composer(['layouts.app', 'layouts.training-coordinator', 'layouts.*', 'admin.*', 'career-guidance.*'], function ($view) {
             if (Auth::check()) {
                 $user = Auth::user();
-                $unreadCount = Notification::where('user_id', $user->id)
-                    ->where('is_read', false)
-                    ->count();
-                $view->with('unreadNotificationsCount', $unreadCount);
+                $unreadCount = 0;
+                $pendingGraduatesCount = 0;
 
-                if (in_array($user->role, ['admin', 'career_guidance_officer'])) {
-                    $pendingGraduatesCount = \App\Models\User::where('role', 'graduate')
-                        ->where('is_approved', false)
+                try {
+                    $unreadCount = Notification::where('user_id', $user->id)
+                        ->where('is_read', false)
                         ->count();
-                    $view->with('pendingGraduatesCount', $pendingGraduatesCount);
-                } else {
-                    $view->with('pendingGraduatesCount', 0);
+
+                    if (in_array($user->role, ['admin', 'career_guidance_officer'])) {
+                        $pendingGraduatesCount = \App\Models\User::where('role', 'graduate')
+                            ->where('is_approved', false)
+                            ->count();
+                    }
+                } catch (\Throwable $e) {
+                    // Fallback gracefully if tables are temporarily not accessible
+                    $unreadCount = 0;
+                    $pendingGraduatesCount = 0;
                 }
+
+                $view->with('unreadNotificationsCount', $unreadCount);
+                $view->with('pendingGraduatesCount', $pendingGraduatesCount);
             } else {
                 $view->with('unreadNotificationsCount', 0);
                 $view->with('pendingGraduatesCount', 0);

@@ -77,9 +77,12 @@
                              style="width: 36px; height: 36px; background-color: {{ $module['meta']['color'] }}15; color: {{ $module['meta']['color'] }};">
                             <i class="{{ $module['meta']['icon'] }}"></i>
                         </div>
+                        @php
+                            $moduleItems = $module['items'] ?? $module['permissions'] ?? collect();
+                        @endphp
                         <div>
                             <h6 class="fw-bold mb-0 text-dark">{{ $module['meta']['label'] }}</h6>
-                            <small class="text-muted">{{ count($module['items']) }} صلاحيات متاحة</small>
+                            <small class="text-muted">{{ count($moduleItems) }} صلاحيات متاحة</small>
                         </div>
                     </div>
                     <div>
@@ -93,7 +96,7 @@
                 <!-- Module Permissions List -->
                 <div class="card-body p-3">
                     <div class="d-flex flex-column gap-2">
-                        @foreach($module['items'] as $perm)
+                        @foreach($moduleItems as $perm)
                             @php
                                 $isChecked = isset($userPermissionIds) && in_array($perm->id, $userPermissionIds);
                             @endphp

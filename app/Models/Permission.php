@@ -91,9 +91,11 @@ class Permission extends Model
         $grouped = [];
 
         foreach ($meta as $moduleKey => $moduleInfo) {
+            $perms = $all->where('module', $moduleKey)->values();
             $grouped[$moduleKey] = [
                 'meta' => $moduleInfo,
-                'permissions' => $all->where('module', $moduleKey)->values(),
+                'permissions' => $perms,
+                'items' => $perms,
             ];
         }
 

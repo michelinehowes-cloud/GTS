@@ -342,6 +342,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const universitySelect = document.getElementById('university');
     const sectorSelect = document.getElementById('sector');
     const facultySelect = document.getElementById('faculty');
+    const specializationSelect = document.getElementById('specialization');
 
     if (universitySelect) {
         universitySelect.addEventListener('change', loadSectors);
@@ -355,24 +356,50 @@ document.addEventListener('DOMContentLoaded', function () {
         facultySelect.addEventListener('change', loadSpecializations);
     }
 
-    // إذا كانت هناك قيم محفوظة (old values)، قم بتحميلها
-    const oldUniversity = universitySelect?.value;
-    const oldSector = sectorSelect?.value;
-    const oldFaculty = facultySelect?.value;
+    // قراءة القيم المحفوظة مسبقاً (old values أو بيانات الخريج)
+    const oldUnivInput = document.getElementById('old_university');
+    const oldSectorInput = document.getElementById('old_sector');
+    const oldFacultyInput = document.getElementById('old_faculty');
+    const oldSpecInput = document.getElementById('old_specialization');
 
-    if (oldUniversity) {
+    const savedUniversity = (universitySelect && universitySelect.value) ? universitySelect.value : (oldUnivInput ? oldUnivInput.value : 'جامعة طرابلس');
+    const savedSector = oldSectorInput ? oldSectorInput.value : (sectorSelect ? sectorSelect.value : '');
+    const savedFaculty = oldFacultyInput ? oldFacultyInput.value : (facultySelect ? facultySelect.value : '');
+    const savedSpecialization = oldSpecInput ? oldSpecInput.value : (specializationSelect ? specializationSelect.value : '');
+
+    if (universitySelect && savedUniversity) {
+        universitySelect.value = savedUniversity;
         loadSectors();
-        if (oldSector) {
-            setTimeout(() => {
-                sectorSelect.value = oldSector;
-                loadFaculties();
-                if (oldFaculty) {
-                    setTimeout(() => {
-                        facultySelect.value = oldFaculty;
-                        loadSpecializations();
-                    }, 100);
+
+        if (sectorSelect && savedSector) {
+            sectorSelect.value = savedSector;
+            loadFaculties();
+
+            if (facultySelect && savedFaculty) {
+                facultySelect.value = savedFaculty;
+                loadSpecializations();
+
+                if (specializationSelect && savedSpecialization) {
+                    specializationSelect.value = savedSpecialization;
                 }
-            }, 100);
+            }
         }
     }
+
+    // التأكد من تفعيل حقل التخصص قبل إرسال النموذج حتى يتم إرسال قيمته إلى السيرفر
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function () {
+            if (specializationSelect && specializationSelect.value) {
+                specializationSelect.disabled = false;
+            }
+            if (sectorSelect && sectorSelect.value) {
+                sectorSelect.disabled = false;
+            }
+            if (facultySelect && facultySelect.value) {
+                facultySelect.disabled = false;
+            }
+        });
+    });
 });
+

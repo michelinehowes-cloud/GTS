@@ -116,8 +116,18 @@
                                 <label for="date_of_birth" class="form-label">
                                     تاريخ الميلاد <span class="required">*</span>
                                 </label>
+                                @php
+                                    $dobVal = $graduate->date_of_birth;
+                                    if ($dobVal instanceof \Carbon\Carbon || $dobVal instanceof \DateTimeInterface) {
+                                        $dobFormatted = $dobVal->format('Y-m-d');
+                                    } elseif (is_string($dobVal)) {
+                                        $dobFormatted = substr($dobVal, 0, 10);
+                                    } else {
+                                        $dobFormatted = '';
+                                    }
+                                @endphp
                                 <input type="date" class="form-control @error('date_of_birth') is-invalid @enderror"
-                                    id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}" required>
+                                    id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth', $dobFormatted) }}" required>
                                 @error('date_of_birth')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -143,7 +153,7 @@
                                     المدينة <span class="required">*</span>
                                 </label>
                                 <input type="text" class="form-control @error('city') is-invalid @enderror" id="city"
-                                    name="city" value="{{ old('city') }}" required placeholder="طرابلس">
+                                    name="city" value="{{ old('city', $graduate->city) }}" required placeholder="طرابلس">
                                 @error('city')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -178,7 +188,7 @@
                                 <select class="form-select @error('university') is-invalid @enderror" id="university"
                                     name="university" required>
                                     <option value="">اختر الجامعة</option>
-                                    <option value="جامعة طرابلس" {{ old('university') == 'جامعة طرابلس' ? 'selected' : '' }}>جامعة طرابلس</option>
+                                    <option value="جامعة طرابلس" {{ old('university', $graduate->university) == 'جامعة طرابلس' ? 'selected' : '' }}>جامعة طرابلس</option>
                                 </select>
                                 @error('university')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -193,7 +203,7 @@
                                     name="sector" required disabled>
                                     <option value="">اختر القطاع</option>
                                 </select>
-                                <input type="hidden" id="old_sector" value="{{ old('sector') }}">
+                                <input type="hidden" id="old_sector" value="{{ old('sector', $graduate->sector) }}">
                                 @error('sector')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -217,22 +227,22 @@
                                 <label for="qualification" class="form-label">
                                     المؤهل العلمي <span class="required">*</span>
                                 </label>
-                                <select class="form-select @error('qualification') is-invalid @enderror"
+                                @php $currentDegree = old('qualification', old('degree', $graduate->qualification ?? $graduate->degree)); @endphp
+                                <select class="form-select @error('qualification') @error('degree') is-invalid @enderror @enderror"
                                     id="qualification" name="qualification" required>
                                     <option value="">اختر المؤهل</option>
-                                    <option value="بكالوريوس" {{ old('qualification', $graduate->qualification) == 'بكالوريوس' ? 'selected' : '' }}>
-                                        بكالوريوس</option>
-                                    <option value="ليسانس" {{ old('qualification', $graduate->qualification) == 'ليسانس' ? 'selected' : '' }}>ليسانس
-                                    </option>
-                                    <option value="ماجستير" {{ old('qualification', $graduate->qualification) == 'ماجستير' ? 'selected' : '' }}>
-                                        ماجستير</option>
-                                    <option value="دكتوراه" {{ old('qualification', $graduate->qualification) == 'دكتوراه' ? 'selected' : '' }}>
-                                        دكتوراه</option>
-                                    <option value="دبلوم" {{ old('qualification', $graduate->qualification) == 'دبلوم' ? 'selected' : '' }}>دبلوم
-                                    </option>
-                                    <option value="دبلوم عالي" {{ old('qualification', $graduate->qualification) == 'دبلوم عالي' ? 'selected' : '' }}>دبلوم عالي</option>
+                                    <option value="بكالوريوس" {{ $currentDegree == 'بكالوريوس' ? 'selected' : '' }}>بكالوريوس</option>
+                                    <option value="ليسانس" {{ $currentDegree == 'ليسانس' ? 'selected' : '' }}>ليسانس</option>
+                                    <option value="ماجستير" {{ $currentDegree == 'ماجستير' ? 'selected' : '' }}>ماجستير</option>
+                                    <option value="دكتوراه" {{ $currentDegree == 'دكتوراه' ? 'selected' : '' }}>دكتوراه</option>
+                                    <option value="دبلوم" {{ $currentDegree == 'دبلوم' ? 'selected' : '' }}>دبلوم</option>
+                                    <option value="دبلوم عالي" {{ $currentDegree == 'دبلوم عالي' ? 'selected' : '' }}>دبلوم عالي</option>
                                 </select>
+                                <input type="hidden" name="degree" id="hidden_degree" value="{{ $currentDegree }}">
                                 @error('qualification')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                @error('degree')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -241,17 +251,22 @@
                                 <label for="specialization" class="form-label">
                                     التخصص <span class="required">*</span>
                                 </label>
-                                <select class="form-select @error('specialization') is-invalid @enderror"
+                                <select class="form-select @error('specialization') @error('major') is-invalid @enderror @enderror"
                                     id="specialization" name="specialization" required disabled>
                                     <option value="">اختر التخصص</option>
                                 </select>
-                                <input type="hidden" id="old_specialization" value="{{ old('specialization', $graduate->major) }}">
+                                @php $currentSpec = old('specialization', old('major', $graduate->specialization ?? $graduate->major)); @endphp
+                                <input type="hidden" id="old_specialization" value="{{ $currentSpec }}">
+                                <input type="hidden" name="major" id="hidden_major" value="{{ $currentSpec }}">
                                 @error('specialization')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                @error('major')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <label for="graduation_year" class="form-label">
                                     سنة التخرج <span class="required">*</span>
                                 </label>
@@ -263,7 +278,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <label for="gpa" class="form-label">
                                     المعدل التراكمي (%)
                                 </label>
@@ -271,6 +286,23 @@
                                     name="gpa" value="{{ old('gpa', $graduate->gpa) }}" step="0.01" min="0" max="100"
                                     placeholder="مثال: 85.50">
                                 @error('gpa')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="employment_status" class="form-label">
+                                    حالة التوظيف <span class="required">*</span>
+                                </label>
+                                @php $empStatus = old('employment_status', $graduate->employment_status ?? 'seeking_opportunities'); @endphp
+                                <select class="form-select @error('employment_status') is-invalid @enderror"
+                                    id="employment_status" name="employment_status" required>
+                                    <option value="seeking_opportunities" {{ $empStatus == 'seeking_opportunities' ? 'selected' : '' }}>باحث عن عمل</option>
+                                    <option value="employed" {{ $empStatus == 'employed' ? 'selected' : '' }}>موظف</option>
+                                    <option value="unemployed" {{ $empStatus == 'unemployed' ? 'selected' : '' }}>غير موظف</option>
+                                    <option value="further_study" {{ $empStatus == 'further_study' ? 'selected' : '' }}>مستكمل للدراسة</option>
+                                </select>
+                                @error('employment_status')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -302,7 +334,7 @@
                                     المهارات
                                 </label>
                                 <input type="text" class="form-control @error('skills') is-invalid @enderror"
-                                    id="skills" name="skills" value="{{ old('skills', $graduate->skills) }}"
+                                    id="skills" name="skills" value="{{ old('skills', $graduate->skills_text) }}"
                                     placeholder="برمجة، تصميم، إدارة وقت">
                                 <small class="help-text">افصل بين المهارات بفاصلة (,)</small>
                                 @error('skills')
@@ -315,7 +347,7 @@
                                     اللغات
                                 </label>
                                 <input type="text" class="form-control @error('languages') is-invalid @enderror"
-                                    id="languages" name="languages" value="{{ old('languages', $graduate->languages) }}"
+                                    id="languages" name="languages" value="{{ old('languages', $graduate->languages_text) }}"
                                     placeholder="العربية، الإنجليزية">
                                 <small class="help-text">افصل بين اللغات بفاصلة (,)</small>
                                 @error('languages')
@@ -361,11 +393,37 @@
 <script>
 const form = document.getElementById('registrationForm');
 const submitBtn = document.getElementById('submitBtn');
+const qualSelect = document.getElementById('qualification');
+const hiddenDegree = document.getElementById('hidden_degree');
+const specSelect = document.getElementById('specialization');
+const hiddenMajor = document.getElementById('hidden_major');
+
+if (qualSelect && hiddenDegree) {
+    qualSelect.addEventListener('change', function() {
+        hiddenDegree.value = this.value;
+    });
+}
+if (specSelect && hiddenMajor) {
+    specSelect.addEventListener('change', function() {
+        hiddenMajor.value = this.value;
+    });
+}
+
 if(form){
-form.addEventListener('submit', function () {
-submitBtn.classList.add('loading');
-submitBtn.disabled = true;
-});
+    form.addEventListener('submit', function () {
+        if (specSelect && specSelect.value) {
+            specSelect.disabled = false;
+            if (hiddenMajor) hiddenMajor.value = specSelect.value;
+        }
+        if (qualSelect && hiddenDegree) {
+            hiddenDegree.value = qualSelect.value;
+        }
+        submitBtn.classList.add('loading');
+        // Give form a moment to submit before disabling so input values are serialized
+        setTimeout(() => {
+            submitBtn.disabled = true;
+        }, 50);
+    });
 }
 </script>
 @endsection

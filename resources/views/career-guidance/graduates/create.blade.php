@@ -216,22 +216,22 @@
                                 <label for="qualification" class="form-label">
                                     المؤهل العلمي <span class="required">*</span>
                                 </label>
-                                <select class="form-select @error('qualification') is-invalid @enderror"
+                                @php $currentDegree = old('qualification', old('degree', 'بكالوريوس')); @endphp
+                                <select class="form-select @error('qualification') @error('degree') is-invalid @enderror @enderror"
                                     id="qualification" name="qualification" required>
                                     <option value="">اختر المؤهل</option>
-                                    <option value="بكالوريوس" {{ old('qualification') == 'بكالوريوس' ? 'selected' : '' }}>
-                                        بكالوريوس</option>
-                                    <option value="ليسانس" {{ old('qualification') == 'ليسانس' ? 'selected' : '' }}>ليسانس
-                                    </option>
-                                    <option value="ماجستير" {{ old('qualification') == 'ماجستير' ? 'selected' : '' }}>
-                                        ماجستير</option>
-                                    <option value="دكتوراه" {{ old('qualification') == 'دكتوراه' ? 'selected' : '' }}>
-                                        دكتوراه</option>
-                                    <option value="دبلوم" {{ old('qualification') == 'دبلوم' ? 'selected' : '' }}>دبلوم
-                                    </option>
-                                    <option value="دبلوم عالي" {{ old('qualification') == 'دبلوم عالي' ? 'selected' : '' }}>دبلوم عالي</option>
+                                    <option value="بكالوريوس" {{ $currentDegree == 'بكالوريوس' ? 'selected' : '' }}>بكالوريوس</option>
+                                    <option value="ليسانس" {{ $currentDegree == 'ليسانس' ? 'selected' : '' }}>ليسانس</option>
+                                    <option value="ماجستير" {{ $currentDegree == 'ماجستير' ? 'selected' : '' }}>ماجستير</option>
+                                    <option value="دكتوراه" {{ $currentDegree == 'دكتوراه' ? 'selected' : '' }}>دكتوراه</option>
+                                    <option value="دبلوم" {{ $currentDegree == 'دبلوم' ? 'selected' : '' }}>دبلوم</option>
+                                    <option value="دبلوم عالي" {{ $currentDegree == 'دبلوم عالي' ? 'selected' : '' }}>دبلوم عالي</option>
                                 </select>
+                                <input type="hidden" name="degree" id="hidden_degree" value="{{ $currentDegree }}">
                                 @error('qualification')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                @error('degree')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -240,29 +240,34 @@
                                 <label for="specialization" class="form-label">
                                     التخصص <span class="required">*</span>
                                 </label>
-                                <select class="form-select @error('specialization') is-invalid @enderror"
+                                <select class="form-select @error('specialization') @error('major') is-invalid @enderror @enderror"
                                     id="specialization" name="specialization" required disabled>
                                     <option value="">اختر التخصص</option>
                                 </select>
-                                <input type="hidden" id="old_specialization" value="{{ old('specialization') }}">
+                                @php $currentSpec = old('specialization', old('major')); @endphp
+                                <input type="hidden" id="old_specialization" value="{{ $currentSpec }}">
+                                <input type="hidden" name="major" id="hidden_major" value="{{ $currentSpec }}">
                                 @error('specialization')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                @error('major')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <label for="graduation_year" class="form-label">
                                     سنة التخرج <span class="required">*</span>
                                 </label>
                                 <input type="number" class="form-control @error('graduation_year') is-invalid @enderror"
-                                    id="graduation_year" name="graduation_year" value="{{ old('graduation_year') }}"
+                                    id="graduation_year" name="graduation_year" value="{{ old('graduation_year', date('Y')) }}"
                                     required min="1950" max="{{ date('Y') + 1 }}" placeholder="{{ date('Y') }}">
                                 @error('graduation_year')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <label for="gpa" class="form-label">
                                     المعدل التراكمي (%)
                                 </label>
@@ -270,6 +275,23 @@
                                     name="gpa" value="{{ old('gpa') }}" step="0.01" min="0" max="100"
                                     placeholder="مثال: 85.50">
                                 @error('gpa')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="employment_status" class="form-label">
+                                    حالة التوظيف <span class="required">*</span>
+                                </label>
+                                @php $empStatus = old('employment_status', 'seeking_opportunities'); @endphp
+                                <select class="form-select @error('employment_status') is-invalid @enderror"
+                                    id="employment_status" name="employment_status" required>
+                                    <option value="seeking_opportunities" {{ $empStatus == 'seeking_opportunities' ? 'selected' : '' }}>باحث عن عمل</option>
+                                    <option value="employed" {{ $empStatus == 'employed' ? 'selected' : '' }}>موظف</option>
+                                    <option value="unemployed" {{ $empStatus == 'unemployed' ? 'selected' : '' }}>غير موظف</option>
+                                    <option value="further_study" {{ $empStatus == 'further_study' ? 'selected' : '' }}>مستكمل للدراسة</option>
+                                </select>
+                                @error('employment_status')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -353,11 +375,36 @@
 <script>
 const form = document.getElementById('registrationForm');
 const submitBtn = document.getElementById('submitBtn');
+const qualSelect = document.getElementById('qualification');
+const hiddenDegree = document.getElementById('hidden_degree');
+const specSelect = document.getElementById('specialization');
+const hiddenMajor = document.getElementById('hidden_major');
+
+if (qualSelect && hiddenDegree) {
+    qualSelect.addEventListener('change', function() {
+        hiddenDegree.value = this.value;
+    });
+}
+if (specSelect && hiddenMajor) {
+    specSelect.addEventListener('change', function() {
+        hiddenMajor.value = this.value;
+    });
+}
+
 if(form){
-form.addEventListener('submit', function () {
-submitBtn.classList.add('loading');
-submitBtn.disabled = true;
-});
+    form.addEventListener('submit', function () {
+        if (specSelect && specSelect.value) {
+            specSelect.disabled = false;
+            if (hiddenMajor) hiddenMajor.value = specSelect.value;
+        }
+        if (qualSelect && hiddenDegree) {
+            hiddenDegree.value = qualSelect.value;
+        }
+        submitBtn.classList.add('loading');
+        setTimeout(() => {
+            submitBtn.disabled = true;
+        }, 50);
+    });
 }
 </script>
 @endsection

@@ -15,7 +15,7 @@
                     </div>
                     @endif
 
-                    <x-bento-form title="إضافة فرصة عمل جديدة" subtitle="أدخل تفاصيل الفرصة الوظيفية" icon="fa-briefcase">
+                    <x-bento-form title="إضافة فرصة عمل جديدة" subtitle="أدخل تفاصيل الفرصة الوظيفية ومتطلباتها" icon="fa-briefcase" :backRoute="route('job-opportunities.index')">
 <form action="{{ route('job-opportunities.store') }}" method="POST">
                         @csrf
                         

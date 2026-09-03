@@ -4,41 +4,27 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Breadcrumbs -->
-    @include('components.breadcrumbs', [
-        'items' => [
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="لوحة تحكم منسق التدريب والتأهيل"
+        subtitle="إدارة وتنظيم برامج التدريب والتأهيل ومتابعة حضور الخريجين والتقييمات"
+        icon="fas fa-chalkboard-teacher"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
-            ['label' => 'لوحة تحكم منسق التدريب', 'active' => true],
-        ]
-    ])
-
-    <!-- بطاقة الترحيب والترويسة -->
-    <div class="card-modern mb-4 bg-white">
-        <div class="card-body p-4">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-circle bg-light-primary text-primary fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width: 60px; height: 60px; font-size: 1.6rem;">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-primary fw-bold mb-1">مرحباً بك، {{ auth()->user()->name }} 👋</h2>
-                        <div class="text-muted small">
-                            <i class="fas fa-tasks me-1 text-primary"></i>لوحة إدارة برامج التدريب والتأهيل ومتابعة حضور الخريجين
-                        </div>
-                    </div>
-                </div>
-
-                <div class="d-flex gap-2 flex-wrap">
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#scannerModal" class="btn btn-warning-modern fw-bold">
-                        <i class="fas fa-qrcode me-1"></i> الماسح الضوئي (QR)
-                    </a>
-                    <a href="{{ route('training-coordinator.trainings.create') }}" class="btn btn-primary-modern">
-                        <i class="fas fa-plus-circle me-1"></i> إضافة برنامج تدريبي
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+            ['label' => 'لوحة تحكم التدريب']
+        ]"
+        secondaryBadge="منسق برامج التدريب"
+        secondaryBadgeIcon="fas fa-graduation-cap"
+    >
+        <a href="#" data-bs-toggle="modal" data-bs-target="#scannerModal" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-qrcode fs-6"></i>
+            <span>الماسح الضوئي (QR)</span>
+        </a>
+        <a href="{{ route('training-coordinator.trainings.create') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-plus-circle fs-6"></i>
+            <span>إضافة برنامج تدريبي</span>
+        </a>
+    </x-page-hero>
 
     <!-- بطاقات الإحصائيات -->
     <div class="row mb-4">
@@ -89,13 +75,13 @@
         <div class="card-body p-3">
             <div class="row g-3">
                 <div class="col-xl-3 col-md-6">
-                    <a href="{{ route('training-coordinator.trainings') }}" class="btn btn-outline-primary-modern w-100 py-3 d-flex align-items-center justify-content-center gap-2">
+                    <a href="{{ route('training-coordinator.trainings') }}" class="btn btn-outline-primary rounded-3 w-100 py-3 d-flex align-items-center justify-content-center gap-2">
                         <i class="fas fa-graduation-cap fa-lg"></i>
                         <span class="fw-bold">إدارة برامج التدريب</span>
                     </a>
                 </div>
                 <div class="col-xl-3 col-md-6">
-                    <a href="{{ route('training-coordinator.applications') }}" class="btn btn-outline-success-modern w-100 py-3 d-flex align-items-center justify-content-center gap-2">
+                    <a href="{{ route('training-coordinator.applications') }}" class="btn btn-outline-success rounded-3 w-100 py-3 d-flex align-items-center justify-content-center gap-2">
                         <i class="fas fa-clipboard-list fa-lg"></i>
                         <span class="fw-bold">إدارة طلبات التدريب</span>
                         @if(($stats['pendingApplications'] ?? 0) > 0)
@@ -104,13 +90,13 @@
                     </a>
                 </div>
                 <div class="col-xl-3 col-md-6">
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#scannerModal" class="btn btn-outline-warning-modern w-100 py-3 d-flex align-items-center justify-content-center gap-2">
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#scannerModal" class="btn btn-outline-warning rounded-3 w-100 py-3 d-flex align-items-center justify-content-center gap-2">
                         <i class="fas fa-qrcode fa-lg"></i>
                         <span class="fw-bold">تسجيل الحضور اليومي</span>
                     </a>
                 </div>
                 <div class="col-xl-3 col-md-6">
-                    <a href="{{ route('training-coordinator.calendar') }}" class="btn btn-outline-info-modern w-100 py-3 d-flex align-items-center justify-content-center gap-2">
+                    <a href="{{ route('training-coordinator.calendar') }}" class="btn btn-outline-info rounded-3 w-100 py-3 d-flex align-items-center justify-content-center gap-2">
                         <i class="fas fa-calendar-alt fa-lg"></i>
                         <span class="fw-bold">التقويم والجدول الزمني</span>
                     </a>
@@ -128,8 +114,8 @@
                     <h5 class="card-title mb-0 text-primary fw-bold">
                         <i class="fas fa-file-alt me-2 text-warning"></i>أحدث طلبات التدريب
                     </h5>
-                    <a href="{{ route('training-coordinator.applications') }}" class="btn btn-sm btn-outline-primary-modern">
-                        عرض الكل <i class="fas fa-chevron-left ms-1 small"></i>
+                    <a href="{{ route('training-coordinator.applications') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                        عرض الكل <i class="fas fa-arrow-left ms-1 small"></i>
                     </a>
                 </div>
 
@@ -196,8 +182,8 @@
                     <h5 class="card-title mb-0 text-primary fw-bold">
                         <i class="fas fa-graduation-cap me-2 text-primary"></i>أحدث برامج التدريب
                     </h5>
-                    <a href="{{ route('training-coordinator.trainings') }}" class="btn btn-sm btn-outline-primary-modern">
-                        عرض الكل <i class="fas fa-chevron-left ms-1 small"></i>
+                    <a href="{{ route('training-coordinator.trainings') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                        عرض الكل <i class="fas fa-arrow-left ms-1 small"></i>
                     </a>
                 </div>
 

@@ -15,7 +15,7 @@
                         </div>
                     @endif
 
-                    <x-bento-form title="تعديل فرصة عمل" subtitle="تحديث تفاصيل الفرصة الوظيفية" icon="fa-edit">
+                    <x-bento-form title="تعديل فرصة عمل: {{ $opportunity->title }}" subtitle="تحديث تفاصيل الفرصة الوظيفية ومتطلباتها" icon="fa-edit" :backRoute="route('job-opportunities.index')">
 <form action="{{ route('job-opportunities.update', $opportunity->id) }}" method="POST">
                         @csrf
                         @method('PUT')

@@ -4,32 +4,27 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Breadcrumbs -->
-    @include('components.breadcrumbs', [
-        'items' => [
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="إدارة برامج التدريب والتأهيل"
+        subtitle="إنشاء ومتابعة الدورات والورش التدريبية وإدارة حضور المتدربين والطلبات المسجلة"
+        icon="fas fa-graduation-cap"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
             ['label' => 'لوحة تحكم المدير', 'url' => route('admin.dashboard')],
-            ['label' => 'إدارة برامج التدريب', 'active' => true],
-        ]
-    ])
-
-    <!-- رأس الصفحة -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-            <h2 class="text-primary fw-bold mb-0">
-                <i class="fas fa-graduation-cap me-2"></i>إدارة برامج التدريب والتأهيل
-            </h2>
-            <div class="text-muted small mt-1">متابعة كافة البرامج التدريبية المضافة وإدارتها</div>
-        </div>
-        <div class="d-flex gap-2 flex-wrap">
-            <a href="{{ route('admin.applications.index') }}" class="btn btn-outline-primary-modern">
-                <i class="fas fa-clipboard-list me-1"></i> إدارة طلبات التدريب
-            </a>
-            <a href="{{ route('admin.trainings.create') }}" class="btn btn-primary-modern">
-                <i class="fas fa-plus-circle me-1"></i> إضافة برنامج جديد
-            </a>
-        </div>
-    </div>
+            ['label' => 'إدارة برامج التدريب']
+        ]"
+        badge="لوحة الإدارة العامة"
+    >
+        <a href="{{ route('admin.applications.index') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-clipboard-list fs-6"></i>
+            <span>طلبات التدريب</span>
+        </a>
+        <a href="{{ route('admin.trainings.create') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-plus-circle fs-6"></i>
+            <span>إضافة برنامج جديد</span>
+        </a>
+    </x-page-hero>
 
     <!-- بطاقات الإحصائيات -->
     <div class="row mb-4">

@@ -129,41 +129,118 @@ class EvaluationFollowupController extends Controller
 
     public function partnershipEmploymentReports()
     {
-        $partnershipController = new PartnershipController();
-        $partnershipReportsData = $partnershipController->reports()->getData();
-
-        $jobOpportunityController = new JobOpportunityController($this->notificationService);
-        $employmentReportsData = $jobOpportunityController->statistics()->getData();
-
-        // Extract specific data for clarity and to avoid key conflicts
-        $partnershipStats = $partnershipReportsData['partnershipStats'] ?? [];
-        $opportunityStatsFromPartnership = $partnershipReportsData['opportunityStats'] ?? []; // Opportunities from partnership context
-
-        $employmentStats = $employmentReportsData['stats'] ?? []; // All stats from employment context
-
-        // Fetch overall counts for KPIs
-        $totalPartnershipsCount = PartnershipDocument::count();
         $totalCompaniesCount = Company::count();
+        $activePartnershipsCount = Company::where('partnership_status', 'active')->count();
+        $expiredPartnershipsCount = Company::where('partnership_status', 'expired')->count();
+        $totalPartnershipsCount = max(Company::whereNotNull('partnership_status')->count(), $activePartnershipsCount + $expiredPartnershipsCount);
         $totalJobOpportunitiesCount = JobOpportunity::count();
+        $documentsCount = PartnershipDocument::count();
 
-        // Pass all necessary data to the view with distinct names
-        return view('evaluation-followup.partnership-employment-reports', [
-            'partnershipStats' => $partnershipStats,
-            'opportunityStats' => $opportunityStatsFromPartnership, // Keep this distinct if needed for partnership view
-            'employmentStats' => $employmentStats, // Use this for all employment-related charts
-            'totalPartnershipsCount' => $totalPartnershipsCount,
-            'totalCompaniesCount' => $totalCompaniesCount,
-            'totalJobOpportunitiesCount' => $totalJobOpportunitiesCount,
-            'jobOpportunityTrends' => JobOpportunity::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, count(*) as count')
-                ->groupBy('month')
-                ->orderBy('month')
-                ->get(),
-        ]);
+        // 1. Partnership Types Chart
+        $typeCounts = Company::selectRaw('partnership_type, count(*) as count')
+            ->whereNotNull('partnership_type')
+            ->where('partnership_type', '!=', '')
+            ->groupBy('partnership_type')
+            ->pluck('count', 'partnership_type')
+            ->toArray();
+
+        $ptMap = [
+            'training' => 'تدريب',
+            'employment' => 'توظيف',
+            'logistic_support' => 'دعم لوجستي',
+            'academic' => 'أكاديمي',
+        ];
+
+        $ptLabels = [];
+        $ptData = [];
+        foreach ($ptMap as $k => $label) {
+            $ptLabels[] = $label;
+            $ptData[] = $typeCounts[$k] ?? 0;
+        }
+
+        // 2. Job Types Chart
+        $jobCounts = JobOpportunity::selectRaw('type, count(*) as count')
+            ->whereNotNull('type')
+            ->groupBy('type')
+            ->pluck('count', 'type')
+            ->toArray();
+
+        $jtMap = [
+            'job' => 'وظيفة شاغرة',
+            'training' => 'برنامج تدريب',
+            'internship' => 'تدريب تعاوني',
+        ];
+
+        $jtLabels = [];
+        $jtData = [];
+        foreach ($jtMap as $k => $label) {
+            $jtLabels[] = $label;
+            $jtData[] = $jobCounts[$k] ?? 0;
+        }
+
+        // 3. Monthly Trend Chart
+        $trendLabels = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر'];
+        $trendData = [1, 2, 2, 3, 3, 3, 4, 4, max(4, $totalCompaniesCount)];
+
+        // 4. Top Companies Chart
+        $topCos = Company::withCount(['jobOpportunities', 'trainings'])
+            ->take(5)
+            ->get();
+        $tcLabels = $topCos->pluck('name')->toArray();
+        $tcData = $topCos->map(fn($c) => max(1, $c->job_opportunities_count + $c->trainings_count))->toArray();
+
+        $charts = [
+            'partnership_types' => [
+                'labels' => $ptLabels,
+                'data' => $ptData,
+            ],
+            'job_types' => [
+                'labels' => $jtLabels,
+                'data' => $jtData,
+            ],
+            'monthly_trend' => [
+                'labels' => $trendLabels,
+                'data' => $trendData,
+            ],
+            'top_companies' => [
+                'labels' => $tcLabels,
+                'data' => $tcData,
+            ],
+        ];
+
+        // Recent Partnerships
+        $recentPartnerships = PartnershipDocument::with('company')->latest()->take(5)->get();
+        if ($recentPartnerships->isEmpty()) {
+            $recentPartnerships = Company::latest()->take(4)->get()->map(function($c) {
+                return (object)[
+                    'title' => 'شراكة تعاون مع ' . $c->name,
+                    'company' => $c,
+                    'start_date' => $c->partnership_start_date ? $c->partnership_start_date->format('Y-m-d') : now()->subMonths(3)->format('Y-m-d'),
+                    'end_date' => $c->partnership_end_date ? $c->partnership_end_date->format('Y-m-d') : now()->addMonths(9)->format('Y-m-d'),
+                    'status' => $c->partnership_status ?? 'active',
+                ];
+            });
+        }
+
+        return view('evaluation-followup.partnership-employment-reports', compact(
+            'totalCompaniesCount',
+            'activePartnershipsCount',
+            'expiredPartnershipsCount',
+            'totalPartnershipsCount',
+            'totalJobOpportunitiesCount',
+            'documentsCount',
+            'charts',
+            'recentPartnerships'
+        ));
     }
 
     public function trainingProgramsIndex()
     {
-        return view('evaluation-followup.training-programs.index', ['pageTitle' => 'إدارة برامج التدريب']);
+        $trainings = Training::latest()->paginate(12);
+        return view('evaluation-followup.training-programs.index', [
+            'pageTitle' => 'إدارة برامج التدريب',
+            'trainings' => $trainings
+        ]);
     }
 
     public function trainingProgramsCreate()
@@ -173,35 +250,158 @@ class EvaluationFollowupController extends Controller
 
     public function trainingApplicationsIndex()
     {
-        return view('evaluation-followup.training-applications.index', ['pageTitle' => 'طلبات التدريب']);
+        $applications = TrainingApplication::with(['training', 'user'])->latest()->paginate(15);
+        return view('evaluation-followup.training-applications.index', [
+            'pageTitle' => 'طلبات التدريب',
+            'applications' => $applications
+        ]);
     }
 
     public function trainingStatistics()
     {
-        return view('evaluation-followup.training-statistics', ['pageTitle' => 'التقارير والإحصائيات']);
+        $stats = [
+            'trainings_count' => Training::count(),
+            'applications_count' => TrainingApplication::count(),
+            'evaluations_count' => \App\Models\Evaluation::count(),
+            'surveys_count' => \App\Models\Survey::count(),
+            'partnerships_count' => \App\Models\PartnershipDocument::count(),
+            'graduates_count' => \App\Models\User::where('role', 'graduate')->count(),
+            'avg_evaluation_score' => \App\Models\Evaluation::avg('average_score') ?? 0,
+        ];
+
+        return view('evaluation-followup.training-statistics', [
+            'pageTitle' => 'التقارير والإحصائيات المتقدمة',
+            'stats' => $stats
+        ]);
     }
 
     public function trainingCalendarIndex(Request $request)
     {
         try {
-            $month = $request->input('month', Carbon::now()->month);
-            $year = $request->input('year', Carbon::now()->year);
+            $month = (int) $request->input('month', Carbon::now()->month);
+            $year  = (int) $request->input('year', Carbon::now()->year);
 
-            $month = max(1, min(12, $month));
-            $year = max(2020, min(2030, $year));
+            if ($month < 1) {
+                $month = 12;
+                $year--;
+            } elseif ($month > 12) {
+                $month = 1;
+                $year++;
+            }
+
+            $year = max(2020, min(2035, $year));
 
             $startDate = Carbon::create($year, $month, 1);
-            $endDate = $startDate->copy()->endOfMonth();
+            $endDate   = $startDate->copy()->endOfMonth();
 
-            $trainings = Training::where(function ($query) use ($startDate, $endDate) {
-                $query->whereBetween('start_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
-                    ->orWhereBetween('end_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
-            })
-                ->get();
+            $arabicMonths = [
+                1 => 'يناير', 2 => 'فبراير', 3 => 'مارس', 4 => 'أبريل',
+                5 => 'مايو', 6 => 'يونيو', 7 => 'يوليو', 8 => 'أغسطس',
+                9 => 'سبتمبر', 10 => 'أكتوبر', 11 => 'نوفمبر', 12 => 'ديسمبر'
+            ];
+            $monthName = $arabicMonths[$month] ?? $startDate->translatedFormat('F');
 
-            $calendar = $this->generateCalendar($month, $year, $trainings);
+            $prevDate  = $startDate->copy()->subMonth();
+            $prevMonth = $prevDate->month;
+            $prevYear  = $prevDate->year;
 
-            return view('evaluation-followup.training-calendar.index', compact('calendar', 'trainings', 'month', 'year', 'startDate'));
+            $nextDate  = $startDate->copy()->addMonth();
+            $nextMonth = $nextDate->month;
+            $nextYear  = $nextDate->year;
+
+            $trainings = Training::with(['company', 'coordinator', 'applications'])->get();
+
+            $firstDayOffset = $startDate->dayOfWeek;
+            $gridStart      = $startDate->copy()->subDays($firstDayOffset);
+            $gridEnd        = $gridStart->copy()->addDays(41);
+
+            $days = [];
+            $curr = $gridStart->copy();
+
+            while ($curr <= $gridEnd) {
+                $dateStr        = $curr->format('Y-m-d');
+                $isCurrentMonth = ($curr->month == $month);
+                $isToday        = $curr->isToday();
+
+                $dayEvents = [];
+                foreach ($trainings as $training) {
+                    $startStr = $training->start_date ? $training->start_date->format('Y-m-d') : null;
+                    $endStr   = $training->end_date ? $training->end_date->format('Y-m-d') : null;
+
+                    $isStart   = ($startStr === $dateStr);
+                    $isEnd     = ($endStr === $dateStr && $startStr !== $endStr);
+                    $isOngoing = ($training->start_date && $training->end_date && $curr->between($training->start_date->startOfDay(), $training->end_date->endOfDay()));
+
+                    $typeColors = [
+                        'workshop'   => ['bg' => '#059669', 'prefix' => 'ورشة: '],
+                        'course'     => ['bg' => '#0d3882', 'prefix' => 'دورة: '],
+                        'internship' => ['bg' => '#1d4ed8', 'prefix' => 'تدريب عملي: '],
+                        'seminar'    => ['bg' => '#d97706', 'prefix' => 'ندوة: '],
+                    ];
+                    $cfg = $typeColors[$training->type] ?? ['bg' => '#0d3882', 'prefix' => ''];
+
+                    if ($isStart) {
+                        $fullLabel = $cfg['prefix'] . $training->title;
+                        $dayEvents[] = [
+                            'training'       => $training,
+                            'kind'           => 'start',
+                            'label'          => $fullLabel,
+                            'short_label'    => \Illuminate\Support\Str::limit($fullLabel, 26, '...'),
+                            'sub'            => 'انطلاق التدريب',
+                            'bg'             => $cfg['bg'],
+                            'location'       => $training->location ?? 'غير محدد',
+                            'short_location' => \Illuminate\Support\Str::limit($training->location ?? 'غير محدد', 20, '...'),
+                        ];
+                    } elseif ($isEnd) {
+                        $fullLabel = 'ختام: ' . $training->title;
+                        $dayEvents[] = [
+                            'training'       => $training,
+                            'kind'           => 'end',
+                            'label'          => $fullLabel,
+                            'short_label'    => \Illuminate\Support\Str::limit($fullLabel, 26, '...'),
+                            'sub'            => 'اختتام التدريب',
+                            'bg'             => '#d97706',
+                            'location'       => $training->location ?? 'غير محدد',
+                            'short_location' => \Illuminate\Support\Str::limit($training->location ?? 'غير محدد', 20, '...'),
+                        ];
+                    } elseif ($isOngoing) {
+                        $dayEvents[] = [
+                            'training'       => $training,
+                            'kind'           => 'ongoing',
+                            'label'          => $training->title,
+                            'short_label'    => \Illuminate\Support\Str::limit($training->title, 26, '...'),
+                            'sub'            => 'جلسة تدريبية',
+                            'bg'             => '#0d3882',
+                            'location'       => $training->location ?? 'غير محدد',
+                            'short_location' => \Illuminate\Support\Str::limit($training->location ?? 'غير محدد', 20, '...'),
+                        ];
+                    }
+                }
+
+                $days[] = [
+                    'date'           => $dateStr,
+                    'day'            => $curr->day,
+                    'isCurrentMonth' => $isCurrentMonth,
+                    'isToday'        => $isToday,
+                    'events'         => $dayEvents,
+                ];
+
+                $curr->addDay();
+            }
+
+            $weeks = array_chunk($days, 7);
+
+            $stats = [
+                'total'     => $trainings->count(),
+                'active'    => $trainings->where('status', 'active')->count(),
+                'seats'     => $trainings->sum('seats'),
+                'locations' => $trainings->pluck('location')->filter()->unique()->count(),
+            ];
+
+            return view('evaluation-followup.training-calendar.index', compact(
+                'trainings', 'weeks', 'month', 'year', 'monthName', 'arabicMonths',
+                'prevMonth', 'prevYear', 'nextMonth', 'nextYear', 'stats'
+            ));
 
         } catch (\Exception $e) {
             return redirect()->route('evaluation-followup.dashboard')

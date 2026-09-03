@@ -8,31 +8,27 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Breadcrumbs -->
-    @include('components.breadcrumbs', [
-        'items' => [
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="لوحة تحكم مسؤول الإرشاد المهني"
+        subtitle="متابعة وتأهيل الخريجين وإدارة الترشيحات الوظيفية وقياس الأثر والتوظيف"
+        icon="fas fa-compass"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
-            ['label' => 'لوحة تحكم مسؤول الإرشاد المهني', 'active' => true],
-        ]
-    ])
-
-    <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-            <h2 class="text-primary fw-bold mb-0">
-                <i class="fas fa-compass me-2"></i>منظومة الإرشاد والتوجيه المهني
-            </h2>
-            <div class="text-muted small mt-1">مرحباً بك، <strong class="text-dark">{{ auth()->user()->name }}</strong> &bull; إدارة شؤون الخريجين والترشيحات والتوظيف</div>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route($prefix . '.graduates.create') }}" class="btn btn-outline-primary">
-                <i class="fas fa-user-plus me-1"></i> إضافة خريج
-            </a>
-            <a href="{{ route($prefix . '.nominations.create') }}" class="btn btn-primary-modern">
-                <i class="fas fa-paper-plane me-1"></i> ترشيح جديد
-            </a>
-        </div>
-    </div>
+            ['label' => 'لوحة الإرشاد المهني']
+        ]"
+        secondaryBadge="مسؤول الإرشاد المهني"
+        secondaryBadgeIcon="fas fa-compass"
+    >
+        <a href="{{ route($prefix . '.nominations.create') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-paper-plane fs-6"></i>
+            <span>ترشيح جديد</span>
+        </a>
+        <a href="{{ route($prefix . '.graduates.create') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-user-plus fs-6"></i>
+            <span>إضافة خريج</span>
+        </a>
+    </x-page-hero>
 
     <!-- Quick Stats Cards (4 Columns) -->
     <div class="row g-3 mb-4">

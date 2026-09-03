@@ -4,28 +4,22 @@
 
 @section('content')
 <div class="container-fluid py-3">
-    <!-- Breadcrumbs -->
-    @include('components.breadcrumbs', [
-        'items' => [
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="إضافة موظف جديد وتخصيص الصلاحيات"
+        subtitle="أنشئ حساباً لموظف جديد وحدد له الصلاحيات الدقيقة التي يحتاجها لممارسة عمله بأمان"
+        icon="fas fa-user-plus"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('admin.dashboard')],
             ['label' => 'إدارة الموظفين والصلاحيات', 'url' => route('admin.users')],
-            ['label' => 'إضافة موظف جديد', 'active' => true],
-        ]
-    ])
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="text-primary fw-bold mb-1">
-                <i class="fas fa-user-plus me-2"></i> إضافة موظف جديد وتخصيص الصلاحيات
-            </h2>
-            <p class="text-muted small mb-0">
-                أنشئ حساباً لموظف جديد وحدد له الصلاحيات الدقيقة التي يحتاجها لممارسة عمله فقط دون الوصول لباقي أجزاء النظام.
-            </p>
-        </div>
-        <a href="{{ route('admin.users') }}" class="btn btn-outline-secondary rounded-pill px-4">
-            <i class="fas fa-arrow-right me-1"></i> العودة للقائمة
+            ['label' => 'إضافة موظف جديد']
+        ]"
+    >
+        <a href="{{ route('admin.users') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-4 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2">
+            <i class="fas fa-arrow-right fs-6"></i>
+            <span>العودة للقائمة</span>
         </a>
-    </div>
+    </x-page-hero>
 
     @if($errors->any())
     <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4">

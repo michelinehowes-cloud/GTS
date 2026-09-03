@@ -3,25 +3,11 @@
 @section('title', 'إضافة استبيان جديد')
 
 @section('content')
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-plus mr-2"></i>
-                            إضافة استبيان جديد
-                        </h3>
-                        <div class="card-tools">
-                            <a href="{{ route('evaluation-followup.surveys.index') }}" class="btn btn-secondary btn-sm">
-                                <i class="fas fa-arrow-left"></i> العودة للقائمة
-                            </a>
-                        </div>
-                    </div>
-
-                    <form action="{{ route('evaluation-followup.surveys.store') }}" method="POST">
-                        @csrf
-                        <div class="card-body">
+    <div class="container-fluid py-4">
+        <x-bento-form title="إضافة استبيان جديد" subtitle="تصميم وإعداد محاور وأسئلة الاستبيان للمتابعة والتقييم" icon="fa-poll-h" :backRoute="route('evaluation-followup.surveys.index')">
+            <form action="{{ route('evaluation-followup.surveys.store') }}" method="POST">
+                @csrf
+                <div>
                             @if($errors->any())
                                 <div class="alert alert-danger">
                                     <ul class="mb-0">
@@ -146,25 +132,21 @@
                             </div>
                         </div>
 
-                        <div class="card-footer">
-
-                            <button type="button" class="btn btn-info" id="preview-survey-btn">
-                                <i class="fas fa-eye"></i> معاينة
-                            </button>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> حفظ الاستبيان
-                            </button>
-                            <a href="{{ route('evaluation-followup.surveys.index') }}" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> إلغاء
-                            </a>
-                        </div>
-
-
-
-                    </form>
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <a href="{{ route('evaluation-followup.surveys.index') }}" class="btn btn-secondary px-4 py-2 rounded-pill">
+                        <i class="fas fa-times me-2"></i> إلغاء
+                    </a>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-info text-white px-4 py-2 rounded-pill shadow-sm" id="preview-survey-btn">
+                            <i class="fas fa-eye me-2"></i> معاينة
+                        </button>
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
+                            <i class="fas fa-save me-2"></i> حفظ الاستبيان
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </form>
+        </x-bento-form>
     </div>
 @endsection
 

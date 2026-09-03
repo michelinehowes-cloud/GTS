@@ -153,7 +153,7 @@
                 <i class="fas fa-save me-2"></i>إنشاء المعرض
             </button>
         </div>
-    <div class="text-center mt-5"><button type="submit" class="btn-register"><i class="fas fa-save me-2"></i> حفظ المعرض</button></div></form>
+    </form>
 </x-bento-form>
 </div>
 @endsection

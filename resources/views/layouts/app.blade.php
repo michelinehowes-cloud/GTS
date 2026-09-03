@@ -15,8 +15,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-    <link href="{{ asset('css/premium-forms.css') }}" rel="stylesheet">
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    <link href="{{ asset('css/premium-forms.css') }}" rel="stylesheet">
 
     <style>
         /* Mobile & Desktop Scroll Optimization */
@@ -59,7 +59,7 @@
         }
 
         .main-content {
-            padding-top: 14px !important;
+            padding-top: 24px !important;
             padding-bottom: 40px !important;
             min-height: 100vh;
         }
@@ -296,58 +296,56 @@
                                 </a>
                             </li>
 
-                            <!-- إدارة التدريب (للمسؤول ومنسق التدريب) -->
-                            @if(in_array(auth()->user()->role, ['admin', 'training_coordinator']))
+                            <!-- إدارة التدريب (لمنسق التدريب فقط - المدير لديه القائمة الكاملة بالأسفل) -->
+                            @if(auth()->user()->role == 'training_coordinator')
                                 <li class="nav-item">
                                     <a class="nav-link {{ Request::is('*trainings*') ? 'active' : '' }}"
-                                        href="{{ auth()->user()->role == 'training_coordinator' ? route('training-coordinator.trainings') : route('admin.trainings') }}">
+                                        href="{{ route('training-coordinator.trainings') }}">
                                         <i class="fas fa-graduation-cap"></i>
                                         إدارة التدريب
                                     </a>
                                 </li>
-                                @if(auth()->user()->role == 'training_coordinator')
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('training-coordinator.calendar') ? 'active' : '' }}"
-                                            href="{{ route('training-coordinator.calendar') }}">
-                                            <i class="fas fa-calendar-alt"></i>
-                                            تقويم التدريبات
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('training-coordinator.applications*') ? 'active' : '' }}"
-                                            href="{{ route('training-coordinator.applications') }}">
-                                            <i class="fas fa-users"></i>
-                                            طلبات التدريب
-                                            @php
-                                                $pendingCount = \App\Models\TrainingApplication::where('status', 'pending')->count();
-                                            @endphp
-                                            @if($pendingCount > 0)
-                                                <span class="badge bg-warning text-dark ms-auto">{{ $pendingCount }}</span>
-                                            @endif
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('training-coordinator.trainings.create') ? 'active' : '' }}"
-                                            href="{{ route('training-coordinator.trainings.create') }}">
-                                            <i class="fas fa-plus-circle"></i>
-                                            إضافة برنامج تدريب
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ Request::is('*trainers*') ? 'active' : '' }}"
-                                            href="{{ route('training-coordinator.trainers.index') }}">
-                                            <i class="fas fa-chalkboard-teacher"></i>
-                                            إدارة المدربين
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('training-coordinator.reports') ? 'active' : '' }}"
-                                            href="{{ route('training-coordinator.reports') }}">
-                                            <i class="fas fa-chart-bar"></i>
-                                            التقارير والإحصائيات
-                                        </a>
-                                    </li>
-                                @endif
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('training-coordinator.calendar') ? 'active' : '' }}"
+                                        href="{{ route('training-coordinator.calendar') }}">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        تقويم التدريبات
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('training-coordinator.applications*') ? 'active' : '' }}"
+                                        href="{{ route('training-coordinator.applications') }}">
+                                        <i class="fas fa-users"></i>
+                                        طلبات التدريب
+                                        @php
+                                            $pendingCount = \App\Models\TrainingApplication::where('status', 'pending')->count();
+                                        @endphp
+                                        @if($pendingCount > 0)
+                                            <span class="badge bg-warning text-dark ms-auto">{{ $pendingCount }}</span>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('training-coordinator.trainings.create') ? 'active' : '' }}"
+                                        href="{{ route('training-coordinator.trainings.create') }}">
+                                        <i class="fas fa-plus-circle"></i>
+                                        إضافة برنامج تدريب
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ Request::is('*trainers*') ? 'active' : '' }}"
+                                        href="{{ route('training-coordinator.trainers.index') }}">
+                                        <i class="fas fa-chalkboard-teacher"></i>
+                                        إدارة المدربين
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('training-coordinator.reports') ? 'active' : '' }}"
+                                        href="{{ route('training-coordinator.reports') }}">
+                                        <i class="fas fa-chart-bar"></i>
+                                        التقارير والإحصائيات
+                                    </a>
+                                </li>
                             @endif
 
                             <!-- إدارة المستخدمين والموظفين والصلاحيات -->
@@ -366,25 +364,82 @@
 
                                 <!-- ادارة الشراكات والتوظيف -->
                                 <li class="nav-item menu-group">
-                                    <a class="nav-link {{ request()->routeIs('admin.companies*') || request()->routeIs('job-opportunities*') ? 'active' : '' }}"
+                                    <a class="nav-link {{ request()->routeIs('admin.companies*') || request()->routeIs('job-opportunities*') || request()->routeIs('partnership.*') ? 'active' : '' }}"
                                         href="#" onclick="toggleSubmenu('partnership-employment-menu')">
                                         <i class="fas fa-handshake"></i>
                                         ادارة الشراكات والتوظيف
                                         <i class="fas fa-chevron-down menu-arrow"></i>
                                     </a>
-                                    <div class="submenu {{ request()->routeIs('admin.companies*') || request()->routeIs('job-opportunities*') ? 'show' : '' }}"
+                                    <div class="submenu {{ request()->routeIs('admin.companies*') || request()->routeIs('job-opportunities*') || request()->routeIs('partnership.*') ? 'show' : '' }}"
                                         id="partnership-employment-menu">
+                                        <a href="{{ route('partnership.dashboard') }}"
+                                            class="submenu-item {{ request()->routeIs('partnership.dashboard') ? 'active' : '' }}">
+                                            لوحة الشراكات والتوظيف
+                                        </a>
                                         <a href="{{ route('admin.companies') }}"
-                                            class="submenu-item {{ request()->routeIs('admin.companies*') ? 'active' : '' }}">
-                                            إدارة الشركات
+                                            class="submenu-item {{ request()->routeIs('admin.companies') ? 'active' : '' }}">
+                                            دليل الشركات الشريكة
+                                        </a>
+                                        <a href="{{ route('admin.companies.create') }}"
+                                            class="submenu-item {{ request()->routeIs('admin.companies.create') ? 'active' : '' }}">
+                                            إضافة شركة جديدة
                                         </a>
                                         <a href="{{ route('job-opportunities.index') }}"
-                                            class="submenu-item {{ request()->routeIs('job-opportunities*') ? 'active' : '' }}">
+                                            class="submenu-item {{ request()->routeIs('job-opportunities.index') ? 'active' : '' }}">
                                             إدارة فرص العمل
+                                        </a>
+                                        <a href="{{ route('job-opportunities.create') }}"
+                                            class="submenu-item {{ request()->routeIs('job-opportunities.create') ? 'active' : '' }}">
+                                            إضافة فرصة عمل جديدة
+                                        </a>
+                                        <a href="{{ route('partnership.documents') }}"
+                                            class="submenu-item {{ request()->routeIs('partnership.documents*') ? 'active' : '' }}">
+                                            اتفاقيات ووثائق الشراكة
                                         </a>
                                         <a href="{{ route('job-fair.admin.index') }}"
                                             class="submenu-item {{ request()->routeIs('job-fair.admin*') ? 'active' : '' }}">
                                             إدارة معرض التوظيف
+                                        </a>
+                                        <a href="{{ route('partnership.reports') }}"
+                                            class="submenu-item {{ request()->routeIs('partnership.reports*') ? 'active' : '' }}">
+                                            تقارير الشراكات والتوظيف
+                                        </a>
+                                    </div>
+                                </li>
+
+                                <!-- ادارة برامج التدريب والتأهيل للمدير -->
+                                <li class="nav-item menu-group">
+                                    <a class="nav-link {{ request()->routeIs('training-coordinator.*') || request()->routeIs('admin.trainings*') ? 'active' : '' }}"
+                                        href="#" onclick="toggleSubmenu('admin-trainings-menu')">
+                                        <i class="fas fa-graduation-cap"></i>
+                                        إدارة برامج التدريب والتأهيل
+                                        <i class="fas fa-chevron-down menu-arrow"></i>
+                                    </a>
+                                    <div class="submenu {{ request()->routeIs('training-coordinator.*') || request()->routeIs('admin.trainings*') ? 'show' : '' }}"
+                                        id="admin-trainings-menu">
+                                        <a href="{{ route('training-coordinator.dashboard') }}"
+                                            class="submenu-item {{ request()->routeIs('training-coordinator.dashboard') ? 'active' : '' }}">
+                                            لوحة تحكم التدريب
+                                        </a>
+                                        <a href="{{ route('training-coordinator.trainings') }}"
+                                            class="submenu-item {{ request()->routeIs('training-coordinator.trainings') && !request()->routeIs('training-coordinator.trainings.create') ? 'active' : '' }}">
+                                            جميع برامج التدريب
+                                        </a>
+                                        <a href="{{ route('training-coordinator.trainings.create') }}"
+                                            class="submenu-item {{ request()->routeIs('training-coordinator.trainings.create') ? 'active' : '' }}">
+                                            إضافة برنامج تدريبي جديد
+                                        </a>
+                                        <a href="{{ route('training-coordinator.applications') }}"
+                                            class="submenu-item {{ request()->routeIs('training-coordinator.applications*') ? 'active' : '' }}">
+                                            إدارة طلبات التدريب
+                                        </a>
+                                        <a href="{{ route('training-coordinator.calendar') }}"
+                                            class="submenu-item {{ request()->routeIs('training-coordinator.calendar*') ? 'active' : '' }}">
+                                            التقويم التدريبي والجدول
+                                        </a>
+                                        <a href="{{ route('training-coordinator.reports') }}"
+                                            class="submenu-item {{ request()->routeIs('training-coordinator.reports*') ? 'active' : '' }}">
+                                            تقارير التدريب والشهادات
                                         </a>
                                     </div>
                                 </li>

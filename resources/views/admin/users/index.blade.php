@@ -2,35 +2,65 @@
 
 @section('title', 'إدارة الموظفين والصلاحيات')
 
+@section('page-title', 'إدارة الموظفين والصلاحيات')
+
+@push('styles')
+<style>
+    .users-table {
+        table-layout: auto;
+        width: 100%;
+    }
+    .users-table th, 
+    .users-table td {
+        padding: 0.65rem 0.6rem !important;
+        vertical-align: middle;
+        font-size: 0.84rem;
+    }
+    .action-circle-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+    }
+    .action-circle-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid py-3">
-    <!-- Breadcrumbs -->
-    @include('components.breadcrumbs', [
-        'items' => [
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="إدارة الموظفين والصلاحيات (RBAC)"
+        subtitle="إضافة وإدارة حسابات موظفي النظام وتخصيص الصلاحيات الدقيقة مع أعلى معايير الأمان والرقابة"
+        icon="fas fa-user-shield"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('admin.dashboard')],
-            ['label' => 'إدارة الموظفين والصلاحيات', 'active' => true],
-        ]
-    ])
-
-    <!-- Page Header -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-        <div>
-            <h2 class="text-primary fw-bold mb-1">
-                <i class="fas fa-user-shield me-2"></i> إدارة الموظفين والصلاحيات (RBAC)
-            </h2>
-            <p class="text-muted mb-0 small">
-                إضافة وإدارة حسابات موظفي النظام وتحديد الصلاحيات الدقيقة لكل موظف مع أعلى معايير الأمان والرقابة.
-            </p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('admin.reports.audit-logs') }}" class="btn btn-outline-secondary px-3 rounded-pill">
-                <i class="fas fa-history me-1"></i> سجل الرقابة الأمنية
-            </a>
-            <a href="{{ route('admin.users.create') }}" class="btn btn-primary px-4 rounded-pill shadow-sm fw-bold">
-                <i class="fas fa-user-plus me-1"></i> إضافة موظف جديد
-            </a>
-        </div>
-    </div>
+            ['label' => 'إدارة الموظفين والصلاحيات']
+        ]"
+        badge="إجمالي الموظفين: {{ $statistics['total_staff'] }}"
+        badgeIcon="fas fa-users-cog"
+        secondaryBadge="نشطون: {{ $statistics['active_staff'] }}"
+        secondaryBadgeIcon="fas fa-user-check"
+    >
+        <a href="{{ route('admin.reports.audit-logs') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-history fs-6"></i>
+            <span>سجل الرقابة الأمنية</span>
+        </a>
+        <a href="{{ route('admin.users.create') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-user-plus fs-6"></i>
+            <span>إضافة موظف جديد</span>
+        </a>
+    </x-page-hero>
 
     <!-- KPI Cards -->
     <div class="row g-3 mb-4">
@@ -151,168 +181,163 @@
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0 users-table">
                     <thead class="bg-light text-muted small text-uppercase fw-bold">
                         <tr>
-                            <th class="py-3 px-4 border-0">بيانات الموظف</th>
-                            <th class="py-3 border-0">الدور الوظيفي</th>
-                            <th class="py-3 border-0">الصلاحيات الممنوحة</th>
-                            <th class="py-3 border-0">حالة الحساب</th>
-                            <th class="py-3 border-0">تاريخ الإضافة</th>
-                            <th class="py-3 px-4 border-0 text-end">إدارة الحساب</th>
+                            <th class="py-2.5 px-3 border-0" style="min-width: 160px;">بيانات الموظف</th>
+                            <th class="py-2.5 px-2 border-0 text-nowrap">الدور الوظيفي</th>
+                            <th class="py-2.5 px-2 border-0 text-nowrap">الصلاحيات</th>
+                            <th class="py-2.5 px-2 border-0 text-nowrap text-center">الحالة</th>
+                            <th class="py-2.5 px-2 border-0 text-nowrap">تاريخ التسجيل</th>
+                            <th class="py-2.5 px-3 border-0 text-end text-nowrap" style="min-width: 120px;">إدارة الحساب</th>
                         </tr>
                     </thead>
                     <tbody class="border-top-0">
                         @forelse($users as $user)
                         <tr>
                             <!-- بيانات الموظف -->
-                            <td class="px-4 py-3">
+                            <td class="px-3 py-2">
                                 <div class="d-flex align-items-center">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm text-white fw-bold" 
-                                         style="width: 44px; height: 44px; background: {{ $user->isAdmin() ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'linear-gradient(135deg, #2563eb, #1d4ed8)' }};">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center me-2 shadow-sm text-white fw-bold flex-shrink-0" 
+                                         style="width: 36px; height: 36px; font-size: 0.82rem; background: {{ $user->isAdmin() ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'linear-gradient(135deg, #2563eb, #1d4ed8)' }};">
                                         {{ mb_substr($user->name, 0, 1) }}
                                     </div>
-                                    <div>
-                                        <div class="fw-bold text-dark d-flex align-items-center gap-2">
-                                            {{ $user->name }}
+                                    <div class="overflow-hidden" style="max-width: 170px;">
+                                        <div class="fw-bold text-dark text-truncate d-flex align-items-center gap-1" style="font-size: 0.84rem;" title="{{ $user->name }}">
+                                            <span class="text-truncate">{{ $user->name }}</span>
                                             @if($user->isProtectedSuperAdmin())
-                                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-2 py-0 rounded-pill small" title="حساب أساسي محمي">
-                                                    <i class="fas fa-shield-alt"></i> محمي
-                                                </span>
+                                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-1.5 py-0 rounded-pill" style="font-size: 0.65rem;" title="حساب أساسي محمي">محمي</span>
                                             @endif
                                         </div>
-                                        <div class="small text-muted">
-                                            <i class="fas fa-envelope me-1 text-muted"></i> {{ $user->email }}
-                                            @if($user->phone)
-                                                <span class="ms-2"><i class="fas fa-phone me-1 text-muted"></i> {{ $user->phone }}</span>
-                                            @endif
+                                        <div class="text-muted text-truncate" style="font-size: 0.74rem;" title="{{ $user->email }}">
+                                            <i class="fas fa-envelope me-1 opacity-75"></i>{{ $user->email }}
                                         </div>
                                     </div>
                                 </div>
                             </td>
 
                             <!-- الدور الوظيفي -->
-                            <td>
+                            <td class="px-2 py-2 text-nowrap">
                                 @switch($user->role)
                                     @case('admin')
-                                        <span class="badge bg-warning bg-opacity-10 text-dark border border-warning px-3 py-2 rounded-pill fw-bold">
-                                            <i class="fas fa-crown text-warning me-1"></i> مدير عام النظام
+                                        <span class="badge bg-warning bg-opacity-10 text-dark border border-warning px-2 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
+                                            <i class="fas fa-crown text-warning me-1"></i> مدير النظام
                                         </span>
                                         @break
                                     @case('staff')
-                                        <span class="badge bg-info bg-opacity-10 text-primary border border-info px-3 py-2 rounded-pill fw-bold">
-                                            <i class="fas fa-user-cog me-1"></i> موظف مخصص الصلاحيات
+                                        <span class="badge bg-info bg-opacity-10 text-primary border border-info px-2 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
+                                            <i class="fas fa-user-cog me-1"></i> موظف مخصص
                                         </span>
                                         @break
                                     @case('training_coordinator')
-                                        <span class="badge bg-purple bg-opacity-10 text-purple border border-purple px-3 py-2 rounded-pill" style="color:#7c3aed; border-color:#c4b5fd;">
+                                        <span class="badge bg-purple bg-opacity-10 border px-2 py-1 rounded-pill text-nowrap" style="color:#7c3aed; border-color:#c4b5fd; background-color: rgba(124, 58, 237, 0.08); font-size: 0.75rem;">
                                             <i class="fas fa-graduation-cap me-1"></i> منسق التدريب
                                         </span>
                                         @break
                                     @case('partnership_officer')
-                                        <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-pill">
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1 rounded-pill text-nowrap" style="font-size: 0.75rem;">
                                             <i class="fas fa-handshake me-1"></i> مسؤول الشراكات
                                         </span>
                                         @break
                                     @case('career_guidance_officer')
-                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-3 py-2 rounded-pill">
-                                            <i class="fas fa-user-graduate me-1"></i> مسؤول الإرشاد المهني
+                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-2 py-1 rounded-pill text-nowrap" style="font-size: 0.75rem;">
+                                            <i class="fas fa-user-graduate me-1"></i> إرشاد مهني
                                         </span>
                                         @break
                                     @case('evaluation_followup')
-                                        <span class="badge bg-teal bg-opacity-10 text-info border border-teal px-3 py-2 rounded-pill">
+                                        <span class="badge bg-teal bg-opacity-10 text-info border border-teal px-2 py-1 rounded-pill text-nowrap" style="font-size: 0.75rem;">
                                             <i class="fas fa-chart-line me-1"></i> تقييم ومتابعة
                                         </span>
                                         @break
                                     @case('media_officer')
-                                        <span class="badge bg-orange bg-opacity-10 text-warning border border-warning px-3 py-2 rounded-pill">
+                                        <span class="badge bg-orange bg-opacity-10 text-warning border border-warning px-2 py-1 rounded-pill text-nowrap" style="font-size: 0.75rem;">
                                             <i class="fas fa-photo-video me-1"></i> مسؤول الميديا
                                         </span>
                                         @break
                                     @default
-                                        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">{{ $user->role }}</span>
+                                        <span class="badge bg-light text-dark border px-2 py-1 rounded-pill text-nowrap" style="font-size: 0.75rem;">{{ $user->role }}</span>
                                 @endswitch
                             </td>
 
                             <!-- الصلاحيات الممنوحة -->
-                            <td>
+                            <td class="px-2 py-2 text-nowrap">
                                 @if($user->isAdmin())
-                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold shadow-sm">
-                                        <i class="fas fa-check-double me-1"></i> وصول كامل وشامل (33+ صلاحية)
+                                    <span class="badge bg-warning text-dark px-2 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
+                                        <i class="fas fa-check-double me-1"></i> وصول كامل (33+)
                                     </span>
                                 @else
                                     @php
                                         $permCount = $user->permissions->count();
                                     @endphp
                                     @if($permCount > 0)
-                                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1 shadow-sm d-inline-flex align-items-center gap-1"
+                                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-2.5 py-0.5 shadow-none d-inline-flex align-items-center gap-1 text-nowrap"
+                                                style="font-size: 0.76rem;"
                                                 data-bs-toggle="modal" data-bs-target="#userPermModal{{ $user->id }}">
-                                            <i class="fas fa-key text-primary me-1"></i>
+                                            <i class="fas fa-key text-primary"></i>
                                             <strong class="text-primary">{{ $permCount }}</strong>
-                                            <span class="text-muted">صلاحية محددة</span>
-                                            <i class="fas fa-external-link-alt ms-1 text-muted small"></i>
+                                            <span class="text-muted">صلاحيات</span>
                                         </button>
                                     @else
-                                        <span class="badge bg-light text-muted border px-3 py-2 rounded-pill">
-                                            <i class="fas fa-lock me-1"></i> لا توجد صلاحيات مخصصة
+                                        <span class="badge bg-light text-muted border px-2 py-1 rounded-pill text-nowrap" style="font-size: 0.75rem;">
+                                            بدون صلاحيات
                                         </span>
                                     @endif
                                 @endif
                             </td>
 
                             <!-- حالة الحساب -->
-                            <td>
+                            <td class="px-2 py-2 text-center text-nowrap">
                                 @if($user->is_active)
-                                    <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-pill">
-                                        <i class="fas fa-check-circle me-1"></i> حساب نشط
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success px-2 py-0.5 rounded-pill text-nowrap" style="font-size: 0.75rem;">
+                                        <i class="fas fa-check-circle me-1"></i> نشط
                                     </span>
                                 @else
-                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-3 py-2 rounded-pill">
-                                        <i class="fas fa-ban me-1"></i> حساب مجمد
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-2 py-0.5 rounded-pill text-nowrap" style="font-size: 0.75rem;">
+                                        <i class="fas fa-ban me-1"></i> معطل
                                     </span>
                                 @endif
                             </td>
 
                             <!-- تاريخ الإضافة -->
-                            <td>
-                                <span class="text-muted small">
-                                    <i class="far fa-calendar-alt me-1"></i> {{ $user->created_at ? $user->created_at->format('Y-m-d') : '—' }}
+                            <td class="px-2 py-2 text-nowrap">
+                                <span class="text-muted small text-nowrap font-monospace" style="font-size: 0.78rem;">
+                                    <i class="far fa-calendar-alt me-1 opacity-75"></i>{{ $user->created_at ? $user->created_at->format('Y-m-d') : '—' }}
                                 </span>
                             </td>
 
                             <!-- الإجراءات -->
-                            <td class="px-4 text-end">
-                                <div class="btn-group shadow-sm rounded-pill overflow-hidden">
+                            <td class="px-3 py-2 text-end text-nowrap">
+                                <div class="d-flex align-items-center justify-content-end gap-1 flex-nowrap">
                                     <!-- تعديل البيانات والصلاحيات -->
-                                    <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-light border-0 px-3" title="تعديل البيانات وتخصيص الصلاحيات">
-                                        <i class="fas fa-sliders-h text-primary"></i>
+                                    <a href="{{ route('admin.users.edit', $user->id) }}" class="action-circle-btn text-primary" title="تعديل البيانات وتخصيص الصلاحيات">
+                                        <i class="fas fa-edit"></i>
                                     </a>
 
                                     <!-- تغيير كلمة المرور -->
-                                    <button type="button" class="btn btn-sm btn-light border-0 px-3" data-bs-toggle="modal" data-bs-target="#changePasswordModal{{ $user->id }}" title="إعادة تعيين كلمة المرور">
-                                        <i class="fas fa-key text-warning"></i>
+                                    <button type="button" class="action-circle-btn text-warning" data-bs-toggle="modal" data-bs-target="#changePasswordModal{{ $user->id }}" title="إعادة تعيين كلمة المرور">
+                                        <i class="fas fa-key"></i>
                                     </button>
 
                                     <!-- تجميد / تنشيط الحساب -->
                                     @if(!$user->isProtectedSuperAdmin() && $user->id !== auth()->id())
-                                        <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST" class="d-inline m-0">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm btn-light border-0 px-3" 
+                                            <button type="submit" class="action-circle-btn {{ $user->is_active ? 'text-secondary' : 'text-success' }}" 
                                                     title="{{ $user->is_active ? 'تجميد الحساب' : 'تنشيط الحساب' }}"
                                                     onclick="return confirm('هل أنت متأكد من {{ $user->is_active ? 'تجميد' : 'تنشيط' }} حساب الموظف {{ $user->name }}؟')">
-                                                <i class="fas fa-{{ $user->is_active ? 'ban text-secondary' : 'check-circle text-success' }}"></i>
+                                                <i class="fas fa-{{ $user->is_active ? 'ban' : 'check-circle' }}"></i>
                                             </button>
                                         </form>
 
                                         <!-- حذف الحساب -->
                                         @if(auth()->user()->isAdmin())
-                                        <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline m-0">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-light border-0 px-3" 
+                                            <button type="submit" class="action-circle-btn text-danger" 
                                                     onclick="return confirm('تحذير أمني: هل أنت متأكد من حذف حساب الموظف ({{ $user->name }}) نهائياً من النظام؟ لا يمكن التراجع عن هذه الخطوة.')" 
                                                     title="حذف الموظف نهائياً">
-                                                <i class="fas fa-trash-alt text-danger"></i>
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
                                         @endif

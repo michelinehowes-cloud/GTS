@@ -1,233 +1,250 @@
 @extends('layouts.app')
 
-@section('title', 'تقويم التدريبات - منسق التدريب')
-@section('page-title', 'تقويم التدريبات')
+@section('title', 'التقويم - ' . $monthName . ' ' . $year)
 
 @push('styles')
 <style>
-    /* Hero & Card Modern */
-    .calendar-hero-card {
-        background: #ffffff;
-        border-radius: 16px;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-        padding: 1.5rem;
-    }
-
-    /* Month Navigation Controls */
-    .month-nav-box {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    /* Desktop Calendar Grid */
-    .calendar-grid-container {
+    /* تصميم التقويم المعتمد وفق هوية المنصة */
+    .calendar-main-card {
         background: #ffffff;
         border-radius: 14px;
         border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 20px rgba(13, 56, 130, 0.04);
         overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
     }
 
-    .calendar-header-row {
+    /* رأس التقويم المطابق للصورة */
+    .calendar-header-bar {
+        padding: 1.25rem 1.5rem;
+        background: #ffffff;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .calendar-title-heading {
+        color: #0d3882;
+        font-weight: 800;
+        font-size: 1.45rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* حقول الاختيار مع التسمية العائمة (Floating Outline Selects) كما في الصورة */
+    .cal-floating-select-wrap {
+        position: relative;
+        min-width: 170px;
+    }
+    .cal-floating-label {
+        position: absolute;
+        top: -9px;
+        right: 14px;
+        background: #ffffff;
+        padding: 0 6px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        color: #0d3882;
+        z-index: 2;
+        border-radius: 4px;
+    }
+    .cal-select-box {
+        border: 1.5px solid #cbd5e1;
+        border-radius: 10px;
+        padding: 0.55rem 1rem;
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: #1e293b;
+        background-color: #ffffff;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .cal-select-box:focus {
+        border-color: #0d3882;
+        box-shadow: 0 0 0 3px rgba(13, 56, 130, 0.12);
+    }
+
+    /* أزرار الأسهم الدائرية/المربعة بهوية المنصة الزرقاء الملكية */
+    .btn-cal-arrow {
+        width: 38px;
+        height: 38px;
+        background: #0d3882;
+        color: #ffffff !important;
+        border-radius: 9px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        text-decoration: none !important;
+        box-shadow: 0 2px 6px rgba(13, 56, 130, 0.25);
+        transition: all 0.2s ease;
+    }
+    .btn-cal-arrow:hover {
+        background: #1e40af;
+        transform: scale(1.05);
+        color: #ffffff !important;
+    }
+
+    /* شريط أسماء الأيام (الأحد .. السبت) */
+    .cal-weekdays-row {
         display: grid;
-        grid-template-columns: repeat(7, 1fr);
+        grid-template-columns: repeat(7, minmax(0, 1fr));
         background: #f8fafc;
         border-bottom: 1px solid #e2e8f0;
     }
-
-    .calendar-day-header-cell {
-        padding: 0.85rem 0.5rem;
+    .cal-weekday-cell {
         text-align: center;
+        padding: 12px 4px;
         font-weight: 700;
-        font-size: 0.85rem;
+        font-size: 0.92rem;
         color: #475569;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
-    .calendar-days-grid {
+    /* شبكة خلايا الـ 42 يوماً */
+    .cal-days-grid {
         display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        background: #e2e8f0;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        background: #e2e8f0; /* الفواصل الدقيقة */
         gap: 1px;
     }
-
-    .calendar-day-cell {
+    .cal-day-box {
         background: #ffffff;
-        min-height: 120px;
-        padding: 0.65rem;
+        min-height: 105px;
+        padding: 6px 7px;
+        position: relative;
         display: flex;
         flex-direction: column;
         transition: background 0.15s ease;
+        min-width: 0;
+        overflow: hidden;
     }
-
-    .calendar-day-cell:hover {
-        background: #f8fafc;
+    .cal-day-box:hover {
+        background: #fbfcfe;
     }
-
-    .calendar-day-cell.empty {
-        background: #f8fafc;
+    .cal-day-box.other-month {
+        background: #fcfcfd;
     }
-
-    .calendar-day-cell.today {
-        background: #eff6ff;
+    .cal-day-box.highlight-day {
+        border: 2px solid #0d3882 !important;
+        background: #eff6ff !important;
+        box-shadow: inset 0 0 0 1px #bfdbfe;
     }
-
-    .calendar-day-cell.weekend {
-        background: #fffbeb;
-    }
-
-    .day-num-badge {
+    .cal-day-num {
+        font-size: 0.90rem;
         font-weight: 700;
-        font-size: 0.95rem;
         color: #1e293b;
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
+        text-align: left;
+        margin-bottom: 4px;
+        line-height: 1;
+    }
+    .cal-day-box.other-month .cal-day-num {
+        color: #cbd5e1;
+        font-weight: 500;
+    }
+    .cal-day-box.highlight-day .cal-day-num {
+        color: #0d3882;
+        font-weight: 800;
     }
 
-    .calendar-day-cell.today .day-num-badge {
-        background: #1e40af;
-        color: #ffffff;
-    }
-
-    .day-events-list {
+    /* أشرطة وكبسولات الفعاليات والتدريب المضغوطة والأنيقة */
+    .cal-events-wrap {
+        min-width: 0;
+        width: 100%;
+        overflow: hidden;
         display: flex;
         flex-direction: column;
-        gap: 4px;
-        margin-top: 0.4rem;
-        overflow-y: auto;
-        max-height: 80px;
+        gap: 3px;
     }
-
-    .event-pill {
+    .cal-prog-bar {
+        border-radius: 5px;
         padding: 3px 6px;
-        border-radius: 6px;
-        font-size: 0.72rem;
+        font-size: 0.70rem;
         font-weight: 600;
-        text-decoration: none;
+        line-height: 1.25;
+        color: #ffffff;
+        cursor: pointer;
         display: block;
+        text-decoration: none !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    .cal-prog-bar:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+        color: #ffffff;
+    }
+    .cal-prog-title {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        border-right: 3px solid;
-        transition: transform 0.15s ease;
-    }
-
-    .event-pill:hover {
-        transform: translateX(-2px);
-    }
-
-    .event-pill.status-active {
-        background: #dcfce7;
-        color: #166534;
-        border-right-color: #22c55e;
-    }
-
-    .event-pill.status-inactive {
-        background: #fef3c7;
-        color: #92400e;
-        border-right-color: #f59e0b;
-    }
-
-    .event-pill.status-completed {
-        background: #f1f5f9;
-        color: #475569;
-        border-right-color: #94a3b8;
-    }
-
-    /* 📱 Mobile Agenda & Event Cards */
-    .mobile-event-card {
-        background: #ffffff;
-        border-radius: 14px;
-        padding: 1rem;
-        border: 1px solid #f1f5f9;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-        margin-bottom: 0.75rem;
-        position: relative;
-        border-right: 4px solid;
-    }
-
-    .mobile-event-card.status-active { border-right-color: #10b981; }
-    .mobile-event-card.status-inactive { border-right-color: #f59e0b; }
-    .mobile-event-card.status-completed { border-right-color: #64748b; }
-
-    /* Mini Mobile Date Strip / Grid */
-    .mini-calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 3px;
-        background: #ffffff;
-        padding: 0.75rem;
-        border-radius: 14px;
-        border: 1px solid #f1f5f9;
-        margin-bottom: 1rem;
-    }
-
-    .mini-day-cell {
-        aspect-ratio: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
-        font-size: 0.78rem;
+        display: block;
+        min-width: 0;
+        max-width: 100%;
+        font-size: 0.71rem;
         font-weight: 700;
-        color: #334155;
-        position: relative;
+    }
+    .cal-prog-loc {
+        font-size: 0.63rem;
+        color: #fef08a; /* أصفر ذهبي ناعم بارز */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        margin-top: 1px;
+        font-weight: 500;
+        min-width: 0;
+        max-width: 100%;
+        opacity: 0.95;
+    }
+
+    /* المسار الزمني الخفيف للأيام المستمرة (Timeline Stripe) */
+    .cal-timeline-stripe {
+        height: 6px;
+        background: #0d3882;
+        border-radius: 3px;
+        margin: 2px 0;
         cursor: pointer;
+        opacity: 0.75;
         transition: all 0.15s ease;
+        position: relative;
+        min-width: 0;
+        width: 100%;
+        display: block;
     }
-
-    .mini-day-cell.empty {
-        opacity: 0.2;
+    .cal-timeline-stripe:hover {
+        opacity: 1;
+        height: 9px;
+        box-shadow: 0 1px 3px rgba(13, 56, 130, 0.3);
     }
+    .stripe-royal { background: #0d3882; }
+    .stripe-emerald { background: #059669; }
+    .stripe-amber { background: #d97706; }
 
-    .mini-day-cell.today {
+    .bar-royal { background: #0d3882 !important; color: #ffffff !important; }
+    .bar-emerald { background: #059669 !important; color: #ffffff !important; }
+    .bar-amber { background: #d97706 !important; color: #ffffff !important; }
+    .bar-indigo { background: #4338ca !important; color: #ffffff !important; }
+
+    .location-pill {
         background: #eff6ff;
-        color: #1d4ed8;
-        border: 1px solid #93c5fd;
-    }
-
-    .mini-day-cell.has-events::after {
-        content: '';
-        position: absolute;
-        bottom: 3px;
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        background: #10b981;
-    }
-
-    .mini-day-cell.has-events.today::after {
-        background: #1d4ed8;
-    }
-
-    @media (max-width: 767.98px) {
-        .calendar-hero-card {
-            padding: 1rem 0.85rem !important;
-            border-radius: 14px !important;
-        }
-
-        .month-nav-box {
-            width: 100% !important;
-            justify-content: space-between !important;
-        }
-
-        .month-nav-box .btn-group {
-            width: 100% !important;
-            display: flex !important;
-        }
-
-        .month-nav-box .btn-group .btn {
-            flex: 1 !important;
-            font-size: 0.78rem !important;
-            padding: 0.45rem 0.5rem !important;
-        }
+        color: #1e40af;
+        border: 1px solid #bfdbfe;
+        border-radius: 8px;
+        padding: 3px 8px;
+        font-weight: 600;
+        font-size: 0.76rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
     }
 </style>
 @endpush
@@ -235,253 +252,512 @@
 @section('content')
 <div class="container-fluid">
 
-    {{-- Breadcrumbs --}}
-    @include('components.breadcrumbs', [
-        'items' => [
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="تقويم البرامج التدريبية ومواقع الانعقاد"
+        subtitle="متابعة توزيع المواعيد والجدول الشهري لكافة الدورات وورش العمل مع تحديد قاعات وأماكن التدريب"
+        icon="fas fa-calendar-alt"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
             ['label' => 'لوحة تحكم منسق التدريب', 'url' => route('training-coordinator.dashboard')],
-            ['label' => 'تقويم البرامج التدريبية', 'active' => true],
-        ]
-    ])
+            ['label' => 'تقويم التدريبات']
+        ]"
+        badge="التقويم المعتمد"
+    >
+        <a href="{{ route('training-coordinator.trainings.create') }}" class="btn btn-warning text-dark fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
+            <i class="fas fa-plus-circle"></i>
+            <span>إضافة برنامج تدريب</span>
+        </a>
+        <a href="{{ route('training-coordinator.trainings') }}" class="btn btn-light bg-white text-primary fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
+            <i class="fas fa-list"></i>
+            <span>قائمة التدريبات</span>
+        </a>
+    </x-page-hero>
 
-    {{-- رأس الصفحة مع أدوات التنقل بين الشهور --}}
-    <div class="calendar-hero-card mb-4">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <div class="rounded-circle bg-light-primary text-primary fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; font-size: 1.3rem;">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <div>
-                    <h3 class="fw-bold text-dark mb-0 fs-5">تقويم البرامج التدريبية</h3>
-                    <p class="text-muted small mb-0">{{ $calendar['month_name'] }} {{ $year }}</p>
-                </div>
-            </div>
-
-            {{-- أزرار التنقل بين الشهور --}}
-            <div class="month-nav-box">
-                <div class="btn-group shadow-sm" role="group">
-                    <a href="{{ route('training-coordinator.calendar', ['month' => $month - 1, 'year' => $year]) }}"
-                        class="btn btn-outline-secondary btn-sm fw-medium">
-                        <i class="fas fa-chevron-right me-1"></i> السابق
-                    </a>
-                    <button class="btn btn-primary btn-sm fw-bold px-3" disabled style="opacity: 1 !important;">
-                        <i class="fas fa-calendar me-1"></i>
-                        {{ $calendar['month_name'] }} {{ $year }}
-                    </button>
-                    <a href="{{ route('training-coordinator.calendar', ['month' => $month + 1, 'year' => $year]) }}"
-                        class="btn btn-outline-secondary btn-sm fw-medium">
-                        التالي <i class="fas fa-chevron-left ms-1"></i>
-                    </a>
-                </div>
-
-                <a href="{{ route('training-coordinator.trainings') }}" class="btn btn-outline-primary btn-sm fw-medium">
-                    <i class="fas fa-list me-1"></i> قائمة التدريبات
-                </a>
-            </div>
-        </div>
-    </div>
-
-    {{-- 📊 بطاقات الإحصائيات السريعة (2x2 على الموبايل) --}}
-    <div class="row mb-3">
+    <!-- بطاقات الإحصائيات -->
+    <div class="row g-2 g-md-3 mb-4">
         @include('components.stat-card', [
-            'col' => 'col-6 col-xl-3 mb-3',
+            'col' => 'col-6 col-md-3',
             'title' => 'التدريبات النشطة',
-            'value' => $trainings->where('status', 'active')->count(),
+            'value' => $stats['active'] ?? $trainings->where('status', 'active')->count(),
             'icon' => 'fas fa-play-circle',
             'color' => 'success'
         ])
         @include('components.stat-card', [
-            'col' => 'col-6 col-xl-3 mb-3',
-            'title' => 'إجمالي التدريبات',
-            'value' => $trainings->count(),
+            'col' => 'col-6 col-md-3',
+            'title' => 'إجمالي البرامج',
+            'value' => $stats['total'] ?? $trainings->count(),
             'icon' => 'fas fa-calendar-check',
             'color' => 'primary'
         ])
         @include('components.stat-card', [
-            'col' => 'col-6 col-xl-3 mb-3',
+            'col' => 'col-6 col-md-3',
             'title' => 'إجمالي المقاعد',
-            'value' => $trainings->sum('seats'),
+            'value' => $stats['seats'] ?? $trainings->sum('seats'),
             'icon' => 'fas fa-users',
             'color' => 'warning'
         ])
         @include('components.stat-card', [
-            'col' => 'col-6 col-xl-3 mb-3',
-            'title' => 'المواقع المعتمدة',
-            'value' => $trainings->unique('location')->count(),
+            'col' => 'col-6 col-md-3',
+            'title' => 'القاعات والمواقع',
+            'value' => $stats['locations'] ?? $trainings->pluck('location')->filter()->unique()->count(),
             'icon' => 'fas fa-map-marker-alt',
             'color' => 'info'
         ])
     </div>
 
-    {{-- 📱 عرض خاص بالموبايل: مصغّر الشهر + قائمة الأجندة التفاعلية --}}
-    <div class="d-block d-md-none mb-4">
-        
-        {{-- شبكة أيام الشهر المصغّرة --}}
-        <div class="mini-calendar-grid shadow-sm">
-            @foreach(['ح', 'ن', 'ث', 'ر', 'خ', 'ج', 'س'] as $shortDay)
-                <div class="text-center fw-bold text-muted small py-1" style="font-size: 0.72rem;">{{ $shortDay }}</div>
-            @endforeach
+    <!-- شريط الفلترة السريعة حسب المكان ونمط العرض -->
+    <div class="card-modern shadow-sm border-0 rounded-4 p-3 mb-3 d-flex flex-row justify-content-between align-items-center flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-2">
+            <span class="small fw-bold text-dark"><i class="fas fa-map-marker-alt text-danger me-1"></i>تصفية حسب مكان التدريب:</span>
+            <select id="locationFilterSelect" class="form-select form-select-sm rounded-pill" style="min-width: 200px;" onchange="filterCalendarByLocation(this.value)">
+                <option value="all">جميع القاعات والأماكن</option>
+                @foreach($trainings->pluck('location')->filter()->unique() as $loc)
+                    <option value="{{ $loc }}">{{ $loc }}</option>
+                @endforeach
+            </select>
+        </div>
 
-            @foreach($calendar['weeks'] as $week)
+        <div class="d-flex align-items-center gap-2">
+            <span class="small fw-bold text-dark"><i class="fas fa-sliders-h text-primary me-1"></i>نمط العرض:</span>
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-primary active" id="btnModeMilestones" onclick="toggleCalendarMode('milestones')">
+                    <i class="fas fa-flag-checkered me-1"></i> جدول المواعيد المعتمد (انطلاق وختام)
+                </button>
+                <button type="button" class="btn btn-outline-primary" id="btnModeAll" onclick="toggleCalendarMode('all')">
+                    <i class="fas fa-grip-lines me-1"></i> إظهار المسار الزمني المستمر
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- بطاقة التقويم الرئيسية المطابقة تماماً لنموذج التصميم المعتمد -->
+    <div class="calendar-main-card mb-4">
+        
+        <!-- رأس التقويم: العنوان على اليمين، القوائم المنسدلة في الوسط، والأسهم على اليسار -->
+        <div class="calendar-header-bar">
+            <!-- اليمين: عنوان التقويم -->
+            <div class="calendar-title-heading">
+                <i class="fas fa-calendar-alt text-primary"></i>
+                <span>التقويم</span>
+            </div>
+
+            <!-- الوسط: قوائم اختيار الشهر والسنة مع Floating Labels -->
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <!-- اختيار الشهر -->
+                <div class="cal-floating-select-wrap">
+                    <span class="cal-floating-label">الشهر</span>
+                    <select id="navMonth" class="form-select cal-select-box" onchange="submitDateJump()">
+                        @foreach($arabicMonths as $mNum => $mName)
+                            <option value="{{ $mNum }}" {{ (int)$month === $mNum ? 'selected' : '' }}>{{ $mName }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- اختيار السنة -->
+                <div class="cal-floating-select-wrap">
+                    <span class="cal-floating-label">السنة</span>
+                    <select id="navYear" class="form-select cal-select-box" onchange="submitDateJump()">
+                        @for($y = (int)$year - 3; $y <= (int)$year + 3; $y++)
+                            <option value="{{ $y }}" {{ (int)$year === $y ? 'selected' : '' }}>{{ $y }}</option>
+                        @endfor
+                    </select>
+                </div>
+            </div>
+
+            <!-- اليسار: أزرار الأسهم الملكية للتنقل بين الشهور -->
+            <div class="d-flex align-items-center gap-2">
+                <!-- زر الشهر السابق -->
+                <a href="?month={{ $prevMonth }}&year={{ $prevYear }}" class="btn-cal-arrow" title="الشهر السابق">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                <!-- زر الشهر القادم -->
+                <a href="?month={{ $nextMonth }}&year={{ $nextYear }}" class="btn-cal-arrow" title="الشهر القادم">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- شريط أسماء الأيام (يبدأ من الأحد وحتى السبت) -->
+        <div class="cal-weekdays-row">
+            <div class="cal-weekday-cell">الأحد</div>
+            <div class="cal-weekday-cell">الإثنين</div>
+            <div class="cal-weekday-cell">الثلاثاء</div>
+            <div class="cal-weekday-cell">الأربعاء</div>
+            <div class="cal-weekday-cell">الخميس</div>
+            <div class="cal-weekday-cell">الجمعة</div>
+            <div class="cal-weekday-cell">السبت</div>
+        </div>
+
+        <!-- شبكة خلايا الـ 42 يوماً (6 أسابيع كاملة) -->
+        <div class="cal-days-grid">
+            @foreach($weeks as $week)
                 @foreach($week as $dayData)
-                    @if(!$dayData['day'])
-                        <div class="mini-day-cell empty"></div>
-                    @else
-                        @php
-                            $hasEvents = count($dayData['trainings']) > 0;
-                            $isToday = $dayData['day']->isToday();
-                        @endphp
-                        <div class="mini-day-cell {{ $isToday ? 'today' : '' }} {{ $hasEvents ? 'has-events' : '' }}">
-                            {{ $dayData['day']->day }}
+                    @php
+                        $dayNum = $dayData['day'];
+                        $isCurrentMonth = $dayData['isCurrentMonth'];
+                        $isToday = $dayData['isToday'];
+                        $events = $dayData['events'];
+                        
+                        $boxClass = '';
+                        if (!$isCurrentMonth) $boxClass .= ' other-month';
+                        if ($isToday) $boxClass .= ' highlight-day';
+                    @endphp
+                    <div class="cal-day-box {{ $boxClass }}">
+                        <!-- رقم اليوم -->
+                        <div class="cal-day-num">
+                            {{ $dayNum }}
                         </div>
-                    @endif
+
+                        <!-- كبسولات وأشرطة التدريب -->
+                        <div class="cal-events-wrap">
+                            @foreach($events as $ev)
+                                @php
+                                    $t = $ev['training'];
+                                    $kind = $ev['kind']; // start, end, ongoing
+                                    $barClass = ($kind === 'end') ? 'bar-amber' : (($t->type === 'workshop') ? 'bar-emerald' : 'bar-royal');
+                                @endphp
+
+                                @if($kind === 'ongoing')
+                                    <!-- مسار زمني ناعم 6px للأيام المستمرة (بدون نصوص مكررة تشوه المظهر) -->
+                                    <div class="cal-timeline-stripe stripe-royal cal-prog-item"
+                                         data-kind="ongoing"
+                                         data-location="{{ $ev['location'] }}"
+                                         onclick="openCalendarModal('{{ addslashes($t->title) }}', '{{ addslashes($ev['location']) }}', '{{ $t->start_date ? $t->start_date->format('Y-m-d') : '' }}', '{{ $t->end_date ? $t->end_date->format('Y-m-d') : '' }}', '{{ $t->duration }}', '{{ addslashes($t->instructor_name ?? ($t->trainer->name ?? 'غير محدد')) }}', '{{ $t->seats }}', '{{ $t->status }}', '{{ route('training-coordinator.trainings.show', $t->id) }}', '{{ route('training-coordinator.trainings.attendance', $t->id) }}')"
+                                         title="تدريب مستمر: {{ $ev['label'] }} - المكان: {{ $ev['location'] }}"
+                                         style="display: none;">
+                                    </div>
+                                @else
+                                    <!-- كبسولة بارزة لمواعيد الانطلاق والختام -->
+                                    <div class="cal-prog-bar {{ $barClass }} cal-prog-item"
+                                         data-kind="{{ $kind }}"
+                                         data-location="{{ $ev['location'] }}"
+                                         onclick="openCalendarModal('{{ addslashes($t->title) }}', '{{ addslashes($ev['location']) }}', '{{ $t->start_date ? $t->start_date->format('Y-m-d') : '' }}', '{{ $t->end_date ? $t->end_date->format('Y-m-d') : '' }}', '{{ $t->duration }}', '{{ addslashes($t->instructor_name ?? ($t->trainer->name ?? 'غير محدد')) }}', '{{ $t->seats }}', '{{ $t->status }}', '{{ route('training-coordinator.trainings.show', $t->id) }}', '{{ route('training-coordinator.trainings.attendance', $t->id) }}')"
+                                         title="{{ $ev['label'] }} - المكان: {{ $ev['location'] }}">
+                                        
+                                        <div class="cal-prog-title">
+                                            <i class="{{ $kind === 'end' ? 'fas fa-flag-checkered text-warning' : 'fas fa-graduation-cap' }} me-1 opacity-75" style="font-size: 0.65rem;"></i>
+                                            <span>{{ $ev['short_label'] ?? \Illuminate\Support\Str::limit($ev['label'], 24) }}</span>
+                                        </div>
+                                        
+                                        @if(!empty($ev['location']))
+                                            <div class="cal-prog-loc">
+                                                <i class="fas fa-map-marker-alt text-warning" style="font-size: 0.6rem;"></i>
+                                                <span>{{ $ev['short_location'] ?? \Illuminate\Support\Str::limit($ev['location'], 18) }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
                 @endforeach
             @endforeach
         </div>
+    </div>
 
-        {{-- قائمة أجندة التدريبات للهاتف --}}
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="fw-bold text-dark mb-0">
-                <i class="fas fa-stream me-1 text-primary"></i> أجندة تدريبات {{ $calendar['month_name'] }}
-            </h6>
-            <span class="badge bg-light text-primary border border-primary rounded-pill px-2 py-1 small">
-                {{ $trainings->count() }} تدريب
+    <!-- جدول البرامج التدريبية ومواقع الانعقاد التفصيلي أسفل التقويم -->
+    <div class="card-modern shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+        <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2.5">
+                <div class="rounded-circle bg-success bg-opacity-10 text-success p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 1.1rem;">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <div>
+                    <h6 class="mb-0 fw-bold text-dark fs-6">جدول البرامج التدريبية ومواقع الانعقاد</h6>
+                    <small class="text-muted">استعراض تفصيلي لأماكن التدريب، المدربين، والفترات الزمنية</small>
+                </div>
+            </div>
+            <span class="badge bg-light text-primary border rounded-pill px-3 py-1.5 fw-bold">
+                {{ $trainings->count() }} برامج مسجلة
             </span>
         </div>
 
-        @if($trainings->count() > 0)
-            @foreach($trainings->sortBy('start_date') as $training)
-                @php
-                    $statusClass = $training->status === 'active' ? 'status-active' : ($training->status === 'completed' ? 'status-completed' : 'status-inactive');
-                    $statusLabel = $training->status === 'active' ? '🟢 نشط' : ($training->status === 'completed' ? '✅ مكتمل' : '⏸ غير نشط');
-                @endphp
-                <div class="mobile-event-card {{ $statusClass }}">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="badge bg-light text-dark border rounded-pill px-2 py-1" style="font-size: 0.72rem;">
-                            {{ $training->type_arabic ?? 'تدريب' }}
-                        </span>
-                        <span class="badge {{ $training->status === 'active' ? 'bg-success text-white' : 'bg-light text-muted border' }} rounded-pill px-2 py-1" style="font-size: 0.72rem;">
-                            {{ $statusLabel }}
-                        </span>
-                    </div>
-
-                    <h5 class="fw-bold text-dark fs-6 mb-2">
-                        <a href="{{ route('training-coordinator.trainings.show', $training->id) }}" class="text-dark text-decoration-none">
-                            {{ $training->title }}
-                        </a>
-                    </h5>
-
-                    <div class="d-flex flex-column gap-1 text-muted small mb-3" style="font-size: 0.78rem;">
-                        <div>
-                            <i class="fas fa-calendar-day me-1 text-primary"></i>
-                            من <strong>{{ $training->start_date ? \Carbon\Carbon::parse($training->start_date)->format('Y-m-d') : '—' }}</strong> 
-                            إلى <strong>{{ $training->end_date ? \Carbon\Carbon::parse($training->end_date)->format('Y-m-d') : '—' }}</strong>
-                        </div>
-                        @if($training->location)
-                        <div>
-                            <i class="fas fa-map-marker-alt me-1 text-danger"></i>
-                            {{ $training->location }}
-                        </div>
-                        @endif
-                        <div>
-                            <i class="fas fa-users me-1 text-info"></i>
-                            المقاعد: <strong>{{ $training->seats }}</strong> مقعد
-                        </div>
-                    </div>
-
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('training-coordinator.trainings.show', $training->id) }}" class="btn btn-sm btn-outline-primary flex-grow-1 rounded-pill" style="font-size: 0.75rem;">
-                            <i class="fas fa-eye me-1"></i> التفاصيل
-                        </a>
-                        <a href="{{ route('training-coordinator.trainings.attendance', $training->id) }}" class="btn btn-sm btn-warning-modern flex-grow-1 rounded-pill" style="font-size: 0.75rem;">
-                            <i class="fas fa-clipboard-check me-1"></i> الحضور
-                        </a>
-                    </div>
+        <div class="card-body p-0">
+            @if($trainings->isEmpty())
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-times fa-3x text-muted opacity-50 mb-3"></i>
+                    <h6 class="fw-bold text-dark mb-1">لا توجد برامج تدريبية مسجلة</h6>
+                    <p class="text-muted small mb-3">يمكنك إضافة دورات وورش عمل لتظهر في التقويم الزمني والأجندة</p>
+                    <a href="{{ route('training-coordinator.trainings.create') }}" class="btn btn-primary-modern btn-sm">
+                        <i class="fas fa-plus-circle me-1"></i>إضافة برنامج تدريب
+                    </a>
                 </div>
-            @endforeach
-        @else
-            <div class="card-modern p-4 text-center">
-                <i class="fas fa-calendar-times fa-3x text-muted mb-3 opacity-50"></i>
-                <h6 class="fw-bold text-dark">لا توجد برامج تدريبية مجدولة</h6>
-                <p class="text-muted small mb-3">لم يتم تسجيل برامج تدريبية في هذا الشهر</p>
-                <a href="{{ route('training-coordinator.trainings.create') }}" class="btn btn-sm btn-primary-modern rounded-pill px-4 mx-auto">
-                    <i class="fas fa-plus me-1"></i> إضافة برنامج تدريب
-                </a>
-            </div>
-        @endif
-    </div>
-
-    {{-- 💻 عرض الشاشات الكبيرة (Desktop 7-Column Grid) --}}
-    <div class="d-none d-md-block">
-        <div class="calendar-grid-container">
-            {{-- أسماء أيام الأسبوع --}}
-            <div class="calendar-header-row">
-                @foreach($calendar['days'] as $day)
-                    <div class="calendar-day-header-cell">
-                        {{ $day }}
-                    </div>
-                @endforeach
-            </div>
-
-            {{-- خلايا التقويم --}}
-            <div class="calendar-days-grid">
-                @foreach($calendar['weeks'] as $week)
-                    @foreach($week as $dayData)
-                        @php
-                            $isDay = !is_null($dayData['day']);
-                            $isToday = $isDay && $dayData['day']->isToday();
-                            $isWeekend = $isDay && $dayData['day']->isWeekend();
-                        @endphp
-                        <div class="calendar-day-cell {{ !$isDay ? 'empty' : '' }} {{ $isToday ? 'today' : '' }} {{ $isWeekend ? 'weekend' : '' }}">
-                            @if($isDay)
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="day-num-badge">{{ $dayData['day']->day }}</span>
-                                    @if($isToday)
-                                        <span class="badge bg-primary rounded-pill px-2 py-0" style="font-size: 0.65rem;">اليوم</span>
+            @else
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 text-nowrap">
+                        <thead class="bg-light">
+                            <tr class="text-muted small">
+                                <th class="ps-4 py-3">اسم البرنامج التدريبي</th>
+                                <th class="py-3">مكان التدريب / القاعة</th>
+                                <th class="py-3">الفترة الزمنية</th>
+                                <th class="py-3">المدرب المشرف</th>
+                                <th class="text-center py-3">المقاعد</th>
+                                <th class="text-center py-3">الحالة</th>
+                                <th class="text-center pe-4 py-3">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($trainings->sortByDesc('start_date') as $t)
+                            <tr class="table-training-row">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-2.5">
+                                        <div class="rounded-circle bg-light text-primary p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px;">
+                                            <i class="fas fa-graduation-cap"></i>
+                                        </div>
+                                        <div>
+                                            <a href="{{ route('training-coordinator.trainings.show', $t->id) }}" class="fw-bold text-dark text-decoration-none hover-primary d-block">
+                                                {{ $t->title }}
+                                            </a>
+                                            <span class="badge bg-light text-muted border rounded-pill px-2 py-0.5" style="font-size: 0.7rem;">
+                                                {{ $t->category ?? 'تدريب عام' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if($t->location)
+                                        <span class="location-pill">
+                                            <i class="fas fa-map-marker-alt text-danger"></i>
+                                            <span>{{ $t->location }}</span>
+                                        </span>
+                                    @else
+                                        <span class="text-muted small">غير محدد</span>
                                     @endif
-                                </div>
-
-                                <div class="day-events-list">
-                                    @foreach($dayData['trainings'] as $training)
-                                        @php
-                                            $pillClass = $training->status === 'active' ? 'status-active' : ($training->status === 'completed' ? 'status-completed' : 'status-inactive');
-                                        @endphp
-                                        <a href="{{ route('training-coordinator.trainings.show', $training->id) }}"
-                                           class="event-pill {{ $pillClass }}"
-                                           title="{{ $training->title }} ({{ $training->location }})">
-                                            <i class="fas fa-circle me-1" style="font-size: 0.45rem;"></i>
-                                            {{ Str::limit($training->title, 18) }}
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column small">
+                                        <span class="text-dark font-monospace fw-semibold">
+                                            <i class="fas fa-calendar-alt text-primary me-1"></i>{{ $t->start_date ? $t->start_date->format('Y-m-d') : '--' }}
+                                        </span>
+                                        <span class="text-muted font-monospace" style="font-size: 0.75rem;">
+                                            إلى: {{ $t->end_date ? $t->end_date->format('Y-m-d') : '--' }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="small fw-semibold text-dark">
+                                        <i class="fas fa-chalkboard-teacher text-info me-1"></i>
+                                        {{ $t->instructor_name ?? ($t->trainer->name ?? 'غير محدد') }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1 font-monospace">
+                                        {{ $t->seats ?? 'مفتوح' }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.72rem;
+                                        @if($t->status === 'active') background:#ecfdf5; color:#059669; border:1px solid #a7f3d0;
+                                        @elseif($t->status === 'completed') background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe;
+                                        @else background:#f1f5f9; color:#64748b; border:1px solid #cbd5e1;
+                                        @endif">
+                                        <i class="fas fa-circle me-1" style="font-size: 0.45rem;"></i>{{ $t->status === 'active' ? 'نشط' : ($t->status === 'completed' ? 'مكتمل' : 'مسودة') }}
+                                    </span>
+                                </td>
+                                <td class="text-center pe-4">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ route('training-coordinator.trainings.show', $t->id) }}" class="btn btn-primary-modern py-1 px-2.5 rounded-2" title="تفاصيل البرنامج">
+                                            <i class="fas fa-eye me-1"></i>عرض
                                         </a>
-                                    @endforeach
-                                </div>
-                            @endif
-                        </div>
-                    @endforeach
-                @endforeach
-            </div>
+                                        <a href="{{ route('training-coordinator.trainings.attendance', $t->id) }}" class="btn btn-light border py-1 px-2 rounded-2 ms-1 text-dark" title="سجل الحضور">
+                                            <i class="fas fa-user-check"></i>
+                                        </a>
+                                        @if($t->status === 'active')
+                                        <a href="{{ route('training-coordinator.trainings.scanner', $t->id) }}" class="btn btn-light border py-1 px-2 rounded-2 ms-1 text-dark" title="ماسح الباركود">
+                                            <i class="fas fa-qrcode"></i>
+                                        </a>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
         </div>
+    </div>
+</div>
 
-        {{-- مفتاح الألوان --}}
-        <div class="card-modern mt-3 p-3">
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                <span class="fw-bold text-dark small"><i class="fas fa-tags me-1 text-primary"></i> مفتاح ألوان التقويم:</span>
-                <div class="d-flex gap-3 flex-wrap small">
-                    <span class="d-flex align-items-center gap-1">
-                        <span style="width: 12px; height: 12px; background: #22c55e; border-radius: 3px; display: inline-block;"></span> تدريب نشط
-                    </span>
-                    <span class="d-flex align-items-center gap-1">
-                        <span style="width: 12px; height: 12px; background: #f59e0b; border-radius: 3px; display: inline-block;"></span> تدريب متوقف / معلق
-                    </span>
-                    <span class="d-flex align-items-center gap-1">
-                        <span style="width: 12px; height: 12px; background: #94a3b8; border-radius: 3px; display: inline-block;"></span> تدريب مكتمل
-                    </span>
-                    <span class="d-flex align-items-center gap-1">
-                        <span style="width: 12px; height: 12px; background: #1e40af; border-radius: 3px; display: inline-block;"></span> تاريخ اليوم
-                    </span>
+<!-- Modal تفاصيل التدريب التفاعلي -->
+<div class="modal fade" id="calEventModal" tabindex="-1" aria-hidden="true" onclick="if(event.target === this) closeCalendarModal()">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+            <div class="modal-header text-white py-3 px-4" style="background: #0d3882;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-calendar-check fs-5 text-warning"></i>
+                    <h6 class="modal-title fw-bold mb-0" id="mEventTitle">تفاصيل البرنامج التدريبي</h6>
+                </div>
+                <button type="button" class="btn-close btn-close-white" onclick="closeCalendarModal()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <h5 id="mEventHeading" class="fw-bold text-dark mb-3"></h5>
+
+                <div class="p-3 bg-light rounded-3 mb-3 border d-flex flex-column gap-2.5 small">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-map-marker-alt text-danger fs-6" style="width: 22px;"></i>
+                        <span class="text-muted">مكان التدريب / القاعة:</span>
+                        <strong id="mEventLocation" class="text-primary fw-bold fs-6"></strong>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-calendar-alt text-primary" style="width: 22px;"></i>
+                        <span class="text-muted">الفترة الزمنية:</span>
+                        <strong id="mEventDates" class="text-dark font-monospace"></strong>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-hourglass-half text-warning" style="width: 22px;"></i>
+                        <span class="text-muted">المدة المقدرة:</span>
+                        <strong id="mEventDuration" class="text-dark"></strong>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-chalkboard-teacher text-info" style="width: 22px;"></i>
+                        <span class="text-muted">المدرب المشرف:</span>
+                        <strong id="mEventInstructor" class="text-dark"></strong>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-users text-success" style="width: 22px;"></i>
+                        <span class="text-muted">المقاعد المتاحة:</span>
+                        <strong id="mEventSeats" class="text-dark"></strong>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center pt-2">
+                    <button type="button" class="btn btn-light border rounded-3 px-4 fw-semibold" onclick="closeCalendarModal()" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> إغلاق
+                    </button>
+                    <div class="d-flex gap-2">
+                        <a id="mEventAttendance" href="#" class="btn btn-outline-primary rounded-3 px-3 fw-bold d-flex align-items-center gap-1">
+                            <i class="fas fa-user-check"></i>
+                            <span>سجل الحضور</span>
+                        </a>
+                        <a id="mEventUrl" href="#" class="btn btn-primary-modern rounded-3 px-3 fw-bold d-flex align-items-center gap-1">
+                            <i class="fas fa-eye"></i>
+                            <span>لوحة التدريب</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 @endsection
+
+@push('scripts')
+<script>
+let currentMode = 'milestones';
+
+function submitDateJump() {
+    const m = document.getElementById('navMonth').value;
+    const y = document.getElementById('navYear').value;
+    window.location.href = '?month=' + m + '&year=' + y;
+}
+
+function toggleCalendarMode(mode) {
+    currentMode = mode;
+    const btnMilestones = document.getElementById('btnModeMilestones');
+    const btnAll = document.getElementById('btnModeAll');
+
+    if (mode === 'milestones') {
+        btnMilestones.classList.add('btn-primary');
+        btnMilestones.classList.remove('btn-outline-primary');
+        btnAll.classList.add('btn-outline-primary');
+        btnAll.classList.remove('btn-primary');
+    } else {
+        btnAll.classList.add('btn-primary');
+        btnAll.classList.remove('btn-outline-primary');
+        btnMilestones.classList.add('btn-outline-primary');
+        btnMilestones.classList.remove('btn-primary');
+    }
+
+    applyCalendarFilters();
+}
+
+function filterCalendarByLocation(loc) {
+    applyCalendarFilters();
+}
+
+function applyCalendarFilters() {
+    const locSelect = document.getElementById('locationFilterSelect');
+    const selectedLoc = locSelect ? locSelect.value : 'all';
+
+    const progItems = document.querySelectorAll('.cal-prog-item');
+    progItems.forEach(el => {
+        const kind = el.getAttribute('data-kind');
+        const loc = el.getAttribute('data-location');
+
+        let modeMatch = true;
+        if (currentMode === 'milestones') {
+            modeMatch = (kind === 'start' || kind === 'end');
+        } else {
+            modeMatch = true;
+        }
+
+        let locMatch = true;
+        if (selectedLoc !== 'all') {
+            locMatch = (loc === selectedLoc);
+        }
+
+        if (modeMatch && locMatch) {
+            el.style.display = '';
+        } else {
+            el.style.display = 'none';
+        }
+    });
+}
+
+function openCalendarModal(title, location, start, end, duration, instructor, seats, status, url, attendanceUrl) {
+    document.getElementById('mEventHeading').innerText = title;
+    document.getElementById('mEventLocation').innerText = location || 'غير محدد';
+    document.getElementById('mEventDates').innerText = (start || '') + ' إلى ' + (end || '');
+    document.getElementById('mEventDuration').innerText = duration || 'غير محدد';
+    document.getElementById('mEventInstructor').innerText = instructor || 'غير محدد';
+    document.getElementById('mEventSeats').innerText = (seats || '0') + ' مقعد';
+    
+    document.getElementById('mEventUrl').href = url;
+    document.getElementById('mEventAttendance').href = attendanceUrl;
+
+    const modalEl = document.getElementById('calEventModal');
+    if (!modalEl) return;
+
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        let m = bootstrap.Modal.getInstance(modalEl);
+        if (!m) m = new bootstrap.Modal(modalEl, { backdrop: true, keyboard: true });
+        m.show();
+    } else {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+        modalEl.setAttribute('aria-modal', 'true');
+        document.body.classList.add('modal-open');
+    }
+}
+
+function closeCalendarModal() {
+    const modalEl = document.getElementById('calEventModal');
+    if (!modalEl) return;
+
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        const m = bootstrap.Modal.getInstance(modalEl);
+        if (m) {
+            try { m.hide(); } catch(e) {}
+        }
+    }
+
+    modalEl.classList.remove('show');
+    modalEl.style.display = 'none';
+    modalEl.setAttribute('aria-modal', 'false');
+    modalEl.removeAttribute('role');
+    document.body.classList.remove('modal-open');
+    document.body.style.removeProperty('padding-right');
+    document.body.style.removeProperty('overflow');
+
+    document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+}
+
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        closeCalendarModal();
+    }
+});
+</script>
+@endpush

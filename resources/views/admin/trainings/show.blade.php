@@ -52,53 +52,38 @@
 @section("content")
 <div class="container-fluid">
 
-    {{-- Breadcrumbs --}}
-    @include('components.breadcrumbs', [
-        'items' => [
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        :title="$training->title"
+        :subtitle="($training->company->name ?? 'مكتب تدريب الخريجين') . ' • ' . ($training->type_arabic ?? 'برنامج تدريبي') . ' • ' . ($training->duration ?? 'محدد المدة')"
+        icon="fas fa-graduation-cap"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
             ['label' => $isAdmin ? 'لوحة تحكم المدير' : 'لوحة تحكم منسق التدريب', 'url' => $dashboard],
             ['label' => 'إدارة برامج التدريب', 'url' => route($prefix . '.trainings')],
-            ['label' => Str::limit($training->title, 30), 'active' => true],
-        ]
-    ])
-
-    {{-- رأس الصفحة --}}
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div class="d-flex align-items-center gap-3">
-            <div class="rounded-circle bg-light-primary text-primary fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px; font-size: 1.4rem;">
-                <i class="fas fa-graduation-cap"></i>
-            </div>
-            <div>
-                <h2 class="text-primary fw-bold mb-1">{{ $training->title }}</h2>
-                <div class="d-flex align-items-center gap-2 flex-wrap text-muted small">
-                    <span class="badge bg-light text-primary border border-primary rounded-pill px-3 py-1">
-                        {{ $training->type_arabic ?? 'تدريب' }}
-                    </span>
-                    <span class="badge {{ $training->status === 'active' ? 'bg-light text-success border border-success' : ($training->status === 'completed' ? 'bg-light text-info border border-info' : 'bg-light text-secondary border') }} rounded-pill px-3 py-1">
-                        {{ $training->status === 'active' ? '🟢 نشط' : ($training->status === 'completed' ? '✅ مكتمل' : '⏸ غير نشط') }}
-                    </span>
-                    <span><i class="fas fa-building me-1"></i>{{ $training->company->name ?? 'مكتب تدريب الخريجين' }}</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="d-flex gap-2 flex-wrap">
-            <a href="{{ route($prefix . '.trainings.attendance', $training->id) }}" class="btn btn-warning-modern fw-bold">
-                <i class="fas fa-clipboard-check me-1"></i> سجل ومصفوفة الحضور
-            </a>
-            @if($training->status == 'active')
-            <a href="{{ route($prefix . '.trainings.scanner', $training->id) }}" class="btn btn-primary-modern">
-                <i class="fas fa-qrcode me-1"></i> ماسح QR
-            </a>
-            @endif
-            <a href="{{ route($prefix . '.trainings.edit', $training->id) }}" class="btn btn-outline-primary-modern">
-                <i class="fas fa-edit me-1"></i> تعديل
-            </a>
-            <a href="{{ route($prefix . '.trainings') }}" class="btn btn-outline-secondary-modern">
-                <i class="fas fa-arrow-right me-1"></i> رجوع
-            </a>
-        </div>
-    </div>
+            ['label' => Str::limit($training->title, 25)]
+        ]"
+        :badge="$training->status === 'active' ? '🟢 تدريب نشط' : ($training->status === 'completed' ? '✅ تدريب مكتمل' : '⏸ غير نشط')"
+    >
+        <a href="{{ route($prefix . '.trainings.attendance', $training->id) }}" class="btn btn-warning text-dark fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
+            <i class="fas fa-clipboard-check"></i>
+            <span>سجل ومصفوفة الحضور</span>
+        </a>
+        @if($training->status == 'active')
+        <a href="{{ route($prefix . '.trainings.scanner', $training->id) }}" class="btn btn-light bg-white text-primary fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
+            <i class="fas fa-qrcode"></i>
+            <span>ماسح QR</span>
+        </a>
+        @endif
+        <a href="{{ route($prefix . '.trainings.edit', $training->id) }}" class="btn btn-outline-light py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
+            <i class="fas fa-edit"></i>
+            <span>تعديل</span>
+        </a>
+        <a href="{{ route($prefix . '.trainings') }}" class="btn btn-outline-light py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
+            <i class="fas fa-arrow-right"></i>
+            <span>رجوع</span>
+        </a>
+    </x-page-hero>
 
     {{-- بطاقات الإحصائيات --}}
     <div class="row mb-4">

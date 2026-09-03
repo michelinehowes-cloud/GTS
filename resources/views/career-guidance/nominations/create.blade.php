@@ -18,23 +18,7 @@
         ]
     ])
 
-    <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-primary fw-bold mb-0">
-            <i class="fas fa-paper-plane me-2"></i> ترشيح خريج لفرصة عمل
-        </h2>
-        <a href="{{ route($routePrefix . '.nominations') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-right me-1"></i> العودة للقائمة
-        </a>
-    </div>
-
-    <div class="card-modern">
-        <div class="card-header bg-white py-3 border-bottom">
-            <h5 class="card-title mb-0 text-primary fw-bold">
-                <i class="fas fa-plus-circle me-2"></i>نموذج إنشاء ترشيح جديد
-            </h5>
-        </div>
-        <div class="card-body p-4">
+    <x-bento-form title="إنشاء ترشيح وظيفي جديد" subtitle="ربط وترشيح خريج مؤهل لفرصة عمل أو تدريب لدى شركة شريكة" icon="fa-paper-plane" :backRoute="route($routePrefix . '.nominations')">
             <form action="{{ route($routePrefix . '.nominations.store') }}" method="POST">
                 @csrf
                 
@@ -175,18 +159,17 @@
                     </div>
 
                     <!-- أزرار الإجراء -->
-                    <div class="col-12 d-flex justify-content-between align-items-center pt-2">
-                        <a href="{{ route($routePrefix . '.nominations') }}" class="btn btn-outline-secondary">
+                    <div class="col-12 d-flex justify-content-between align-items-center pt-3 border-top mt-4">
+                        <a href="{{ route($routePrefix . '.nominations') }}" class="btn btn-secondary px-4 py-2 rounded-pill">
                             <i class="fas fa-times me-1"></i> إلغاء
                         </a>
-                        <button type="submit" class="btn btn-primary-modern px-5 py-2">
+                        <button type="submit" class="btn btn-primary px-5 py-2 rounded-pill shadow-sm">
                             <i class="fas fa-paper-plane me-2"></i> إرسال الترشيح
                         </button>
                     </div>
                 </div>
             </form>
-        </div>
-    </div>
+    </x-bento-form>
 </div>
 @endsection
 

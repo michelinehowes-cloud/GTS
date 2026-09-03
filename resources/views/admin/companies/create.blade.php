@@ -15,15 +15,7 @@
         ]
     ])
 
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card-modern">
-                <div class="card-header bg-white py-3 border-bottom">
-                    <h5 class="card-title mb-0 text-primary fw-bold">
-                        <i class="fas fa-building me-2"></i> بيانات الشركة الجديدة
-                    </h5>
-                </div>
-                <div class="card-body p-4">
+    <x-bento-form title="إضافة شركة جديدة" subtitle="بيانات المؤسسة أو الشركة الشريكة ومسؤول الاتصال" icon="fa-building" :backRoute="route('admin.companies')">
                     @if($errors->any())
                     <div class="alert alert-danger border-0 bg-light text-danger text-danger mb-4">
                         <ul class="mb-0">
@@ -190,17 +182,14 @@
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-                            <a href="{{ route('admin.companies') }}" class="btn btn-secondary-modern">
-                                <i class="fas fa-arrow-right me-2"></i>رجوع للقائمة
+                            <a href="{{ route('admin.companies') }}" class="btn btn-secondary px-4 py-2 rounded-pill">
+                                <i class="fas fa-times me-2"></i>إلغاء
                             </a>
-                            <button type="submit" class="btn btn-primary-modern px-4">
+                            <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
                                 <i class="fas fa-save me-2"></i>حفظ الشركة
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    </x-bento-form>
 </div>
 @endsection

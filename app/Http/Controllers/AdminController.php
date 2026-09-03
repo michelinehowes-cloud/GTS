@@ -376,6 +376,43 @@ public function reports()
         return redirect()->back()
             ->with('success', 'تم الموافقة على ' . count($ids) . ' طلب(ات) بنجاح');
     }
+
+    /**
+     * رفض طلبات التدريب دفعة واحدة
+     */
+    public function bulkRejectApplications(Request $request)
+    {
+        $request->validate([
+            'application_ids' => 'required|array',
+            'application_ids.*' => 'exists:training_applications,id'
+        ]);
+
+        $ids = $request->application_ids;
+
+        TrainingApplication::whereIn('id', $ids)
+            ->update(['status' => 'rejected']);
+
+        return redirect()->back()
+            ->with('success', 'تم رفض ' . count($ids) . ' طلب(ات) بنجاح');
+    }
+
+    /**
+     * حذف طلبات التدريب دفعة واحدة
+     */
+    public function bulkDeleteApplications(Request $request)
+    {
+        $request->validate([
+            'application_ids' => 'required|array',
+            'application_ids.*' => 'exists:training_applications,id'
+        ]);
+
+        $ids = $request->application_ids;
+
+        TrainingApplication::whereIn('id', $ids)->delete();
+
+        return redirect()->back()
+            ->with('success', 'تم حذف ' . count($ids) . ' طلب(ات) بنجاح');
+    }
     /**
      * إعادة الطلب إلى قيد المراجعة
      */
@@ -401,5 +438,16 @@ public function reports()
         $application->update(['status' => 'rejected']);
 
         return redirect()->back()->with('success', 'تم رفض طلب التدريب بنجاح');
+    }
+
+    /**
+     * حذف أو إلغاء طلب التدريب
+     */
+    public function destroyApplication($id)
+    {
+        $application = TrainingApplication::findOrFail($id);
+        $application->delete();
+
+        return redirect()->back()->with('success', 'تم حذف وإلغاء طلب التدريب بنجاح');
     }
 }

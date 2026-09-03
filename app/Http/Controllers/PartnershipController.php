@@ -78,8 +78,14 @@ class PartnershipController extends Controller
      */
     public function documents()
     {
-        $documents = PartnershipDocument::with('company')->latest()->get();
-        return view('partnership.documents.index', compact('documents'));
+        $stats = [
+            'total' => PartnershipDocument::count(),
+            'active' => PartnershipDocument::where('document_status', 'active')->count(),
+            'expired' => PartnershipDocument::where('document_status', 'expired')->count(),
+            'companies_count' => PartnershipDocument::distinct('company_id')->count('company_id'),
+        ];
+        $documents = PartnershipDocument::with('company')->latest()->paginate(15);
+        return view('partnership.documents.index', compact('documents', 'stats'));
     }
 
     /**
@@ -126,6 +132,40 @@ class PartnershipController extends Controller
         ]);
 
         return redirect()->route('partnership.documents')->with('success', 'تم إضافة الوثيقة بنجاح.');
+    }
+
+    /**
+     * عرض أو معاينة وثيقة شراكة
+     */
+    public function showDocument($id)
+    {
+        $document = PartnershipDocument::findOrFail($id);
+
+        if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
+            return Storage::disk('public')->response(
+                $document->file_path,
+                $document->file_name ?? basename($document->file_path)
+            );
+        }
+
+        return redirect()->route('partnership.documents')->with('error', 'ملف الوثيقة غير متوفر حالياً على الخادم.');
+    }
+
+    /**
+     * تنزيل وثيقة شراكة
+     */
+    public function downloadDocument($id)
+    {
+        $document = PartnershipDocument::findOrFail($id);
+
+        if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
+            return Storage::disk('public')->download(
+                $document->file_path,
+                $document->file_name ?? basename($document->file_path)
+            );
+        }
+
+        return redirect()->route('partnership.documents')->with('error', 'ملف الوثيقة غير متوفر حالياً على الخادم.');
     }
 
     /**
@@ -296,18 +336,37 @@ class PartnershipController extends Controller
                 ->whereNotNull('partnership_status')
                 ->groupBy('partnership_status')
                 ->get(),
+            'byIndustry' => Company::selectRaw('industry, count(*) as count')
+                ->whereNotNull('industry')
+                ->groupBy('industry')
+                ->orderByDesc('count')
+                ->take(6)
+                ->get(),
         ];
 
         $opportunityStats = [
             'byType' => JobOpportunity::selectRaw('type, count(*) as count')
+                ->whereNotNull('type')
                 ->groupBy('type')
                 ->get(),
             'byStatus' => JobOpportunity::selectRaw('status, count(*) as count')
+                ->whereNotNull('status')
                 ->groupBy('status')
                 ->get(),
         ];
 
-        return view('partnership.reports', compact('partnershipStats', 'opportunityStats'));
+        $counts = [
+            'totalCompanies' => Company::count(),
+            'activePartnerships' => Company::where('partnership_status', 'active')->count(),
+            'totalOpportunities' => JobOpportunity::count(),
+            'openOpportunities' => JobOpportunity::where('status', 'open')->count(),
+            'totalDocuments' => PartnershipDocument::count(),
+            'approvedCompanies' => Company::where('is_approved', true)->count(),
+        ];
+
+        $recentCompanies = Company::latest()->take(6)->get();
+
+        return view('partnership.reports', compact('partnershipStats', 'opportunityStats', 'counts', 'recentCompanies'));
     }
 
     /**

@@ -8,37 +8,28 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Breadcrumbs -->
-    @include('components.breadcrumbs', [
-        'items' => [
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="إدارة بيانات الخريجين"
+        subtitle="عرض وإدارة قاعدة بيانات الخريجين المسجلين في النظام ومتابعة الترشيحات والتوظيف"
+        icon="fas fa-user-graduate"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
             ['label' => 'لوحة الإرشاد المهني', 'url' => route($prefix . '.dashboard')],
-            ['label' => 'إدارة بيانات الخريجين', 'active' => true],
-        ]
-    ])
-
-    <!-- Page Header -->
-    <div class="card-modern mb-4 p-3 p-md-4">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <div class="rounded-circle bg-light-primary text-primary fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px; font-size: 1.4rem; background-color: #e0f2fe !important; color: #0284c7 !important;">
-                    <i class="fas fa-users-graduate"></i>
-                </div>
-                <div>
-                    <h2 class="text-primary fw-bold mb-1 fs-4">إدارة بيانات الخريجين</h2>
-                    <p class="text-muted small mb-0">عرض وإدارة قاعدة بيانات الخريجين المسجلين في النظام ومتابعة الترشيحات الأكاديمية والمهنية</p>
-                </div>
-            </div>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <button class="btn btn-outline-secondary rounded-pill px-3 py-2 fw-semibold" data-bs-toggle="modal" data-bs-target="#importGraduatesModal">
-                    <i class="fas fa-file-import me-1 text-primary"></i> استيراد Excel
-                </button>
-                <a href="{{ route($prefix . '.graduates.create') }}" class="btn btn-primary-modern rounded-pill px-3 py-2 fw-semibold shadow-sm">
-                    <i class="fas fa-user-plus me-1"></i> إضافة خريج جديد
-                </a>
-            </div>
-        </div>
-    </div>
+            ['label' => 'إدارة بيانات الخريجين']
+        ]"
+        secondaryBadge="إجمالي الخريجين: {{ method_exists($graduates, 'total') ? $graduates->total() : $graduates->count() }}"
+        secondaryBadgeIcon="fas fa-users"
+    >
+        <button type="button" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" data-bs-toggle="modal" data-bs-target="#importGraduatesModal" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-file-import fs-6"></i>
+            <span>استيراد Excel</span>
+        </button>
+        <a href="{{ route($prefix . '.graduates.create') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-user-plus fs-6"></i>
+            <span>إضافة خريج جديد</span>
+        </a>
+    </x-page-hero>
 
     <!-- Alert Messages -->
     @if(session('import_errors'))

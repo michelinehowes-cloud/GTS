@@ -4,90 +4,159 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">إضافة وثيقة شراكة جديدة</h1>
-        <a href="{{ route('partnership.documents') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-right me-1"></i> العودة لوثائق الشراكة
+
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="إضافة وثيقة شراكة جديدة"
+        subtitle="رفع وتوثيق العقود ومذكرات التفاهم والاتفاقيات الرسمية المبرمة مع المؤسسات الشريكة"
+        icon="fas fa-file-signature"
+        :breadcrumbs="[
+            ['label' => 'الرئيسية', 'url' => route('home')],
+            ['label' => 'لوحة الشراكات والتوظيف', 'url' => route('partnership.dashboard')],
+            ['label' => 'وثائق الشراكة', 'url' => route('partnership.documents')],
+            ['label' => 'إضافة وثيقة']
+        ]"
+        badge="توثيق الاتفاقيات"
+    >
+        <a href="{{ route('partnership.documents') }}" class="btn btn-light bg-white text-dark fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
+            <i class="fas fa-arrow-right"></i>
+            <span>العودة لقائمة الوثائق</span>
         </a>
-    </div>
+    </x-page-hero>
 
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">نموذج إضافة وثيقة</h6>
-        </div>
-        <div class="card-body">
-            <form action="{{ route('partnership.documents.store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-
-                <div class="mb-3">
-                    <label for="company_id" class="form-label">الشركة الشريكة <span class="text-danger">*</span></label>
-                    <select class="form-control" id="company_id" name="company_id" required>
-                        <option value="">اختر شركة</option>
-                        @foreach($companies as $company)
-                            <option value="{{ $company->id }}" {{ old('company_id') == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
-                        @endforeach
-                    </select>
+    <!-- بطاقة النموذج الحديثة -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <div class="card-modern shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-white py-3 px-4 border-bottom d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 1.1rem;">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold text-dark fs-6">بيانات الوثيقة أو الاتفاقية</h6>
+                        <small class="text-muted">يرجى تعبئة الحقول المطلوبة ورفع النسخة الرقمية المعتمدة للوثيقة</small>
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label for="document_name" class="form-label">اسم الوثيقة <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="document_name" name="document_name" value="{{ old('document_name') }}" required>
-                </div>
+                <div class="card-body p-4">
+                    @if (isset($errors) && $errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-4" role="alert">
+                            <h6 class="fw-bold mb-2"><i class="fas fa-exclamation-triangle me-2"></i>يرجى تصحيح الأخطاء التالية:</h6>
+                            <ul class="mb-0 ps-3">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
 
-                <div class="mb-3">
-                    <label for="document_type" class="form-label">نوع الوثيقة <span class="text-danger">*</span></label>
-                    <select class="form-control" id="document_type" name="document_type" required>
-                        <option value="">اختر نوع الوثيقة</option>
-                        <option value="mou" {{ old('document_type') == 'mou' ? 'selected' : '' }}>مذكرة تفاهم (MOU)</option>
-                        <option value="contract" {{ old('document_type') == 'contract' ? 'selected' : '' }}>عقد</option>
-                        <option value="agreement" {{ old('document_type') == 'agreement' ? 'selected' : '' }}>اتفاقية</option>
-                        <option value="amendment" {{ old('document_type') == 'amendment' ? 'selected' : '' }}>تعديل</option>
-                        <option value="renewal" {{ old('document_type') == 'renewal' ? 'selected' : '' }}>تجديد</option>
-                        <option value="termination" {{ old('document_type') == 'termination' ? 'selected' : '' }}>إنهاء</option>
-                        <option value="other" {{ old('document_type') == 'other' ? 'selected' : '' }}>أخرى</option>
-                    </select>
-                </div>
+                    <form action="{{ route('partnership.documents.store') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
 
-                <div class="mb-3">
-                    <label for="document_file" class="form-label">ملف الوثيقة <span class="text-danger">*</span></label>
-                    <input type="file" class="form-control" id="document_file" name="document_file" required>
-                    <small class="form-text text-muted">الصيغ المدعومة: PDF, DOC, DOCX, JPG, JPEG, PNG (الحد الأقصى 10MB)</small>
-                </div>
+                        <div class="row g-3 g-md-4">
+                            <!-- الشركة الشريكة -->
+                            <div class="col-md-6">
+                                <label for="company_id" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-building text-primary me-1"></i>الشركة الشريكة <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select py-2 rounded-3 border-secondary-subtle" id="company_id" name="company_id" required>
+                                    <option value="">-- اختر الشركة --</option>
+                                    @foreach($companies as $company)
+                                        <option value="{{ $company->id }}" {{ old('company_id') == $company->id ? 'selected' : '' }}>
+                                            {{ $company->name }} {{ $company->industry ? "({$company->industry})" : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-                <div class="mb-3">
-                    <label for="document_date" class="form-label">تاريخ الوثيقة</label>
-                    <input type="date" class="form-control" id="document_date" name="document_date" value="{{ old('document_date') }}">
-                </div>
+                            <!-- نوع الوثيقة -->
+                            <div class="col-md-6">
+                                <label for="document_type" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-tag text-primary me-1"></i>نوع الوثيقة <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select py-2 rounded-3 border-secondary-subtle" id="document_type" name="document_type" required>
+                                    <option value="">-- اختر نوع الوثيقة --</option>
+                                    <option value="mou" {{ old('document_type') == 'mou' ? 'selected' : '' }}>مذكرة تفاهم (MOU)</option>
+                                    <option value="contract" {{ old('document_type') == 'contract' ? 'selected' : '' }}>عقد شراكة وتوظيف</option>
+                                    <option value="agreement" {{ old('document_type') == 'agreement' ? 'selected' : '' }}>اتفاقية تعاون مشترك</option>
+                                    <option value="amendment" {{ old('document_type') == 'amendment' ? 'selected' : '' }}>ملحق تعديل اتفاقية</option>
+                                    <option value="renewal" {{ old('document_type') == 'renewal' ? 'selected' : '' }}>تجديد عقد أو شراكة</option>
+                                    <option value="termination" {{ old('document_type') == 'termination' ? 'selected' : '' }}>إنهاء شراكة</option>
+                                    <option value="other" {{ old('document_type') == 'other' ? 'selected' : '' }}>أخرى</option>
+                                </select>
+                            </div>
 
-                <div class="mb-3">
-                    <label for="effective_date" class="form-label">تاريخ السريان</label>
-                    <input type="date" class="form-control" id="effective_date" name="effective_date" value="{{ old('effective_date') }}">
-                </div>
+                            <!-- اسم الوثيقة -->
+                            <div class="col-12">
+                                <label for="document_name" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-heading text-primary me-1"></i>اسم / عنوان الوثيقة <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control py-2 rounded-3 border-secondary-subtle" id="document_name" name="document_name" value="{{ old('document_name') }}" placeholder="مثال: مذكرة تفاهم لتدريب وتوظيف خريجي تقنية المعلومات 2026" required>
+                            </div>
 
-                <div class="mb-3">
-                    <label for="expiry_date" class="form-label">تاريخ الانتهاء</label>
-                    <input type="date" class="form-control" id="expiry_date" name="expiry_date" value="{{ old('expiry_date') }}">
-                </div>
+                            <!-- ملف الوثيقة -->
+                            <div class="col-12">
+                                <label for="document_file" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-file-pdf text-danger me-1"></i>الملف الرقمي للوثيقة <span class="text-danger">*</span>
+                                </label>
+                                <div class="p-3 border rounded-3 bg-light bg-opacity-50">
+                                    <input type="file" class="form-control rounded-3" id="document_file" name="document_file" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                    <div class="d-flex align-items-center gap-2 mt-2 text-muted small">
+                                        <i class="fas fa-info-circle text-primary"></i>
+                                        <span>الصيغ المدعومة: PDF, DOC, DOCX, JPG, PNG (الحد الأقصى المسموح به: 10 ميجابايت)</span>
+                                    </div>
+                                </div>
+                            </div>
 
-                <div class="mb-3">
-                    <label for="description" class="form-label">الوصف</label>
-                    <textarea class="form-control" id="description" name="description" rows="3">{{ old('description') }}</textarea>
-                </div>
+                            <!-- تاريخ الوثيقة -->
+                            <div class="col-md-4">
+                                <label for="document_date" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-calendar-day text-primary me-1"></i>تاريخ توقيع الوثيقة
+                                </label>
+                                <input type="date" class="form-control py-2 rounded-3 border-secondary-subtle font-monospace" id="document_date" name="document_date" value="{{ old('document_date') }}">
+                            </div>
 
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save me-1"></i> حفظ الوثيقة
-                </button>
-            </form>
+                            <!-- تاريخ السريان -->
+                            <div class="col-md-4">
+                                <label for="effective_date" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-play-circle text-success me-1"></i>تاريخ سريان الاتفاقية
+                                </label>
+                                <input type="date" class="form-control py-2 rounded-3 border-secondary-subtle font-monospace" id="effective_date" name="effective_date" value="{{ old('effective_date') }}">
+                            </div>
+
+                            <!-- تاريخ الانتهاء -->
+                            <div class="col-md-4">
+                                <label for="expiry_date" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-flag-checkered text-danger me-1"></i>تاريخ انتهاء الصلاحية
+                                </label>
+                                <input type="date" class="form-control py-2 rounded-3 border-secondary-subtle font-monospace" id="expiry_date" name="expiry_date" value="{{ old('expiry_date') }}">
+                            </div>
+
+                            <!-- الوصف والملاحظات -->
+                            <div class="col-12">
+                                <label for="description" class="form-label fw-bold text-dark">
+                                    <i class="fas fa-align-right text-primary me-1"></i>ملخص أو بنود الاتفاقية
+                                </label>
+                                <textarea class="form-control rounded-3 border-secondary-subtle" id="description" name="description" rows="3" placeholder="أدخل ملخصاً لأهم بنود الاتفاقية أو أهداف الشراكة...">{{ old('description') }}</textarea>
+                            </div>
+                        </div>
+
+                        <hr class="my-4 text-muted opacity-25">
+
+                        <!-- أزرار الإجراءات -->
+                        <div class="d-flex justify-content-end align-items-center gap-2">
+                            <a href="{{ route('partnership.documents') }}" class="btn btn-light border px-4 py-2 rounded-3 text-muted">
+                                إلغاء
+                            </a>
+                            <button type="submit" class="btn btn-primary-modern px-5 py-2 rounded-3 fw-bold d-flex align-items-center gap-1.5 shadow-sm">
+                                <i class="fas fa-save"></i>
+                                <span>حفظ وتوثيق الشراكة</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>

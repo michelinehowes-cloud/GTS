@@ -5,30 +5,27 @@
 
 @section('content')
     <div class="container-fluid py-4">
-        <!-- Breadcrumbs -->
-        @include('components.breadcrumbs', [
-            'items' => [
-                ['label' => 'الرئيسية', 'url' => route('home')],
-                ['label' => 'لوحة تحكم الشركة', 'active' => true],
-            ]
-        ])
-
-        <!-- بطاقة الترحيب (Welcome Card) -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="bento-card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border-left: 4px solid var(--bento-gold);">
-                    <div class="d-flex align-items-center">
-                        <div class="avatar-md bg-white text-primary rounded-circle d-flex align-items-center justify-content-center me-4" style="width: 70px; height: 70px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-                            <img src="{{ $company && $company->logo_path ? Storage::url($company->logo_path) : asset('images/default-company.png') }}" alt="شعار الشركة" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-                        </div>
-                        <div>
-                            <h2 class="mb-1 fw-bold text-white" style="letter-spacing: -0.5px;">مرحباً بك، {{ auth()->user()->name }} 👋</h2>
-                            <p class="mb-0 text-white-50 fs-5"><i class="fas fa-building me-2"></i> {{ $company->name ?? 'شركة غير محددة' }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="مرحباً بك، {{ auth()->user()->name }}"
+        subtitle="{{ $company->name ?? 'لوحة إدارة فرص العمل ومتابعة المتقدمين والتوظيف' }}"
+        icon="fas fa-building"
+        :breadcrumbs="[
+            ['label' => 'الرئيسية', 'url' => route('home')],
+            ['label' => 'لوحة تحكم الشركة']
+        ]"
+        secondaryBadge="مؤسسة شريكة"
+        secondaryBadgeIcon="fas fa-handshake"
+    >
+        <a href="{{ route('company.nominations') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-users fs-6"></i>
+            <span>المرشحون للوظائف</span>
+        </a>
+        <a href="{{ route('company.profile.edit') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-id-card fs-6"></i>
+            <span>تعديل ملف الشركة</span>
+        </a>
+    </x-page-hero>
 
         <!-- الإحصائيات (Bento Grid Stats) -->
         <div class="bento-grid">

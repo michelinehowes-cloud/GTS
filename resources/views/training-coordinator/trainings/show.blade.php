@@ -52,53 +52,38 @@
 @section("content")
 <div class="container-fluid">
 
-    {{-- Breadcrumbs --}}
-    @include('components.breadcrumbs', [
-        'items' => [
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        :title="$training->title"
+        :subtitle="($training->company->name ?? 'مكتب تدريب الخريجين') . ' • ' . ($training->type_arabic ?? 'برنامج تدريبي') . ' • ' . ($training->duration ?? 'محدد المدة')"
+        icon="fas fa-graduation-cap"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
             ['label' => $isAdmin ? 'لوحة تحكم المدير' : 'لوحة تحكم منسق التدريب', 'url' => $dashboard],
             ['label' => 'إدارة برامج التدريب', 'url' => route($prefix . '.trainings')],
-            ['label' => Str::limit($training->title, 30), 'active' => true],
-        ]
-    ])
-
-    {{-- رأس الصفحة --}}
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div class="d-flex align-items-center gap-3">
-            <div class="rounded-circle bg-light-primary text-primary fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px; font-size: 1.4rem;">
-                <i class="fas fa-graduation-cap"></i>
-            </div>
-            <div>
-                <h2 class="text-primary fw-bold mb-1">{{ $training->title }}</h2>
-                <div class="d-flex align-items-center gap-2 flex-wrap text-muted small">
-                    <span class="badge bg-light text-primary border border-primary rounded-pill px-3 py-1">
-                        {{ $training->type_arabic ?? 'تدريب' }}
-                    </span>
-                    <span class="badge {{ $training->status === 'active' ? 'bg-light text-success border border-success' : ($training->status === 'completed' ? 'bg-light text-info border border-info' : 'bg-light text-secondary border') }} rounded-pill px-3 py-1">
-                        {{ $training->status === 'active' ? '🟢 نشط' : ($training->status === 'completed' ? '✅ مكتمل' : '⏸ غير نشط') }}
-                    </span>
-                    <span><i class="fas fa-building me-1"></i>{{ $training->company->name ?? 'مكتب تدريب الخريجين' }}</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="d-flex gap-2 flex-wrap">
-            <a href="{{ route($prefix . '.trainings.attendance', $training->id) }}" class="btn btn-warning-modern fw-bold">
-                <i class="fas fa-clipboard-check me-1"></i> سجل ومصفوفة الحضور
-            </a>
-            @if($training->status == 'active')
-            <a href="{{ route($prefix . '.trainings.scanner', $training->id) }}" class="btn btn-primary-modern">
-                <i class="fas fa-qrcode me-1"></i> ماسح QR
-            </a>
-            @endif
-            <a href="{{ route($prefix . '.trainings.edit', $training->id) }}" class="btn btn-outline-primary-modern">
-                <i class="fas fa-edit me-1"></i> تعديل
-            </a>
-            <a href="{{ route($prefix . '.trainings') }}" class="btn btn-outline-secondary-modern">
-                <i class="fas fa-arrow-right me-1"></i> رجوع
-            </a>
-        </div>
-    </div>
+            ['label' => Str::limit($training->title, 25)]
+        ]"
+        :badge="$training->status === 'active' ? '🟢 تدريب نشط' : ($training->status === 'completed' ? '✅ تدريب مكتمل' : '⏸ غير نشط')"
+    >
+        <a href="{{ route($prefix . '.trainings.attendance', $training->id) }}" class="btn btn-warning text-dark fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
+            <i class="fas fa-clipboard-check"></i>
+            <span>سجل ومصفوفة الحضور</span>
+        </a>
+        @if($training->status == 'active')
+        <a href="{{ route($prefix . '.trainings.scanner', $training->id) }}" class="btn btn-light bg-white text-primary fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
+            <i class="fas fa-qrcode"></i>
+            <span>ماسح QR</span>
+        </a>
+        @endif
+        <a href="{{ route($prefix . '.trainings.edit', $training->id) }}" class="btn btn-outline-light py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
+            <i class="fas fa-edit"></i>
+            <span>تعديل</span>
+        </a>
+        <a href="{{ route($prefix . '.trainings') }}" class="btn btn-outline-light py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
+            <i class="fas fa-arrow-right"></i>
+            <span>رجوع</span>
+        </a>
+    </x-page-hero>
 
     {{-- بطاقات الإحصائيات --}}
     <div class="row mb-4">
@@ -319,19 +304,19 @@
                 <!-- أزرار الإجراءات على المحدد -->
                 <div id="show-bulk-toolbar" class="d-none d-flex align-items-center gap-2 bg-light p-1 px-2 rounded-pill border">
                     <span class="small fw-bold text-dark me-1">المحدد (<span id="show-selected-count" class="text-primary">0</span>):</span>
-                    <button type="button" class="btn btn-success-modern btn-sm py-1 px-3" onclick="submitShowBulk('approve')">
+                    <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1" onclick="submitShowBulk('approve')">
                         <i class="fas fa-check me-1"></i>قبول
                     </button>
-                    <button type="button" class="btn btn-danger-modern btn-sm py-1 px-3" onclick="submitShowBulk('reject')">
+                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1" onclick="submitShowBulk('reject')">
                         <i class="fas fa-times me-1"></i>رفض
                     </button>
-                    <button type="button" class="btn btn-outline-danger-modern btn-sm py-1 px-3" onclick="submitShowBulk('delete')">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1" onclick="submitShowBulk('delete')">
                         <i class="fas fa-trash me-1"></i>إلغاء وحذف
                     </button>
                 </div>
 
-                <a href="{{ route($prefix . '.trainings.attendance', $training->id) }}" class="btn btn-sm btn-outline-primary-modern">
-                    <i class="fas fa-clipboard-check me-1"></i> مصفوفة الحضور اليومية
+                <a href="{{ route($prefix . '.trainings.attendance', $training->id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1">
+                    <i class="fas fa-clipboard-check me-1"></i> مصفوفة الحضور
                 </a>
             </div>
         </div>
@@ -418,32 +403,32 @@
                                         <span class="text-muted small">-</span>
                                     @endif
                                 </td>
-                                <td class="text-center">
-                                    <div class="btn-group btn-group-sm" role="group">
+                                <td class="text-center" style="white-space: nowrap;">
+                                    <div class="d-flex align-items-center justify-content-center gap-1">
                                         @if($app->status == 'pending')
-                                            <form action="{{ route($prefix . '.applications.approve', $app->id) }}" method="POST" class="d-inline">
+                                            <form action="{{ route($prefix . '.applications.approve', $app->id) }}" method="POST" class="d-inline m-0">
                                                 @csrf
-                                                <button type="submit" class="btn btn-outline-success-modern" title="قبول">
+                                                <button type="submit" class="btn btn-sm btn-outline-success rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 32px; height: 32px;" title="قبول الطلب">
                                                     <i class="fas fa-check"></i>
                                                 </button>
                                             </form>
-                                            <form action="{{ route($prefix . '.applications.reject', $app->id) }}" method="POST" class="d-inline ms-1">
+                                            <form action="{{ route($prefix . '.applications.reject', $app->id) }}" method="POST" class="d-inline m-0">
                                                 @csrf
-                                                <button type="submit" class="btn btn-outline-danger-modern" title="رفض">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 32px; height: 32px;" title="رفض الطلب">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </form>
                                         @else
-                                            <form action="{{ route($prefix . '.applications.pending', $app->id) }}" method="POST" class="d-inline">
+                                            <form action="{{ route($prefix . '.applications.pending', $app->id) }}" method="POST" class="d-inline m-0">
                                                 @csrf
-                                                <button type="submit" class="btn btn-outline-warning-modern" title="إعادة للمراجعة">
+                                                <button type="submit" class="btn btn-sm btn-outline-warning rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 32px; height: 32px;" title="إعادة للمراجعة">
                                                     <i class="fas fa-redo"></i>
                                                 </button>
                                             </form>
                                         @endif
 
                                         @if($app->user)
-                                            <a href="{{ route('graduate.profile.public', $app->user->id) }}" target="_blank" class="btn btn-outline-primary-modern ms-1" title="الملف التعريفي">
+                                            <a href="{{ route('graduate.profile.public', $app->user->id) }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 32px; height: 32px;" title="الملف التعريفي">
                                                 <i class="fas fa-user"></i>
                                             </a>
                                         @endif

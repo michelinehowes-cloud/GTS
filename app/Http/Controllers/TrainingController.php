@@ -460,27 +460,138 @@ class TrainingController extends Controller
 
     // ========== 📅 التقويم ==========
 
+    // ========== 📅 التقويم المعتمد ==========
+
     public function calendar(Request $request)
     {
         try {
-            $month = $request->input('month', Carbon::now()->month);
-            $year = $request->input('year', Carbon::now()->year);
+            $month = (int) $request->input('month', Carbon::now()->month);
+            $year  = (int) $request->input('year', Carbon::now()->year);
 
-            $month = max(1, min(12, $month));
-            $year = max(2020, min(2030, $year));
+            if ($month < 1) {
+                $month = 12;
+                $year--;
+            } elseif ($month > 12) {
+                $month = 1;
+                $year++;
+            }
+
+            $year = max(2020, min(2035, $year));
 
             $startDate = Carbon::create($year, $month, 1);
-            $endDate = $startDate->copy()->endOfMonth();
+            $endDate   = $startDate->copy()->endOfMonth();
 
-            $trainings = Training::where(function ($query) use ($startDate, $endDate) {
-                $query->whereBetween('start_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
-                    ->orWhereBetween('end_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
-            })
-                ->get();
+            // أسماء الأشهر بالعربية
+            $arabicMonths = [
+                1 => 'يناير', 2 => 'فبراير', 3 => 'مارس', 4 => 'أبريل',
+                5 => 'مايو', 6 => 'يونيو', 7 => 'يوليو', 8 => 'أغسطس',
+                9 => 'سبتمبر', 10 => 'أكتوبر', 11 => 'نوفمبر', 12 => 'ديسمبر'
+            ];
+            $monthName = $arabicMonths[$month] ?? $startDate->translatedFormat('F');
 
-            $calendar = $this->generateCalendar($month, $year, $trainings);
+            // التنقل للشهر السابق والقادم
+            $prevDate  = $startDate->copy()->subMonth();
+            $prevMonth = $prevDate->month;
+            $prevYear  = $prevDate->year;
 
-            return view('training-coordinator.calendar', compact('calendar', 'trainings', 'month', 'year', 'startDate'));
+            $nextDate  = $startDate->copy()->addMonth();
+            $nextMonth = $nextDate->month;
+            $nextYear  = $nextDate->year;
+
+            $trainings = Training::with(['company', 'coordinator', 'applications'])->get();
+
+            // شبكة التقويم المعتمدة: 42 يوماً تبدأ من الأحد (Sunday = 0) إلى السبت (Saturday = 6)
+            $firstDayOffset = $startDate->dayOfWeek; // 0 = الأحد, 1 = الإثنين, ..., 6 = السبت
+            $gridStart      = $startDate->copy()->subDays($firstDayOffset);
+            $gridEnd        = $gridStart->copy()->addDays(41); // 6 أسابيع كاملة = 42 يوماً
+
+            $days = [];
+            $curr = $gridStart->copy();
+
+            while ($curr <= $gridEnd) {
+                $dateStr        = $curr->format('Y-m-d');
+                $isCurrentMonth = ($curr->month == $month);
+                $isToday        = $curr->isToday();
+
+                $dayEvents = [];
+                foreach ($trainings as $training) {
+                    $startStr = $training->start_date ? $training->start_date->format('Y-m-d') : null;
+                    $endStr   = $training->end_date ? $training->end_date->format('Y-m-d') : null;
+
+                    $isStart   = ($startStr === $dateStr);
+                    $isEnd     = ($endStr === $dateStr && $startStr !== $endStr);
+                    $isOngoing = ($training->start_date && $training->end_date && $curr->between($training->start_date->startOfDay(), $training->end_date->endOfDay()));
+
+                    $typeColors = [
+                        'workshop'   => ['bg' => '#059669', 'prefix' => 'ورشة: '],
+                        'course'     => ['bg' => '#0d3882', 'prefix' => 'دورة: '],
+                        'internship' => ['bg' => '#1d4ed8', 'prefix' => 'تدريب عملي: '],
+                        'seminar'    => ['bg' => '#d97706', 'prefix' => 'ندوة: '],
+                    ];
+                    $cfg = $typeColors[$training->type] ?? ['bg' => '#0d3882', 'prefix' => ''];
+
+                    if ($isStart) {
+                        $fullLabel = $cfg['prefix'] . $training->title;
+                        $dayEvents[] = [
+                            'training'       => $training,
+                            'kind'           => 'start',
+                            'label'          => $fullLabel,
+                            'short_label'    => \Illuminate\Support\Str::limit($fullLabel, 26, '...'),
+                            'sub'            => 'انطلاق التدريب',
+                            'bg'             => $cfg['bg'],
+                            'location'       => $training->location ?? 'غير محدد',
+                            'short_location' => \Illuminate\Support\Str::limit($training->location ?? 'غير محدد', 20, '...'),
+                        ];
+                    } elseif ($isEnd) {
+                        $fullLabel = 'ختام: ' . $training->title;
+                        $dayEvents[] = [
+                            'training'       => $training,
+                            'kind'           => 'end',
+                            'label'          => $fullLabel,
+                            'short_label'    => \Illuminate\Support\Str::limit($fullLabel, 26, '...'),
+                            'sub'            => 'اختتام التدريب',
+                            'bg'             => '#d97706',
+                            'location'       => $training->location ?? 'غير محدد',
+                            'short_location' => \Illuminate\Support\Str::limit($training->location ?? 'غير محدد', 20, '...'),
+                        ];
+                    } elseif ($isOngoing) {
+                        $dayEvents[] = [
+                            'training'       => $training,
+                            'kind'           => 'ongoing',
+                            'label'          => $training->title,
+                            'short_label'    => \Illuminate\Support\Str::limit($training->title, 26, '...'),
+                            'sub'            => 'جلسة تدريبية',
+                            'bg'             => '#0d3882',
+                            'location'       => $training->location ?? 'غير محدد',
+                            'short_location' => \Illuminate\Support\Str::limit($training->location ?? 'غير محدد', 20, '...'),
+                        ];
+                    }
+                }
+
+                $days[] = [
+                    'date'           => $dateStr,
+                    'day'            => $curr->day,
+                    'isCurrentMonth' => $isCurrentMonth,
+                    'isToday'        => $isToday,
+                    'events'         => $dayEvents,
+                ];
+
+                $curr->addDay();
+            }
+
+            $weeks = array_chunk($days, 7);
+
+            $stats = [
+                'total'     => $trainings->count(),
+                'active'    => $trainings->where('status', 'active')->count(),
+                'seats'     => $trainings->sum('seats'),
+                'locations' => $trainings->pluck('location')->filter()->unique()->count(),
+            ];
+
+            return view('training-coordinator.calendar', compact(
+                'trainings', 'weeks', 'month', 'year', 'monthName', 'arabicMonths',
+                'prevMonth', 'prevYear', 'nextMonth', 'nextYear', 'stats'
+            ));
 
         } catch (\Exception $e) {
             return redirect()->route('training-coordinator.dashboard')

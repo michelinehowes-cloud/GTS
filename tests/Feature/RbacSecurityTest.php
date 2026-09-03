@@ -122,5 +122,11 @@ class RbacSecurityTest extends TestCase
 
         $responseEdit = $this->actingAs($superAdmin)->get("/admin/users/{$superAdmin->id}/edit");
         $responseEdit->assertStatus(200);
+
+        $responseAuditLogs = $this->actingAs($superAdmin)->get('/admin/reports/audit-logs');
+        $responseAuditLogs->assertStatus(200);
+
+        $responseReports = $this->actingAs($superAdmin)->get('/admin/reports');
+        $responseReports->assertStatus(200);
     }
 }

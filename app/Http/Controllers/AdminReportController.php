@@ -6,19 +6,16 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Company;
 use App\Models\Training;
-// use App\Models\AuditLog; // Assuming you have an AuditLog model
+use App\Models\AuditLog;
 
 class AdminReportController extends Controller
 {
     public function index()
     {
-        // This will be the main reports and statistics dashboard
-        // You can fetch summary data here for display
         $totalUsers = User::count();
         $totalCompanies = Company::count();
         $totalTrainings = Training::count();
-        // $recentAuditLogs = AuditLog::latest()->take(10)->get(); // AuditLog model missing
-        $recentAuditLogs = collect([]);
+        $recentAuditLogs = AuditLog::with('user')->orderByDesc('timestamp')->take(10)->get();
 
         return view('admin.reports.index', compact('totalUsers', 'totalCompanies', 'totalTrainings', 'recentAuditLogs'));
     }
@@ -44,11 +41,33 @@ class AdminReportController extends Controller
         return view('admin.reports.trainings', compact('trainings'));
     }
 
-    public function auditLogs()
+    public function auditLogs(Request $request)
     {
-        // $auditLogs = AuditLog::latest()->paginate(20); // AuditLog model missing
-        $auditLogs = collect([]); // Return empty collection
-        // Logic to display all system activities
+        $query = AuditLog::with('user');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('action', 'like', "%{$search}%")
+                  ->orWhere('entity', 'like', "%{$search}%")
+                  ->orWhere('ip_address', 'like', "%{$search}%")
+                  ->orWhereHas('user', function ($uq) use ($search) {
+                      $uq->where('name', 'like', "%{$search}%")
+                         ->orWhere('email', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($request->filled('action')) {
+            $query->where('action', $request->action);
+        }
+
+        if ($request->filled('entity')) {
+            $query->where('entity', $request->entity);
+        }
+
+        $auditLogs = $query->orderByDesc('timestamp')->paginate(20)->withQueryString();
+
         return view('admin.reports.audit-logs', compact('auditLogs'));
     }
 }

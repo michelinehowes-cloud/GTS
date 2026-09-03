@@ -60,4 +60,32 @@ class AuditLog extends Model
             return null;
         }
     }
+
+    /**
+     * الوصول البديل لاسم الحدث
+     */
+    public function getEventAttribute()
+    {
+        return $this->action;
+    }
+
+    /**
+     * الوصف التلقائي للعملية
+     */
+    public function getDescriptionAttribute()
+    {
+        $desc = "إجراء ({$this->action}) على ({$this->entity})";
+        if ($this->entity_id) {
+            $desc .= " رقم #{$this->entity_id}";
+        }
+        return $desc;
+    }
+
+    /**
+     * تاريخ الإنشاء كبديل لـ timestamp
+     */
+    public function getCreatedAtAttribute()
+    {
+        return $this->timestamp ?? now();
+    }
 }

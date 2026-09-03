@@ -53,55 +53,13 @@
             background: linear-gradient(180deg, #0d47a1 0%, #1976d2 50%, #2563eb 100%) !important;
         }
 
-        /* الشريط العلوي الأزرق الملكي */
+        /* اعتماد شريط البانر الموحد العريض في جميع الصفحات وإخفاء الشريط العلوي المزدوج */
         .navbar-main {
-            display: flex !important;
-            background: linear-gradient(90deg, #0d47a1 0%, #1565c0 50%, #1976d2 100%) !important;
-            box-shadow: 0 4px 20px rgba(13, 71, 161, 0.22) !important;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.15) !important;
-            width: 100% !important;
-            position: sticky !important;
-            top: 0 !important;
-            z-index: 1030 !important;
-            padding: 10px 0 !important;
-            min-height: 64px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .navbar-main .navbar-brand {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-        }
-
-        .navbar-main .navbar-brand span {
-            color: #ffffff !important;
-            font-size: 1.15rem;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-            -webkit-text-fill-color: #ffffff !important;
-        }
-
-        .navbar-main .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1.5px solid rgba(255, 255, 255, 0.35);
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            transition: all 0.2s ease;
-        }
-
-        .navbar-main .user-avatar:hover {
-            transform: scale(1.08);
-            background: rgba(255, 255, 255, 0.3);
+            display: none !important;
         }
 
         .main-content {
-            padding-top: 0 !important;
+            padding-top: 14px !important;
             padding-bottom: 40px !important;
             min-height: 100vh;
         }

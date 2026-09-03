@@ -320,98 +320,6 @@
                                 </div>
                             </td>
                         </tr>
-
-                        <!-- Modal عرض تفاصيل صلاحيات الموظف -->
-                        <div class="modal fade" id="userPermModal{{ $user->id }}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered modal-lg">
-                                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                                    <div class="modal-header bg-primary text-white py-3 px-4">
-                                        <h5 class="modal-title fw-bold">
-                                            <i class="fas fa-shield-alt me-2"></i> صلاحيات الموظف: {{ $user->name }}
-                                        </h5>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body p-4 bg-light">
-                                        <div class="d-flex align-items-center justify-content-between p-3 bg-white rounded-3 border mb-3">
-                                            <div>
-                                                <strong class="text-dark">{{ $user->email }}</strong>
-                                                <div class="text-muted small">الدور: {{ $user->role_name }}</div>
-                                            </div>
-                                            <span class="badge bg-primary px-3 py-2 rounded-pill">
-                                                {{ $user->permissions->count() }} صلاحية نشطة
-                                            </span>
-                                        </div>
-
-                                        <div class="row g-3">
-                                            @foreach($groupedPermissions as $moduleKey => $moduleData)
-                                                @php
-                                                    $userModulePerms = $user->permissions->where('module', $moduleKey);
-                                                @endphp
-                                                @if($userModulePerms->count() > 0)
-                                                <div class="col-md-6">
-                                                    <div class="card border-0 shadow-sm rounded-3 h-100">
-                                                        <div class="card-header bg-white py-2 px-3 border-bottom d-flex align-items-center gap-2">
-                                                            <i class="{{ $moduleData['meta']['icon'] }}" style="color: {{ $moduleData['meta']['color'] }};"></i>
-                                                            <strong class="small text-dark">{{ $moduleData['meta']['label'] }}</strong>
-                                                            <span class="badge bg-light text-muted border ms-auto small">{{ $userModulePerms->count() }}</span>
-                                                        </div>
-                                                        <div class="card-body p-2">
-                                                            <ul class="list-unstyled mb-0 small">
-                                                                @foreach($userModulePerms as $perm)
-                                                                    <li class="py-1 px-2 border-bottom border-light d-flex align-items-center gap-2">
-                                                                        <i class="fas fa-check-circle text-success small"></i>
-                                                                        <span>{{ $perm->display_name }}</span>
-                                                                    </li>
-                                                                @endforeach
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer bg-white border-0 py-3">
-                                        <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-primary rounded-pill px-4">
-                                            <i class="fas fa-edit me-1"></i> تعديل هذه الصلاحيات
-                                        </a>
-                                        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">إغلاق</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Modal تغيير كلمة المرور -->
-                        <div class="modal fade" id="changePasswordModal{{ $user->id }}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                                    <div class="modal-header bg-light py-3 px-4 border-bottom">
-                                        <h5 class="modal-title fw-bold text-dark">
-                                            <i class="fas fa-key text-warning me-2"></i> تغيير كلمة المرور: {{ $user->name }}
-                                        </h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <form action="{{ route('admin.users.change-password', $user->id) }}" method="POST">
-                                        @csrf
-                                        <div class="modal-body p-4">
-                                            <div class="mb-3">
-                                                <label class="form-label small fw-bold text-muted">كلمة المرور الجديدة (8 خانات على الأقل)</label>
-                                                <input type="password" name="password" class="form-control rounded-3" required minlength="8" placeholder="أدخل كلمة المرور الجديدة">
-                                            </div>
-                                            <div class="mb-2">
-                                                <label class="form-label small fw-bold text-muted">تأكيد كلمة المرور</label>
-                                                <input type="password" name="password_confirmation" class="form-control rounded-3" required minlength="8" placeholder="أعد إدخال كلمة المرور">
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer bg-light py-3 border-0">
-                                            <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">إلغاء</button>
-                                            <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold">حفظ كلمة المرور</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-
                         @empty
                         <tr>
                             <td colspan="6" class="text-center py-5">
@@ -440,4 +348,124 @@
         </div>
     </div>
 </div>
+
+<!-- Modals تفاصيل الصلاحيات وتغيير كلمة المرور (خارج الجدول لضمان التموضع السليم في الشاشة ومنع مشاكل الـ Stacking Context) -->
+@foreach($users as $user)
+    <!-- Modal عرض تفاصيل صلاحيات الموظف -->
+    <div class="modal fade" id="userPermModal{{ $user->id }}" tabindex="-1" aria-labelledby="userPermModalLabel{{ $user->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header bg-primary text-white py-3 px-4 d-flex align-items-center justify-content-between">
+                    <h5 class="modal-title fw-bold mb-0" id="userPermModalLabel{{ $user->id }}">
+                        <i class="fas fa-shield-alt me-2"></i> صلاحيات الموظف: {{ $user->name }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white m-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div class="d-flex align-items-center justify-content-between p-3 bg-white rounded-3 border mb-3">
+                        <div>
+                            <strong class="text-dark">{{ $user->email }}</strong>
+                            <div class="text-muted small">الدور: {{ $user->role_name }}</div>
+                        </div>
+                        <span class="badge bg-primary px-3 py-2 rounded-pill">
+                            {{ $user->permissions->count() }} صلاحية نشطة
+                        </span>
+                    </div>
+
+                    <div class="row g-3">
+                        @foreach($groupedPermissions as $moduleKey => $moduleData)
+                            @php
+                                $userModulePerms = $user->permissions->where('module', $moduleKey);
+                            @endphp
+                            @if($userModulePerms->count() > 0)
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm rounded-3 h-100">
+                                    <div class="card-header bg-white py-2 px-3 border-bottom d-flex align-items-center gap-2">
+                                        <i class="{{ $moduleData['meta']['icon'] ?? 'fas fa-shield-alt' }}" style="color: {{ $moduleData['meta']['color'] ?? '#0d6efd' }};"></i>
+                                        <strong class="small text-dark">{{ $moduleData['meta']['label'] ?? $moduleKey }}</strong>
+                                        <span class="badge bg-light text-muted border ms-auto small">{{ $userModulePerms->count() }}</span>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <ul class="list-unstyled mb-0 small">
+                                            @foreach($userModulePerms as $perm)
+                                                <li class="py-1 px-2 border-bottom border-light d-flex align-items-center gap-2">
+                                                    <i class="fas fa-check-circle text-success small"></i>
+                                                    <span>{{ $perm->display_name }}</span>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+                        @endforeach
+
+                        {{-- أي صلاحيات غير مصنفة ضمن المجموعات الثمانية --}}
+                        @php
+                            $otherPerms = $user->permissions->whereNotIn('module', array_keys($groupedPermissions));
+                        @endphp
+                        @if($otherPerms->count() > 0)
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm rounded-3 h-100">
+                                    <div class="card-header bg-white py-2 px-3 border-bottom d-flex align-items-center gap-2">
+                                        <i class="fas fa-cogs text-secondary"></i>
+                                        <strong class="small text-dark">صلاحيات إضافية</strong>
+                                        <span class="badge bg-light text-muted border ms-auto small">{{ $otherPerms->count() }}</span>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <ul class="list-unstyled mb-0 small">
+                                            @foreach($otherPerms as $perm)
+                                                <li class="py-1 px-2 border-bottom border-light d-flex align-items-center gap-2">
+                                                    <i class="fas fa-check-circle text-success small"></i>
+                                                    <span>{{ $perm->display_name }}</span>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                <div class="modal-footer bg-white border-0 py-3 d-flex justify-content-between">
+                    <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-primary rounded-pill px-4">
+                        <i class="fas fa-edit me-1"></i> تعديل هذه الصلاحيات
+                    </a>
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">إغلاق</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal تغيير كلمة المرور -->
+    <div class="modal fade" id="changePasswordModal{{ $user->id }}" tabindex="-1" aria-labelledby="changePasswordModalLabel{{ $user->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header bg-light py-3 px-4 border-bottom d-flex align-items-center justify-content-between">
+                    <h5 class="modal-title fw-bold text-dark mb-0" id="changePasswordModalLabel{{ $user->id }}">
+                        <i class="fas fa-key text-warning me-2"></i> تغيير كلمة المرور: {{ $user->name }}
+                    </h5>
+                    <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('admin.users.change-password', $user->id) }}" method="POST">
+                    @csrf
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">كلمة المرور الجديدة (8 خانات على الأقل)</label>
+                            <input type="password" name="password" class="form-control rounded-3" required minlength="8" placeholder="أدخل كلمة المرور الجديدة">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold text-muted">تأكيد كلمة المرور</label>
+                            <input type="password" name="password_confirmation" class="form-control rounded-3" required minlength="8" placeholder="أعد إدخال كلمة المرور">
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light py-3 border-0 d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">إلغاء</button>
+                        <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold">حفظ كلمة المرور</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endforeach
 @endsection

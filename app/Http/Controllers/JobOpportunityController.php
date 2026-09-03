@@ -42,13 +42,23 @@ class JobOpportunityController extends Controller
             $query->where('company_id', $request->company_id);
         }
 
+        $stats = [
+            'total' => JobOpportunity::count(),
+            'open' => JobOpportunity::where('status', 'open')->count(),
+            'jobs' => JobOpportunity::where('type', 'job')->count(),
+            'trainings' => JobOpportunity::where('type', 'training')->count(),
+            'internships' => JobOpportunity::where('type', 'internship')->count(),
+            'companies' => Company::count(),
+        ];
+
         $opportunities = $query->withCount(['nominations'])
             ->latest()
-            ->get();
+            ->paginate(12)
+            ->withQueryString();
 
         $companies = Company::all();
 
-        return view('job-opportunities.index', compact('opportunities', 'companies'));
+        return view('job-opportunities.index', compact('opportunities', 'companies', 'stats'));
     }
 
     /**

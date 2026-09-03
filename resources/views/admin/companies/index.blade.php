@@ -34,13 +34,32 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Breadcrumbs -->
-    @include('components.breadcrumbs', [
-        'items' => [
+    @php
+        $approvedCount = $companies->filter(fn($c) => $c->is_approved && $c->partnership_status === 'active')->count();
+        $pendingCount = $companies->filter(fn($c) => !$c->is_approved || $c->partnership_status !== 'active')->count();
+    @endphp
+
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="إدارة الشركات الشريكة"
+        subtitle="متابعة واعتماد المؤسسات والشركات الشريكة وتوثيق العقود وفرص التوظيف"
+        icon="fas fa-building"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('admin.dashboard')],
-            ['label' => 'الشركات', 'active' => true],
-        ]
-    ])
+            ['label' => 'الشركات الشريكة']
+        ]"
+        secondaryBadge="معتمدة: {{ $approvedCount }}"
+        secondaryBadgeIcon="fas fa-check-circle"
+    >
+        <a href="{{ route('job-fair.admin.index') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-store fs-6"></i>
+            <span>معارض التوظيف</span>
+        </a>
+        <a href="{{ route('admin.companies.create') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-plus-circle fs-6"></i>
+            <span>إضافة شركة جديدة</span>
+        </a>
+    </x-page-hero>
 
     @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert">
@@ -58,10 +77,6 @@
     </div>
     @endif
 
-    @php
-        $approvedCount = $companies->filter(fn($c) => $c->is_approved && $c->partnership_status === 'active')->count();
-        $pendingCount = $companies->filter(fn($c) => !$c->is_approved || $c->partnership_status !== 'active')->count();
-    @endphp
 
     <!-- إحصائيات سريعة للشركات (2x2 على الموبايل و4 على الديسكتوب) -->
     <div class="row g-2 g-md-3 mb-4">

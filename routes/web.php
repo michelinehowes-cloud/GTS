@@ -195,9 +195,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/applications', [AdminController::class, 'applications'])->name('admin.applications.index');
         Route::get('/applications-all', [AdminController::class, 'applications'])->name('admin.applications');
         Route::post('/applications/bulk-approve', [AdminController::class, 'bulkApproveApplications'])->name('admin.applications.bulk-approve');
+        Route::post('/applications/bulk-reject', [AdminController::class, 'bulkRejectApplications'])->name('admin.applications.bulk-reject');
+        Route::post('/applications/bulk-delete', [AdminController::class, 'bulkDeleteApplications'])->name('admin.applications.bulk-delete');
         Route::post('/applications/{id}/approve', [AdminController::class, 'approveApplication'])->name('admin.applications.approve');
         Route::post('/applications/{id}/reject', [AdminController::class, 'rejectApplication'])->name('admin.applications.reject');
         Route::post('/applications/{id}/pending', [AdminController::class, 'pendingApplication'])->name('admin.applications.pending');
+        Route::delete('/applications/{id}', [AdminController::class, 'destroyApplication'])->name('admin.applications.destroy');
 
         // ==================== 🎓 إدارة الإرشاد المهني للمدير ====================
         Route::prefix('career-guidance')->group(function () {
@@ -238,6 +241,11 @@ Route::middleware('auth')->group(function () {
 
     }); // نهاية مجموعة مسارات المدير
     // نهاية مجموعة مسارات المدير
+    Route::redirect('/training-coordinator', '/coordinator/dashboard');
+    Route::redirect('/training-coordinator/trainings', '/coordinator/trainings');
+    Route::redirect('/training-coordinator/dashboard', '/coordinator/dashboard');
+    Route::redirect('/training-coordinator/applications', '/coordinator/applications');
+    Route::redirect('/training-coordinator/calendar', '/coordinator/calendar');
 
     // ==================== 📚 مسارات منسق التدريب ====================
     Route::prefix('coordinator')->middleware('training_coordinator')->group(function () {
@@ -354,6 +362,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/documents', [PartnershipController::class, 'documents'])->name('partnership.documents');
         Route::get('/documents/create', [PartnershipController::class, 'createDocument'])->name('partnership.documents.create');
         Route::post('/documents', [PartnershipController::class, 'storeDocument'])->name('partnership.documents.store');
+        Route::get('/documents/{document}', [PartnershipController::class, 'showDocument'])->name('partnership.documents.show');
+        Route::get('/documents/{document}/download', [PartnershipController::class, 'downloadDocument'])->name('partnership.documents.download');
         Route::get('/documents/{document}/edit', [PartnershipController::class, 'editDocument'])->name('partnership.documents.edit');
         Route::put('/documents/{document}', [PartnershipController::class, 'updateDocument'])->name('partnership.documents.update');
         Route::post('/companies/{companyId}/documents', [PartnershipController::class, 'uploadDocument'])->name('partnership.documents.upload');

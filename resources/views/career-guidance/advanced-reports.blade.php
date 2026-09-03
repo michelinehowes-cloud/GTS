@@ -8,37 +8,33 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Breadcrumbs -->
-    @include('components.breadcrumbs', [
-        'items' => [
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="لوحة القيادة والتقارير المتقدمة"
+        subtitle="نظرة شاملة وتحليلات دقيقة لأداء نظام الإرشاد المهني والترشيحات وتوظيف الخريجين"
+        icon="fas fa-chart-line"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
             ['label' => 'لوحة الإرشاد المهني', 'url' => route($prefix . '.dashboard')],
-            ['label' => 'التقارير المتقدمة والإحصائيات', 'active' => true],
-        ]
-    ])
-
-    <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-            <h2 class="text-primary fw-bold mb-0">
-                <i class="fas fa-chart-line me-2"></i>لوحة القيادة والتقارير المتقدمة
-            </h2>
-            <div class="text-muted small mt-1">نظرة شاملة وتحليلات دقيقة لأداء نظام الإرشاد المهني والترشيحات</div>
-        </div>
-        <div class="d-flex gap-2 flex-wrap">
-            <a href="{{ route($prefix . '.export-reports.pdf', request()->all()) }}" target="_blank"
-                class="btn btn-outline-danger-modern">
-                <i class="fas fa-file-pdf me-1"></i> تصدير PDF
-            </a>
-            <a href="{{ route($prefix . '.export-reports.excel', request()->all()) }}" target="_blank"
-                class="btn btn-outline-success">
-                <i class="fas fa-file-excel me-1"></i> تصدير Excel
-            </a>
-            <button class="btn btn-outline-primary-modern" id="refreshBtn" onclick="location.reload()">
-                <i class="fas fa-sync-alt me-1"></i> تحديث
-            </button>
-        </div>
-    </div>
+            ['label' => 'التقارير المتقدمة والإحصائيات']
+        ]"
+        badge="الإرشاد المهني"
+    >
+        <a href="{{ route($prefix . '.export-reports.pdf', request()->all()) }}" target="_blank"
+            class="btn btn-light bg-white text-danger fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1">
+            <i class="fas fa-file-pdf"></i>
+            <span>تصدير PDF</span>
+        </a>
+        <a href="{{ route($prefix . '.export-reports.excel', request()->all()) }}" target="_blank"
+            class="btn btn-light bg-white text-success fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1">
+            <i class="fas fa-file-excel"></i>
+            <span>تصدير Excel</span>
+        </a>
+        <button class="btn btn-warning text-dark fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1" id="refreshBtn" onclick="location.reload()">
+            <i class="fas fa-sync-alt"></i>
+            <span>تحديث</span>
+        </button>
+    </x-page-hero>
 
     <!-- Search & Filter Card -->
     <div class="card-modern mb-4">

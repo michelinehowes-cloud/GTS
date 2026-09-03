@@ -98,7 +98,7 @@
                 <h5 class="fw-bold text-dark mb-3 fs-6">
                     <i class="fas fa-chart-pie me-2 text-primary"></i> توزيع المستخدمين حسب الدور
                 </h5>
-                <div style="position: relative; height: 230px; width: 100%;">
+                <div style="position: relative; height: 360px; width: 100%;">
                     <canvas id="usersByRoleChart"></canvas>
                 </div>
             </div>
@@ -110,7 +110,7 @@
                 <h5 class="fw-bold text-dark mb-3 fs-6">
                     <i class="fas fa-chart-bar me-2 text-success"></i> حالة الشركات
                 </h5>
-                <div style="position: relative; height: 230px; width: 100%;">
+                <div style="position: relative; height: 360px; width: 100%;">
                     <canvas id="companiesByStatusChart"></canvas>
                 </div>
             </div>
@@ -122,7 +122,7 @@
                 <h5 class="fw-bold text-dark mb-3 fs-6">
                     <i class="fas fa-chart-doughnut me-2 text-info"></i> حالة توظيف الخريجين
                 </h5>
-                <div style="position: relative; height: 230px; width: 100%;">
+                <div style="position: relative; height: 360px; width: 100%;">
                     <canvas id="employmentStatusChart"></canvas>
                 </div>
             </div>
@@ -134,7 +134,7 @@
                 <h5 class="fw-bold text-dark mb-3 fs-6">
                     <i class="fas fa-chart-line me-2 text-warning"></i> النشاط الشهري لطلبات التدريب
                 </h5>
-                <div style="position: relative; height: 230px; width: 100%;">
+                <div style="position: relative; height: 360px; width: 100%;">
                     <canvas id="monthlyActivityChart"></canvas>
                 </div>
             </div>
@@ -251,15 +251,27 @@
         const commonChartOptions = {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 10,
+                    bottom: 12
+                }
+            },
             plugins: {
                 legend: {
                     position: 'bottom',
                     rtl: true,
                     labels: {
-                        boxWidth: 12,
-                        padding: 8,
-                        font: { family: 'Tajawal', size: 11 }
+                        boxWidth: 14,
+                        padding: 12,
+                        font: { family: 'Tajawal', size: 12, weight: '500' }
                     }
+                },
+                tooltip: {
+                    bodyFont: { family: 'Tajawal', size: 12 },
+                    titleFont: { family: 'Tajawal', size: 13, weight: 'bold' },
+                    padding: 10,
+                    cornerRadius: 8
                 }
             }
         };
@@ -273,10 +285,14 @@
                     data: {!! json_encode($chartsData['usersByRole']['data'] ?? []) !!},
                     backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#64748b'],
                     borderWidth: 2,
-                    borderColor: '#ffffff'
+                    borderColor: '#ffffff',
+                    hoverOffset: 8
                 }]
             },
-            options: commonChartOptions
+            options: {
+                ...commonChartOptions,
+                cutout: '58%'
+            }
         });
 
         // 2. Companies by Status (من قاعدة البيانات الفعلية)
@@ -288,7 +304,8 @@
                     data: {!! json_encode($chartsData['companiesByStatus']['data'] ?? []) !!},
                     backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
                     borderWidth: 2,
-                    borderColor: '#ffffff'
+                    borderColor: '#ffffff',
+                    hoverOffset: 8
                 }]
             },
             options: commonChartOptions

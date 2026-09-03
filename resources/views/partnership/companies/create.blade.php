@@ -3,29 +3,20 @@
 @section('title', 'إضافة شركة جديدة - مسؤول الشراكات')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3>إضافة شركة جديدة</h3>
-                    <a href="{{ route('partnership.companies') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-right me-2"></i>رجوع للقائمة
-                    </a>
-                </div>
-                <div class="card-body">
-                    @if($errors->any())
-                    <div class="alert alert-danger">
-                        <h6>يوجد أخطاء في البيانات:</h6>
-                        <ul class="mb-0">
-                            @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    @endif
+<div class="container-fluid py-4">
+    @if($errors->any())
+    <div class="alert alert-danger mb-4">
+        <h6>يوجد أخطاء في البيانات:</h6>
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
 
-                    <form action="{{ route('partnership.companies.store') }}" method="POST">
+    <x-bento-form title="إضافة شركة جديدة" subtitle="بيانات المؤسسة أو الشركة الشريكة ومسؤول الاتصال" icon="fa-building" :backRoute="route('partnership.companies')">
+        <form action="{{ route('partnership.companies.store') }}" method="POST">
                         @csrf
                         
                         <div class="row">
@@ -156,37 +147,15 @@
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-between align-items-center">
-                            <a href="{{ route('partnership.companies') }}" class="btn btn-secondary">
+                        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                            <a href="{{ route('partnership.companies') }}" class="btn btn-secondary px-4 py-2 rounded-pill">
                                 <i class="fas fa-times me-2"></i>إلغاء
                             </a>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
                                 <i class="fas fa-save me-2"></i>حفظ الشركة
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    </x-bento-form>
 </div>
-
-<style>
-.form-label {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-.card {
-    border: none;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    border-radius: 10px;
-}
-.card-header {
-    border-radius: 10px 10px 0 0 !important;
-}
-.btn {
-    border-radius: 6px;
-    font-weight: 500;
-}
-</style>
 @endsection

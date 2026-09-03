@@ -3,29 +3,12 @@
 @section('title', 'تعديل الاستبيان')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-edit mr-2"></i>
-                        تعديل الاستبيان: {{ $survey->title }}
-                    </h3>
-                    <div class="card-tools">
-                        <a href="{{ route('evaluation-followup.surveys.show', $survey) }}" class="btn btn-info btn-sm">
-                            <i class="fas fa-eye"></i> عرض
-                        </a>
-                        <a href="{{ route('evaluation-followup.surveys.index') }}" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-arrow-left"></i> العودة
-                        </a>
-                    </div>
-                </div>
-
-                <form action="{{ route('evaluation-followup.surveys.update', $survey) }}" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <div class="card-body">
+<div class="container-fluid py-4">
+    <x-bento-form title="تعديل الاستبيان: {{ $survey->title }}" subtitle="تعديل وتحديث محاور وأسئلة الاستبيان" icon="fa-poll-h" :backRoute="route('evaluation-followup.surveys.index')">
+        <form action="{{ route('evaluation-followup.surveys.update', $survey) }}" method="POST">
+            @csrf
+            @method('PUT')
+            <div>
                         @if($errors->any())
                             <div class="alert alert-danger">
                                 <ul class="mb-0">
@@ -229,18 +212,16 @@
                         </div>
                     </div>
 
-                    <div class="card-footer">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> حفظ التغييرات
-                        </button>
-                        <a href="{{ route('evaluation-followup.surveys.show', $survey) }}" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> إلغاء
-                        </a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                    <a href="{{ route('evaluation-followup.surveys.show', $survey) }}" class="btn btn-secondary px-4 py-2 rounded-pill">
+                        <i class="fas fa-times me-2"></i> إلغاء
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
+                        <i class="fas fa-save me-2"></i> حفظ التغييرات
+                    </button>
+                </div>
+            </form>
+    </x-bento-form>
 </div>
 @endsection
 

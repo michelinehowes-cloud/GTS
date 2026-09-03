@@ -4,296 +4,241 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3>الشركات الشريكة</h3>
-                    <div class="d-flex gap-2 align-items-center">
-                        <span class="badge bg-primary fs-6">
-                            إجمالي الشركات: {{ $companies->count() }}
-                        </span>
-                        <span class="badge bg-success fs-6">
-                            شراكات نشطة: {{ $companies->where('partnership_status', 'active')->count() }}
-                        </span>
-                        <a href="{{ route('partnership.companies.create') }}" class="btn btn-primary">
-                            <i class="fas fa-plus me-2"></i>إضافة شركة جديدة
-                        </a>
-                        <a href="{{ route('partnership.reports') }}" class="btn btn-info">
-                            <i class="fas fa-chart-bar me-2"></i>التقارير
-                        </a>
-                    </div>
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="دليل الشركات الشريكة"
+        subtitle="إدارة ومتابعة المؤسسات والشركات الشريكة وفرص التدريب والتوظيف المطروحة"
+        icon="fas fa-building"
+        :breadcrumbs="[
+            ['label' => 'الرئيسية', 'url' => route('home')],
+            ['label' => 'لوحة الشراكات والتوظيف', 'url' => route('partnership.dashboard')],
+            ['label' => 'دليل الشركات الشريكة']
+        ]"
+        secondaryBadge="شراكات نشطة: {{ $companies->where('partnership_status', 'active')->count() }}"
+        secondaryBadgeIcon="fas fa-check-circle"
+    >
+        <a href="{{ route('partnership.reports') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-chart-bar fs-6"></i>
+            <span>التقارير</span>
+        </a>
+        <a href="{{ route('partnership.companies.create') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-plus-circle fs-6"></i>
+            <span>إضافة شركة جديدة</span>
+        </a>
+    </x-page-hero>
+
+    <!-- Alert Messages -->
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show border-0 rounded-3 shadow-sm mb-4" role="alert">
+            <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show border-0 rounded-3 shadow-sm mb-4" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <!-- فلترة وبحث الشركات -->
+    <div class="card-modern mb-4">
+        <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="card-title mb-0 text-primary fw-bold fs-6">
+                <i class="fas fa-filter me-2"></i>تصفية وبحث الشركات
+            </h5>
+        </div>
+        <div class="card-body p-3 p-md-4">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label for="partnership_status" class="form-label small fw-bold">حالة الشراكة</label>
+                    <select name="partnership_status" id="partnership_status" class="form-select">
+                        <option value="">جميع الحالات</option>
+                        <option value="active" {{ request('partnership_status') == 'active' ? 'selected' : '' }}>نشطة</option>
+                        <option value="expired" {{ request('partnership_status') == 'expired' ? 'selected' : '' }}>منتهية</option>
+                        <option value="under_review" {{ request('partnership_status') == 'under_review' ? 'selected' : '' }}>قيد المراجعة</option>
+                    </select>
                 </div>
-                <div class="card-body">
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show">
-                            <i class="fas fa-check-circle me-2"></i>
-                            {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
-
-                    <!-- فلترة الشركات -->
-                    <div class="row mb-4">
-                        <div class="col-md-12">
-                            <div class="card bg-light">
-                                <div class="card-body">
-                                    <h6 class="card-title">فلاتر البحث</h6>
-                                    <form method="GET" class="row g-3">
-                                        <div class="col-md-3">
-                                            <label for="partnership_status" class="form-label">حالة الشراكة</label>
-                                            <select name="partnership_status" id="partnership_status" class="form-select">
-                                                <option value="">جميع الحالات</option>
-                                                <option value="active" {{ request('partnership_status') == 'active' ? 'selected' : '' }}>نشطة</option>
-                                                <option value="expired" {{ request('partnership_status') == 'expired' ? 'selected' : '' }}>منتهية</option>
-                                                <option value="under_review" {{ request('partnership_status') == 'under_review' ? 'selected' : '' }}>قيد المراجعة</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label for="partnership_type" class="form-label">نوع الشراكة</label>
-                                            <select name="partnership_type" id="partnership_type" class="form-select">
-                                                <option value="">جميع الأنواع</option>
-                                                <option value="employment" {{ request('partnership_type') == 'employment' ? 'selected' : '' }}>توظيف</option>
-                                                <option value="training" {{ request('partnership_type') == 'training' ? 'selected' : '' }}>تدريب</option>
-                                                <option value="logistic_support" {{ request('partnership_type') == 'logistic_support' ? 'selected' : '' }}>دعم لوجستي</option>
-                                                <option value="academic" {{ request('partnership_type') == 'academic' ? 'selected' : '' }}>شراكة أكاديمية</option>
-                                                <option value="training_employment" {{ request('partnership_type') == 'training_employment' ? 'selected' : '' }}>تدريب + توظيف</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label for="search" class="form-label">بحث</label>
-                                            <input type="text" name="search" id="search" class="form-control" 
-                                                   placeholder="ابحث باسم الشركة..." value="{{ request('search') }}">
-                                        </div>
-                                        <div class="col-md-3 d-flex align-items-end">
-                                            <button type="submit" class="btn btn-primary me-2">
-                                                <i class="fas fa-search me-1"></i>بحث
-                                            </button>
-                                            <a href="{{ route('partnership.companies') }}" class="btn btn-secondary">
-                                                <i class="fas fa-redo me-1"></i>إعادة تعيين
-                                            </a>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    @if($companies->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>الشركة</th>
-                                        <th>معلومات الاتصال</th>
-                                        <th>نوع الشراكة</th>
-                                        <th>حالة الشراكة</th>
-                                        <th>فرص العمل</th>
-                                        <th>الوثائق</th>
-                                        <th>الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($companies as $company)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>
-                                            <strong class="d-block">{{ $company->name }}</strong>
-                                            <small class="text-muted">{{ $company->industry }}</small>
-                                            @if($company->website)
-                                                <br>
-                                                <small>
-                                                    <a href="{{ $company->website }}" target="_blank" class="text-decoration-none">
-                                                        <i class="fas fa-globe me-1"></i>الموقع الإلكتروني
-                                                    </a>
-                                                </small>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($company->contact_person)
-                                                <strong>{{ $company->contact_person }}</strong>
-                                                <br>
-                                                <small class="text-muted">{{ $company->contact_position }}</small>
-                                                <br>
-                                                <small>
-                                                    <i class="fas fa-phone me-1"></i>{{ $company->contact_phone }}
-                                                </small>
-                                                <br>
-                                                <small>
-                                                    <i class="fas fa-envelope me-1"></i>{{ $company->contact_email }}
-                                                </small>
-                                            @else
-                                                <span class="text-muted">غير محدد</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($company->partnership_type)
-                                                @php
-                                                    $partnershipTypes = [
-                                                        'employment' => ['label' => 'توظيف', 'color' => 'success'],
-                                                        'training' => ['label' => 'تدريب', 'color' => 'info'],
-                                                        'logistic_support' => ['label' => 'دعم لوجستي', 'color' => 'warning'],
-                                                        'academic' => ['label' => 'أكاديمية', 'color' => 'primary'],
-                                                        'training_employment' => ['label' => 'تدريب + توظيف', 'color' => 'dark']
-                                                    ];
-                                                    $type = $partnershipTypes[$company->partnership_type] ?? ['label' => $company->partnership_type, 'color' => 'secondary'];
-                                                @endphp
-                                                <span class="badge bg-{{ $type['color'] }}">{{ $type['label'] }}</span>
-                                            @else
-                                                <span class="badge bg-secondary">غير محدد</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($company->partnership_status)
-                                                @php
-                                                    $statusColors = [
-                                                        'active' => 'success',
-                                                        'expired' => 'danger',
-                                                        'under_review' => 'warning'
-                                                    ];
-                                                @endphp
-                                                <span class="badge bg-{{ $statusColors[$company->partnership_status] ?? 'secondary' }}">
-                                                    {{ $company->partnership_status == 'active' ? 'نشطة' : 
-                                                       ($company->partnership_status == 'expired' ? 'منتهية' : 'قيد المراجعة') }}
-                                                </span>
-                                                @if($company->partnership_start_date)
-                                                    <br>
-                                                    <small class="text-muted">
-                                                        من: {{ $company->partnership_start_date->format('Y-m-d') }}
-                                                    </small>
-                                                @endif
-                                                @if($company->partnership_end_date)
-                                                    <br>
-                                                    <small class="text-muted">
-                                                        إلى: {{ $company->partnership_end_date->format('Y-m-d') }}
-                                                    </small>
-                                                @endif
-                                            @else
-                                                <span class="badge bg-secondary">غير محدد</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-info">{{ $company->job_opportunities_count ?? 0 }}</span>
-                                            فرصة
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-warning">{{ $company->partnership_documents_count ?? 0 }}</span>
-                                            وثيقة
-                                        <td>
-    <div class="btn-group" role="group">
-        {{-- زر تبديل الاعتماد --}}
-        <form action="{{ route('partnership.companies.toggle-approval', $company->id) }}" method="POST" class="d-inline">
-            @csrf
-            @if($company->is_approved)
-                <button type="submit" class="btn btn-outline-secondary btn-sm" title="إلغاء الاعتماد">
-                    <i class="fas fa-ban text-warning"></i>
-                </button>
-            @else
-                <button type="submit" class="btn btn-success btn-sm" title="اعتماد وتفعيل الشركة">
-                    <i class="fas fa-check"></i>
-                </button>
-            @endif
-        </form>
-        
-        {{-- زر العرض --}}
-        <a href="{{ route('partnership.companies.show', $company->id) }}" 
-           class="btn btn-info btn-sm" title="عرض التفاصيل">
-            <i class="fas fa-eye"></i>
-        </a>
-        
-        {{-- زر التعديل الشامل --}}
-        <a href="{{ route('partnership.companies.edit', $company->id) }}" 
-           class="btn btn-warning btn-sm" 
-           title="تعديل جميع بيانات الشركة">
-            <i class="fas fa-edit"></i>
-        </a>
-        
-        {{-- زر فرص العمل --}}
-        <a href="{{ route('job-opportunities.index', ['company_id' => $company->id]) }}" 
-           class="btn btn-success btn-sm" title="فرص العمل">
-            <i class="fas fa-briefcase"></i>
-        </a>
+                <div class="col-md-3">
+                    <label for="partnership_type" class="form-label small fw-bold">نوع الشراكة</label>
+                    <select name="partnership_type" id="partnership_type" class="form-select">
+                        <option value="">جميع الأنواع</option>
+                        <option value="employment" {{ request('partnership_type') == 'employment' ? 'selected' : '' }}>توظيف</option>
+                        <option value="training" {{ request('partnership_type') == 'training' ? 'selected' : '' }}>تدريب</option>
+                        <option value="logistic_support" {{ request('partnership_type') == 'logistic_support' ? 'selected' : '' }}>دعم لوجستي</option>
+                        <option value="academic" {{ request('partnership_type') == 'academic' ? 'selected' : '' }}>شراكة أكاديمية</option>
+                        <option value="training_employment" {{ request('partnership_type') == 'training_employment' ? 'selected' : '' }}>تدريب + توظيف</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="search" class="form-label small fw-bold">بحث</label>
+                    <input type="text" name="search" id="search" class="form-control" 
+                           placeholder="ابحث باسم الشركة أو المجال أو المسؤول..." value="{{ request('search') }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-1"></i>بحث
+                    </button>
+                    <a href="{{ route('partnership.companies') }}" class="btn btn-outline-secondary" title="إعادة تعيين">
+                        <i class="fas fa-redo"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
-</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-center py-5">
-                            <i class="fas fa-building fa-4x text-muted mb-3"></i>
-                            <h4 class="text-muted">لا توجد شركات شريكة</h4>
-                            <p class="text-muted">سيتم عرض الشركات الشريكة هنا عند إضافتها</p>
-                            <a href="{{ route('partnership.companies.create') }}" class="btn btn-primary mt-3">
-                                <i class="fas fa-plus me-2"></i>إضافة أول شركة
-                            </a>
-                        </div>
-                    @endif
+
+    <!-- جدول الشركات -->
+    <div class="card-modern mb-4">
+        <div class="card-body p-0">
+            @if($companies->count() > 0)
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="text-center py-3 text-secondary small fw-bold" style="width: 50px;">#</th>
+                                <th class="py-3 px-3 text-secondary small fw-bold" style="min-width: 220px;">الشركة</th>
+                                <th class="py-3 px-3 text-secondary small fw-bold" style="min-width: 200px;">مسؤول الاتصال</th>
+                                <th class="text-center py-3 text-secondary small fw-bold" style="width: 130px;">نوع الشراكة</th>
+                                <th class="text-center py-3 text-secondary small fw-bold" style="width: 140px;">حالة الشراكة</th>
+                                <th class="text-center py-3 text-secondary small fw-bold" style="width: 100px;">الفرص</th>
+                                <th class="text-center py-3 text-secondary small fw-bold" style="width: 100px;">الوثائق</th>
+                                <th class="text-center py-3 text-secondary small fw-bold" style="width: 160px;">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($companies as $company)
+                            <tr>
+                                <td class="text-center text-muted fw-bold">{{ $loop->iteration }}</td>
+                                <td class="px-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle fw-bold d-flex align-items-center justify-content-center me-3 flex-shrink-0 shadow-sm" style="width: 42px; height: 42px; font-size: 1.15rem; background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;">
+                                            {{ mb_substr($company->name, 0, 1) }}
+                                        </div>
+                                        <div>
+                                            <a href="{{ route('partnership.companies.show', $company->id) }}" class="fw-bold text-dark text-decoration-none d-block hover-primary" style="font-size: 0.95rem;">
+                                                {{ $company->name }}
+                                            </a>
+                                            <div class="small text-muted">
+                                                <i class="fas fa-tag me-1"></i>{{ $company->industry ?? 'غير محدد' }}
+                                                @if($company->website)
+                                                    &bull; <a href="{{ $company->website }}" target="_blank" class="text-decoration-none text-primary">
+                                                        <i class="fas fa-globe me-1"></i>الموقع
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-3">
+                                    @if($company->contact_person)
+                                        <div class="fw-bold text-dark" style="font-size: 0.9rem;">{{ $company->contact_person }}</div>
+                                        <div class="small text-muted">
+                                            @if($company->contact_phone)
+                                                <span class="me-2"><i class="fas fa-phone me-1 text-success"></i>{{ $company->contact_phone }}</span>
+                                            @endif
+                                            @if($company->contact_email)
+                                                <span><i class="fas fa-envelope me-1 text-primary"></i>{{ $company->contact_email }}</span>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <span class="text-muted small">غير محدد</span>
+                                    @endif
+                                </td>
+                                <td class="text-center" style="white-space: nowrap;">
+                                    @switch($company->partnership_type)
+                                        @case('employment')
+                                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-1">توظيف</span>
+                                            @break
+                                        @case('training')
+                                            <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill px-3 py-1">تدريب</span>
+                                            @break
+                                        @case('logistic_support')
+                                            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-3 py-1">دعم لوجستي</span>
+                                            @break
+                                        @case('academic')
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary border rounded-pill px-3 py-1">أكاديمية</span>
+                                            @break
+                                        @case('training_employment')
+                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-1">تدريب + توظيف</span>
+                                            @break
+                                        @default
+                                            <span class="badge bg-light text-secondary border rounded-pill px-3 py-1">غير محدد</span>
+                                    @endswitch
+                                </td>
+                                <td class="text-center" style="white-space: nowrap;">
+                                    @if($company->partnership_status == 'active')
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-1">
+                                            <i class="fas fa-check-circle me-1"></i>نشطة
+                                        </span>
+                                    @elseif($company->partnership_status == 'expired')
+                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-1">
+                                            <i class="fas fa-times-circle me-1"></i>منتهية
+                                        </span>
+                                    @else
+                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-3 py-1">
+                                            <i class="fas fa-clock me-1"></i>قيد المراجعة
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="text-center" style="white-space: nowrap;">
+                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill px-2.5 py-1">
+                                        <i class="fas fa-briefcase me-1"></i>{{ $company->job_opportunities_count ?? $company->jobOpportunities->count() }}
+                                    </span>
+                                </td>
+                                <td class="text-center" style="white-space: nowrap;">
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border rounded-pill px-2.5 py-1">
+                                        <i class="fas fa-file-contract me-1"></i>{{ $company->partnership_documents_count ?? 0 }}
+                                    </span>
+                                </td>
+                                <td class="text-center" style="white-space: nowrap;">
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
+                                        {{-- زر تبديل الاعتماد --}}
+                                        <form action="{{ route('partnership.companies.toggle-approval', $company->id) }}" method="POST" class="d-inline m-0">
+                                            @csrf
+                                            @if($company->is_approved)
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 34px; height: 34px;" title="إلغاء الاعتماد">
+                                                    <i class="fas fa-ban text-warning"></i>
+                                                </button>
+                                            @else
+                                                <button type="submit" class="btn btn-sm btn-outline-success rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 34px; height: 34px;" title="اعتماد وتفعيل الشركة">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            @endif
+                                        </form>
+
+                                        {{-- زر العرض --}}
+                                        <a href="{{ route('partnership.companies.show', $company->id) }}" class="btn btn-sm btn-outline-info rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 34px; height: 34px;" title="عرض التفاصيل">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+
+                                        {{-- زر التعديل --}}
+                                        <a href="{{ route('partnership.companies.edit', $company->id) }}" class="btn btn-sm btn-outline-warning rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 34px; height: 34px;" title="تعديل البيانات">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+
+                                        {{-- زر فرص العمل --}}
+                                        <a href="{{ route('job-opportunities.index', ['company_id' => $company->id]) }}" class="btn btn-sm btn-outline-primary rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 34px; height: 34px;" title="فرص العمل والتدريب">
+                                            <i class="fas fa-briefcase"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-            </div>
+            @else
+                <div class="text-center py-5">
+                    <i class="fas fa-building text-muted display-4 mb-3 opacity-50"></i>
+                    <h5 class="text-dark fw-bold">لا توجد شركات شريكة مسجلة</h5>
+                    <p class="text-muted">ابدأ بإضافة أول شركة شريكة لفتح آفاق التدريب والتوظيف للخريجين</p>
+                    <a href="{{ route('partnership.companies.create') }}" class="btn btn-primary-modern px-4 rounded-pill">
+                        <i class="fas fa-plus-circle me-1"></i> إضافة شركة جديدة
+                    </a>
+                </div>
+            @endif
         </div>
     </div>
 </div>
-@endsection
-
-@section('scripts')
-<script>
-    // تفعيل tooltips
-    document.addEventListener('DOMContentLoaded', function() {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        });
-    });
-</script>
-@endsection
-@section('scripts')
-<script>
-// منع الـ double events بشكل كامل
-function handleEditClick(event, companyId) {
-    console.log('🎯 بدء تعديل الشركة:', companyId);
-    
-    // منع جميع الأحداث الأخرى
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-    
-    // تأكيد أن هذا هو الحدث الوحيد
-    if (window.editInProgress) {
-        console.log('⛔ تعديل قيد التقدم بالفعل');
-        return false;
-    }
-    
-    window.editInProgress = true;
-    
-    // الانتقال بعد تأخير بسيط
-    setTimeout(() => {
-        console.log('✅ الانتقال إلى صفحة التعديل');
-        window.location.href = event.target.closest('a').href;
-    }, 150);
-    
-    return false;
-}
-
-// تعطيل أي event listeners أخرى
-document.addEventListener('DOMContentLoaded', function() {
-    // إزالة جميع event listeners الحالية
-    const editButtons = document.querySelectorAll('a[href*="edit"]');
-    editButtons.forEach(button => {
-        const newButton = button.cloneNode(true);
-        button.parentNode.replaceChild(newButton, button);
-    });
-    
-    // إضافة event listener واحدة فقط
-    const newEditButtons = document.querySelectorAll('a[href*="edit"]');
-    newEditButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            const companyId = this.href.split('/').pop();
-            handleEditClick(e, companyId);
-        }, { once: true });
-    });
-});
-</script>
 @endsection

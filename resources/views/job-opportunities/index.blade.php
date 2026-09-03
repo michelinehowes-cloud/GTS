@@ -21,71 +21,61 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Breadcrumbs -->
-    @include('components.breadcrumbs', [
-        'items' => [
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="فرص العمل والتدريب"
+        subtitle="إدارة واستعراض جميع فرص العمل والبرامج التدريبية المتاحة للخريجين والشركات الشريكة"
+        icon="fas fa-briefcase"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
-            ['label' => 'إدارة فرص العمل والتدريب', 'active' => true],
-        ]
-    ])
-
-    <!-- رأس الصفحة -->
-    <div class="card-modern mb-4 p-3 p-md-4">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <div class="rounded-circle bg-light text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; font-size: 1.3rem;">
-                    <i class="fas fa-briefcase"></i>
-                </div>
-                <div>
-                    <h1 class="h4 mb-1 text-primary fw-bold">فرص العمل والتدريب</h1>
-                    <p class="text-muted small mb-0">إدارة وعرض جميع فرص العمل والتدريب المتاحة للخريجين</p>
-                </div>
-            </div>
-            <div class="d-flex gap-2 flex-wrap w-100 w-md-auto">
-                <a href="{{ route('job-opportunities.create') }}" class="btn btn-primary-modern btn-sm flex-grow-1 flex-md-grow-0">
-                    <i class="fas fa-plus-circle me-1"></i>إضافة فرصة جديدة
-                </a>
-                <button class="btn btn-outline-success-modern btn-sm flex-grow-1 flex-md-grow-0" data-bs-toggle="modal" data-bs-target="#importModal">
-                    <i class="fas fa-file-import me-1"></i>استيراد
-                </button>
-            </div>
-        </div>
-    </div>
+            ['label' => 'فرص العمل والتدريب']
+        ]"
+        badge="إدارة التوظيف والفرص"
+    >
+        <a href="{{ route('job-opportunities.create') }}" class="btn btn-warning text-dark fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
+            <i class="fas fa-plus-circle"></i>
+            <span>إضافة فرصة جديدة</span>
+        </a>
+        <button class="btn btn-light bg-white text-success fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5" data-bs-toggle="modal" data-bs-target="#importModal">
+            <i class="fas fa-file-import"></i>
+            <span>استيراد</span>
+        </button>
+    </x-page-hero>
 
     <!-- بطاقات الإحصائيات (2x3 على الموبايل و6 على الديسكتوب) -->
     <div class="row g-2 g-md-3 mb-4">
         @include('components.stat-card', [
             'col' => 'col-6 col-md-4 col-xl-2',
             'title' => 'إجمالي الفرص',
-            'value' => $opportunities->count(),
+            'value' => $stats['total'] ?? (method_exists($opportunities, 'total') ? $opportunities->total() : $opportunities->count()),
             'icon' => 'fas fa-briefcase',
             'color' => 'primary'
         ])
         @include('components.stat-card', [
             'col' => 'col-6 col-md-4 col-xl-2',
             'title' => 'مفتوحة',
-            'value' => $opportunities->where('status', 'open')->count(),
+            'value' => $stats['open'] ?? $opportunities->where('status', 'open')->count(),
             'icon' => 'fas fa-door-open',
             'color' => 'success'
         ])
         @include('components.stat-card', [
             'col' => 'col-6 col-md-4 col-xl-2',
-            'title' => 'وظائف',
-            'value' => $opportunities->where('type', 'job')->count(),
+            'title' => 'وظائف شاغرة',
+            'value' => $stats['jobs'] ?? $opportunities->where('type', 'job')->count(),
             'icon' => 'fas fa-user-tie',
             'color' => 'info'
         ])
         @include('components.stat-card', [
             'col' => 'col-6 col-md-4 col-xl-2',
-            'title' => 'تدريبات',
-            'value' => $opportunities->where('type', 'training')->count(),
+            'title' => 'تدريب مهني (شركات)',
+            'value' => $stats['trainings'] ?? $opportunities->where('type', 'training')->count(),
             'icon' => 'fas fa-graduation-cap',
             'color' => 'warning'
         ])
         @include('components.stat-card', [
             'col' => 'col-6 col-md-4 col-xl-2',
-            'title' => 'تدريب عملي',
-            'value' => $opportunities->where('type', 'internship')->count(),
+            'title' => 'تدريب تعاوني',
+            'value' => $stats['internships'] ?? $opportunities->where('type', 'internship')->count(),
             'icon' => 'fas fa-laptop-code',
             'color' => 'secondary'
         ])
@@ -111,9 +101,9 @@
                     <label for="type" class="form-label-modern small fw-bold">نوع الفرصة</label>
                     <select name="type" id="type" class="form-select form-select-sm">
                         <option value="">جميع الأنواع</option>
-                        <option value="job" {{ request('type') == 'job' ? 'selected' : '' }}>وظيفة</option>
-                        <option value="training" {{ request('type') == 'training' ? 'selected' : '' }}>تدريب</option>
-                        <option value="internship" {{ request('type') == 'internship' ? 'selected' : '' }}>تدريب عملي</option>
+                        <option value="job" {{ request('type') == 'job' ? 'selected' : '' }}>وظيفة شاغرة</option>
+                        <option value="training" {{ request('type') == 'training' ? 'selected' : '' }}>تدريب مهني بشركات</option>
+                        <option value="internship" {{ request('type') == 'internship' ? 'selected' : '' }}>تدريب تعاوني</option>
                     </select>
                 </div>
                 <div class="col-6 col-md-3">
@@ -163,95 +153,118 @@
             @if($opportunities->count() > 0)
                 {{-- 🖥️ عرض سطح المكتب: جدول متجاوب --}}
                 <div class="table-responsive d-none d-md-block">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-light text-muted">
-                            <tr>
-                                <th class="py-3 px-4 border-0" width="50">#</th>
-                                <th class="py-3 border-0">الفرصة</th>
-                                <th class="py-3 border-0">الشركة</th>
-                                <th class="py-3 border-0" width="120">النوع</th>
-                                <th class="py-3 border-0" width="120">المكان</th>
-                                <th class="py-3 border-0" width="150">التواريخ</th>
-                                <th class="py-3 border-0 text-center" width="80">المقاعد</th>
-                                <th class="py-3 border-0 text-center" width="80">الترشيحات</th>
-                                <th class="py-3 border-0" width="100">الحالة</th>
-                                <th class="py-3 border-0 text-center" width="150">الإجراءات</th>
+                    <table class="table table-hover align-middle mb-0" style="min-width: 1050px;">
+                        <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                            <tr class="text-secondary fw-bold" style="font-size: 0.83rem;">
+                                <th class="py-3 px-3 text-center text-nowrap" style="width: 50px;">#</th>
+                                <th class="py-3 text-nowrap" style="min-width: 220px;">الفرصة</th>
+                                <th class="py-3 text-nowrap" style="min-width: 180px;">الشركة</th>
+                                <th class="py-3 text-center text-nowrap" style="width: 110px;">النوع</th>
+                                <th class="py-3 text-nowrap" style="width: 120px;">المكان</th>
+                                <th class="py-3 text-nowrap" style="width: 150px;">التواريخ</th>
+                                <th class="py-3 text-center text-nowrap" style="width: 70px;">المقاعد</th>
+                                <th class="py-3 text-center text-nowrap" style="width: 80px;">الترشيحات</th>
+                                <th class="py-3 text-center text-nowrap" style="width: 95px;">الحالة</th>
+                                <th class="py-3 text-center text-nowrap" style="width: 130px;">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($opportunities as $opportunity)
                             <tr>
-                                <td class="px-4 text-muted fw-bold">{{ $loop->iteration }}</td>
+                                <td class="px-3 text-center text-muted fw-bold" style="font-size: 0.85rem;">{{ $loop->iteration }}</td>
                                 <td>
                                     <div>
-                                        <h6 class="mb-1 fw-bold text-dark">{{ $opportunity->title }}</h6>
-                                        <p class="text-muted small mb-0 text-truncate" style="max-width: 250px;">
-                                            {{ Str::limit($opportunity->description, 60) }}
+                                        <h6 class="mb-1 fw-bold text-dark fs-6">{{ $opportunity->title }}</h6>
+                                        <p class="text-muted small mb-1 text-truncate" style="max-width: 280px; font-size: 0.78rem;">
+                                            {{ Str::limit($opportunity->description, 70) }}
                                         </p>
                                         @if($opportunity->salary)
-                                            <small class="text-success fw-bold">
+                                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill fw-bold" style="font-size: 0.72rem;">
                                                 <i class="fas fa-money-bill-wave me-1"></i>{{ number_format($opportunity->salary) }} د.ل
-                                            </small>
+                                            </span>
                                         @endif
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="fw-bold text-dark">{{ $opportunity->company->name ?? 'غير محدد' }}</span>
-                                    <br>
-                                    <small class="text-muted">{{ $opportunity->company->industry ?? '' }}</small>
-                                </td>
-                                <td>
-                                    @php
-                                        $typeLabels = ['job' => 'وظيفة', 'training' => 'تدريب', 'internship' => 'تدريب عملي'];
-                                    @endphp
-                                    <span class="badge rounded-pill px-3 py-1 
-                                        @if($opportunity->type === 'job') bg-success bg-opacity-10 text-success
-                                        @elseif($opportunity->type === 'training') bg-primary bg-opacity-10 text-primary
-                                        @else bg-warning bg-opacity-10 text-warning
-                                        @endif">
-                                        {{ $typeLabels[$opportunity->type] ?? $opportunity->type }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="text-dark small"><i class="fas fa-map-marker-alt text-muted me-1"></i>{{ $opportunity->location }}</span>
-                                </td>
-                                <td>
-                                    <div class="small text-muted">
-                                        <div><i class="fas fa-play-circle text-success me-1"></i>{{ $opportunity->start_date ? $opportunity->start_date->format('Y-m-d') : '--' }}</div>
-                                        <div><i class="fas fa-flag-checkered text-danger me-1"></i>{{ $opportunity->end_date ? $opportunity->end_date->format('Y-m-d') : '--' }}</div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-primary flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                                            <i class="fas fa-building"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 0.86rem; line-height: 1.3;">{{ $opportunity->company->name ?? 'غير محدد' }}</div>
+                                            @if(!empty($opportunity->company->industry))
+                                                <small class="text-muted d-block" style="font-size: 0.75rem;">{{ $opportunity->company->industry }}</small>
+                                            @endif
+                                        </div>
                                     </div>
                                 </td>
-                                <td class="text-center">
-                                    <span class="badge bg-light text-dark border rounded-pill px-2 py-1">{{ $opportunity->seats }}</span>
+                                <td class="text-center text-nowrap">
+                                    @php
+                                        $typeLabels = ['job' => 'وظيفة شاغرة', 'training' => 'تدريب مهني بشركات', 'internship' => 'تدريب تعاوني'];
+                                    @endphp
+                                    <span class="badge rounded-pill px-2.5 py-1.5 fw-bold" style="font-size: 0.75rem;
+                                        @if($opportunity->type === 'job') background:#ecfdf5; color:#059669; border:1px solid #a7f3d0;
+                                        @elseif($opportunity->type === 'training') background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe;
+                                        @else background:#fef3c7; color:#d97706; border:1px solid #fde68a;
+                                        @endif">
+                                        <i class="{{ $opportunity->type === 'job' ? 'fas fa-briefcase' : ($opportunity->type === 'training' ? 'fas fa-graduation-cap' : 'fas fa-laptop-code') }} me-1"></i>{{ $typeLabels[$opportunity->type] ?? $opportunity->type }}
+                                    </span>
                                 </td>
-                                <td class="text-center">
-                                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2 py-1">{{ $opportunity->nominations_count }}</span>
+                                <td class="text-nowrap">
+                                    <span class="text-dark small d-inline-flex align-items-center gap-1.5">
+                                        <i class="fas fa-map-marker-alt text-danger" style="font-size: 0.8rem;"></i>
+                                        <span class="fw-semibold">{{ $opportunity->location }}</span>
+                                    </span>
                                 </td>
-                                <td>
+                                <td class="text-nowrap">
+                                    <div class="d-flex flex-column gap-1" style="font-size: 0.78rem;">
+                                        <span class="text-nowrap text-secondary font-monospace d-inline-flex align-items-center gap-1">
+                                            <i class="fas fa-play-circle text-success" style="font-size: 0.75rem;"></i>
+                                            <span>{{ $opportunity->start_date ? $opportunity->start_date->format('Y-m-d') : '--' }}</span>
+                                        </span>
+                                        @if($opportunity->end_date)
+                                        <span class="text-nowrap text-muted font-monospace d-inline-flex align-items-center gap-1">
+                                            <i class="fas fa-flag-checkered text-danger" style="font-size: 0.75rem;"></i>
+                                            <span>{{ $opportunity->end_date->format('Y-m-d') }}</span>
+                                        </span>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td class="text-center text-nowrap">
+                                    <span class="badge rounded-pill px-2.5 py-1 fw-bold" style="background: #f1f5f9; color: #334155; font-size: 0.8rem;">
+                                        {{ $opportunity->seats }}
+                                    </span>
+                                </td>
+                                <td class="text-center text-nowrap">
+                                    <span class="badge rounded-pill px-2.5 py-1 fw-bold" style="background: #eef2ff; color: #4f46e5; font-size: 0.8rem;">
+                                        {{ $opportunity->nominations_count }}
+                                    </span>
+                                </td>
+                                <td class="text-center text-nowrap">
                                     @php
                                         $statusLabels = ['new' => 'جديدة', 'open' => 'مفتوحة', 'closed' => 'مغلقة', 'completed' => 'مكتملة'];
                                     @endphp
-                                    <span class="badge rounded-pill px-2 py-1
-                                        @if($opportunity->status === 'open') bg-success text-white
-                                        @elseif($opportunity->status === 'new') bg-info text-white
-                                        @else bg-secondary text-white
+                                    <span class="badge rounded-pill px-2.5 py-1.5 fw-bold" style="font-size: 0.75rem;
+                                        @if($opportunity->status === 'open') background:#dcfce7; color:#15803d; border:1px solid #86efac;
+                                        @elseif($opportunity->status === 'new') background:#e0f2fe; color:#0369a1; border:1px solid #7dd3fc;
+                                        @else background:#f1f5f9; color:#64748b; border:1px solid #cbd5e1;
                                         @endif">
-                                        {{ $statusLabels[$opportunity->status] ?? $opportunity->status }}
+                                        <i class="fas fa-circle me-1" style="font-size: 0.45rem;"></i>{{ $statusLabels[$opportunity->status] ?? $opportunity->status }}
                                     </span>
                                 </td>
-                                <td class="text-center">
-                                    <div class="btn-group btn-group-sm">
-                                        <a href="{{ route('job-opportunities.show', $opportunity) }}" class="btn btn-outline-primary" data-bs-toggle="tooltip" title="عرض">
+                                <td class="text-center text-nowrap">
+                                    <div class="d-inline-flex align-items-center gap-1.5">
+                                        <a href="{{ route('job-opportunities.show', $opportunity) }}" class="btn btn-sm btn-light border text-primary rounded-2 px-2 py-1 shadow-none" data-bs-toggle="tooltip" title="عرض التفاصيل">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('job-opportunities.edit', $opportunity) }}" class="btn btn-outline-warning" data-bs-toggle="tooltip" title="تعديل">
+                                        <a href="{{ route('job-opportunities.edit', $opportunity) }}" class="btn btn-sm btn-light border text-warning rounded-2 px-2 py-1 shadow-none" data-bs-toggle="tooltip" title="تعديل">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('job-opportunities.destroy', $opportunity) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('job-opportunities.destroy', $opportunity) }}" method="POST" class="d-inline m-0">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('هل أنت متأكد من الحذف؟')" data-bs-toggle="tooltip" title="حذف">
-                                                <i class="fas fa-trash"></i>
+                                            <button type="submit" class="btn btn-sm btn-light border text-danger rounded-2 px-2 py-1 shadow-none" onclick="return confirm('هل أنت متأكد من حذف هذه الفرصة؟')" data-bs-toggle="tooltip" title="حذف">
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
                                     </div>
@@ -323,9 +336,11 @@
                 </div>
 
                 <!-- الترقيم والتصفح -->
+                @if(method_exists($opportunities, 'hasPages') && $opportunities->hasPages())
                 <div class="p-3 border-top d-flex justify-content-center">
                     {{ $opportunities->links() }}
                 </div>
+                @endif
             @else
                 <div class="text-center py-5">
                     <i class="fas fa-briefcase fa-3x text-muted mb-3 opacity-50"></i>

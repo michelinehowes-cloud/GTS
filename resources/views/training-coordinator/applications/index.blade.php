@@ -4,29 +4,28 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Breadcrumbs -->
-    @include('components.breadcrumbs', [
-        'items' => [
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="إدارة طلبات التدريب"
+        subtitle="مراجعة ومعالجة طلبات انضمام الخريجين للبرامج والدورات التدريبية"
+        icon="fas fa-clipboard-list"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
-            ['label' => 'لوحة تحكم منسق التدريب', 'url' => route('training-coordinator.dashboard')],
-            ['label' => 'إدارة طلبات التدريب', 'active' => true],
-        ]
-    ])
-
-    <!-- رأس الصفحة -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-            <h2 class="text-primary fw-bold mb-0">
-                <i class="fas fa-clipboard-list me-2"></i>إدارة طلبات التدريب
-            </h2>
-            <div class="text-muted small mt-1">مراجعة ومعالجة طلبات انضمام الخريجين للبرامج والدورات التدريبية مع إمكانية القبول أو الرفض أو الإلغاء الجماعي</div>
-        </div>
-        <div class="d-flex gap-2 flex-wrap">
-            <a href="{{ route('training-coordinator.trainings') }}" class="btn btn-outline-primary-modern">
-                <i class="fas fa-graduation-cap me-1"></i> البرامج التدريبية
-            </a>
-        </div>
-    </div>
+            ['label' => 'لوحة تحكم التدريب', 'url' => route('training-coordinator.dashboard')],
+            ['label' => 'إدارة طلبات التدريب']
+        ]"
+        secondaryBadge="طلبات معلقة: {{ $applications->where('status', 'pending')->count() }}"
+        secondaryBadgeIcon="fas fa-clock"
+    >
+        <a href="{{ route('training-coordinator.trainings') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-graduation-cap fs-6"></i>
+            <span>البرامج التدريبية</span>
+        </a>
+        <a href="{{ route('training-coordinator.trainings.create') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-plus-circle fs-6"></i>
+            <span>برنامج تدريبي جديد</span>
+        </a>
+    </x-page-hero>
 
     <!-- بطاقات الإحصائيات -->
     <div class="row mb-4">
@@ -237,53 +236,44 @@
                                                 <span class="text-muted small">-</span>
                                             @endif
                                         </td>
-                                        <td class="text-center">
-                                            <div class="btn-group btn-group-sm" role="group">
-                                                <!-- زر القبول -->
+                                        <td class="text-center" style="white-space: nowrap;">
+                                            <div class="d-flex align-items-center justify-content-center gap-1">
                                                 @if($application->status == 'pending')
-                                                <form action="{{ route('training-coordinator.applications.approve', $application->id) }}" method="POST" class="d-inline">
+                                                <form action="{{ route('training-coordinator.applications.approve', $application->id) }}" method="POST" class="d-inline m-0">
                                                     @csrf
                                                     <input type="hidden" name="redirect_to" value="applications">
-                                                    <button type="submit" class="btn btn-outline-success-modern" title="قبول الطلب">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 32px; height: 32px;" title="قبول الطلب">
                                                         <i class="fas fa-check"></i>
                                                     </button>
                                                 </form>
-                                                @endif
 
-                                                <!-- زر الرفض -->
-                                                @if($application->status == 'pending')
-                                                <form action="{{ route('training-coordinator.applications.reject', $application->id) }}" method="POST" class="d-inline ms-1">
+                                                <form action="{{ route('training-coordinator.applications.reject', $application->id) }}" method="POST" class="d-inline m-0">
                                                     @csrf
                                                     <input type="hidden" name="redirect_to" value="applications">
-                                                    <button type="submit" class="btn btn-outline-danger-modern" title="رفض الطلب">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 32px; height: 32px;" title="رفض الطلب">
                                                         <i class="fas fa-times"></i>
                                                     </button>
                                                 </form>
-                                                @endif
-
-                                                <!-- زر إعادة التعيين لقيد المراجعة -->
-                                                @if($application->status != 'pending')
-                                                <form action="{{ route('training-coordinator.applications.pending', $application->id) }}" method="POST" class="d-inline">
+                                                @else
+                                                <form action="{{ route('training-coordinator.applications.pending', $application->id) }}" method="POST" class="d-inline m-0">
                                                     @csrf
                                                     <input type="hidden" name="redirect_to" value="applications">
-                                                    <button type="submit" class="btn btn-outline-warning-modern" title="إعادة للمراجعة">
+                                                    <button type="submit" class="btn btn-sm btn-outline-warning rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 32px; height: 32px;" title="إعادة للمراجعة">
                                                         <i class="fas fa-redo"></i>
                                                     </button>
                                                 </form>
                                                 @endif
 
-                                                <!-- زر عرض ملف الخريج -->
                                                 @if($application->user)
-                                                <a href="{{ route('graduate.profile.public', $application->user->id) }}" target="_blank" class="btn btn-outline-primary-modern ms-1" title="عرض ملف الخريج">
+                                                <a href="{{ route('graduate.profile.public', $application->user->id) }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 32px; height: 32px;" title="عرض ملف الخريج">
                                                     <i class="fas fa-user"></i>
                                                 </a>
                                                 @endif
 
-                                                <!-- زر إلغاء وحذف الطلب -->
-                                                <form action="{{ route('training-coordinator.applications.destroy', $application->id) }}" method="POST" class="d-inline ms-1" onsubmit="return confirm('هل أنت متأكد من إلغاء وحذف هذا الطلب نهائياً؟')">
+                                                <form action="{{ route('training-coordinator.applications.destroy', $application->id) }}" method="POST" class="d-inline m-0" onsubmit="return confirm('هل أنت متأكد من إلغاء وحذف هذا الطلب نهائياً؟')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-outline-danger-modern" title="إلغاء وحذف الطلب">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 32px; height: 32px;" title="إلغاء وحذف الطلب">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>

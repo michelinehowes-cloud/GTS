@@ -1,224 +1,288 @@
 @extends('layouts.app')
 
-@section('title', 'تعديل برنامج تدريب')
-@section('page-title', 'تعديل برنامج تدريب')
+@section('title', 'تعديل برنامج التدريب - ' . $training->title)
+
+@php
+    $isAdmin   = auth()->user()->role === 'admin';
+    $prefix    = $isAdmin ? 'admin' : 'training-coordinator';
+    $dashboard = $isAdmin ? route('admin.dashboard') : route('training-coordinator.dashboard');
+@endphp
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/premium-forms.css') }}">
+<style>
+    .form-section-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #0d3882;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #eff6ff;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .input-group-modern {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        transition: all 0.2s ease;
+    }
+    .input-group-modern:focus-within {
+        box-shadow: 0 0 0 3px rgba(13, 56, 130, 0.12);
+    }
+    .input-group-modern .input-group-text {
+        background-color: #f8fafc;
+        border-color: #e2e8f0;
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+    .input-group-modern .form-control,
+    .input-group-modern .form-select {
+        border-color: #e2e8f0;
+        font-size: 0.9rem;
+        padding: 0.65rem 0.85rem;
+    }
+    .input-group-modern .form-control:focus,
+    .input-group-modern .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: none;
+    }
+</style>
 @endpush
 
 @section('content')
-<div class="container-fluid py-4">
-    <!-- Breadcrumbs -->
-    @include('components.breadcrumbs', [
-        'items' => [
+<div class="container-fluid">
+
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="تعديل برنامج التدريب"
+        :subtitle="'تحديث تفاصيل وجدول برنامج: ' . $training->title"
+        icon="fas fa-edit"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
-            ['label' => 'برامج التدريب', 'url' => route('training-coordinator.trainings')],
-            ['label' => $training->title, 'url' => route('training-coordinator.trainings.show', $training->id)],
-            ['label' => 'تعديل البرنامج', 'active' => true],
-        ]
-    ])
+            ['label' => $isAdmin ? 'لوحة تحكم المدير' : 'لوحة تحكم التدريب', 'url' => $dashboard],
+            ['label' => 'إدارة برامج التدريب', 'url' => route($prefix . '.trainings')],
+            ['label' => 'تعديل التدريب']
+        ]"
+        badge="نموذج تعديل معتمد"
+    >
+        <a href="{{ route($prefix . '.trainings.show', $training->id) }}" class="btn btn-warning text-dark fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
+            <i class="fas fa-eye"></i>
+            <span>معاينة تفاصيل التدريب</span>
+        </a>
+        <a href="{{ route($prefix . '.trainings') }}" class="btn btn-light bg-white text-dark fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
+            <i class="fas fa-arrow-right"></i>
+            <span>العودة للقائمة</span>
+        </a>
+    </x-page-hero>
 
-    @if($errors->any())
-        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4" role="alert">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-exclamation-circle me-3 fs-4 text-danger"></i>
-                <div>
-                    <strong>يوجد بعض الأخطاء في النموذج:</strong>
-                    <ul class="mb-0 mt-1">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+    <!-- بطاقة النموذج العصرية المعتمدة -->
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <div class="card-modern shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-white py-3 px-4 border-bottom d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-warning bg-opacity-10 text-warning p-2 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; font-size: 1.15rem;">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold text-dark fs-6">تعديل بيانات برنامج التدريب والتأهيل</h6>
+                        <small class="text-muted">يرجى تعديل الحقول والتأكد من توافق المواعيد وعدد المقاعد</small>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    @if (isset($errors) && $errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-4" role="alert">
+                            <h6 class="fw-bold mb-2"><i class="fas fa-exclamation-triangle me-2"></i>يرجى مراجعة وتصحيح الأخطاء التالية:</h6>
+                            <ul class="mb-0 ps-3">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    <form action="{{ route($prefix . '.trainings.update', $training->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+
+                        <!-- القسم 1: المعلومات الأساسية -->
+                        <div class="form-section-title">
+                            <i class="fas fa-info-circle"></i>
+                            <span>1. المعلومات الأساسية للبرنامج</span>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-12 col-md-8">
+                                <label for="title" class="form-label fw-semibold text-dark small mb-1">اسم البرنامج التدريبي <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-modern rounded-3 overflow-hidden">
+                                    <span class="input-group-text border-end-0"><i class="fas fa-heading"></i></span>
+                                    <input type="text" class="form-control border-start-0 @error('title') is-invalid @enderror" id="title" name="title" value="{{ old('title', $training->title) }}" placeholder="أدخل اسم البرنامج التدريبي كاملاً" required>
+                                </div>
+                                @error('title') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label for="type" class="form-label fw-semibold text-dark small mb-1">نوع البرنامج <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-modern rounded-3 overflow-hidden">
+                                    <span class="input-group-text border-end-0"><i class="fas fa-tag"></i></span>
+                                    <select class="form-select border-start-0 @error('type') is-invalid @enderror" id="type" name="type" required>
+                                        <option value="workshop" {{ old('type', $training->type) == 'workshop' ? 'selected' : '' }}>ورشة عمل</option>
+                                        <option value="course" {{ old('type', $training->type) == 'course' ? 'selected' : '' }}>دورة تدريبية</option>
+                                        <option value="seminar" {{ old('type', $training->type) == 'seminar' ? 'selected' : '' }}>ندوة علمية</option>
+                                        <option value="internship" {{ old('type', $training->type) == 'internship' ? 'selected' : '' }}>تدريب عملي</option>
+                                    </select>
+                                </div>
+                                @error('type') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="category" class="form-label fw-semibold text-dark small mb-1">المجال / الفئة التخصصية <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-modern rounded-3 overflow-hidden">
+                                    <span class="input-group-text border-end-0"><i class="fas fa-layer-group"></i></span>
+                                    <select class="form-select border-start-0 @error('category') is-invalid @enderror" id="category" name="category" required>
+                                        @foreach($categories as $category)
+                                            <option value="{{ $category }}" {{ old('category', $training->category) == $category ? 'selected' : '' }}>{{ $category }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @error('category') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="company_id" class="form-label fw-semibold text-dark small mb-1">الجهة / الشركة المنظمة</label>
+                                <div class="input-group input-group-modern rounded-3 overflow-hidden">
+                                    <span class="input-group-text border-end-0"><i class="fas fa-building"></i></span>
+                                    <select class="form-select border-start-0 @error('company_id') is-invalid @enderror" id="company_id" name="company_id">
+                                        <option value="">جامعة طرابلس (مكتب تدريب الخريجين)</option>
+                                        @foreach($companies as $company)
+                                            <option value="{{ $company->id }}" {{ old('company_id', $training->company_id) == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @error('company_id') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+
+                        <!-- القسم 2: الجدول الزمني والمكان والمقاعد -->
+                        <div class="form-section-title">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>2. المواعيد والمكان والقدرة الاستيعابية</span>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-12 col-md-4">
+                                <label for="start_date" class="form-label fw-semibold text-dark small mb-1">تاريخ البدء <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-modern rounded-3 overflow-hidden">
+                                    <span class="input-group-text border-end-0"><i class="fas fa-calendar-alt text-primary"></i></span>
+                                    <input type="date" class="form-control border-start-0 font-monospace @error('start_date') is-invalid @enderror" id="start_date" name="start_date" value="{{ old('start_date', $training->start_date ? $training->start_date->format('Y-m-d') : '') }}" required>
+                                </div>
+                                @error('start_date') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label for="end_date" class="form-label fw-semibold text-dark small mb-1">تاريخ الانتهاء <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-modern rounded-3 overflow-hidden">
+                                    <span class="input-group-text border-end-0"><i class="fas fa-calendar-check text-success"></i></span>
+                                    <input type="date" class="form-control border-start-0 font-monospace @error('end_date') is-invalid @enderror" id="end_date" name="end_date" value="{{ old('end_date', $training->end_date ? $training->end_date->format('Y-m-d') : '') }}" required>
+                                </div>
+                                @error('end_date') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label for="duration" class="form-label fw-semibold text-dark small mb-1">المدة التقديرية <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-modern rounded-3 overflow-hidden">
+                                    <span class="input-group-text border-end-0"><i class="fas fa-clock text-warning"></i></span>
+                                    <input type="text" class="form-control border-start-0 @error('duration') is-invalid @enderror" id="duration" name="duration" value="{{ old('duration', $training->duration) }}" placeholder="مثال: 4 أسابيع (40 ساعة)" required>
+                                </div>
+                                @error('duration') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label for="location" class="form-label fw-semibold text-dark small mb-1">مكان التدريب / القاعة <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-modern rounded-3 overflow-hidden">
+                                    <span class="input-group-text border-end-0"><i class="fas fa-map-marker-alt text-danger"></i></span>
+                                    <input type="text" class="form-control border-start-0 @error('location') is-invalid @enderror" id="location" name="location" value="{{ old('location', $training->location) }}" placeholder="مثال: قاعة التدريب 1 / مختبر الحاسوب" required>
+                                </div>
+                                @error('location') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label for="seats" class="form-label fw-semibold text-dark small mb-1">عدد المقاعد المتاحة <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-modern rounded-3 overflow-hidden">
+                                    <span class="input-group-text border-end-0"><i class="fas fa-users text-primary"></i></span>
+                                    <input type="number" min="1" max="1000" class="form-control border-start-0 @error('seats') is-invalid @enderror" id="seats" name="seats" value="{{ old('seats', $training->seats) }}" required>
+                                </div>
+                                @error('seats') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label for="status" class="form-label fw-semibold text-dark small mb-1">حالة البرنامج <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-modern rounded-3 overflow-hidden">
+                                    <span class="input-group-text border-end-0"><i class="fas fa-chart-line"></i></span>
+                                    <select class="form-select border-start-0 @error('status') is-invalid @enderror" id="status" name="status" required>
+                                        <option value="active" {{ old('status', $training->status) == 'active' ? 'selected' : '' }}>🟢 نشط (متاح للتسجيل)</option>
+                                        <option value="inactive" {{ old('status', $training->status) == 'inactive' ? 'selected' : '' }}>⏸ غير نشط (معلق / مسودة)</option>
+                                        <option value="completed" {{ old('status', $training->status) == 'completed' ? 'selected' : '' }}>✅ مكتمل (انتهت الدورة)</option>
+                                    </select>
+                                </div>
+                                @error('status') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+
+                        <!-- القسم 3: المدرب والوصف -->
+                        <div class="form-section-title">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span>3. المدرب المشرف ووصف البرنامج</span>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-12 col-md-6">
+                                <label for="instructor_name" class="form-label fw-semibold text-dark small mb-1">اسم المدرب المسؤول</label>
+                                <div class="input-group input-group-modern rounded-3 overflow-hidden">
+                                    <span class="input-group-text border-end-0"><i class="fas fa-user-tie"></i></span>
+                                    <input type="text" class="form-control border-start-0 @error('instructor_name') is-invalid @enderror" id="instructor_name" name="instructor_name" value="{{ old('instructor_name', $training->instructor_name) }}" placeholder="اسم المحاضر أو المدرب">
+                                </div>
+                                @error('instructor_name') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="trainer_id" class="form-label fw-semibold text-dark small mb-1">تحديد مدرب مسجل بالمنظومة</label>
+                                <div class="input-group input-group-modern rounded-3 overflow-hidden">
+                                    <span class="input-group-text border-end-0"><i class="fas fa-id-card"></i></span>
+                                    <select class="form-select border-start-0 @error('trainer_id') is-invalid @enderror" id="trainer_id" name="trainer_id">
+                                        <option value="">بدون ربط مباشر (أو مدرب خارجي)</option>
+                                        @foreach($trainers as $trainer)
+                                            <option value="{{ $trainer->id }}" {{ old('trainer_id', $training->trainer_id) == $trainer->id ? 'selected' : '' }}>{{ $trainer->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @error('trainer_id') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12">
+                                <label for="description" class="form-label fw-semibold text-dark small mb-1">وصف ومحاور البرنامج التدريبي <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-modern rounded-3 overflow-hidden">
+                                    <span class="input-group-text border-end-0 align-items-start pt-2"><i class="fas fa-align-right"></i></span>
+                                    <textarea class="form-control border-start-0 @error('description') is-invalid @enderror" id="description" name="description" rows="4" placeholder="أدخل ملخصاً شاملاً عن البرنامج ومحاوره التدريبية وأهدافه..." required>{{ old('description', $training->description) }}</textarea>
+                                </div>
+                                @error('description') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+
+                        <!-- أزرار الإجراءات السفلية المعتمدة -->
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 pt-3 border-top">
+                            <a href="{{ route($prefix . '.trainings') }}" class="btn btn-light border px-4 py-2 rounded-3 text-secondary fw-semibold">
+                                <i class="fas fa-times me-1"></i> إلغاء والعودة
+                            </a>
+                            <button type="submit" class="btn btn-primary-modern px-5 py-2.5 rounded-3 fw-bold shadow-sm d-flex align-items-center gap-2">
+                                <i class="fas fa-save"></i>
+                                <span>حفظ التعديلات</span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    @endif
-
-    <x-bento-form title="تعديل تفاصيل البرنامج" subtitle="تعديل تفاصيل برنامج: {{ $training->title }}" icon="fa-edit">
-        <form action="{{ route('training-coordinator.trainings.update', $training->id) }}" method="POST" class="premium-form">
-            @csrf
-            @method('PUT')
-            
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="form-floating-custom">
-                        <input type="text" class="form-control premium-input @error('title') is-invalid @enderror" id="title"
-                            name="title" value="{{ old('title', $training->title) }}" placeholder=" " required>
-                        <label for="title"><i class="fas fa-heading me-2"></i>اسم البرنامج *</label>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-floating-custom">
-                        <select class="form-select premium-input @error('type') is-invalid @enderror" id="type" name="type" required>
-                            <option value="" disabled>اختر النوع</option>
-                            <option value="workshop" {{ old('type', $training->type) == 'workshop' ? 'selected' : '' }}>ورشة عمل</option>
-                            <option value="course" {{ old('type', $training->type) == 'course' ? 'selected' : '' }}>دورة</option>
-                            <option value="seminar" {{ old('type', $training->type) == 'seminar' ? 'selected' : '' }}>ندوة</option>
-                            <option value="internship" {{ old('type', $training->type) == 'internship' ? 'selected' : '' }}>تدريب عملي</option>
-                        </select>
-                        <label for="type"><i class="fas fa-tag me-2"></i>نوع البرنامج *</label>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-floating-custom">
-                        <select class="form-select premium-input @error('category') is-invalid @enderror" id="category" name="category" required>
-                            <option value="" disabled>اختر الفئة</option>
-                            @foreach($categories as $category)
-                                <option value="{{ $category }}" {{ old('category', $training->category) == $category ? 'selected' : '' }}>{{ $category }}</option>
-                            @endforeach
-                        </select>
-                        <label for="category"><i class="fas fa-layer-group me-2"></i>الفئة *</label>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-floating-custom">
-                        <select class="form-select premium-input @error('company_id') is-invalid @enderror" id="company_id" name="company_id">
-                            <option value="" disabled selected>اختر الشركة المنظمة</option>
-                            @foreach($companies as $company)
-                                <option value="{{ $company->id }}" {{ old('company_id', $training->company_id) == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
-                            @endforeach
-                        </select>
-                        <label for="company_id"><i class="fas fa-building me-2"></i>الشركة المنظمة</label>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-floating-custom">
-                        <select class="form-select premium-input @error('status') is-invalid @enderror" id="status" name="status" required>
-                            <option value="" disabled>اختر الحالة</option>
-                            <option value="active" {{ old('status', $training->status) == 'active' ? 'selected' : '' }}>نشط</option>
-                            <option value="inactive" {{ old('status', $training->status) == 'inactive' ? 'selected' : '' }}>غير نشط</option>
-                            <option value="completed" {{ old('status', $training->status) == 'completed' ? 'selected' : '' }}>مكتمل</option>
-                        </select>
-                        <label for="status"><i class="fas fa-chart-line me-2"></i>الحالة *</label>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-floating-custom">
-                        <input type="text" class="form-control premium-input @error('instructor_name') is-invalid @enderror"
-                            id="instructor_name" name="instructor_name" value="{{ old('instructor_name', $training->instructor_name) }}"
-                            list="trainers-list" autocomplete="off" placeholder=" " required>
-                        <label for="instructor_name"><i class="fas fa-chalkboard-teacher me-2"></i>اسم المدرب *</label>
-                        <datalist id="trainers-list">
-                            @foreach($trainers as $trainer)
-                                <option value="{{ $trainer->name }}" data-id="{{ $trainer->id }}">{{ $trainer->specialization }}</option>
-                            @endforeach
-                        </datalist>
-                        <input type="hidden" id="trainer_id" name="trainer_id" value="{{ old('trainer_id', $training->trainer_id) }}">
-                    </div>
-                    <small class="text-muted d-block mt-2 px-2"><i class="fas fa-info-circle me-1"></i>اكتب اسم المدرب أو ابدأ بالكتابة للاختيار من القائمة</small>
-                </div>
-
-                <div class="col-12">
-                    <div class="form-floating-custom">
-                        <textarea class="form-control premium-input @error('description') is-invalid @enderror"
-                            id="description" name="description" style="height: 120px;" placeholder=" " required>{{ old('description', $training->description) }}</textarea>
-                        <label for="description"><i class="fas fa-align-right me-2"></i>وصف البرنامج *</label>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-floating-custom">
-                        <input type="text" class="form-control premium-input @error('duration') is-invalid @enderror"
-                            id="duration" name="duration" value="{{ old('duration', $training->duration) }}" placeholder=" " required>
-                        <label for="duration"><i class="fas fa-clock me-2"></i>المدة (مثال: 3 أشهر) *</label>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-floating-custom">
-                        <input type="date" class="form-control premium-input @error('start_date') is-invalid @enderror"
-                            id="start_date" name="start_date" value="{{ old('start_date', $training->start_date ? \Carbon\Carbon::parse($training->start_date)->format('Y-m-d') : '') }}" required>
-                        <label for="start_date"><i class="fas fa-calendar-alt me-2"></i>تاريخ البدء *</label>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-floating-custom">
-                        <input type="date" class="form-control premium-input @error('end_date') is-invalid @enderror"
-                            id="end_date" name="end_date" value="{{ old('end_date', $training->end_date ? \Carbon\Carbon::parse($training->end_date)->format('Y-m-d') : '') }}" required>
-                        <label for="end_date"><i class="fas fa-calendar-check me-2"></i>تاريخ الانتهاء *</label>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-floating-custom">
-                        <input type="text" class="form-control premium-input @error('location') is-invalid @enderror"
-                            id="location" name="location" value="{{ old('location', $training->location) }}" placeholder=" " required>
-                        <label for="location"><i class="fas fa-map-marker-alt me-2"></i>المكان *</label>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-floating-custom">
-                        <input type="number" class="form-control premium-input @error('seats') is-invalid @enderror"
-                            id="seats" name="seats" value="{{ old('seats', $training->seats) }}" min="1" placeholder=" " required>
-                        <label for="seats"><i class="fas fa-chair me-2"></i>عدد المقاعد *</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="d-flex gap-3 justify-content-end mt-5 pt-3 border-top border-light">
-                <a href="{{ route('training-coordinator.trainings.show', $training->id) }}" class="btn-bento-outline px-4">
-                    <i class="fas fa-times me-2"></i>إلغاء
-                </a>
-                <button type="submit" class="btn-bento px-4">
-                    <i class="fas fa-save me-2"></i>حفظ التعديلات
-                </button>
-            </div>
-        </form>
-    </x-bento-form>
+    </div>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-    // بيانات المدربين
-    const trainers = @json($trainers->map(function($trainer) {
-        return [
-            'id' => $trainer->id,
-            'name' => $trainer->name,
-            'specialization' => $trainer->specialization
-        ];
-    }));
-
-    const instructorInput = document.getElementById('instructor_name');
-    const trainerIdInput = document.getElementById('trainer_id');
-
-    // عند تغيير قيمة حقل اسم المدرب
-    instructorInput.addEventListener('input', function() {
-        const inputValue = this.value.trim();
-        
-        // البحث عن المدرب في القائمة
-        const foundTrainer = trainers.find(trainer => 
-            trainer.name.toLowerCase() === inputValue.toLowerCase()
-        );
-
-        // إذا وجد المدرب، احفظ ID
-        if (foundTrainer) {
-            trainerIdInput.value = foundTrainer.id;
-        } else {
-            trainerIdInput.value = '';
-        }
-    });
-
-    // عند اختيار من datalist
-    instructorInput.addEventListener('change', function() {
-        const inputValue = this.value.trim();
-        
-        const foundTrainer = trainers.find(trainer => 
-            trainer.name.toLowerCase() === inputValue.toLowerCase()
-        );
-
-        if (foundTrainer) {
-            trainerIdInput.value = foundTrainer.id;
-        }
-    });
-</script>
-@endpush

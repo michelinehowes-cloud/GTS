@@ -4,32 +4,28 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Breadcrumbs -->
-    @include('components.breadcrumbs', [
-        'items' => [
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="إدارة برامج التدريب والتأهيل"
+        subtitle="إنشاء ومتابعة الدورات والورش التدريبية وإدارة حضور المتدربين والطلبات المسجلة"
+        icon="fas fa-graduation-cap"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
-            ['label' => 'لوحة تحكم منسق التدريب', 'url' => route('training-coordinator.dashboard')],
-            ['label' => 'إدارة برامج التدريب', 'active' => true],
-        ]
-    ])
-
-    <!-- رأس الصفحة -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <div>
-            <h2 class="text-primary fw-bold mb-0">
-                <i class="fas fa-graduation-cap me-2"></i>إدارة برامج التدريب والتأهيل
-            </h2>
-            <div class="text-muted small mt-1">إنشاء ومتابعة الدورات والورش التدريبية وإدارة حضور المتدربين والطلبات المسجلة</div>
-        </div>
-        <div class="d-flex gap-2 flex-wrap">
-            <a href="{{ route('training-coordinator.applications') }}" class="btn btn-outline-primary-modern">
-                <i class="fas fa-clipboard-list me-1"></i> إدارة طلبات التدريب
-            </a>
-            <a href="{{ route('training-coordinator.trainings.create') }}" class="btn btn-primary-modern">
-                <i class="fas fa-plus-circle me-1"></i> إضافة برنامج جديد
-            </a>
-        </div>
-    </div>
+            ['label' => 'لوحة تحكم التدريب', 'url' => route('training-coordinator.dashboard')],
+            ['label' => 'إدارة برامج التدريب']
+        ]"
+        secondaryBadge="برامج نشطة: {{ $trainings->where('status', 'active')->count() }}"
+        secondaryBadgeIcon="fas fa-play-circle"
+    >
+        <a href="{{ route('training-coordinator.applications') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-clipboard-list fs-6"></i>
+            <span>طلبات التدريب</span>
+        </a>
+        <a href="{{ route('training-coordinator.trainings.create') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-plus-circle fs-6"></i>
+            <span>إضافة برنامج جديد</span>
+        </a>
+    </x-page-hero>
 
     <!-- بطاقات الإحصائيات -->
     <div class="row mb-4">
@@ -168,35 +164,35 @@
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="text-center">
-                                            <div class="btn-group btn-group-sm" role="group">
+                                        <td class="text-center" style="white-space: nowrap;">
+                                            <div class="d-flex align-items-center justify-content-center gap-1">
                                                 <!-- سجل الحضور اليومي -->
-                                                <a href="{{ route('training-coordinator.trainings.attendance', $training->id) }}" class="btn btn-outline-warning-modern" title="سجل ومصفوفة الحضور">
+                                                <a href="{{ route('training-coordinator.trainings.attendance', $training->id) }}" class="btn btn-sm btn-outline-warning rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 34px; height: 34px;" title="سجل الحضور">
                                                     <i class="fas fa-clipboard-check"></i>
                                                 </a>
 
                                                 <!-- ماسح QR -->
                                                 @if($training->status == 'active')
-                                                <a href="{{ route('training-coordinator.trainings.scanner', $training->id) }}" class="btn btn-outline-primary-modern ms-1" title="ماسح الـ QR اليومي">
+                                                <a href="{{ route('training-coordinator.trainings.scanner', $training->id) }}" class="btn btn-sm btn-outline-primary rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 34px; height: 34px;" title="ماسح الـ QR اليومي">
                                                     <i class="fas fa-qrcode"></i>
                                                 </a>
                                                 @endif
 
                                                 <!-- عرض التفاصيل -->
-                                                <a href="{{ route('training-coordinator.trainings.show', $training->id) }}" class="btn btn-outline-info-modern ms-1" title="عرض التفاصيل">
+                                                <a href="{{ route('training-coordinator.trainings.show', $training->id) }}" class="btn btn-sm btn-outline-info rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 34px; height: 34px;" title="عرض التفاصيل">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
 
                                                 <!-- تعديل -->
-                                                <a href="{{ route('training-coordinator.trainings.edit', $training->id) }}" class="btn btn-outline-primary-modern ms-1" title="تعديل البرنامج">
+                                                <a href="{{ route('training-coordinator.trainings.edit', $training->id) }}" class="btn btn-sm btn-outline-warning rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 34px; height: 34px;" title="تعديل البرنامج">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
 
                                                 <!-- حذف -->
-                                                <form action="{{ route('training-coordinator.trainings.destroy', $training->id) }}" method="POST" class="d-inline ms-1" onsubmit="return confirm('هل أنت متأكد من حذف هذا البرنامج التدريبي؟')">
+                                                <form action="{{ route('training-coordinator.trainings.destroy', $training->id) }}" method="POST" class="d-inline m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا البرنامج التدريبي؟')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-outline-danger-modern" title="حذف البرنامج">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm action-btn-hover" style="width: 34px; height: 34px;" title="حذف البرنامج">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>

@@ -4,37 +4,24 @@
 
 @section('content')
 <div class="container-fluid py-3">
-    <!-- Breadcrumbs -->
-    @include('components.breadcrumbs', [
-        'items' => [
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="تعديل موظف وصلاحياته: {{ $user->name }}"
+        subtitle="تعديل بيانات الحساب وتخصيص صلاحيات الوصول الدقيقة بما يتوافق مع مهام الموظف"
+        icon="fas fa-user-edit"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('admin.dashboard')],
             ['label' => 'إدارة الموظفين والصلاحيات', 'url' => route('admin.users')],
-            ['label' => 'تعديل: ' . $user->name, 'active' => true],
-        ]
-    ])
-
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-        <div>
-            <div class="d-flex align-items-center gap-2 mb-1">
-                <h2 class="text-primary fw-bold mb-0">
-                    <i class="fas fa-user-edit me-2"></i> تعديل بيانات وصلاحيات الموظف
-                </h2>
-                @if($user->isProtectedSuperAdmin())
-                    <span class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold">
-                        <i class="fas fa-shield-alt me-1"></i> حساب محمي (Super Admin)
-                    </span>
-                @endif
-            </div>
-            <p class="text-muted small mb-0">
-                يمكنك ترقية أو تعديل صلاحيات الموظف ({{ $user->name }}) بما يتوافق مع مهامه الفعلية بالجامعة.
-            </p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('admin.users') }}" class="btn btn-outline-secondary rounded-pill px-4">
-                <i class="fas fa-arrow-right me-1"></i> العودة للقائمة
-            </a>
-        </div>
-    </div>
+            ['label' => 'تعديل: ' . $user->name]
+        ]"
+        badge="الدور: {{ $user->role_name }}"
+        badgeIcon="fas fa-id-badge"
+    >
+        <a href="{{ route('admin.users') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-4 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2">
+            <i class="fas fa-arrow-right fs-6"></i>
+            <span>العودة للقائمة</span>
+        </a>
+    </x-page-hero>
 
     @if($errors->any())
     <div class="alert alert-danger border-0 shadow-sm rounded-4 mb-4">

@@ -9,11 +9,11 @@ use App\Models\JobOpportunity;
 use App\Models\GraduateData;
 use App\Models\Nomination;
 use App\Models\PartnershipDocument;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class UserTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     /** @test */
     public function it_can_create_a_user()

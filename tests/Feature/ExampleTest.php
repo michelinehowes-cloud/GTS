@@ -2,11 +2,12 @@
 
 namespace Tests\Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
+    use DatabaseTransactions;
     /**
      * A basic test example.
      *
@@ -20,12 +21,16 @@ class ExampleTest extends TestCase
     }
 
     /** @test */
-    public function test_job_fair_live_broadcast_page_loads_successfully()
+    public function test_admin_can_login_successfully()
     {
-        $response = $this->get('/job-fair');
+        $this->seed(\Database\Seeders\AdminUserSeeder::class);
 
-        $response->assertStatus(200);
-        $response->assertSee('منصة البث المباشر');
-        $response->assertSee('الدردشة المباشرة');
+        $response = $this->post('/login', [
+            'email' => 'admin@tripoliuniversity.edu.ly',
+            'password' => 'password123',
+        ]);
+
+        $response->assertRedirect('/dashboard');
+        $this->assertAuthenticated();
     }
 }

@@ -5,36 +5,27 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Breadcrumbs -->
-    @include('components.breadcrumbs', [
-        'items' => [
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="لوحة تحكم مسؤول النظام"
+        subtitle="نظرة شاملة ومؤشرات أداء المنظومة، الخريجين، والشركات ومعارض التوظيف"
+        icon="fas fa-user-shield"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
-            ['label' => 'لوحة تحكم المدير', 'active' => true],
-        ]
-    ])
-
-    {{-- رأس لوحة التحكم --}}
-    <div class="card-modern mb-4 p-3 p-md-4">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <div class="rounded-circle bg-light-primary text-primary fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px; font-size: 1.4rem;">
-                    <i class="fas fa-user-shield"></i>
-                </div>
-                <div>
-                    <h2 class="text-primary fw-bold mb-1 fs-4">لوحة تحكم مسؤول النظام</h2>
-                    <p class="text-muted small mb-0">نظرة شاملة ومؤشرات أداء المنظومة، الخريجين، والشركات ومعارض التوظيف</p>
-                </div>
-            </div>
-            <div class="d-flex gap-2 flex-wrap">
-                <a href="{{ route('job-fair.admin.index') }}" class="btn btn-warning-modern btn-sm px-3">
-                    <i class="fas fa-store me-1"></i> معارض التوظيف
-                </a>
-                <a href="{{ route('admin.companies') }}" class="btn btn-outline-primary btn-sm px-3">
-                    <i class="fas fa-building me-1"></i> الشركات
-                </a>
-            </div>
-        </div>
-    </div>
+            ['label' => 'لوحة تحكم المدير']
+        ]"
+        secondaryBadge="مدير النظام العام"
+        secondaryBadgeIcon="fas fa-shield-alt"
+    >
+        <a href="{{ route('job-fair.admin.index') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-store fs-6"></i>
+            <span>معارض التوظيف</span>
+        </a>
+        <a href="{{ route('admin.companies') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-building fs-6"></i>
+            <span>الشركات</span>
+        </a>
+    </x-page-hero>
 
     @if(isset($pendingGraduatesCount) && $pendingGraduatesCount > 0)
     <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center justify-content-between p-3 mb-4 rounded-3 flex-wrap gap-2">

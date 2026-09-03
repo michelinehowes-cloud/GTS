@@ -105,4 +105,22 @@ class RbacSecurityTest extends TestCase
         $this->assertTrue($staff->hasPermission('graduates.view'));
         $this->assertTrue($staff->hasPermission('graduates.create'));
     }
+
+    /** @test */
+    public function user_management_screens_render_successfully()
+    {
+        $superAdmin = User::firstOrCreate(
+            ['email' => 'admin@tripoliuniversity.edu.ly'],
+            ['name' => 'Admin', 'password' => bcrypt('password123'), 'role' => 'admin', 'is_active' => true, 'is_approved' => true]
+        );
+
+        $responseIndex = $this->actingAs($superAdmin)->get('/admin/users');
+        $responseIndex->assertStatus(200);
+
+        $responseCreate = $this->actingAs($superAdmin)->get('/admin/users/create');
+        $responseCreate->assertStatus(200);
+
+        $responseEdit = $this->actingAs($superAdmin)->get("/admin/users/{$superAdmin->id}/edit");
+        $responseEdit->assertStatus(200);
+    }
 }

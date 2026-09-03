@@ -13,17 +13,23 @@ class GraduateData extends Model
     protected $table = 'graduates_data';
 
     protected $fillable = [
+        'user_id',
         'name',
         'email',
         'phone',
         'national_id',
+        'date_of_birth',
+        'gender',
+        'city',
         'major',
+        'specialization',
         'university',
         'sector',
         'faculty',
         'graduation_year',
         'gpa',
         'degree',
+        'qualification',
         'skills',
         'languages',
         'certifications',
@@ -37,7 +43,6 @@ class GraduateData extends Model
         'data_source',
         'is_active',
         'notes',
-        'user_id'
     ];
 
     protected $casts = [
@@ -109,5 +114,89 @@ class GraduateData extends Model
     public function scopeBySkills($query, $skills)
     {
         return $query->whereJsonContains('skills', $skills);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Fallback Accessors for Self-Registered Graduates
+    |--------------------------------------------------------------------------
+    */
+
+    public function getDateOfBirthAttribute($value)
+    {
+        return $value ?? $this->user?->date_of_birth;
+    }
+
+    public function getGenderAttribute($value)
+    {
+        return $value ?? $this->user?->gender;
+    }
+
+    public function getCityAttribute($value)
+    {
+        return $value ?? $this->user?->city;
+    }
+
+    public function getQualificationAttribute($value)
+    {
+        return $value ?? $this->attributes['degree'] ?? $this->user?->qualification ?? $this->user?->degree;
+    }
+
+    public function getDegreeAttribute($value)
+    {
+        return $value ?? $this->attributes['qualification'] ?? $this->user?->degree ?? $this->user?->qualification;
+    }
+
+    public function getSpecializationAttribute($value)
+    {
+        return $value ?? $this->attributes['major'] ?? $this->user?->specialization ?? $this->user?->major;
+    }
+
+    public function getMajorAttribute($value)
+    {
+        return $value ?? $this->attributes['specialization'] ?? $this->user?->major ?? $this->user?->specialization;
+    }
+
+    public function getSectorAttribute($value)
+    {
+        return $value ?? $this->user?->sector;
+    }
+
+    public function getFacultyAttribute($value)
+    {
+        return $value ?? $this->user?->faculty;
+    }
+
+    public function getAddressAttribute($value)
+    {
+        return $value ?? $this->user?->address;
+    }
+
+    public function getWorkExperienceAttribute($value)
+    {
+        return $value ?? $this->user?->experiences;
+    }
+
+    public function getExperiencesAttribute($value)
+    {
+        return $value ?? $this->attributes['work_experience'] ?? $this->user?->experiences;
+    }
+
+    public function getSkillsTextAttribute()
+    {
+        $skills = $this->skills ?? $this->user?->skills;
+        if (is_array($skills)) {
+            return implode(', ', array_filter($skills));
+        }
+        return is_string($skills) ? $skills : '';
+    }
+
+    public function getLanguagesTextAttribute()
+    {
+        $languages = $this->languages ?? $this->user?->languages;
+        if (is_array($languages)) {
+            return implode(', ', array_filter($languages));
+        }
+        return is_string($languages) ? $languages : '';
     }
 }

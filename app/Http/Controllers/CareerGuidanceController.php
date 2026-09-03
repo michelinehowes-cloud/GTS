@@ -85,7 +85,25 @@ class CareerGuidanceController extends Controller
      */
     public function storeGraduate(Request $request)
     {
-        $this->authorize('create', GraduateData::class);
+        // التطبيع بين المسميات المتطابقة
+        if (!$request->filled('major') && $request->filled('specialization')) {
+            $request->merge(['major' => $request->input('specialization')]);
+        }
+        if (!$request->filled('specialization') && $request->filled('major')) {
+            $request->merge(['specialization' => $request->input('major')]);
+        }
+        if (!$request->filled('degree') && $request->filled('qualification')) {
+            $request->merge(['degree' => $request->input('qualification')]);
+        }
+        if (!$request->filled('qualification') && $request->filled('degree')) {
+            $request->merge(['qualification' => $request->input('degree')]);
+        }
+        if (!$request->filled('work_experience') && $request->filled('experiences')) {
+            $request->merge(['work_experience' => $request->input('experiences')]);
+        }
+        if (!$request->filled('employment_status')) {
+            $request->merge(['employment_status' => 'seeking_opportunities']);
+        }
 
         try {
             $validated = $request->validate([
@@ -93,11 +111,15 @@ class CareerGuidanceController extends Controller
                 'email' => 'required|email|unique:graduates_data,email|unique:users,email',
                 'phone' => 'nullable|string|max:20',
                 'national_id' => 'nullable|string|max:50|unique:graduates_data,national_id|unique:users,national_id',
+                'date_of_birth' => 'nullable|date',
+                'gender' => 'nullable|in:male,female',
+                'city' => 'nullable|string|max:100',
                 'university' => 'required|string|max:255',
                 'sector' => 'required|string|max:100',
                 'faculty' => 'required|string|max:255',
                 'major' => 'required|string|max:255',
-                'graduation_year' => 'required|integer|min:2000|max:' . (date('Y') + 1),
+                'degree' => 'nullable|string|max:255',
+                'graduation_year' => 'required|integer|min:1950|max:' . (date('Y') + 1),
                 'gpa' => 'nullable|numeric|min:0|max:100',
                 'employment_status' => 'required|in:employed,seeking_opportunities,unemployed,further_study',
                 'current_job_title' => 'nullable|string|max:255',
@@ -107,6 +129,16 @@ class CareerGuidanceController extends Controller
                 'education' => 'nullable|string',
                 'address' => 'nullable|string|max:500',
                 'notes' => 'nullable|string',
+            ], [
+                'name.required' => 'الاسم مطلوب',
+                'email.required' => 'البريد الإلكتروني مطلوب',
+                'email.unique' => 'البريد الإلكتروني مستخدم بالفعل',
+                'university.required' => 'حقل الجامعة مطلوب',
+                'sector.required' => 'حقل القطاع مطلوب',
+                'faculty.required' => 'حقل الكلية مطلوب',
+                'major.required' => 'حقل التخصص مطلوب',
+                'graduation_year.required' => 'حقل سنة التخرج مطلوب',
+                'employment_status.required' => 'حقل حالة التوظيف مطلوب',
             ]);
 
             // Ensure the user is authenticated before attempting to get Auth::id()
@@ -122,6 +154,8 @@ class CareerGuidanceController extends Controller
             // إنشاء كلمة مرور مؤقتة قوية
             $temporaryPassword = 'Gr' . date('Y') . '@' . \Illuminate\Support\Str::random(6);
 
+            $degreeValue = $request->input('degree', $request->input('qualification', 'بكالوريوس'));
+
             // إنشاء حساب مستخدم للخريج
             $user = \App\Models\User::create([
                 'name' => $validated['name'],
@@ -130,10 +164,21 @@ class CareerGuidanceController extends Controller
                 'role' => 'graduate',
                 'phone' => $validated['phone'] ?? null,
                 'national_id' => $validated['national_id'] ?? null,
+                'date_of_birth' => $validated['date_of_birth'] ?? null,
+                'gender' => $validated['gender'] ?? null,
+                'city' => $validated['city'] ?? null,
+                'address' => $validated['address'] ?? null,
+                'university' => $validated['university'],
+                'sector' => $validated['sector'],
+                'faculty' => $validated['faculty'],
                 'major' => $validated['major'],
+                'specialization' => $validated['major'],
+                'degree' => $degreeValue,
+                'qualification' => $degreeValue,
                 'graduation_year' => $validated['graduation_year'],
                 'gpa' => $validated['gpa'] ?? null,
-                'address' => $validated['address'] ?? null,
+                'skills' => is_string($request->input('skills')) ? array_values(array_filter(array_map('trim', explode(',', $request->input('skills'))))) : $request->input('skills'),
+                'experiences' => $validated['experiences'] ?? null,
                 'is_active' => true,
                 'must_change_password' => true, // إجبار تغيير كلمة المرور
                 'is_approved' => true, // الموافقة التلقائية لأن مسؤول الإرشاد هو من أضافه
@@ -142,6 +187,15 @@ class CareerGuidanceController extends Controller
             // إنشاء سجل في جدول الخريجين
             $validated['added_by'] = Auth::id();
             $validated['user_id'] = $user->id; // ربط الخريج بالمستخدم
+            $validated['degree'] = $degreeValue;
+            $validated['qualification'] = $degreeValue;
+            $validated['specialization'] = $validated['major'];
+            if (!empty($validated['skills']) && is_string($validated['skills'])) {
+                $validated['skills'] = array_values(array_filter(array_map('trim', explode(',', $validated['skills']))));
+            }
+            if (!empty($validated['experiences'])) {
+                $validated['work_experience'] = $validated['experiences'];
+            }
             $graduate = GraduateData::create($validated);
 
             // إرسال إيميل بالبيانات
@@ -255,39 +309,84 @@ class CareerGuidanceController extends Controller
         $graduate = GraduateData::findOrFail($id);
         $this->authorize('update', $graduate); // Authorize updating the graduate details
 
+        // التطبيع بين المسميات المتطابقة (specialization <-> major و qualification <-> degree و experiences <-> work_experience)
+        if (!$request->filled('major') && $request->filled('specialization')) {
+            $request->merge(['major' => $request->input('specialization')]);
+        }
+        if (!$request->filled('specialization') && $request->filled('major')) {
+            $request->merge(['specialization' => $request->input('major')]);
+        }
+        if (!$request->filled('degree') && $request->filled('qualification')) {
+            $request->merge(['degree' => $request->input('qualification')]);
+        }
+        if (!$request->filled('qualification') && $request->filled('degree')) {
+            $request->merge(['qualification' => $request->input('degree')]);
+        }
+        if (!$request->filled('work_experience') && $request->filled('experiences')) {
+            $request->merge(['work_experience' => $request->input('experiences')]);
+        }
+        if (!$request->filled('experiences') && $request->filled('work_experience')) {
+            $request->merge(['experiences' => $request->input('work_experience')]);
+        }
+        if (!$request->filled('employment_status')) {
+            $request->merge(['employment_status' => $graduate->employment_status ?? 'seeking_opportunities']);
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255|unique:graduates_data,email,' . $graduate->id,
             'phone' => 'nullable|string|max:255',
+            'national_id' => 'nullable|string|max:50',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|in:male,female',
+            'city' => 'nullable|string|max:100',
+            'address' => 'nullable|string|max:255',
             'university' => 'required|string|max:255',
             'sector' => 'required|string|max:100',
             'faculty' => 'required|string|max:255',
             'major' => 'required|string|max:255',
-            'graduation_year' => 'required|integer|min:2000|max:' . date('Y'),
+            'graduation_year' => 'required|integer|min:1950|max:' . (date('Y') + 1),
             'gpa' => 'nullable|numeric|min:0|max:100',
             'degree' => 'required|string|max:255',
-            'skills' => 'nullable|string', // Will be converted to array
-            'languages' => 'nullable|string', // Will be converted to array
+            'skills' => 'nullable|string',
+            'languages' => 'nullable|string',
             'employment_status' => 'required|in:employed,seeking_opportunities,unemployed,further_study',
             'work_experience' => 'nullable|string',
-            'address' => 'nullable|string|max:255',
             'linkedin_url' => 'nullable|url|max:255',
             'cv' => 'nullable|file|mimes:pdf|max:5120', // 5MB max
+        ], [
+            'name.required' => 'الاسم مطلوب',
+            'university.required' => 'حقل الجامعة مطلوب',
+            'sector.required' => 'حقل القطاع مطلوب',
+            'faculty.required' => 'حقل الكلية مطلوب',
+            'major.required' => 'حقل التخصص مطلوب',
+            'degree.required' => 'حقل المؤهل العلمي مطلوب',
+            'graduation_year.required' => 'حقل سنة التخرج مطلوب',
+            'employment_status.required' => 'حقل حالة التوظيف مطلوب',
         ]);
+
+        $skills = is_string($request->input('skills')) ? array_values(array_filter(array_map('trim', explode(',', $request->input('skills'))))) : $request->input('skills');
+        $languages = is_string($request->input('languages')) ? array_values(array_filter(array_map('trim', explode(',', $request->input('languages'))))) : $request->input('languages');
 
         $data = [
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
+            'national_id' => $request->national_id,
+            'date_of_birth' => $request->date_of_birth,
+            'gender' => $request->gender,
+            'city' => $request->city,
             'university' => $request->university,
             'sector' => $request->sector,
             'faculty' => $request->faculty,
             'major' => $request->major,
+            'specialization' => $request->major,
             'graduation_year' => $request->graduation_year,
             'gpa' => $request->gpa,
             'degree' => $request->degree,
-            'skills' => is_string($request->input('skills')) ? array_map('trim', explode(',', $request->input('skills'))) : $request->input('skills'),
-            'languages' => is_string($request->input('languages')) ? array_map('trim', explode(',', $request->input('languages'))) : $request->input('languages'),
+            'qualification' => $request->degree,
+            'skills' => $skills,
+            'languages' => $languages,
             'employment_status' => $request->employment_status,
             'work_experience' => $request->work_experience,
             'address' => $request->address,
@@ -315,16 +414,24 @@ class CareerGuidanceController extends Controller
             if ($user) {
                 $userData = [
                     'name' => $data['name'],
-                    'phone' => $data['phone'],
+                    'phone' => $data['phone'] ?? $user->phone,
+                    'national_id' => $data['national_id'] ?? $user->national_id,
+                    'date_of_birth' => $data['date_of_birth'] ?? $user->date_of_birth,
+                    'gender' => $data['gender'] ?? $user->gender,
+                    'city' => $data['city'] ?? $user->city,
+                    'address' => $data['address'] ?? $user->address,
+                    'university' => $data['university'],
+                    'sector' => $data['sector'],
+                    'faculty' => $data['faculty'],
                     'major' => $data['major'],
                     'specialization' => $data['major'],
-                    'graduation_year' => $data['graduation_year'],
-                    'gpa' => $data['gpa'],
                     'degree' => $data['degree'],
                     'qualification' => $data['degree'],
+                    'graduation_year' => $data['graduation_year'],
+                    'gpa' => $data['gpa'],
                     'skills' => $data['skills'],
                     'languages' => $data['languages'],
-                    'address' => $data['address'],
+                    'experiences' => $data['work_experience'] ?? $user->experiences,
                 ];
 
                 if (isset($data['cv_path'])) {

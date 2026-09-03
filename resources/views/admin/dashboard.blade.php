@@ -25,11 +25,11 @@
                     <p class="text-muted small mb-0">نظرة شاملة ومؤشرات أداء المنظومة، الخريجين، والشركات ومعارض التوظيف</p>
                 </div>
             </div>
-            <div class="d-flex gap-2 flex-wrap w-100 w-md-auto">
-                <a href="{{ route('job-fair.admin.index') }}" class="btn btn-warning-modern flex-grow-1 flex-md-grow-0 btn-sm">
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ route('job-fair.admin.index') }}" class="btn btn-warning-modern btn-sm px-3">
                     <i class="fas fa-store me-1"></i> معارض التوظيف
                 </a>
-                <a href="{{ route('admin.companies') }}" class="btn btn-outline-primary flex-grow-1 flex-md-grow-0 btn-sm">
+                <a href="{{ route('admin.companies') }}" class="btn btn-outline-primary btn-sm px-3">
                     <i class="fas fa-building me-1"></i> الشركات
                 </a>
             </div>
@@ -43,7 +43,17 @@
                 <i class="fas fa-user-clock fa-lg"></i>
             </div>
             <div>
-                <strong class="d-block text-dark fs-6">يوجد {{ $pendingGraduatesCount }} طلبات تسجيل خريجين جديدة بانتظار الاعتماد والموافقة</strong>
+                <strong class="d-block text-dark fs-6">
+                    @if($pendingGraduatesCount == 1)
+                        يوجد طلب تسجيل خريج جديد بانتظار الاعتماد والموافقة
+                    @elseif($pendingGraduatesCount == 2)
+                        يوجد طلبان لتسجيل خريجين بانتظار الاعتماد والموافقة
+                    @elseif($pendingGraduatesCount >= 3 && $pendingGraduatesCount <= 10)
+                        يوجد {{ $pendingGraduatesCount }} طلبات تسجيل خريجين جديدة بانتظار الاعتماد والموافقة
+                    @else
+                        يوجد {{ $pendingGraduatesCount }} طلباً لتسجيل خريجين بانتظار الاعتماد والموافقة
+                    @endif
+                </strong>
                 <span class="text-muted small">يمكنك مراجعة وتدقيق بيانات الخريجين وتفعيل حساباتهم فوراً ليتمكنوا من تسجيل الدخول واستخدام المنظومة.</span>
             </div>
         </div>

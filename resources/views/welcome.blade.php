@@ -43,48 +43,269 @@
             overflow-x: hidden;
         }
 
-        /* 1. الشريط العلوي الثابت (Sticky Glassmorphic Navbar) */
-        .home-navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border-bottom: 1px solid #e2e8f0;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            z-index: 1040;
-            padding: 0.75rem 0;
+        /* 1. الشريط العلوي العائم الفاخر (Floating Glassmorphic Navbar) */
+        .home-navbar-wrapper {
+            position: fixed;
+            top: 14px;
+            left: 0;
+            right: 0;
+            z-index: 1050;
+            padding: 0 1.25rem;
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .navbar-brand-logo {
-            width: 46px;
-            height: 46px;
-            border-radius: 12px;
-            border: 2px solid var(--gold-accent);
+        .home-navbar {
+            pointer-events: auto;
+            max-width: 1260px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(24px) saturate(190%);
+            -webkit-backdrop-filter: blur(24px) saturate(190%);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            border-radius: 22px;
+            box-shadow: 0 10px 30px -5px rgba(11, 31, 58, 0.08), 0 0 0 1px rgba(226, 232, 240, 0.55);
+            padding: 0.55rem 1.25rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .home-navbar.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 14px 40px -5px rgba(11, 31, 58, 0.12), 0 0 0 1px rgba(203, 213, 225, 0.75);
+            border-color: rgba(255, 255, 255, 0.95);
+        }
+
+        .navbar-brand-wrap {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            text-decoration: none;
+        }
+
+        .navbar-brand-logo-frame {
+            width: 44px;
+            height: 44px;
+            border-radius: 13px;
+            background: #ffffff;
+            padding: 2.5px;
+            border: 1.5px solid rgba(245, 158, 11, 0.45);
+            box-shadow: 0 4px 14px rgba(13, 56, 130, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            flex-shrink: 0;
+        }
+
+        .navbar-brand-wrap:hover .navbar-brand-logo-frame {
+            transform: scale(1.05) rotate(-2deg);
+            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.28);
+        }
+
+        .navbar-brand-logo-img {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-radius: 10px;
+        }
+
+        .brand-text-title {
+            font-weight: 800;
+            font-size: 0.96rem;
+            color: #0b1f3a;
+            line-height: 1.2;
+            letter-spacing: -0.2px;
+            margin: 0;
+        }
+
+        .brand-text-subtitle {
+            font-size: 0.72rem;
+            color: #64748b;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 1px;
+        }
+
+        .brand-dot-pulse {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.22);
+            display: inline-block;
         }
 
         .nav-link-custom {
             font-weight: 600;
-            color: #334155 !important;
-            padding: 0.5rem 0.9rem !important;
-            border-radius: 10px;
-            transition: all 0.2s ease;
-            font-size: 0.95rem;
+            color: #475569 !important;
+            padding: 0.5rem 0.95rem !important;
+            border-radius: 12px;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            font-size: 0.92rem;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .nav-link-custom:hover {
-            color: var(--secondary-blue) !important;
-            background-color: rgba(21, 101, 192, 0.06);
+            color: #0d3882 !important;
+            background: rgba(13, 56, 130, 0.06);
             transform: translateY(-1px);
+        }
+
+        .nav-link-custom.active {
+            color: #0d3882 !important;
+            background: rgba(13, 56, 130, 0.08);
+            font-weight: 700;
+        }
+
+        .nav-badge-pill {
+            font-size: 0.65rem;
+            padding: 1px 7px;
+            border-radius: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+        }
+
+        .nav-btn-login {
+            background: rgba(13, 56, 130, 0.05);
+            color: #0d3882 !important;
+            border: 1px solid rgba(13, 56, 130, 0.16);
+            font-weight: 700;
+            font-size: 0.86rem;
+            padding: 0.5rem 1.25rem;
+            border-radius: 50px;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .nav-btn-login:hover {
+            background: #0d3882;
+            color: #ffffff !important;
+            border-color: #0d3882;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(13, 56, 130, 0.22);
+        }
+
+        .nav-btn-login:hover i {
+            color: #ffffff !important;
+        }
+
+        .nav-btn-register {
+            background: linear-gradient(135deg, #0d3882 0%, #1e40af 100%);
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            font-weight: 700;
+            font-size: 0.86rem;
+            padding: 0.5rem 1.35rem;
+            border-radius: 50px;
+            box-shadow: 0 6px 18px rgba(13, 56, 130, 0.25);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn-register::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.75s ease;
+        }
+
+        .nav-btn-register:hover::before {
+            left: 140%;
+        }
+
+        .nav-btn-register:hover {
+            background: linear-gradient(135deg, #0a2d69 0%, #1d4ed8 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(13, 56, 130, 0.35);
+        }
+
+        .nav-btn-dashboard {
+            background: linear-gradient(135deg, #0d3882 0%, #1e40af 100%);
+            color: #ffffff !important;
+            border-radius: 50px;
+            padding: 0.5rem 1.35rem;
+            font-weight: 700;
+            font-size: 0.86rem;
+            box-shadow: 0 6px 18px rgba(13, 56, 130, 0.25);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.25s ease;
+        }
+
+        .nav-btn-dashboard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(13, 56, 130, 0.35);
+        }
+
+        .navbar-toggler-custom {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            background: rgba(13, 56, 130, 0.06);
+            border: 1px solid rgba(13, 56, 130, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            color: #0d3882;
+            transition: all 0.2s ease;
+        }
+
+        .navbar-toggler-custom:hover,
+        .navbar-toggler-custom:focus {
+            background: rgba(13, 56, 130, 0.12);
+            box-shadow: none;
+            outline: none;
+        }
+
+        @media (max-width: 991.98px) {
+            .home-navbar-wrapper {
+                top: 8px;
+                padding: 0 0.65rem;
+            }
+            .home-navbar {
+                border-radius: 18px;
+                padding: 0.5rem 0.9rem;
+            }
+            .home-navbar .navbar-collapse {
+                background: rgba(255, 255, 255, 0.98);
+                border-radius: 16px;
+                margin-top: 10px;
+                padding: 1rem;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+                border: 1px solid #f1f5f9;
+            }
+            .nav-link-custom {
+                padding: 0.65rem 1rem !important;
+                justify-content: center;
+            }
         }
 
         /* 2. قسم البطل (Hero Section) */
         .hero-section {
             background: linear-gradient(135deg, #0d3882 0%, #1565c0 50%, #1e88e5 100%);
             color: white;
-            padding: 100px 0 120px;
+            padding: 155px 0 120px;
             position: relative;
             overflow: hidden;
             text-align: center;
@@ -524,66 +745,94 @@
 
 <body>
 
-    <!-- ==================== 1. الشريط العلوي الثابت (Sticky Navbar) ==================== -->
-    <nav class="navbar navbar-expand-lg sticky-top home-navbar">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center gap-2.5" href="{{ route('home') }}">
-                <img src="{{ asset('storage/logo.jpg') }}" alt="شعار جامعة طرابلس" class="navbar-brand-logo" onerror="this.src='{{ asset('images/logo.jpg') }}'">
-                <div class="d-flex flex-column">
-                    <span class="fw-bold text-dark fs-6 lh-sm">مكتب تدريب الخريجين</span>
-                    <small class="text-muted" style="font-size: 0.75rem;">جامعة طرابلس</small>
-                </div>
-            </a>
+    <!-- ==================== 1. الشريط العلوي العائم الفاخر (Floating Glassmorphic Navbar) ==================== -->
+    <header class="home-navbar-wrapper">
+        <nav class="navbar navbar-expand-lg home-navbar">
+            <div class="container-fluid px-1 px-lg-2">
+                <!-- الشعار والهوية -->
+                <a class="navbar-brand navbar-brand-wrap" href="{{ route('home') }}">
+                    <div class="navbar-brand-logo-frame">
+                        <img src="{{ asset('storage/logo.jpg') }}" alt="شعار جامعة طرابلس" class="navbar-brand-logo-img" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                    </div>
+                    <div class="d-flex flex-column text-start text-rtl">
+                        <span class="brand-text-title">مكتب تدريب الخريجين</span>
+                        <div class="brand-text-subtitle">
+                            <span class="brand-dot-pulse"></span>
+                            <span>جامعة طرابلس</span>
+                        </div>
+                    </div>
+                </a>
 
-            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#homeNavContent">
-                <i class="fas fa-bars fs-5 text-dark"></i>
-            </button>
+                <!-- زر القائمة للأجهزة الصغيرة -->
+                <button class="navbar-toggler navbar-toggler-custom" type="button" data-bs-toggle="collapse" data-bs-target="#homeNavContent" aria-controls="homeNavContent" aria-expanded="false" aria-label="تبديل القائمة">
+                    <i class="fas fa-bars-staggered fs-6"></i>
+                </button>
 
-            <div class="collapse navbar-collapse" id="homeNavContent">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-1 text-center py-2 py-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link nav-link-custom active" href="#hero">الرئيسية</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-link-custom" href="#trainings">البرامج التدريبية</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-link-custom" href="#jobfair">معرض التوظيف</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-link-custom" href="#journey">رحلة الخريج</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-link-custom" href="#news">الأخبار والفعاليات</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-link-custom" href="#about">أهدافنا</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link nav-link-custom" href="#contact">تواصل معنا</a>
-                    </li>
-                </ul>
+                <!-- الروابط وأزرار الإجراءات -->
+                <div class="collapse navbar-collapse" id="homeNavContent">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-1 text-center py-2 py-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom active" href="#hero">
+                                <i class="fas fa-home-alt small opacity-75"></i>
+                                <span>الرئيسية</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="#trainings">
+                                <span>البرامج التدريبية</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="#jobfair">
+                                <span>معرض التوظيف</span>
+                                <span class="nav-badge-pill">2026</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="#journey">
+                                <span>رحلة الخريج</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="#news">
+                                <span>الأخبار والفعاليات</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="#about">
+                                <span>أهدافنا</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="#contact">
+                                <span>تواصل معنا</span>
+                            </a>
+                        </li>
+                    </ul>
 
-                <div class="d-flex align-items-center justify-content-center gap-2 pt-2 pt-lg-0">
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="btn btn-gold btn-sm rounded-pill px-3.5 py-1.5 fw-bold shadow-sm d-flex align-items-center gap-1.5">
-                            <i class="fas fa-th-large"></i>
-                            <span>لوحة التحكم</span>
-                            <i class="fas fa-arrow-left ms-0.5 small"></i>
-                        </a>
-                    @else
-                        <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3.5 py-1.5 fw-bold d-flex align-items-center gap-1.5" data-bs-toggle="modal" data-bs-target="#loginModal">
-                            <i class="fas fa-sign-in-alt text-primary"></i>
-                            <span>تسجيل الدخول</span>
-                        </button>
-                        <button type="button" class="btn btn-gold btn-sm rounded-pill px-3.5 py-1.5 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal">
-                            <i class="fas fa-user-plus me-1"></i>تسجيل خريج
-                        </button>
-                    @endauth
+                    <!-- أزرار الإجراءات الفخمة المتناسقة -->
+                    <div class="d-flex align-items-center justify-content-center gap-2 pt-2 pt-lg-0">
+                        @auth
+                            <a href="{{ route('dashboard') }}" class="btn nav-btn-dashboard shadow-sm">
+                                <i class="fas fa-th-large text-warning"></i>
+                                <span>لوحة التحكم</span>
+                                <i class="fas fa-arrow-left ms-1 small"></i>
+                            </a>
+                        @else
+                            <button type="button" class="btn nav-btn-login" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                <i class="fas fa-arrow-right-to-bracket"></i>
+                                <span>تسجيل الدخول</span>
+                            </button>
+                            <button type="button" class="btn nav-btn-register shadow-sm" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal">
+                                <i class="fas fa-user-plus text-warning"></i>
+                                <span>تسجيل خريج</span>
+                            </button>
+                        @endauth
+                    </div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    </header>
 
     <!-- ==================== 2. قسم البطل الرئيسي (Hero Section) ==================== -->
     <section class="hero-section" id="hero">
@@ -1873,6 +2122,18 @@
                 trainingsExpanded = false;
             }
         }
+
+        // تأثير التمرير للشريط العلوي العائم (Scroll Elevation)
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.home-navbar');
+            if (navbar) {
+                if (window.scrollY > 25) {
+                    navbar.classList.add('scrolled');
+                } else {
+                    navbar.classList.remove('scrolled');
+                }
+            }
+        });
     </script>
 </body>
 

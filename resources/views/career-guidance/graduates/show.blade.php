@@ -18,6 +18,26 @@
         ]
     ])
 
+    <!-- Alerts -->
+    @if(session('success') || session('password_success'))
+        <div class="alert alert-success alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert">
+            <i class="fas fa-check-circle me-2"></i> {{ session('success') ?? session('password_success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <strong>حدث خطأ:</strong>
+            <ul class="mb-0 mt-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div class="d-flex align-items-center gap-3">
@@ -50,13 +70,16 @@
                 </div>
             </div>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
             <a href="{{ route($prefix . '.nominations.create', ['graduate_id' => $graduate->id]) }}" class="btn btn-primary-modern">
                 <i class="fas fa-paper-plane me-1"></i> ترشيح لفرصة
             </a>
             <a href="{{ route($prefix . '.graduates.edit', $graduate->id) }}" class="btn btn-outline-warning-modern">
                 <i class="fas fa-edit me-1"></i> تعديل البيانات
             </a>
+            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#resetPasswordModal" title="إعادة تعيين كلمة مرور الحساب">
+                <i class="fas fa-key me-1"></i> تغيير كلمة المرور
+            </button>
             <a href="{{ route($prefix . '.graduates') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-right me-1"></i> رجوع
             </a>
@@ -302,4 +325,76 @@
         </div>
     </div>
 </div>
+
+<!-- Reset Password Modal -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="resetPasswordModalLabel">
+                    <i class="fas fa-key me-2"></i> تغيير كلمة مرور الخريج
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route($prefix . '.graduates.reset-password', $graduate->id) }}" method="POST">
+                @csrf
+                @method('PATCH')
+                <div class="modal-body p-4">
+                    <div class="alert alert-info border-0 rounded-3 mb-3">
+                        <i class="fas fa-user-circle me-1"></i> إعادة تعيين كلمة المرور لحساب الخريج: <strong>{{ $graduate->name }}</strong>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="show_modal_new_password" class="form-label fw-bold small text-muted">كلمة المرور الجديدة <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="show_modal_new_password" name="new_password" required minlength="8" placeholder="8 أحرف على الأقل">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('show_modal_new_password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="show_modal_new_password_confirmation" class="form-label fw-bold small text-muted">تأكيد كلمة المرور الجديدة <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="show_modal_new_password_confirmation" name="new_password_confirmation" required minlength="8" placeholder="أعد إدخال كلمة المرور">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('show_modal_new_password_confirmation', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">
+                        <i class="fas fa-save me-1"></i> حفظ وتحديث كلمة المرور
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+<script>
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) {
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        }
+    } else {
+        input.type = 'password';
+        if (icon) {
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+}
+</script>
 @endsection

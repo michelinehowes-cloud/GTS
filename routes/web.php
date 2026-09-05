@@ -523,6 +523,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/graduates/{id}/edit', [CareerGuidanceController::class, 'editGraduate'])->name('career-guidance.graduates.edit');
         Route::put('/graduates/{id}', [CareerGuidanceController::class, 'updateGraduate'])->name('career-guidance.graduates.update');
         Route::patch('/graduates/{id}/toggle-status', [CareerGuidanceController::class, 'toggleGraduateStatus'])->name('career-guidance.graduates.toggle-status');
+        Route::patch('/graduates/{id}/reset-password', [CareerGuidanceController::class, 'resetGraduatePassword'])->name('career-guidance.graduates.reset-password');
+        Route::post('/graduates/{id}/create-user', [CareerGuidanceController::class, 'createGraduateAccount'])->name('career-guidance.graduates.create-user');
         Route::get('/advanced-reports', [CareerGuidanceController::class, 'advancedReports'])->name('career-guidance.advanced-reports');
         Route::get('/export-reports/pdf', [CareerGuidanceController::class, 'exportReportsPDF'])->name('career-guidance.export-reports.pdf');
         Route::get('/export-reports/excel', [CareerGuidanceController::class, 'exportReportsExcel'])->name('career-guidance.export-reports.excel');

@@ -13,8 +13,8 @@
 
             <!-- Header -->
             <div class="card-header position-relative">
-                <div class="d-flex justify-content-end mb-2">
-                    <a href="{{ route($prefix . '.graduates') }}" class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-pill px-3 border-0 shadow-none">
+                <div class="d-flex justify-content-end mb-2" style="position: relative; z-index: 20;">
+                    <a href="{{ route($prefix . '.graduates') }}" class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-pill px-3 border-0 shadow-none text-decoration-none" style="cursor: pointer;" title="العودة لقائمة الخريجين">
                         <i class="fas fa-arrow-right me-1"></i> العودة للقائمة
                     </a>
                 </div>

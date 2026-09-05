@@ -238,6 +238,7 @@ $jobTypeLabels = [
             </thead>
             <tbody>
                 @forelse($recentCompanies ?? [] as $company)
+                @php /** @var \App\Models\Company $company */ @endphp
                 <tr>
                     <td><span style="font-size:.76rem;color:#94a3b8;font-weight:600;">#{{ $loop->iteration }}</span></td>
                     <td>

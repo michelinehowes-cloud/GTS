@@ -74,8 +74,11 @@ class GraduateRegistrationController extends Controller
         ]);
 
         // معالجة المهارات واللغات (تحويل النص إلى مصفوفة)
-        $skills = $request->filled('skills') ? array_filter(array_map('trim', explode(',', $request->skills))) : [];
-        $languages = $request->filled('languages') ? array_filter(array_map('trim', explode(',', $request->languages))) : [];
+        $rawSkills = $request->input('skills');
+        $skills = !empty($rawSkills) ? (is_array($rawSkills) ? $rawSkills : array_filter(array_map('trim', explode(',', (string)$rawSkills)))) : [];
+
+        $rawLanguages = $request->input('languages');
+        $languages = !empty($rawLanguages) ? (is_array($rawLanguages) ? $rawLanguages : array_filter(array_map('trim', explode(',', (string)$rawLanguages)))) : [];
 
         // إنشاء حساب جديد بحالة غير موافق عليه
         $user = User::create([
@@ -251,8 +254,8 @@ class GraduateRegistrationController extends Controller
                 'gpa' => $user->gpa ?? null,
                 'degree' => $user->qualification ?? $user->degree ?? 'بكالوريوس',
                 'address' => $user->address ?? null,
-                'skills' => is_array($user->skills) ? $user->skills : (is_string($user->skills) ? json_decode($user->skills, true) : []),
-                'languages' => is_array($user->languages) ? $user->languages : (is_string($user->languages) ? json_decode($user->languages, true) : []),
+                'skills' => is_array($user->skills) ? $user->skills : (is_string($user->skills) ? (json_decode((string)$user->skills, true) ?? []) : []),
+                'languages' => is_array($user->languages) ? $user->languages : (is_string($user->languages) ? (json_decode((string)$user->languages, true) ?? []) : []),
                 'work_experience' => $user->experiences ?? null,
                 'employment_status' => 'seeking_opportunities',
                 'added_by' => auth()->id() ?? 1,

@@ -429,7 +429,7 @@ public function reports()
      */
     public function rejectApplication(Request $request, $id)
     {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('training_applications')) {
+        if (!Schema::hasTable('training_applications')) {
             return redirect()->back()
                 ->with('error', 'جدول طلبات التدريب غير متوفر حالياً');
         }

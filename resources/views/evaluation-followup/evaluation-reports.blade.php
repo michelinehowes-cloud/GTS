@@ -184,6 +184,7 @@ $maxTypeCount = !empty($evalsByType) ? max(array_values(is_array($evalsByType) ?
             <tbody>
                 @forelse($evaluations ?? [] as $evaluation)
                 @php
+                    /** @var \App\Models\Evaluation $evaluation */
                     $sc = $evaluation->average_score ?? 0;
                 @endphp
                 <tr>

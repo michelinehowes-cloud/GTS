@@ -157,10 +157,10 @@ class CareerGuidanceController extends Controller
             $degreeValue = $request->input('degree', $request->input('qualification', 'بكالوريوس'));
 
             // إنشاء حساب مستخدم للخريج
-            $user = \App\Models\User::create([
+            $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
-                'password' => \Illuminate\Support\Facades\Hash::make($temporaryPassword),
+                'password' => Hash::make($temporaryPassword),
                 'role' => 'graduate',
                 'phone' => $validated['phone'] ?? null,
                 'national_id' => $validated['national_id'] ?? null,
@@ -410,7 +410,7 @@ class CareerGuidanceController extends Controller
 
         // تحديث بيانات المستخدم المقابل إذا وجد (Reverse Sync)
         if ($graduate->email) {
-            $user = \App\Models\User::where('email', $graduate->email)->first();
+            $user = User::where('email', $graduate->email)->first();
             if ($user) {
                 $userData = [
                     'name' => $data['name'],
@@ -1730,7 +1730,7 @@ class CareerGuidanceController extends Controller
         $this->authorize('update', $graduate);
 
         // البحث عن حساب المستخدم المرتبط
-        $user = \App\Models\User::where('email', $graduate->email)->first();
+        $user = User::where('email', $graduate->email)->first();
 
         if (!$user) {
             return back()->with('error', 'لم يتم العثور على حساب مستخدم لهذا الخريج');

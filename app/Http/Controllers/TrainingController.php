@@ -11,6 +11,8 @@ use App\Models\Evaluation;
 use App\Models\AuditLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use App\Models\TrainingAttendance;
 use Carbon\Carbon;
 use App\Services\NotificationService;
 
@@ -129,7 +131,7 @@ class TrainingController extends Controller
             })
             ->get();
 
-        $applications = \App\Models\TrainingApplication::with('user')
+        $applications = TrainingApplication::with('user')
             ->where('training_id', $id)
             ->latest()
             ->get();
@@ -536,11 +538,11 @@ class TrainingController extends Controller
                             'training'       => $training,
                             'kind'           => 'start',
                             'label'          => $fullLabel,
-                            'short_label'    => \Illuminate\Support\Str::limit($fullLabel, 26, '...'),
+                            'short_label'    => Str::limit($fullLabel, 26, '...'),
                             'sub'            => 'انطلاق التدريب',
                             'bg'             => $cfg['bg'],
                             'location'       => $training->location ?? 'غير محدد',
-                            'short_location' => \Illuminate\Support\Str::limit($training->location ?? 'غير محدد', 20, '...'),
+                            'short_location' => Str::limit($training->location ?? 'غير محدد', 20, '...'),
                         ];
                     } elseif ($isEnd) {
                         $fullLabel = 'ختام: ' . $training->title;
@@ -548,22 +550,22 @@ class TrainingController extends Controller
                             'training'       => $training,
                             'kind'           => 'end',
                             'label'          => $fullLabel,
-                            'short_label'    => \Illuminate\Support\Str::limit($fullLabel, 26, '...'),
+                            'short_label'    => Str::limit($fullLabel, 26, '...'),
                             'sub'            => 'اختتام التدريب',
                             'bg'             => '#d97706',
                             'location'       => $training->location ?? 'غير محدد',
-                            'short_location' => \Illuminate\Support\Str::limit($training->location ?? 'غير محدد', 20, '...'),
+                            'short_location' => Str::limit($training->location ?? 'غير محدد', 20, '...'),
                         ];
                     } elseif ($isOngoing) {
                         $dayEvents[] = [
                             'training'       => $training,
                             'kind'           => 'ongoing',
                             'label'          => $training->title,
-                            'short_label'    => \Illuminate\Support\Str::limit($training->title, 26, '...'),
+                            'short_label'    => Str::limit($training->title, 26, '...'),
                             'sub'            => 'جلسة تدريبية',
                             'bg'             => '#0d3882',
                             'location'       => $training->location ?? 'غير محدد',
-                            'short_location' => \Illuminate\Support\Str::limit($training->location ?? 'غير محدد', 20, '...'),
+                            'short_location' => Str::limit($training->location ?? 'غير محدد', 20, '...'),
                         ];
                     }
                 }
@@ -1079,7 +1081,7 @@ class TrainingController extends Controller
             return redirect()->back()->with('error', 'الملف غير موجود');
         }
 
-        return Storage::disk('public')->download($report->file_path, $report->file_name);
+        return response()->download(storage_path('app/public/' . $report->file_path), $report->file_name);
     }
 
     public function deleteReport($id)
@@ -1106,11 +1108,11 @@ class TrainingController extends Controller
         $trainingDays = $training->training_days;
         $totalDays = $training->total_days_count;
         
-        $totalApproved = \App\Models\TrainingApplication::where('training_id', $training->id)
+        $totalApproved = TrainingApplication::where('training_id', $training->id)
             ->where('status', 'approved')
             ->count();
 
-        $todayAttended = \App\Models\TrainingAttendance::where('training_id', $training->id)
+        $todayAttended = TrainingAttendance::where('training_id', $training->id)
             ->where('date', $todayDate)
             ->count();
 
@@ -1147,7 +1149,7 @@ class TrainingController extends Controller
         $targetDate = $request->input('date', now()->format('Y-m-d'));
 
         // البحث عن طلب التسجيل (يجب أن يكون مقبولاً)
-        $application = \App\Models\TrainingApplication::with('user.graduateData')
+        $application = TrainingApplication::with('user.graduateData')
             ->where('training_id', $training->id)
             ->where('user_id', $graduateId)
             ->where('status', 'approved')
@@ -1162,21 +1164,21 @@ class TrainingController extends Controller
 
         $studentName = $application->user->name;
         $totalDays = $training->total_days_count;
-        $totalApproved = \App\Models\TrainingApplication::where('training_id', $training->id)
+        $totalApproved = TrainingApplication::where('training_id', $training->id)
             ->where('status', 'approved')
             ->count();
 
         // التحقق من تسجيل الحضور في هذا اليوم المحدد
-        $existing = \App\Models\TrainingAttendance::where('training_id', $training->id)
+        $existing = TrainingAttendance::where('training_id', $training->id)
             ->where('user_id', $graduateId)
             ->where('date', $targetDate)
             ->first();
 
-        $userTotalAttended = \App\Models\TrainingAttendance::where('training_id', $training->id)
+        $userTotalAttended = TrainingAttendance::where('training_id', $training->id)
             ->where('user_id', $graduateId)
             ->count();
 
-        $todayAttendedCount = \App\Models\TrainingAttendance::where('training_id', $training->id)
+        $todayAttendedCount = TrainingAttendance::where('training_id', $training->id)
             ->where('date', $targetDate)
             ->count();
 
@@ -1199,7 +1201,7 @@ class TrainingController extends Controller
         }
 
         // إنشاء سجل حضور لليوم المحدد
-        $attendance = \App\Models\TrainingAttendance::create([
+        $attendance = TrainingAttendance::create([
             'training_id' => $training->id,
             'user_id' => $graduateId,
             'training_application_id' => $application->id,
@@ -1245,7 +1247,7 @@ class TrainingController extends Controller
 
         $training->load(['company', 'coordinator', 'trainer']);
         
-        $applications = \App\Models\TrainingApplication::with(['user.graduateData'])
+        $applications = TrainingApplication::with(['user.graduateData'])
             ->where('training_id', $training->id)
             ->where('status', 'approved')
             ->get();
@@ -1255,20 +1257,20 @@ class TrainingController extends Controller
         $todayDate = now()->format('Y-m-d');
 
         // جلب جميع سجلات الحضور لهذه الدورة وتجميعها بحسب المستخدم
-        $allAttendances = \App\Models\TrainingAttendance::where('training_id', $training->id)
+        $allAttendances = TrainingAttendance::where('training_id', $training->id)
             ->get();
 
         $attendancesByUser = $allAttendances->groupBy('user_id');
 
         // إحصائيات الحضور
         $totalApproved = $applications->count();
-        $todayAttendedCount = \App\Models\TrainingAttendance::where('training_id', $training->id)
-            ->whereDate('date', $todayDate)
+        $todayAttendedCount = TrainingAttendance::where('training_id', $training->id)
+            ->where('date', $todayDate)
             ->where('status', 'present')
             ->count();
         
         $totalPossibleAttendances = $totalApproved * $totalDays;
-        $totalActualAttendances = \App\Models\TrainingAttendance::where('training_id', $training->id)
+        $totalActualAttendances = TrainingAttendance::where('training_id', $training->id)
             ->where('status', 'present')
             ->count();
         
@@ -1312,14 +1314,14 @@ class TrainingController extends Controller
         $date = $request->date;
         $reqStatus = $request->input('status', 'toggle');
 
-        $application = \App\Models\TrainingApplication::where('training_id', $training->id)
+        $application = TrainingApplication::where('training_id', $training->id)
             ->where('user_id', $userId)
             ->where('status', 'approved')
             ->firstOrFail();
 
-        $attendance = \App\Models\TrainingAttendance::where('training_id', $training->id)
+        $attendance = TrainingAttendance::where('training_id', $training->id)
             ->where('user_id', $userId)
-            ->whereDate('date', $date)
+            ->where('date', $date)
             ->first();
 
         if ($reqStatus === 'toggle') {
@@ -1330,7 +1332,7 @@ class TrainingController extends Controller
                 $message = 'تم إلغاء الحضور وجعله غائباً.';
             } else {
                 // تسجيله كحاضر
-                $attendance = \App\Models\TrainingAttendance::create([
+                $attendance = TrainingAttendance::create([
                     'training_id' => $training->id,
                     'user_id' => $userId,
                     'training_application_id' => $application->id,
@@ -1357,7 +1359,7 @@ class TrainingController extends Controller
                     'recorded_by' => auth()->id(),
                 ]);
             } else {
-                $attendance = \App\Models\TrainingAttendance::create([
+                $attendance = TrainingAttendance::create([
                     'training_id' => $training->id,
                     'user_id' => $userId,
                     'training_application_id' => $application->id,
@@ -1373,7 +1375,7 @@ class TrainingController extends Controller
 
         // إعادة حساب إحصائيات هذا الخريج
         $totalDays = $training->total_days_count;
-        $userAttendedCount = \App\Models\TrainingAttendance::where('training_id', $training->id)
+        $userAttendedCount = TrainingAttendance::where('training_id', $training->id)
             ->where('user_id', $userId)
             ->where('status', 'present')
             ->count();
@@ -1382,17 +1384,17 @@ class TrainingController extends Controller
 
         // إعادة حساب إحصائيات اليوم والإجمالي
         $todayDate = now()->format('Y-m-d');
-        $totalApproved = \App\Models\TrainingApplication::where('training_id', $training->id)
+        $totalApproved = TrainingApplication::where('training_id', $training->id)
             ->where('status', 'approved')
             ->count();
-        $todayAttendedCount = \App\Models\TrainingAttendance::where('training_id', $training->id)
-            ->whereDate('date', $todayDate)
+        $todayAttendedCount = TrainingAttendance::where('training_id', $training->id)
+            ->where('date', $todayDate)
             ->where('status', 'present')
             ->count();
         $todayPercentage = $totalApproved > 0 ? round(($todayAttendedCount / $totalApproved) * 100) : 0;
 
         $totalPossibleAttendances = $totalApproved * $totalDays;
-        $totalActualAttendances = \App\Models\TrainingAttendance::where('training_id', $training->id)
+        $totalActualAttendances = TrainingAttendance::where('training_id', $training->id)
             ->where('status', 'present')
             ->count();
         $overallAttendanceRate = $totalPossibleAttendances > 0 
@@ -1424,7 +1426,7 @@ class TrainingController extends Controller
             abort(403, 'غير مصرح لك بتصدير كشف الحضور');
         }
 
-        $applications = \App\Models\TrainingApplication::with(['user.graduateData'])
+        $applications = TrainingApplication::with(['user.graduateData'])
             ->where('training_id', $training->id)
             ->where('status', 'approved')
             ->get();
@@ -1432,7 +1434,7 @@ class TrainingController extends Controller
         $trainingDays = $training->training_days;
         $totalDays = $training->total_days_count;
 
-        $allAttendances = \App\Models\TrainingAttendance::where('training_id', $training->id)
+        $allAttendances = TrainingAttendance::where('training_id', $training->id)
             ->get()
             ->groupBy('user_id');
 
@@ -1518,12 +1520,12 @@ class TrainingController extends Controller
         $ids = $request->application_ids;
 
         // تحديث حالة الطلبات المحددة إلى "مقبول"
-        \App\Models\TrainingApplication::whereIn('id', $ids)
+        TrainingApplication::whereIn('id', $ids)
             ->where('training_id', $training->id)
             ->update(['status' => 'approved']);
 
         // Send notifications (Optional, if notification logic supports bulk or you can loop)
-        $applications = \App\Models\TrainingApplication::whereIn('id', $ids)->get();
+        $applications = TrainingApplication::whereIn('id', $ids)->get();
         foreach($applications as $app) {
             try {
                 $this->notificationService->sendToUser(

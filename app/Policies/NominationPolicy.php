@@ -13,7 +13,7 @@ class NominationPolicy
     /**
      * Determine whether the user can view any models.
      *
-     * @param  \App\Models\User  $user
+     * @param  User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function viewAny(User $user)
@@ -24,8 +24,8 @@ class NominationPolicy
     /**
      * Determine whether the user can view the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Nomination  $nomination
+     * @param  User  $user
+     * @param  Nomination  $nomination
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function view(User $user, Nomination $nomination)
@@ -38,7 +38,7 @@ class NominationPolicy
     /**
      * Determine whether the user can create models.
      *
-     * @param  \App\Models\User  $user
+     * @param  User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function create(User $user)
@@ -49,8 +49,8 @@ class NominationPolicy
     /**
      * Determine whether the user can update the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Nomination  $nomination
+     * @param  User  $user
+     * @param  Nomination  $nomination
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function update(User $user, Nomination $nomination)
@@ -64,8 +64,8 @@ class NominationPolicy
      * Determine whether the user can update the status of the model.
      * This is specifically for changing the 'status' and 'final_status' fields.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Nomination  $nomination
+     * @param  User  $user
+     * @param  Nomination  $nomination
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function updateStatus(User $user, Nomination $nomination)
@@ -77,8 +77,8 @@ class NominationPolicy
     /**
      * Determine whether the user can delete the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Nomination  $nomination
+     * @param  User  $user
+     * @param  Nomination  $nomination
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function delete(User $user, Nomination $nomination)
@@ -89,8 +89,8 @@ class NominationPolicy
     /**
      * Determine whether the user can restore the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Nomination  $nomination
+     * @param  User  $user
+     * @param  Nomination  $nomination
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function restore(User $user, Nomination $nomination)
@@ -101,8 +101,8 @@ class NominationPolicy
     /**
      * Determine whether the user can permanently delete the model.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Nomination  $nomination
+     * @param  User  $user
+     * @param  Nomination  $nomination
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function forceDelete(User $user, Nomination $nomination)

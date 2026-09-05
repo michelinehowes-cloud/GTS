@@ -40,7 +40,7 @@ class SendJobFairReminders extends Command
 
         if ($fairs->isEmpty()) {
             $this->info('لا توجد معارض توظيف غداً.');
-            return Command::SUCCESS;
+            return self::SUCCESS;
         }
 
         foreach ($fairs as $fair) {
@@ -59,6 +59,6 @@ class SendJobFairReminders extends Command
             $this->info("تم إرسال {$count} رسالة تذكير لمعرض: {$fair->title}");
         }
 
-        return Command::SUCCESS;
+        return self::SUCCESS;
     }
 }

@@ -264,8 +264,8 @@ class EvaluationFollowupController extends Controller
             'applications_count' => TrainingApplication::count(),
             'evaluations_count' => \App\Models\Evaluation::count(),
             'surveys_count' => \App\Models\Survey::count(),
-            'partnerships_count' => \App\Models\PartnershipDocument::count(),
-            'graduates_count' => \App\Models\User::where('role', 'graduate')->count(),
+            'partnerships_count' => PartnershipDocument::count(),
+            'graduates_count' => User::where('role', 'graduate')->count(),
             'avg_evaluation_score' => \App\Models\Evaluation::avg('average_score') ?? 0,
         ];
 
@@ -537,14 +537,14 @@ class EvaluationFollowupController extends Controller
     {
         switch ($audience) {
             case 'graduates':
-                return \App\Models\User::where('role', 'graduate')->count();
+                return User::where('role', 'graduate')->count();
             case 'companies':
-                return \App\Models\User::where('role', 'company')->count();
+                return User::where('role', 'company')->count();
             case 'training_coordinators':
-                return \App\Models\User::where('role', 'training_coordinator')->count();
+                return User::where('role', 'training_coordinator')->count();
             case 'all':
             default:
-                return \App\Models\User::whereIn('role', ['graduate', 'company', 'training_coordinator'])->count();
+                return User::whereIn('role', ['graduate', 'company', 'training_coordinator'])->count();
         }
     }
 

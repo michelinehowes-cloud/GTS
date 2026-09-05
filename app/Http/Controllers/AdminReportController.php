@@ -66,7 +66,9 @@ class AdminReportController extends Controller
             $query->where('entity', $request->entity);
         }
 
-        $auditLogs = $query->orderByDesc('timestamp')->paginate(20)->withQueryString();
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $auditLogs */
+        $auditLogs = $query->orderByDesc('timestamp')->paginate(20);
+        $auditLogs->withQueryString();
 
         return view('admin.reports.audit-logs', compact('auditLogs'));
     }

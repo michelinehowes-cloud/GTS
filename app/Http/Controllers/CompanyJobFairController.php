@@ -224,7 +224,7 @@ class CompanyJobFairController extends Controller
         }
 
         // Get all graduate IDs registered in this fair
-        $registeredIds = \App\Models\JobFairRegistration::where('job_fair_id', $fair->id)
+        $registeredIds = JobFairRegistration::where('job_fair_id', $fair->id)
             ->pluck('user_id');
 
         $query = User::whereIn('id', $registeredIds)
@@ -249,7 +249,9 @@ class CompanyJobFairController extends Controller
             });
         }
 
-        $graduates = $query->paginate(12)->withQueryString();
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $graduates */
+        $graduates = $query->paginate(12);
+        $graduates->withQueryString();
 
         return view('company.job-fair.search', compact('fair', 'graduates'));
     }

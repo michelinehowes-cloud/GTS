@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ط¨ط·ط§ظ‚ط© ط§ظ„ظ…ط¹ط±ط¶ - {{ $registration->graduate->name }}</title>
+    <title>بطاقة المعرض - {{ $registration->graduate->name }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -22,7 +22,7 @@
             padding: 2rem;
         }
 
-        /* â”€â”€â”€ Control Bar â”€â”€â”€ */
+        /* ─── Control Bar ─── */
         .ctrl-bar {
             display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; justify-content: center; z-index: 10;
         }
@@ -82,16 +82,18 @@
             margin-bottom: 0.5rem;
         }
         .ticket-logo img {
-            height: 60px;
+            height: 55px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             background: white;
             padding: 5px;
+            object-fit: contain;
         }
         .ticket-event-name {
             font-size: 1.5rem;
             font-weight: 900;
             margin-bottom: 0.2rem;
+            color: #FDE68A;
         }
         .ticket-university {
             font-size: 0.95rem;
@@ -120,17 +122,18 @@
 
         /* Body */
         .ticket-body {
-            padding: 1.5rem 2rem 2rem;
+            padding: 2rem;
+            text-align: right;
         }
 
         /* Reg Number Badge */
         .reg-number-badge {
-            background: #eeca3e;
-            color: #03488a;
+            background: linear-gradient(135deg, #eeca3e, #F97316);
+            color: #fff;
             padding: 6px 20px;
             border-radius: 50px;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 1.1rem;
             letter-spacing: 1px;
             display: inline-block;
             margin-bottom: 1.5rem;
@@ -145,7 +148,7 @@
         }
         .grad-info {
             color: #64748b;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         /* Info Grid */
@@ -153,24 +156,24 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0.8rem;
-            margin: 1.2rem 0;
+            margin: 1.5rem 0;
         }
         .info-item {
             background: #f8fafc;
             border-radius: 12px;
             padding: 0.8rem;
+            border: 1px solid #e2e8f0;
         }
         .info-label {
-            font-size: 0.72rem;
+            font-size: 0.75rem;
             color: #94a3b8;
             font-weight: 600;
-            text-transform: uppercase;
             margin-bottom: 3px;
         }
         .info-value {
             font-weight: 700;
             color: #045db0;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         /* QR Code */
@@ -181,10 +184,10 @@
             margin-top: 1rem;
         }
         .qr-title {
-            font-size: 0.75rem;
-            color: #94a3b8;
-            font-weight: 600;
-            letter-spacing: 1px;
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 700;
+            letter-spacing: 0.5px;
             margin-bottom: 0.8rem;
         }
         #qr-code canvas, #qr-code img {
@@ -192,12 +195,14 @@
             padding: 10px;
             background: white;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin: 0 auto;
         }
         .qr-code-text {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: #94a3b8;
             margin-top: 0.5rem;
             font-family: monospace;
+            letter-spacing: 1px;
         }
 
         /* Status badge */
@@ -239,23 +244,23 @@
 <!-- Loading Overlay -->
 <div id="saveOverlay">
     <div class="spinner"></div>
-    <div style="font-weight: 800; font-size: 1.2rem">ط¬ط§ط±ظٹ ط¥ط¹ط¯ط§ط¯ ط§ظ„ط¨ط·ط§ظ‚ط© ط¹ط§ظ„ظٹط© ط§ظ„ط¯ظ‚ط©...</div>
+    <div style="font-weight: 800; font-size: 1.2rem">جاري إعداد البطاقة بدقة عالية...</div>
 </div>
 
 <!-- Controls -->
 <div class="ctrl-bar no-print">
     <button class="ctrl-btn ctrl-btn-primary" onclick="saveBadge()">
-        <i class="fas fa-download"></i> ط­ظپط¸ ظƒطµظˆط±ط© (PNG)
+        <i class="fas fa-download"></i> حفظ كصورة (PNG)
     </button>
     <button class="ctrl-btn ctrl-btn-secondary" onclick="window.print()">
-        <i class="fas fa-print"></i> ط·ط¨ط§ط¹ط© ط§ظ„ط¨ط·ط§ظ‚ط©
+        <i class="fas fa-print"></i> طباعة البطاقة
     </button>
     <a href="{{ url()->previous() }}" class="ctrl-btn ctrl-btn-secondary">
-        <i class="fas fa-arrow-right"></i> ط§ظ„ط¹ظˆط¯ط©
+        <i class="fas fa-arrow-right"></i> العودة
     </a>
 </div>
 
-<div id="saveMsg"><i class="fas fa-check-circle"></i> طھظ… ط§ظ„ط­ظپط¸ ط¨ظ†ط¬ط§ط­! طھط­ظ‚ظ‚ ظ…ظ† ظ…ط¬ظ„ط¯ ط§ظ„طھظ†ط²ظٹظ„ط§طھ.</div>
+<div id="saveMsg"><i class="fas fa-check-circle"></i> تم الحفظ بنجاح! تحقق من مجلد التنزيلات.</div>
 
 <div class="ticket-wrapper">
     <div class="ticket" id="badge-card">
@@ -263,15 +268,21 @@
         <!-- Header -->
         <div class="ticket-header">
             <div class="d-flex justify-content-center align-items-center gap-3 mb-2 ticket-logo">
-                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب الخريجين" style="max-width: 65px; border-radius: 8px; background: white; padding: 3px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                <img src="{{ asset('images/job_fair_logo.png') }}" alt="شعار المعرض" style="max-width: 140px;">
+                <img src="{{ asset('storage/logo.jpg') }}" alt="شعار مكتب الخريجين" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                @if($registration->jobFair->banner_image)
+                    <img src="{{ asset('storage/' . $registration->jobFair->banner_image) }}" alt="شعار المعرض" onerror="this.src='{{ asset('images/job_fair_logo.png') }}'">
+                @else
+                    <img src="{{ asset('images/job_fair_logo.png') }}" alt="شعار المعرض" onerror="this.style.display='none'">
+                @endif
             </div>
             <div class="ticket-event-name">{{ $registration->jobFair->title }}</div>
-            <div class="ticket-university">ظ…ظƒطھط¨ طھط¯ط±ظٹط¨ ط§ظ„ط®ط±ظٹط¬ظٹظ† - ط¬ط§ظ…ط¹ط© ط·ط±ط§ط¨ظ„ط³</div>
-            <div class="mt-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.7)">
-                <i class="fas fa-calendar ms-2"></i>{{ $registration->jobFair->event_date->format('d/m/Y') }}
-                &nbsp;&nbsp;
-                <i class="fas fa-map-marker-alt ms-2"></i>{{ $registration->jobFair->location }}
+            <div class="ticket-university">مكتب تدريب وتأهيل الخريجين — جامعة طرابلس</div>
+            <div class="mt-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.8)">
+                @if($registration->jobFair->event_date)
+                    <i class="fas fa-calendar ms-2"></i>{{ $registration->jobFair->event_date->format('d/m/Y') }}
+                    &nbsp;&nbsp;
+                @endif
+                <i class="fas fa-map-marker-alt ms-2"></i>{{ $registration->jobFair->location ?? 'جامعة طرابلس' }}
             </div>
         </div>
 
@@ -290,43 +301,43 @@
             <div class="text-center mb-3">
                 <div class="grad-name">{{ $registration->graduate->name }}</div>
                 <div class="grad-info">
-                    {{ $registration->graduate->major ?? 'ط؛ظٹط± ظ…ط­ط¯ط¯' }}
+                    {{ $registration->graduate->major ?? 'غير محدد' }}
                     @if($registration->graduate->faculty)
-                    â€” {{ $registration->graduate->faculty }}
+                    — {{ $registration->graduate->faculty }}
                     @endif
                 </div>
                 <div class="mt-2">
                     <span class="status-badge {{ $registration->attended ? 'status-attended' : 'status-registered' }}">
                         <i class="fas {{ $registration->attended ? 'fa-check-circle' : 'fa-ticket-alt' }}"></i>
-                        {{ $registration->attended ? 'ط­ط¶ط±' : 'ظ…ط³ط¬ظ„' }}
+                        {{ $registration->attended ? 'تم الحضور' : 'مسجل ومعتمد' }}
                     </span>
                 </div>
             </div>
 
             <div class="info-grid">
                 <div class="info-item">
-                    <div class="info-label">ط³ظ†ط© ط§ظ„طھط®ط±ط¬</div>
-                    <div class="info-value">{{ $registration->graduate->graduation_year ?? 'â€”' }}</div>
+                    <div class="info-label">سنة التخرج</div>
+                    <div class="info-value">{{ $registration->graduate->graduation_year ?? '—' }}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">ط§ظ„ظ…ط¹ط¯ظ„</div>
-                    <div class="info-value">{{ $registration->graduate->gpa ? number_format($registration->graduate->gpa, 2) : 'â€”' }}</div>
+                    <div class="info-label">المعدل التراكمي</div>
+                    <div class="info-value">{{ $registration->graduate->gpa ? number_format($registration->graduate->gpa, 2) : '—' }}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">طھط§ط±ظٹط® ط§ظ„طھط³ط¬ظٹظ„</div>
+                    <div class="info-label">تاريخ التسجيل</div>
                     <div class="info-value">{{ $registration->created_at->format('d/m/Y') }}</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">ط§ظ„ط¬ط§ظ…ط¹ط©</div>
-                    <div class="info-value" style="font-size: 0.78rem">{{ $registration->graduate->university ?? 'ط¬ط§ظ…ط¹ط© ط·ط±ط§ط¨ظ„ط³' }}</div>
+                    <div class="info-label">الجامعة</div>
+                    <div class="info-value" style="font-size: 0.85rem">{{ $registration->graduate->university ?? 'جامعة طرابلس' }}</div>
                 </div>
             </div>
 
             <!-- QR Code -->
             <div class="qr-section">
                 <div class="qr-title">
-                    <i class="fas fa-qrcode ms-1"></i>
-                    ظ…ط³ط­ ظ„طھط³ط¬ظٹظ„ ط§ظ„ط­ط¶ظˆط±
+                    <i class="fas fa-qrcode ms-1 text-warning"></i>
+                    امسح الرمز لتسجيل الحضور وتأكيد الهوية
                 </div>
                 <div id="qr-code" class="d-flex justify-content-center"></div>
                 <div class="qr-code-text">{{ $registration->qr_code }}</div>
@@ -336,7 +347,7 @@
 </div>
 
 <script>
-// طھظˆظ„ظٹط¯ QR Code
+// توليد QR Code
 new QRCode(document.getElementById('qr-code'), {
     text: "{{ $registration->qr_code }}",
     width: 180,
@@ -346,7 +357,7 @@ new QRCode(document.getElementById('qr-code'), {
     correctLevel: QRCode.CorrectLevel.H
 });
 
-// ط¯ط§ظ„ط© ط­ظپط¸ ط§ظ„ط¨ط·ط§ظ‚ط© ظƒطµظˆط±ط©
+// دالة حفظ البطاقة كصورة
 function saveBadge() {
     const card = document.getElementById('badge-card');
     const overlay = document.getElementById('saveOverlay');
@@ -357,20 +368,18 @@ function saveBadge() {
 
     setTimeout(() => {
         html2canvas(card, {
-            scale: 4, // Very High Resolution for printing
+            scale: 4, // دقة فائقة للطباعة
             useCORS: true,
-            backgroundColor: null, // transparent background for rounded corners
+            backgroundColor: null,
             logging: false,
         }).then(canvas => {
             canvas.toBlob(function(blob) {
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
-                // Use a safe ascii name to avoid encoding issues with Arabic
                 link.download = 'Ticket_{{ $registration->registration_number }}.png';
                 link.href = url;
                 link.click();
                 
-                // Cleanup
                 setTimeout(() => URL.revokeObjectURL(url), 100);
                 
                 overlay.style.display = 'none';
@@ -381,7 +390,7 @@ function saveBadge() {
         }).catch(err => {
             console.error(err);
             overlay.style.display = 'none';
-            alert('ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، ط­ظپط¸ ط§ظ„ط¨ط·ط§ظ‚ط©. ظٹط±ط¬ظ‰ ط§ظ„ظ…ط­ط§ظˆظ„ط© ظ…ط±ط© ط£ط®ط±ظ‰.');
+            alert('حدث خطأ أثناء حفظ البطاقة. يرجى المحاولة مرة أخرى.');
         });
     }, 300);
 }
@@ -389,4 +398,3 @@ function saveBadge() {
 
 </body>
 </html>
-

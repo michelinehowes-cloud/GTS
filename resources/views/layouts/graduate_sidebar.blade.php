@@ -38,8 +38,8 @@
         href="{{ route('job-fair.public') }}" style="{{ request()->routeIs('job-fair.*') ? '' : 'position:relative' }}">
         <i class="fas fa-fw fa-store"></i>
         <span>
-            معرض التوظيف 2026
-            <span class="badge ms-1 py-1 px-2 rounded-pill" style="background: linear-gradient(135deg,#eeca3e,#F97316);font-size:0.62rem;vertical-align:middle">جديد</span>
+            معرض التوظيف
+            <span class="badge ms-1 py-1 px-2 rounded-pill" style="background: linear-gradient(135deg,#eeca3e,#F97316);font-size:0.62rem;vertical-align:middle">السنوي</span>
         </span>
     </a>
 </li>

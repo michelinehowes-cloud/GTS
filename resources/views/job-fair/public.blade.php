@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $fair ? $fair->title : 'معرض التوظيف 2026' }} — جامعة طرابلس</title>
-    <meta name="description" content="معرض التوظيف السنوي 2026 — جامعة طرابلس. سجّل الآن وابدأ مستقبلك المهني.">
+    <title>{{ $fair ? $fair->title : 'معرض التوظيف السنوي' }} — جامعة طرابلس</title>
+    <meta name="description" content="{{ $fair ? $fair->title : 'معرض التوظيف السنوي' }} — جامعة طرابلس. سجّل الآن وابدأ مستقبلك المهني.">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -1145,7 +1145,7 @@
             <div class="section-badge"><i class="fas fa-info-circle"></i>عن المعرض</div>
             <div class="title-line"></div>
             <h2 class="section-title">كل ما تحتاج معرفته</h2>
-            <p class="section-subtitle">تفاصيل شاملة عن معرض التوظيف 2026</p>
+            <p class="section-subtitle">تفاصيل شاملة عن {{ $fair->title }}</p>
         </div>
 
         <div class="bento-grid">
@@ -1346,7 +1346,7 @@
 <footer class="page-footer">
     مكتب تدريب وتوظيف الخريجين — <a href="{{ route('home') }}">جامعة طرابلس</a>
     &nbsp;|&nbsp;
-    معرض التوظيف 2026
+    {{ $fair ? $fair->title : 'معرض التوظيف السنوي' }}
 </footer>
 
 {{-- ══════════════════════════════════

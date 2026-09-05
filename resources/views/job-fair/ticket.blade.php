@@ -269,15 +269,21 @@
         <!-- Header -->
         <div class="ticket-header">
             <div class="d-flex justify-content-center align-items-center gap-3 mb-2 ticket-logo">
-                <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="شعار المعرض" style="height: 45px; width: auto;">
-                <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب الخريجين بجامعة طرابلس" style="height: 55px; width: auto;">
+                @if($registration->jobFair->banner_image)
+                    <img src="{{ asset('storage/' . $registration->jobFair->banner_image) }}" alt="شعار المعرض" style="height: 48px; width: auto; max-width: 140px; object-fit: contain;" onerror="this.src='{{ asset('images/job_fair_logo_white.png') }}'">
+                @else
+                    <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="شعار المعرض" style="height: 45px; width: auto;" onerror="this.style.display='none'">
+                @endif
+                <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب الخريجين بجامعة طرابلس" style="height: 55px; width: auto;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
             </div>
             <div class="ticket-event-name">{{ $registration->jobFair->title }}</div>
-            <div class="ticket-university">مكتب تدريب الخريجين - جامعة طرابلس</div>
-            <div class="mt-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.7)">
-                <i class="fas fa-calendar ms-2"></i>{{ $registration->jobFair->event_date->format('d/m/Y') }}
-                &nbsp;&nbsp;
-                <i class="fas fa-map-marker-alt ms-2"></i>{{ $registration->jobFair->location }}
+            <div class="ticket-university">مكتب تدريب وتأهيل الخريجين — جامعة طرابلس</div>
+            <div class="mt-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.8)">
+                @if($registration->jobFair->event_date)
+                    <i class="fas fa-calendar ms-2"></i>{{ $registration->jobFair->event_date->format('d/m/Y') }}
+                    &nbsp;&nbsp;
+                @endif
+                <i class="fas fa-map-marker-alt ms-2"></i>{{ $registration->jobFair->location ?? 'جامعة طرابلس' }}
             </div>
         </div>
 

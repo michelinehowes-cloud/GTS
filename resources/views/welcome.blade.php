@@ -785,7 +785,14 @@
                         <li class="nav-item">
                             <a class="nav-link nav-link-custom" href="#jobfair">
                                 <span>معرض التوظيف</span>
-                                <span class="nav-badge-pill">2026</span>
+                                @if(isset($activeFair) && $activeFair)
+                                    @php
+                                        $fairYear = $activeFair->event_date ? \Carbon\Carbon::parse($activeFair->event_date)->format('Y') : ($activeFair->start_date ? \Carbon\Carbon::parse($activeFair->start_date)->format('Y') : date('Y'));
+                                    @endphp
+                                    <span class="nav-badge-pill">{{ $fairYear }}</span>
+                                @else
+                                    <span class="nav-badge-pill" style="background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border-color: rgba(148, 163, 184, 0.3);">قريباً</span>
+                                @endif
                             </a>
                         </li>
                         <li class="nav-item">
@@ -927,41 +934,83 @@
             <div class="job-fair-spotlight" data-aos="fade-up">
                 <div class="row align-items-center g-4">
                     <div class="col-lg-8">
-                        <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4);">
-                            <i class="fas fa-star text-warning"></i>
-                            <span class="text-warning fw-bold small">حدث سنوي معتمد — جامعة طرابلس</span>
-                        </div>
-                        <h2 class="display-6 fw-bold mb-3 text-white">
-                            {{ $activeFair->title ?? 'معرض التوظيف السنوي 2026' }}
-                        </h2>
-                        <p class="text-white-50 mb-4" style="font-size: 1.05rem; line-height: 1.7; max-width: 680px;">
-                            فرصتكم الذهبية للقاء مسؤولي الموارد البشرية بكبرى الشركات الوطنية والدولية، إجراء المقابلات الفورية، حجز بطاقتكم الرقمية الذكية المزودة برمز QR، واستكشاف أحدث الوظائف.
-                        </p>
-                        <div class="d-flex align-items-center gap-3 text-white-50 small mb-4 flex-wrap">
-                            <span><i class="fas fa-map-marker-alt text-warning me-1"></i> الحرم الجامعي — جامعة طرابلس</span>
-                            <span>•</span>
-                            <span><i class="fas fa-calendar-alt text-warning me-1"></i> الموعد: {{ $activeFair && $activeFair->start_date ? \Carbon\Carbon::parse($activeFair->start_date)->format('Y/m/d') : 'يحدد لاحقاً' }}</span>
-                            <span>•</span>
-                            <span><i class="fas fa-qrcode text-warning me-1"></i> تذاكر دخول وبطاقات ذكية</span>
-                        </div>
-                        <div class="d-flex align-items-center gap-3 flex-wrap">
-                            <a href="{{ route('job-fair.public') }}" class="btn btn-gold fw-bold rounded-pill px-4 py-2.5 d-flex align-items-center gap-2">
-                                <span>استكشف المعرض والشركات</span>
-                                <i class="fas fa-arrow-left small"></i>
-                            </a>
-                            <a href="{{ route('job-fair.public') }}#register" class="btn btn-outline-hero rounded-pill px-4 py-2.5">
-                                <i class="fas fa-ticket-alt me-1.5"></i>حجز بطاقة المعرض
-                            </a>
-                        </div>
+                        @if(isset($activeFair) && $activeFair)
+                            <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4);">
+                                <i class="fas fa-star text-warning"></i>
+                                <span class="text-warning fw-bold small">حدث سنوي معتمد — جامعة طرابلس</span>
+                            </div>
+                            <h2 class="display-6 fw-bold mb-3 text-white">
+                                {{ $activeFair->title }}
+                            </h2>
+                            <p class="text-white-50 mb-4" style="font-size: 1.05rem; line-height: 1.7; max-width: 680px;">
+                                {{ $activeFair->description ?? 'فرصتكم الذهبية للقاء مسؤولي الموارد البشرية بكبرى الشركات الوطنية والدولية، إجراء المقابلات الفورية، حجز بطاقتكم الرقمية الذكية المزودة برمز QR، واستكشاف أحدث الوظائف.' }}
+                            </p>
+                            <div class="d-flex align-items-center gap-3 text-white-50 small mb-4 flex-wrap">
+                                <span><i class="fas fa-map-marker-alt text-warning me-1"></i> {{ $activeFair->location ?? 'الحرم الجامعي — جامعة طرابلس' }}</span>
+                                <span>•</span>
+                                <span><i class="fas fa-calendar-alt text-warning me-1"></i> الموعد: {{ ($activeFair->event_date ?? $activeFair->start_date) ? \Carbon\Carbon::parse($activeFair->event_date ?? $activeFair->start_date)->translatedFormat('d F Y') : 'يحدد لاحقاً' }}</span>
+                                <span>•</span>
+                                <span><i class="fas fa-qrcode text-warning me-1"></i> تذاكر وبطاقات ذكية موحدة</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 flex-wrap">
+                                <a href="{{ route('job-fair.public') }}" class="btn btn-gold fw-bold rounded-pill px-4 py-2.5 d-flex align-items-center gap-2">
+                                    <span>استكشف المعرض والشركات</span>
+                                    <i class="fas fa-arrow-left small"></i>
+                                </a>
+                                @if($activeFair->registration_open)
+                                    <a href="{{ route('job-fair.public') }}#register" class="btn btn-outline-hero rounded-pill px-4 py-2.5">
+                                        <i class="fas fa-ticket-alt me-1.5"></i>حجز بطاقة المعرض
+                                    </a>
+                                @else
+                                    <span class="badge rounded-pill px-3 py-2 text-white-50" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.25);">
+                                        <i class="fas fa-clock me-1 text-warning"></i>التسجيل متاح قريباً
+                                    </span>
+                                @endif
+                            </div>
+                        @else
+                            <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3);">
+                                <i class="fas fa-sparkles text-warning"></i>
+                                <span class="text-white fw-bold small">ترقبوا الحدث القادم — جامعة طرابلس</span>
+                            </div>
+                            <h2 class="display-6 fw-bold mb-3 text-white">
+                                معرض التوظيف والتدريب السنوي
+                            </h2>
+                            <p class="text-white-50 mb-4" style="font-size: 1.05rem; line-height: 1.7; max-width: 680px;">
+                                يستعد مكتب تدريب وتأهيل الخريجين لإطلاق الدورة القادمة من معرض التوظيف. سارع بالتسجيل في المنصة واستكمال سيرتك الذاتية لتصلك دعوات الحضور والبطاقات الرقمية فور فتح باب التسجيل.
+                            </p>
+                            <div class="d-flex align-items-center gap-3 flex-wrap">
+                                @auth
+                                    <a href="{{ route('dashboard') }}" class="btn btn-gold fw-bold rounded-pill px-4 py-2.5 d-flex align-items-center gap-2">
+                                        <i class="fas fa-user-check"></i>
+                                        <span>تحديث الملف الشخصي والسيرة الذاتية</span>
+                                    </a>
+                                @else
+                                    <button type="button" class="btn btn-gold fw-bold rounded-pill px-4 py-2.5 d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal">
+                                        <i class="fas fa-user-plus"></i>
+                                        <span>سجل كخريج لتصلك إشعارات المعرض</span>
+                                    </button>
+                                @endauth
+                            </div>
+                        @endif
                     </div>
                     <div class="col-lg-4 text-center">
                         <div class="p-4 rounded-4" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px);">
-                            <i class="fas fa-id-card fa-4x text-warning mb-3"></i>
+                            @if(isset($activeFair) && $activeFair && $activeFair->banner_image)
+                                <img src="{{ asset('storage/' . $activeFair->banner_image) }}" alt="شعار المعرض" class="img-fluid mb-3 rounded-3" style="max-height: 70px; object-fit: contain;" onerror="this.style.display='none'">
+                            @else
+                                <i class="fas fa-id-card fa-4x text-warning mb-3"></i>
+                            @endif
                             <h5 class="text-white fw-bold mb-1">بطاقتك الرقمية للمعرض</h5>
                             <p class="text-white-50 small mb-3">رمز QR موحد لتسجيل الحضور وتسهيل التواصل مع أجنحة الشركات</p>
-                            <span class="badge rounded-pill px-3 py-1.5 text-white" style="background: rgba(16, 185, 129, 0.25); border: 1px solid rgba(16, 185, 129, 0.4);">
-                                <i class="fas fa-check-circle me-1 text-success"></i>التسجيل متاح لجميع الخريجين
-                            </span>
+                            @if(isset($activeFair) && $activeFair && $activeFair->registration_open)
+                                <span class="badge rounded-pill px-3 py-1.5 text-white" style="background: rgba(16, 185, 129, 0.25); border: 1px solid rgba(16, 185, 129, 0.4);">
+                                    <i class="fas fa-check-circle me-1 text-success"></i>التسجيل متاح لجميع الخريجين
+                                </span>
+                            @else
+                                <span class="badge rounded-pill px-3 py-1.5 text-white-50" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
+                                    <i class="fas fa-info-circle me-1 text-warning"></i>تصدر البطاقة آلياً فور التسجيل
+                                </span>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -1300,7 +1349,7 @@
                     <ul class="list-unstyled mb-0">
                         <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal" class="footer-link">تسجيل خريج جديد</a></li>
                         <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#loginModal" class="footer-link">تسجيل الدخول للنظام</a></li>
-                        <li><a href="{{ route('job-fair.public') }}" class="footer-link">بوابة معرض التوظيف 2026</a></li>
+                        <li><a href="{{ route('job-fair.public') }}" class="footer-link">بوابة معرض التوظيف{{ isset($activeFair) && $activeFair && ($activeFair->event_date ?? $activeFair->start_date) ? ' ' . \Carbon\Carbon::parse($activeFair->event_date ?? $activeFair->start_date)->format('Y') : '' }}</a></li>
                         <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" class="footer-link">استعادة كلمة المرور</a></li>
                     </ul>
                 </div>

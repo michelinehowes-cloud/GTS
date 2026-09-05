@@ -604,7 +604,7 @@
                                             @endif
                                             @if(auth()->user()->hasPermission('job_fair.view'))
                                                 <a href="{{ route('job-fair.admin.index') }}" class="submenu-item {{ request()->routeIs('job-fair.*') ? 'active' : '' }}">
-                                                    معرض التوظيف 2026
+                                                    معرض التوظيف
                                                 </a>
                                             @endif
                                             @if(auth()->user()->hasPermission('partnerships.documents'))
@@ -753,7 +753,7 @@
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ route('job-fair.public') }}" target="_blank">
                                             <i class="fas fa-globe text-primary"></i>
-                                            صفحة المعرض 2026 (الزرقاء) ↗
+                                            صفحة المعرض (الزرقاء) ↗
                                         </a>
                                     </li>
                                 @endif
@@ -924,8 +924,8 @@
                                     <a class="nav-link {{ request()->routeIs('job-fair.*') ? 'active' : '' }}"
                                         href="{{ route('job-fair.admin.index') }}">
                                         <i class="fas fa-store"></i>
-                                        معرض التوظيف 2026
-                                        <span class="badge ms-1 py-1 px-2 rounded-pill" style="background:linear-gradient(135deg,#eeca3e,#F97316);font-size:0.62rem">جديد</span>
+                                        معرض التوظيف
+                                        <span class="badge ms-1 py-1 px-2 rounded-pill" style="background:linear-gradient(135deg,#eeca3e,#F97316);font-size:0.62rem">السنوي</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">

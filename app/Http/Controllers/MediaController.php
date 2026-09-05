@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Training;
 use App\Models\TrainingMedia;
+use App\Models\MediaCamera;
+use App\Models\LiveBroadcastSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -27,32 +29,44 @@ class MediaController extends Controller
         $totalMedia = TrainingMedia::count();
         $activeNews = \App\Models\News::active()->count();
         $activeAnnouncements = \App\Models\Announcement::active()->count();
+        $totalTrainings = Training::count();
         $coveredTrainings = Training::where('media_coverage_status', 'covered')->count();
+        $coverageRate = $totalTrainings > 0 ? round(($coveredTrainings / $totalTrainings) * 100) : 0;
 
-        // التدريبات القادمة
-        $upcomingTrainings = Training::where('start_date', '>', now())
+        // إعدادات البث والكاميرات
+        $broadcastSetting = LiveBroadcastSetting::current();
+        $camerasCount = MediaCamera::count();
+        $liveCamerasCount = MediaCamera::where('is_live', true)->count();
+        $activeCamera = $broadcastSetting->activeCamera ?? MediaCamera::first();
+
+        // التدريبات القادمة ومتابعة التغطية
+        $upcomingTrainings = Training::where('start_date', '>=', now()->toDateString())
             ->orderBy('start_date')
+            ->take(6)
             ->get();
 
         // الأخبار والإعلانات الأخيرة
-        $recentNews = \App\Models\News::orderBy('published_at', 'desc')->take(3)->get();
-        $recentAnnouncements = \App\Models\Announcement::orderBy('created_at', 'desc')->take(3)->get();
+        $recentNews = \App\Models\News::orderBy('published_at', 'desc')->take(4)->get();
+        $recentAnnouncements = \App\Models\Announcement::orderBy('created_at', 'desc')->take(4)->get();
 
-        // الوسائط الأخيرة
-        $recentMedia = TrainingMedia::with(['training', 'uploader'])
-            ->orderBy('created_at', 'desc')
-            ->take(8)
-            ->get();
+        // الكاميرات المتوفرة
+        $cameras = MediaCamera::orderBy('display_order')->take(4)->get();
 
         return view('media.dashboard', compact(
             'totalMedia',
             'activeNews',
             'activeAnnouncements',
+            'totalTrainings',
             'coveredTrainings',
+            'coverageRate',
+            'broadcastSetting',
+            'camerasCount',
+            'liveCamerasCount',
+            'activeCamera',
             'upcomingTrainings',
             'recentNews',
             'recentAnnouncements',
-            'recentMedia'
+            'cameras'
         ));
     }
 
@@ -352,4 +366,171 @@ class MediaController extends Controller
 
         return $months[$month] ?? 'غير معروف';
     }
+
+    // ==================== 🎥 غرفة تحكم البث المباشر والكاميرات الذكية ====================
+
+    /**
+     * شاشة غرفة تحكم البث المباشر (Live Control Room)
+     */
+    public function liveStudio()
+    {
+        $setting = LiveBroadcastSetting::current();
+        $cameras = MediaCamera::orderBy('display_order')->get();
+        $activeCamera = $setting->activeCamera ?? $cameras->first();
+        $upcomingTrainings = Training::where('start_date', '>=', now()->toDateString())->orderBy('start_date')->take(5)->get();
+
+        return view('media.live-studio', compact('setting', 'cameras', 'activeCamera', 'upcomingTrainings'));
+    }
+
+    /**
+     * إضافة كاميرا جديدة أو رابط بث خارجي
+     */
+    public function storeCamera(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'location_tag' => 'nullable|string|max:255',
+            'stream_type' => 'required|in:youtube_live,hls_m3u8,rtsp_ip,iframe_embed,zoom_meet,external_url',
+            'stream_url' => 'required|string',
+            'description' => 'nullable|string',
+            'is_primary' => 'nullable|boolean',
+        ]);
+
+        $order = (MediaCamera::max('display_order') ?? 0) + 1;
+
+        $camera = MediaCamera::create([
+            'title' => $request->title,
+            'location_tag' => $request->location_tag,
+            'stream_type' => $request->stream_type,
+            'stream_url' => $request->stream_url,
+            'is_live' => true,
+            'is_primary' => $request->boolean('is_primary'),
+            'display_order' => $order,
+            'description' => $request->description,
+            'created_by' => Auth::id(),
+        ]);
+
+        if ($camera->is_primary || MediaCamera::count() === 1) {
+            MediaCamera::where('id', '!=', $camera->id)->update(['is_primary' => false]);
+            $camera->update(['is_primary' => true]);
+            LiveBroadcastSetting::current()->update(['active_camera_id' => $camera->id]);
+        }
+
+        return redirect()->back()->with('success', 'تمت إضافة الكاميرا / رابط البث بنجاح.');
+    }
+
+    /**
+     * تحويل الكاميرا النشطة للبث على الهواء (On Air Switch)
+     */
+    public function setCameraOnAir(MediaCamera $camera)
+    {
+        MediaCamera::where('id', '!=', $camera->id)->update(['is_primary' => false]);
+        $camera->update(['is_primary' => true, 'is_live' => true]);
+
+        $setting = LiveBroadcastSetting::current();
+        $setting->update([
+            'active_camera_id' => $camera->id,
+            'is_live_now' => true
+        ]);
+
+        return redirect()->back()->with('success', "تم تحويل البث المباشر على الهواء بنجاح إلى: {$camera->title} 🔴");
+    }
+
+    /**
+     * تبديل حالة تشغيل الكاميرا
+     */
+    public function toggleCameraLive(MediaCamera $camera)
+    {
+        $camera->update(['is_live' => !$camera->is_live]);
+        $status = $camera->is_live ? 'مفعلة' : 'متوقفة';
+        return redirect()->back()->with('success', "تم تغيير حالة الكاميرا إلى: {$status}");
+    }
+
+    /**
+     * حذف كاميرا
+     */
+    public function deleteCamera(MediaCamera $camera)
+    {
+        $setting = LiveBroadcastSetting::current();
+        if ($setting->active_camera_id === $camera->id) {
+            $other = MediaCamera::where('id', '!=', $camera->id)->first();
+            $setting->update(['active_camera_id' => $other ? $other->id : null]);
+        }
+
+        $camera->delete();
+        return redirect()->back()->with('success', 'تم حذف الكاميرا بنجاح.');
+    }
+
+    /**
+     * تبديل حالة البث المباشر العام (Go Live / Stop Live)
+     */
+    public function toggleBroadcast(Request $request)
+    {
+        $setting = LiveBroadcastSetting::current();
+        $setting->update([
+            'is_live_now' => !$setting->is_live_now
+        ]);
+
+        $msg = $setting->is_live_now ? 'تم إطلاق البث المباشر للجمهور بنجاح (ON AIR 🔴)' : 'تم إيقاف البث المباشر عن الجمهور (OFF AIR ⚪)';
+        return redirect()->back()->with('success', $msg);
+    }
+
+    /**
+     * تحديث بيانات وعنوان البث المباشر
+     */
+    public function updateBroadcast(Request $request)
+    {
+        $request->validate([
+            'broadcast_title' => 'required|string|max:255',
+            'broadcast_description' => 'nullable|string',
+            'viewers_count' => 'nullable|integer|min:0',
+        ]);
+
+        $setting = LiveBroadcastSetting::current();
+        $setting->update([
+            'broadcast_title' => $request->broadcast_title,
+            'broadcast_description' => $request->broadcast_description,
+            'viewers_count' => $request->viewers_count ?? $setting->viewers_count,
+        ]);
+
+        return redirect()->back()->with('success', 'تم تحديث بيانات البث المباشر بنجاح.');
+    }
+
+    // ==================== 📅 تقويم وجدول التغطيات الإعلامية ====================
+
+    /**
+     * جدول وتقويم التغطيات الإعلامية
+     */
+    public function coverageCalendar(Request $request)
+    {
+        $trainings = Training::with(['company', 'trainer'])
+            ->orderBy('start_date', 'asc')
+            ->get();
+
+        $stats = [
+            'total' => $trainings->count(),
+            'covered' => $trainings->where('media_coverage_status', 'covered')->count(),
+            'pending' => $trainings->where('media_coverage_status', 'pending')->count(),
+            'not_required' => $trainings->where('media_coverage_status', 'not_required')->count(),
+        ];
+
+        return view('media.coverage-calendar', compact('trainings', 'stats'));
+    }
+
+    /**
+     * تحديث حالة وملاحظات التغطية لبرنامج تدريبي
+     */
+    public function updateCoverageTask(Request $request, Training $training)
+    {
+        $request->validate([
+            'media_coverage_status' => 'required|in:pending,covered,not_required',
+        ]);
+
+        $training->update([
+            'media_coverage_status' => $request->media_coverage_status,
+        ]);
+
+        return redirect()->back()->with('success', 'تم تحديث حالة التغطية الإعلامية بنجاح.');
+    }
 }
+

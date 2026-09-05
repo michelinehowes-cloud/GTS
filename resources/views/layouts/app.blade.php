@@ -697,27 +697,64 @@
                                     </li>
                                 @endif
 
-                                <!-- الميديا والأخبار -->
-                                @if(auth()->user()->hasAnyPermission(['media.manage', 'news.manage']))
-                                    <li class="nav-item menu-group">
-                                        <a class="nav-link {{ request()->routeIs('media.*') ? 'active' : '' }}" href="#"
-                                            onclick="toggleSubmenu('staff-media-menu')">
-                                            <i class="fas fa-photo-video"></i>
-                                            الوسائط والمحتوى
-                                            <i class="fas fa-chevron-down menu-arrow"></i>
+                                <!-- قسم مسؤول الميديا والإعلام والبث الذكي -->
+                                @if(auth()->user()->role == 'media_officer' || auth()->user()->hasAnyPermission(['media.manage', 'news.manage']))
+                                    <hr class="sidebar-divider my-2">
+                                    <div class="sidebar-heading">
+                                        المركز الإعلامي والبث
+                                    </div>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('media.live-studio') ? 'active' : '' }}"
+                                            href="{{ route('media.live-studio') }}">
+                                            <i class="fas fa-satellite-dish text-danger"></i>
+                                            استوديو البث والكاميرات
+                                            @php
+                                                $sbBroadcast = \App\Models\LiveBroadcastSetting::first();
+                                            @endphp
+                                            @if($sbBroadcast && $sbBroadcast->is_live_now)
+                                                <span class="badge bg-danger rounded-pill ms-auto small" style="font-size: 0.65rem;">LIVE</span>
+                                            @endif
                                         </a>
-                                        <div class="submenu {{ request()->routeIs('media.*') ? 'show' : '' }}" id="staff-media-menu">
-                                            @if(auth()->user()->hasPermission('media.manage'))
-                                                <a href="{{ route('media.gallery') }}" class="submenu-item {{ request()->routeIs('media.gallery') ? 'active' : '' }}">
-                                                    معرض الوسائط
-                                                </a>
-                                            @endif
-                                            @if(auth()->user()->hasPermission('news.manage'))
-                                                <a href="{{ route('media.news.index') }}" class="submenu-item {{ request()->routeIs('media.news*') ? 'active' : '' }}">
-                                                    إدارة الأخبار
-                                                </a>
-                                            @endif
-                                        </div>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('media.coverage-calendar*') ? 'active' : '' }}"
+                                            href="{{ route('media.coverage-calendar') }}">
+                                            <i class="fas fa-calendar-check text-primary"></i>
+                                            تقويم وجدول التغطيات
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('media.news*') ? 'active' : '' }}"
+                                            href="{{ route('media.news.index') }}">
+                                            <i class="fas fa-newspaper text-success"></i>
+                                            إدارة الأخبار الصحفية
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('media.announcements*') ? 'active' : '' }}"
+                                            href="{{ route('media.announcements.index') }}">
+                                            <i class="fas fa-bullhorn text-warning"></i>
+                                            إدارة الإعلانات والتعميمات
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('media.reports.coverage*') ? 'active' : '' }}"
+                                            href="{{ route('media.reports.coverage') }}">
+                                            <i class="fas fa-chart-line text-info"></i>
+                                            تقارير التغطية الإعلامية
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('job-fair.live-stream') }}" target="_blank">
+                                            <i class="fas fa-tv text-secondary"></i>
+                                            شاشة البث المباشر (الجمهور) ↗
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('job-fair.public') }}" target="_blank">
+                                            <i class="fas fa-globe text-primary"></i>
+                                            صفحة المعرض 2026 (الزرقاء) ↗
+                                        </a>
                                     </li>
                                 @endif
                             @endif

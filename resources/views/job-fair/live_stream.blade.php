@@ -851,31 +851,53 @@
 
                         <!-- Top Left Channel Selector -->
                         <div class="stream-channels-bar">
-                            <button type="button" class="channel-btn active" onclick="switchChannel('main', this)">
-                                <i class="fas fa-tv me-1"></i> القاعة الرئيسية
-                            </button>
-                            <button type="button" class="channel-btn" onclick="switchChannel('workshops', this)">
-                                <i class="fas fa-chalkboard-teacher me-1"></i> ورش العمل
-                            </button>
-                            <button type="button" class="channel-btn" onclick="switchChannel('interviews', this)">
-                                <i class="fas fa-handshake me-1"></i> غرفة المقابلات
-                            </button>
+                            @if(isset($cameras) && $cameras->count() > 0)
+                                @foreach($cameras as $cam)
+                                    <button type="button" class="channel-btn {{ (isset($activeCamera) && $activeCamera->id === $cam->id) ? 'active' : '' }}" onclick="switchCameraFeed('{{ $cam->id }}', '{{ $cam->stream_type }}', '{{ $cam->embed_url }}', '{{ addslashes($cam->title) }}', '{{ addslashes($cam->location_tag ?? '') }}', this)">
+                                        <i class="fas fa-video me-1"></i> {{ $cam->title }}
+                                    </button>
+                                @endforeach
+                            @else
+                                <button type="button" class="channel-btn active" onclick="switchChannel('main', this)">
+                                    <i class="fas fa-tv me-1"></i> القاعة الرئيسية
+                                </button>
+                                <button type="button" class="channel-btn" onclick="switchChannel('workshops', this)">
+                                    <i class="fas fa-chalkboard-teacher me-1"></i> ورش العمل
+                                </button>
+                                <button type="button" class="channel-btn" onclick="switchChannel('interviews', this)">
+                                    <i class="fas fa-handshake me-1"></i> غرفة المقابلات
+                                </button>
+                            @endif
                         </div>
 
                         <!-- Screen Content -->
                         <div class="player-inner" id="playerInner">
-                            <div class="stream-graphics">
+                            @if(isset($setting) && $setting->is_live_now && isset($activeCamera))
+                                <div id="liveVideoContainer" style="width: 100%; height: 100%; position: absolute; inset: 0; z-index: 5; background: #000;">
+                                    @if($activeCamera->stream_type === 'youtube_live')
+                                        <iframe id="activeStreamIframe" src="{{ $activeCamera->embed_url }}" style="width: 100%; height: 100%; border: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                                    @elseif($activeCamera->stream_type === 'hls_m3u8')
+                                        <video id="activeStreamVideo" controls autoplay muted style="width: 100%; height: 100%; object-fit: cover;">
+                                            <source src="{{ $activeCamera->stream_url }}" type="application/x-mpegURL">
+                                        </video>
+                                    @else
+                                        <iframe id="activeStreamIframe" src="{{ $activeCamera->embed_url }}" style="width: 100%; height: 100%; border: none;" allowfullscreen></iframe>
+                                    @endif
+                                </div>
+                            @endif
+
+                            <div class="stream-graphics" id="streamGraphicsFallback" style="{{ (isset($setting) && $setting->is_live_now && isset($activeCamera)) ? 'display: none;' : '' }}">
                                 
                                 <div class="stream-pulse-ring" id="streamPlayBtn" onclick="toggleStreamSimulation()">
                                     <i class="fas fa-play" id="playPauseIcon"></i>
                                 </div>
 
                                 <h3 class="fw-bold text-white mb-2" id="channelHeadline">
-                                    {{ $fair ? $fair->title : 'حفل افتتاح معرض يوم التوظيف والتدريب 2026' }}
+                                    {{ (isset($setting) && $setting->broadcast_title) ? $setting->broadcast_title : ($fair ? $fair->title : 'حفل افتتاح معرض يوم التوظيف والتدريب 2026') }}
                                 </h3>
 
                                 <p class="text-white-50 small mb-2" style="max-width: 540px;" id="channelDesc">
-                                    @if($fair && $fair->status === 'ongoing')
+                                    @if(isset($setting) && $setting->is_live_now)
                                         تجري الآن الفعاليات المباشرة والمراسم الرسمية وعروض الشركات الراعية مباشرة من مسرح جامعة طرابلس.
                                     @else
                                         سينطلق البث الحي عالي الدقة لجميع فعاليات المعرض والندوات المهنية وجلسات الإرشاد.
@@ -1011,11 +1033,11 @@
                     </div>
 
                     <div>
-                        @if($myRegistration)
+                        @if(isset($myRegistration) && $myRegistration)
                             <a href="{{ route('job-fair.my-ticket', $myRegistration->id) }}" class="btn btn-warning text-dark fw-bold rounded-pill px-4 py-2 shadow-sm">
                                 <i class="fas fa-qrcode me-1"></i> عرض تذكرتي الرقمية
                             </a>
-                        @elseif($fair->can_register)
+                        @elseif($fair && $fair->can_register)
                             <button type="button" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#registerModal">
                                 <i class="fas fa-user-check me-1"></i> تسجيل تذكرة حضور المعرض
                             </button>
@@ -1371,6 +1393,43 @@
                 volumeIcon.className = 'fas fa-volume-up';
                 showToast('تم تشغيل الصوت');
             }
+        }
+
+        // Switch Real Camera Feed from DB
+        function switchCameraFeed(camId, type, embedUrl, title, location, btn) {
+            document.querySelectorAll('.channel-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            const container = document.getElementById('liveVideoContainer');
+            const fallback = document.getElementById('streamGraphicsFallback');
+            const headline = document.getElementById('channelHeadline');
+            const streamTitle = document.getElementById('streamCurrentTitle');
+            const streamSpeaker = document.getElementById('streamCurrentSpeaker');
+
+            if (headline) headline.innerText = title;
+            if (streamTitle) streamTitle.innerText = title;
+            if (streamSpeaker) streamSpeaker.innerText = location ? ('الموقع: ' + location) : 'بث مباشر من جامعة طرابلس';
+
+            if (container) {
+                container.style.display = 'block';
+                if (fallback) fallback.style.display = 'none';
+
+                if (type === 'youtube_live') {
+                    container.innerHTML = `<iframe src="${embedUrl}" style="width: 100%; height: 100%; border: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+                } else if (type === 'hls_m3u8') {
+                    container.innerHTML = `<video id="activeStreamVideo" controls autoplay muted style="width: 100%; height: 100%; object-fit: cover;"><source src="${embedUrl}" type="application/x-mpegURL"></video>`;
+                    if (window.Hls && Hls.isSupported()) {
+                        const v = document.getElementById('activeStreamVideo');
+                        const hls = new Hls();
+                        hls.loadSource(embedUrl);
+                        hls.attachMedia(v);
+                    }
+                } else {
+                    container.innerHTML = `<iframe src="${embedUrl}" style="width: 100%; height: 100%; border: none;" allowfullscreen></iframe>`;
+                }
+            }
+
+            showToast('تم التبديل إلى: ' + title);
         }
 
         // Switch Stream Channel

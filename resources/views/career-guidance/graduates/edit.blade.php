@@ -13,10 +13,13 @@
 
             <!-- Header -->
             <div class="card-header position-relative">
-                <div class="d-flex justify-content-end mb-2">
-                    <a href="{{ route($prefix . '.graduates') }}" class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-pill px-3 border-0 shadow-none">
+                <div class="d-flex justify-content-between align-items-center mb-3" style="position: relative; z-index: 20;">
+                    <a href="{{ route($prefix . '.graduates') }}" class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-pill px-3 border-0 shadow-none text-decoration-none" style="cursor: pointer;" title="العودة لقائمة الخريجين">
                         <i class="fas fa-arrow-right me-1"></i> العودة للقائمة
                     </a>
+                    <button type="button" class="btn btn-sm btn-warning rounded-pill px-3 fw-bold shadow-sm text-dark" data-bs-toggle="modal" data-bs-target="#quickPasswordModal">
+                        <i class="fas fa-key me-1"></i> إعادة تعيين كلمة المرور فوراً
+                    </button>
                 </div>
                 <h2><i class="fas fa-user-edit me-2"></i> تعديل بيانات الخريج</h2>
                 <p>الرجاء تحديث المعلومات أدناه وتأكيد التغييرات</p>
@@ -24,6 +27,20 @@
 
             <!-- Body -->
             <div class="card-body">
+                <!-- Session Alerts -->
+                @if (session('password_success'))
+                    <div class="alert alert-success alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert">
+                        <i class="fas fa-check-circle me-2"></i> {{ session('password_success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert">
+                        <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
                 <!-- Progress Steps -->
                 <div class="progress-steps">
                     <div class="step active" data-step="1">
@@ -37,6 +54,10 @@
                     <div class="step" data-step="3">
                         <div class="step-circle">3</div>
                         <div class="step-label">المهارات والخبرات</div>
+                    </div>
+                    <div class="step" data-step="4">
+                        <div class="step-circle">4</div>
+                        <div class="step-label">بيانات الحساب وكلمة المرور</div>
                     </div>
                 </div>
 
@@ -372,6 +393,78 @@
                         </div>
                     </div>
 
+                    <!-- Section 4: Account & Password -->
+                    <div class="form-section mt-5" id="section-4">
+                        <h5 class="section-title">
+                            <i class="fas fa-user-shield"></i>
+                            بيانات الحساب وكلمة المرور
+                        </h5>
+
+                        <div class="card border-0 bg-light rounded-3 p-3 mb-4">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded-circle bg-white p-3 text-primary shadow-sm">
+                                        <i class="fas fa-id-badge fa-2x"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-bold text-dark">حالة حساب الخريج في النظام</h6>
+                                        @if($graduate->user || $graduate->user_id)
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1">
+                                                <i class="fas fa-check-circle me-1"></i> الحساب مرتبط ومفعل
+                                            </span>
+                                            <small class="text-muted d-block mt-1">البريد الإلكتروني المسجل للحساب: <strong>{{ $graduate->user->email ?? $graduate->email }}</strong></small>
+                                        @else
+                                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1">
+                                                <i class="fas fa-exclamation-triangle me-1"></i> لم يتم ربط حساب مستخدم بعد
+                                            </span>
+                                            <small class="text-muted d-block mt-1">عند إدخال كلمة مرور جديدة وحفظ النموذج، سيتم إنشاء حساب النظام وربطه تلقائياً.</small>
+                                        @endif
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#quickPasswordModal">
+                                    <i class="fas fa-key me-1"></i> نافذة سريعة لتغيير كلمة المرور
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="password" class="form-label">
+                                    كلمة المرور الجديدة
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                        id="password" name="password" autocomplete="new-password"
+                                        placeholder="اتركه فارغاً إذا كنت لا ترغب بتغييرها">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('password', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    @error('password')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <small class="text-muted">8 أحرف على الأقل (اتركه فارغاً للإبقاء على كلمة المرور الحالية).</small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="password_confirmation" class="form-label">
+                                    تأكيد كلمة المرور الجديدة
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror"
+                                        id="password_confirmation" name="password_confirmation" autocomplete="new-password"
+                                        placeholder="أعد إدخال كلمة المرور للتأكيد">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('password_confirmation', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    @error('password_confirmation')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Submit Button -->
                     <div class="text-center mt-5">
                         <button type="submit" class="btn-register" id="submitBtn">
@@ -386,11 +479,76 @@
 </div>
 </div>
 </div>
+
+<!-- Quick Reset Password Modal -->
+<div class="modal fade" id="quickPasswordModal" tabindex="-1" aria-labelledby="quickPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="quickPasswordModalLabel">
+                    <i class="fas fa-key me-2"></i> إعادة تعيين كلمة مرور الخريج
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route($prefix . '.graduates.reset-password', $graduate->id) }}" method="POST">
+                @csrf
+                @method('PATCH')
+                <div class="modal-body p-4">
+                    <div class="alert alert-info border-0 rounded-3 mb-3">
+                        <i class="fas fa-info-circle me-1"></i> تعيين كلمة مرور جديدة مباشرة للخريج: <strong>{{ $graduate->name }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modal_new_password" class="form-label fw-bold small text-muted">كلمة المرور الجديدة <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="modal_new_password" name="new_password" required minlength="8" placeholder="8 أحرف على الأقل">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('modal_new_password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modal_new_password_confirmation" class="form-label fw-bold small text-muted">تأكيد كلمة المرور الجديدة <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="modal_new_password_confirmation" name="new_password_confirmation" required minlength="8" placeholder="أعد إدخال كلمة المرور">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('modal_new_password_confirmation', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">
+                        <i class="fas fa-save me-1"></i> حفظ وتحديث كلمة المرور
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
 <script src="{{ asset('js/university-data.js') }}"></script>
 <script>
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) {
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        }
+    } else {
+        input.type = 'password';
+        if (icon) {
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+}
 const form = document.getElementById('registrationForm');
 const submitBtn = document.getElementById('submitBtn');
 const qualSelect = document.getElementById('qualification');

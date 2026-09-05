@@ -354,6 +354,7 @@ class CareerGuidanceController extends Controller
             'work_experience' => 'nullable|string',
             'linkedin_url' => 'nullable|url|max:255',
             'cv' => 'nullable|file|mimes:pdf|max:5120', // 5MB max
+            'password' => 'nullable|string|min:8|confirmed',
         ], [
             'name.required' => 'الاسم مطلوب',
             'university.required' => 'حقل الجامعة مطلوب',
@@ -363,6 +364,8 @@ class CareerGuidanceController extends Controller
             'degree.required' => 'حقل المؤهل العلمي مطلوب',
             'graduation_year.required' => 'حقل سنة التخرج مطلوب',
             'employment_status.required' => 'حقل حالة التوظيف مطلوب',
+            'password.min' => 'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل',
+            'password.confirmed' => 'تأكيد كلمة المرور غير متطابق',
         ]);
 
         $skills = is_string($request->input('skills')) ? array_values(array_filter(array_map('trim', explode(',', $request->input('skills'))))) : $request->input('skills');
@@ -408,9 +411,47 @@ class CareerGuidanceController extends Controller
 
         $graduate->update($data);
 
+        // تحديث كلمة مرور حساب الخريج إن تم إدخالها
+        if ($request->filled('password')) {
+            $targetUser = null;
+            if ($graduate->user_id) {
+                $targetUser = User::find($graduate->user_id);
+            }
+            if (!$targetUser && $graduate->email) {
+                $targetUser = User::where('email', $graduate->email)->first();
+                if ($targetUser) {
+                    $graduate->update(['user_id' => $targetUser->id]);
+                }
+            }
+
+            if ($targetUser) {
+                $targetUser->update([
+                    'password' => Hash::make($request->password),
+                ]);
+            } elseif ($graduate->email) {
+                $targetUser = User::create([
+                    'name' => $graduate->name,
+                    'email' => $graduate->email,
+                    'password' => Hash::make($request->password),
+                    'role' => 'graduate',
+                    'is_active' => true,
+                    'phone' => $graduate->phone,
+                    'national_id' => $graduate->national_id,
+                ]);
+                $graduate->update(['user_id' => $targetUser->id]);
+            }
+        }
+
         // تحديث بيانات المستخدم المقابل إذا وجد (Reverse Sync)
-        if ($graduate->email) {
-            $user = User::where('email', $graduate->email)->first();
+        if ($graduate->email || $graduate->user_id) {
+            $user = null;
+            if ($graduate->user_id) {
+                $user = User::find($graduate->user_id);
+            }
+            if (!$user && $graduate->email) {
+                $user = User::where('email', $graduate->email)->first();
+            }
+
             if ($user) {
                 $userData = [
                     'name' => $data['name'],
@@ -472,12 +513,39 @@ class CareerGuidanceController extends Controller
             'new_password.confirmed' => 'كلمة المرور وتأكيدها غير متطابقين.',
         ]);
 
-        $user = User::findOrFail($graduate->user_id);
-        $user->update([
-            'password' => Hash::make($request->new_password),
-        ]);
+        $user = null;
+        if ($graduate->user_id) {
+            $user = User::find($graduate->user_id);
+        }
+        if (!$user && $graduate->email) {
+            $user = User::where('email', $graduate->email)->first();
+            if ($user) {
+                $graduate->update(['user_id' => $user->id]);
+            }
+        }
 
-        return redirect()->back()->with('password_success', 'تم تغيير كلمة مرور الخريج بنجاح!');
+        if (!$user) {
+            if (!$graduate->email) {
+                return redirect()->back()->withErrors(['password_error' => 'لا يمكن تعيين كلمة مرور لخريج لا يمتلك بريداً إلكترونياً. يرجى إضافة بريد إلكتروني للخريج أولاً.']);
+            }
+
+            $user = User::create([
+                'name' => $graduate->name,
+                'email' => $graduate->email,
+                'password' => Hash::make($request->new_password),
+                'role' => 'graduate',
+                'is_active' => true,
+                'phone' => $graduate->phone,
+                'national_id' => $graduate->national_id,
+            ]);
+            $graduate->update(['user_id' => $user->id]);
+        } else {
+            $user->update([
+                'password' => Hash::make($request->new_password),
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'تم تغيير كلمة مرور الخريج بنجاح!')->with('password_success', 'تم تغيير كلمة مرور الخريج بنجاح!');
     }
 
     /**

@@ -450,6 +450,19 @@ Route::middleware('auth')->group(function () {
     Route::prefix('media')->middleware(['auth', 'media_officer'])->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\MediaController::class, 'dashboard'])->name('media.dashboard');
 
+        // 🎥 استوديو البث المباشر وغرفة التحكم بالكاميرات
+        Route::get('/live-studio', [App\Http\Controllers\MediaController::class, 'liveStudio'])->name('media.live-studio');
+        Route::post('/live-studio/cameras', [App\Http\Controllers\MediaController::class, 'storeCamera'])->name('media.live-studio.cameras.store');
+        Route::post('/live-studio/cameras/{camera}/on-air', [App\Http\Controllers\MediaController::class, 'setCameraOnAir'])->name('media.live-studio.cameras.on-air');
+        Route::patch('/live-studio/cameras/{camera}/toggle', [App\Http\Controllers\MediaController::class, 'toggleCameraLive'])->name('media.live-studio.cameras.toggle');
+        Route::delete('/live-studio/cameras/{camera}', [App\Http\Controllers\MediaController::class, 'deleteCamera'])->name('media.live-studio.cameras.destroy');
+        Route::post('/live-studio/broadcast/toggle', [App\Http\Controllers\MediaController::class, 'toggleBroadcast'])->name('media.live-studio.broadcast.toggle');
+        Route::post('/live-studio/broadcast/update', [App\Http\Controllers\MediaController::class, 'updateBroadcast'])->name('media.live-studio.broadcast.update');
+
+        // 📅 تقويم وجدول التغطيات الإعلامية
+        Route::get('/coverage-calendar', [App\Http\Controllers\MediaController::class, 'coverageCalendar'])->name('media.coverage-calendar');
+        Route::post('/coverage-calendar/{training}/update', [App\Http\Controllers\MediaController::class, 'updateCoverageTask'])->name('media.coverage-calendar.update');
+
         // إدارة التدريبات (فهرس التدريبات)
         Route::get('/trainings', [App\Http\Controllers\TrainingController::class, 'coordinatorTrainings'])->name('media.trainings.index');
         Route::get('/trainings/{training}', [App\Http\Controllers\MediaController::class, 'trainingShow'])->name('media.trainings.show');
@@ -662,6 +675,9 @@ require __DIR__ . '/auth.php';
 
 // الصفحة العامة للمعرض (للجميع)
 Route::get('/job-fair', [App\Http\Controllers\JobFairController::class, 'publicShow'])->name('job-fair.public');
+
+// صفحة البث المباشر للجمهور (للجميع)
+Route::get('/live-stream', [App\Http\Controllers\JobFairController::class, 'liveStream'])->name('job-fair.live-stream');
 
 // تسجيل الخريج في المعرض (يتطلب تسجيل دخول)
 Route::middleware('auth')->group(function () {

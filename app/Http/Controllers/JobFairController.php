@@ -52,6 +52,31 @@ class JobFairController extends Controller
     }
 
     /**
+     * صفحة البث المباشر للجمهور والخريجين
+     */
+    public function liveStream(Request $request)
+    {
+        $fair = JobFair::whereIn('status', ['published', 'ongoing'])
+            ->orderBy('event_date', 'asc')
+            ->first();
+
+        $myRegistration = null;
+        if (Auth::check() && $fair) {
+            $myRegistration = JobFairRegistration::where('job_fair_id', $fair->id)
+                ->where('user_id', Auth::id())
+                ->first();
+        }
+
+        $setting = \App\Models\LiveBroadcastSetting::current();
+        $cameras = \App\Models\MediaCamera::where('is_live', true)->orderBy('display_order')->get();
+        $activeCamera = $setting->activeCamera ?? $cameras->first();
+        $events = $fair ? $fair->events()->orderBy('start_time', 'asc')->get() : collect();
+        $recentJobs = \App\Models\JobOpportunity::where('status', 'open')->with('company')->latest()->take(6)->get();
+
+        return view('job-fair.live_stream', compact('fair', 'setting', 'cameras', 'activeCamera', 'myRegistration', 'events', 'recentJobs'));
+    }
+
+    /**
      * تسجيل خريج في المعرض
      */
     public function register(Request $request, JobFair $fair)

@@ -918,6 +918,9 @@
     </a>
 
     <div class="nav-links">
+        <a href="{{ route('job-fair.live-stream') }}" class="nav-btn" style="background: rgba(239, 68, 68, 0.2); border: 1.5px solid #ef4444; color: #ffffff;">
+            <i class="fas fa-broadcast-tower text-danger me-1"></i>البث المباشر 🔴
+        </a>
         @auth
             <a href="{{ route('dashboard') }}" class="nav-btn nav-btn-outline">
                 <i class="fas fa-th-large me-1"></i>لوحة التحكم
@@ -959,6 +962,18 @@
         <div class="row align-items-center mb-4">
             {{-- Text Side --}}
             <div class="col-lg-6 hero-text-col text-lg-end text-center mt-5 mt-lg-0 order-2 order-lg-1">
+                @php
+                    $liveSetting = \App\Models\LiveBroadcastSetting::current();
+                @endphp
+                @if($liveSetting && $liveSetting->is_live_now)
+                    <div class="mb-3">
+                        <a href="{{ route('job-fair.live-stream') }}" class="btn rounded-pill px-4 py-2 text-white fw-bold shadow-lg d-inline-flex align-items-center gap-2" style="background: linear-gradient(135deg, #dc2626, #ef4444); border: 2px solid rgba(255,255,255,0.4); box-shadow: 0 0 20px rgba(239,68,68,0.6);">
+                            <span style="width: 10px; height: 10px; background: white; border-radius: 50%; display: inline-block;"></span>
+                            <span>بث حي ومباشر الآن — انقر للمشاهدة &larr;</span>
+                        </a>
+                    </div>
+                @endif
+
                 {{-- Eyebrow --}}
                 <div class="hero-eyebrow">
                     <span class="dot"></span>

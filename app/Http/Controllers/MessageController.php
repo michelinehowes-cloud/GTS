@@ -72,7 +72,7 @@ class MessageController extends Controller
         Message::create([
             'sender_id' => auth()->id(),
             'receiver_id' => $id,
-            'content' => $request->content
+            'content' => $request->input('content')
         ]);
 
         return back()->with('success', 'تم إرسال الرسالة بنجاح.');

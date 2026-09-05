@@ -5,6 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property \Carbon\Carbon|null $start_date
+ * @property \Carbon\Carbon|null $end_date
+ */
 class Training extends Model
 {
     use HasFactory;
@@ -73,8 +77,8 @@ class Training extends Model
             return $dates;
         }
 
-        $startDate = $this->start_date->copy();
-        $endDate = $this->end_date ? $this->end_date->copy() : $startDate->copy();
+        $startDate = \Carbon\Carbon::parse($this->start_date);
+        $endDate = $this->end_date ? \Carbon\Carbon::parse($this->end_date) : $startDate->copy();
 
         if ($endDate->lt($startDate)) {
             $endDate = $startDate->copy();

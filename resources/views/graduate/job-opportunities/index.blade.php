@@ -51,7 +51,7 @@
                     </span>
                     <h4 class="fw-bold text-dark mb-2">{{ $upcomingFair->title }}</h4>
                     <div class="d-flex flex-wrap gap-3 text-muted small">
-                        <div><i class="fas fa-calendar-alt me-1 text-primary"></i> {{ $upcomingFair->event_date->format('Y-m-d') }}</div>
+                        <div><i class="fas fa-calendar-alt me-1 text-primary"></i> {{ \Carbon\Carbon::parse($upcomingFair->event_date)->format('Y-m-d') }}</div>
                         <div><i class="fas fa-map-marker-alt me-1 text-danger"></i> {{ $upcomingFair->location }}</div>
                     </div>
                 </div>

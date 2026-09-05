@@ -51,10 +51,11 @@ class JobOpportunityController extends Controller
             'companies' => Company::count(),
         ];
 
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $opportunities */
         $opportunities = $query->withCount(['nominations'])
             ->latest()
-            ->paginate(12)
-            ->withQueryString();
+            ->paginate(12);
+        $opportunities->withQueryString();
 
         $companies = Company::all();
 

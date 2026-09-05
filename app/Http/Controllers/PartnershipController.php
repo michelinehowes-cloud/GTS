@@ -142,10 +142,11 @@ class PartnershipController extends Controller
         $document = PartnershipDocument::findOrFail($id);
 
         if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
-            return Storage::disk('public')->response(
-                $document->file_path,
-                $document->file_name ?? basename($document->file_path)
-            );
+            $filePath = storage_path('app/public/' . $document->file_path);
+            $fileName = $document->file_name ?? basename($document->file_path);
+            return response()->file($filePath, [
+                'Content-Disposition' => 'inline; filename="' . $fileName . '"'
+            ]);
         }
 
         return redirect()->route('partnership.documents')->with('error', 'ملف الوثيقة غير متوفر حالياً على الخادم.');
@@ -159,10 +160,9 @@ class PartnershipController extends Controller
         $document = PartnershipDocument::findOrFail($id);
 
         if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
-            return Storage::disk('public')->download(
-                $document->file_path,
-                $document->file_name ?? basename($document->file_path)
-            );
+            $filePath = storage_path('app/public/' . $document->file_path);
+            $fileName = $document->file_name ?? basename($document->file_path);
+            return response()->download($filePath, $fileName);
         }
 
         return redirect()->route('partnership.documents')->with('error', 'ملف الوثيقة غير متوفر حالياً على الخادم.');

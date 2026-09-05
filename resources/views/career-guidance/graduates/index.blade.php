@@ -60,15 +60,47 @@
 
     <!-- Search & Filter Card -->
     <div class="card-modern mb-4">
-        <div class="card-header bg-white py-3 border-bottom">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0 text-primary fw-bold fs-6">
-                <i class="fas fa-filter me-2"></i>تصفية وبحث الخريجين
+                <i class="fas fa-search-plus me-2"></i>تصفية وبحث الخريجين
             </h5>
+            @if(request()->anyFilled(['search', 'name', 'phone', 'major', 'graduation_year', 'employment_status']))
+                <a href="{{ route($prefix . '.graduates') }}" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                    <i class="fas fa-times me-1"></i> مسح جميع الفلاتر
+                </a>
+            @endif
         </div>
         <div class="card-body p-3 p-md-4">
             <form action="{{ route($prefix . '.graduates') }}" method="GET" class="row g-3">
-                <div class="col-md-3">
-                    <label for="major" class="form-label-modern small fw-bold">التخصص</label>
+                <!-- بحث بالاسم -->
+                <div class="col-md-6 col-lg-3">
+                    <label for="name" class="form-label-modern small fw-bold">
+                        <i class="fas fa-user text-primary me-1"></i> اسم الخريج
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                        <input type="text" name="name" id="name" class="form-control form-control-modern border-start-0"
+                               value="{{ request('name') }}" placeholder="ابحث باسم الخريج...">
+                    </div>
+                </div>
+
+                <!-- بحث برقم الهاتف -->
+                <div class="col-md-6 col-lg-3">
+                    <label for="phone" class="form-label-modern small fw-bold">
+                        <i class="fas fa-phone-alt text-primary me-1"></i> رقم الهاتف
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-phone"></i></span>
+                        <input type="text" name="phone" id="phone" class="form-control form-control-modern border-start-0"
+                               value="{{ request('phone') }}" placeholder="مثال: 0912345678...">
+                    </div>
+                </div>
+
+                <!-- تصفية حسب التخصص -->
+                <div class="col-md-4 col-lg-2">
+                    <label for="major" class="form-label-modern small fw-bold">
+                        <i class="fas fa-graduation-cap text-primary me-1"></i> التخصص
+                    </label>
                     <select name="major" id="major" class="form-select form-select-modern">
                         <option value="">جميع التخصصات</option>
                         @foreach($majors as $major)
@@ -76,8 +108,12 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label for="graduation_year" class="form-label-modern small fw-bold">سنة التخرج</label>
+
+                <!-- تصفية حسب سنة التخرج -->
+                <div class="col-md-4 col-lg-2">
+                    <label for="graduation_year" class="form-label-modern small fw-bold">
+                        <i class="fas fa-calendar-alt text-primary me-1"></i> سنة التخرج
+                    </label>
                     <select name="graduation_year" id="graduation_year" class="form-select form-select-modern">
                         <option value="">جميع السنوات</option>
                         @foreach($graduationYears as $year)
@@ -85,22 +121,28 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label for="employment_status" class="form-label-modern small fw-bold">حالة التوظيف</label>
+
+                <!-- تصفية حسب حالة التوظيف -->
+                <div class="col-md-4 col-lg-2">
+                    <label for="employment_status" class="form-label-modern small fw-bold">
+                        <i class="fas fa-briefcase text-primary me-1"></i> حالة التوظيف
+                    </label>
                     <select name="employment_status" id="employment_status" class="form-select form-select-modern">
                         <option value="">جميع الحالات</option>
                         <option value="employed" {{ request('employment_status') == 'employed' ? 'selected' : '' }}>موظف</option>
                         <option value="unemployed" {{ request('employment_status') == 'unemployed' ? 'selected' : '' }}>عاطل عن العمل</option>
                         <option value="seeking_opportunities" {{ request('employment_status') == 'seeking_opportunities' ? 'selected' : '' }}>باحث عن عمل</option>
-                        <option value="continuing_education" {{ request('employment_status') == 'continuing_education' ? 'selected' : '' }}>مستكمل للدراسة</option>
+                        <option value="continuing_education" {{ (request('employment_status') == 'continuing_education' || request('employment_status') == 'further_study') ? 'selected' : '' }}>مستكمل للدراسة</option>
                     </select>
                 </div>
-                <div class="col-md-3 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary-modern flex-grow-1 py-2">
-                        <i class="fas fa-search me-1"></i> بحث
+
+                <!-- أزرار البحث -->
+                <div class="col-12 d-flex justify-content-end align-items-center gap-2 pt-2 border-top">
+                    <button type="submit" class="btn btn-primary-modern px-4 py-2">
+                        <i class="fas fa-search me-1"></i> بحث وتصفية
                     </button>
-                    <a href="{{ route($prefix . '.graduates') }}" class="btn btn-outline-secondary py-2" title="إعادة تعيين">
-                        <i class="fas fa-redo"></i>
+                    <a href="{{ route($prefix . '.graduates') }}" class="btn btn-outline-secondary px-3 py-2" title="إعادة تعيين">
+                        <i class="fas fa-redo me-1"></i> إعادة تعيين
                     </a>
                 </div>
             </form>
@@ -146,8 +188,17 @@
                                             <a href="{{ route($prefix . '.graduates.show', $graduate->id) }}" class="fw-bold text-dark text-decoration-none d-block hover-primary" style="font-size: 0.95rem;">
                                                 {{ $graduate->name }}
                                             </a>
-                                            <div class="small text-muted text-truncate" style="max-width: 180px;">
-                                                <i class="fas fa-envelope me-1 text-muted"></i>{{ $graduate->email ?? 'لا يوجد بريد' }}
+                                            <div class="small text-muted d-flex align-items-center gap-2 flex-wrap mt-0.5">
+                                                @if($graduate->phone)
+                                                    <span class="text-nowrap" title="رقم الهاتف">
+                                                        <i class="fas fa-phone-alt text-primary me-1" style="font-size: 0.72rem;"></i><span dir="ltr">{{ $graduate->phone }}</span>
+                                                    </span>
+                                                @endif
+                                                @if($graduate->email)
+                                                    <span class="text-truncate" style="max-width: 170px;" title="{{ $graduate->email }}">
+                                                        <i class="fas fa-envelope text-muted me-1" style="font-size: 0.72rem;"></i>{{ $graduate->email }}
+                                                    </span>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>

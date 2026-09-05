@@ -70,7 +70,21 @@
                 </div>
                 <div class="card-body">
                     <form action="{{ route('admin.career-guidance.graduates') }}" method="GET" class="row g-3">
-                        <div class="col-md-3">
+                        <div class="col-md-6 col-lg-3">
+                            <label for="name" class="form-label-modern small fw-bold">
+                                <i class="fas fa-user text-primary me-1"></i>اسم الخريج
+                            </label>
+                            <input type="text" name="name" id="name" class="form-control form-control-modern form-control-sm"
+                                   value="{{ request('name') }}" placeholder="ابحث بالاسم...">
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <label for="phone" class="form-label-modern small fw-bold">
+                                <i class="fas fa-phone-alt text-primary me-1"></i>رقم الهاتف
+                            </label>
+                            <input type="text" name="phone" id="phone" class="form-control form-control-modern form-control-sm"
+                                   value="{{ request('phone') }}" placeholder="ابحث برقم الهاتف...">
+                        </div>
+                        <div class="col-md-4 col-lg-2">
                             <label for="major" class="form-label-modern small fw-bold">التخصص</label>
                             <select name="major" id="major" class="form-select-modern form-select-sm">
                                 <option value="">جميع التخصصات</option>
@@ -79,7 +93,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4 col-lg-2">
                             <label for="graduation_year" class="form-label-modern small fw-bold">سنة التخرج</label>
                             <select name="graduation_year" id="graduation_year" class="form-select-modern form-select-sm">
                                 <option value="">جميع السنوات</option>
@@ -88,21 +102,21 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4 col-lg-2">
                             <label for="employment_status" class="form-label-modern small fw-bold">حالة التوظيف</label>
                             <select name="employment_status" id="employment_status" class="form-select-modern form-select-sm">
                                 <option value="">جميع الحالات</option>
                                 <option value="employed" {{ request('employment_status') == 'employed' ? 'selected' : '' }}>موظف</option>
                                 <option value="unemployed" {{ request('employment_status') == 'unemployed' ? 'selected' : '' }}>غير موظف</option>
                                 <option value="seeking_opportunities" {{ request('employment_status') == 'seeking_opportunities' ? 'selected' : '' }}>باحث عن عمل</option>
-                                <option value="continuing_education" {{ request('employment_status') == 'continuing_education' ? 'selected' : '' }}>مستكمل للدراسة</option>
+                                <option value="continuing_education" {{ (request('employment_status') == 'continuing_education' || request('employment_status') == 'further_study') ? 'selected' : '' }}>مستكمل للدراسة</option>
                             </select>
                         </div>
-                        <div class="col-md-3 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary-modern btn-sm me-2 w-50">
-                                <i class="fas fa-search me-1"></i>بحث
+                        <div class="col-12 d-flex justify-content-end align-items-center gap-2 pt-2 border-top">
+                            <button type="submit" class="btn btn-primary-modern btn-sm px-4">
+                                <i class="fas fa-search me-1"></i>بحث وتصفية
                             </button>
-                            <a href="{{ route('admin.career-guidance.graduates') }}" class="btn btn-secondary-modern btn-sm w-50">
+                            <a href="{{ route('admin.career-guidance.graduates') }}" class="btn btn-secondary-modern btn-sm px-3">
                                 <i class="fas fa-redo me-1"></i>إعادة تعيين
                             </a>
                         </div>

@@ -259,17 +259,45 @@ class CareerGuidanceController extends Controller
 
         $query = GraduateData::query();
 
+        // بحث شامل (الاسم، الهاتف، البريد، الرقم الوطني)
+        if ($request->filled('search')) {
+            $searchTerm = trim($request->search);
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('phone', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('email', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('national_id', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        // بحث مخصص بالاسم
+        if ($request->filled('name')) {
+            $name = trim($request->name);
+            $query->where('name', 'like', '%' . $name . '%');
+        }
+
+        // بحث مخصص برقم الهاتف
+        if ($request->filled('phone')) {
+            $phone = trim($request->phone);
+            $query->where('phone', 'like', '%' . $phone . '%');
+        }
+
         // تطبيق الفلاتر
-        if ($request->has('major') && $request->major) {
+        if ($request->filled('major')) {
             $query->where('major', 'like', '%' . $request->major . '%');
         }
 
-        if ($request->has('graduation_year') && $request->graduation_year) {
+        if ($request->filled('graduation_year')) {
             $query->where('graduation_year', $request->graduation_year);
         }
 
-        if ($request->has('employment_status') && $request->employment_status) {
-            $query->where('employment_status', $request->employment_status);
+        if ($request->filled('employment_status')) {
+            $status = $request->employment_status;
+            if ($status === 'continuing_education' || $status === 'further_study') {
+                $query->whereIn('employment_status', ['continuing_education', 'further_study']);
+            } else {
+                $query->where('employment_status', $status);
+            }
         }
 
         $graduates = $query->withCount([
@@ -279,8 +307,8 @@ class CareerGuidanceController extends Controller
             }
         ])->latest()->get();
 
-        $majors = GraduateData::distinct()->pluck('major');
-        $graduationYears = GraduateData::distinct()->pluck('graduation_year');
+        $majors = GraduateData::whereNotNull('major')->where('major', '!=', '')->distinct()->pluck('major');
+        $graduationYears = GraduateData::whereNotNull('graduation_year')->distinct()->orderBy('graduation_year', 'desc')->pluck('graduation_year');
 
         return view('career-guidance.graduates.index', compact('graduates', 'majors', 'graduationYears'));
     }

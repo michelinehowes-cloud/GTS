@@ -53,18 +53,22 @@
                     </div>
                 </div>
 
-                <!-- 3 Quick Action Buttons -->
-                <div class="col-12 col-lg-5 text-lg-start">
-                    <div class="d-flex gap-2 gap-md-3 justify-content-between justify-content-lg-end flex-wrap flex-sm-nowrap">
-                        <a href="{{ route('graduate.trainings') }}" class="btn btn-light bg-white text-primary fw-bold py-2 px-2.5 py-sm-2.5 px-sm-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-1.5 gap-sm-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.84rem; transition: transform 0.2s ease;">
+                <!-- Quick Action Buttons -->
+                <div class="col-12 col-lg-6 text-lg-start">
+                    <div class="d-flex gap-2 gap-md-2.5 justify-content-between justify-content-lg-end flex-wrap flex-sm-nowrap">
+                        <a href="{{ route('graduate.id-card') }}" class="btn btn-warning text-dark fw-bold py-2 px-2.5 py-sm-2.5 px-sm-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-1.5 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.84rem; transition: transform 0.2s ease;">
+                            <i class="fas fa-id-card"></i>
+                            <span>بطاقتي الرقمية</span>
+                        </a>
+                        <a href="{{ route('graduate.trainings') }}" class="btn btn-light bg-white text-primary fw-bold py-2 px-2.5 py-sm-2.5 px-sm-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-1.5 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.84rem; transition: transform 0.2s ease;">
                             <i class="fas fa-graduation-cap"></i>
                             <span>التدريبات</span>
                         </a>
-                        <a href="{{ route('graduate.job-opportunities.index') }}" class="btn btn-warning text-dark fw-bold py-2 px-2.5 py-sm-2.5 px-sm-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-1.5 gap-sm-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.84rem; transition: transform 0.2s ease;">
+                        <a href="{{ route('graduate.job-opportunities.index') }}" class="btn btn-outline-light text-white fw-bold py-2 px-2.5 py-sm-2.5 px-sm-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-1.5 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.84rem; transition: transform 0.2s ease;">
                             <i class="fas fa-briefcase"></i>
                             <span>فرص العمل</span>
                         </a>
-                        <button class="btn btn-info text-white fw-bold py-2 px-2.5 py-sm-2.5 px-sm-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-1.5 gap-sm-2 border-0 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.84rem; transition: transform 0.2s ease;" data-bs-toggle="modal" data-bs-target="#qrScannerModal">
+                        <button class="btn btn-info text-white fw-bold py-2 px-2.5 py-sm-2.5 px-sm-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-1.5 border-0 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.84rem; transition: transform 0.2s ease;" data-bs-toggle="modal" data-bs-target="#qrScannerModal">
                             <i class="fas fa-qrcode"></i>
                             <span>مسح QR</span>
                         </button>

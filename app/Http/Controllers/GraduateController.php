@@ -11,6 +11,8 @@ use App\Models\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\JobFair;
+use App\Models\JobFairRegistration;
 
 class GraduateController extends Controller
 {
@@ -122,12 +124,64 @@ class GraduateController extends Controller
     }
 
     /**
-     * عرض بطاقة الخريج الرقمية
+     * عرض بطاقة الخريج الرقمية الموحدة والثابتة
      */
-    public function idCard()
+    public function idCard(Request $request)
     {
+        /** @var \App\Models\User $graduate */
         $graduate = Auth::user();
-        return view('graduate.id-card', compact('graduate'));
+        $graduate->load('graduateData');
+
+        // البحث عن المعرض الممرر أو الأخير
+        $fairId = $request->query('fair_id');
+        $activeFair = null;
+        $fairRegistration = null;
+
+        if ($fairId) {
+            $activeFair = JobFair::find($fairId);
+            if ($activeFair) {
+                $fairRegistration = JobFairRegistration::where('job_fair_id', $activeFair->id)
+                    ->where('user_id', $graduate->id)
+                    ->first();
+            }
+        }
+
+        if (!$activeFair) {
+            // المعرض الأخير المسجل فيه الخريج
+            $fairRegistration = JobFairRegistration::where('user_id', $graduate->id)
+                ->with('jobFair')
+                ->latest()
+                ->first();
+            if ($fairRegistration) {
+                $activeFair = $fairRegistration->jobFair;
+            } else {
+                $activeFair = JobFair::latest()->first();
+            }
+        }
+
+        // أحدث دورة تدريبية مقبولة للخريج
+        $activeTraining = TrainingApplication::where('user_id', $graduate->id)
+            ->where('status', 'approved')
+            ->with('training')
+            ->latest()
+            ->first();
+
+        // هل هناك سياق فعالية أو مشروع نشط؟
+        $eventContext = null;
+        if ($activeFair && $fairRegistration) {
+            $eventContext = [
+                'type'     => 'job_fair',
+                'title'    => $activeFair->title,
+                'subtitle' => 'معرض التوظيف — جامعة طرابلس',
+                'logo'     => $activeFair->banner_image ? asset('storage/' . $activeFair->banner_image) : asset('images/job_fair_logo.png'),
+                'badge'    => 'تذكرة رقم #' . $fairRegistration->registration_number,
+                'status'   => $fairRegistration->attended ? 'تم الحضور' : 'مسجل ومعتمد',
+                'date'     => $activeFair->event_date ? $activeFair->event_date->format('d/m/Y') : null,
+                'location' => $activeFair->location ?? 'جامعة طرابلس',
+            ];
+        }
+
+        return view('graduate.id-card', compact('graduate', 'activeFair', 'fairRegistration', 'activeTraining', 'eventContext'));
     }
 
     /**

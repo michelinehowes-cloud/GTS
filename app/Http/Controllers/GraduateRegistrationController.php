@@ -233,6 +233,9 @@ class GraduateRegistrationController extends Controller
             ->first();
 
         if ($existingGraduate) {
+            if ($existingGraduate->user_id !== $user->id) {
+                $existingGraduate->update(['user_id' => $user->id]);
+            }
             return [
                 'status' => 'success',
                 'message' => 'تمت الموافقة على الحساب وتفعيله بنجاح (الخريج مسجل مسبقاً في قاعدة بيانات التوظيف).'
@@ -242,6 +245,7 @@ class GraduateRegistrationController extends Controller
         // 4. إنشاء سجل في جدول graduates_data تلقائياً
         try {
             \App\Models\GraduateData::create([
+                'user_id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
                 'phone' => $user->phone,

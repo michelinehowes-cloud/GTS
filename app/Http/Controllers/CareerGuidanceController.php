@@ -337,6 +337,18 @@ class CareerGuidanceController extends Controller
         $graduate = GraduateData::findOrFail($id);
         $this->authorize('update', $graduate); // Authorize updating the graduate details
 
+        $oldEmail = $graduate->email;
+        $oldUserId = $graduate->user_id;
+
+        // العثور على حساب المستخدم المرتبط قبل إجراء التعديلات
+        $targetUser = null;
+        if ($graduate->user_id) {
+            $targetUser = User::find($graduate->user_id);
+        }
+        if (!$targetUser && $oldEmail) {
+            $targetUser = User::where('email', $oldEmail)->first();
+        }
+
         // التطبيع بين المسميات المتطابقة (specialization <-> major و qualification <-> degree و experiences <-> work_experience)
         if (!$request->filled('major') && $request->filled('specialization')) {
             $request->merge(['major' => $request->input('specialization')]);
@@ -360,9 +372,17 @@ class CareerGuidanceController extends Controller
             $request->merge(['employment_status' => $graduate->employment_status ?? 'seeking_opportunities']);
         }
 
+        $userIdToIgnore = $targetUser ? $targetUser->id : null;
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'nullable|email|max:255|unique:graduates_data,email,' . $graduate->id,
+            'email' => [
+                'nullable',
+                'email',
+                'max:255',
+                \Illuminate\Validation\Rule::unique('graduates_data', 'email')->ignore($graduate->id),
+                \Illuminate\Validation\Rule::unique('users', 'email')->ignore($userIdToIgnore),
+            ],
             'phone' => 'nullable|string|max:255',
             'national_id' => 'nullable|string|max:50',
             'date_of_birth' => 'nullable|date',
@@ -385,6 +405,7 @@ class CareerGuidanceController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
         ], [
             'name.required' => 'الاسم مطلوب',
+            'email.unique' => 'البريد الإلكتروني مستخدم بالفعل في حساب آخر',
             'university.required' => 'حقل الجامعة مطلوب',
             'sector.required' => 'حقل القطاع مطلوب',
             'faculty.required' => 'حقل الكلية مطلوب',
@@ -437,81 +458,82 @@ class CareerGuidanceController extends Controller
             $data['cv_path'] = $path;
         }
 
+        // تحديث سجل الخريج في جدول graduates_data
         $graduate->update($data);
 
-        // تحديث كلمة مرور حساب الخريج إن تم إدخالها
-        if ($request->filled('password')) {
-            $targetUser = null;
-            if ($graduate->user_id) {
-                $targetUser = User::find($graduate->user_id);
-            }
-            if (!$targetUser && $graduate->email) {
-                $targetUser = User::where('email', $graduate->email)->first();
-                if ($targetUser) {
-                    $graduate->update(['user_id' => $targetUser->id]);
-                }
+        // إذا كان هناك حساب مستخدم مرتبط أو تم العثور عليه
+        if ($targetUser) {
+            // ربط معرف المستخدم في سجل الخريج إذا لم يكن مرتبطاً
+            if ($graduate->user_id !== $targetUser->id) {
+                $graduate->updateQuietly(['user_id' => $targetUser->id]);
             }
 
-            if ($targetUser) {
-                $targetUser->update([
-                    'password' => Hash::make($request->password),
-                ]);
-            } elseif ($graduate->email) {
-                $targetUser = User::create([
-                    'name' => $graduate->name,
-                    'email' => $graduate->email,
-                    'password' => Hash::make($request->password),
-                    'role' => 'graduate',
-                    'is_active' => true,
-                    'phone' => $graduate->phone,
-                    'national_id' => $graduate->national_id,
-                ]);
-                $graduate->update(['user_id' => $targetUser->id]);
+            $userUpdateData = [
+                'name' => $data['name'],
+                'email' => $data['email'] ?? $targetUser->email, // مزامنة البريد الإلكتروني الجديد لحساب تسجيل الدخول
+                'phone' => $data['phone'] ?? $targetUser->phone,
+                'national_id' => $data['national_id'] ?? $targetUser->national_id,
+                'date_of_birth' => $data['date_of_birth'] ?? $targetUser->date_of_birth,
+                'gender' => $data['gender'] ?? $targetUser->gender,
+                'city' => $data['city'] ?? $targetUser->city,
+                'address' => $data['address'] ?? $targetUser->address,
+                'university' => $data['university'],
+                'sector' => $data['sector'],
+                'faculty' => $data['faculty'],
+                'major' => $data['major'],
+                'specialization' => $data['major'],
+                'degree' => $data['degree'],
+                'qualification' => $data['degree'],
+                'graduation_year' => $data['graduation_year'],
+                'gpa' => $data['gpa'],
+                'skills' => $data['skills'],
+                'languages' => $data['languages'],
+                'experiences' => $data['work_experience'] ?? $targetUser->experiences,
+            ];
+
+            // تحديث كلمة المرور في حساب المستخدم إن تم إدخالها
+            if ($request->filled('password')) {
+                $userUpdateData['password'] = Hash::make($request->password);
             }
+
+            if (isset($data['cv_path'])) {
+                $userUpdateData['cv_path'] = $data['cv_path'];
+            }
+
+            $targetUser->update($userUpdateData);
+        } elseif ($request->filled('password') && !empty($data['email'])) {
+            // إذا لم يكن هناك حساب مستخدم وتم إدخال كلمة مرور، يتم إنشاء حساب تسجيل الدخول وربطه فوراً
+            $newUser = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($request->password),
+                'role' => 'graduate',
+                'is_active' => true,
+                'phone' => $data['phone'] ?? null,
+                'national_id' => $data['national_id'] ?? null,
+                'date_of_birth' => $data['date_of_birth'] ?? null,
+                'gender' => $data['gender'] ?? null,
+                'city' => $data['city'] ?? null,
+                'address' => $data['address'] ?? null,
+                'university' => $data['university'],
+                'sector' => $data['sector'],
+                'faculty' => $data['faculty'],
+                'major' => $data['major'],
+                'specialization' => $data['major'],
+                'degree' => $data['degree'],
+                'qualification' => $data['degree'],
+                'graduation_year' => $data['graduation_year'],
+                'gpa' => $data['gpa'],
+                'skills' => $data['skills'],
+                'languages' => $data['languages'],
+                'experiences' => $data['work_experience'] ?? null,
+                'cv_path' => $data['cv_path'] ?? null,
+            ]);
+
+            $graduate->updateQuietly(['user_id' => $newUser->id]);
         }
 
-        // تحديث بيانات المستخدم المقابل إذا وجد (Reverse Sync)
-        if ($graduate->email || $graduate->user_id) {
-            $user = null;
-            if ($graduate->user_id) {
-                $user = User::find($graduate->user_id);
-            }
-            if (!$user && $graduate->email) {
-                $user = User::where('email', $graduate->email)->first();
-            }
-
-            if ($user) {
-                $userData = [
-                    'name' => $data['name'],
-                    'phone' => $data['phone'] ?? $user->phone,
-                    'national_id' => $data['national_id'] ?? $user->national_id,
-                    'date_of_birth' => $data['date_of_birth'] ?? $user->date_of_birth,
-                    'gender' => $data['gender'] ?? $user->gender,
-                    'city' => $data['city'] ?? $user->city,
-                    'address' => $data['address'] ?? $user->address,
-                    'university' => $data['university'],
-                    'sector' => $data['sector'],
-                    'faculty' => $data['faculty'],
-                    'major' => $data['major'],
-                    'specialization' => $data['major'],
-                    'degree' => $data['degree'],
-                    'qualification' => $data['degree'],
-                    'graduation_year' => $data['graduation_year'],
-                    'gpa' => $data['gpa'],
-                    'skills' => $data['skills'],
-                    'languages' => $data['languages'],
-                    'experiences' => $data['work_experience'] ?? $user->experiences,
-                ];
-
-                if (isset($data['cv_path'])) {
-                    $userData['cv_path'] = $data['cv_path'];
-                }
-
-                $user->update($userData);
-            }
-        }
-
-        return redirect()->back()->with('success', 'تم تحديث بيانات الخريج بنجاح.');
+        return redirect()->back()->with('success', 'تم تحديث بيانات الخريج وحساب تسجيل الدخول بنجاح.');
     }
 
     /**
@@ -547,9 +569,6 @@ class CareerGuidanceController extends Controller
         }
         if (!$user && $graduate->email) {
             $user = User::where('email', $graduate->email)->first();
-            if ($user) {
-                $graduate->update(['user_id' => $user->id]);
-            }
         }
 
         if (!$user) {
@@ -566,11 +585,20 @@ class CareerGuidanceController extends Controller
                 'phone' => $graduate->phone,
                 'national_id' => $graduate->national_id,
             ]);
-            $graduate->update(['user_id' => $user->id]);
+            $graduate->updateQuietly(['user_id' => $user->id]);
         } else {
-            $user->update([
+            $updateData = [
                 'password' => Hash::make($request->new_password),
-            ]);
+            ];
+            // مزامنة البريد الإلكتروني في جدول المستخدمين إذا كان مختلفاً
+            if ($graduate->email && $user->email !== $graduate->email) {
+                $updateData['email'] = $graduate->email;
+            }
+            $user->update($updateData);
+
+            if ($graduate->user_id !== $user->id) {
+                $graduate->updateQuietly(['user_id' => $user->id]);
+            }
         }
 
         return redirect()->back()->with('success', 'تم تغيير كلمة مرور الخريج بنجاح!')->with('password_success', 'تم تغيير كلمة مرور الخريج بنجاح!');
@@ -584,7 +612,7 @@ class CareerGuidanceController extends Controller
         $graduate = GraduateData::findOrFail($id);
         $this->authorize('update', $graduate);
 
-        if ($graduate->user_id) {
+        if ($graduate->user_id && User::where('id', $graduate->user_id)->exists()) {
             return redirect()->back()->withErrors(['error' => 'هذا الخريج يمتلك حساباً بالفعل.']);
         }
 
@@ -598,7 +626,11 @@ class CareerGuidanceController extends Controller
 
         $existingUser = User::where('email', $graduate->email)->first();
         if ($existingUser) {
-            return redirect()->back()->withErrors(['error' => 'يوجد مستخدم آخر مسجل بنفس البريد الإلكتروني للخريج. يرجى تعديل بريد الخريج أولاً.']);
+            $existingUser->update([
+                'password' => Hash::make($request->new_password),
+            ]);
+            $graduate->updateQuietly(['user_id' => $existingUser->id]);
+            return redirect()->back()->with('password_success', 'تم ربط الحساب وتحديث كلمة المرور بنجاح!');
         }
 
         $user = User::create([
@@ -607,9 +639,11 @@ class CareerGuidanceController extends Controller
             'password' => Hash::make($request->new_password),
             'role' => 'graduate',
             'is_active' => true,
+            'phone' => $graduate->phone,
+            'national_id' => $graduate->national_id,
         ]);
 
-        $graduate->update(['user_id' => $user->id]);
+        $graduate->updateQuietly(['user_id' => $user->id]);
 
         return redirect()->back()->with('password_success', 'تم إنشاء وربط حساب الخريج بنجاح!');
     }

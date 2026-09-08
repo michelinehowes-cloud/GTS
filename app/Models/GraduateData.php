@@ -65,7 +65,30 @@ class GraduateData extends Model
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'email', 'email');
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * الحصول على حساب المستخدم مع دعم الربط بالبريد كخيار احتياطي تلقائي
+     */
+    public function getUserAttribute()
+    {
+        if ($this->relationLoaded('user')) {
+            $user = $this->getRelation('user');
+            if ($user) return $user;
+        } elseif ($this->user_id) {
+            $user = $this->getRelationValue('user');
+            if ($user) return $user;
+        }
+
+        if ($this->email) {
+            $user = User::where('email', $this->email)->first();
+            if ($user) {
+                $this->updateQuietly(['user_id' => $user->id]);
+                return $user;
+            }
+        }
+        return null;
     }
 
     /**

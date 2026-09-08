@@ -9,7 +9,12 @@ class PublicProfileController extends Controller
 {
     public function show($id)
     {
-        $graduate = User::with('graduateData')->findOrFail($id);
+        $graduate = User::with([
+            'graduateData',
+            'trainingApplications' => function ($q) {
+                $q->where('status', 'approved')->with('training');
+            }
+        ])->findOrFail($id);
 
         // التأكد من أن المستخدم خريج
         if ($graduate->role !== 'graduate') {

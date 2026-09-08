@@ -202,6 +202,7 @@ class GraduateController extends Controller
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
+        $oldEmail = $user->email;
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -244,29 +245,35 @@ class GraduateController extends Controller
         $user->update($data);
 
         // تحديث البيانات في جدول graduates_data إذا وجد
-        // نقوم بتعيين الحقول المتطابقة
-        $graduateData = [
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'] ?? null,
-            'national_id' => $data['national_id'] ?? null,
-            'address' => ($data['city'] ?? '') . ' - ' . ($data['address'] ?? ''),
-            'university' => $data['university'] ?? 'جامعة طرابلس',
-            'sector' => $data['sector'] ?? null,
-            'faculty' => $data['faculty'] ?? null,
-            'major' => $data['specialization'] ?? null,
-            'graduation_year' => $data['graduation_year'] ?? null,
-            'gpa' => $data['gpa'] ?? null,
-            'degree' => $data['qualification'] ?? 'بكالوريوس',
-            'languages' => $data['languages'] ? array_map('trim', explode(',', $data['languages'])) : null,
-        ];
+        $graduateRecord = \App\Models\GraduateData::where('user_id', $user->id)
+            ->orWhere('email', $oldEmail)
+            ->orWhere('email', $user->email)
+            ->first();
 
-        // إزالة القيم الفارغة (null) التي لا نريد تحديثها إذا لم تكن موجودة في الطلب
-        // لكن هنا نريد تحديثها لتطابق ملف المستخدم
+        if ($graduateRecord) {
+            $graduateData = [
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'user_id' => $user->id,
+                'phone' => $data['phone'] ?? null,
+                'national_id' => $data['national_id'] ?? null,
+                'address' => ($data['city'] ?? '') . ' - ' . ($data['address'] ?? ''),
+                'university' => $data['university'] ?? 'جامعة طرابلس',
+                'sector' => $data['sector'] ?? null,
+                'faculty' => $data['faculty'] ?? null,
+                'major' => $data['specialization'] ?? null,
+                'specialization' => $data['specialization'] ?? null,
+                'graduation_year' => $data['graduation_year'] ?? null,
+                'gpa' => $data['gpa'] ?? null,
+                'degree' => $data['qualification'] ?? 'بكالوريوس',
+                'qualification' => $data['qualification'] ?? 'بكالوريوس',
+                'languages' => $data['languages'] ? array_map('trim', explode(',', $data['languages'])) : null,
+            ];
 
-        \App\Models\GraduateData::where('email', $user->email)->update(array_filter($graduateData, function ($v) {
-            return !is_null($v);
-        }));
+            $graduateRecord->update(array_filter($graduateData, function ($v) {
+                return !is_null($v);
+            }));
+        }
 
         return redirect()->route('graduate.profile')
             ->with('success', 'تم تحديث البيانات الشخصية بنجاح');

@@ -23,6 +23,7 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         $user = Auth::user();
+        $oldEmail = $user->email;
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -37,6 +38,21 @@ class ProfileController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
         ]);
+
+        // مزامنة سجل الخريج إذا كان المستخدم خريجاً
+        if ($user->role === 'graduate') {
+            $gData = \App\Models\GraduateData::where('user_id', $user->id)
+                ->orWhere('email', $oldEmail)
+                ->first();
+            if ($gData) {
+                $gData->update([
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                    'user_id' => $user->id,
+                ]);
+            }
+        }
 
         // تحديث كلمة المرور إذا تم إدخالها
         if ($request->filled('new_password')) {

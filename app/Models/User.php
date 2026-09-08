@@ -322,7 +322,30 @@ class User extends Authenticatable
      */
     public function graduateData()
     {
-        return $this->hasOne(GraduateData::class, 'email', 'email');
+        return $this->hasOne(GraduateData::class, 'user_id');
+    }
+
+    /**
+     * الحصول على بيانات الخريج مع دعم الربط بالبريد كخيار احتياطي تلقائي
+     */
+    public function getGraduateDataAttribute()
+    {
+        if ($this->relationLoaded('graduateData')) {
+            $data = $this->getRelation('graduateData');
+            if ($data) return $data;
+        } else {
+            $data = $this->getRelationValue('graduateData');
+            if ($data) return $data;
+        }
+
+        if ($this->email) {
+            $data = GraduateData::where('email', $this->email)->first();
+            if ($data) {
+                $data->updateQuietly(['user_id' => $this->id]);
+                return $data;
+            }
+        }
+        return null;
     }
 
     /**

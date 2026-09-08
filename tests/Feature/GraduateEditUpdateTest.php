@@ -14,8 +14,16 @@ class GraduateEditUpdateTest extends TestCase
         $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
 
         // Clean up previous test run if any
-        User::where('email', 'khaled.test@tripoli.edu.ly')->delete();
-        GraduateData::where('email', 'khaled.test@tripoli.edu.ly')->delete();
+        User::where('national_id', '11998877665')
+            ->orWhere('email', 'khaled.test@tripoli.edu.ly')
+            ->orWhere('email', 'moneeb20mohamed@gmail.com')
+            ->orWhere('email', 'khaled.new@tripoli.edu.ly')
+            ->delete();
+        GraduateData::where('national_id', '11998877665')
+            ->orWhere('email', 'khaled.test@tripoli.edu.ly')
+            ->orWhere('email', 'moneeb20mohamed@gmail.com')
+            ->orWhere('email', 'khaled.new@tripoli.edu.ly')
+            ->delete();
 
         // Create a graduate user with self-registered personal and academic data
         $graduateUser = User::create([
@@ -92,10 +100,10 @@ class GraduateEditUpdateTest extends TestCase
     {
         $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
 
-        $graduateData = GraduateData::where('email', 'khaled.test@tripoli.edu.ly')->first();
+        $graduateData = GraduateData::where('national_id', '11998877665')->first();
         if (!$graduateData) {
             $this->test_graduate_edit_screen_prefills_all_self_registered_fields();
-            $graduateData = GraduateData::where('email', 'khaled.test@tripoli.edu.ly')->firstOrFail();
+            $graduateData = GraduateData::where('national_id', '11998877665')->firstOrFail();
         }
 
         // Send payload matching the exact form inputs (specialization and qualification without explicit major and degree)
@@ -138,7 +146,7 @@ class GraduateEditUpdateTest extends TestCase
         $this->assertEquals('مهندس برمجيات بدوام كامل', $graduateData->work_experience);
 
         // Check reverse sync to User
-        $user = User::where('email', 'khaled.test@tripoli.edu.ly')->first();
+        $user = User::where('national_id', '11998877665')->first();
         $this->assertNotNull($user);
         $this->assertEquals('خالد محمد علي المعدل', $user->name);
         $this->assertEquals('0922222222', $user->phone);
@@ -148,4 +156,63 @@ class GraduateEditUpdateTest extends TestCase
         $this->assertEquals(92.00, (float) $user->gpa);
         $this->assertEquals('مهندس برمجيات بدوام كامل', $user->experiences);
     }
+
+    public function test_updating_graduate_email_and_password_synchronizes_with_user_and_allows_login()
+    {
+        $admin = User::where('role', 'admin')->first() ?? User::factory()->create(['role' => 'admin']);
+
+        $graduateData = GraduateData::where('national_id', '11998877665')->first();
+        if (!$graduateData) {
+            $this->test_graduate_edit_screen_prefills_all_self_registered_fields();
+            $graduateData = GraduateData::where('national_id', '11998877665')->firstOrFail();
+        }
+
+        $newEmail = 'khaled.new@tripoli.edu.ly';
+        $newPassword = 'NewSecretPassword123';
+
+        // Update graduate with NEW email and NEW password
+        $payload = [
+            'name' => 'خالد محمد علي المحدث',
+            'email' => $newEmail,
+            'phone' => '0922222222',
+            'national_id' => '11998877665',
+            'date_of_birth' => '1998-04-12',
+            'gender' => 'male',
+            'city' => 'طرابلس',
+            'address' => 'طريق السكة',
+            'university' => 'جامعة طرابلس',
+            'sector' => 'قاطع (أ)',
+            'faculty' => 'كلية تقنية المعلومات',
+            'specialization' => 'قسم هندسة البرمجيات',
+            'qualification' => 'بكالوريوس',
+            'graduation_year' => 2023,
+            'gpa' => 95.00,
+            'employment_status' => 'employed',
+            'password' => $newPassword,
+            'password_confirmation' => $newPassword,
+        ];
+
+        $response = $this->actingAs($admin)->put(route('career-guidance.graduates.update', $graduateData->id), $payload);
+        $response->assertSessionHasNoErrors();
+
+        // 1. Verify GraduateData has new email
+        $graduateData->refresh();
+        $this->assertEquals($newEmail, $graduateData->email);
+
+        // 2. Verify User has new email and user_id matches
+        $user = User::where('national_id', '11998877665')->first();
+        $this->assertNotNull($user);
+        $this->assertEquals($newEmail, $user->email);
+        $this->assertEquals($graduateData->user_id, $user->id);
+
+        // 3. Verify that logging in with the NEW email and NEW password succeeds
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check($newPassword, $user->password));
+
+        // Attempt actual auth attempt
+        $this->assertTrue(\Illuminate\Support\Facades\Auth::attempt([
+            'email' => $newEmail,
+            'password' => $newPassword,
+        ]));
+    }
 }
+

@@ -13,8 +13,8 @@ class AnnouncementController extends Controller
 
     public function __construct(NotificationService $notificationService)
     {
-        $this->middleware('auth');
-        $this->middleware('media_officer');
+        $this->middleware('auth')->except(['publicShow']);
+        $this->middleware('media_officer')->except(['publicShow']);
         $this->notificationService = $notificationService;
     }
 
@@ -27,13 +27,15 @@ class AnnouncementController extends Controller
 
         // البحث
         if ($request->filled('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%')
-                ->orWhere('content', 'like', '%' . $request->search . '%');
+            $query->where(function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhere('content', 'like', '%' . $request->search . '%');
+            });
         }
 
         // التصفية حسب الحالة
         if ($request->filled('is_active')) {
-            $query->where('is_active', $request->boolean('is_active'));
+            $query->where('is_active', $request->is_active === '1');
         }
 
         // التصفية حسب الفترة الزمنية
@@ -51,9 +53,17 @@ class AnnouncementController extends Controller
             }
         }
 
-        $announcements = $query->orderBy('created_at', 'desc')->paginate(15);
+        $announcements = $query->orderBy('created_at', 'desc')->paginate(12);
 
-        return view('media.announcements.index', compact('announcements'));
+        // إحصائيات بنتو للتصميم المعتمد
+        $stats = [
+            'total' => Announcement::count(),
+            'active' => Announcement::where('is_active', true)->where('start_date', '<=', now())->where('end_date', '>=', now())->count(),
+            'upcoming' => Announcement::where('start_date', '>', now())->count(),
+            'expired' => Announcement::where('end_date', '<', now())->count(),
+        ];
+
+        return view('media.announcements.index', compact('announcements', 'stats'));
     }
 
     /**
@@ -75,10 +85,11 @@ class AnnouncementController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'link' => 'nullable|url',
-            'is_active' => 'boolean'
+            'is_active' => 'nullable'
         ]);
 
-        $data = $request->only(['title', 'content', 'start_date', 'end_date', 'link', 'is_active']);
+        $data = $request->only(['title', 'content', 'start_date', 'end_date', 'link']);
+        $data['is_active'] = $request->boolean('is_active');
         $data['created_by'] = Auth::id();
 
         $announcement = Announcement::create($data);
@@ -88,8 +99,8 @@ class AnnouncementController extends Controller
             try {
                 $this->notificationService->notifySystemAction(
                     'إعلان جديد: ' . $announcement->title,
-                    'تم نشر إعلان جديد: ' . \Str::limit($announcement->content, 100),
-                    [], // Empty array means all users (or default to graduate as per my implementation, wait I should check that)
+                    'تم نشر إعلان جديد: ' . \Str::limit(strip_tags($announcement->content), 100),
+                    [],
                     'info',
                     $announcement
                 );
@@ -98,7 +109,7 @@ class AnnouncementController extends Controller
             }
         }
 
-        return redirect()->route('media.announcements.index')->with('success', 'تم إنشاء الإعلان بنجاح');
+        return redirect()->route('media.announcements.index')->with('success', 'تم إنشاء ونشر الإعلان بنجاح');
     }
 
     /**
@@ -106,7 +117,22 @@ class AnnouncementController extends Controller
      */
     public function show(Announcement $announcement)
     {
-        return view('media.announcements.show', compact('announcement'));
+        $announcement->load('creator');
+        $recentAnnouncements = Announcement::where('id', '!=', $announcement->id)->latest()->take(4)->get();
+
+        return view('media.announcements.show', compact('announcement', 'recentAnnouncements'));
+    }
+
+    /**
+     * عرض تفاصيل الإعلان للجمهور ورواد المنصة
+     */
+    public function publicShow(Announcement $announcement)
+    {
+        abort_unless($announcement->is_active, 404);
+        $announcement->load('creator');
+        $recentAnnouncements = Announcement::where('is_active', true)->where('id', '!=', $announcement->id)->latest()->take(4)->get();
+
+        return view('media.announcements.show', compact('announcement', 'recentAnnouncements'));
     }
 
     /**
@@ -128,10 +154,13 @@ class AnnouncementController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'link' => 'nullable|url',
-            'is_active' => 'boolean'
+            'is_active' => 'nullable'
         ]);
 
-        $announcement->update($request->only(['title', 'content', 'start_date', 'end_date', 'link', 'is_active']));
+        $data = $request->only(['title', 'content', 'start_date', 'end_date', 'link']);
+        $data['is_active'] = $request->boolean('is_active');
+
+        $announcement->update($data);
 
         return redirect()->route('media.announcements.index')->with('success', 'تم تحديث الإعلان بنجاح');
     }

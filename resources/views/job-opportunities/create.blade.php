@@ -32,17 +32,22 @@
                             
                             <div class="col-md-6 mb-3">
                                 <label for="company_id" class="form-label">الشركة <span class="text-danger">*</span></label>
-                                <select name="company_id" id="company_id" class="form-select @error('company_id') is-invalid @enderror" required>
-                                    <option value="">اختر الشركة</option>
-                                    @foreach($companies as $company)
-                                        <option value="{{ $company->id }}" {{ old('company_id') == $company->id ? 'selected' : '' }}>
-                                            {{ $company->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('company_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                @if(auth()->user()->isCompany() && count($companies) > 0)
+                                    <input type="hidden" name="company_id" value="{{ $companies->first()->id }}">
+                                    <input type="text" class="form-control bg-light" value="{{ $companies->first()->name }}" readonly>
+                                @else
+                                    <select name="company_id" id="company_id" class="form-select @error('company_id') is-invalid @enderror" required>
+                                        <option value="">اختر الشركة</option>
+                                        @foreach($companies as $company)
+                                            <option value="{{ $company->id }}" {{ old('company_id') == $company->id ? 'selected' : '' }}>
+                                                {{ $company->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('company_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                @endif
                             </div>
                         </div>
 

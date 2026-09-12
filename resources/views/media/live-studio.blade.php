@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'غرفة تحكم البث المباشر والكاميرات — المركز الإعلامي')
+@section('title', 'غرفة تحكم البث المباشر والكاميرات — وحدة الإعلام')
 @section('page-title', 'استوديو البث المباشر والتحكم بالكاميرات')
 
 @push('styles')
@@ -225,11 +225,27 @@
                             </div>
                         @endif
 
-                        @if($activeCamera->stream_type === 'youtube_live')
+                        @if($activeCamera->is_mjpeg)
+                            <div class="w-100 h-100 d-flex align-items-center justify-content-center position-relative" style="background: #000;">
+                                <img src="{{ $activeCamera->embed_url }}" 
+                                     alt="{{ $activeCamera->title }}" 
+                                     style="width: 100%; height: 100%; object-fit: contain;"
+                                     onerror="this.style.display='none'; document.getElementById('mjpegErrorPlaceholder').style.display='block';">
+                                <div id="mjpegErrorPlaceholder" class="text-center text-white-50 p-4" style="display: none;">
+                                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                                    <h6 class="text-white">تعذر الاتصال بكاميرا الهاتف</h6>
+                                    <p class="small text-white-50 mb-2">تأكد من تشغيل تطبيق IP Webcam على هاتفك، وأن الهاتف والكمبيوتر متصلان بنفس شبكة الواي فاي (Wi-Fi).</p>
+                                    <p class="small text-warning font-monospace mb-3" dir="ltr">{{ $activeCamera->embed_url }}</p>
+                                    <a href="{{ $activeCamera->stream_url }}" target="_blank" class="btn btn-sm btn-outline-warning rounded-pill px-3">
+                                        <i class="fas fa-external-link-alt me-1"></i> فتح الرابط للتجربة في تبويب جديد
+                                    </a>
+                                </div>
+                            </div>
+                        @elseif($activeCamera->stream_type === 'youtube_live')
                             <iframe src="{{ $activeCamera->embed_url }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                        @elseif($activeCamera->stream_type === 'hls_m3u8')
-                            <video id="studioPreviewVideo" controls autoplay muted style="width: 100%; height: 100%; object-fit: cover;">
-                                <source src="{{ $activeCamera->stream_url }}" type="application/x-mpegURL">
+                        @elseif($activeCamera->stream_type === 'hls_m3u8' || $activeCamera->is_direct_video)
+                            <video id="studioPreviewVideo" controls autoplay muted playsinline style="width: 100%; height: 100%; object-fit: contain; background: #000;">
+                                <source src="{{ $activeCamera->stream_url }}">
                             </video>
                         @else
                             <div class="text-center text-white-50 p-4">
@@ -380,6 +396,8 @@
                             <td>
                                 @if($camera->stream_type === 'youtube_live')
                                     <span class="badge type-badge-yt rounded-pill px-2.5 py-1">YouTube Live</span>
+                                @elseif($camera->is_mjpeg)
+                                    <span class="badge bg-primary text-white rounded-pill px-2.5 py-1"><i class="fas fa-mobile-alt me-1"></i>IP Webcam</span>
                                 @elseif($camera->stream_type === 'hls_m3u8')
                                     <span class="badge type-badge-hls rounded-pill px-2.5 py-1">HLS Stream</span>
                                 @else
@@ -390,7 +408,7 @@
                                 <span class="text-secondary small"><i class="fas fa-map-marker-alt text-warning me-1"></i>{{ $camera->location_tag ?? 'غير محدد' }}</span>
                             </td>
                             <td>
-                                <code class="small text-truncate d-inline-block" style="max-width: 250px;">{{ $camera->stream_url }}</code>
+                                <code class="small text-truncate d-inline-block font-monospace" dir="ltr" style="max-width: 250px; text-align: left;">{{ $camera->stream_url }}</code>
                             </td>
                             <td class="text-center">
                                 @if($activeCamera && $activeCamera->id === $camera->id)
@@ -459,21 +477,59 @@
                         <input type="text" name="location_tag" class="form-control rounded-3" placeholder="مثال: قاعة المؤتمرات المركزية، مدرج تقنية المعلومات">
                     </div>
 
+                    <!-- دليل ربط الكاميرات المباشرة USB / Webcam عبر VLC أو OBS -->
+                    <div class="alert alert-info border-0 rounded-3 p-3 mb-3 small" style="background: rgba(37, 99, 235, 0.08); border-right: 4px solid #2563eb !important;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="fw-bold text-primary"><i class="fas fa-video me-1"></i> خطوات بث كاميرا الحاسوب عبر برنامج VLC Media Player:</span>
+                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill py-0 px-2.5" style="font-size: 0.75rem;" data-bs-toggle="collapse" data-bs-target="#usbCameraGuide">
+                                شرح الخطوات <i class="fas fa-chevron-down ms-1"></i>
+                            </button>
+                        </div>
+                        <div class="collapse mt-2 pt-2 border-top border-primary border-opacity-25" id="usbCameraGuide">
+                            <p class="mb-1.5 text-dark fw-bold" style="line-height: 1.6;">
+                                لبث كاميرا الويب / الكاميرا المتصلة بالحاسوب باستخدام VLC:
+                            </p>
+                            <ol class="mb-2 ps-3 text-muted" style="line-height: 1.8;">
+                                <li>افتح برنامج <strong>VLC</strong> واضغط على قائمة <strong>وسائط (Media)</strong> $\rightarrow$ <strong>بث (Stream...)</strong> أو اختصار <code>Ctrl + S</code>.</li>
+                                <li>انتقل إلى تبويب <strong>جهاز التقاط (Capture Device)</strong> واختر كاميرا حاسوبك من قائمة <em>اسم جهاز الفيديو (Video device name)</em>.</li>
+                                <li>اضغط على زر <strong>بث (Stream)</strong> بالأسفل ثم اضغط <strong>التالي (Next)</strong>.</li>
+                                <li>في وجهات البث (Destinations): اختر <strong>HTTP</strong> ثم اضغط <strong>إضافة (Add)</strong>، واكتب المنفذ: <code>8090</code> والمسار: <code>/stream.ogg</code>.</li>
+                                <li>اضغط <strong>التالي (Next)</strong>، وفي ملف التعريف (Profile) اختر: <strong>Video - Theora + Vorbis (OGG)</strong>.</li>
+                                <li>اضغط <strong>بث (Stream)</strong>، ثم اكتب الرابط التالي في خانة الرابط أدناه:
+                                    <code class="d-block mt-1 p-1 bg-white rounded border text-primary font-monospace" dir="ltr">http://127.0.0.1:8090/stream.ogg</code>
+                                </li>
+                            </ol>
+                            <small class="text-secondary"><i class="fas fa-info-circle me-1"></i> يدعم النظام أيضاً برامج البث الاحترافية مثل <strong>OBS Studio</strong> عبر YouTube Live أو HLS.</small>
+                        </div>
+                    </div>
+
+                    <!-- دليل كاميرا الهاتف الذكي IP Webcam -->
+                    <div class="alert alert-success border-0 rounded-3 p-3 mb-3 small" style="background: rgba(16, 185, 129, 0.08); border-right: 4px solid #10b981 !important;">
+                        <div class="fw-bold text-success mb-1">
+                            <i class="fas fa-mobile-alt me-1"></i> هل تريد استخدام هاتفك الذكي ككاميرا بث (IP Webcam)؟
+                        </div>
+                        <p class="mb-0 text-dark" style="line-height: 1.6;">
+                            1. ثبّت تطبيق <strong>IP Webcam</strong> على هاتفك واضغط <strong>Start Server</strong>.<br>
+                            2. تأكد من اتصال هاتفك وحاسوبك <strong>بنفس شبكة الـ Wi-Fi</strong>.<br>
+                            3. اكتب الرابط الظاهر على شاشة الهاتف (مثال: <code>http://192.168.1.100:8080</code>) وسيتم تشغيله تلقائياً!
+                        </p>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-dark">نوع البث / البروتوكول <span class="text-danger">*</span></label>
                         <select name="stream_type" class="form-select rounded-3" required>
+                            <option value="rtsp_ip">📱 كاميرا هاتف ذكي / كاميرا شبكية (IP Webcam / DroidCam / MJPEG)</option>
                             <option value="youtube_live">🔴 YouTube Live (رابط فيديو أو معرف يوتيوب مباشر)</option>
                             <option value="hls_m3u8">⚡ HLS Stream (.m3u8 رابط بث شبكي)</option>
-                            <option value="rtsp_ip">📡 IP Camera (RTSP / WebRTC)</option>
-                            <option value="iframe_embed">🌐 Tضمين خارجي (Embed / Iframe)</option>
+                            <option value="iframe_embed">🌐 تضمين خارجي (Embed / Iframe)</option>
                             <option value="external_url">🔗 رابط بث خارجي (Zoom / Meet / Live Link)</option>
                         </select>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-dark">رابط البث أو الكاميرا <span class="text-danger">*</span></label>
-                        <input type="text" name="stream_url" class="form-control font-monospace rounded-3" placeholder="https://www.youtube.com/watch?v=... أو رابط m3u8" required>
-                        <small class="text-muted mt-1 d-block">لا يتم استهلاك أي مساحة على السيرفر، حيث يتم جلب البث سحابياً ومباشراً.</small>
+                        <input type="text" name="stream_url" class="form-control font-monospace rounded-3" dir="ltr" placeholder="مثال: http://192.168.1.100:8080 أو رابط YouTube" required>
+                        <small class="text-muted mt-1 d-block">يتم تصحيح الأرقام والروابط تلقائياً لتعمل فوراً دون أخطاء.</small>
                     </div>
 
                     <div class="mb-3">

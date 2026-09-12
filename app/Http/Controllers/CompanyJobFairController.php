@@ -206,8 +206,8 @@ class CompanyJobFairController extends Controller
             ->with([
                 'graduate', 
                 'graduate.graduateData',
-                'graduate.trainingApplications' => function($q) {
-                    $q->whereNotNull('attended_at')->with('training');
+                'graduate.trainingApplications' => function ($q) {
+                    $q->with(['training', 'attendances']);
                 }
             ])
             ->latest()

@@ -45,7 +45,7 @@ class JobOpportunityPolicy
 
         // الشركات ترى فرصها الخاصة فقط
         if ($user->role === 'company') {
-            return $jobOpportunity->created_by === $user->id;
+            return ($user->company && $jobOpportunity->company_id === $user->company->id) || $jobOpportunity->created_by === $user->id;
         }
 
         return false;
@@ -71,7 +71,7 @@ class JobOpportunityPolicy
 
         // الشركات تحدث فرصها الخاصة فقط
         if ($user->role === 'company') {
-            return $jobOpportunity->created_by === $user->id;
+            return ($user->company && $jobOpportunity->company_id === $user->company->id) || $jobOpportunity->created_by === $user->id;
         }
 
         return false;
@@ -89,7 +89,7 @@ class JobOpportunityPolicy
 
         // الشركات تحذف فرصها الخاصة فقط
         if ($user->role === 'company') {
-            return $jobOpportunity->created_by === $user->id;
+            return ($user->company && $jobOpportunity->company_id === $user->company->id) || $jobOpportunity->created_by === $user->id;
         }
 
         return false;

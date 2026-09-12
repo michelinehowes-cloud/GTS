@@ -12,7 +12,7 @@
                 <i class="{{ $icon ?? 'fas fa-circle' }}"></i>
             </div>
             @isset($badge)
-                <span class="badge bg-light text-dark rounded-pill">{{ $badge }}</span>
+                <span class="badge {{ $badgeClass ?? 'bg-light text-dark' }} rounded-pill">{{ $badge }}</span>
             @endisset
         </div>
         <h2>{{ $value ?? '0' }}</h2>

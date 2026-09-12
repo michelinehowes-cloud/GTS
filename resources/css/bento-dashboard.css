@@ -337,6 +337,9 @@ body.bento-theme {
 .stat-card-clean.stat-info .icon-wrapper { background: rgba(56, 189, 248, 0.1); color: #38bdf8; }
 .stat-card-clean.stat-info::before { background: #38bdf8; }
 
+.stat-card-clean.stat-secondary .icon-wrapper { background: rgba(100, 116, 139, 0.1); color: #64748b; }
+.stat-card-clean.stat-secondary::before { background: #64748b; }
+
 /* Table Cards (Opt-in floating card rows) */
 .table-cards {
     border-spacing: 0 10px !important;

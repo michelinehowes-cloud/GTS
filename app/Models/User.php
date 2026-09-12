@@ -289,7 +289,7 @@ class User extends Authenticatable
      */
     public function canManageNominations()
     {
-        return $this->isAdmin() || $this->hasPermission('nominations.manage') || in_array($this->role, ['career_guidance_officer', 'partnership_officer']);
+        return $this->isAdmin() || $this->hasPermission('nominations.manage') || in_array($this->role, ['career_guidance_officer', 'partnership_officer', 'company']);
     }
 
     /**

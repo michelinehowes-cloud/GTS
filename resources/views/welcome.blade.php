@@ -509,6 +509,30 @@
             border-top: 4px solid var(--gold-accent);
         }
 
+        .footer-brand-logo-frame {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: #ffffff;
+            padding: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            border: 1.5px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .footer-brand-logo-img,
+        .navbar-brand-logo {
+            width: 100%;
+            height: 100%;
+            max-width: 44px;
+            max-height: 44px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
         .footer-link {
             color: #94a3b8;
             text-decoration: none;
@@ -887,46 +911,66 @@
     </section>
 
     <!-- ==================== 3. شريط الإحصائيات الحية (Live Stats Ribbon) ==================== -->
-    <div class="container stats-ribbon">
-        <div class="row g-3">
-            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="100">
-                <div class="stat-bento-card">
-                    <div class="stat-icon-wrapper" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;">
-                        <i class="fas fa-user-graduate"></i>
+    @if(!isset($statsSettings['is_ribbon_visible']) || $statsSettings['is_ribbon_visible'])
+        <div class="container stats-ribbon">
+            <div class="row g-3 justify-content-center">
+                @if(isset($statsSettings['cards']))
+                    @foreach($statsSettings['cards'] as $key => $card)
+                        @if($card['is_visible'])
+                            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="{{ $loop->iteration * 100 }}">
+                                <div class="stat-bento-card">
+                                    <div class="stat-icon-wrapper" style="background: {{ $card['bg_color'] }}; color: {{ $card['color'] }};">
+                                        <i class="{{ $card['icon'] }}"></i>
+                                    </div>
+                                    <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">
+                                        {{ $card['prefix'] }}{{ number_format($card['value']) }}
+                                    </h3>
+                                    <p class="text-muted small mb-0 fw-semibold">{{ $card['label'] }}</p>
+                                </div>
+                            </div>
+                        @endif
+                    @endforeach
+                @else
+                    <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="100">
+                        <div class="stat-bento-card">
+                            <div class="stat-icon-wrapper" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">{{ number_format($stats['graduates_count'] ?? 0) }}</h3>
+                            <p class="text-muted small mb-0 fw-semibold">خريج مسجل ومعتمد</p>
+                        </div>
                     </div>
-                    <h3 class="fw-bolder text-dark mb-1 fs-4">+{{ number_format($stats['graduates_count'] ?? 150) }}</h3>
-                    <p class="text-muted small mb-0 fw-semibold">خريج مسجل ومعتمد</p>
-                </div>
-            </div>
-            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="200">
-                <div class="stat-bento-card">
-                    <div class="stat-icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-                        <i class="fas fa-building"></i>
+                    <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="200">
+                        <div class="stat-bento-card">
+                            <div class="stat-icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">{{ number_format($stats['companies_count'] ?? 0) }}</h3>
+                            <p class="text-muted small mb-0 fw-semibold">شركة ومؤسسة شريكة</p>
+                        </div>
                     </div>
-                    <h3 class="fw-bolder text-dark mb-1 fs-4">+{{ number_format($stats['companies_count'] ?? 24) }}</h3>
-                    <p class="text-muted small mb-0 fw-semibold">شركة ومؤسسة شريكة</p>
-                </div>
-            </div>
-            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="300">
-                <div class="stat-bento-card">
-                    <div class="stat-icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
-                        <i class="fas fa-chalkboard-teacher"></i>
+                    <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="300">
+                        <div class="stat-bento-card">
+                            <div class="stat-icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">{{ number_format($stats['trainings_count'] ?? 0) }}</h3>
+                            <p class="text-muted small mb-0 fw-semibold">برنامج تدريبي وتأهيلي</p>
+                        </div>
                     </div>
-                    <h3 class="fw-bolder text-dark mb-1 fs-4">+{{ number_format($stats['trainings_count'] ?? 18) }}</h3>
-                    <p class="text-muted small mb-0 fw-semibold">برنامج تدريبي وتأهيلي</p>
-                </div>
-            </div>
-            <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="400">
-                <div class="stat-bento-card">
-                    <div class="stat-icon-wrapper" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
-                        <i class="fas fa-briefcase"></i>
+                    <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="400">
+                        <div class="stat-bento-card">
+                            <div class="stat-icon-wrapper" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">{{ number_format($stats['opportunities_count'] ?? 0) }}</h3>
+                            <p class="text-muted small mb-0 fw-semibold">فرصة عمل وترشيح</p>
+                        </div>
                     </div>
-                    <h3 class="fw-bolder text-dark mb-1 fs-4">+{{ number_format($stats['opportunities_count'] ?? 35) }}</h3>
-                    <p class="text-muted small mb-0 fw-semibold">فرصة عمل وترشيح</p>
-                </div>
+                @endif
             </div>
         </div>
-    </div>
+    @endif
 
     <!-- ==================== 4. معرض التوظيف السنوي (Job Fair Spotlight) ==================== -->
     <section class="py-5" id="jobfair">
@@ -1019,7 +1063,7 @@
     </section>
 
     <!-- ==================== 5. معرض الصور والفعاليات (Media Carousel) ==================== -->
-    @if($welcomeImages->count() > 0)
+    @if(isset($welcomeImages) && $welcomeImages->count() > 0)
         <section class="py-4">
             <div class="container">
                 <div id="welcomeCarousel" class="carousel slide" data-bs-ride="carousel">
@@ -1195,23 +1239,34 @@
                             <div class="row g-3">
                                 @foreach($latestNews as $news)
                                     <div class="col-12">
-                                        <div class="bento-news-card p-3 p-md-4">
-                                            <div class="d-flex gap-3 align-items-start">
-                                                @if($news->thumbnail_path)
-                                                    <img src="{{ asset('storage/' . $news->thumbnail_path) }}" class="rounded-3 flex-shrink-0 object-fit-cover" alt="{{ $news->title }}" style="width: 80px; height: 80px;">
-                                                @endif
-                                                <div class="flex-grow-1">
-                                                    <h6 class="fw-bold text-dark mb-1 fs-6">{{ $news->title }}</h6>
-                                                    <p class="text-muted small mb-2" style="font-size: 0.84rem;">
-                                                        {{ Str::limit(strip_tags($news->content), 110) }}
-                                                    </p>
-                                                    <small class="text-muted" style="font-size: 0.75rem;">
-                                                        <i class="far fa-calendar-alt me-1 text-primary"></i>
-                                                        {{ \Carbon\Carbon::parse($news->published_at)->format('Y/m/d') }}
-                                                    </small>
+                                        <a href="{{ route('public.news.show', $news) }}" class="text-decoration-none d-block">
+                                            <div class="bento-news-card p-3 p-md-4 transition-all" style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                                                <div class="d-flex gap-3 align-items-start">
+                                                    @if($news->thumbnail_url)
+                                                        <img src="{{ $news->thumbnail_url }}" class="rounded-3 flex-shrink-0 object-fit-cover" alt="{{ $news->title }}" style="width: 84px; height: 84px;">
+                                                    @else
+                                                        <div class="rounded-3 flex-shrink-0 d-flex align-items-center justify-content-center text-primary" style="width: 84px; height: 84px; background: rgba(13, 56, 130, 0.08);">
+                                                            <i class="fas fa-newspaper fs-3 opacity-50"></i>
+                                                        </div>
+                                                    @endif
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="fw-bold text-dark mb-1 fs-6 text-truncate" title="{{ $news->title }}">{{ $news->title }}</h6>
+                                                        <p class="text-muted small mb-2" style="font-size: 0.84rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                                            {{ $news->excerpt }}
+                                                        </p>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <small class="text-muted" style="font-size: 0.75rem;">
+                                                                <i class="far fa-calendar-alt me-1 text-primary"></i>
+                                                                {{ $news->published_at ? $news->published_at->format('Y/m/d') : '' }}
+                                                            </small>
+                                                            <span class="small fw-bold text-primary">
+                                                                قراءة الخبر <i class="fas fa-arrow-left ms-1" style="font-size: 0.7rem;"></i>
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </a>
                                     </div>
                                 @endforeach
                             </div>
@@ -1230,23 +1285,23 @@
                             <div class="row g-3">
                                 @foreach($activeAnnouncements as $announcement)
                                     <div class="col-12">
-                                        <div class="bento-news-card p-3 p-md-4" style="border-right: 4px solid var(--gold-accent);">
-                                            <h6 class="fw-bold text-dark mb-1 fs-6">{{ $announcement->title }}</h6>
-                                            <p class="text-muted small mb-2" style="font-size: 0.84rem;">
-                                                {{ Str::limit(strip_tags($announcement->content), 120) }}
-                                            </p>
-                                            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                                                <small class="text-muted" style="font-size: 0.75rem;">
-                                                    <i class="far fa-clock me-1 text-warning"></i>
-                                                    {{ $announcement->created_at->diffForHumans() }}
-                                                </small>
-                                                @if($announcement->link)
-                                                    <a href="{{ $announcement->link }}" class="small fw-bold text-primary text-decoration-none" target="_blank">
-                                                        التفاصيل <i class="fas fa-arrow-left ms-1" style="font-size: 0.7rem;"></i>
-                                                    </a>
-                                                @endif
+                                        <a href="{{ route('public.announcements.show', $announcement) }}" class="text-decoration-none d-block">
+                                            <div class="bento-news-card p-3 p-md-4 transition-all" style="border-right: 4px solid var(--gold-accent); transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                                                <h6 class="fw-bold text-dark mb-1 fs-6 text-truncate" title="{{ $announcement->title }}">{{ $announcement->title }}</h6>
+                                                <p class="text-muted small mb-2" style="font-size: 0.84rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                                    {{ $announcement->excerpt }}
+                                                </p>
+                                                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                                    <small class="text-muted" style="font-size: 0.75rem;">
+                                                        <i class="far fa-clock me-1 text-warning"></i>
+                                                        {{ $announcement->created_at->diffForHumans() }}
+                                                    </small>
+                                                    <span class="small fw-bold text-primary">
+                                                        التفاصيل الكاملة <i class="fas fa-arrow-left ms-1" style="font-size: 0.7rem;"></i>
+                                                    </span>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </a>
                                     </div>
                                 @endforeach
                             </div>
@@ -1308,8 +1363,10 @@
             <div class="row g-4 pb-4">
                 <!-- Column 1: عن المنصة -->
                 <div class="col-lg-4 col-md-6">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <img src="{{ asset('storage/logo.jpg') }}" alt="جامعة طرابلس" class="navbar-brand-logo" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                    <div class="d-flex align-items-center gap-2.5 mb-3">
+                        <div class="footer-brand-logo-frame">
+                            <img src="{{ asset('storage/logo.jpg') }}" alt="جامعة طرابلس" class="footer-brand-logo-img" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                        </div>
                         <div>
                             <h5 class="text-white fw-bold mb-0 fs-6">جامعة طرابلس</h5>
                             <small class="text-white-50" style="font-size: 0.78rem;">مكتب تدريب وتأهيل الخريجين</small>
@@ -1358,15 +1415,15 @@
                 <div class="col-lg-3 col-md-6">
                     <h6 class="text-white fw-bold mb-3 fs-6">بيانات التواصل</h6>
                     <ul class="list-unstyled text-white-50 small mb-0">
-                        <li class="mb-2.5 d-flex align-items-start gap-2">
+                        <li class="d-flex align-items-start gap-2 mb-2">
                             <i class="fas fa-map-marker-alt text-warning mt-1"></i>
                             <span>جامعة طرابلس، سيدي المصري، طرابلس — ليبيا</span>
                         </li>
-                        <li class="mb-2.5 d-flex align-items-center gap-2">
+                        <li class="d-flex align-items-center gap-2 mb-2">
                             <i class="fas fa-envelope text-warning"></i>
                             <span>graduate.training@uot.edu.ly</span>
                         </li>
-                        <li class="mb-2.5 d-flex align-items-center gap-2">
+                        <li class="d-flex align-items-center gap-2 mb-2">
                             <i class="fas fa-phone-alt text-warning"></i>
                             <span>+218 (0) 21 000 0000</span>
                         </li>

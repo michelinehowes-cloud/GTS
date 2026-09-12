@@ -6,12 +6,14 @@
 @push('styles')
 <style>
     .graduate-profile-header {
-        background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+        background: linear-gradient(135deg, #0b1f3a 0%, #15386a 50%, #1e4b8a 100%);
         border-radius: 16px;
         padding: 28px;
         margin-bottom: 24px;
         position: relative;
         overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 25px rgba(11, 31, 58, 0.2);
     }
     .graduate-profile-header::before {
         content: '';
@@ -120,12 +122,13 @@
     }
     .skills-tag {
         display: inline-block;
-        background: rgba(28,200,138,0.15);
-        border: 1px solid rgba(28,200,138,0.3);
-        color: #1cc88a;
+        background: rgba(30, 58, 138, 0.08);
+        border: 1px solid rgba(30, 58, 138, 0.2);
+        color: #1e3a8a;
         border-radius: 20px;
-        padding: 3px 12px;
-        font-size: 0.75rem;
+        padding: 4px 14px;
+        font-size: 0.78rem;
+        font-weight: 600;
         margin: 3px;
     }
     .step-indicator {
@@ -138,7 +141,7 @@
         width: 28px;
         height: 28px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #1cc88a, #13855c);
+        background: linear-gradient(135deg, #1e3a8a, #3b82f6);
         color: white;
         display: flex;
         align-items: center;
@@ -184,15 +187,36 @@
 @endpush
 
 @section('content')
-<div class="container-fluid py-2">
+<div class="container-fluid py-4">
+    <!-- الشريط الترحيبي بالهوية الموحدة للمنظومة -->
+    <x-page-hero
+        title="ملف المرشح: {{ $nomination->graduate->full_name ?? $nomination->graduate->name }}"
+        subtitle="مراجعة السيرة الذاتية واتخاذ القرار للفرصة الوظيفية: {{ $nomination->jobOpportunity->title ?? 'فرصة وظيفية' }}"
+        icon="fas fa-user-check"
+        :breadcrumbs="[
+            ['label' => 'الرئيسية', 'url' => route('home')],
+            ['label' => 'لوحة تحكم الشركة', 'url' => route('company.dashboard')],
+            ['label' => 'المرشحون للوظائف', 'url' => route('company.nominations')],
+            ['label' => $nomination->graduate->full_name ?? $nomination->graduate->name]
+        ]"
+        secondaryBadge="{{ $nomination->status_text }}"
+        secondaryBadgeIcon="fas fa-tag"
+    >
+        <a href="{{ route('company.nominations') }}" class="btn btn-outline-light text-white fw-bold py-2.5 px-3.5 rounded-3 d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem;">
+            <i class="fas fa-arrow-right fs-6"></i>
+            <span>العودة لقائمة المرشحين</span>
+        </a>
+    </x-page-hero>
 
     @if(session('success'))
-        <div class="alert alert-success border-0 rounded-3 mb-4" style="background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3) !important;">
-            <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+        <div class="alert alert-success border-0 rounded-4 shadow-sm py-3 px-4 d-flex align-items-center gap-3 mb-4" role="alert" style="background: rgba(16, 185, 129, 0.1); color: #065f46;">
+            <i class="fas fa-check-circle fs-5 text-success"></i>
+            <span class="fw-semibold">{{ session('success') }}</span>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
     @if($errors->any())
-        <div class="alert alert-danger border-0 rounded-3 mb-4">
+        <div class="alert alert-danger border-0 rounded-4 shadow-sm py-3 px-4 mb-4" style="background: rgba(239, 68, 68, 0.1); color: #991b1b;">
             <ul class="mb-0">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
@@ -268,7 +292,7 @@
                 {{-- Graduate Details --}}
                 <div class="bento-card p-4 mb-4" style="background: var(--bento-card-bg, rgba(255,255,255,0.03)); border-color: var(--bento-border, rgba(255,255,255,0.08));">
                     <h6 class="fw-bold mb-3" style="color: var(--bento-text);">
-                        <i class="fas fa-id-card me-2" style="color: #1cc88a;"></i>
+                        <i class="fas fa-id-card me-2 text-primary"></i>
                         معلومات المرشح
                     </h6>
 
@@ -492,11 +516,11 @@
 
                 {{-- Action Buttons --}}
                 <div class="d-flex gap-3">
-                    <button type="submit" class="btn flex-grow-1 py-3" style="font-size:1rem; font-weight:700; background: #1cc88a; color: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(28,200,138,0.3);">
+                    <button type="submit" class="btn flex-grow-1 py-3 text-white fw-bold shadow-sm" style="font-size:1rem; background: linear-gradient(135deg, #1e3a8a, #2563eb); border-radius: 12px; border: none;">
                         <i class="fas fa-save me-2"></i>
                         حفظ التحديثات
                     </button>
-                    <a href="{{ route('company.nominations') }}" class="btn btn-outline-secondary px-4 py-3" style="border-radius: 12px; border-color: var(--bento-border); color: var(--bento-text);">
+                    <a href="{{ route('company.nominations') }}" class="btn btn-outline-secondary px-4 py-3" style="border-radius: 12px;">
                         <i class="fas fa-arrow-right me-1"></i>
                         رجوع
                     </a>

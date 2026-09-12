@@ -11,8 +11,8 @@ class NewsController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware('media_officer');
+        $this->middleware('auth')->except(['publicShow']);
+        $this->middleware('media_officer')->except(['publicShow']);
     }
 
     /**
@@ -24,18 +24,32 @@ class NewsController extends Controller
 
         // البحث
         if ($request->filled('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('content', 'like', '%' . $request->search . '%');
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
         }
 
         // التصفية حسب الحالة
-        if ($request->filled('is_active')) {
-            $query->where('is_active', $request->boolean('is_active'));
+        if ($request->filled('status')) {
+            if ($request->status === 'active') {
+                $query->where('is_active', true);
+            } elseif ($request->status === 'inactive') {
+                $query->where('is_active', false);
+            }
         }
 
-        $news = $query->orderBy('created_at', 'desc')->paginate(15);
+        $stats = [
+            'total' => News::count(),
+            'active' => News::where('is_active', true)->count(),
+            'draft' => News::where('is_active', false)->count(),
+            'with_images' => News::whereNotNull('thumbnail_path')->count(),
+        ];
 
-        return view('media.news.index', compact('news'));
+        $news = $query->orderBy('published_at', 'desc')->orderBy('created_at', 'desc')->paginate(12);
+
+        return view('media.news.index', compact('news', 'stats'));
     }
 
     /**
@@ -54,13 +68,20 @@ class NewsController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'published_at' => 'nullable|date',
-            'is_active' => 'boolean'
+            'expires_at' => 'nullable|date|after_or_equal:published_at',
+            'is_active' => 'nullable',
         ]);
 
-        $data = $request->only(['title', 'content', 'published_at', 'is_active']);
-        $data['created_by'] = Auth::id();
+        $data = [
+            'title' => $request->title,
+            'content' => $request->content,
+            'published_at' => $request->published_at ? $request->published_at : now(),
+            'expires_at' => $request->expires_at,
+            'is_active' => $request->boolean('is_active'),
+            'created_by' => Auth::id(),
+        ];
 
         // رفع الصورة المصغرة إذا وجدت
         if ($request->hasFile('thumbnail')) {
@@ -70,7 +91,7 @@ class NewsController extends Controller
 
         News::create($data);
 
-        return redirect()->route('media.news.index')->with('success', 'تم إنشاء الخبر بنجاح');
+        return redirect()->route('media.news.index')->with('success', 'تم إنشاء وحفظ الخبر بنجاح.');
     }
 
     /**
@@ -78,7 +99,20 @@ class NewsController extends Controller
      */
     public function show(News $news)
     {
-        return view('media.news.show', compact('news'));
+        $news->load('creator');
+        $relatedNews = News::where('id', '!=', $news->id)->latest()->take(3)->get();
+        return view('media.news.show', compact('news', 'relatedNews'));
+    }
+
+    /**
+     * عرض تفاصيل الخبر للجمهور ورواد المنصة
+     */
+    public function publicShow(News $news)
+    {
+        abort_unless($news->is_active, 404);
+        $news->load('creator');
+        $relatedNews = News::published()->where('id', '!=', $news->id)->latest()->take(4)->get();
+        return view('media.news.show', compact('news', 'relatedNews'));
     }
 
     /**
@@ -97,16 +131,22 @@ class NewsController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'published_at' => 'nullable|date',
-            'is_active' => 'boolean'
+            'expires_at' => 'nullable|date|after_or_equal:published_at',
+            'is_active' => 'nullable',
         ]);
 
-        $data = $request->only(['title', 'content', 'published_at', 'is_active']);
+        $data = [
+            'title' => $request->title,
+            'content' => $request->content,
+            'published_at' => $request->published_at,
+            'expires_at' => $request->expires_at,
+            'is_active' => $request->boolean('is_active'),
+        ];
 
         // رفع الصورة المصغرة الجديدة إذا وجدت
         if ($request->hasFile('thumbnail')) {
-            // حذف الصورة القديمة
             if ($news->thumbnail_path && Storage::disk('public')->exists($news->thumbnail_path)) {
                 Storage::disk('public')->delete($news->thumbnail_path);
             }
@@ -117,7 +157,7 @@ class NewsController extends Controller
 
         $news->update($data);
 
-        return redirect()->route('media.news.index')->with('success', 'تم تحديث الخبر بنجاح');
+        return redirect()->route('media.news.index')->with('success', 'تم تحديث الخبر بنجاح.');
     }
 
     /**

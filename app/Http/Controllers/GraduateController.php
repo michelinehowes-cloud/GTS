@@ -37,16 +37,34 @@ class GraduateController extends Controller
             ->pluck('total', 'status')
             ->all();
 
-        // التدريبات للتقويم
+        // التدريبات للتقويم المعتمد
+        $typeColors = [
+            'workshop'   => ['bg' => '#059669', 'border' => '#047857', 'prefix' => 'ورشة: '],
+            'course'     => ['bg' => '#0d3882', 'border' => '#1e40af', 'prefix' => 'دورة: '],
+            'internship' => ['bg' => '#1d4ed8', 'border' => '#1e40af', 'prefix' => 'تدريب: '],
+            'seminar'    => ['bg' => '#d97706', 'border' => '#b45309', 'prefix' => 'ندوة: '],
+        ];
+
         $calendarTrainings = Training::where('status', 'active')
-            ->get(['id', 'title', 'start_date', 'end_date', 'type'])
-            ->map(function ($training) {
+            ->get(['id', 'title', 'start_date', 'end_date', 'type', 'location'])
+            ->map(function ($training) use ($typeColors) {
+                $cfg = $typeColors[$training->type] ?? ['bg' => '#0d3882', 'border' => '#1e40af', 'prefix' => ''];
+                $endDate = $training->end_date ? $training->end_date->copy()->addDay()->format('Y-m-d') : null;
                 return [
-                    'title' => $training->title,
-                    'start' => $training->start_date->format('Y-m-d'),
-                    'end' => $training->end_date ? $training->end_date->format('Y-m-d') : null,
+                    'id' => $training->id,
+                    'title' => $cfg['prefix'] . $training->title,
+                    'start' => $training->start_date ? $training->start_date->format('Y-m-d') : null,
+                    'end' => $endDate,
                     'url' => route('graduate.trainings.show', $training->id),
-                    'className' => 'fc-event-' . $training->type
+                    'backgroundColor' => $cfg['bg'],
+                    'borderColor' => $cfg['border'],
+                    'textColor' => '#ffffff',
+                    'extendedProps' => [
+                        'type' => $training->type,
+                        'location' => $training->location ?? 'جامعة طرابلس',
+                        'rawTitle' => $training->title,
+                    ],
+                    'className' => 'fc-event-custom fc-event-' . $training->type
                 ];
             });
 
@@ -173,7 +191,7 @@ class GraduateController extends Controller
                 'type'     => 'job_fair',
                 'title'    => $activeFair->title,
                 'subtitle' => 'معرض التوظيف — جامعة طرابلس',
-                'logo'     => $activeFair->banner_image ? asset('storage/' . $activeFair->banner_image) : asset('images/job_fair_logo.png'),
+                'logo'     => $activeFair->banner_image ? asset('storage/' . $activeFair->banner_image) : asset('images/job_fair_logo_white.png'),
                 'badge'    => 'تذكرة رقم #' . $fairRegistration->registration_number,
                 'status'   => $fairRegistration->attended ? 'تم الحضور' : 'مسجل ومعتمد',
                 'date'     => $activeFair->event_date ? $activeFair->event_date->format('d/m/Y') : null,

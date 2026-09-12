@@ -820,26 +820,86 @@
                                 <div class="row g-3">
                                     @foreach($graduate->trainingApplications as $app)
                                         @if($app->training)
+                                        @php
+                                            $totalDays = $app->training->total_days_count ?? 1;
+                                            $attendedDays = $app->attended_days_count;
+                                            $attendancePct = $app->attendance_percentage;
+                                            
+                                            // ألوان الشارات حسب النسبة
+                                            if ($attendancePct >= 80) {
+                                                $badgeColor = 'success';
+                                                $barColor = '#10b981';
+                                            } elseif ($attendancePct >= 50) {
+                                                $badgeColor = 'warning';
+                                                $barColor = '#f59e0b';
+                                            } else {
+                                                $badgeColor = 'danger';
+                                                $barColor = '#ef4444';
+                                            }
+
+                                            // تسمية نوع البرنامج
+                                            $typeLabel = match($app->training->type) {
+                                                'workshop' => 'ورشة عمل',
+                                                'course' => 'دورة تدريبية',
+                                                'seminar' => 'ندوة علمية',
+                                                'internship' => 'تدريب عملي',
+                                                default => ($app->training->type ?: 'برنامج تدريبي')
+                                            };
+                                        @endphp
                                         <div class="col-md-6">
                                             <div class="p-3 rounded-3 bg-light border h-100 d-flex flex-column justify-content-between">
                                                 <div>
-                                                    <div class="d-flex align-items-center justify-content-between mb-2">
-                                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-0.5 small fw-bold">
-                                                            <i class="fa-solid fa-check me-1"></i> معتمد
-                                                        </span>
+                                                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-1 mb-2">
+                                                        <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                                                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-0.5 small fw-bold">
+                                                                <i class="fa-solid fa-check me-1"></i> معتمد
+                                                            </span>
+                                                            <span class="badge bg-{{ $badgeColor }}-subtle text-{{ $badgeColor }} border border-{{ $badgeColor }}-subtle rounded-pill px-2.5 py-0.5 small fw-bold d-inline-flex align-items-center gap-1">
+                                                                <i class="fa-solid fa-user-check"></i> حضور {{ $attendancePct }}%
+                                                            </span>
+                                                        </div>
                                                         <span class="text-muted small">
-                                                            {{ $app->training->type ?? 'تدريب عملي' }}
+                                                            {{ $typeLabel }}
                                                         </span>
                                                     </div>
                                                     <h6 class="fw-bold text-dark mb-1">{{ $app->training->title }}</h6>
-                                                    <p class="text-muted small mb-2 line-clamp-2">{{ Str::limit($app->training->description, 70) }}</p>
+                                                    @if($app->training->description)
+                                                        <p class="text-muted small mb-2 line-clamp-2" style="font-size: 0.84rem;">{{ Str::limit($app->training->description, 75) }}</p>
+                                                    @endif
+
+                                                    {{-- شريط نسبة الحضور وإحصائيات الأيام --}}
+                                                    <div class="p-2 rounded-2 bg-white border border-light-subtle mb-2.5">
+                                                        <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 0.76rem;">
+                                                            <span class="text-secondary fw-semibold">
+                                                                <i class="fa-solid fa-clipboard-check text-primary me-1"></i>حضور الورشة:
+                                                            </span>
+                                                            <span class="fw-bold text-{{ $badgeColor }}">
+                                                                {{ $attendancePct }}% 
+                                                                <span class="text-muted fw-normal">({{ $attendedDays }} من {{ $totalDays }} {{ $totalDays > 1 ? 'أيام' : 'يوم' }})</span>
+                                                            </span>
+                                                        </div>
+                                                        <div class="progress rounded-pill" style="height: 5px; background-color: #f1f5f9;">
+                                                            <div class="progress-bar rounded-pill" role="progressbar" 
+                                                                 style="width: {{ $attendancePct }}%; background-color: {{ $barColor }};" 
+                                                                 aria-valuenow="{{ $attendancePct }}" aria-valuemin="0" aria-valuemax="100">
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                @if($app->training->start_date)
-                                                <div class="pt-2 border-top text-muted small d-flex align-items-center gap-1">
-                                                    <i class="fa-solid fa-calendar-check text-primary"></i>
-                                                    <span>{{ $app->training->start_date->format('Y-m-d') }}</span>
+                                                <div class="pt-2 border-top text-muted small d-flex align-items-center justify-content-between flex-wrap gap-2" style="font-size: 0.78rem;">
+                                                    @if($app->training->start_date)
+                                                    <div class="d-flex align-items-center gap-1">
+                                                        <i class="fa-solid fa-calendar-check text-primary"></i>
+                                                        <span>{{ $app->training->start_date->format('Y-m-d') }}</span>
+                                                    </div>
+                                                    @endif
+                                                    @if($app->training->location)
+                                                    <div class="d-flex align-items-center gap-1">
+                                                        <i class="fa-solid fa-location-dot text-secondary"></i>
+                                                        <span>{{ $app->training->location }}</span>
+                                                    </div>
+                                                    @endif
                                                 </div>
-                                                @endif
                                             </div>
                                         </div>
                                         @endif

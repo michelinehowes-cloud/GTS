@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\Nomination;
 use App\Models\JobOpportunity;
 use App\Models\AuditLog;
+use App\Models\JobFair;
+use App\Models\JobFairVisit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Services\NotificationService;
@@ -27,13 +29,39 @@ class CompanyController extends Controller
 
         // التحقق من وجود شركة مرتبطة
         $company = $user->company;
-        // أو طريقة أخرى للحصول على الشركة إذا كانت العلاقة مختلفة
-        // مثلاً: $company = Company::where('user_id', $user->id)->first();
         if (!$company && $user->role === 'company') {
             $company = Company::where('user_id', $user->id)->first();
         }
 
-        return view('company.dashboard', compact('company'));
+        $companyId = $company ? $company->id : null;
+        $userId = $user->id;
+
+        $stats = [
+            'active_jobs' => $companyId ? JobOpportunity::where('company_id', $companyId)->where('status', 'open')->count() : 0,
+            'total_jobs' => $companyId ? JobOpportunity::where('company_id', $companyId)->count() : 0,
+            'total_applications' => $companyId ? Nomination::whereHas('jobOpportunity', fn($q) => $q->where('company_id', $companyId))->count() : 0,
+            'new_applications' => $companyId ? Nomination::whereHas('jobOpportunity', fn($q) => $q->where('company_id', $companyId))->whereIn('status', ['pending', 'nominated', 'under_review'])->count() : 0,
+            'qr_scans' => JobFairVisit::where('company_id', $userId)->count(),
+        ];
+
+        // أحدث الوظائف المنشورة للشركة
+        $recentJobs = $companyId ? JobOpportunity::where('company_id', $companyId)
+            ->withCount('nominations')
+            ->latest()
+            ->take(5)
+            ->get() : collect();
+
+        // أحدث المرشحين والمتقدمين
+        $recentNominations = $companyId ? Nomination::with(['graduate', 'jobOpportunity'])
+            ->whereHas('jobOpportunity', fn($q) => $q->where('company_id', $companyId))
+            ->latest('nominated_at')
+            ->take(5)
+            ->get() : collect();
+
+        // معارض التوظيف
+        $activeFair = JobFair::whereIn('status', ['published', 'ongoing', 'active'])->latest('event_date')->first() ?? JobFair::latest('event_date')->first();
+
+        return view('company.dashboard', compact('company', 'stats', 'recentJobs', 'recentNominations', 'activeFair'));
     }
 
     public function index()

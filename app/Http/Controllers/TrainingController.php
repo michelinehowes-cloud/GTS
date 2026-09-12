@@ -590,9 +590,46 @@ class TrainingController extends Controller
                 'locations' => $trainings->pluck('location')->filter()->unique()->count(),
             ];
 
+            // تحضير أحداث FullCalendar بنفس صيغة وهوية تقويم الخريج
+            $typeColors = [
+                'workshop'   => ['bg' => '#059669', 'border' => '#047857', 'prefix' => 'ورشة: '],
+                'course'     => ['bg' => '#0d3882', 'border' => '#1e40af', 'prefix' => 'دورة: '],
+                'internship' => ['bg' => '#1d4ed8', 'border' => '#1e40af', 'prefix' => 'تدريب عملي: '],
+                'seminar'    => ['bg' => '#d97706', 'border' => '#b45309', 'prefix' => 'ندوة: '],
+            ];
+
+            $calendarTrainings = $trainings->map(function ($t) use ($typeColors) {
+                $cfg = $typeColors[$t->type] ?? ['bg' => '#0d3882', 'border' => '#1e40af', 'prefix' => ''];
+                $endDate = $t->end_date ? $t->end_date->copy()->addDay()->format('Y-m-d') : null;
+                return [
+                    'id'              => $t->id,
+                    'title'           => $cfg['prefix'] . $t->title,
+                    'start'           => $t->start_date ? $t->start_date->format('Y-m-d') : null,
+                    'end'             => $endDate,
+                    'url'             => route('training-coordinator.trainings.show', $t->id),
+                    'backgroundColor' => $cfg['bg'],
+                    'borderColor'     => $cfg['border'],
+                    'textColor'       => '#ffffff',
+                    'extendedProps'   => [
+                        'type'          => $t->type,
+                        'location'      => $t->location ?? 'غير محدد',
+                        'rawTitle'      => $t->title,
+                        'instructor'    => $t->instructor_name ?? ($t->trainer->name ?? 'غير محدد'),
+                        'seats'         => $t->seats ?? '—',
+                        'status'        => $t->status,
+                        'duration'      => $t->duration ?? '—',
+                        'startDate'     => $t->start_date ? $t->start_date->format('Y-m-d') : '—',
+                        'endDate'       => $t->end_date ? $t->end_date->format('Y-m-d') : '—',
+                        'showUrl'       => route('training-coordinator.trainings.show', $t->id),
+                        'attendanceUrl' => route('training-coordinator.trainings.attendance', $t->id),
+                    ],
+                    'className'       => 'fc-event-custom fc-event-' . $t->type
+                ];
+            })->values();
+
             return view('training-coordinator.calendar', compact(
                 'trainings', 'weeks', 'month', 'year', 'monthName', 'arabicMonths',
-                'prevMonth', 'prevYear', 'nextMonth', 'nextYear', 'stats'
+                'prevMonth', 'prevYear', 'nextMonth', 'nextYear', 'stats', 'calendarTrainings'
             ));
 
         } catch (\Exception $e) {

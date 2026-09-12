@@ -27,7 +27,26 @@ class JobOpportunityController extends Controller
     {
         $this->authorize('viewAny', JobOpportunity::class);
 
+        $user = Auth::user();
+        $isCompany = $user && $user->role === 'company';
+        $userCompany = $isCompany ? ($user->company ?: Company::where('user_id', $user->id)->first()) : null;
+
         $query = JobOpportunity::with(['company', 'creator']);
+
+        // إذا كان المستخدم شركة، تقييد النتائج بفرص شركته فقط
+        if ($isCompany && $userCompany) {
+            $query->where('company_id', $userCompany->id);
+        }
+
+        // تطبيق البحث النصي
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%");
+            });
+        }
 
         // تطبيق الفلاتر
         if ($request->has('type') && $request->type) {
@@ -38,18 +57,35 @@ class JobOpportunityController extends Controller
             $query->where('status', $request->status);
         }
 
-        if ($request->has('company_id') && $request->company_id) {
+        if (!$isCompany && $request->has('company_id') && $request->company_id) {
             $query->where('company_id', $request->company_id);
         }
 
-        $stats = [
-            'total' => JobOpportunity::count(),
-            'open' => JobOpportunity::where('status', 'open')->count(),
-            'jobs' => JobOpportunity::where('type', 'job')->count(),
-            'trainings' => JobOpportunity::where('type', 'training')->count(),
-            'internships' => JobOpportunity::where('type', 'internship')->count(),
-            'companies' => Company::count(),
-        ];
+        // إحصائيات مخصصة بحسب دور المستخدم
+        if ($isCompany && $userCompany) {
+            $baseStats = JobOpportunity::where('company_id', $userCompany->id);
+            $stats = [
+                'total' => (clone $baseStats)->count(),
+                'open' => (clone $baseStats)->where('status', 'open')->count(),
+                'jobs' => (clone $baseStats)->where('type', 'job')->count(),
+                'trainings' => (clone $baseStats)->where('type', 'training')->count(),
+                'internships' => (clone $baseStats)->where('type', 'internship')->count(),
+                'nominations' => Nomination::whereHas('jobOpportunity', function ($q) use ($userCompany) {
+                    $q->where('company_id', $userCompany->id);
+                })->count(),
+            ];
+            $companies = collect([$userCompany]);
+        } else {
+            $stats = [
+                'total' => JobOpportunity::count(),
+                'open' => JobOpportunity::where('status', 'open')->count(),
+                'jobs' => JobOpportunity::where('type', 'job')->count(),
+                'trainings' => JobOpportunity::where('type', 'training')->count(),
+                'internships' => JobOpportunity::where('type', 'internship')->count(),
+                'companies' => Company::count(),
+            ];
+            $companies = Company::all();
+        }
 
         /** @var \Illuminate\Pagination\LengthAwarePaginator $opportunities */
         $opportunities = $query->withCount(['nominations'])
@@ -57,9 +93,7 @@ class JobOpportunityController extends Controller
             ->paginate(12);
         $opportunities->withQueryString();
 
-        $companies = Company::all();
-
-        return view('job-opportunities.index', compact('opportunities', 'companies', 'stats'));
+        return view('job-opportunities.index', compact('opportunities', 'companies', 'stats', 'isCompany', 'userCompany'));
     }
 
     /**
@@ -69,7 +103,13 @@ class JobOpportunityController extends Controller
     {
         $this->authorize('create', JobOpportunity::class);
 
-        $companies = Company::all(); // Fetches all companies
+        $user = Auth::user();
+        if ($user && $user->role === 'company') {
+            $userCompany = $user->company ?: Company::where('user_id', $user->id)->first();
+            $companies = $userCompany ? collect([$userCompany]) : collect([]);
+        } else {
+            $companies = Company::all();
+        }
 
         $specializations = [
             'هندسة برمجيات',
@@ -213,6 +253,14 @@ class JobOpportunityController extends Controller
     {
         $this->authorize('create', JobOpportunity::class);
 
+        $user = Auth::user();
+        if ($user && $user->role === 'company') {
+            $userCompany = $user->company ?: Company::where('user_id', $user->id)->first();
+            if ($userCompany) {
+                $request->merge(['company_id' => $userCompany->id]);
+            }
+        }
+
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -304,7 +352,13 @@ class JobOpportunityController extends Controller
         $opportunity = JobOpportunity::findOrFail($id);
         $this->authorize('update', $opportunity);
 
-        $companies = Company::all();
+        $user = Auth::user();
+        if ($user && $user->role === 'company') {
+            $userCompany = $user->company ?: Company::where('user_id', $user->id)->first();
+            $companies = $userCompany ? collect([$userCompany]) : collect([]);
+        } else {
+            $companies = Company::all();
+        }
 
         return view('job-opportunities.edit', compact('opportunity', 'companies'));
     }
@@ -316,6 +370,14 @@ class JobOpportunityController extends Controller
     {
         $opportunity = JobOpportunity::findOrFail($id);
         $this->authorize('update', $opportunity);
+
+        $user = Auth::user();
+        if ($user && $user->role === 'company') {
+            $userCompany = $user->company ?: Company::where('user_id', $user->id)->first();
+            if ($userCompany) {
+                $request->merge(['company_id' => $userCompany->id]);
+            }
+        }
 
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',

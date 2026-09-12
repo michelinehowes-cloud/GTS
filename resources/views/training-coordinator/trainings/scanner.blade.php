@@ -286,23 +286,35 @@ function processQR(code) {
     .then(data => {
         hideResults();
         if (data.success && !data.already_attended) {
-            document.getElementById('result-name').textContent = data.student_name;
-            document.getElementById('result-details').innerHTML = 
-                '<span class="badge bg-primary me-1">' + (data.faculty || 'خريج') + '</span>' +
-                '<span>حضور <strong>' + data.user_attended_days + '</strong> من <strong>' + data.total_days + '</strong> أيام</span>' +
-                '<span class="ms-2 text-muted">(' + data.attended_time + ')</span>';
-            document.getElementById('result-success').classList.remove('d-none');
+            const nameEl = document.getElementById('result-name');
+            if (nameEl) nameEl.textContent = data.student_name || 'خريج';
+
+            const detailsEl = document.getElementById('result-details');
+            if (detailsEl) {
+                detailsEl.innerHTML = 
+                    '<span class="badge bg-primary me-1">' + (data.faculty || 'خريج') + '</span>' +
+                    '<span>حضور <strong>' + (data.user_attended_days ?? 1) + '</strong> من <strong>' + (data.total_days ?? 1) + '</strong> أيام</span>' +
+                    '<span class="ms-2 text-muted">(' + (data.attended_time || '') + ')</span>';
+            }
+
+            const successEl = document.getElementById('result-success');
+            if (successEl) successEl.classList.remove('d-none');
             
-            // تحديث العداد
-            if (data.today_attended_count !== undefined) {
-                document.getElementById('counter-today').textContent = data.today_attended_count;
+            // تحديث العداد بأمان
+            const counterEl = document.getElementById('counter-today');
+            if (counterEl && data.today_attended_count !== undefined) {
+                counterEl.textContent = data.today_attended_count;
             }
             log('✅ نجاح: ' + data.message, '#34d399');
         } else if (data.already_attended) {
-            document.getElementById('result-warning-msg').innerHTML = 
-                '<strong>' + data.student_name + '</strong> مسجل مسبقاً في تاريخ ' + data.date + ' (في الساعة ' + (data.attended_time || '') + ').' +
-                '<br><small class="text-muted">إجمالي الأيام المحضورة: ' + data.user_attended_days + ' من ' + data.total_days + ' أيام</small>';
-            document.getElementById('result-warning').classList.remove('d-none');
+            const warnMsgEl = document.getElementById('result-warning-msg');
+            if (warnMsgEl) {
+                warnMsgEl.innerHTML = 
+                    '<strong>' + (data.student_name || 'الخريج') + '</strong> مسجل مسبقاً في تاريخ ' + (data.date || '') + ' (في الساعة ' + (data.attended_time || '') + ').' +
+                    '<br><small class="text-muted">إجمالي الأيام المحضورة: ' + (data.user_attended_days ?? '') + ' من ' + (data.total_days ?? '') + ' أيام</small>';
+            }
+            const warnEl = document.getElementById('result-warning');
+            if (warnEl) warnEl.classList.remove('d-none');
             log('⚠️ مسجل مسبقاً', '#fbbf24');
         } else {
             const errMsg = data.message || 'خطأ غير معروف';
@@ -312,15 +324,18 @@ function processQR(code) {
         setTimeout(hideResults, 6000);
     })
     .catch(err => {
-        log('🔴 فشل الاتصال: ' + err.message, '#f87171');
-        showError('فشل الاتصال بالخادم.');
+        console.error('[SCANNER ERROR]', err);
+        log('🔴 خطأ: ' + err.message, '#f87171');
+        showError('حدث خطأ أثناء معالجة الطلب. يرجى التحقق وإعادة المحاولة.');
         setTimeout(hideResults, 4000);
     });
 }
 
 function showError(msg) {
-    document.getElementById('result-error-msg').textContent = msg;
-    document.getElementById('result-error').classList.remove('d-none');
+    const errorMsgEl = document.getElementById('result-error-msg');
+    if (errorMsgEl) errorMsgEl.textContent = msg;
+    const errorEl = document.getElementById('result-error');
+    if (errorEl) errorEl.classList.remove('d-none');
 }
 
 function hideResults() {

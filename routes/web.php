@@ -29,45 +29,35 @@ use App\Http\Controllers\HomeController;
 
 // ==================== 🏠 الصفحة الرئيسية ====================
 Route::get('/', function () {
-    // جلب البيانات مع تخفيف الشروط للتأكد من العرض
-    $welcomeImages = \App\Models\TrainingMedia::where('is_welcome_page_media', true)
-        ->orderBy('display_order')
-        ->get();
-
-    if ($welcomeImages->isEmpty()) {
-        // بيانات وهمية للاختبار في حال عدم وجود صور
-        $welcomeImages = collect([
-            (object) [
-                'file_path' => 'logo.jpg', // صورة افتراضية
-                'caption' => 'أهلاً بكم في مكتب تدريب الخريجين'
-            ]
-        ]);
-    }
-
     $advertisedTrainings = \App\Models\Training::orderBy('created_at', 'desc')->limit(6)->get();
 
-    $latestNews = \App\Models\News::orderBy('published_at', 'desc')->limit(3)->get();
+    $latestNews = \App\Models\News::published()->orderBy('published_at', 'desc')->limit(3)->get();
 
-    $activeAnnouncements = \App\Models\Announcement::orderBy('created_at', 'desc')->limit(3)->get();
+    $activeAnnouncements = \App\Models\Announcement::where('is_active', true)->where('start_date', '<=', now())->where('end_date', '>=', now())->orderBy('created_at', 'desc')->limit(3)->get();
 
-    // إحصائيات حية حقيقية للمنصة
+    // إحصائيات حية حقيقية خاضعة لإدارة وحدة الإعلام
+    $statsSettings = \App\Models\MediaPlatformStat::getHomepageStats();
     $stats = [
-        'graduates_count' => max(\App\Models\User::where('role', 'graduate')->count(), 150),
-        'companies_count' => max(\App\Models\Company::count(), 24),
-        'trainings_count' => max(\App\Models\Training::count(), 18),
-        'opportunities_count' => max(\App\Models\JobOpportunity::count(), 35),
+        'graduates_count' => $statsSettings['cards']['graduates']['value'],
+        'companies_count' => $statsSettings['cards']['companies']['value'],
+        'trainings_count' => $statsSettings['cards']['trainings']['value'],
+        'opportunities_count' => $statsSettings['cards']['opportunities']['value'],
     ];
 
     // معرض التوظيف
     $activeFair = \App\Models\JobFair::latest()->first();
 
-    return view('welcome', compact('welcomeImages', 'advertisedTrainings', 'latestNews', 'activeAnnouncements', 'stats', 'activeFair'));
+    return view('welcome', compact('advertisedTrainings', 'latestNews', 'activeAnnouncements', 'stats', 'statsSettings', 'activeFair'));
 })->name('home');
 
 // أضف هذا السطر لحل المشكلة
 Route::get('/home', function () {
     return redirect()->route('dashboard');
 })->name('home_redirect');
+
+// ==================== 📰 الأخبار والإعلانات العامة للزوار ====================
+Route::get('/news/{news}', [App\Http\Controllers\NewsController::class, 'publicShow'])->name('public.news.show');
+Route::get('/announcements/{announcement}', [App\Http\Controllers\AnnouncementController::class, 'publicShow'])->name('public.announcements.show');
 
 // ==================== 🔐 نظام المصادقة ====================
 Route::middleware('guest')->group(function () {
@@ -469,13 +459,6 @@ Route::middleware('auth')->group(function () {
         Route::patch('/trainings/{training}/coverage-status', [App\Http\Controllers\MediaController::class, 'updateCoverageStatus'])->name('media.trainings.update-coverage-status');
         Route::get('/training-calendar', [App\Http\Controllers\MediaController::class, 'trainingCalendarIndex'])->name('media.training-calendar');
 
-        // إدارة الوسائط
-        Route::get('/media/gallery', [App\Http\Controllers\MediaController::class, 'mediaGallery'])->name('media.gallery');
-        Route::get('/media/upload', [App\Http\Controllers\MediaController::class, 'uploadForm'])->name('media.upload.form');
-        Route::post('/media/upload', [App\Http\Controllers\MediaController::class, 'upload'])->name('media.upload');
-        Route::get('/media-item/{media}', [App\Http\Controllers\MediaController::class, 'show'])->name('media.show');
-        Route::patch('/media-item/{media}', [App\Http\Controllers\MediaController::class, 'update'])->name('media.update');
-        Route::delete('/media-item/{media}', [App\Http\Controllers\MediaController::class, 'destroy'])->name('media.destroy');
 
         // إدارة الأخبار
         Route::resource('news', App\Http\Controllers\NewsController::class)->names([
@@ -504,6 +487,12 @@ Route::middleware('auth')->group(function () {
         // تقارير التغطية
         Route::get('/reports/coverage', [App\Http\Controllers\MediaController::class, 'reportsIndex'])->name('media.reports.coverage');
         Route::get('/reports/coverage/{training}', [App\Http\Controllers\MediaController::class, 'createCoverageReport'])->name('media.reports.coverage.show');
+        Route::get('/reports/coverage/{training}/edit', [App\Http\Controllers\MediaController::class, 'editCoverageReport'])->name('media.reports.coverage.edit');
+        Route::put('/reports/coverage/{training}', [App\Http\Controllers\MediaController::class, 'updateCoverageReport'])->name('media.reports.coverage.update');
+
+        // 📊 إدارة إحصائيات المنصة والصفحة الرئيسية
+        Route::get('/platform-stats', [App\Http\Controllers\MediaController::class, 'platformStats'])->name('media.platform-stats');
+        Route::post('/platform-stats', [App\Http\Controllers\MediaController::class, 'updatePlatformStats'])->name('media.platform-stats.update');
     });
 
     // ==================== 🎓 مسارات الإرشاد المهني (للمستخدمين غير المدراء) ====================
@@ -611,6 +600,7 @@ Route::middleware('auth')->group(function () {
         
         // مسارات ملف الشركة التعريفي
         Route::get('/profile', [CompanyController::class, 'profile'])->name('profile');
+        Route::get('/profile/edit', [CompanyController::class, 'profile'])->name('profile.edit');
         Route::put('/profile', [CompanyController::class, 'updateProfile'])->name('profile.update');
         
         // مسارات التوظيف والمرشحين (ATS)

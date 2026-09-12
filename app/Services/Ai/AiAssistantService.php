@@ -6,6 +6,10 @@ use App\Models\User;
 use App\Models\AiChatMessage;
 use App\Models\News;
 use App\Models\Training;
+use App\Models\TrainingApplication;
+use App\Models\JobOpportunity;
+use App\Models\Nomination;
+use App\Models\GraduateData;
 use App\Models\AuditLog;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -126,6 +130,133 @@ class AiAssistantService
             ]);
 
             $resultMessage = "✅ تم حفظ البرنامج التدريبي بنجاح كمسودة: **'{$training->title}'**. يمكنك مراجعته وجدولته في تقويم التدريب.";
+        } elseif ($actionType === 'apply_training') {
+            if ($user->role !== 'graduate') {
+                return ['status' => 'forbidden', 'message' => 'هذا الإجراء مخصص لحسابات الخريجين فقط.'];
+            }
+
+            $trainingId = $actionData['training_id'] ?? null;
+            $training = $trainingId ? Training::find($trainingId) : null;
+            if (!$training) {
+                return ['status' => 'error', 'message' => 'البرنامج التدريبي غير متوفر حالياً.'];
+            }
+
+            $exists = TrainingApplication::where('user_id', $user->id)
+                ->where('training_id', $training->id)
+                ->first();
+
+            if ($exists) {
+                return ['status' => 'info', 'message' => "لقد تقدمت بطلب لهذا التدريب مسبقاً. الطلب مسجل بحالة: " . ($exists->status_arabic ?? $exists->status)];
+            }
+
+            $app = TrainingApplication::create([
+                'user_id' => $user->id,
+                'training_id' => $training->id,
+                'status' => 'pending',
+                'applied_at' => now(),
+            ]);
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_APPLY_TRAINING',
+                'entity' => 'TrainingApplication',
+                'entity_id' => $app->id,
+                'new_values' => ['training_title' => $training->title],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $resultMessage = "🎉 ✅ تم إرسال طلب تسجيلك في التدريب: **'{$training->title}'** بنجاح! الطلب الآن قيد مراجعة منسق التدريب.";
+        } elseif ($actionType === 'apply_job') {
+            if ($user->role !== 'graduate') {
+                return ['status' => 'forbidden', 'message' => 'هذا الإجراء مخصص لحسابات الخريجين فقط.'];
+            }
+
+            $jobId = $actionData['job_id'] ?? null;
+            $gradDataId = $actionData['graduate_data_id'] ?? null;
+            $job = $jobId ? JobOpportunity::find($jobId) : null;
+
+            if (!$job || !$gradDataId) {
+                return ['status' => 'error', 'message' => 'تعذر استكمال طلب التقديم لعدم اكتمال بيانات الوظيفة أو ملف الخريج.'];
+            }
+
+            $exists = Nomination::where('graduate_id', $gradDataId)
+                ->where('job_opportunity_id', $job->id)
+                ->first();
+
+            if ($exists) {
+                return ['status' => 'info', 'message' => "لقد تقدمت بالفعل لهذه الفرصة الوظيفية مسبقاً."];
+            }
+
+            $nomination = Nomination::create([
+                'graduate_id' => $gradDataId,
+                'job_opportunity_id' => $job->id,
+                'nominated_by' => $user->id,
+                'nomination_type' => 'self',
+                'status' => 'pending',
+                'nomination_notes' => 'ترشيح وتقديم ذاتي عبر المساعد الذكي',
+                'nominated_at' => now(),
+            ]);
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_APPLY_JOB',
+                'entity' => 'Nomination',
+                'entity_id' => $nomination->id,
+                'new_values' => ['job_title' => $job->title],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $resultMessage = "💼 ✅ تم تقديم طلبك وترشحك بنجاح لوظيفة: **'{$job->title}'**! ستتم مراجعة طلبك والتواصل معك فور مطابقة البيانات.";
+        } elseif ($actionType === 'nominate_graduate') {
+            if (!in_array($user->role, ['career_guidance_officer', 'admin'])) {
+                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لترشيح الخريجين.'];
+            }
+
+            $gradId = $actionData['graduate_id'] ?? null;
+            $jobId = $actionData['job_opportunity_id'] ?? null;
+            if (!$gradId || !$jobId) {
+                return ['status' => 'error', 'message' => 'بيانات الترشيح غير مكتملة.'];
+            }
+
+            $exists = Nomination::where('graduate_id', $gradId)
+                ->where('job_opportunity_id', $jobId)
+                ->first();
+
+            if ($exists) {
+                return ['status' => 'info', 'message' => "تم ترشيح هذا الخريج لهذه الفرصة مسبقاً."];
+            }
+
+            $nomination = Nomination::create([
+                'graduate_id' => $gradId,
+                'job_opportunity_id' => $jobId,
+                'nominated_by' => $user->id,
+                'nomination_type' => 'officer_nominated',
+                'status' => 'pending',
+                'nomination_notes' => $actionData['nomination_notes'] ?? 'ترشيح رسمي من مسؤول الإرشاد المهني عبر المساعد الذكي',
+                'matching_reasons' => $actionData['matching_reasons'] ?? 'مطابقة المتطلبات والتخصص والمعدل',
+                'nominated_at' => now(),
+            ]);
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_NOMINATE_GRADUATE',
+                'entity' => 'Nomination',
+                'entity_id' => $nomination->id,
+                'new_values' => [
+                    'graduate_id' => $gradId,
+                    'graduate_name' => $actionData['graduate_name'] ?? '',
+                    'job_title' => $actionData['job_title'] ?? '',
+                ],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $resultMessage = "🤝 ✅ تم ترشيح الخريج: **'{$actionData['graduate_name']}'** بنجاح لوظيفة **'{$actionData['job_title']}'**! تم تسجيل العملية وإرسال الإشعار للشركة الشريكة.";
         } else {
             return ['status' => 'error', 'message' => 'نوع الإجراء غير معروف.'];
         }
@@ -376,7 +507,142 @@ class AiAssistantService
             ];
         }
 
-        // 3. استعلام عن التدريبات والبرامج المتاحة
+        // 3. تقديم الخريج على برنامج تدريبي (سجلني في دورة / تدريب)
+        if (Str::contains($text, ['سجلني', 'سجل في', 'التقديم على تدريب', 'التحاق بتدريب', 'قدم لي على تدريب', 'أريد التسجيل في', 'تسجيل في تدريب']) && in_array('apply_for_training', $authorizedNames)) {
+            $kw = '';
+            if (preg_match('/(?:في|على|بدورة|بتدريب)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
+                $kw = trim($m[1]);
+                $kw = preg_replace('/^(?:دورة|تدريب|ورشة|برنامج)\s+/u', '', $kw);
+            }
+            $res = AiToolRegistry::executeTool($user, 'apply_for_training', ['training_title' => $kw]);
+
+            if (isset($res['status']) && $res['status'] === 'proposal') {
+                return [
+                    'content' => "🎓 **تم تجهيز طلب التقديم على البرنامج التدريبي بنجاح:**\n\n" .
+                        "يرجى مراجعة تفاصيل التدريب والمقاعد أدناه، والضغط على **[تأكيد وحفظ]** لإرسال الطلب رسمياً لمنسق التدريب.",
+                    'action_proposal' => $res,
+                    'tool_executed' => 'apply_for_training',
+                ];
+            } else {
+                return [
+                    'content' => $res['message'] ?? 'تعذر تجهيز طلب التقديم. يرجى التحقق من اسم التدريب.',
+                    'tool_executed' => 'apply_for_training',
+                ];
+            }
+        }
+
+        // 4. تقديم الخريج على فرصة وظيفية (قدم لي على وظيفة)
+        if (Str::contains($text, ['قدم لي على وظيفة', 'سجلني في وظيفة', 'التقديم على وظيفة', 'ترشيح نفسي', 'أريد الترشح لوظيفة', 'قدم على وظيفة']) && in_array('apply_for_job', $authorizedNames)) {
+            $kw = '';
+            if (preg_match('/(?:لوظيفة|على وظيفة|في وظيفة|وظيفة)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
+                $kw = trim($m[1]);
+            }
+            $res = AiToolRegistry::executeTool($user, 'apply_for_job', ['job_title' => $kw]);
+
+            if (isset($res['status']) && $res['status'] === 'proposal') {
+                return [
+                    'content' => "💼 **تم إعداد طلب الترشح لفرصة العمل بنجاح:**\n\n" .
+                        "يرجى مراجعة تفاصيل الوظيفة في البطاقة أدناه ثم الضغط على **[تأكيد وحفظ]** لإرسال ملفك.",
+                    'action_proposal' => $res,
+                    'tool_executed' => 'apply_for_job',
+                ];
+            } else {
+                return [
+                    'content' => $res['message'] ?? 'تعذر تجهيز طلب التقديم على الوظيفة.',
+                    'tool_executed' => 'apply_for_job',
+                ];
+            }
+        }
+
+        // 5. ترشيح خريج لوظيفة (لمسؤول الإرشاد المهني والمدير)
+        if (Str::contains($text, ['رشح الخريج', 'ترشيح الخريج', 'رشح لي الخريج', 'ترشيح خريج']) && in_array('nominate_graduate_for_job', $authorizedNames)) {
+            $gradIdent = '';
+            $jobIdent = '';
+
+            if (preg_match('/(?:الخريج|خريج)\s+([^\s]+(?:\s+[^\s]+)?)\s+(?:لوظيفة|لفرصة|على وظيفة)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
+                $gradIdent = trim($m[1]);
+                $jobIdent = trim($m[2]);
+            }
+
+            if (!empty($gradIdent) && !empty($jobIdent)) {
+                $res = AiToolRegistry::executeTool($user, 'nominate_graduate_for_job', [
+                    'graduate_identifier' => $gradIdent,
+                    'job_identifier' => $jobIdent,
+                ]);
+
+                if (isset($res['status']) && $res['status'] === 'proposal') {
+                    return [
+                        'content' => "🤝 **تم إعداد مقترح ترشيح الخريج لفرصة العمل:**\n\n" .
+                            "يرجى مراجعة بيانات الخريج والوظيفة في البطاقة التفاعلية أدناه وتأكيد الترشيح.",
+                        'action_proposal' => $res,
+                        'tool_executed' => 'nominate_graduate_for_job',
+                    ];
+                } else {
+                    return [
+                        'content' => $res['message'] ?? 'تعذر إعداد الترشيح. يرجى التأكد من اسم الخريج واسم الوظيفة.',
+                        'tool_executed' => 'nominate_graduate_for_job',
+                    ];
+                }
+            }
+        }
+
+        // 6. بحث متقدم عن الخريجين (لمسؤول الإرشاد المهني والمدير)
+        if ((Str::contains($text, ['خريجين', 'خريجي', 'ابحث عن خريج', 'ابحث عن خريجين', 'معدل', 'هاتف']) || (Str::contains($text, ['تخصص', 'مهندسي']) && in_array('search_graduates_advanced', $authorizedNames))) && in_array('search_graduates_advanced', $authorizedNames)) {
+            $args = [];
+
+            // البحث برقم الهاتف
+            if (preg_match('/(?:09\d{8}|02\d{7}|\b\d{9,10}\b)/', $userMessage, $m)) {
+                $args['phone'] = $m[0];
+            }
+
+            // البحث بالمعدل
+            if (preg_match('/(?:معدل|نسبة)\s*(?:أعلى من|أكبر من|فوق|تتجاوز|بمعدل)?\s*(\d+(?:\.\d+)?)/u', $userMessage, $m)) {
+                $args['min_gpa'] = (float) $m[1];
+            }
+
+            // البحث بالتخصص
+            if (preg_match('/(?:تخصص|قسم|خريجي|مهندسي)\s+([^\s\?\.\!,]+(?:\s+[^\s\?\.\!,]+)?)/u', $userMessage, $m)) {
+                $majorKw = trim($m[1]);
+                if (!in_array($majorKw, ['بمعدل', 'أعلى', 'ولديهم', 'مع'])) {
+                    $args['major'] = $majorKw;
+                }
+            }
+
+            // البحث بالاسم
+            if (preg_match('/(?:الخريج|اسم)\s+([^\s\?\.\!,]+(?:\s+[^\s\?\.\!,]+)?)/u', $userMessage, $m)) {
+                $args['name'] = trim($m[1]);
+            }
+
+            if (Str::contains($text, ['سيرة ذاتية', 'سير ذاتية', 'cv'])) {
+                $args['has_cv'] = true;
+            }
+
+            $res = AiToolRegistry::executeTool($user, 'search_graduates_advanced', $args);
+            $grads = $res['data'] ?? [];
+
+            if (empty($grads)) {
+                return [
+                    'content' => "لم أعثر على خريجين يطابقون معايير البحث المحددة في سجلات الإرشاد المهني. يمكنك تجربة معايير بحث أوسع.",
+                    'tool_executed' => 'search_graduates_advanced',
+                ];
+            }
+
+            $out = "🎯 **وجدت " . count($grads) . " من الخريجين المطابقين لمعايير البحث في المنظومة:**\n\n";
+            foreach ($grads as $g) {
+                $out .= "👤 **{$g['name']}**\n";
+                $out .= "   🎓 التخصص: **{$g['major']}** ({$g['faculty']})\n";
+                $out .= "   📊 المعدل التراكمي: **{$g['gpa']}** | 📞 الهاتف: `{$g['phone']}`\n";
+                $out .= "   📄 السيرة الذاتية: " . ($g['has_cv'] ? 'متوفرة ومرفوعة ✅' : 'غير مرفوعة ⚠️') . " | الحالة: {$g['employment_status']}\n\n";
+            }
+            $out .= "💡 **هل ترغب في ترشيح أي من هؤلاء الخريجين لفرصة وظيفية معينة؟** فقط اطلب: *'رشح الخريج [الاسم] لوظيفة [اسم الوظيفة]'*.";
+
+            return [
+                'content' => $out,
+                'tool_executed' => 'search_graduates_advanced',
+            ];
+        }
+
+        // 7. استعلام عن التدريبات والبرامج المتاحة
         if (Str::contains($text, ['تدريب', 'دورة', 'ورشة', 'دورات', 'تدريبات', 'برنامج']) && in_array('search_trainings', $authorizedNames)) {
             $kw = '';
             if (preg_match('/(?:عن|في|حول)\s+([^\?\.\!]+)/u', $userMessage, $m)) {

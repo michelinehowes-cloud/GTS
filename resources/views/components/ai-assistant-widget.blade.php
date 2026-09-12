@@ -63,12 +63,18 @@
             'عرض ملخص إحصائيات المنظومة والمستخدمين',
             'صغ لي خبراً صحفياً رسمياً',
         ];
+        $quickPrompts[] = 'تغيير كلمة المرور الخاصة بي';
     } else {
         $quickPrompts = [
             'ما هي البرامج التدريبية المتاحة؟',
             'عرض أحدث الأخبار والإعلانات',
             'عرض معلومات حسابي الشخصي',
+            'تغيير كلمة المرور الخاصة بي',
         ];
+    }
+
+    if (!in_array('تغيير كلمة المرور الخاصة بي', $quickPrompts)) {
+        $quickPrompts[] = 'تغيير كلمة المرور الخاصة بي';
     }
 
     $roleLabels = [
@@ -132,7 +138,7 @@
     </div>
 
     <!-- Quick Prompts Ribbon (Chips) -->
-    <div class="ai-quick-prompts px-3 py-2 bg-light border-bottom" style="overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: thin;">
+    <div class="ai-quick-prompts px-3 py-2 bg-light border-bottom" style="overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;">
         <div class="d-flex gap-1">
             @foreach($quickPrompts as $prompt)
                 <button type="button" class="btn btn-outline-primary btn-sm rounded-pill ai-prompt-chip py-1 px-2 text-nowrap"
@@ -229,6 +235,35 @@
         margin-bottom: 4px;
         font-family: monospace;
     }
+    /* Hide native horizontal scrollbars cleanly for prompt chips ribbon */
+    .ai-quick-prompts {
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+    .ai-quick-prompts::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    /* Modern subtle scrollbar for Messages Container */
+    #ai-messages-container {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(13, 56, 130, 0.25) transparent;
+    }
+    #ai-messages-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    #ai-messages-container::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    #ai-messages-container::-webkit-scrollbar-thumb {
+        background-color: rgba(13, 56, 130, 0.25);
+        border-radius: 10px;
+    }
+    #ai-messages-container::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(13, 56, 130, 0.45);
+    }
 </style>
 
 <script>
@@ -266,6 +301,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (closeBtn) closeBtn.addEventListener('click', togglePanel);
 
     // Quick prompts
+    const quickPromptsRibbon = document.querySelector('.ai-quick-prompts');
+    if (quickPromptsRibbon) {
+        quickPromptsRibbon.addEventListener('wheel', function(e) {
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                quickPromptsRibbon.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
+    }
+
     promptChips.forEach(chip => {
         chip.addEventListener('click', function() {
             const promptText = this.getAttribute('data-prompt');
@@ -374,6 +419,27 @@ document.addEventListener('DOMContentLoaded', function() {
         // Render Action Proposal Card if present
         if (actionProposal && actionProposal.type) {
             const propId = 'prop_' + Math.random().toString(36).substring(2, 9);
+            let extraInputsHtml = '';
+            if (actionProposal.type === 'change_password' && actionProposal.data && actionProposal.data.requires_input) {
+                extraInputsHtml = `
+                    <div class="my-2 p-2 bg-white rounded border">
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold text-secondary mb-1" style="font-size: 0.78rem;">
+                                <i class="fas fa-key text-warning me-1"></i>كلمة المرور الجديدة (8 أحرف على الأقل):
+                            </label>
+                            <input type="password" class="form-control form-control-sm ai-new-pass" placeholder="أدخل كلمة المرور الجديدة" style="font-size: 0.85rem;" autocomplete="new-password">
+                        </div>
+                        <div class="mb-1">
+                            <label class="form-label small fw-bold text-secondary mb-1" style="font-size: 0.78rem;">
+                                <i class="fas fa-lock text-warning me-1"></i>تأكيد كلمة المرور الجديدة:
+                            </label>
+                            <input type="password" class="form-control form-control-sm ai-confirm-pass" placeholder="أعد إدخال كلمة المرور" style="font-size: 0.85rem;" autocomplete="new-password">
+                        </div>
+                        <div class="text-danger small mt-1 d-none ai-pass-error" style="font-size: 0.78rem;"></div>
+                    </div>
+                `;
+            }
+
             bubbleHtml += `
                 <div class="ai-action-card mt-2" id="${propId}">
                     <div class="fw-bold text-dark d-flex align-items-center gap-1 mb-1">
@@ -383,6 +449,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="small text-muted mb-2">
                         ${actionProposal.details ? parseMarkdown(actionProposal.details) : ''}
                     </div>
+                    ${extraInputsHtml}
                     <div class="d-flex gap-2">
                         <button type="button" class="btn btn-sm btn-success py-1 px-3 confirm-action-btn"
                                 data-prop-id="${propId}"
@@ -420,6 +487,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 const actionType = this.getAttribute('data-action-type');
                 const actionData = JSON.parse(this.getAttribute('data-action-data') || '{}');
                 const card = document.getElementById(propId);
+
+                // Handle interactive password input validation
+                if (actionType === 'change_password' && actionData.requires_input) {
+                    const newPassInput = card ? card.querySelector('.ai-new-pass') : null;
+                    const confirmPassInput = card ? card.querySelector('.ai-confirm-pass') : null;
+                    const errorBox = card ? card.querySelector('.ai-pass-error') : null;
+
+                    const newPass = newPassInput ? newPassInput.value.trim() : '';
+                    const confirmPass = confirmPassInput ? confirmPassInput.value.trim() : '';
+
+                    if (!newPass || newPass.length < 8) {
+                        if (errorBox) {
+                            errorBox.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>يجب ألا تقل كلمة المرور عن 8 خانات.';
+                            errorBox.classList.remove('d-none');
+                        }
+                        if (newPassInput) newPassInput.focus();
+                        return;
+                    }
+
+                    if (newPass !== confirmPass) {
+                        if (errorBox) {
+                            errorBox.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>كلمتا المرور غير متطابقتين. يرجى التأكد وإعادة المحاولة.';
+                            errorBox.classList.remove('d-none');
+                        }
+                        if (confirmPassInput) confirmPassInput.focus();
+                        return;
+                    }
+
+                    if (errorBox) errorBox.classList.add('d-none');
+                    actionData.new_password = newPass;
+                }
 
                 this.disabled = true;
                 this.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>جاري التنفيذ...';

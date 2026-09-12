@@ -248,6 +248,9 @@ body.bento-theme {
 .stat-card-clean.stat-danger .icon-wrapper { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
 .stat-card-clean.stat-danger::before { background: #ef4444; }
 
+.stat-card-clean.stat-secondary .icon-wrapper { background: rgba(100, 116, 139, 0.1); color: #64748b; }
+.stat-card-clean.stat-secondary::before { background: #64748b; }
+
 /* Table Cards (Opt-in floating card rows) */
 .table-cards {
     border-spacing: 0 10px !important;

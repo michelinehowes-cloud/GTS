@@ -792,23 +792,22 @@
 
             <!-- Status & Action Badges -->
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                @if($fair && $fair->status === 'ongoing')
+                @if(isset($setting) && $setting->is_live_now)
                     <div class="live-pill">
                         <span class="live-dot"></span>
                         <span>بث حي ومباشر الآن</span>
                     </div>
+                    <div class="viewers-badge">
+                        <i class="fas fa-users text-danger"></i>
+                        <span id="liveViewerCount">{{ number_format($setting->viewers_count ?: 1) }}</span>
+                        <span class="text-white-50">مشاهد الآن</span>
+                    </div>
                 @else
                     <div class="offline-pill">
                         <i class="far fa-clock"></i>
-                        <span>البث مجدول قريباً</span>
+                        <span>البث متوقف حالياً</span>
                     </div>
                 @endif
-
-                <div class="viewers-badge">
-                    <i class="fas fa-users text-primary"></i>
-                    <span id="liveViewerCount">1,340</span>
-                    <span class="text-white-50">مشاهد الآن</span>
-                </div>
 
                 <a href="{{ route('home') }}" class="btn btn-outline-light btn-sm rounded-pill px-3 py-1.5" style="border-color: var(--border-glass);">
                     <i class="fas fa-home me-1"></i> الرئيسية
@@ -850,35 +849,27 @@
                         </div>
 
                         <!-- Top Left Channel Selector -->
+                        @if(isset($cameras) && $cameras->count() > 0)
                         <div class="stream-channels-bar">
-                            @if(isset($cameras) && $cameras->count() > 0)
-                                @foreach($cameras as $cam)
-                                    <button type="button" class="channel-btn {{ (isset($activeCamera) && $activeCamera->id === $cam->id) ? 'active' : '' }}" onclick="switchCameraFeed('{{ $cam->id }}', '{{ $cam->stream_type }}', '{{ $cam->embed_url }}', '{{ addslashes($cam->title) }}', '{{ addslashes($cam->location_tag ?? '') }}', this)">
-                                        <i class="fas fa-video me-1"></i> {{ $cam->title }}
-                                    </button>
-                                @endforeach
-                            @else
-                                <button type="button" class="channel-btn active" onclick="switchChannel('main', this)">
-                                    <i class="fas fa-tv me-1"></i> القاعة الرئيسية
+                            @foreach($cameras as $cam)
+                                <button type="button" class="channel-btn {{ (isset($activeCamera) && $activeCamera->id === $cam->id) ? 'active' : '' }}" onclick="switchCameraFeed('{{ $cam->id }}', '{{ $cam->stream_type }}', '{{ $cam->embed_url }}', '{{ addslashes($cam->title) }}', '{{ addslashes($cam->location_tag ?? '') }}', this)">
+                                    <i class="fas fa-video me-1"></i> {{ $cam->title }}
                                 </button>
-                                <button type="button" class="channel-btn" onclick="switchChannel('workshops', this)">
-                                    <i class="fas fa-chalkboard-teacher me-1"></i> ورش العمل
-                                </button>
-                                <button type="button" class="channel-btn" onclick="switchChannel('interviews', this)">
-                                    <i class="fas fa-handshake me-1"></i> غرفة المقابلات
-                                </button>
-                            @endif
+                            @endforeach
                         </div>
+                        @endif
 
                         <!-- Screen Content -->
                         <div class="player-inner" id="playerInner">
                             @if(isset($setting) && $setting->is_live_now && isset($activeCamera))
                                 <div id="liveVideoContainer" style="width: 100%; height: 100%; position: absolute; inset: 0; z-index: 5; background: #000;">
-                                    @if($activeCamera->stream_type === 'youtube_live')
+                                    @if($activeCamera->is_mjpeg)
+                                        <img id="activeStreamImg" src="{{ $activeCamera->embed_url }}" style="width: 100%; height: 100%; object-fit: contain; background: #000;" alt="{{ $activeCamera->title }}">
+                                    @elseif($activeCamera->stream_type === 'youtube_live')
                                         <iframe id="activeStreamIframe" src="{{ $activeCamera->embed_url }}" style="width: 100%; height: 100%; border: none;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                                    @elseif($activeCamera->stream_type === 'hls_m3u8')
-                                        <video id="activeStreamVideo" controls autoplay muted style="width: 100%; height: 100%; object-fit: cover;">
-                                            <source src="{{ $activeCamera->stream_url }}" type="application/x-mpegURL">
+                                    @elseif($activeCamera->stream_type === 'hls_m3u8' || $activeCamera->is_direct_video)
+                                        <video id="activeStreamVideo" controls autoplay muted playsinline style="width: 100%; height: 100%; object-fit: contain; background: #000;">
+                                            <source src="{{ $activeCamera->stream_url }}">
                                         </video>
                                     @else
                                         <iframe id="activeStreamIframe" src="{{ $activeCamera->embed_url }}" style="width: 100%; height: 100%; border: none;" allowfullscreen></iframe>
@@ -893,14 +884,14 @@
                                 </div>
 
                                 <h3 class="fw-bold text-white mb-2" id="channelHeadline">
-                                    {{ (isset($setting) && $setting->broadcast_title) ? $setting->broadcast_title : ($fair ? $fair->title : 'حفل افتتاح معرض يوم التوظيف والتدريب 2026') }}
+                                    {{ (isset($setting) && $setting->broadcast_title) ? $setting->broadcast_title : ($fair ? $fair->title : 'البث المباشر للفعاليات والأنشطة') }}
                                 </h3>
 
                                 <p class="text-white-50 small mb-2" style="max-width: 540px;" id="channelDesc">
                                     @if(isset($setting) && $setting->is_live_now)
-                                        تجري الآن الفعاليات المباشرة والمراسم الرسمية وعروض الشركات الراعية مباشرة من مسرح جامعة طرابلس.
+                                        {{ $setting->broadcast_description ?: 'تجري الآن الفعاليات المباشرة والمراسم الرسمية مباشرة من جامعة طرابلس.' }}
                                     @else
-                                        سينطلق البث الحي عالي الدقة لجميع فعاليات المعرض والندوات المهنية وجلسات الإرشاد.
+                                        البث المباشر متوقف حالياً. سينطلق البث فور بدء الفعاليات المعتمدة في المنظومة.
                                     @endif
                                 </p>
 
@@ -914,6 +905,7 @@
                                     </div>
                                 @endif
 
+                                @if(isset($setting) && $setting->is_live_now)
                                 <!-- Animated sound equalizer -->
                                 <div class="sound-wave-container" id="soundWaves">
                                     <div class="sound-bar"></div>
@@ -924,6 +916,7 @@
                                     <div class="sound-bar"></div>
                                     <div class="sound-bar"></div>
                                 </div>
+                                @endif
 
                             </div>
                         </div>
@@ -958,11 +951,17 @@
                     <div class="stream-info-bar">
                         <div>
                             <div class="stream-title-text" id="streamCurrentTitle">
-                                الجلسة الافتتاحية: آفاق التوظيف وتأهيل الكفاءات الوطنية 2026
+                                {{ (isset($setting) && $setting->broadcast_title) ? $setting->broadcast_title : ($fair ? $fair->title : 'البث المباشر للفعاليات والأنشطة') }}
                             </div>
                             <div class="stream-speaker-tag">
-                                <i class="fas fa-microphone-alt text-warning"></i>
-                                <span id="streamCurrentSpeaker">المتحدث: د. عميد شؤون الخريجين والتدريب &bull; قاعة الاحتفالات الكبرى</span>
+                                <i class="fas fa-broadcast-tower text-warning"></i>
+                                <span id="streamCurrentSpeaker">
+                                    @if(isset($setting) && $setting->is_live_now)
+                                        {{ $setting->broadcast_description ?: 'بث حي ومباشر من جامعة طرابلس' }}
+                                    @else
+                                        البث المباشر متوقف حالياً &bull; ترقبوا بدء الفعاليات القادمة
+                                    @endif
+                                </span>
                             </div>
                         </div>
 
@@ -983,38 +982,6 @@
                         </div>
                     </div>
 
-                </div>
-
-                <!-- Live Poll Widget -->
-                <div class="poll-card">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="fas fa-poll text-warning fs-5"></i>
-                            <h5 class="fw-bold text-white mb-0">استطلاع رأي الحضور المباشر</h5>
-                        </div>
-                        <span class="badge bg-secondary-subtle text-white-50 rounded-pill px-3 py-1 small">تصويت فوري</span>
-                    </div>
-                    <p class="text-white-50 small mb-3">
-                        ما هو المسار الأكثر طلباً بالنسبة لك في فرص العمل والتدريب لهذا الموسم؟
-                    </p>
-
-                    <button type="button" class="poll-option-btn" onclick="votePoll(this, 62)">
-                        <div class="poll-progress-fill" style="width: 0%;"></div>
-                        <span style="position: relative; z-index: 1;">تكنولوجيا المعلومات والذكاء الاصطناعي</span>
-                        <span class="poll-pct fw-bold" style="position: relative; z-index: 1;">62%</span>
-                    </button>
-
-                    <button type="button" class="poll-option-btn" onclick="votePoll(this, 24)">
-                        <div class="poll-progress-fill" style="width: 0%;"></div>
-                        <span style="position: relative; z-index: 1;">الهندسة والطاقة المتجددة</span>
-                        <span class="poll-pct fw-bold" style="position: relative; z-index: 1;">24%</span>
-                    </button>
-
-                    <button type="button" class="poll-option-btn" onclick="votePoll(this, 14)">
-                        <div class="poll-progress-fill" style="width: 0%;"></div>
-                        <span style="position: relative; z-index: 1;">الإدارة، المحاسبة والتسويق الرقمي</span>
-                        <span class="poll-pct fw-bold" style="position: relative; z-index: 1;">14%</span>
-                    </button>
                 </div>
 
                 <!-- In-person Attendance Callout Banner -->
@@ -1082,82 +1049,13 @@
 
                         <!-- Chat Messages List -->
                         <div class="chat-messages-area" id="chatMessagesArea">
-                            
-                            <div class="chat-msg">
-                                <div class="chat-avatar" style="background: #ef4444;">
-                                    <i class="fas fa-shield-alt"></i>
+                            <div class="chat-empty-state text-center py-5 px-3 text-white-50" id="chatEmptyState">
+                                <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; background: rgba(255,255,255,0.06); color: #94a3b8;">
+                                    <i class="fas fa-comments fs-4"></i>
                                 </div>
-                                <div class="chat-bubble">
-                                    <div class="chat-author">
-                                        <span>مشرف البث الرسمي</span>
-                                        <span class="badge-mod">إدارة</span>
-                                    </div>
-                                    <div class="chat-text">
-                                        أهلاً وسهلاً بجميع الخريجين والباحثين عن عمل في البث المباشر لمعرض التوظيف والتدريب 2026.
-                                    </div>
-                                </div>
+                                <h6 class="text-white fw-bold mb-1">الدردشة المباشرة مفتوحة</h6>
+                                <p class="small text-white-50 mb-0">لا توجد رسائل سابقة. شارك برأيك أو اطرح سؤالك أثناء البث.</p>
                             </div>
-
-                            <div class="chat-msg">
-                                <div class="chat-avatar" style="background: #0284c7;">
-                                    خ.م
-                                </div>
-                                <div class="chat-bubble">
-                                    <div class="chat-author">
-                                        <span>خالد المصراتي</span>
-                                        <span class="badge-grad">خريج هندسة حاسوب</span>
-                                    </div>
-                                    <div class="chat-text">
-                                        ما شاء الله، التغطية وجودة الصوت ممتازة جداً! بالتوفيق لجميع زملائنا الخريجين.
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="chat-msg">
-                                <div class="chat-avatar" style="background: #10b981;">
-                                    س.ع
-                                </div>
-                                <div class="chat-bubble">
-                                    <div class="chat-author">
-                                        <span>سارة عبد السلام</span>
-                                        <span class="badge-grad">خريجة إدارة أعمال</span>
-                                    </div>
-                                    <div class="chat-text">
-                                        هل سيتم الإعلان عن فرص العمل للمصارف والشركات التقنية أثناء البث؟
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="chat-msg">
-                                <div class="chat-avatar" style="background: #ef4444;">
-                                    <i class="fas fa-shield-alt"></i>
-                                </div>
-                                <div class="chat-bubble">
-                                    <div class="chat-author">
-                                        <span>مشرف البث الرسمي</span>
-                                        <span class="badge-mod">إدارة</span>
-                                    </div>
-                                    <div class="chat-text">
-                                        نعم بالتأكيد يا سارة، تابعوا علامة تبويب "فرص فورية" بجانب الدردشة لمشاهدة الوظائف التي يتم إطلاقها تباعاً.
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="chat-msg">
-                                <div class="chat-avatar" style="background: #8b5cf6;">
-                                    ع.ط
-                                </div>
-                                <div class="chat-bubble">
-                                    <div class="chat-author">
-                                        <span>عمر الطرابلسي</span>
-                                        <span class="badge-grad">خريج محاسبة</span>
-                                    </div>
-                                    <div class="chat-text">
-                                        نشكر الجامعة ومكتب تدريب الخريجين على إتاحة هذا البث الرائع لمن يتعذر عليه الحضور.
-                                    </div>
-                                </div>
-                            </div>
-
                         </div>
 
                         <!-- Chat Input Box -->
@@ -1196,54 +1094,12 @@
                                 </div>
                             @endforeach
                         @else
-                            <!-- Default Agenda if no dynamic events saved yet -->
-                            <div class="timeline-card active-session">
-                                <div class="timeline-time">
-                                    <i class="far fa-clock"></i>
-                                    <span>09:30 ص - 10:30 ص</span>
-                                    <span class="badge bg-danger ms-auto px-2 py-0.5" style="font-size: 0.65rem;">جارٍ الآن</span>
+                            <div class="text-center py-5 px-3 text-white-50">
+                                <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; background: rgba(255,255,255,0.06); color: #94a3b8;">
+                                    <i class="far fa-calendar-times fs-4"></i>
                                 </div>
-                                <div class="timeline-title">مراسم الافتتاح وكلمة رئاسة الجامعة وعمادة شؤون الخريجين</div>
-                                <div class="timeline-speaker">
-                                    <i class="fas fa-user-tie text-primary"></i>
-                                    <span>أ.د. رئيس الجامعة &bull; د. مدير مكتب التدريب</span>
-                                </div>
-                            </div>
-
-                            <div class="timeline-card">
-                                <div class="timeline-time">
-                                    <i class="far fa-clock"></i>
-                                    <span>10:45 ص - 11:45 ص</span>
-                                </div>
-                                <div class="timeline-title">جلسة حوارية: احتياجات سوق العمل الليبي والتحول الرقمي</div>
-                                <div class="timeline-speaker">
-                                    <i class="fas fa-users text-primary"></i>
-                                    <span>مدراء الموارد البشرية لدى كبرى الشركات والمصارف</span>
-                                </div>
-                            </div>
-
-                            <div class="timeline-card">
-                                <div class="timeline-time">
-                                    <i class="far fa-clock"></i>
-                                    <span>12:00 م - 01:15 م</span>
-                                </div>
-                                <div class="timeline-title">ورشة عمل: اجتياز مقابلات العمل وبناء السيرة الذاتية الذكية</div>
-                                <div class="timeline-speaker">
-                                    <i class="fas fa-lightbulb text-warning"></i>
-                                    <span>نخبة من خبراء الإرشاد والتوجيه المهني</span>
-                                </div>
-                            </div>
-
-                            <div class="timeline-card">
-                                <div class="timeline-time">
-                                    <i class="far fa-clock"></i>
-                                    <span>01:30 م - 03:00 م</span>
-                                </div>
-                                <div class="timeline-title">إعلان برامج التدريب الصيفي وفرص التوظيف المباشر للخريجين</div>
-                                <div class="timeline-speaker">
-                                    <i class="fas fa-trophy text-gold"></i>
-                                    <span>ممثلو الشركات الراعية والشركاء الأكاديميين</span>
-                                </div>
+                                <h6 class="text-white fw-bold mb-1">لا توجد فقرات مجدولة حالياً</h6>
+                                <p class="small text-white-50 mb-0">سيتم إدراج جدول البث والفعاليات فور اعتمادها في المنظومة.</p>
                             </div>
                         @endif
 
@@ -1512,6 +1368,9 @@
 
             const initials = userName.split(' ').map(n => n[0]).join('').substring(0, 2);
 
+            const emptyState = document.getElementById('chatEmptyState');
+            if (emptyState) emptyState.remove();
+
             msgEl.innerHTML = `
                 <div class="chat-avatar" style="background: #2563eb;">${initials}</div>
                 <div class="chat-bubble">
@@ -1538,14 +1397,6 @@
 
         function escapeHtml(str) {
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        }
-
-        // Live Poll Voting
-        function votePoll(button, pct) {
-            const progress = button.querySelector('.poll-progress-fill');
-            progress.style.width = pct + '%';
-            button.style.borderColor = 'var(--primary)';
-            showToast('شكراً لتصويتك في استطلاع البث المباشر!');
         }
 
         // Share Stream
@@ -1585,17 +1436,6 @@
             const toast = new bootstrap.Toast(toastEl, { delay: 2800 });
             toast.show();
         }
-
-        // Fluctuate Live Viewers slightly to feel dynamic and alive
-        setInterval(() => {
-            const counterEl = document.getElementById('liveViewerCount');
-            if (counterEl) {
-                let current = parseInt(counterEl.innerText.replace(',', '')) || 1340;
-                let delta = Math.floor(Math.random() * 9) - 4; // -4 to +4
-                let next = Math.max(1200, current + delta);
-                counterEl.innerText = next.toLocaleString('en-US');
-            }
-        }, 5000);
     </script>
 </body>
 </html>

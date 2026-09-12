@@ -50,9 +50,11 @@
                                     <i class="fas fa-list me-2"></i>جميع الترشيحات
                                 </a>
                                 @endif
+                                @can('update', $opportunity)
                                 <a href="{{ route('job-opportunities.edit', $opportunity->id) }}" class="btn btn-warning fw-bold rounded-pill py-2 shadow-sm">
                                     <i class="fas fa-edit me-2"></i>تعديل الفرصة
                                 </a>
+                                @endcan
                                 <a href="{{ route('job-opportunities.index') }}" class="btn rounded-pill py-2" style="color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.2);">
                                     <i class="fas fa-arrow-right me-2"></i>رجوع للقائمة
                                 </a>

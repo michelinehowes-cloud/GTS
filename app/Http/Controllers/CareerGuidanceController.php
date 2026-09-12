@@ -36,17 +36,25 @@ class CareerGuidanceController extends Controller
             abort(403, 'غير مصرح لك بالوصول إلى لوحة الإرشاد المهني');
         }
 
+        // إحصائيات الخريجين: تعتمد على جدول المستخدمين (role=graduate) وليس فقط من أكملوا ملفاتهم
+        $totalGraduateUsers = User::where('role', 'graduate')->count();
         $stats = [
-            'totalGraduates' => GraduateData::count(),
-            'employedGraduates' => GraduateData::where('employment_status', 'employed')->count(),
+            'totalGraduates'       => $totalGraduateUsers,
+            'employedGraduates'    => GraduateData::where('employment_status', 'employed')->count(),
             'seekingOpportunities' => GraduateData::where('employment_status', 'seeking_opportunities')->count(),
-            'totalNominations' => Nomination::count(),
-            'pendingNominations' => Nomination::where('status', 'pending')->count(),
-            'acceptedNominations' => Nomination::where('final_status', 'hired')->count(),
-            'totalOpportunities' => JobOpportunity::where('status', 'open')->count(),
+            'totalNominations'     => Nomination::count(),
+            'pendingNominations'   => Nomination::where('status', 'pending')->count(),
+            'acceptedNominations'  => Nomination::where('final_status', 'hired')->count(),
+            'totalOpportunities'   => JobOpportunity::where('status', 'open')->count(),
+            // عدد من لم يكملوا ملفاتهم بعد
+            'pendingProfileCount'  => User::where('role', 'graduate')->doesntHave('graduateData')->count(),
         ];
 
-        $recentGraduates = GraduateData::latest()->take(5)->get();
+        $recentGraduates = User::where('role', 'graduate')
+            ->with('graduateData')
+            ->latest()
+            ->take(5)
+            ->get();
         $recentNominations = Nomination::with(['graduate', 'jobOpportunity'])
             ->latest()
             ->take(5)
@@ -257,7 +265,8 @@ class CareerGuidanceController extends Controller
     {
         $this->authorize('viewAny', GraduateData::class);
 
-        $query = GraduateData::query();
+        // نعتمد على جدول users (role=graduate) كقاعدة، مع تحميل graduate_data إذا وُجدت
+        $query = User::where('role', 'graduate')->with('graduateData');
 
         // بحث شامل (الاسم، الهاتف، البريد، الرقم الوطني)
         if ($request->filled('search')) {
@@ -266,7 +275,10 @@ class CareerGuidanceController extends Controller
                 $q->where('name', 'like', '%' . $searchTerm . '%')
                   ->orWhere('phone', 'like', '%' . $searchTerm . '%')
                   ->orWhere('email', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('national_id', 'like', '%' . $searchTerm . '%');
+                  ->orWhereHas('graduateData', function ($gq) use ($searchTerm) {
+                      $gq->where('national_id', 'like', '%' . $searchTerm . '%')
+                         ->orWhere('phone', 'like', '%' . $searchTerm . '%');
+                  });
             });
         }
 
@@ -279,33 +291,52 @@ class CareerGuidanceController extends Controller
         // بحث مخصص برقم الهاتف
         if ($request->filled('phone')) {
             $phone = trim($request->phone);
-            $query->where('phone', 'like', '%' . $phone . '%');
+            $query->where(function ($q) use ($phone) {
+                $q->where('phone', 'like', '%' . $phone . '%')
+                  ->orWhereHas('graduateData', fn ($gq) => $gq->where('phone', 'like', '%' . $phone . '%'));
+            });
         }
 
-        // تطبيق الفلاتر
+        // تطبيق الفلاتر على بيانات الخريج (graduateData)
         if ($request->filled('major')) {
-            $query->where('major', 'like', '%' . $request->major . '%');
+            $query->where(function ($q) use ($request) {
+                $q->where('major', 'like', '%' . $request->major . '%')
+                  ->orWhereHas('graduateData', fn ($gq) => $gq->where('major', 'like', '%' . $request->major . '%'));
+            });
         }
 
         if ($request->filled('graduation_year')) {
-            $query->where('graduation_year', $request->graduation_year);
+            $query->where(function ($q) use ($request) {
+                $q->where('graduation_year', $request->graduation_year)
+                  ->orWhereHas('graduateData', fn ($gq) => $gq->where('graduation_year', $request->graduation_year));
+            });
         }
 
         if ($request->filled('employment_status')) {
             $status = $request->employment_status;
-            if ($status === 'continuing_education' || $status === 'further_study') {
-                $query->whereIn('employment_status', ['continuing_education', 'further_study']);
-            } else {
-                $query->where('employment_status', $status);
-            }
+            $statuses = ($status === 'continuing_education' || $status === 'further_study')
+                ? ['continuing_education', 'further_study']
+                : [$status];
+            $query->whereHas('graduateData', fn ($gq) => $gq->whereIn('employment_status', $statuses));
         }
 
-        $graduates = $query->withCount([
-            'nominations',
-            'nominations as accepted_nominations_count' => function ($q) {
-                $q->where('final_status', 'hired');
-            }
-        ])->latest()->get();
+        $graduates = $query->latest()->get();
+
+        // احسب عدد ترشيحات كل خريج (عبر GraduateData)
+        $graduateDataIds = $graduates->pluck('graduateData.id')->filter();
+        $nominationCounts = \DB::table('nominations')
+            ->whereIn('graduate_id', $graduateDataIds)
+            ->selectRaw('graduate_id, COUNT(*) as total, SUM(CASE WHEN final_status="hired" THEN 1 ELSE 0 END) as hired')
+            ->groupBy('graduate_id')
+            ->get()
+            ->keyBy('graduate_id');
+
+        $graduates->each(function ($user) use ($nominationCounts) {
+            $gdId = optional($user->graduateData)->id;
+            $counts = $gdId ? ($nominationCounts[$gdId] ?? null) : null;
+            $user->nominations_count = $counts ? $counts->total : 0;
+            $user->accepted_nominations_count = $counts ? $counts->hired : 0;
+        });
 
         $majors = GraduateData::whereNotNull('major')->where('major', '!=', '')->distinct()->pluck('major');
         $graduationYears = GraduateData::whereNotNull('graduation_year')->distinct()->orderBy('graduation_year', 'desc')->pluck('graduation_year');

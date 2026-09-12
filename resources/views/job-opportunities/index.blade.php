@@ -16,6 +16,20 @@
     .job-mobile-card:hover {
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
     }
+    .sticky-actions-col {
+        position: sticky;
+        left: 0;
+        background: #ffffff;
+        z-index: 5;
+        box-shadow: -3px 0 8px rgba(0, 0, 0, 0.04);
+    }
+    thead th.sticky-actions-col {
+        background: #f8fafc !important;
+        z-index: 6;
+    }
+    tr:hover td.sticky-actions-col {
+        background: #f1f5f9;
+    }
 </style>
 @endpush
 
@@ -24,36 +38,38 @@
     <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
     <x-page-hero
         title="فرص العمل والتدريب"
-        subtitle="إدارة واستعراض جميع فرص العمل والبرامج التدريبية المتاحة للخريجين والشركات الشريكة"
+        subtitle="{{ ($isCompany ?? false) ? 'إدارة واستعراض فرص العمل والتدريب الخاصة بشركتكم ومتابعة المتقدمين والمرشحين' : 'إدارة واستعراض جميع فرص العمل والبرامج التدريبية المتاحة للخريجين والشركات الشريكة' }}"
         icon="fas fa-briefcase"
         :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
             ['label' => 'فرص العمل والتدريب']
         ]"
-        badge="إدارة التوظيف والفرص"
+        badge="{{ ($isCompany ?? false) ? ($userCompany->name ?? 'لوحة إدارة الفرص') : 'إدارة التوظيف والفرص' }}"
     >
         <a href="{{ route('job-opportunities.create') }}" class="btn btn-warning text-dark fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
             <i class="fas fa-plus-circle"></i>
             <span>إضافة فرصة جديدة</span>
         </a>
+        @if(!($isCompany ?? false))
         <button class="btn btn-light bg-white text-success fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5" data-bs-toggle="modal" data-bs-target="#importModal">
             <i class="fas fa-file-import"></i>
             <span>استيراد</span>
         </button>
+        @endif
     </x-page-hero>
 
     <!-- بطاقات الإحصائيات (2x3 على الموبايل و6 على الديسكتوب) -->
     <div class="row g-2 g-md-3 mb-4">
         @include('components.stat-card', [
             'col' => 'col-6 col-md-4 col-xl-2',
-            'title' => 'إجمالي الفرص',
+            'title' => ($isCompany ?? false) ? 'إجمالي فرَصنا' : 'إجمالي الفرص',
             'value' => $stats['total'] ?? (method_exists($opportunities, 'total') ? $opportunities->total() : $opportunities->count()),
             'icon' => 'fas fa-briefcase',
             'color' => 'primary'
         ])
         @include('components.stat-card', [
             'col' => 'col-6 col-md-4 col-xl-2',
-            'title' => 'مفتوحة',
+            'title' => 'مفتوحة للتقديم',
             'value' => $stats['open'] ?? $opportunities->where('status', 'open')->count(),
             'icon' => 'fas fa-door-open',
             'color' => 'success'
@@ -81,8 +97,8 @@
         ])
         @include('components.stat-card', [
             'col' => 'col-6 col-md-4 col-xl-2',
-            'title' => 'الترشيحات',
-            'value' => $opportunities->sum('nominations_count'),
+            'title' => ($isCompany ?? false) ? 'إجمالي الترشيحات' : 'الترشيحات',
+            'value' => ($isCompany ?? false) ? ($stats['nominations'] ?? $opportunities->sum('nominations_count')) : $opportunities->sum('nominations_count'),
             'icon' => 'fas fa-users',
             'color' => 'danger'
         ])
@@ -90,14 +106,27 @@
 
     <!-- فلترة وتصفية البيانات -->
     <div class="card-modern mb-4">
-        <div class="card-header bg-white py-3 border-bottom">
+        <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
             <h6 class="mb-0 text-primary fw-bold fs-6">
-                <i class="fas fa-filter me-2"></i>فلاتر البحث والفرز
+                <i class="fas fa-filter me-2"></i>فلاتر وتصفية الفرص
             </h6>
+            @if(request()->hasAny(['search', 'type', 'status', 'company_id']))
+                <a href="{{ route('job-opportunities.index') }}" class="btn btn-sm btn-link text-danger p-0 text-decoration-none">
+                    <i class="fas fa-times-circle me-1"></i>مسح الفلاتر
+                </a>
+            @endif
         </div>
         <div class="card-body p-3">
-            <form method="GET" class="row g-2 g-md-3">
-                <div class="col-6 col-md-3">
+            <form method="GET" action="{{ route('job-opportunities.index') }}" class="row g-2 g-md-3 align-items-end">
+                <div class="{{ ($isCompany ?? false) ? 'col-12 col-md-4' : 'col-12 col-md-3' }}">
+                    <label for="search" class="form-label-modern small fw-bold">بحث بالاسم أو المكان</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" name="search" id="search" class="form-control form-control-sm border-start-0" placeholder="ابحث بعنوان الفرصة أو المكان..." value="{{ request('search') }}">
+                    </div>
+                </div>
+
+                <div class="{{ ($isCompany ?? false) ? 'col-6 col-md-3' : 'col-6 col-md-2' }}">
                     <label for="type" class="form-label-modern small fw-bold">نوع الفرصة</label>
                     <select name="type" id="type" class="form-select form-select-sm">
                         <option value="">جميع الأنواع</option>
@@ -106,7 +135,8 @@
                         <option value="internship" {{ request('type') == 'internship' ? 'selected' : '' }}>تدريب تعاوني</option>
                     </select>
                 </div>
-                <div class="col-6 col-md-3">
+
+                <div class="{{ ($isCompany ?? false) ? 'col-6 col-md-2' : 'col-6 col-md-2' }}">
                     <label for="status" class="form-label-modern small fw-bold">الحالة</label>
                     <select name="status" id="status" class="form-select form-select-sm">
                         <option value="">جميع الحالات</option>
@@ -116,6 +146,8 @@
                         <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>مكتملة</option>
                     </select>
                 </div>
+
+                @if(!($isCompany ?? false))
                 <div class="col-12 col-md-3">
                     <label for="company_id" class="form-label-modern small fw-bold">الشركة</label>
                     <select name="company_id" id="company_id" class="form-select form-select-sm">
@@ -127,12 +159,14 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-12 col-md-3 d-flex align-items-end gap-2">
+                @endif
+
+                <div class="{{ ($isCompany ?? false) ? 'col-12 col-md-3' : 'col-12 col-md-2' }} d-flex gap-2">
                     <button type="submit" class="btn btn-primary-modern btn-sm flex-grow-1">
                         <i class="fas fa-search me-1"></i>بحث
                     </button>
-                    <a href="{{ route('job-opportunities.index') }}" class="btn btn-outline-secondary btn-sm flex-grow-1">
-                        <i class="fas fa-redo me-1"></i>إعادة تعيين
+                    <a href="{{ route('job-opportunities.index') }}" class="btn btn-outline-secondary btn-sm" title="إعادة تعيين">
+                        <i class="fas fa-redo"></i>
                     </a>
                 </div>
             </form>
@@ -140,7 +174,7 @@
     </div>
 
     <!-- قائمة وجدول البيانات -->
-    <div class="card-modern">
+    <div class="card-modern shadow-sm border-0">
         <div class="card-body p-0">
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
@@ -150,22 +184,32 @@
                 </div>
             @endif
 
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
             @if($opportunities->count() > 0)
-                {{-- 🖥️ عرض سطح المكتب: جدول متجاوب --}}
+                {{-- 🖥️ عرض سطح المكتب: جدول متجاوب حديث مع عمود إجراءات ثابت --}}
                 <div class="table-responsive d-none d-md-block">
-                    <table class="table table-hover align-middle mb-0" style="min-width: 1050px;">
+                    <table class="table table-hover align-middle mb-0">
                         <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-                            <tr class="text-secondary fw-bold" style="font-size: 0.83rem;">
-                                <th class="py-3 px-3 text-center text-nowrap" style="width: 50px;">#</th>
-                                <th class="py-3 text-nowrap" style="min-width: 220px;">الفرصة</th>
-                                <th class="py-3 text-nowrap" style="min-width: 180px;">الشركة</th>
-                                <th class="py-3 text-center text-nowrap" style="width: 110px;">النوع</th>
-                                <th class="py-3 text-nowrap" style="width: 120px;">المكان</th>
-                                <th class="py-3 text-nowrap" style="width: 150px;">التواريخ</th>
+                            <tr class="text-secondary fw-bold" style="font-size: 0.82rem;">
+                                <th class="py-3 px-3 text-center text-nowrap" style="width: 45px;">#</th>
+                                <th class="py-3 text-nowrap" style="min-width: 200px;">الفرصة</th>
+                                @if(!($isCompany ?? false))
+                                    <th class="py-3 text-nowrap" style="min-width: 170px;">الشركة</th>
+                                @endif
+                                <th class="py-3 text-center text-nowrap" style="width: 120px;">النوع</th>
+                                <th class="py-3 text-nowrap" style="width: 110px;">المكان</th>
+                                <th class="py-3 text-nowrap" style="width: 130px;">التواريخ</th>
                                 <th class="py-3 text-center text-nowrap" style="width: 70px;">المقاعد</th>
-                                <th class="py-3 text-center text-nowrap" style="width: 80px;">الترشيحات</th>
-                                <th class="py-3 text-center text-nowrap" style="width: 95px;">الحالة</th>
-                                <th class="py-3 text-center text-nowrap" style="width: 130px;">الإجراءات</th>
+                                <th class="py-3 text-center text-nowrap" style="width: 85px;">الترشيحات</th>
+                                <th class="py-3 text-center text-nowrap" style="width: 90px;">الحالة</th>
+                                <th class="py-3 text-center text-nowrap sticky-actions-col" style="width: 140px;">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -174,30 +218,43 @@
                                 <td class="px-3 text-center text-muted fw-bold" style="font-size: 0.85rem;">{{ $loop->iteration }}</td>
                                 <td>
                                     <div>
-                                        <h6 class="mb-1 fw-bold text-dark fs-6">{{ $opportunity->title }}</h6>
-                                        <p class="text-muted small mb-1 text-truncate" style="max-width: 280px; font-size: 0.78rem;">
-                                            {{ Str::limit($opportunity->description, 70) }}
-                                        </p>
-                                        @if($opportunity->salary)
-                                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill fw-bold" style="font-size: 0.72rem;">
-                                                <i class="fas fa-money-bill-wave me-1"></i>{{ number_format($opportunity->salary) }} د.ل
-                                            </span>
-                                        @endif
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-primary flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;">
-                                            <i class="fas fa-building"></i>
-                                        </div>
-                                        <div>
-                                            <div class="fw-bold text-dark" style="font-size: 0.86rem; line-height: 1.3;">{{ $opportunity->company->name ?? 'غير محدد' }}</div>
-                                            @if(!empty($opportunity->company->industry))
-                                                <small class="text-muted d-block" style="font-size: 0.75rem;">{{ $opportunity->company->industry }}</small>
+                                        <a href="{{ route('job-opportunities.show', $opportunity) }}" class="fw-bold text-dark text-decoration-none d-block mb-1 hover-primary fs-6">
+                                            {{ $opportunity->title }}
+                                        </a>
+                                        <div class="d-flex flex-wrap align-items-center gap-2">
+                                            @if($opportunity->salary)
+                                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill fw-bold" style="font-size: 0.72rem;">
+                                                    <i class="fas fa-money-bill-wave me-1"></i>{{ number_format($opportunity->salary) }} د.ل
+                                                </span>
+                                            @endif
+                                            @if($opportunity->contract_type)
+                                                @php
+                                                    $contracts = ['full_time' => 'دوام كامل', 'part_time' => 'دوام جزئي', 'contract' => 'عقد', 'freelance' => 'عمل حر'];
+                                                @endphp
+                                                <span class="badge bg-light text-secondary rounded-pill border" style="font-size: 0.7rem;">
+                                                    {{ $contracts[$opportunity->contract_type] ?? $opportunity->contract_type }}
+                                                </span>
                                             @endif
                                         </div>
                                     </div>
                                 </td>
+
+                                @if(!($isCompany ?? false))
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-primary flex-shrink-0" style="width: 30px; height: 30px; font-size: 0.8rem;">
+                                            <i class="fas fa-building"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 0.85rem; line-height: 1.3;">{{ $opportunity->company->name ?? 'غير محدد' }}</div>
+                                            @if(!empty($opportunity->company->industry))
+                                                <small class="text-muted d-block" style="font-size: 0.72rem;">{{ $opportunity->company->industry }}</small>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </td>
+                                @endif
+
                                 <td class="text-center text-nowrap">
                                     @php
                                         $typeLabels = ['job' => 'وظيفة شاغرة', 'training' => 'تدريب مهني بشركات', 'internship' => 'تدريب تعاوني'];
@@ -210,36 +267,43 @@
                                         <i class="{{ $opportunity->type === 'job' ? 'fas fa-briefcase' : ($opportunity->type === 'training' ? 'fas fa-graduation-cap' : 'fas fa-laptop-code') }} me-1"></i>{{ $typeLabels[$opportunity->type] ?? $opportunity->type }}
                                     </span>
                                 </td>
+
                                 <td class="text-nowrap">
                                     <span class="text-dark small d-inline-flex align-items-center gap-1.5">
                                         <i class="fas fa-map-marker-alt text-danger" style="font-size: 0.8rem;"></i>
                                         <span class="fw-semibold">{{ $opportunity->location }}</span>
                                     </span>
                                 </td>
+
                                 <td class="text-nowrap">
-                                    <div class="d-flex flex-column gap-1" style="font-size: 0.78rem;">
+                                    <div class="d-flex flex-column gap-1" style="font-size: 0.75rem;">
                                         <span class="text-nowrap text-secondary font-monospace d-inline-flex align-items-center gap-1">
-                                            <i class="fas fa-play-circle text-success" style="font-size: 0.75rem;"></i>
+                                            <i class="fas fa-play-circle text-success" style="font-size: 0.7rem;"></i>
                                             <span>{{ $opportunity->start_date ? $opportunity->start_date->format('Y-m-d') : '--' }}</span>
                                         </span>
                                         @if($opportunity->end_date)
                                         <span class="text-nowrap text-muted font-monospace d-inline-flex align-items-center gap-1">
-                                            <i class="fas fa-flag-checkered text-danger" style="font-size: 0.75rem;"></i>
+                                            <i class="fas fa-flag-checkered text-danger" style="font-size: 0.7rem;"></i>
                                             <span>{{ $opportunity->end_date->format('Y-m-d') }}</span>
                                         </span>
                                         @endif
                                     </div>
                                 </td>
+
                                 <td class="text-center text-nowrap">
-                                    <span class="badge rounded-pill px-2.5 py-1 fw-bold" style="background: #f1f5f9; color: #334155; font-size: 0.8rem;">
+                                    <span class="badge rounded-pill px-2.5 py-1 fw-bold" style="background: #f1f5f9; color: #334155; font-size: 0.78rem;" title="عدد المقاعد المتاحة">
                                         {{ $opportunity->seats }}
                                     </span>
                                 </td>
+
                                 <td class="text-center text-nowrap">
-                                    <span class="badge rounded-pill px-2.5 py-1 fw-bold" style="background: #eef2ff; color: #4f46e5; font-size: 0.8rem;">
-                                        {{ $opportunity->nominations_count }}
-                                    </span>
+                                    <a href="{{ route('job-opportunities.nominations', $opportunity) }}" class="text-decoration-none" title="عرض المرشحين">
+                                        <span class="badge rounded-pill px-2.5 py-1 fw-bold {{ $opportunity->nominations_count > 0 ? 'bg-primary text-white' : 'bg-light text-muted border' }}" style="font-size: 0.78rem;">
+                                            <i class="fas fa-users me-1"></i>{{ $opportunity->nominations_count }}
+                                        </span>
+                                    </a>
                                 </td>
+
                                 <td class="text-center text-nowrap">
                                     @php
                                         $statusLabels = ['new' => 'جديدة', 'open' => 'مفتوحة', 'closed' => 'مغلقة', 'completed' => 'مكتملة'];
@@ -252,14 +316,25 @@
                                         <i class="fas fa-circle me-1" style="font-size: 0.45rem;"></i>{{ $statusLabels[$opportunity->status] ?? $opportunity->status }}
                                     </span>
                                 </td>
-                                <td class="text-center text-nowrap">
-                                    <div class="d-inline-flex align-items-center gap-1.5">
+
+                                <td class="text-center text-nowrap sticky-actions-col">
+                                    <div class="d-inline-flex align-items-center gap-1">
+                                        {{-- عرض التفاصيل --}}
                                         <a href="{{ route('job-opportunities.show', $opportunity) }}" class="btn btn-sm btn-light border text-primary rounded-2 px-2 py-1 shadow-none" data-bs-toggle="tooltip" title="عرض التفاصيل">
                                             <i class="fas fa-eye"></i>
                                         </a>
+
+                                        {{-- استعراض المرشحين --}}
+                                        <a href="{{ route('job-opportunities.nominations', $opportunity) }}" class="btn btn-sm btn-light border text-info rounded-2 px-2 py-1 shadow-none" data-bs-toggle="tooltip" title="المرشحون">
+                                            <i class="fas fa-user-check"></i>
+                                        </a>
+
+                                        {{-- تعديل --}}
                                         <a href="{{ route('job-opportunities.edit', $opportunity) }}" class="btn btn-sm btn-light border text-warning rounded-2 px-2 py-1 shadow-none" data-bs-toggle="tooltip" title="تعديل">
                                             <i class="fas fa-edit"></i>
                                         </a>
+
+                                        {{-- حذف --}}
                                         <form action="{{ route('job-opportunities.destroy', $opportunity) }}" method="POST" class="d-inline m-0">
                                             @csrf
                                             @method('DELETE')
@@ -282,9 +357,11 @@
                         <div class="d-flex justify-content-between align-items-start mb-2 gap-2">
                             <div>
                                 <h6 class="fw-bold text-dark mb-1 fs-6">{{ $opportunity->title }}</h6>
+                                @if(!($isCompany ?? false))
                                 <div class="text-muted small">
                                     <i class="fas fa-building me-1 text-primary"></i>{{ $opportunity->company->name ?? 'غير محدد' }}
                                 </div>
+                                @endif
                             </div>
                             <span class="badge rounded-pill
                                 @if($opportunity->status === 'open') bg-success text-white
@@ -313,20 +390,27 @@
 
                         <div class="d-flex justify-content-between align-items-center my-2 py-2 border-top border-bottom border-light small text-muted">
                             <div><i class="fas fa-chair me-1 text-primary"></i> المقاعد: <strong>{{ $opportunity->seats }}</strong></div>
-                            <div><i class="fas fa-users me-1 text-info"></i> الترشيحات: <strong>{{ $opportunity->nominations_count }}</strong></div>
+                            <div>
+                                <a href="{{ route('job-opportunities.nominations', $opportunity) }}" class="text-decoration-none">
+                                    <i class="fas fa-users me-1 text-info"></i> المرشحين: <strong class="badge bg-primary rounded-pill">{{ $opportunity->nominations_count }}</strong>
+                                </a>
+                            </div>
                         </div>
 
-                        <div class="d-flex justify-content-end gap-2 mt-2">
-                            <a href="{{ route('job-opportunities.show', $opportunity) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                        <div class="d-flex justify-content-end gap-2 mt-2 pt-1">
+                            <a href="{{ route('job-opportunities.show', $opportunity) }}" class="btn btn-sm btn-outline-primary rounded-pill px-2.5">
                                 <i class="fas fa-eye me-1"></i>عرض
                             </a>
-                            <a href="{{ route('job-opportunities.edit', $opportunity) }}" class="btn btn-sm btn-outline-warning rounded-pill px-3">
+                            <a href="{{ route('job-opportunities.nominations', $opportunity) }}" class="btn btn-sm btn-outline-info rounded-pill px-2.5">
+                                <i class="fas fa-users me-1"></i>المرشحون
+                            </a>
+                            <a href="{{ route('job-opportunities.edit', $opportunity) }}" class="btn btn-sm btn-outline-warning rounded-pill px-2.5">
                                 <i class="fas fa-edit me-1"></i>تعديل
                             </a>
                             <form action="{{ route('job-opportunities.destroy', $opportunity) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2" onclick="return confirm('هل أنت متأكد من الحذف؟')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2.5" onclick="return confirm('هل أنت متأكد من الحذف؟')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -343,9 +427,14 @@
                 @endif
             @else
                 <div class="text-center py-5">
-                    <i class="fas fa-briefcase fa-3x text-muted mb-3 opacity-50"></i>
-                    <h5 class="text-muted mb-3">لا توجد فرص عمل أو تدريب مسجلة</h5>
-                    <a href="{{ route('job-opportunities.create') }}" class="btn btn-primary-modern btn-sm">
+                    <div class="mb-3">
+                        <div class="d-inline-flex p-3 rounded-circle bg-light text-muted">
+                            <i class="fas fa-briefcase fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                    <h5 class="text-dark fw-bold mb-2">لا توجد فرص عمل أو تدريب مسجلة</h5>
+                    <p class="text-muted small mb-3">لم يتم العثور على أي فرص وظيفية تطابق معايير البحث الحالية.</p>
+                    <a href="{{ route('job-opportunities.create') }}" class="btn btn-primary-modern btn-sm px-3 py-2">
                         <i class="fas fa-plus-circle me-1"></i>إضافة أول فرصة
                     </a>
                 </div>
@@ -355,6 +444,7 @@
 </div>
 
 <!-- Modal الاستيراد -->
+@if(!($isCompany ?? false))
 <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -366,8 +456,18 @@
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="file" class="form-label">اختر ملف Excel أو CSV</label>
-                        <input type="file" name="file" id="file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                        <label for="company_id_import" class="form-label">اختر الشركة</label>
+                        <select name="company_id" id="company_id_import" class="form-select" required>
+                            <option value="">اختر الشركة...</option>
+                            @foreach($companies as $company)
+                                <option value="{{ $company->id }}">{{ $company->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="excel_file" class="form-label">اختر ملف CSV</label>
+                        <input type="file" name="excel_file" id="excel_file" class="form-control" accept=".csv,.txt" required>
+                        <small class="text-muted">الملفات المدعومة: CSV فقط بحجم أقصى 5 ميجابايت.</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -378,4 +478,5 @@
         </div>
     </div>
 </div>
+@endif
 @endsection

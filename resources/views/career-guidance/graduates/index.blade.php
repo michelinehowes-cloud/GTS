@@ -256,21 +256,39 @@
                         </thead>
                         <tbody>
                             @foreach($graduates as $graduate)
-                            <tr>
+                            @php
+                                // $graduate is now a User model; read profile from graduateData if available
+                                $gd = $graduate->graduateData;
+                                $gMajor = $gd->major ?? $graduate->major ?? $graduate->specialization ?? null;
+                                $gFaculty = $gd->faculty ?? $graduate->faculty ?? null;
+                                $gUniversity = $gd->university ?? $graduate->university ?? 'جامعة طرابلس';
+                                $gYear = $gd->graduation_year ?? $graduate->graduation_year ?? null;
+                                $gGpa = $gd->gpa ?? $graduate->gpa ?? null;
+                                $gPhone = $gd->phone ?? $graduate->phone ?? null;
+                                $gEmpStatus = $gd->employment_status ?? null;
+                                $hasProfile = $gd !== null;
+                                // For show/edit routes - use graduateData id if exists, else show user profile
+                                $showRouteId = $gd ? $gd->id : null;
+                            @endphp
+                            <tr class="{{ !$hasProfile ? 'table-warning' : '' }}">
                                 <td class="text-center text-muted fw-bold">{{ $loop->iteration }}</td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2.5">
-                                        <div class="graduate-avatar flex-shrink-0">
+                                        <div class="graduate-avatar flex-shrink-0" style="{{ !$hasProfile ? 'background: linear-gradient(135deg,#f59e0b,#d97706);' : '' }}">
                                             {{ mb_substr($graduate->name, 0, 1) }}
                                         </div>
                                         <div class="graduate-details">
-                                            <a href="{{ route($prefix . '.graduates.show', $graduate->id) }}" class="graduate-name" title="{{ $graduate->name }}">
-                                                {{ $graduate->name }}
-                                            </a>
+                                            @if($showRouteId)
+                                                <a href="{{ route($prefix . '.graduates.show', $showRouteId) }}" class="graduate-name" title="{{ $graduate->name }}">
+                                                    {{ $graduate->name }}
+                                                </a>
+                                            @else
+                                                <span class="graduate-name fw-bold text-dark">{{ $graduate->name }}</span>
+                                            @endif
                                             <div class="graduate-meta d-flex align-items-center gap-2 flex-wrap mt-0.5">
-                                                @if($graduate->phone)
-                                                    <a href="tel:{{ $graduate->phone }}" class="graduate-phone" dir="ltr" title="الاتصال بالخريج">
-                                                        <i class="fas fa-phone-alt me-1"></i>{{ $graduate->phone }}
+                                                @if($gPhone)
+                                                    <a href="tel:{{ $gPhone }}" class="graduate-phone" dir="ltr" title="الاتصال بالخريج">
+                                                        <i class="fas fa-phone-alt me-1"></i>{{ $gPhone }}
                                                     </a>
                                                 @endif
                                                 @if($graduate->email)
@@ -278,43 +296,56 @@
                                                         <i class="fas fa-envelope me-1"></i>{{ $graduate->email }}
                                                     </span>
                                                 @endif
+                                                @if(!$hasProfile)
+                                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-2 py-0.5" style="font-size:0.7rem;">
+                                                        <i class="fas fa-exclamation-triangle me-1"></i>لم يكتمل الملف
+                                                    </span>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="fw-bold text-dark" style="font-size: 0.92rem;">
-                                        {{ $graduate->major }}
-                                    </div>
-                                    <div class="small text-muted d-flex align-items-center gap-1 mt-0.5">
-                                        <i class="fas fa-university text-secondary" style="font-size: 0.78rem;"></i>
-                                        <span>{{ $graduate->faculty ?? ($graduate->university ?? 'جامعة طرابلس') }}</span>
-                                    </div>
-                                </td>
-                                <td class="text-center">
-                                    <div class="fw-bold text-dark" style="font-size: 0.95rem;">
-                                        {{ $graduate->graduation_year }}
-                                    </div>
-                                    @if($graduate->gpa)
-                                        <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-2.5 py-0.5 fw-bold mt-1" style="font-size: 0.75rem;">
-                                            {{ $graduate->gpa }}%
-                                        </span>
+                                    @if($gMajor)
+                                        <div class="fw-bold text-dark" style="font-size: 0.92rem;">
+                                            {{ $gMajor }}
+                                        </div>
+                                        <div class="small text-muted d-flex align-items-center gap-1 mt-0.5">
+                                            <i class="fas fa-university text-secondary" style="font-size: 0.78rem;"></i>
+                                            <span>{{ $gFaculty ?? $gUniversity }}</span>
+                                        </div>
+                                    @else
+                                        <span class="text-muted small fst-italic">غير مكتمل</span>
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    @if($graduate->employment_status == 'employed')
+                                    @if($gYear)
+                                        <div class="fw-bold text-dark" style="font-size: 0.95rem;">
+                                            {{ $gYear }}
+                                        </div>
+                                    @endif
+                                    @if($gGpa)
+                                        <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-2.5 py-0.5 fw-bold mt-1" style="font-size: 0.75rem;">
+                                            {{ $gGpa }}%
+                                        </span>
+                                    @elseif(!$gYear)
+                                        <span class="text-muted small">—</span>
+                                    @endif
+                                </td>
+                                <td class="text-center">
+                                    @if($gEmpStatus == 'employed')
                                         <span class="status-badge status-employed">
                                             <i class="fas fa-check-circle"></i> موظف
                                         </span>
-                                    @elseif($graduate->employment_status == 'seeking_opportunities')
+                                    @elseif($gEmpStatus == 'seeking_opportunities')
                                         <span class="status-badge status-seeking">
                                             <i class="fas fa-search"></i> باحث عن عمل
                                         </span>
-                                    @elseif($graduate->employment_status == 'unemployed')
+                                    @elseif($gEmpStatus == 'unemployed')
                                         <span class="status-badge status-unemployed">
                                             <i class="fas fa-times-circle"></i> عاطل عن العمل
                                         </span>
-                                    @elseif($graduate->employment_status == 'continuing_education' || $graduate->employment_status == 'further_study')
+                                    @elseif(in_array($gEmpStatus, ['continuing_education','further_study']))
                                         <span class="status-badge status-student">
                                             <i class="fas fa-graduation-cap"></i> يواصل دراسته
                                         </span>
@@ -333,19 +364,27 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="d-inline-flex align-items-center gap-1.5">
-                                        <a href="{{ route($prefix . '.graduates.show', $graduate->id) }}" class="action-btn action-btn-info" title="عرض الملف الكامل">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route($prefix . '.graduates.edit', $graduate->id) }}" class="action-btn action-btn-warning" title="تعديل البيانات">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a href="{{ route($prefix . '.nominations.create', ['graduate_id' => $graduate->id]) }}" class="action-btn action-btn-primary" title="ترشيح لفرصة عمل">
-                                            <i class="fas fa-paper-plane"></i>
-                                        </a>
+                                        @if($showRouteId)
+                                            <a href="{{ route($prefix . '.graduates.show', $showRouteId) }}" class="action-btn action-btn-info" title="عرض الملف الكامل">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ route($prefix . '.graduates.edit', $showRouteId) }}" class="action-btn action-btn-warning" title="تعديل البيانات">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{{ route($prefix . '.nominations.create', ['graduate_id' => $showRouteId]) }}" class="action-btn action-btn-primary" title="ترشيح لفرصة عمل">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </a>
+                                        @else
+                                            {{-- الخريج لم يكمل ملفه بعد - يمكن إضافة بيانات له --}}
+                                            <a href="{{ route($prefix . '.graduates.create') }}" class="action-btn action-btn-warning" title="إضافة بيانات الخريج">
+                                                <i class="fas fa-user-plus"></i>
+                                            </a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
                             @endforeach
+
                         </tbody>
                     </table>
                 </div>

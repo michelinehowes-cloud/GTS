@@ -22,6 +22,7 @@ class PartnershipOfficerMiddleware
         if (
             $user->isPartnershipOfficer() ||
             $user->isAdmin() ||
+            $user->isCompany() ||
             $user->hasAnyPermission([
                 'companies.view',
                 'companies.create',

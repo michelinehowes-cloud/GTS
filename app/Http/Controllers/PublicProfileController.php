@@ -12,7 +12,7 @@ class PublicProfileController extends Controller
         $graduate = User::with([
             'graduateData',
             'trainingApplications' => function ($q) {
-                $q->where('status', 'approved')->with('training');
+                $q->where('status', 'approved')->with(['training', 'attendances']);
             }
         ])->findOrFail($id);
 

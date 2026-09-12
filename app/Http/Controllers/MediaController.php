@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Training;
-use App\Models\TrainingMedia;
 use App\Models\MediaCamera;
 use App\Models\LiveBroadcastSetting;
+use App\Models\MediaPlatformStat;
+use App\Models\User;
+use App\Models\Company;
+use App\Models\JobOpportunity;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 
 class MediaController extends Controller
@@ -26,7 +28,9 @@ class MediaController extends Controller
         $user = Auth::user();
 
         // إحصائيات سريعة
-        $totalMedia = TrainingMedia::count();
+        $reportsCount = Training::where(function($q) {
+            $q->whereNotNull('media_press_release')->orWhereNotNull('media_coverage_summary');
+        })->count();
         $activeNews = \App\Models\News::active()->count();
         $activeAnnouncements = \App\Models\Announcement::active()->count();
         $totalTrainings = Training::count();
@@ -53,7 +57,7 @@ class MediaController extends Controller
         $cameras = MediaCamera::orderBy('display_order')->take(4)->get();
 
         return view('media.dashboard', compact(
-            'totalMedia',
+            'reportsCount',
             'activeNews',
             'activeAnnouncements',
             'totalTrainings',
@@ -75,7 +79,7 @@ class MediaController extends Controller
      */
     public function trainingsIndex(Request $request)
     {
-        $query = Training::with(['company', 'coordinator', 'media']);
+        $query = Training::with(['company', 'coordinator']);
 
         // البحث والتصفية
         if ($request->filled('search')) {
@@ -105,11 +109,11 @@ class MediaController extends Controller
     }
 
     /**
-     * عرض تفاصيل تدريب مع وسائطه
+     * عرض تفاصيل تدريب مع التغطية والروابط
      */
     public function trainingShow(Training $training)
     {
-        $training->load(['company', 'coordinator', 'media.uploader']);
+        $training->load(['company', 'coordinator']);
         return view('media.trainings.show', compact('training'));
     }
 
@@ -130,154 +134,97 @@ class MediaController extends Controller
     }
 
     /**
-     * معرض الوسائط
+     * فهرس ولوحة تقارير التغطية الإعلامية والبيانات الصحفية
      */
-    public function mediaGallery(Request $request)
+    public function reportsIndex(Request $request)
     {
-        $query = TrainingMedia::with(['training', 'uploader']);
+        $query = Training::with(['company', 'coordinator']);
 
-        // التصفية
-        if ($request->filled('training_id')) {
-            $query->where('training_id', $request->training_id);
+        // البحث بالاسم أو الموقع أو الشركة
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('title', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('location', 'like', '%' . $searchTerm . '%')
+                  ->orWhereHas('company', function ($cq) use ($searchTerm) {
+                      $cq->where('name', 'like', '%' . $searchTerm . '%');
+                  });
+            });
         }
 
-        if ($request->filled('file_type')) {
-            $query->where('file_type', $request->file_type);
+        // تصفية حالة التغطية
+        if ($request->filled('coverage_status')) {
+            $query->where('media_coverage_status', $request->coverage_status);
         }
 
-        if ($request->filled('is_welcome_page_media')) {
-            $query->where('is_welcome_page_media', $request->boolean('is_welcome_page_media'));
+        // تصفية السنة
+        if ($request->filled('year')) {
+            $query->whereYear('start_date', $request->year);
         }
 
-        if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
-        }
+        $trainings = $query->orderBy('start_date', 'desc')->paginate(12);
 
-        if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
-        }
+        // إحصائيات تقارير التغطية الإعلامية
+        $totalTrainings = Training::count();
+        $coveredTrainings = Training::where('media_coverage_status', 'covered')->count();
+        $pendingCoverage = Training::where('media_coverage_status', 'pending')->orWhereNull('media_coverage_status')->count();
+        $notRequiredCoverage = Training::where('media_coverage_status', 'not_required')->count();
+        $reportsCount = Training::where(function($q) {
+            $q->whereNotNull('media_press_release')->orWhereNotNull('media_coverage_summary');
+        })->count();
+        $withLinksCount = Training::whereNotNull('media_coverage_links')->where('media_coverage_links', '!=', '')->count();
+        $coverageRate = $totalTrainings > 0 ? round(($coveredTrainings / $totalTrainings) * 100) : 0;
 
-        $media = $query->orderBy('created_at', 'desc')->paginate(20);
-        $trainings = Training::orderBy('title')->get();
+        $stats = [
+            'total' => $totalTrainings,
+            'covered' => $coveredTrainings,
+            'pending' => $pendingCoverage,
+            'not_required' => $notRequiredCoverage,
+            'total_reports' => $reportsCount,
+            'with_links' => $withLinksCount,
+            'rate' => $coverageRate,
+        ];
 
-        return view('media.gallery', compact('media', 'trainings'));
+        return view('media.reports.index', compact('trainings', 'stats'));
     }
 
     /**
-     * نموذج رفع الوسائط
-     */
-    public function uploadForm()
-    {
-        $trainings = Training::orderBy('title')->get();
-        return view('media.upload', compact('trainings'));
-    }
-
-    /**
-     * رفع وسائط جديدة
-     */
-    public function upload(Request $request)
-    {
-        $request->validate([
-            'files.*' => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:51200', // 50MB max
-            'training_id' => 'nullable|exists:trainings,id',
-            'is_welcome_page_media' => 'boolean',
-            'caption' => 'nullable|string|max:255'
-        ]);
-
-        $uploadedFiles = [];
-
-        if ($request->hasFile('files')) {
-            foreach ($request->file('files') as $file) {
-                $fileType = $this->getFileType($file);
-                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('media', $fileName, 'public');
-
-                $media = TrainingMedia::create([
-                    'training_id' => $request->training_id,
-                    'file_path' => $path,
-                    'file_type' => $fileType,
-                    'caption' => $request->caption,
-                    'uploaded_by' => Auth::id(),
-                    'is_welcome_page_media' => $request->boolean('is_welcome_page_media'),
-                    'display_order' => $request->is_welcome_page_media ? TrainingMedia::where('is_welcome_page_media', true)->max('display_order') + 1 : null,
-                    'is_active' => true
-                ]);
-
-                $uploadedFiles[] = $media;
-            }
-        }
-
-        $message = count($uploadedFiles) > 1 ? 'تم رفع ' . count($uploadedFiles) . ' ملف بنجاح' : 'تم رفع الملف بنجاح';
-
-        return redirect()->back()->with('success', $message);
-    }
-
-    /**
-     * عرض بيانات وسيط واحد (JSON)
-     */
-    public function show(TrainingMedia $media)
-    {
-        return response()->json($media);
-    }
-
-    /**
-     * تحديث وصف الوسيط
-     */
-    public function update(Request $request, TrainingMedia $media)
-    {
-        $request->validate([
-            'caption' => 'nullable|string|max:255',
-            'is_active' => 'boolean',
-            'display_order' => 'nullable|integer|min:1'
-        ]);
-
-        $media->update($request->only(['caption', 'is_active', 'display_order']));
-
-        return redirect()->back()->with('success', 'تم تحديث الوسيط بنجاح');
-    }
-
-    /**
-     * حذف وسيط
-     */
-    public function destroy(TrainingMedia $media)
-    {
-        // حذف الملف من التخزين
-        if (Storage::disk('public')->exists($media->file_path)) {
-            Storage::disk('public')->delete($media->file_path);
-        }
-
-        $media->delete();
-
-        return redirect()->back()->with('success', 'تم حذف الوسيط بنجاح');
-    }
-
-    /**
-     * تحديد نوع الملف
-     */
-    private function getFileType($file)
-    {
-        $mime = $file->getMimeType();
-
-        if (str_contains($mime, 'image/')) {
-            return 'image';
-        } elseif (str_contains($mime, 'video/')) {
-            return 'video';
-        }
-
-        return 'file';
-    }
-
-    /**
-     * إنشاء تقرير تغطية
+     * عرض تقرير تغطية تدريب وبيانه الصحفي
      */
     public function createCoverageReport(Training $training)
     {
-        $training->load(['media', 'company']);
+        $training->load(['company', 'coordinator']);
+        return view('media.reports.coverage', compact('training'));
+    }
 
-        // جمع الوسائط النشطة
-        $media = $training->media()->active()->get();
+    /**
+     * نموذج تحرير وكتابة التقرير الصحفي والتغطية الإعلامية
+     */
+    public function editCoverageReport(Training $training)
+    {
+        $training->load(['company', 'coordinator']);
+        return view('media.reports.edit', compact('training'));
+    }
 
-        return view('media.reports.coverage', compact('training', 'media'));
+    /**
+     * حفظ وتحديث التقرير الصحفي والتغطية الإعلامية
+     */
+    public function updateCoverageReport(Request $request, Training $training)
+    {
+        $validated = $request->validate([
+            'media_coverage_status' => 'required|in:pending,covered,not_required',
+            'media_coverage_summary' => 'nullable|string',
+            'media_press_release' => 'nullable|string',
+            'media_coverage_notes' => 'nullable|string',
+            'media_team_members' => 'nullable|string|max:255',
+            'media_coverage_links' => 'nullable|string',
+            'media_coverage_date' => 'nullable|date',
+        ]);
+
+        $training->update($validated);
+
+        return redirect()->route('media.reports.coverage.show', $training)
+            ->with('success', 'تم حفظ التقرير الصحفي والتوثيق الإعلامي للبرنامج التدريبي بنجاح.');
     }
 
     /**
@@ -285,31 +232,7 @@ class MediaController extends Controller
      */
     public function trainingCalendarIndex(Request $request)
     {
-        try {
-            $month = $request->input('month', \Carbon\Carbon::now()->month);
-            $year = $request->input('year', \Carbon\Carbon::now()->year);
-
-            $month = max(1, min(12, $month));
-            $year = max(2020, min(2030, $year));
-
-            $startDate = \Carbon\Carbon::create($year, $month, 1);
-            $endDate = $startDate->copy()->endOfMonth();
-
-            $trainings = Training::where(function ($query) use ($startDate, $endDate) {
-                $query->whereBetween('start_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
-                    ->orWhereBetween('end_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
-            })
-                ->get();
-
-            $calendar = $this->generateCalendar($month, $year, $trainings);
-
-            // استخدام نفس العرض الخاص بالتقييم والمتابعة لأنه عام
-            return view('evaluation-followup.training-calendar.index', compact('calendar', 'trainings', 'month', 'year', 'startDate'));
-
-        } catch (\Exception $e) {
-            return redirect()->route('media.dashboard')
-                ->with('error', 'حدث خطأ في تحميل التقويم: ' . $e->getMessage());
-        }
+        return redirect()->route('media.coverage-calendar');
     }
 
     private function generateCalendar($month, $year, $trainings)
@@ -396,13 +319,36 @@ class MediaController extends Controller
             'is_primary' => 'nullable|boolean',
         ]);
 
+        // تحويل الأرقام العربية المشرقية (٠١٢٣٤٥٦٧٨٩) إلى أرقام إنجليزية لضمان عمل الرابط
+        $arabic = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+        $english = ['0','1','2','3','4','5','6','7','8','9'];
+        $cleanUrl = str_replace($arabic, $english, trim($request->stream_url));
+
+        // إذا لم يبدأ بـ http/https ولم يكن معرف يوتيوب
+        if (!preg_match('/^https?:\/\//i', $cleanUrl) && !str_starts_with($cleanUrl, '//') && strlen($cleanUrl) > 11) {
+            $cleanUrl = 'http://' . $cleanUrl;
+        }
+
+        // إذا كان الرابط كاميرا هاتف IP Webcam وينتهي بالمنفذ فقط (مثل :8080)
+        if (preg_match('/:\d{4,5}\/?$/', $cleanUrl)) {
+            $cleanUrl = rtrim($cleanUrl, '/') . '/video';
+        }
+
+        // تصحيح تلقائي لنوع البث إذا كان IP Webcam أو كاميرا شبكية
+        $streamType = $request->stream_type;
+        if (str_contains(strtolower($cleanUrl), ':8080') || str_contains(strtolower($cleanUrl), ':4747') || str_contains(strtolower($cleanUrl), '/video')) {
+            if ($streamType === 'hls_m3u8' || $streamType === 'youtube_live') {
+                $streamType = 'rtsp_ip';
+            }
+        }
+
         $order = (MediaCamera::max('display_order') ?? 0) + 1;
 
         $camera = MediaCamera::create([
             'title' => $request->title,
             'location_tag' => $request->location_tag,
-            'stream_type' => $request->stream_type,
-            'stream_url' => $request->stream_url,
+            'stream_type' => $streamType,
+            'stream_url' => $cleanUrl,
             'is_live' => true,
             'is_primary' => $request->boolean('is_primary'),
             'display_order' => $order,
@@ -503,18 +449,63 @@ class MediaController extends Controller
      */
     public function coverageCalendar(Request $request)
     {
-        $trainings = Training::with(['company', 'trainer'])
+        $trainings = Training::with(['company', 'trainer', 'coordinator'])
             ->orderBy('start_date', 'asc')
             ->get();
 
         $stats = [
             'total' => $trainings->count(),
             'covered' => $trainings->where('media_coverage_status', 'covered')->count(),
-            'pending' => $trainings->where('media_coverage_status', 'pending')->count(),
-            'not_required' => $trainings->where('media_coverage_status', 'not_required')->count(),
+            'pending' => $trainings->filter(function($t) {
+                return $t->media_coverage_status === 'pending' || is_null($t->media_coverage_status);
+            })->count(),
+            'locations' => $trainings->pluck('location')->filter()->unique()->count(),
         ];
 
-        return view('media.coverage-calendar', compact('trainings', 'stats'));
+        // ألوان الفعاليات وفق هوية المنظومة المعتمدة في تقويم منسق التدريب
+        $typeColors = [
+            'workshop'   => ['bg' => '#059669', 'border' => '#047857', 'prefix' => 'ورشة: '],
+            'course'     => ['bg' => '#0d3882', 'border' => '#1e40af', 'prefix' => 'دورة: '],
+            'internship' => ['bg' => '#1d4ed8', 'border' => '#1e40af', 'prefix' => 'تدريب عملي: '],
+            'seminar'    => ['bg' => '#d97706', 'border' => '#b45309', 'prefix' => 'ندوة: '],
+        ];
+
+        $calendarTrainings = $trainings->map(function ($t) use ($typeColors) {
+            $cfg = $typeColors[$t->type] ?? ['bg' => '#0d3882', 'border' => '#1e40af', 'prefix' => ''];
+            $endDate = $t->end_date ? $t->end_date->copy()->addDay()->format('Y-m-d') : null;
+            return [
+                'id'              => $t->id,
+                'title'           => $cfg['prefix'] . $t->title,
+                'start'           => $t->start_date ? $t->start_date->format('Y-m-d') : null,
+                'end'             => $endDate,
+                'url'             => route('media.reports.coverage.show', $t->id),
+                'backgroundColor' => $cfg['bg'],
+                'borderColor'     => $cfg['border'],
+                'textColor'       => '#ffffff',
+                'extendedProps'   => [
+                    'type'               => $t->type,
+                    'typeArabic'         => $t->type_arabic,
+                    'location'           => $t->location ?? 'جامعة طرابلس',
+                    'rawTitle'           => $t->title,
+                    'instructor'         => $t->instructor_name ?? ($t->trainer->name ?? 'غير محدد'),
+                    'seats'              => $t->seats ?? '—',
+                    'status'             => $t->status,
+                    'duration'           => $t->duration ?? '—',
+                    'startDate'          => $t->start_date ? $t->start_date->format('Y-m-d') : '—',
+                    'endDate'            => $t->end_date ? $t->end_date->format('Y-m-d') : '—',
+                    'coverageStatus'     => $t->media_coverage_status ?? 'pending',
+                    'coverageStatusText' => $t->getMediaCoverageStatusText(),
+                    'hasPressRelease'    => !empty($t->media_press_release) || !empty($t->media_coverage_summary),
+                    'hasLinks'           => !empty($t->media_coverage_links),
+                    'reportShowUrl'      => route('media.reports.coverage.show', $t->id),
+                    'reportEditUrl'      => route('media.reports.coverage.edit', $t->id),
+                    'trainingShowUrl'    => route('media.trainings.show', $t->id),
+                ],
+                'className'       => 'fc-event-custom fc-event-' . $t->type
+            ];
+        })->values();
+
+        return view('media.coverage-calendar', compact('trainings', 'stats', 'calendarTrainings'));
     }
 
     /**
@@ -522,15 +513,82 @@ class MediaController extends Controller
      */
     public function updateCoverageTask(Request $request, Training $training)
     {
+        return $this->updateCoverageStatus($request, $training);
+    }
+
+    // ==================== 📊 إدارة إحصائيات المنصة والصفحة الرئيسية ====================
+
+    /**
+     * شاشة التحكم بإحصائيات المنصة والواجهة العامة
+     */
+    public function platformStats()
+    {
+        $setting = MediaPlatformStat::current();
+        $homepageData = MediaPlatformStat::getHomepageStats();
+
+        $realCounts = [
+            'graduates' => User::where('role', 'graduate')->count(),
+            'companies' => Company::count(),
+            'trainings' => Training::count(),
+            'opportunities' => JobOpportunity::count(),
+        ];
+
+        return view('media.platform-stats', compact('setting', 'homepageData', 'realCounts'));
+    }
+
+    /**
+     * تحديث إعدادات إحصائيات المنصة
+     */
+    public function updatePlatformStats(Request $request)
+    {
         $request->validate([
-            'media_coverage_status' => 'required|in:pending,covered,not_required',
+            'global_mode' => 'required|in:auto,manual',
+            'graduates_mode' => 'required|in:auto,manual',
+            'graduates_custom_value' => 'nullable|integer|min:0',
+            'graduates_label' => 'nullable|string|max:100',
+            'graduates_prefix' => 'nullable|string|max:10',
+            'companies_mode' => 'required|in:auto,manual',
+            'companies_custom_value' => 'nullable|integer|min:0',
+            'companies_label' => 'nullable|string|max:100',
+            'companies_prefix' => 'nullable|string|max:10',
+            'trainings_mode' => 'required|in:auto,manual',
+            'trainings_custom_value' => 'nullable|integer|min:0',
+            'trainings_label' => 'nullable|string|max:100',
+            'trainings_prefix' => 'nullable|string|max:10',
+            'opportunities_mode' => 'required|in:auto,manual',
+            'opportunities_custom_value' => 'nullable|integer|min:0',
+            'opportunities_label' => 'nullable|string|max:100',
+            'opportunities_prefix' => 'nullable|string|max:10',
         ]);
 
-        $training->update([
-            'media_coverage_status' => $request->media_coverage_status,
+        $setting = MediaPlatformStat::current();
+        $setting->update([
+            'is_ribbon_visible' => $request->has('is_ribbon_visible'),
+            'global_mode' => $request->global_mode,
+            'graduates_mode' => $request->graduates_mode,
+            'graduates_custom_value' => $request->graduates_custom_value,
+            'graduates_visible' => $request->has('graduates_visible'),
+            'graduates_label' => $request->graduates_label ?: 'خريج مسجل ومعتمد',
+            'graduates_prefix' => $request->graduates_prefix ?? '',
+            'companies_mode' => $request->companies_mode,
+            'companies_custom_value' => $request->companies_custom_value,
+            'companies_visible' => $request->has('companies_visible'),
+            'companies_label' => $request->companies_label ?: 'شركة ومؤسسة شريكة',
+            'companies_prefix' => $request->companies_prefix ?? '',
+            'trainings_mode' => $request->trainings_mode,
+            'trainings_custom_value' => $request->trainings_custom_value,
+            'trainings_visible' => $request->has('trainings_visible'),
+            'trainings_label' => $request->trainings_label ?: 'برنامج تدريبي وتأهيلي',
+            'trainings_prefix' => $request->trainings_prefix ?? '',
+            'opportunities_mode' => $request->opportunities_mode,
+            'opportunities_custom_value' => $request->opportunities_custom_value,
+            'opportunities_visible' => $request->has('opportunities_visible'),
+            'opportunities_label' => $request->opportunities_label ?: 'فرصة عمل وترشيح',
+            'opportunities_prefix' => $request->opportunities_prefix ?? '',
+            'updated_by_user_id' => Auth::id(),
         ]);
 
-        return redirect()->back()->with('success', 'تم تحديث حالة التغطية الإعلامية بنجاح.');
+        return redirect()->back()->with('success', 'تم حفظ وتحديث إحصائيات المنصة والصفحة الرئيسية بنجاح، وانعكست فوراً على الواجهة العامة.');
     }
 }
 

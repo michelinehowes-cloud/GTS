@@ -26,8 +26,13 @@ class Training extends Model
         'company_id',
         'coordinator_id',
         'media_coverage_status',
+        'media_coverage_summary',
+        'media_press_release',
+        'media_coverage_notes',
+        'media_team_members',
+        'media_coverage_links',
+        'media_coverage_date',
         'is_advertised',
-        'category',
         'category',
         'instructor_name',
         'trainer_id',
@@ -40,6 +45,7 @@ class Training extends Model
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'media_coverage_date' => 'date',
     ];
 
     /**
@@ -191,18 +197,18 @@ class Training extends Model
     public function getMediaCoverageStatusArabicAttribute()
     {
         $statuses = [
-            'pending' => 'تحت التغطية',
-            'covered' => 'تمت التغطية',
-            'not_required' => 'لا يتطلب تغطية'
+            'pending' => 'بانتظار التغطية الإعلامية',
+            'covered' => 'تمت التغطية والتوثيق',
+            'not_required' => 'تغطية غير مطلوبة'
         ];
 
-        return $statuses[$this->media_coverage_status] ?? $this->media_coverage_status;
+        return $statuses[$this->media_coverage_status] ?? 'بانتظار التغطية الإعلامية';
     }
 
     /**
      * الحصول على نص حالة التغطية الإعلامية
      */
-    public function getMediaCoverageStatusText()
+    public function getMediaCoverageStatusText(): string
     {
         return $this->getMediaCoverageStatusArabicAttribute();
     }

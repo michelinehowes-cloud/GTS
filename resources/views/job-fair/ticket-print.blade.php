@@ -270,9 +270,9 @@
             <div class="d-flex justify-content-center align-items-center gap-3 mb-2 ticket-logo">
                 <img src="{{ asset('storage/logo.jpg') }}" alt="شعار مكتب الخريجين" onerror="this.src='{{ asset('images/logo.jpg') }}'">
                 @if($registration->jobFair->banner_image)
-                    <img src="{{ asset('storage/' . $registration->jobFair->banner_image) }}" alt="شعار المعرض" onerror="this.src='{{ asset('images/job_fair_logo.png') }}'">
+                    <img src="{{ asset('storage/' . $registration->jobFair->banner_image) }}" alt="شعار المعرض" onerror="this.src='{{ asset('images/job_fair_logo_white.png') }}'">
                 @else
-                    <img src="{{ asset('images/job_fair_logo.png') }}" alt="شعار المعرض" onerror="this.style.display='none'">
+                    <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="شعار المعرض" onerror="this.style.display='none'">
                 @endif
             </div>
             <div class="ticket-event-name">{{ $registration->jobFair->title }}</div>

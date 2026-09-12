@@ -17,6 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     <link href="{{ asset('css/premium-forms.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/bento-dashboard.css') }}" rel="stylesheet">
 
     <style>
         /* Mobile & Desktop Scroll Optimization */
@@ -696,67 +697,74 @@
                                         </div>
                                     </li>
                                 @endif
+                            @endif
 
-                                <!-- قسم مسؤول الميديا والإعلام والبث الذكي -->
-                                @if(auth()->user()->role == 'media_officer' || auth()->user()->hasAnyPermission(['media.manage', 'news.manage']))
-                                    <hr class="sidebar-divider my-2">
-                                    <div class="sidebar-heading">
-                                        المركز الإعلامي والبث
-                                    </div>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('media.live-studio') ? 'active' : '' }}"
-                                            href="{{ route('media.live-studio') }}">
-                                            <i class="fas fa-satellite-dish text-danger"></i>
-                                            استوديو البث والكاميرات
-                                            @php
-                                                $sbBroadcast = \App\Models\LiveBroadcastSetting::first();
-                                            @endphp
-                                            @if($sbBroadcast && $sbBroadcast->is_live_now)
-                                                <span class="badge bg-danger rounded-pill ms-auto small" style="font-size: 0.65rem;">LIVE</span>
-                                            @endif
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('media.coverage-calendar*') ? 'active' : '' }}"
-                                            href="{{ route('media.coverage-calendar') }}">
-                                            <i class="fas fa-calendar-check text-primary"></i>
-                                            تقويم وجدول التغطيات
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('media.news*') ? 'active' : '' }}"
-                                            href="{{ route('media.news.index') }}">
-                                            <i class="fas fa-newspaper text-success"></i>
-                                            إدارة الأخبار الصحفية
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('media.announcements*') ? 'active' : '' }}"
-                                            href="{{ route('media.announcements.index') }}">
-                                            <i class="fas fa-bullhorn text-warning"></i>
-                                            إدارة الإعلانات والتعميمات
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('media.reports.coverage*') ? 'active' : '' }}"
-                                            href="{{ route('media.reports.coverage') }}">
-                                            <i class="fas fa-chart-line text-info"></i>
-                                            تقارير التغطية الإعلامية
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{ route('job-fair.live-stream') }}" target="_blank">
-                                            <i class="fas fa-tv text-secondary"></i>
-                                            شاشة البث المباشر (الجمهور) ↗
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="{{ route('job-fair.public') }}" target="_blank">
-                                            <i class="fas fa-globe text-primary"></i>
-                                            صفحة المعرض (الزرقاء) ↗
-                                        </a>
-                                    </li>
-                                @endif
+                            <!-- قسم مسؤول الميديا والإعلام والبث الذكي -->
+                            @if(auth()->user()->role == 'media_officer' || auth()->user()->hasAnyPermission(['media.manage', 'news.manage']))
+                                <hr class="sidebar-divider my-2">
+                                <div class="sidebar-heading">
+                                    وحدة الإعلام والبث
+                                </div>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('media.live-studio') ? 'active' : '' }}"
+                                        href="{{ route('media.live-studio') }}">
+                                        <i class="fas fa-satellite-dish text-danger"></i>
+                                        استوديو البث والكاميرات
+                                        @php
+                                            $sbBroadcast = \App\Models\LiveBroadcastSetting::first();
+                                        @endphp
+                                        @if($sbBroadcast && $sbBroadcast->is_live_now)
+                                            <span class="badge bg-danger rounded-pill ms-auto small" style="font-size: 0.65rem;">LIVE</span>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('media.coverage-calendar*') ? 'active' : '' }}"
+                                        href="{{ route('media.coverage-calendar') }}">
+                                        <i class="fas fa-calendar-check text-primary"></i>
+                                        تقويم وجدول التغطيات
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('media.news*') ? 'active' : '' }}"
+                                        href="{{ route('media.news.index') }}">
+                                        <i class="fas fa-newspaper text-success"></i>
+                                        إدارة الأخبار الصحفية
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('media.announcements*') ? 'active' : '' }}"
+                                        href="{{ route('media.announcements.index') }}">
+                                        <i class="fas fa-bullhorn text-warning"></i>
+                                        إدارة الإعلانات والتعميمات
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('media.reports.coverage*') ? 'active' : '' }}"
+                                        href="{{ route('media.reports.coverage') }}">
+                                        <i class="fas fa-chart-line text-info"></i>
+                                        تقارير التغطية الإعلامية
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->routeIs('media.platform-stats*') ? 'active' : '' }}"
+                                        href="{{ route('media.platform-stats') }}">
+                                        <i class="fas fa-sliders-h text-primary"></i>
+                                        إحصائيات المنصة الرئيسية
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('job-fair.live-stream') }}" target="_blank">
+                                        <i class="fas fa-tv text-secondary"></i>
+                                        شاشة البث المباشر (الجمهور) ↗
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('job-fair.public') }}" target="_blank">
+                                        <i class="fas fa-globe text-primary"></i>
+                                        صفحة المعرض (الزرقاء) ↗
+                                    </a>
+                                </li>
                             @endif
 
                             <!-- التدريبات المتاحة (للخريج فقط) -->
@@ -1074,58 +1082,7 @@
                                 </li>
                             @endif
 
-                            <!-- لوحة تحكم الميديا -->
-                            @if(auth()->user()->role == 'media_officer')
-                                <li class="nav-item menu-group">
-                                    <a class="nav-link {{ request()->routeIs('media.*') && !request()->routeIs('media.trainings*') && !request()->routeIs('media.news*') && !request()->routeIs('media.announcements*') && !request()->routeIs('media.reports*') ? 'active' : '' }}"
-                                        href="#" onclick="toggleSubmenu('media-menu')">
-                                        <i class="fas fa-photo-video"></i>
-                                        الوسائط المتعددة
-                                        <i class="fas fa-chevron-down menu-arrow"></i>
-                                    </a>
-                                    <div class="submenu {{ request()->routeIs('media.*') && !request()->routeIs('media.trainings*') && !request()->routeIs('media.news*') && !request()->routeIs('media.announcements*') && !request()->routeIs('media.reports*') ? 'show' : '' }}"
-                                        id="media-menu">
-                                        <a href="{{ route('media.gallery') }}"
-                                            class="submenu-item {{ request()->routeIs('media.gallery') ? 'active' : '' }}">
-                                            معرض الوسائط
-                                        </a>
-                                        <a href="{{ route('media.upload.form') }}"
-                                            class="submenu-item {{ request()->routeIs('media.upload.form') ? 'active' : '' }}">
-                                            رفع الوسائط
-                                        </a>
-                                    </div>
-                                </li>
 
-                                <!-- إدارة المحتوى -->
-                                <li class="nav-item menu-group">
-                                    <a class="nav-link {{ request()->routeIs('media.news*') || request()->routeIs('media.announcements*') ? 'active' : '' }}"
-                                        href="#" onclick="toggleSubmenu('content-menu')">
-                                        <i class="fas fa-newspaper"></i>
-                                        إدارة المحتوى
-                                        <i class="fas fa-chevron-down menu-arrow"></i>
-                                    </a>
-                                    <div class="submenu {{ request()->routeIs('media.news*') || request()->routeIs('media.announcements*') ? 'show' : '' }}"
-                                        id="content-menu">
-                                        <a href="{{ route('media.news.index') }}"
-                                            class="submenu-item {{ request()->routeIs('media.news.index') ? 'active' : '' }}">
-                                            الأخبار
-                                        </a>
-                                        <a href="{{ route('media.announcements.index') }}"
-                                            class="submenu-item {{ request()->routeIs('media.announcements.index') ? 'active' : '' }}">
-                                            الإعلانات
-                                        </a>
-                                    </div>
-                                </li>
-
-                                <!-- التقارير -->
-                                <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('media.reports*') ? 'active' : '' }}"
-                                        href="{{ route('media.reports.coverage') }}">
-                                        <i class="fas fa-chart-bar"></i>
-                                        التقارير
-                                    </a>
-                                </li>
-                            @endif
 
                             <li class="nav-item">
                                 <a class="nav-link" href="javascript:void(0)" onclick="toggleDarkMode(event)"

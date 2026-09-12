@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'لوحة تحكم مسؤول الميديا والإعلام — المركز الإعلامي')
+@section('title', 'لوحة تحكم مسؤول الميديا والإعلام — وحدة الإعلام')
 @section('page-title', 'لوحة تحكم مسؤول الميديا والإعلام')
 
 @push('styles')
@@ -108,16 +108,18 @@
         <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-circle bg-white bg-opacity-15 d-flex align-items-center justify-content-center text-white flex-shrink-0" style="width: 60px; height: 60px; font-size: 1.8rem;">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 60px; height: 60px; font-size: 1.8rem; background: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255, 255, 255, 0.35); color: #ffffff;">
                         <i class="fas fa-video"></i>
                     </div>
                     <div>
                         <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                            <h4 class="fw-bold mb-0 text-white">المركز الإعلامي واستوديو البث الذكي</h4>
+                            <h4 class="fw-bold mb-0 text-white">وحدة الإعلام واستوديو البث الذكي</h4>
                             @if($broadcastSetting->is_live_now)
                                 <span class="pulse-live-tag bg-white text-danger fw-bold"><span class="live-dot-mini"></span> بث مباشر للجمهور (ON AIR)</span>
                             @else
-                                <span class="badge rounded-pill px-3 py-1.5 bg-white bg-opacity-15 text-white"><i class="fas fa-circle me-1 opacity-50" style="font-size: 0.5rem;"></i> البث العام متوقف (OFF AIR)</span>
+                                <span class="badge rounded-pill px-3 py-1.5" style="background: rgba(15, 23, 42, 0.55); color: #f1f5f9; border: 1px solid rgba(255, 255, 255, 0.25); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.3px;">
+                                    <i class="fas fa-circle me-1" style="font-size: 0.5rem; color: #94a3b8;"></i> البث العام متوقف (OFF AIR)
+                                </span>
                             @endif
                         </div>
                         <p class="text-white-50 small mb-0">
@@ -173,12 +175,16 @@
                     <div class="stat-circle-icon bg-primary bg-opacity-10 text-primary">
                         <i class="fas fa-graduation-cap"></i>
                     </div>
-                    <span class="badge bg-primary bg-opacity-15 text-primary rounded-pill px-2.5 py-1 fw-bold">{{ $coverageRate }}% إنجاز</span>
+                    <a href="{{ route('media.reports.coverage') }}" class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">تقارير التغطية الصحفية &larr;</a>
                 </div>
                 <div class="small text-muted fw-bold mb-1">تغطية البرامج التدريبية</div>
                 <h3 class="fw-bold text-dark mb-1">{{ $coveredTrainings }} <span class="fs-6 fw-normal text-muted">/ {{ $totalTrainings }} تدريب</span></h3>
-                <div class="progress mt-2" style="height: 6px; border-radius: 999px;">
+                <div class="progress my-2" style="height: 6px; border-radius: 999px;">
                     <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $coverageRate }}%;" aria-valuenow="{{ $coverageRate }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="small text-muted mt-1 d-flex align-items-center justify-content-between">
+                    <a href="{{ route('media.reports.coverage') }}" class="text-decoration-none text-primary fw-bold">إدارة التغطيات &larr;</a>
+                    <span class="badge rounded-pill fw-bold" style="background: rgba(13, 56, 130, 0.08); color: #0d3882; font-size: 0.72rem; border: 1px solid rgba(13, 56, 130, 0.2);">{{ $coverageRate }}% إنجاز</span>
                 </div>
             </div>
         </div>
@@ -326,6 +332,28 @@
                         <i class="fas fa-chevron-left text-muted opacity-50"></i>
                     </a>
 
+                    <a href="{{ route('media.reports.coverage') }}" class="quick-action-item">
+                        <div class="rounded-3 bg-warning bg-opacity-15 text-dark p-2 flex-shrink-0" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-feather-alt text-warning-emphasis"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">تقارير التغطية والبيانات الصحفية</div>
+                            <small class="text-muted">صياغة البيانات الرسمية واستخراج تقارير التوثيق الميداني</small>
+                        </div>
+                        <i class="fas fa-chevron-left text-muted opacity-50"></i>
+                    </a>
+
+                    <a href="{{ route('media.platform-stats') }}" class="quick-action-item">
+                        <div class="rounded-3 bg-purple bg-opacity-10 p-2 flex-shrink-0" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; background: rgba(139, 92, 246, 0.12); color: #8b5cf6;">
+                            <i class="fas fa-sliders-h"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">إحصائيات المنصة والصفحة الرئيسية</div>
+                            <small class="text-muted">التحكم في الأرقام المعروضة للجمهور (تلقائي حقيقي أو معتمد)</small>
+                        </div>
+                        <i class="fas fa-chevron-left text-muted opacity-50"></i>
+                    </a>
+
                     <a href="{{ route('job-fair.public') }}" target="_blank" class="quick-action-item">
                         <div class="rounded-3 bg-info bg-opacity-10 text-info p-2 flex-shrink-0" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
                             <i class="fas fa-flag-checkered"></i>
@@ -399,9 +427,14 @@
                                 @endif
                             </td>
                             <td class="text-center">
-                                <a href="{{ route('media.trainings.show', $training->id) }}" class="btn btn-sm btn-light border text-primary rounded-2 px-2.5 py-1" title="معاينة التدريب">
-                                    <i class="fas fa-eye"></i>
-                                </a>
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <a href="{{ route('media.reports.coverage.edit', $training->id) }}" class="btn btn-sm btn-warning text-dark fw-bold rounded-2 px-2 py-1" title="كتابة وصياغة التقرير الصحفي">
+                                        <i class="fas fa-feather-alt"></i>
+                                    </a>
+                                    <a href="{{ route('media.reports.coverage.show', $training->id) }}" class="btn btn-sm btn-light border text-primary rounded-2 px-2 py-1" title="عرض التقرير الرسمي">
+                                        <i class="fas fa-file-alt"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @empty

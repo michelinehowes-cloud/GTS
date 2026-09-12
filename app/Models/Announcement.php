@@ -82,10 +82,67 @@ class Announcement extends Model
     }
 
     /**
+     * التحقق مما إذا كان الإعلان منتهياً
+     */
+    public function isExpired()
+    {
+        return $this->end_date && now()->gt($this->end_date);
+    }
+
+    /**
+     * التحقق مما إذا كان الإعلان قادماً (مجدولاً للمستقبل)
+     */
+    public function isUpcoming()
+    {
+        return $this->start_date && now()->lt($this->start_date);
+    }
+
+    /**
+     * الحصول على بيانات الشارة والحالة للتصميم المعتمد
+     */
+    public function getStatusDataAttribute(): array
+    {
+        if (!$this->is_active) {
+            return [
+                'label' => 'معطل / مسودة',
+                'class' => 'bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25',
+                'badge' => 'secondary',
+                'icon' => 'fas fa-pause-circle'
+            ];
+        }
+
+        if ($this->isExpired()) {
+            return [
+                'label' => 'منتهي الصلاحية',
+                'class' => 'bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25',
+                'badge' => 'danger',
+                'icon' => 'fas fa-history'
+            ];
+        }
+
+        if ($this->isUpcoming()) {
+            return [
+                'label' => 'مجدول وقادم',
+                'class' => 'bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25',
+                'badge' => 'warning',
+                'icon' => 'fas fa-clock'
+            ];
+        }
+
+        return [
+            'label' => 'ساري ونشط',
+            'class' => 'bg-success bg-opacity-10 text-success border border-success border-opacity-25',
+            'badge' => 'success',
+            'icon' => 'fas fa-bullhorn'
+        ];
+    }
+
+    /**
      * الحصول على ملخص المحتوى
      */
     public function getExcerptAttribute()
     {
-        return strlen($this->content) > 100 ? substr($this->content, 0, 100) . '...' : $this->content;
+        $clean = strip_tags($this->content);
+        return mb_strlen($clean) > 120 ? mb_substr($clean, 0, 120) . '...' : $clean;
     }
 }

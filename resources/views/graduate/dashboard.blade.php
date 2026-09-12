@@ -175,9 +175,26 @@
         <div class="col-lg-8">
             <div class="card border-0 rounded-4 shadow-sm h-100">
                 <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <h5 class="card-title mb-0 text-primary fw-bold fs-6 fs-md-5">
-                        <i class="fas fa-calendar-alt me-2"></i>تقويم التدريبات والفعاليات
-                    </h5>
+                    <div class="d-flex align-items-center gap-3">
+                        <h5 class="card-title mb-0 text-primary fw-bold fs-6 fs-md-5">
+                            <i class="fas fa-calendar-alt me-2"></i>تقويم التدريبات والفعاليات
+                        </h5>
+                        <!-- Legend Bar for Desktop -->
+                        <div class="d-none d-xl-flex align-items-center gap-2">
+                            <span class="badge rounded-pill" style="background: rgba(13, 56, 130, 0.08); color: #0d3882; font-size: 0.72rem; font-weight: 700;">
+                                <span class="d-inline-block rounded-circle me-1" style="width: 7px; height: 7px; background: #0d3882;"></span> دورات
+                            </span>
+                            <span class="badge rounded-pill" style="background: rgba(5, 150, 105, 0.08); color: #059669; font-size: 0.72rem; font-weight: 700;">
+                                <span class="d-inline-block rounded-circle me-1" style="width: 7px; height: 7px; background: #059669;"></span> ورش
+                            </span>
+                            <span class="badge rounded-pill" style="background: rgba(29, 78, 216, 0.08); color: #1d4ed8; font-size: 0.72rem; font-weight: 700;">
+                                <span class="d-inline-block rounded-circle me-1" style="width: 7px; height: 7px; background: #1d4ed8;"></span> عملي
+                            </span>
+                            <span class="badge rounded-pill" style="background: rgba(217, 119, 6, 0.08); color: #d97706; font-size: 0.72rem; font-weight: 700;">
+                                <span class="d-inline-block rounded-circle me-1" style="width: 7px; height: 7px; background: #d97706;"></span> ندوات
+                            </span>
+                        </div>
+                    </div>
                     <!-- Switcher for Mobile -->
                     <div class="btn-group btn-group-sm d-md-none" role="group">
                         <button type="button" class="btn btn-outline-primary active" id="btnShowAgenda" onclick="toggleCalendarView('agenda')">
@@ -260,9 +277,16 @@
                     @foreach($activeTrainings as $app)
                         <div class="col-md-6">
                             <div class="p-3 border rounded-3 bg-light">
-                                <div class="d-flex justify-content-between mb-2">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
                                     <span class="fw-bold text-dark">{{ $app->training->title }}</span>
-                                    <span class="badge rounded-pill px-2.5 py-1 small fw-bold" style="background: #eff6ff; color: #2563eb; border: 1.5px solid #3b82f6; box-shadow: none !important; font-size: 0.75rem;">{{ $app->progress }}% مكتمل</span>
+                                    <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                                        @if($app->attended_days_count > 0)
+                                            <span class="badge rounded-pill px-2 py-0.5 small fw-bold bg-success-subtle text-success border border-success-subtle" style="font-size: 0.72rem;">
+                                                <i class="fas fa-user-check me-1"></i>حضور {{ $app->attendance_percentage }}%
+                                            </span>
+                                        @endif
+                                        <span class="badge rounded-pill px-2.5 py-1 small fw-bold" style="background: #eff6ff; color: #2563eb; border: 1.5px solid #3b82f6; box-shadow: none !important; font-size: 0.75rem;">{{ $app->progress }}% زمنياً</span>
+                                    </div>
                                 </div>
                                 <div class="progress rounded-pill" style="height: 8px;">
                                     <div class="progress-bar bg-success" role="progressbar"
@@ -583,71 +607,181 @@
 
 @push('styles')
 <style>
-    /* FullCalendar Responsive & Mobile Fixes */
+    /* تصميم التقويم المعتمد وفق هوية المنظومة */
+    .fc {
+        font-family: '29LT Bukra', 'Cairo', 'Tajawal', sans-serif !important;
+    }
     .fc .fc-toolbar {
         flex-wrap: wrap !important;
-        gap: 8px !important;
+        gap: 10px !important;
         justify-content: space-between !important;
         align-items: center !important;
+        padding-bottom: 0.85rem !important;
+        border-bottom: 1px solid #f1f5f9 !important;
         margin-bottom: 1rem !important;
     }
     .fc .fc-toolbar-title {
-        font-size: 1.15rem !important;
-        font-weight: 700 !important;
-        color: var(--university-blue, #1e3a8a);
+        font-size: 1.35rem !important;
+        font-weight: 800 !important;
+        color: #0d3882 !important;
+        letter-spacing: -0.3px;
     }
     .fc .fc-button {
-        font-size: 0.8rem !important;
-        padding: 0.25rem 0.6rem !important;
-        border-radius: 6px !important;
-        box-shadow: none !important;
+        font-size: 0.84rem !important;
+        font-weight: 700 !important;
+        padding: 0.42rem 0.9rem !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba(13, 56, 130, 0.12) !important;
+        transition: all 0.2s ease !important;
     }
     .fc .fc-button-primary {
-        background-color: var(--university-blue, #1e3a8a);
-        border-color: var(--university-blue, #1e3a8a);
+        background-color: #0d3882 !important;
+        border-color: #0d3882 !important;
+        color: #ffffff !important;
     }
     .fc .fc-button-primary:hover, .fc .fc-button-primary:focus, .fc .fc-button-primary.fc-button-active {
         background-color: #1e40af !important;
         border-color: #1e40af !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(13, 56, 130, 0.25) !important;
     }
-    .fc-col-header-cell-cushion {
-        font-size: 0.75rem !important;
-        padding: 4px 1px !important;
-        text-decoration: none !important;
-        color: #4b5563 !important;
-        font-weight: 600 !important;
-        display: block;
-        text-align: center;
-        white-space: nowrap;
+    .fc .fc-button-group {
+        border-radius: 8px !important;
         overflow: hidden;
     }
+    .fc .fc-button-group > .fc-button {
+        border-radius: 0 !important;
+    }
+    .fc .fc-button-group > .fc-button:first-child {
+        border-top-right-radius: 8px !important;
+        border-bottom-right-radius: 8px !important;
+    }
+    .fc .fc-button-group > .fc-button:last-child {
+        border-top-left-radius: 8px !important;
+        border-bottom-left-radius: 8px !important;
+    }
+
+    /* عناوين الأيام */
+    .fc .fc-col-header-cell {
+        background: #f8fafc !important;
+        padding: 10px 0 !important;
+        border-color: #e2e8f0 !important;
+    }
+    .fc-col-header-cell-cushion {
+        font-size: 0.86rem !important;
+        font-weight: 800 !important;
+        color: #334155 !important;
+        text-decoration: none !important;
+    }
+
+    /* خلايا الأيام */
+    .fc-theme-standard td, .fc-theme-standard th {
+        border-color: #edf2f7 !important;
+    }
+    .fc-daygrid-day-top {
+        padding: 4px 6px !important;
+    }
+    .fc-daygrid-day-number {
+        font-size: 0.88rem !important;
+        font-weight: 700 !important;
+        color: #1e293b !important;
+        padding: 2px 7px !important;
+        text-decoration: none !important;
+        border-radius: 6px;
+    }
+    .fc-day-other .fc-daygrid-day-number {
+        color: #94a3b8 !important;
+        opacity: 0.55;
+    }
+    .fc-day-today {
+        background-color: #eff6ff !important;
+    }
+    .fc-day-today .fc-daygrid-day-number {
+        background-color: #0d3882 !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        box-shadow: 0 2px 6px rgba(13, 56, 130, 0.3);
+    }
+
+    /* كبسولات الفعاليات والتدريبات الحديثة */
+    .fc .fc-daygrid-event {
+        border-radius: 7px !important;
+        padding: 3px 8px !important;
+        margin: 2px 3px !important;
+        font-size: 0.76rem !important;
+        font-weight: 700 !important;
+        border: none !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+        transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+        cursor: pointer;
+    }
+    .fc .fc-daygrid-event:hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18) !important;
+        filter: brightness(1.06);
+    }
+    .fc-h-event {
+        border: none !important;
+    }
+    .fc-event-title {
+        font-weight: 700 !important;
+        font-size: 0.77rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        display: block !important;
+    }
+
+    /* نافذة المزيد للمناسبات المتعددة */
+    .fc .fc-more-popover {
+        border-radius: 12px !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+        border: 1px solid #e2e8f0 !important;
+        overflow: hidden;
+    }
+    .fc .fc-more-popover .fc-popover-header {
+        background: #f8fafc !important;
+        font-weight: 700 !important;
+        padding: 8px 12px !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+    }
+
+    /* طريقة عرض القائمة */
+    .fc .fc-list-empty {
+        background: #f8fafc !important;
+        padding: 2rem !important;
+        color: #64748b !important;
+        font-weight: 600 !important;
+    }
+    .fc .fc-list-day-cushion {
+        background: #f1f5f9 !important;
+        color: #0d3882 !important;
+        font-weight: 800 !important;
+        padding: 8px 16px !important;
+    }
+    .fc .fc-list-event:hover td {
+        background-color: #f8fafc !important;
+    }
+
     @media (max-width: 576px) {
-        .fc .fc-toolbar {
-            justify-content: center !important;
-        }
-        .fc .fc-toolbar-chunk {
-            display: flex;
-            justify-content: center;
-        }
         .fc .fc-toolbar-title {
-            font-size: 1.05rem !important;
+            font-size: 1.15rem !important;
             width: 100%;
             text-align: center;
             order: -1;
             margin-bottom: 0.25rem !important;
         }
         .fc-col-header-cell-cushion {
-            font-size: 0.7rem !important;
+            font-size: 0.72rem !important;
             padding: 3px 0 !important;
         }
         .fc-daygrid-day-number {
             font-size: 0.75rem !important;
-            padding: 2px 3px !important;
+            padding: 2px 4px !important;
         }
         .fc-daygrid-event {
-            font-size: 0.68rem !important;
-            padding: 1px 3px !important;
-            border-radius: 3px !important;
+            font-size: 0.70rem !important;
+            padding: 2px 4px !important;
         }
     }
 </style>
@@ -702,9 +836,10 @@
                     locale: 'ar',
                     direction: 'rtl',
                     height: 'auto',
+                    dayMaxEvents: 2, // يحول التراكم إلى كبسولة أنيقة (+X المزيد)
                     dayHeaderFormat: isSmallScreen ? { weekday: 'narrow' } : { weekday: 'short' },
                     headerToolbar: {
-                        left: 'prev,next',
+                        left: 'prev,next today',
                         center: 'title',
                         right: 'dayGridMonth,listMonth'
                     },
@@ -715,6 +850,21 @@
                         list: 'قائمة'
                     },
                     events: @json($calendarTrainings),
+                    eventContent: function(arg) {
+                        let type = (arg.event.extendedProps && arg.event.extendedProps.type) ? arg.event.extendedProps.type : 'course';
+                        let iconClass = 'fa-graduation-cap';
+                        if (type === 'workshop') iconClass = 'fa-tools';
+                        else if (type === 'internship') iconClass = 'fa-laptop-code';
+                        else if (type === 'seminar') iconClass = 'fa-bullhorn';
+
+                        let customHtml = `
+                            <div class="d-flex align-items-center gap-1.5 overflow-hidden w-100 text-white" style="line-height: 1.25;">
+                                <i class="fas ${iconClass} me-1" style="font-size: 0.68rem; opacity: 0.9; flex-shrink: 0;"></i>
+                                <span class="text-truncate fw-bold" style="font-size: 0.74rem;">${arg.event.title}</span>
+                            </div>
+                        `;
+                        return { html: customHtml };
+                    },
                     eventClick: function (info) {
                         if (info.event.url) {
                             window.location.href = info.event.url;

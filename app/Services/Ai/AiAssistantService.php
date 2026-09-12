@@ -10,6 +10,12 @@ use App\Models\TrainingApplication;
 use App\Models\JobOpportunity;
 use App\Models\Nomination;
 use App\Models\GraduateData;
+use App\Models\Company;
+use App\Models\Announcement;
+use App\Models\Survey;
+use App\Models\SurveyResponse;
+use App\Models\LiveBroadcastSetting;
+use App\Models\MediaCamera;
 use App\Models\AuditLog;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -257,6 +263,151 @@ class AiAssistantService
             ]);
 
             $resultMessage = "🤝 ✅ تم ترشيح الخريج: **'{$actionData['graduate_name']}'** بنجاح لوظيفة **'{$actionData['job_title']}'**! تم تسجيل العملية وإرسال الإشعار للشركة الشريكة.";
+        } elseif ($actionType === 'create_survey') {
+            if (!in_array($user->role, ['evaluation_followup', 'admin'])) {
+                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لإنشاء استبيانات التقييم والمتابعة.'];
+            }
+
+            $survey = Survey::create([
+                'title' => $actionData['title'] ?? 'استبيان تقييم ومتابعة',
+                'description' => $actionData['description'] ?? '',
+                'questions' => $actionData['questions'] ?? [],
+                'target_audience' => $actionData['target_audience'] ?? 'graduates',
+                'type' => $actionData['type'] ?? 'training',
+                'start_date' => $actionData['start_date'] ?? now()->format('Y-m-d'),
+                'end_date' => $actionData['end_date'] ?? now()->addDays(14)->format('Y-m-d'),
+                'is_active' => true,
+                'is_public' => true,
+            ]);
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_CREATE_SURVEY',
+                'entity' => 'Survey',
+                'entity_id' => $survey->id,
+                'new_values' => ['title' => $survey->title, 'target_audience' => $survey->target_audience],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $resultMessage = "📝 ✅ تم إنشاء واعتماد استبيان التقييم والمتابعة بنجاح بعنوان: **'{$survey->title}'**! الاستبيان نشط ومتاح للمستهدفين الآن عبر الرابط العام ولوحة التقييم.";
+        } elseif ($actionType === 'create_announcement') {
+            if (!in_array($user->role, ['media_officer', 'admin'])) {
+                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لنشر إعلانات رسمية.'];
+            }
+
+            $announcement = Announcement::create([
+                'title' => $actionData['title'] ?? 'إعلان رسمي جديد',
+                'content' => $actionData['content'] ?? '',
+                'link' => $actionData['link'] ?? null,
+                'start_date' => $actionData['start_date'] ?? now()->format('Y-m-d'),
+                'end_date' => $actionData['end_date'] ?? now()->addDays(7)->format('Y-m-d'),
+                'is_active' => true,
+                'created_by' => $user->id,
+            ]);
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_CREATE_ANNOUNCEMENT',
+                'entity' => 'Announcement',
+                'entity_id' => $announcement->id,
+                'new_values' => ['title' => $announcement->title],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $resultMessage = "📢 ✅ تم نشر الإعلان الرسمي بنجاح بعنوان: **'{$announcement->title}'**! يظهر الآن في شريط الإعلانات والصفحة الرئيسية للمنظومة.";
+        } elseif ($actionType === 'toggle_broadcast') {
+            if (!in_array($user->role, ['media_officer', 'admin'])) {
+                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية للتحكم في البث المباشر.'];
+            }
+
+            $setting = LiveBroadcastSetting::current();
+            $newStatus = (bool) ($actionData['is_live_now'] ?? false);
+            $setting->is_live_now = $newStatus;
+            if (!empty($actionData['broadcast_title'])) {
+                $setting->broadcast_title = $actionData['broadcast_title'];
+            }
+            $setting->save();
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_TOGGLE_BROADCAST',
+                'entity' => 'LiveBroadcastSetting',
+                'entity_id' => $setting->id,
+                'new_values' => ['is_live_now' => $newStatus, 'title' => $setting->broadcast_title],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $statusText = $newStatus ? '🔴 البث المباشر يعمل الآن (ON AIR)' : '⚪ تم إيقاف البث المباشر (OFF AIR)';
+            $resultMessage = "📡 ✅ تم تحديث حالة البث المباشر بنجاح: **{$statusText}**. العنوان المعتمد: '{$setting->broadcast_title}'.";
+        } elseif ($actionType === 'create_company') {
+            if (!in_array($user->role, ['partnership_officer', 'admin'])) {
+                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لإضافة شركات شريكة.'];
+            }
+
+            $company = Company::create([
+                'name' => $actionData['name'] ?? 'شركة شريكة جديدة',
+                'industry' => $actionData['industry'] ?? 'تقنية واتصالات',
+                'email' => $actionData['email'] ?? null,
+                'phone' => $actionData['phone'] ?? null,
+                'address' => $actionData['address'] ?? 'طرابلس، ليبيا',
+                'website' => $actionData['website'] ?? null,
+                'contact_person' => $actionData['contact_person'] ?? null,
+                'is_approved' => true,
+                'partnership_status' => 'active',
+                'partnership_type' => $actionData['partnership_type'] ?? 'training_employment',
+                'partnership_start_date' => now(),
+            ]);
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_CREATE_COMPANY',
+                'entity' => 'Company',
+                'entity_id' => $company->id,
+                'new_values' => ['name' => $company->name, 'industry' => $company->industry],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $resultMessage = "🏢 ✅ تم اعتماد وإضافة شركة: **'{$company->name}'** بنجاح إلى سجل الشركاء المعتمدين في جامعة طرابلس!";
+        } elseif ($actionType === 'create_job_opportunity') {
+            if (!in_array($user->role, ['career_guidance_officer', 'admin'])) {
+                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لإضافة وظائف وفرص عمل.'];
+            }
+
+            $job = JobOpportunity::create([
+                'title' => $actionData['title'] ?? 'فرصة وظيفية جديدة',
+                'description' => $actionData['description'] ?? 'فرصة عمل لخريجي جامعة طرابلس.',
+                'company_id' => $actionData['company_id'] ?? null,
+                'type' => $actionData['type'] ?? 'full-time',
+                'contract_type' => $actionData['contract_type'] ?? 'full_time',
+                'location' => $actionData['location'] ?? 'طرابلس، ليبيا',
+                'seats' => (int) ($actionData['seats'] ?? 1),
+                'salary' => $actionData['salary'] ?? null,
+                'application_deadline' => $actionData['application_deadline'] ?? now()->addDays(21)->format('Y-m-d'),
+                'status' => 'open',
+                'requirements' => $actionData['requirements'] ?? 'المؤهل العلمي المناسب وإتقان المهارات التخصصية.',
+                'created_by' => $user->id,
+            ]);
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_CREATE_JOB_OPPORTUNITY',
+                'entity' => 'JobOpportunity',
+                'entity_id' => $job->id,
+                'new_values' => ['title' => $job->title, 'location' => $job->location],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $resultMessage = "💼 ✅ تم نشر وتفعيل فرصة العمل بنجاح: **'{$job->title}'**! أصبحت متاحة الآن في بوابة الوظائف للتقديم والترشيح.";
         } else {
             return ['status' => 'error', 'message' => 'نوع الإجراء غير معروف.'];
         }
@@ -643,7 +794,7 @@ class AiAssistantService
         }
 
         // 7. استعلام عن التدريبات والبرامج المتاحة
-        if (Str::contains($text, ['تدريب', 'دورة', 'ورشة', 'دورات', 'تدريبات', 'برنامج']) && in_array('search_trainings', $authorizedNames)) {
+        if (!Str::contains($text, ['استبيان', 'استطلاع', 'تقرير']) && Str::contains($text, ['تدريب', 'دورة', 'ورشة', 'دورات', 'تدريبات', 'برنامج']) && in_array('search_trainings', $authorizedNames)) {
             $kw = '';
             if (preg_match('/(?:عن|في|حول)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
                 $kw = trim($m[1]);
@@ -845,16 +996,291 @@ class AiAssistantService
             ];
         }
 
+        // ==========================================
+        // 📝 9. أدوات قطاع التقييم والمتابعة والجودة
+        // ==========================================
+        if ((Str::contains($text, ['استبيان', 'استطلاع']) && !Str::contains($text, ['ملخص', 'نتائج'])) && in_array('draft_survey', $authorizedNames)) {
+            $title = 'استبيان تقييم برنامج تدريبي وتطوير المهارات';
+            if (preg_match('/(?:بعنوان|حول|عن|لـ|لدورة)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
+                $title = "استبيان تقييم " . trim($m[1]);
+            }
+
+            $res = AiToolRegistry::executeTool($user, 'draft_survey', ['title' => $title]);
+            if (isset($res['status']) && $res['status'] === 'proposal') {
+                return [
+                    'content' => "📋 **تم إعداد وصياغة استبيان التقييم والمتابعة بنجاح:**\n\n" .
+                        "• **العنوان:** {$title}\n" .
+                        "• **الأسئلة المتضمنة:** 5 أسئلة معيارية للجودة (تقييم المحتوى، مهارات المدرب، الاستفادة العملية، التجهيزات، ومقترحات التحسين).\n\n" .
+                        "يرجى مراجعة التفاصيل والضغط على **[تأكيد وحفظ]** لاعتماده ونشره في المنظومة.",
+                    'action_proposal' => $res,
+                    'tool_executed' => 'draft_survey',
+                ];
+            }
+        }
+
+        if (Str::contains($text, ['تقرير التقييم', 'تقرير الجودة', 'تقرير المتابعة', 'تقرير التقييم والمتابعة', 'تقرير تقييم']) && in_array('generate_evaluation_report', $authorizedNames)) {
+            $res = AiToolRegistry::executeTool($user, 'generate_evaluation_report', []);
+            $m = $res['metrics'] ?? [];
+
+            $out = "📊 **{$res['report_title']}**\n";
+            $out .= "_تاريخ التوليد: {$res['generated_at']}_\n\n";
+            $out .= "• **مؤشر الجودة المؤسسي العام:** **{$m['quality_score']}** ⭐\n";
+            $out .= "• **الاستبيانات المسجلة:** {$m['total_surveys']} (منها {$m['active_surveys']} استبيان نشط)\n";
+            $out .= "• **إجمالي الاستجابات والمشاركات:** {$m['total_responses']} مشاركة\n";
+            $out .= "• **البرامج التدريبية المقيمة:** {$m['total_trainings']} برنامج ({$m['completed_trainings']} منجز بالكامل)\n";
+            $out .= "• **نسبة قبول طلبات المتدربين:** {$m['acceptance_rate']} ({$m['accepted_applications']} من أصل {$m['total_applications']})\n\n";
+            $out .= "💡 **التوصية:** مستوى رضا المتدربين وجودة المحتوى يظهر تفاعلاً إيجابياً مرتفعاً مع التوصية بتوسيع المسارات التدريبية العملية.";
+
+            return [
+                'content' => $out,
+                'tool_executed' => 'generate_evaluation_report',
+            ];
+        }
+
+        if (Str::contains($text, ['ملخص الاستبيانات', 'الاستبيانات النشطة', 'نتائج الاستبيان', 'عرض الاستبيانات']) && in_array('get_surveys_summary', $authorizedNames)) {
+            $res = AiToolRegistry::executeTool($user, 'get_surveys_summary', ['status' => 'all']);
+            $list = $res['data'] ?? [];
+
+            if (empty($list)) {
+                return [
+                    'content' => "لا توجد استبيانات مسجلة حالياً في منظومة التقييم والمتابعة. يمكنك صياغة استبيان جديد فوراً!",
+                    'tool_executed' => 'get_surveys_summary',
+                ];
+            }
+
+            $out = "📋 **ملخص الاستبيانات في منظومة التقييم والمتابعة:**\n\n";
+            foreach ($list as $s) {
+                $statusIcon = $s['is_active'] === 'نشط' ? '🟢' : '⚪';
+                $out .= "{$statusIcon} **{$s['title']}**\n";
+                $out .= "   🎯 الفئة: {$s['target']} | 📝 الاستجابات: **{$s['responses_count']}** مشاركة\n";
+                $out .= "   📅 الصلاحية: {$s['start_date']} إلى {$s['end_date']}\n\n";
+            }
+
+            return [
+                'content' => $out,
+                'tool_executed' => 'get_surveys_summary',
+            ];
+        }
+
+        // ==========================================
+        // 🎓 10. أدوات قطاع منسق التدريب
+        // ==========================================
+        if (Str::contains($text, ['تقرير التدريب', 'تقرير التدريبات', 'تقرير المنسق', 'تقرير أداء التدريب', 'تقرير البرامج التدريبية']) && in_array('generate_training_report', $authorizedNames)) {
+            $res = AiToolRegistry::executeTool($user, 'generate_training_report', []);
+            $m = $res['metrics'] ?? [];
+
+            $out = "🎓 **{$res['report_title']}**\n";
+            $out .= "_تاريخ التوليد: {$res['generated_at']}_\n\n";
+            $out .= "• **إجمالي البرامج والدورات:** {$m['total_trainings']} برنامج\n";
+            $out .= "• **البرامج النشطة حالياً:** {$m['active_trainings']} | المسودات: {$m['draft_trainings']}\n";
+            $out .= "• **الطاقة الاستيعابية الإجمالية:** {$m['total_seats']} مقعد تدريبي\n";
+            $out .= "• **نسبة شغل المقاعد التدريبية:** **{$m['seat_fill_rate']}**\n";
+            $out .= "• **طلبات التسجيل الواردة:** {$m['total_applications']} طلب\n";
+            $out .= "   - الطلبات المقبولة: {$m['accepted_applications']} ✅\n";
+            $out .= "   - الطلبات قيد الانتظار: {$m['pending_applications']} ⏳\n";
+            $out .= "   - الطلبات المعتذر عنها: {$m['rejected_applications']} ❌\n";
+
+            return [
+                'content' => $out,
+                'tool_executed' => 'generate_training_report',
+            ];
+        }
+
+        // ==========================================
+        // 📢 11. أدوات قطاع الإعلام والبث الذكي
+        // ==========================================
+        if (Str::contains($text, ['صغ إعلان', 'نشر إعلان', 'إعلان رسمي', 'مسودة إعلان', 'أضف إعلان']) && in_array('draft_announcement', $authorizedNames)) {
+            $title = 'إعلان هام لخريجي جامعة طرابلس';
+            if (preg_match('/(?:بعنوان|حول|عن)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
+                $title = trim($m[1]);
+            }
+            $content = "تعلن إدارة مكتب تدريب وتأهيل الخريجين بجامعة طرابلس عن فتح باب التسجيل في مسارات التطوير المهني والبرامج التدريبية القادمة.";
+
+            $res = AiToolRegistry::executeTool($user, 'draft_announcement', [
+                'title' => $title,
+                'content' => $content,
+            ]);
+
+            if (isset($res['status']) && $res['status'] === 'proposal') {
+                return [
+                    'content' => "📢 **تم إعداد مسودة الإعلان الرسمي:**\n\n" .
+                        "• **العنوان:** {$title}\n" .
+                        "• **النص:** {$content}\n\n" .
+                        "يمكنك مراجعة تفاصيل الإعلان والضغط على **[تأكيد وحفظ]** لنشره فوراً في شريط الأخبار والصفحة الرئيسية.",
+                    'action_proposal' => $res,
+                    'tool_executed' => 'draft_announcement',
+                ];
+            }
+        }
+
+        if (Str::contains($text, ['بث مباشر', 'تشغيل البث', 'إيقاف البث', 'go live', 'بدء البث', 'أوقف البث', 'شغل البث']) && in_array('manage_live_broadcast', $authorizedNames)) {
+            $act = Str::contains($text, ['إيقاف', 'أوقف', 'stop', 'انهاء', 'إنهاء']) ? 'stop' : 'start';
+            $res = AiToolRegistry::executeTool($user, 'manage_live_broadcast', ['action' => $act]);
+
+            if (isset($res['status']) && $res['status'] === 'proposal') {
+                return [
+                    'content' => "📡 **تم تجهيز أمر التحكم في البث المباشر الاستوديو:**\n\n" .
+                        "يرجى تأكيد التنفيذ عبر الضغط على **[تأكيد وحفظ]** أدناه.",
+                    'action_proposal' => $res,
+                    'tool_executed' => 'manage_live_broadcast',
+                ];
+            } else {
+                return [
+                    'content' => $res['message'] ?? 'تم فحص حالة البث المباشر.',
+                    'tool_executed' => 'manage_live_broadcast',
+                ];
+            }
+        }
+
+        if (Str::contains($text, ['تقرير الإعلام', 'تقرير التغطية', 'تقرير الميديا', 'تقرير التغطيات الصحفية']) && in_array('generate_media_report', $authorizedNames)) {
+            $res = AiToolRegistry::executeTool($user, 'generate_media_report', []);
+            $m = $res['metrics'] ?? [];
+
+            $out = "📢 **{$res['report_title']}**\n";
+            $out .= "_تاريخ التوليد: {$res['generated_at']}_\n\n";
+            $out .= "• **نسبة التغطية الإعلامية للمناسبات:** **{$m['coverage_rate']}**\n";
+            $out .= "• **الفعاليات المغطاة صحفياً وميدانياً:** {$m['covered_trainings']} من أصل {$m['total_events']}\n";
+            $out .= "• **الأخبار المعتمدة المنشورة:** {$m['published_news']} خبر\n";
+            $out .= "• **الإعلانات الرسمية النشطة:** {$m['active_announcements']} إعلان\n";
+            $out .= "• **شبكة كاميرات IP المتصلة:** {$m['connected_cameras']}\n";
+            $out .= "• **حالة البث المباشر العام:** {$m['broadcast_status']} (المشاهدون التقديريون: {$m['viewers_count']})\n";
+
+            return [
+                'content' => $out,
+                'tool_executed' => 'generate_media_report',
+            ];
+        }
+
+        // ==========================================
+        // 🏢 12. أدوات قطاع الشراكات وسوق العمل
+        // ==========================================
+        if (Str::contains($text, ['إضافة شركة', 'شركة جديدة', 'شراكة جديدة', 'تسجيل شركة', 'توثيق شركة', 'أضف شركة']) && in_array('draft_partner_company', $authorizedNames)) {
+            $name = 'شركة التقنيات المتقدمة القابضة';
+            if (preg_match('/(?:شركة|مؤسسة|مصرف)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
+                $name = "شركة " . trim($m[1]);
+            }
+
+            $res = AiToolRegistry::executeTool($user, 'draft_partner_company', ['name' => $name]);
+            if (isset($res['status']) && $res['status'] === 'proposal') {
+                return [
+                    'content' => "🏢 **تم إعداد بيانات اعتماد الشركة الشريكة الجديدة:**\n\n" .
+                        "• **اسم الشركة:** {$name}\n" .
+                        "يرجى مراجعة التفاصيل في البطاقة أدناه ثم الضغط على **[تأكيد وحفظ]** لإدراجها رسمياً في شبكة الشركاء.",
+                    'action_proposal' => $res,
+                    'tool_executed' => 'draft_partner_company',
+                ];
+            } else {
+                return [
+                    'content' => $res['message'] ?? 'تعذر تجهيز ملف الشركة.',
+                    'tool_executed' => 'draft_partner_company',
+                ];
+            }
+        }
+
+        if (Str::contains($text, ['تقرير الشراكات', 'تقرير الشركات', 'تقرير سوق العمل', 'تقرير المؤسسات']) && in_array('generate_partnerships_report', $authorizedNames)) {
+            $res = AiToolRegistry::executeTool($user, 'generate_partnerships_report', []);
+            $m = $res['metrics'] ?? [];
+
+            $out = "🏢 **{$res['report_title']}**\n";
+            $out .= "_تاريخ التوليد: {$res['generated_at']}_\n\n";
+            $out .= "• **إجمالي الشركات والمؤسسات الشريكة:** {$m['total_companies']} شركة\n";
+            $out .= "• **الشركات المعتمدة رسمياً:** {$m['approved_companies']} شركة\n";
+            $out .= "• **إجمالي فرص العمل المعلنة:** {$m['total_job_opportunities']} فرصة\n";
+            $out .= "• **الفرص الوظيفية المتاحة حالياً:** {$m['active_job_opportunities']} وظيفة\n";
+            $out .= "• **إجمالي ترشيحات الخريجين لسوق العمل:** {$m['total_graduate_nominations']} مرشحاً\n";
+            $out .= "• **مؤشر كفاءة الشراكات:** {$m['partnership_health']}\n";
+
+            return [
+                'content' => $out,
+                'tool_executed' => 'generate_partnerships_report',
+            ];
+        }
+
+        // ==========================================
+        // 🎯 13. أدوات قطاع الإرشاد والتوجيه المهني
+        // ==========================================
+        if (Str::contains($text, ['إضافة وظيفة', 'إضافة فرصة عمل', 'صياغة وظيفة', 'وظيفة جديدة', 'شاغر وظيفي', 'أضف وظيفة']) && in_array('draft_job_opportunity', $authorizedNames)) {
+            $jobTitle = 'مطور برمجيات وتطبيقات سحابية';
+            if (preg_match('/(?:وظيفة|فرصة|مسمى)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
+                $jobTitle = trim($m[1]);
+            }
+
+            $res = AiToolRegistry::executeTool($user, 'draft_job_opportunity', ['title' => $jobTitle]);
+            if (isset($res['status']) && $res['status'] === 'proposal') {
+                return [
+                    'content' => "💼 **تم إعداد مسودة الفرصة الوظيفية الجديدة:**\n\n" .
+                        "• **المسمى:** {$jobTitle}\n\n" .
+                        "يرجى مراجعة التفاصيل وشروط التقديم أدناه، ثم الضغط على **[تأكيد وحفظ]** لنشرها.",
+                    'action_proposal' => $res,
+                    'tool_executed' => 'draft_job_opportunity',
+                ];
+            }
+        }
+
+        if (Str::contains($text, ['تقرير الإرشاد', 'تقرير التوجيه', 'تقرير الخريجين والتوظيف', 'تقرير الإرشاد المهني']) && in_array('generate_career_guidance_report', $authorizedNames)) {
+            $res = AiToolRegistry::executeTool($user, 'generate_career_guidance_report', []);
+            $m = $res['metrics'] ?? [];
+
+            $out = "🎯 **{$res['report_title']}**\n";
+            $out .= "_تاريخ التوليد: {$res['generated_at']}_\n\n";
+            $out .= "• **إجمالي الخريجين في قاعدة البيانات:** {$m['total_graduates']} خريج وخريجة\n";
+            $out .= "• **الخريجون الموظفون:** {$m['employed_graduates']} | الباحثون عن عمل: {$m['job_seeking_graduates']}\n";
+            $out .= "• **نسبة توفر السير الذاتية (CV):** **{$m['cv_upload_rate']}** ({$m['graduates_with_cv']} سيرة ذاتية مرفوعة)\n";
+            $out .= "• **إجمالي الترشيحات المهنية المنجزة:** {$m['total_job_nominations']} ترشيح\n";
+            $out .= "• **مؤشر الجاهزية لسوق العمل:** {$m['market_readiness_index']}\n";
+
+            return [
+                'content' => $out,
+                'tool_executed' => 'generate_career_guidance_report',
+            ];
+        }
+
+        // ==========================================
+        // 👑 14. التقرير التنفيذي الشامل (الإدارة العليا)
+        // ==========================================
+        if (Str::contains($text, ['تقرير تنفيذي', 'تقرير شامل', 'تقرير القيادة', 'التقرير الاستراتيجي', 'تقرير شامل للنظام', 'تقرير الإدارة العليا']) && in_array('generate_executive_report', $authorizedNames)) {
+            $res = AiToolRegistry::executeTool($user, 'generate_executive_report', []);
+            $sec = $res['sectors'] ?? [];
+
+            $out = "👑 **{$res['report_title']}**\n";
+            $out .= "_تاريخ الاعتماد: {$res['generated_at']}_\n\n";
+
+            $out .= "🏛️ **1. " . ($sec['academic_and_graduates']['title'] ?? 'قطاع الخريجين') . ":**\n";
+            $out .= "   • إجمالي الخريجين: {$sec['academic_and_graduates']['total_graduates']} | المستخدمون: {$sec['academic_and_graduates']['total_registered_users']} | السير الذاتية: {$sec['academic_and_graduates']['cv_availability']}\n\n";
+
+            $out .= "🎓 **2. " . ($sec['training_and_capacity']['title'] ?? 'قطاع التدريب') . ":**\n";
+            $out .= "   • البرامج: {$sec['training_and_capacity']['total_trainings']} | المقاعد: {$sec['training_and_capacity']['total_seats']} | طلبات الالتحاق: {$sec['training_and_capacity']['total_applications']} (المقبولون: {$sec['training_and_capacity']['accepted_applications']})\n\n";
+
+            $out .= "🏢 **3. " . ($sec['partnerships_and_labor']['title'] ?? 'قطاع الشراكات') . ":**\n";
+            $out .= "   • الشركات الشريكة: {$sec['partnerships_and_labor']['partner_companies']} | فرص العمل: {$sec['partnerships_and_labor']['job_opportunities']} | ترشيحات التوظيف: {$sec['partnerships_and_labor']['nominations_made']}\n\n";
+
+            $out .= "📝 **4. " . ($sec['quality_and_evaluation']['title'] ?? 'قطاع الجودة والتقييم') . ":**\n";
+            $out .= "   • الاستبيانات: {$sec['quality_and_evaluation']['total_surveys']} | الاستجابات: {$sec['quality_and_evaluation']['total_survey_responses']} | مؤشر الرضا المؤسسي: {$sec['quality_and_evaluation']['institutional_satisfaction']}\n\n";
+
+            $out .= "📢 **5. " . ($sec['media_and_relations']['title'] ?? 'قطاع الإعلام والبث') . ":**\n";
+            $out .= "   • الأخبار المعتمدة: {$sec['media_and_relations']['published_news']} | الإعلانات النشطة: {$sec['media_and_relations']['active_announcements']} | حالة البث: {$sec['media_and_relations']['broadcast_state']}\n\n";
+
+            $out .= "✨ **خلاصة القيادة:** النظام يعمل بتكامل تشغيلي متقدم بين كافة الوحدات الخمس، مع تحقيق مؤشرات أداء تفوق المستهدف الفصلي.";
+
+            return [
+                'content' => $out,
+                'tool_executed' => 'generate_executive_report',
+            ];
+        }
+
         // Default welcoming & capabilities message
         $roleArabic = $user->role_arabic ?? $user->role;
         return [
-            'content' => "أهلاً بك يا **{$user->name}**! أنا المساعد الذكي لمكتب تدريب وتأهيل الخريجين بجامعة طرابلس.\n\n" .
-                "بصفتك مسجلاً كـ (**{$roleArabic}**)، يمكنني مساعدتك فيما يلي:\n" .
-                ($user->role === 'graduate' ? "• الاستعلام عن حالة طلبات التدريب الخاصة بك.\n• استعراض ملفك الأكاديمي ومهاراتك.\n• البحث في البرامج التدريبية وفرص التوظيف المتاحة.\n" : "") .
-                ($user->role === 'media_officer' ? "• صياغة الأخبار والبيانات الصحفية بأسلوب جامعي رصين.\n• استعراض إحصائيات ونسب التغطية الإعلامية والكاميرات.\n• جدول الفعاليات التي تنتظر تغطية ميدانية.\n" : "") .
-                ($user->role === 'training_coordinator' ? "• استعراض إحصائيات التدريبات والمقاعد ونسب الحضور.\n• تجهيز مسودات البرامج التدريبية الجديدة.\n" : "") .
-                ($user->role === 'admin' ? "• تقارير شاملة عن كافة قطاعات المنظومة (خريجون، تدريبات، شركات).\n• تنفيذ ومراجعة كافة العمليات المعتمدة.\n" : "") .
-                "\nتفضل بسؤالي مباشرة عما تحتاجه!",
+            'content' => "أهلاً بك يا **{$user->name}**! أنا المساعد الذكي الموحد لمكتب تدريب وتأهيل الخريجين بجامعة طرابلس.\n\n" .
+                "بصفتك مسجلاً بصلاحية (**{$roleArabic}**)، يمكنني مساعدتك في تنفيذ كافة المهام التالية مباشرة:\n\n" .
+                ($user->role === 'graduate' ? "• 🎓 الاستعلام عن حالة طلبات التدريب والتقديم على البرامج بنقرة واحدة.\n• 💼 استعراض الوظائف المتاحة والترشح الذاتي لفرص العمل.\n• 📄 فحص ملفك الأكاديمي وسيرتك الذاتية ومعدلك.\n" : "") .
+                ($user->role === 'evaluation_followup' ? "• 📝 إعداد وصياغة استبيانات تقييم البرامج والفعاليات ونشرها.\n• 📊 توليد تقارير الجودة والتقييم والمتابعة الأكاديمية المفصلة.\n• 📋 استعراض ملخص الاستبيانات النشطة ومعدلات الاستجابة.\n" : "") .
+                ($user->role === 'training_coordinator' ? "• 🎓 صياغة البرامج والدورات التدريبية وجدولتها كمسودات.\n• 📈 تقارير أداء التدريبات، نسب شغل المقاعد، وحالات الطلبات.\n• 🔍 استعلام شامل عن التدريبات والمقاعد ونسب الحضور.\n" : "") .
+                ($user->role === 'partnership_officer' ? "• 🏢 إضافة وتوثيق الشركات والمؤسسات الشريكة الجديدة.\n• 📊 تقارير شاملة عن قطاع الشراكات وسوق العمل والفرص الوظيفية.\n" : "") .
+                ($user->role === 'career_guidance_officer' ? "• 🔍 البحث المتقدم في سجلات الخريجين (بالهاتف، التخصص، المعدل، السيرة الذاتية).\n• 🤝 ترشيح الخريجين المؤهلين مباشرة للوظائف المعتمدة.\n• 💼 صياغة ونشر فرص العمل الجديدة وتوليد تقارير التوجيه المهني.\n" : "") .
+                ($user->role === 'media_officer' ? "• 📰 صياغة الأخبار والبيانات الصحفية بأسلوب جامعي رصين.\n• 📢 صياغة ونشر الإعلانات الرسمية في المنظومة.\n• 📡 إدارة البث المباشر (تشغيل / إيقاف) وتقارير التغطية الإعلامية والكاميرات.\n" : "") .
+                ($user->role === 'admin' ? "• 👑 تقارير تنفيذية استراتيجية شاملة تغطي كافة القطاعات الخمسة.\n• ⚙️ تنفيذ ومراجعة كافة العمليات المعتمدة والصلاحيات في النظام بالكامل.\n" : "") .
+                "\n💡 تفضل بكتابة طلبك مباشرة أو اختيار أحد الإجراءات السريعة!",
         ];
     }
 

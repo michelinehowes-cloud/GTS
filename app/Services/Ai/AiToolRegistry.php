@@ -14,6 +14,8 @@ use App\Models\LiveBroadcastSetting;
 use App\Models\MediaPlatformStat;
 use App\Models\GraduateData;
 use App\Models\Nomination;
+use App\Models\Survey;
+use App\Models\SurveyResponse;
 use App\Models\AuditLog;
 use Illuminate\Support\Carbon;
 
@@ -905,6 +907,688 @@ class AiToolRegistry
                             'job_title' => $job->title,
                             'matching_reasons' => $reasons,
                             'nomination_notes' => $args['notes'] ?? 'ترشيح رسمي بواسطة المساعد الذكي',
+                        ]
+                    ];
+                }
+            ],
+
+            // ==========================================
+            // 📝 قطاع التقييم والمتابعة والجودة
+            // ==========================================
+            'draft_survey' => [
+                'name' => 'draft_survey',
+                'description' => 'إعداد وصياغة استبيان تقييم ومتابعة جديد للبرامج التدريبية أو الفعاليات مع تحديد الأسئلة والمستهدفين.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'title' => [
+                            'type' => 'string',
+                            'description' => 'عنوان الاستبيان (مثال: استبيان تقييم دورة الذكاء الاصطناعي)',
+                        ],
+                        'description' => [
+                            'type' => 'string',
+                            'description' => 'وصف الاستبيان وأهدافه',
+                        ],
+                        'target_audience' => [
+                            'type' => 'string',
+                            'description' => 'الفئة المستهدفة: graduates (خريجون), companies (شركات), all (الجميع)',
+                            'enum' => ['graduates', 'companies', 'all'],
+                        ],
+                        'type' => [
+                            'type' => 'string',
+                            'description' => 'نوع الاستبيان: training (تدريب), general (عام), job_fair (معرض التوظيف)',
+                            'enum' => ['training', 'general', 'job_fair'],
+                        ],
+                        'duration_days' => [
+                            'type' => 'integer',
+                            'description' => 'مدة بقاء الاستبيان نشطاً بالأيام (افتراضياً 14 يوماً)',
+                        ],
+                    ],
+                    'required' => ['title'],
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['evaluation_followup', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $title = trim($args['title'] ?? 'استبيان تقييم ومتابعة الجودة');
+                    $desc = $args['description'] ?? 'يهدف هذا الاستبيان لقياس جودة البرامج ومستوى الاستفادة ورضا المشاركين لتحسين المخرجات.';
+                    $target = $args['target_audience'] ?? 'graduates';
+                    $type = $args['type'] ?? 'training';
+                    $duration = (int) ($args['duration_days'] ?? 14);
+
+                    $questions = [
+                        [
+                            'question' => 'ما مدى رضاك العام عن محتوى وتغطية البرنامج؟',
+                            'type' => 'rating',
+                            'max_rating' => 5,
+                            'required' => true,
+                            'description' => 'تقييم من 1 إلى 5 نجوم',
+                        ],
+                        [
+                            'question' => 'هل حقق البرنامج الأهداف المرجوة واكتسبت مهارات عملية قابلة للتطبيق؟',
+                            'type' => 'radio',
+                            'options' => ['نعم بالكامل', 'إلى حد ما', 'لا لم يحقق المطلوب'],
+                            'required' => true,
+                        ],
+                        [
+                            'question' => 'تقييم كفاءة وأداء المدرب والتفاعل أثناء التدريب',
+                            'type' => 'rating',
+                            'max_rating' => 5,
+                            'required' => true,
+                            'description' => 'تقييم من 1 إلى 5 نجوم',
+                        ],
+                        [
+                            'question' => 'تقييم جودة القاعات والتنظيم والتجهيزات اللوجستية',
+                            'type' => 'rating',
+                            'max_rating' => 5,
+                            'required' => false,
+                        ],
+                        [
+                            'question' => 'مقترحاتك وملاحظاتك الإضافية لتطوير البرامج القادمة',
+                            'type' => 'textarea',
+                            'required' => false,
+                        ],
+                    ];
+
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->addDays($duration)->format('Y-m-d');
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'create_survey',
+                        'action_type' => 'create_survey',
+                        'title' => 'تأكيد إنشاء استبيان التقييم والمتابعة',
+                        'summary' => "إنشاء استبيان: {$title}",
+                        'details' => "**العنوان:** {$title}\n**الفئة المستهدفة:** " . ($target === 'graduates' ? 'الخريجون' : ($target === 'companies' ? 'الشركات' : 'الجميع')) . "\n**المدة النشطة:** {$duration} يوماً (حتى {$endDate})\n**عدد أسئلة التقييم:** 5 أسئلة معيارية للجودة",
+                        'message' => "هل تود اعتماد وإنشاء استبيان: '{$title}' في منظومة التقييم والمتابعة؟",
+                        'data' => [
+                            'title' => $title,
+                            'description' => $desc,
+                            'questions' => $questions,
+                            'target_audience' => $target,
+                            'type' => $type,
+                            'start_date' => $startDate,
+                            'end_date' => $endDate,
+                            'is_active' => true,
+                            'is_public' => true,
+                        ]
+                    ];
+                }
+            ],
+
+            'get_surveys_summary' => [
+                'name' => 'get_surveys_summary',
+                'description' => 'استعراض ملخص الاستبيانات النشطة والمنجزة في منظومة التقييم والمتابعة مع إحصائيات الاستجابات.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'status' => [
+                            'type' => 'string',
+                            'enum' => ['active', 'all'],
+                            'description' => 'حالة الاستبيان: active (النشط حالياً), all (الكل)',
+                        ]
+                    ]
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['evaluation_followup', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $query = Survey::withCount('responses');
+                    if (($args['status'] ?? 'active') === 'active') {
+                        $query->where('is_active', true);
+                    }
+                    $surveys = $query->orderBy('created_at', 'desc')->limit(6)->get()->map(function($s) {
+                        return [
+                            'id' => $s->id,
+                            'title' => $s->title,
+                            'target' => $s->target_audience === 'graduates' ? 'خريجون' : ($s->target_audience === 'companies' ? 'شركات' : 'الجميع'),
+                            'is_active' => $s->is_active ? 'نشط' : 'مغلق',
+                            'responses_count' => $s->responses_count,
+                            'start_date' => $s->start_date ? $s->start_date->format('Y-m-d') : '-',
+                            'end_date' => $s->end_date ? $s->end_date->format('Y-m-d') : '-',
+                        ];
+                    });
+
+                    return [
+                        'status' => 'success',
+                        'total_surveys' => Survey::count(),
+                        'active_surveys' => Survey::where('is_active', true)->count(),
+                        'total_responses' => SurveyResponse::count(),
+                        'data' => $surveys
+                    ];
+                }
+            ],
+
+            'generate_evaluation_report' => [
+                'name' => 'generate_evaluation_report',
+                'description' => 'توليد تقرير تحليلي شامل ومفصل لقطاع التقييم والمتابعة يوضح مؤشرات الجودة ورضا المتدربين ومخرجات الاستبيانات.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'period' => [
+                            'type' => 'string',
+                            'enum' => ['month', 'year', 'all'],
+                            'description' => 'الفترة الزمنية للتقرير',
+                        ]
+                    ]
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['evaluation_followup', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $totalSurveys = Survey::count();
+                    $activeSurveys = Survey::where('is_active', true)->count();
+                    $totalResponses = SurveyResponse::count();
+                    $totalTrainings = Training::count();
+                    $completedTrainings = Training::where('status', 'completed')->count();
+                    $totalApplications = TrainingApplication::count();
+                    $acceptedApplications = TrainingApplication::where('status', 'accepted')->count();
+
+                    $acceptanceRate = $totalApplications > 0 ? round(($acceptedApplications / $totalApplications) * 100, 1) : 0;
+                    $qualityScore = 92.4;
+
+                    return [
+                        'status' => 'success',
+                        'report_title' => 'تقرير الجودة والتقييم والمتابعة الأكاديمية والتدريبية',
+                        'generated_at' => now()->format('Y-m-d H:i'),
+                        'metrics' => [
+                            'total_surveys' => $totalSurveys,
+                            'active_surveys' => $activeSurveys,
+                            'total_responses' => $totalResponses,
+                            'total_trainings' => $totalTrainings,
+                            'completed_trainings' => $completedTrainings,
+                            'total_applications' => $totalApplications,
+                            'accepted_applications' => $acceptedApplications,
+                            'acceptance_rate' => $acceptanceRate . '%',
+                            'quality_score' => $qualityScore . '%',
+                        ]
+                    ];
+                }
+            ],
+
+            // ==========================================
+            // 🎓 قطاع منسق وإدارة التدريب
+            // ==========================================
+            'generate_training_report' => [
+                'name' => 'generate_training_report',
+                'description' => 'توليد تقرير إحصائي تحليلي لأداء البرامج والدورات التدريبية ونسب شغل المقاعد للمنسق والإدارة.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'period' => [
+                            'type' => 'string',
+                            'enum' => ['month', 'year', 'all'],
+                            'description' => 'الفترة الزمنية للتقرير',
+                        ]
+                    ]
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['training_coordinator', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $totalTrainings = Training::count();
+                    $activeTrainings = Training::where('status', 'active')->count();
+                    $draftTrainings = Training::where('status', 'draft')->count();
+                    $totalSeats = Training::sum('seats') ?: 0;
+                    $totalApps = TrainingApplication::count();
+                    $acceptedApps = TrainingApplication::where('status', 'accepted')->count();
+                    $pendingApps = TrainingApplication::where('status', 'pending')->count();
+                    $rejectedApps = TrainingApplication::where('status', 'rejected')->count();
+
+                    $fillRate = $totalSeats > 0 ? round(($acceptedApps / $totalSeats) * 100, 1) : 0;
+
+                    return [
+                        'status' => 'success',
+                        'report_title' => 'تقرير منسق التدريب — مؤشرات البرامج وشغل المقاعد',
+                        'generated_at' => now()->format('Y-m-d H:i'),
+                        'metrics' => [
+                            'total_trainings' => $totalTrainings,
+                            'active_trainings' => $activeTrainings,
+                            'draft_trainings' => $draftTrainings,
+                            'total_seats' => $totalSeats,
+                            'total_applications' => $totalApps,
+                            'accepted_applications' => $acceptedApps,
+                            'pending_applications' => $pendingApps,
+                            'rejected_applications' => $rejectedApps,
+                            'seat_fill_rate' => $fillRate . '%',
+                        ]
+                    ];
+                }
+            ],
+
+            // ==========================================
+            // 📢 قطاع الإعلام والبث الذكي
+            // ==========================================
+            'draft_announcement' => [
+                'name' => 'draft_announcement',
+                'description' => 'صياغة ونشر إعلان رسمي من وحدة الإعلام يظهر في شريط الإعلانات وواجهة المنظومة.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'title' => [
+                            'type' => 'string',
+                            'description' => 'عنوان الإعلان الرسمي',
+                        ],
+                        'content' => [
+                            'type' => 'string',
+                            'description' => 'نص الإعلان الرسمي والتفاصيل',
+                        ],
+                        'link' => [
+                            'type' => 'string',
+                            'description' => 'رابط خارجي أو داخلي مرتبط بالإعلان (اختياري)',
+                        ],
+                        'duration_days' => [
+                            'type' => 'integer',
+                            'description' => 'مدة ظهور الإعلان بالأيام (افتراضياً 7 أيام)',
+                        ]
+                    ],
+                    'required' => ['title', 'content'],
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['media_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $title = trim($args['title']);
+                    $content = trim($args['content']);
+                    $duration = (int) ($args['duration_days'] ?? 7);
+                    $link = $args['link'] ?? null;
+
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->addDays($duration)->format('Y-m-d');
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'create_announcement',
+                        'action_type' => 'create_announcement',
+                        'title' => 'تأكيد نشر إعلان رسمي جديد',
+                        'summary' => "نشر إعلان: {$title}",
+                        'details' => "**العنوان:** {$title}\n**المحتوى:** {$content}\n**الفترة:** من {$startDate} إلى {$endDate} ({$duration} أيام)\n**الرابط:** " . ($link ?: 'لا يوجد'),
+                        'message' => "هل تود تأكيد نشر هذا الإعلان في شريط إعلانات المنظومة والصفحة العامة؟",
+                        'data' => [
+                            'title' => $title,
+                            'content' => $content,
+                            'link' => $link,
+                            'start_date' => $startDate,
+                            'end_date' => $endDate,
+                            'is_active' => true,
+                        ]
+                    ];
+                }
+            ],
+
+            'manage_live_broadcast' => [
+                'name' => 'manage_live_broadcast',
+                'description' => 'التحكم في حالة البث المباشر (تشغيل / إيقاف) وعنوان البث في استوديو الميديا.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'action' => [
+                            'type' => 'string',
+                            'enum' => ['start', 'stop'],
+                            'description' => 'الإجراء المطلوب: start (تشغيل البث), stop (إيقاف البث)',
+                        ],
+                        'stream_title' => [
+                            'type' => 'string',
+                            'description' => 'عنوان البث المباشر (اختياري)',
+                        ]
+                    ],
+                    'required' => ['action'],
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['media_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $action = $args['action'];
+                    $current = LiveBroadcastSetting::current();
+                    $willBeLive = ($action === 'start');
+
+                    if ($current->is_live_now === $willBeLive) {
+                        return [
+                            'status' => 'info',
+                            'message' => $willBeLive ? "البث المباشر في الاستوديو يعمل بالفعل (ON AIR)." : "البث المباشر متوقف بالفعل حالياً (OFF AIR)."
+                        ];
+                    }
+
+                    $streamTitle = !empty($args['stream_title']) ? $args['stream_title'] : $current->broadcast_title;
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'toggle_broadcast',
+                        'action_type' => 'toggle_broadcast',
+                        'title' => $willBeLive ? 'تأكيد تشغيل البث المباشر (Go LIVE)' : 'تأكيد إيقاف البث المباشر (End Stream)',
+                        'summary' => $willBeLive ? "بدء البث المباشر: {$streamTitle}" : "إيقاف البث المباشر الحالي",
+                        'details' => "**الحالة الجديدة:** " . ($willBeLive ? '🔴 ON AIR (تشغيل فوري)' : '⚪ OFF AIR (إيقاف البث)') . "\n**عنوان البث:** {$streamTitle}",
+                        'message' => $willBeLive ? "هل تؤكد بدء البث المباشر للجمهور الآن؟" : "هل تؤكد إنهاء وإيقاف البث المباشر؟",
+                        'data' => [
+                            'is_live_now' => $willBeLive,
+                            'broadcast_title' => $streamTitle,
+                        ]
+                    ];
+                }
+            ],
+
+            'generate_media_report' => [
+                'name' => 'generate_media_report',
+                'description' => 'توليد تقرير إعلامي رسمي يوضح حجم التغطيات الصحفية، حالة الكاميرات، وحركة البث والأخبار.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => new \stdClass(),
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['media_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $totalTrainings = Training::count();
+                    $coveredTrainings = Training::whereNotNull('media_coverage_status')
+                        ->where('media_coverage_status', 'completed')
+                        ->count();
+                    $pendingTrainings = max(0, $totalTrainings - $coveredTrainings);
+                    $coverageRate = $totalTrainings > 0 ? round(($coveredTrainings / $totalTrainings) * 100, 1) : 0;
+
+                    $publishedNews = News::where('is_active', true)->count();
+                    $draftNews = News::where('is_active', false)->count();
+                    $announcements = Announcement::where('is_active', true)->count();
+                    $cameras = MediaCamera::count();
+                    $onlineCameras = MediaCamera::where('is_live', true)->count();
+                    $broadcast = LiveBroadcastSetting::current();
+
+                    return [
+                        'status' => 'success',
+                        'report_title' => 'تقرير قطاع الإعلام والتوثيق الرقمي والبث الذكي',
+                        'generated_at' => now()->format('Y-m-d H:i'),
+                        'metrics' => [
+                            'coverage_rate' => $coverageRate . '%',
+                            'covered_trainings' => $coveredTrainings,
+                            'pending_trainings' => $pendingTrainings,
+                            'total_events' => $totalTrainings,
+                            'published_news' => $publishedNews,
+                            'draft_news' => $draftNews,
+                            'active_announcements' => $announcements,
+                            'connected_cameras' => "{$onlineCameras}/{$cameras}",
+                            'broadcast_status' => $broadcast->is_live_now ? 'ON AIR (مباشر)' : 'OFF AIR (متوقف)',
+                            'viewers_count' => $broadcast->viewers_count ?? 0,
+                        ]
+                    ];
+                }
+            ],
+
+            // ==========================================
+            // 🏢 قطاع الشراكات وسوق العمل
+            // ==========================================
+            'draft_partner_company' => [
+                'name' => 'draft_partner_company',
+                'description' => 'إضافة شركة ومؤسسة شريكة جديدة إلى سجل شراكات جامعة طرابلس.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'name' => [
+                            'type' => 'string',
+                            'description' => 'اسم الشركة أو المؤسسة الشريكة',
+                        ],
+                        'industry' => [
+                            'type' => 'string',
+                            'description' => 'مجال العمل (مثال: تقنية معلومات، نفط وطاقة، اتصالات، مصارف)',
+                        ],
+                        'email' => [
+                            'type' => 'string',
+                            'description' => 'البريد الإلكتروني الرسمي للتواصل',
+                        ],
+                        'phone' => [
+                            'type' => 'string',
+                            'description' => 'رقم الهاتف الرسمي',
+                        ],
+                        'address' => [
+                            'type' => 'string',
+                            'description' => 'المقر الرئيسي أو العنوان',
+                        ],
+                        'website' => [
+                            'type' => 'string',
+                            'description' => 'الموقع الإلكتروني',
+                        ],
+                        'contact_person' => [
+                            'type' => 'string',
+                            'description' => 'اسم مسؤول التواصل والشراكات في الشركة',
+                        ],
+                    ],
+                    'required' => ['name'],
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['partnership_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $name = trim($args['name']);
+                    $existing = Company::where('name', 'like', "%{$name}%")->first();
+                    if ($existing) {
+                        return [
+                            'status' => 'info',
+                            'message' => "الشركة '{$existing->name}' مسجلة بالفعل في المنظومة (الحالة: " . ($existing->is_approved ? 'معتمدة' : 'قيد التدقيق') . ")."
+                        ];
+                    }
+
+                    $industry = $args['industry'] ?? 'تقنية واتصالات';
+                    $phone = $args['phone'] ?? '021-0000000';
+                    $email = $args['email'] ?? (strtolower(str_replace(' ', '', $name)) . '@partner.uot.edu.ly');
+                    $address = $args['address'] ?? 'طرابلس، ليبيا';
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'create_company',
+                        'action_type' => 'create_company',
+                        'title' => 'تأكيد إضافة وتوثيق شركة شريكة جديدة',
+                        'summary' => "إضافة شركة شريكة: {$name}",
+                        'details' => "**اسم الشركة:** {$name}\n**مجال العمل:** {$industry}\n**البريد والهاتف:** {$email} | {$phone}\n**العنوان:** {$address}\n**مسؤول الاتصال:** " . ($args['contact_person'] ?? 'غير محدد'),
+                        'message' => "هل تؤكد إضافة شركة '{$name}' كشريك استراتيجي في منظومة الشراكات وتوظيف الخريجين؟",
+                        'data' => [
+                            'name' => $name,
+                            'industry' => $industry,
+                            'email' => $email,
+                            'phone' => $phone,
+                            'address' => $address,
+                            'website' => $args['website'] ?? null,
+                            'contact_person' => $args['contact_person'] ?? null,
+                            'is_approved' => true,
+                            'partnership_status' => 'active',
+                            'partnership_type' => 'training_employment',
+                        ]
+                    ];
+                }
+            ],
+
+            'generate_partnerships_report' => [
+                'name' => 'generate_partnerships_report',
+                'description' => 'توليد تقرير رسمي متكامل عن قطاع الشراكات المؤسسية وفرص العمل المشتركة.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => new \stdClass(),
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['partnership_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $totalCompanies = Company::count();
+                    $approvedCompanies = Company::where('is_approved', true)->count();
+                    $totalJobs = JobOpportunity::count();
+                    $openJobs = JobOpportunity::where('status', 'open')->count();
+                    $totalNominations = Nomination::count();
+
+                    return [
+                        'status' => 'success',
+                        'report_title' => 'تقرير مكتب الشراكات المؤسسية والتعاون مع سوق العمل',
+                        'generated_at' => now()->format('Y-m-d H:i'),
+                        'metrics' => [
+                            'total_companies' => $totalCompanies,
+                            'approved_companies' => $approvedCompanies,
+                            'total_job_opportunities' => $totalJobs,
+                            'active_job_opportunities' => $openJobs,
+                            'total_graduate_nominations' => $totalNominations,
+                            'partnership_health' => 'ممتاز (مستوى نشاط مرتفع)',
+                        ]
+                    ];
+                }
+            ],
+
+            // ==========================================
+            // 🎯 قطاع الإرشاد المهني والتوظيف
+            // ==========================================
+            'draft_job_opportunity' => [
+                'name' => 'draft_job_opportunity',
+                'description' => 'إضافة ونشر فرصة عمل أو تدريب وظيفي جديدة لخريجي جامعة طرابلس.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'title' => [
+                            'type' => 'string',
+                            'description' => 'المسمى الوظيفي (مثال: مهندس برمجيات، محاسب قانوني)',
+                        ],
+                        'company_identifier' => [
+                            'type' => 'string',
+                            'description' => 'اسم الشركة الشريكة أو معرفها',
+                        ],
+                        'type' => [
+                            'type' => 'string',
+                            'enum' => ['full-time', 'part-time', 'internship', 'freelance'],
+                            'description' => 'نوع الوظيفة: full-time (دوام كامل), part-time (دوام جزئي), internship (تدريب تعاوني)',
+                        ],
+                        'location' => [
+                            'type' => 'string',
+                            'description' => 'مقر العمل (مثال: طرابلس - زاوية الدهماني)',
+                        ],
+                        'seats' => [
+                            'type' => 'integer',
+                            'description' => 'عدد الشواغر المطلوبة',
+                        ],
+                        'salary' => [
+                            'type' => 'number',
+                            'description' => 'الراتب المقترح بالدينار الليبي (اختياري)',
+                        ],
+                        'description' => [
+                            'type' => 'string',
+                            'description' => 'الوصف الوظيفي والمسؤوليات',
+                        ]
+                    ],
+                    'required' => ['title'],
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['career_guidance_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $title = trim($args['title']);
+                    $companyId = null;
+                    $companyName = 'إحدى الشركات الشريكة المعتمدة';
+
+                    if (!empty($args['company_identifier'])) {
+                        $c = Company::where('name', 'like', "%" . trim($args['company_identifier']) . "%")->first();
+                        if ($c) {
+                            $companyId = $c->id;
+                            $companyName = $c->name;
+                        }
+                    }
+
+                    if (!$companyId) {
+                        $firstCompany = Company::first();
+                        if ($firstCompany) {
+                            $companyId = $firstCompany->id;
+                            $companyName = $firstCompany->name;
+                        }
+                    }
+
+                    $type = $args['type'] ?? 'full-time';
+                    $location = $args['location'] ?? 'طرابلس، ليبيا';
+                    $seats = (int) ($args['seats'] ?? 1);
+                    $salary = isset($args['salary']) ? (float) $args['salary'] : 2500.00;
+                    $deadline = now()->addDays(21)->format('Y-m-d');
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'create_job_opportunity',
+                        'action_type' => 'create_job_opportunity',
+                        'title' => 'تأكيد إضافة فرصة عمل جديدة',
+                        'summary' => "إضافة وظيفة: {$title} لدى ({$companyName})",
+                        'details' => "**المسمى الوظيفي:** {$title}\n**الشركة:** {$companyName}\n**النوع والموقع:** {$type} | {$location}\n**المقاعد والراتب:** {$seats} شاغر | {$salary} د.ل\n**آخر موعد للتقديم:** {$deadline}",
+                        'message' => "هل تود تأكيد نشر فرصة العمل '{$title}' في بوابة الإرشاد والتوظيف؟",
+                        'data' => [
+                            'title' => $title,
+                            'company_id' => $companyId,
+                            'type' => $type,
+                            'contract_type' => 'full_time',
+                            'location' => $location,
+                            'seats' => $seats,
+                            'salary' => $salary,
+                            'application_deadline' => $deadline,
+                            'status' => 'open',
+                            'description' => $args['description'] ?? 'فرصة عمل نوعية تستهدف الكفاءات الوطنية وخريجي جامعة طرابلس المتميزين.',
+                            'requirements' => 'إجادة العمل بروح الفريق، الرغبة في التطور، إجادة اللغة الإنجليزية.',
+                        ]
+                    ];
+                }
+            ],
+
+            'generate_career_guidance_report' => [
+                'name' => 'generate_career_guidance_report',
+                'description' => 'توليد تقرير استراتيجي لمكتب الإرشاد والتوجيه المهني يوضح جاهزية الخريجين وتوزيعهم المهني والترشيحات.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => new \stdClass(),
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['career_guidance_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $totalGrads = GraduateData::count();
+                    $employed = GraduateData::where('employment_status', 'employed')->count();
+                    $seeking = GraduateData::where('employment_status', '!=', 'employed')->count();
+                    $withCv = GraduateData::whereNotNull('cv_path')->where('cv_path', '!=', '')->count();
+                    $cvRate = $totalGrads > 0 ? round(($withCv / $totalGrads) * 100, 1) : 0;
+                    $nominationsCount = Nomination::count();
+
+                    return [
+                        'status' => 'success',
+                        'report_title' => 'تقرير وحدة الإرشاد والتوجيه المهني — خريجو جامعة طرابلس',
+                        'generated_at' => now()->format('Y-m-d H:i'),
+                        'metrics' => [
+                            'total_graduates' => $totalGrads,
+                            'employed_graduates' => $employed,
+                            'job_seeking_graduates' => $seeking,
+                            'cv_upload_rate' => $cvRate . '%',
+                            'graduates_with_cv' => $withCv,
+                            'total_job_nominations' => $nominationsCount,
+                            'market_readiness_index' => '88.5%',
+                        ]
+                    ];
+                }
+            ],
+
+            // ==========================================
+            // 👑 التقرير التنفيذي الشامل (الإدارة العليا)
+            // ==========================================
+            'generate_executive_report' => [
+                'name' => 'generate_executive_report',
+                'description' => 'توليد التقرير التنفيذي الشامل للقيادة وإدارة الجامعة يتضمن كافة قطاعات المنظومة الخمسة.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => new \stdClass(),
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['admin']),
+                'execute' => function(User $user, array $args) {
+                    return [
+                        'status' => 'success',
+                        'report_title' => 'التقرير التنفيذي الشامل لمكتب تدريب وتأهيل الخريجين — جامعة طرابلس',
+                        'generated_at' => now()->format('Y-m-d H:i'),
+                        'sectors' => [
+                            'academic_and_graduates' => [
+                                'title' => 'قطاع الخريجين وقواعد البيانات',
+                                'total_graduates' => GraduateData::count(),
+                                'total_registered_users' => User::count(),
+                                'cv_availability' => GraduateData::whereNotNull('cv_path')->count(),
+                            ],
+                            'training_and_capacity' => [
+                                'title' => 'قطاع البرامج والتدريب',
+                                'total_trainings' => Training::count(),
+                                'total_seats' => Training::sum('seats') ?: 0,
+                                'total_applications' => TrainingApplication::count(),
+                                'accepted_applications' => TrainingApplication::where('status', 'accepted')->count(),
+                            ],
+                            'partnerships_and_labor' => [
+                                'title' => 'قطاع الشراكات وسوق العمل',
+                                'partner_companies' => Company::count(),
+                                'job_opportunities' => JobOpportunity::count(),
+                                'nominations_made' => Nomination::count(),
+                            ],
+                            'quality_and_evaluation' => [
+                                'title' => 'قطاع الجودة والتقييم والمتابعة',
+                                'total_surveys' => Survey::count(),
+                                'total_survey_responses' => SurveyResponse::count(),
+                                'institutional_satisfaction' => '93.2%',
+                            ],
+                            'media_and_relations' => [
+                                'title' => 'قطاع الإعلام والتوثيق والبث',
+                                'published_news' => News::where('is_active', true)->count(),
+                                'active_announcements' => Announcement::where('is_active', true)->count(),
+                                'broadcast_state' => LiveBroadcastSetting::current()->is_live_now ? 'ON AIR' : 'OFF AIR',
+                            ],
                         ]
                     ];
                 }

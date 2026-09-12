@@ -1623,6 +1623,10 @@
 
     </script>
 
+    @auth
+        @include('components.ai-assistant-widget')
+    @endauth
+
     @yield('scripts')
     @stack('scripts')
 

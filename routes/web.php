@@ -121,6 +121,14 @@ Route::middleware('auth')->group(function () {
         return redirect('/');
     })->name('dashboard');
 
+    // ==================== 🤖 المساعد الذكي (AI Assistant / Copilot) ====================
+    Route::prefix('ai-assistant')->name('ai-assistant.')->group(function () {
+        Route::post('/chat', [App\Http\Controllers\AiAssistantController::class, 'chat'])->name('chat');
+        Route::post('/confirm-action', [App\Http\Controllers\AiAssistantController::class, 'confirmAction'])->name('confirm-action');
+        Route::get('/history', [App\Http\Controllers\AiAssistantController::class, 'history'])->name('history');
+        Route::delete('/history', [App\Http\Controllers\AiAssistantController::class, 'clearHistory'])->name('clear-history');
+    });
+
     // ==================== 👑 مسارات المدير (Admin) ====================
     Route::prefix('admin')->middleware('admin')->group(function () {
 

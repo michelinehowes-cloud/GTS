@@ -727,6 +727,10 @@
     </script>
     <script src="{{ asset('js/notifications.js') }}"></script>
     @stack('scripts')
+
+    @auth
+        @include('components.ai-assistant-widget')
+    @endauth
 </body>
 
 </html>

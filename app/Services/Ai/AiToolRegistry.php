@@ -1593,6 +1593,87 @@ class AiToolRegistry
                     ];
                 }
             ],
+
+            // ==========================================
+            // 🔐 أداة أمان الحساب: تغيير كلمة المرور
+            // ==========================================
+            'change_user_password' => [
+                'name' => 'change_user_password',
+                'description' => 'تغيير وتحديث كلمة المرور لحساب المستخدم المسجل حالياً، أو لمستخدم آخر في حال كان المنفذ مديراً للنظام.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'new_password' => [
+                            'type' => 'string',
+                            'description' => 'كلمة المرور الجديدة (8 خانات على الأقل)',
+                        ],
+                        'target_user_identifier' => [
+                            'type' => 'string',
+                            'description' => 'البريد أو المعرف للمستخدم المستهدف (متاح لمدير النظام فقط)',
+                        ],
+                    ],
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => true,
+                'execute' => function(User $user, array $args) {
+                    $targetUser = $user;
+                    $targetIdentifier = $args['target_user_identifier'] ?? $args['target_user_id'] ?? null;
+
+                    // If non-admin specifies someone else
+                    if (!empty($targetIdentifier) && $user->role !== 'admin' && (string)$targetIdentifier !== (string)$user->id) {
+                        return [
+                            'status' => 'error',
+                            'message' => 'عذراً، لا تملك الصلاحية لتغيير كلمة مرور حساب مستخدم آخر. يمكنك تغيير كلمة مرور حسابك فقط.'
+                        ];
+                    }
+
+                    if (!empty($targetIdentifier) && $user->role === 'admin') {
+                        $ident = trim((string)$targetIdentifier);
+                        $found = User::where('email', $ident)
+                            ->orWhere('id', $ident)
+                            ->orWhere('name', 'like', "%{$ident}%")
+                            ->first();
+                        if ($found) {
+                            $targetUser = $found;
+                        } else {
+                            return [
+                                'status' => 'error',
+                                'message' => "لم يتم العثور على مستخدم يطابق: '{$ident}'."
+                            ];
+                        }
+                    }
+
+                    $newPass = $args['new_password'] ?? null;
+                    if ($newPass !== null && strlen($newPass) < 8) {
+                        return [
+                            'status' => 'error',
+                            'message' => 'كلمة المرور يجب ألا تقل عن 8 خانات لأسباب أمنية.'
+                        ];
+                    }
+
+                    $isSelf = ($targetUser->id === $user->id);
+                    $title = $isSelf ? 'تأكيد تغيير كلمة مرور حسابك' : "تأكيد تغيير كلمة مرور المستخدم: {$targetUser->name}";
+                    $summary = $isSelf ? 'تحديث كلمة المرور لحسابك الشخصي' : "تحديث كلمة المرور لحساب: {$targetUser->name}";
+                    $maskedPass = $newPass ? (str_repeat('•', max(4, strlen($newPass) - 3)) . substr($newPass, -3)) : null;
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'change_password',
+                        'action_type' => 'change_password',
+                        'title' => $title,
+                        'summary' => $summary,
+                        'details' => "**المستخدم:** {$targetUser->name} ({$targetUser->email})\n**الصلاحية:** " . ($targetUser->role_arabic ?? $targetUser->role) . "\n" . ($newPass ? "**كلمة المرور الجديدة المقترحة:** `{$maskedPass}`" : "**يرجى كتابة كلمة المرور الجديدة وتأكيدها أدناه:**"),
+                        'message' => "هل تود تأكيد تغيير وتحديث كلمة المرور لحساب **{$targetUser->name}**؟",
+                        'data' => [
+                            'target_user_id' => $targetUser->id,
+                            'target_user_name' => $targetUser->name,
+                            'target_user_email' => $targetUser->email,
+                            'new_password' => $newPass,
+                            'requires_input' => empty($newPass),
+                        ]
+                    ];
+                }
+            ],
         ];
     }
 }

@@ -19,6 +19,7 @@ use App\Models\MediaCamera;
 use App\Models\AuditLog;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class AiAssistantService
@@ -408,6 +409,41 @@ class AiAssistantService
             ]);
 
             $resultMessage = "💼 ✅ تم نشر وتفعيل فرصة العمل بنجاح: **'{$job->title}'**! أصبحت متاحة الآن في بوابة الوظائف للتقديم والترشيح.";
+        } elseif ($actionType === 'change_password') {
+            $targetUserId = (int) ($actionData['target_user_id'] ?? $user->id);
+            if ($targetUserId !== (int) $user->id && $user->role !== 'admin') {
+                return ['status' => 'forbidden', 'message' => 'غير مصرح لك بتغيير كلمة مرور مستخدم آخر.'];
+            }
+
+            $targetUser = ($targetUserId === (int) $user->id) ? $user : User::find($targetUserId);
+            if (!$targetUser) {
+                return ['status' => 'error', 'message' => 'المستخدم المستهدف غير موجود في النظام.'];
+            }
+
+            $newPassword = $actionData['new_password'] ?? '';
+            if (empty($newPassword) || strlen($newPassword) < 8) {
+                return ['status' => 'error', 'message' => 'كلمة المرور الجديدة يجب ألا تقل عن 8 خانات لأسباب أمنية.'];
+            }
+
+            $targetUser->password = Hash::make($newPassword);
+            $targetUser->must_change_password = false;
+            $targetUser->save();
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_CHANGE_PASSWORD',
+                'entity' => 'User',
+                'entity_id' => $targetUser->id,
+                'new_values' => ['email' => $targetUser->email, 'target_user' => $targetUser->name],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $isSelf = ($targetUser->id === $user->id);
+            $resultMessage = $isSelf
+                ? "🔐 ✅ تم تحديث وتشفير كلمة مرور حسابك بنجاح! تم حفظ البيانات وتوثيق الإجراء في سجل الأمان."
+                : "🔐 ✅ تم تحديث كلمة المرور بنجاح للمستخدم: **'{$targetUser->name}'** ({$targetUser->email})!";
         } else {
             return ['status' => 'error', 'message' => 'نوع الإجراء غير معروف.'];
         }
@@ -582,6 +618,44 @@ class AiAssistantService
     {
         $text = mb_strtolower($userMessage, 'UTF-8');
         $authorizedNames = array_column($authorizedTools, 'name');
+
+        // 🔐 تغيير كلمة المرور للمستخدم (كافة الأدوار والمدير)
+        if (Str::contains($text, ['كلمة المرور', 'كلمة السر', 'باسورد', 'password', 'تغيير رمزي', 'تغيير الرمز']) && 
+            Str::contains($text, ['تغيير', 'غير', 'تحديث', 'جديدة', 'بدل', 'تبديل', 'change', 'reset', 'update']) &&
+            in_array('change_user_password', $authorizedNames)) {
+            
+            $newPass = null;
+            $targetIdent = null;
+
+            // استخراج كلمة المرور إذا ذكرت (مثل: إلى Secret123 أو تكون Secret123)
+            if (preg_match('/(?:إلى|تكون|هي|بـ|to)\s+([A-Za-z0-9@#\$\%!\&\*_\-\+]{8,32})/u', $userMessage, $m)) {
+                $newPass = trim($m[1]);
+            }
+
+            // للمدير: إذا طلب تغيير كلمة مرور مستخدم آخر (مثل: للمستخدم x@example.com أو لحساب فلان)
+            if ($user->role === 'admin' && preg_match('/(?:للمستخدم|لحساب|للطالب|للخريج)\s+([^\s\?\.\!]+)/u', $userMessage, $m)) {
+                $targetIdent = trim($m[1]);
+            }
+
+            $res = AiToolRegistry::executeTool($user, 'change_user_password', [
+                'new_password' => $newPass,
+                'target_user_identifier' => $targetIdent,
+            ]);
+
+            if (isset($res['status']) && $res['status'] === 'proposal') {
+                return [
+                    'content' => "🔐 **تم تجهيز طلب تحديث كلمة المرور:**\n\n" .
+                        ($newPass ? "لقد قمت بإعداد التشفير لكلمة المرور المقترحة. يرجى مراجعة التفاصيل أدناه وتأكيد التنفيذ." : "يرجى كتابة كلمة المرور الجديدة وتأكيدها في البطاقة التفاعلية أدناه ثم الضغط على **[تأكيد وحفظ]** لتحديثها فوراً."),
+                    'action_proposal' => $res,
+                    'tool_executed' => 'change_user_password',
+                ];
+            } else {
+                return [
+                    'content' => $res['message'] ?? 'تعذر تجهيز طلب تغيير كلمة المرور.',
+                    'tool_executed' => 'change_user_password',
+                ];
+            }
+        }
 
         // 1. صياغة خبر صحفي (لمسؤول الإعلام أو المدير)
         if (Str::contains($text, ['صغ', 'صياغة', 'اكتب خبر', 'تحرير خبر', 'مسودة خبر', 'بيان صحفي', 'خبر صحفي']) && in_array('draft_news_article', $authorizedNames)) {

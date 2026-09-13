@@ -535,6 +535,61 @@
 
                                     </div>
                                 </li>
+
+                                <!-- ادارة الإعلام والتغطيات والبث للمدير -->
+                                <li class="nav-item menu-group">
+                                    <a class="nav-link {{ request()->routeIs('media.*') || request()->routeIs('job-fair.live*') ? 'active' : '' }}"
+                                        href="#" onclick="toggleSubmenu('admin-media-menu')">
+                                        <i class="fas fa-camera"></i>
+                                        إدارة الإعلام والتغطيات والبث
+                                        <i class="fas fa-chevron-down menu-arrow"></i>
+                                    </a>
+                                    <div class="submenu {{ request()->routeIs('media.*') || request()->routeIs('job-fair.live*') ? 'show' : '' }}"
+                                        id="admin-media-menu">
+                                        <a href="{{ route('media.dashboard') }}"
+                                            class="submenu-item {{ request()->routeIs('media.dashboard') ? 'active' : '' }}">
+                                            لوحة تحكم الإعلام
+                                        </a>
+                                        <a href="{{ route('media.live-studio') }}"
+                                            class="submenu-item {{ request()->routeIs('media.live-studio') ? 'active' : '' }} d-flex justify-content-between align-items-center">
+                                            <span>استوديو البث والكاميرات</span>
+                                            @php
+                                                $sbBroadcast = \App\Models\LiveBroadcastSetting::first();
+                                            @endphp
+                                            @if($sbBroadcast && $sbBroadcast->is_live_now)
+                                                <span class="badge bg-danger rounded-pill px-2" style="font-size: 0.65rem;">LIVE</span>
+                                            @endif
+                                        </a>
+                                        <a href="{{ route('media.coverage-calendar') }}"
+                                            class="submenu-item {{ request()->routeIs('media.coverage-calendar*') ? 'active' : '' }}">
+                                            تقويم وجدول التغطيات
+                                        </a>
+                                        <a href="{{ route('media.news.index') }}"
+                                            class="submenu-item {{ request()->routeIs('media.news*') ? 'active' : '' }}">
+                                            إدارة الأخبار الصحفية
+                                        </a>
+                                        <a href="{{ route('media.announcements.index') }}"
+                                            class="submenu-item {{ request()->routeIs('media.announcements*') ? 'active' : '' }}">
+                                            إدارة الإعلانات والتعميمات
+                                        </a>
+                                        <a href="{{ route('media.reports.coverage') }}"
+                                            class="submenu-item {{ request()->routeIs('media.reports.coverage*') ? 'active' : '' }}">
+                                            تقارير التغطية الإعلامية
+                                        </a>
+                                        <a href="{{ route('media.platform-stats') }}"
+                                            class="submenu-item {{ request()->routeIs('media.platform-stats*') ? 'active' : '' }}">
+                                            إحصائيات المنصة الرئيسية
+                                        </a>
+                                        <a href="{{ route('job-fair.live-stream') }}" target="_blank"
+                                            class="submenu-item">
+                                            شاشة البث المباشر (الجمهور) ↗
+                                        </a>
+                                        <a href="{{ route('job-fair.public') }}" target="_blank"
+                                            class="submenu-item">
+                                            صفحة المعرض (الزرقاء) ↗
+                                        </a>
+                                    </div>
+                                </li>
                             @endif
 
                             <!-- أقسام الموظف مخصص الصلاحيات (Staff RBAC) -->
@@ -697,10 +752,48 @@
                                         </div>
                                     </li>
                                 @endif
+
+                                <!-- الإعلام والتغطيات للموظف مخصص الصلاحيات -->
+                                @if(auth()->user()->hasAnyPermission(['media.manage', 'news.manage']))
+                                    <li class="nav-item menu-group">
+                                        <a class="nav-link {{ request()->routeIs('media.*') || request()->routeIs('job-fair.live*') ? 'active' : '' }}" href="#"
+                                            onclick="toggleSubmenu('staff-media-menu')">
+                                            <i class="fas fa-camera"></i>
+                                            الإعلام والتغطيات
+                                            <i class="fas fa-chevron-down menu-arrow"></i>
+                                        </a>
+                                        <div class="submenu {{ request()->routeIs('media.*') || request()->routeIs('job-fair.live*') ? 'show' : '' }}" id="staff-media-menu">
+                                            @if(auth()->user()->hasPermission('media.manage'))
+                                                <a href="{{ route('media.live-studio') }}" class="submenu-item {{ request()->routeIs('media.live-studio') ? 'active' : '' }}">
+                                                    استوديو البث والكاميرات
+                                                </a>
+                                                <a href="{{ route('media.coverage-calendar') }}" class="submenu-item {{ request()->routeIs('media.coverage-calendar*') ? 'active' : '' }}">
+                                                    تقويم وجدول التغطيات
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('news.manage'))
+                                                <a href="{{ route('media.news.index') }}" class="submenu-item {{ request()->routeIs('media.news*') ? 'active' : '' }}">
+                                                    إدارة الأخبار الصحفية
+                                                </a>
+                                                <a href="{{ route('media.announcements.index') }}" class="submenu-item {{ request()->routeIs('media.announcements*') ? 'active' : '' }}">
+                                                    إدارة الإعلانات والتعميمات
+                                                </a>
+                                            @endif
+                                            @if(auth()->user()->hasPermission('media.manage'))
+                                                <a href="{{ route('media.reports.coverage') }}" class="submenu-item {{ request()->routeIs('media.reports.coverage*') ? 'active' : '' }}">
+                                                    تقارير التغطية الإعلامية
+                                                </a>
+                                                <a href="{{ route('media.platform-stats') }}" class="submenu-item {{ request()->routeIs('media.platform-stats*') ? 'active' : '' }}">
+                                                    إحصائيات المنصة الرئيسية
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </li>
+                                @endif
                             @endif
 
-                            <!-- قسم مسؤول الميديا والإعلام والبث الذكي -->
-                            @if(auth()->user()->role == 'media_officer' || auth()->user()->hasAnyPermission(['media.manage', 'news.manage']))
+                            <!-- قسم مسؤول الميديا والإعلام والبث الذكي (لمسؤول الميديا فقط) -->
+                            @if(auth()->user()->role == 'media_officer')
                                 <hr class="sidebar-divider my-2">
                                 <div class="sidebar-heading">
                                     وحدة الإعلام والبث

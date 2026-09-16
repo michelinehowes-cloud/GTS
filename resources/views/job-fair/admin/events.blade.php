@@ -218,7 +218,7 @@
                                             <i class="fas fa-qrcode"></i>
                                         </a>
                                         <!-- Edit Event -->
-                                        <button type="button" class="btn btn-outline-primary" title="تعديل" onclick='editEvent(@json($event))'>
+                                        <button type="button" class="btn btn-outline-primary" title="تعديل" onclick="editEventById({{ $event->id }})">
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         <!-- Delete Event -->
@@ -531,19 +531,77 @@
 </div>
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    const fairEvents = @json($events->keyBy('id'));
+
     function showModalSafe(modalId) {
         const modalEl = document.getElementById(modalId);
         if (!modalEl) return;
         if (window.bootstrap && window.bootstrap.Modal) {
             const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
             bsModal.show();
-        } else if (window.jQuery && typeof $(modalEl).modal === 'function') {
-            $(modalEl).modal('show');
+            return;
         }
+        if (window.jQuery && typeof $(modalEl).modal === 'function') {
+            $(modalEl).modal('show');
+            return;
+        }
+        // Vanilla JS Fallback
+        modalEl.style.display = 'block';
+        modalEl.classList.add('show');
+        modalEl.removeAttribute('aria-hidden');
+        modalEl.setAttribute('aria-modal', 'true');
+        
+        let backdrop = document.getElementById(modalId + '-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop fade show';
+            backdrop.id = modalId + '-backdrop';
+            backdrop.onclick = function() { hideModalSafe(modalId); };
+            document.body.appendChild(backdrop);
+        }
+        document.body.classList.add('modal-open');
     }
 
-    function editEvent(event) {
+    function hideModalSafe(modalId) {
+        const modalEl = document.getElementById(modalId);
+        if (!modalEl) return;
+        if (window.bootstrap && window.bootstrap.Modal) {
+            const bsModal = bootstrap.Modal.getInstance(modalEl);
+            if (bsModal) { bsModal.hide(); return; }
+        }
+        if (window.jQuery && typeof $(modalEl).modal === 'function') {
+            $(modalEl).modal('hide');
+            return;
+        }
+        // Vanilla JS Fallback
+        modalEl.style.display = 'none';
+        modalEl.classList.remove('show');
+        modalEl.setAttribute('aria-hidden', 'true');
+        modalEl.removeAttribute('aria-modal');
+        const backdrop = document.getElementById(modalId + '-backdrop');
+        if (backdrop) backdrop.remove();
+        document.body.classList.remove('modal-open');
+    }
+
+    // Auto bind all close/dismiss buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('[data-bs-dismiss="modal"], [data-dismiss="modal"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                if (modal) hideModalSafe(modal.id);
+            });
+        });
+    });
+
+    function editEventById(id) {
+        const event = fairEvents[id];
+        if (!event) {
+            console.error('Event not found with ID:', id);
+            return;
+        }
+
         document.getElementById('editEventForm').action = "/admin/job-fair/events/" + event.id;
         document.getElementById('edit_type').value = event.type || 'workshop';
         document.getElementById('edit_title').value = event.title || '';

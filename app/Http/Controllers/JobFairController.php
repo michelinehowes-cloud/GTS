@@ -9,6 +9,8 @@ use App\Models\JobFairRegistration;
 use App\Models\Company;
 use App\Models\User;
 use App\Models\JobFairSponsor;
+use App\Models\JobFairEvent;
+use App\Models\JobFairEventAttendee;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -59,7 +61,7 @@ class JobFairController extends Controller
 
         $companies = $fair ? $fair->companies()->with('company')->where('status', 'confirmed')->get() : collect();
         $sponsors = $fair ? $fair->sponsors()->where('is_active', true)->orderBy('display_order')->get() : collect();
-        $events = $fair ? $fair->events()->orderBy('start_time', 'asc')->get() : collect();
+        $events = $fair ? $fair->events()->withCount('attendees')->orderBy('start_time', 'asc')->get() : collect();
         $recentJobs = \App\Models\JobOpportunity::where('status', 'open')->with('company')->latest()->take(6)->get();
         $stats = $this->getFairStats($fair);
 
@@ -132,6 +134,95 @@ class JobFairController extends Controller
             'totalBooths',
             'favoriteCompanyIds'
         ));
+    }
+
+    /**
+     * الصفحة العامة للبرنامج العلمي وجدول الفعاليات (Masterclass، ورش عمل، جلسات حوارية)
+     */
+    public function publicProgram(Request $request, $fair = null)
+    {
+        if ($fair) {
+            if (!($fair instanceof JobFair)) {
+                $fair = JobFair::find($fair);
+            }
+        } elseif ($request->has('fair')) {
+            $fair = JobFair::find($request->query('fair'));
+        }
+
+        if (!$fair) {
+            $fair = JobFair::where('status', 'published')
+                           ->orderBy('event_date', 'asc')
+                           ->first();
+
+            if (!$fair) {
+                $fair = JobFair::where('status', 'ongoing')->first();
+            }
+        }
+
+        $events = $fair 
+            ? $fair->events()
+                ->withCount('attendees')
+                ->orderBy('start_time', 'asc')
+                ->get() 
+            : collect();
+
+        $totalEvents = $events->count();
+        $totalCapacity = $events->sum(fn($e) => $e->capacity ?: 0);
+        $masterclassCount = $events->where('type', 'masterclass')->count();
+        $workshopsCount = $events->where('type', 'workshop')->count();
+        $panelsCount = $events->where('type', 'panel_discussion')->count();
+        $speakersCount = $events->pluck('speaker_name')->filter()->unique()->count();
+
+        $registeredEventIds = [];
+        if (Auth::check() && Auth::user()->role === 'graduate') {
+            $registeredEventIds = JobFairEventAttendee::where('graduate_id', Auth::id())
+                ->pluck('job_fair_event_id')
+                ->toArray();
+        }
+
+        return view('job-fair.program', compact(
+            'fair',
+            'events',
+            'totalEvents',
+            'totalCapacity',
+            'masterclassCount',
+            'workshopsCount',
+            'panelsCount',
+            'speakersCount',
+            'registeredEventIds'
+        ));
+    }
+
+    /**
+     * الصفحة المستقلة للفعالية العلمية مع رمز QR وتفاصيل المحاور والمتحدث
+     */
+    public function publicEventShow(Request $request, $event)
+    {
+        if (!($event instanceof JobFairEvent)) {
+            $event = JobFairEvent::with(['jobFair', 'attendees.graduate'])->findOrFail($event);
+        } else {
+            $event->load(['jobFair', 'attendees.graduate']);
+        }
+
+        $fair = $event->jobFair;
+
+        $isRegistered = false;
+        if (Auth::check() && Auth::user()->role === 'graduate') {
+            $isRegistered = JobFairEventAttendee::where('job_fair_event_id', $event->id)
+                ->where('graduate_id', Auth::id())
+                ->exists();
+        }
+
+        $relatedEvents = $fair 
+            ? $fair->events()
+                ->where('id', '!=', $event->id)
+                ->withCount('attendees')
+                ->orderBy('start_time', 'asc')
+                ->take(3)
+                ->get() 
+            : collect();
+
+        return view('job-fair.event-show', compact('event', 'fair', 'isRegistered', 'relatedEvents'));
     }
 
     /**

@@ -711,6 +711,19 @@ Route::get('/job-fair/{fair}/companies', [App\Http\Controllers\JobFairController
     ->where('fair', '[0-9]+')
     ->name('job-fair.public.companies');
 
+// البرنامج العلمي والفعاليات المصاحبة (للجميع)
+Route::get('/job-fair/program', [App\Http\Controllers\JobFairController::class, 'publicProgram'])
+    ->name('job-fair.public.program.index');
+
+Route::get('/job-fair/{fair}/program', [App\Http\Controllers\JobFairController::class, 'publicProgram'])
+    ->where('fair', '[0-9]+')
+    ->name('job-fair.public.program');
+
+// الصفحة المستقلة للفعالية العلمية مع رمز QR (للجميع)
+Route::get('/job-fair/events/{event}', [App\Http\Controllers\JobFairController::class, 'publicEventShow'])
+    ->where('event', '[0-9]+')
+    ->name('job-fair.public.events.show');
+
 
 // تسجيل الخريج في المعرض (يتطلب تسجيل دخول)
 Route::middleware('auth')->group(function () {
@@ -752,7 +765,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin/job-fair')->name('job-fair.a
     // إدارة الفعاليات
     Route::get('/{fair}/events', [App\Http\Controllers\JobFairEventController::class, 'index'])->name('events.index');
     Route::post('/{fair}/events', [App\Http\Controllers\JobFairEventController::class, 'store'])->name('events.store');
+    Route::put('/events/{event}', [App\Http\Controllers\JobFairEventController::class, 'update'])->name('events.update');
     Route::delete('/events/{event}', [App\Http\Controllers\JobFairEventController::class, 'destroy'])->name('events.destroy');
+    Route::get('/events/{event}/attendees', [App\Http\Controllers\JobFairEventController::class, 'attendees'])->name('events.attendees');
+    Route::get('/events/{event}/export-attendees', [App\Http\Controllers\JobFairEventController::class, 'exportAttendees'])->name('events.export-attendees');
 
     // إدارة الجهات الراعية (Sponsors)
     Route::post('/{fair}/sponsors', [App\Http\Controllers\JobFairController::class, 'storeSponsor'])->name('sponsors.store');

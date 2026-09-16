@@ -996,6 +996,103 @@
         }
 
         /* ══════════════════════════════════
+           SCIENTIFIC PROGRAM PREVIEW SECTION
+        ══════════════════════════════════ */
+        .program-preview-section {
+            padding: 100px 0;
+            background: linear-gradient(180deg, #071324 0%, #044b8e 50%, #033566 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .program-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.8rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .program-preview-card {
+            background: rgba(8, 34, 69, 0.7);
+            border: 1.5px solid rgba(255, 255, 255, 0.16);
+            border-radius: 24px;
+            padding: 1.8rem;
+            backdrop-filter: blur(16px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+            text-decoration: none;
+            color: #ffffff;
+            position: relative;
+        }
+
+        .program-preview-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--gold);
+            background: rgba(12, 45, 92, 0.9);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45), 0 0 25px rgba(238, 202, 62, 0.25);
+            color: #ffffff;
+        }
+
+        .badge-type-masterclass {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 50px;
+        }
+
+        .badge-type-workshop {
+            background: linear-gradient(135deg, #0284c7, #38bdf8);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 50px;
+        }
+
+        .badge-type-panel {
+            background: linear-gradient(135deg, #059669, #34d399);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 50px;
+        }
+
+        .event-speaker-strip {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 1rem 0 1.2rem;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .event-speaker-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(238, 202, 62, 0.2);
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            border: 1.5px solid var(--gold);
+            object-fit: cover;
+        }
+
+        /* ══════════════════════════════════
            MODAL
         ══════════════════════════════════ */
         .modal-card {
@@ -1494,6 +1591,101 @@
             </a>
             <div class="mt-2 text-white-50" style="font-size: 0.88rem;">
                 <i class="fas fa-search me-1 text-warning"></i> تصفح حسب القطاع، رقم الجناح، والفرص الوظيفية المتاحة
+            </div>
+        </div>
+
+    </div>
+</section>
+@endif
+
+{{-- SCIENTIFIC PROGRAM PREVIEW SECTION (رحلة الجاهزية المهنية) --}}
+@if(isset($events) && $events->count() > 0)
+@php
+    $previewEvents = $events->take(4);
+@endphp
+<section class="program-preview-section" id="program">
+    <div class="container">
+
+        <div class="text-center mb-5">
+            <div class="section-badge">
+                <i class="fas fa-graduation-cap me-1"></i>رحلة الجاهزية المهنية
+            </div>
+            <div class="title-line"></div>
+            <h2 class="section-title">البرنامج العلمي والتدريبي المصاحب</h2>
+            <p class="section-subtitle">
+                سلسلة متكاملة من ورش العمل التطبيقية، الماستر كلاس، والجلسات الحوارية الاستراتيجية بمشاركة نخبة من الخبراء والمدربين المحليين والدوليين لتأهيلك لسوق العمل.
+            </p>
+        </div>
+
+        <div class="program-preview-grid">
+            @foreach($previewEvents as $event)
+            @php
+                $typeClass = match($event->type) {
+                    'masterclass' => 'badge-type-masterclass',
+                    'panel_discussion' => 'badge-type-panel',
+                    default => 'badge-type-workshop',
+                };
+            @endphp
+            <div class="program-preview-card">
+                <div>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="{{ $typeClass }}">
+                            <i class="{{ $event->type_icon }} me-1"></i>{{ $event->type_short_label }}
+                        </span>
+                        <span class="jobs-tag tag-available" style="font-size:0.72rem;">
+                            <i class="fas fa-check-circle me-1"></i>{{ $event->status_label }}
+                        </span>
+                    </div>
+
+                    <h4 class="fw-bold mb-2 text-white" style="font-size: 1.15rem; line-height: 1.4;">
+                        {{ $event->title }}
+                    </h4>
+
+                    @if($event->speaker_name)
+                    <div class="event-speaker-strip">
+                        @if($event->speaker_image_url)
+                            <img src="{{ $event->speaker_image_url }}" alt="{{ $event->speaker_name }}" class="event-speaker-avatar">
+                        @else
+                            <div class="event-speaker-avatar">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                        @endif
+                        <div class="text-truncate">
+                            <div class="fw-bold text-white" style="font-size: 0.9rem;">{{ $event->speaker_name }}</div>
+                            <small class="text-white-50 d-block text-truncate" style="font-size: 0.72rem;">{{ $event->speaker_title ?: 'متحدث وخبير معتمد' }}</small>
+                        </div>
+                    </div>
+                    @endif
+
+                    <p class="text-white-50 mb-3" style="font-size: 0.82rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        {{ $event->description }}
+                    </p>
+                </div>
+
+                <div>
+                    <div class="d-flex align-items-center justify-content-between text-white-50 small mb-3 pt-2" style="font-size:0.76rem; border-top:1px solid rgba(255,255,255,0.08);">
+                        <span><i class="far fa-clock text-warning me-1"></i>{{ $event->start_time->format('H:i') }} - {{ $event->end_time->format('H:i') }}</span>
+                        <span><i class="fas fa-map-marker-alt text-info me-1"></i>{{ $event->location ?: 'المدرج الرئيسي' }}</span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('job-fair.public.events.show', $event->id) }}" class="btn-view-company w-100 text-center py-2" style="font-size:0.85rem;">
+                            <i class="fas fa-qrcode me-1"></i>تفاصيل الفعالية والتسجيل
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+
+        {{-- زر استعراض الجدول الكامل للبرنامج العلمي --}}
+        <div class="text-center">
+            <a href="{{ route('job-fair.public.program', $fair->id) }}" class="companies-dir-btn">
+                <span>استعراض الجدول الكامل للبرنامج العلمي ({{ $events->count() }} فعالية)</span>
+                <i class="fas fa-arrow-left ms-2"></i>
+            </a>
+            <div class="mt-2 text-white-50" style="font-size: 0.88rem;">
+                <i class="fas fa-calendar-alt me-1 text-warning"></i> مواعيد ورش العمل، الماستر كلاس، والجلسات الحوارية، وتأكيد الحضور
             </div>
         </div>
 

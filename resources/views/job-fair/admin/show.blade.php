@@ -197,6 +197,12 @@
                     <span>الرعاة ({{ $fair->sponsors->count() }})</span>
                 </a>
 
+                <!-- البرنامج العلمي والفعاليات -->
+                <a href="{{ route('job-fair.admin.events.index', $fair->id) }}" class="fair-btn-action btn btn-warning text-dark shadow-sm fw-bold">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>البرنامج العلمي ({{ $fair->events->count() }})</span>
+                </a>
+
                 <!-- الهوية البصرية -->
                 <a href="#brandIdentitySection" class="fair-btn-action fair-btn-glass">
                     <i class="fas fa-palette text-warning"></i>
@@ -453,6 +459,81 @@
                         {{ $registrations->links() }}
                     </div>
                 @endif
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- قسم البرنامج العلمي والفعاليات التدريبية المصاحبة -->
+    <div class="row mt-4 mb-4">
+        <div class="col-12">
+            <div class="card-modern p-3 p-md-4" id="scientificProgramSection">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3 flex-wrap gap-2">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <h5 class="fw-bold mb-0 text-dark fs-6">
+                                <i class="fas fa-graduation-cap text-primary me-2"></i>البرنامج العلمي والفعاليات التدريبية ({{ $fair->events->count() }} فعالية)
+                            </h5>
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-2.5 py-1 small fw-bold">
+                                رحلة الجاهزية المهنية
+                            </span>
+                        </div>
+                        <p class="text-muted small mb-0 mt-1">إدارة فعاليات الماستر كلاس، ورش العمل التطبيقية، والجلسات الحوارية، وتعديل المتحدثين والمقاعد والمحاور.</p>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <a href="{{ route('job-fair.public.program', $fair->id) }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-xs">
+                            <i class="fas fa-external-link-alt"></i>
+                            <span>معاينة صفحة البرنامج</span>
+                        </a>
+                        <a href="{{ route('job-fair.admin.events.index', $fair->id) }}" class="btn btn-sm btn-primary rounded-pill px-3.5 fw-bold d-inline-flex align-items-center gap-1.5 shadow-xs">
+                            <i class="fas fa-cog"></i>
+                            <span>إدارة وتعديل الفعاليات بالكامل</span>
+                        </a>
+                    </div>
+                </div>
+
+                @if($fair->events->isEmpty())
+                    <p class="text-muted text-center py-4 mb-0 small">لا توجد فعاليات علمية مضافة في هذا المعرض حتى الآن</p>
+                @else
+                    <div class="row g-3">
+                        @foreach($fair->events as $ev)
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="card border rounded-3 p-3 h-100 bg-white shadow-xs d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge {{ $ev->type === 'masterclass' ? 'bg-warning text-dark' : ($ev->type === 'workshop' ? 'bg-primary text-white' : 'bg-info text-dark') }} rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">
+                                            <i class="{{ $ev->type_icon }} me-1"></i>{{ $ev->type_short_label }}
+                                        </span>
+                                        <span class="badge bg-light text-muted border" style="font-size: 0.72rem;">
+                                            {{ $ev->attendees()->count() }} {{ $ev->capacity ? '/ ' . $ev->capacity : '' }} مقعد
+                                        </span>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1 fs-6" style="line-height: 1.4;">
+                                        {{ $ev->title }}
+                                    </h6>
+                                    <div class="text-muted small mb-2 d-flex align-items-center gap-1.5">
+                                        <i class="fas fa-user-tie text-primary"></i>
+                                        <span>{{ $ev->speaker_name ?? 'لم يحدد' }}</span>
+                                    </div>
+                                    @if($ev->location)
+                                    <div class="text-muted small mb-3">
+                                        <i class="fas fa-map-marker-alt text-danger me-1"></i>{{ $ev->location }}
+                                    </div>
+                                    @endif
+                                </div>
+                                <div class="d-flex gap-2 pt-2 border-top mt-auto">
+                                    <a href="{{ route('job-fair.public.events.show', $ev->id) }}" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill flex-grow-1" style="font-size: 0.76rem;">
+                                        <i class="fas fa-qrcode me-1"></i>الصفحة وQR
+                                    </a>
+                                    <a href="{{ route('job-fair.admin.events.index', $fair->id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.76rem;">
+                                        <i class="fas fa-edit me-1"></i>تعديل
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
                 @endif
             </div>
         </div>

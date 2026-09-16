@@ -22,7 +22,7 @@
             <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="btn btn-outline-secondary shadow-sm">
                 <i class="fas fa-arrow-right"></i> العودة لتفاصيل المعرض
             </a>
-            <button class="btn btn-success shadow-sm" data-toggle="modal" data-target="#addEventModal">
+            <button class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#addEventModal" data-toggle="modal" data-target="#addEventModal">
                 <i class="fas fa-plus-circle"></i> إضافة فعالية علمية جديدة
             </button>
         </div>
@@ -257,7 +257,7 @@
                     <h5 class="modal-title font-weight-bold" id="addEventModalLabel">
                         <i class="fas fa-plus-circle me-1"></i> إضافة فعالية علمية جديدة
                     </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="btn-close btn-close-white close text-white" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -357,7 +357,7 @@
                     </div>
                 </div>
                 <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">إلغاء</button>
                     <button type="submit" class="btn btn-primary">حفظ الفعالية</button>
                 </div>
             </div>
@@ -376,7 +376,7 @@
                     <h5 class="modal-title font-weight-bold" id="editEventModalLabel">
                         <i class="fas fa-edit me-1"></i> تعديل بيانات الفعالية العلمية
                     </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="btn-close btn-close-white close text-white" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -474,7 +474,7 @@
                     </div>
                 </div>
                 <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">إلغاء</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">إلغاء</button>
                     <button type="submit" class="btn btn-primary">حفظ التعديلات</button>
                 </div>
             </div>
@@ -490,7 +490,7 @@
                 <h5 class="modal-title font-weight-bold" id="attendeesModalLabel">
                     <i class="fas fa-users me-1"></i> قائمة المسجلين في الفعالية
                 </h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="btn-close btn-close-white close text-white" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -524,7 +524,7 @@
                 </div>
             </div>
             <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">إغلاق</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">إغلاق</button>
             </div>
         </div>
     </div>
@@ -532,6 +532,17 @@
 
 @push('scripts')
 <script>
+    function showModalSafe(modalId) {
+        const modalEl = document.getElementById(modalId);
+        if (!modalEl) return;
+        if (window.bootstrap && window.bootstrap.Modal) {
+            const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            bsModal.show();
+        } else if (window.jQuery && typeof $(modalEl).modal === 'function') {
+            $(modalEl).modal('show');
+        }
+    }
+
     function editEvent(event) {
         document.getElementById('editEventForm').action = "/admin/job-fair/events/" + event.id;
         document.getElementById('edit_type').value = event.type || 'workshop';
@@ -554,7 +565,7 @@
             document.getElementById('edit_end_time').value = event.end_time.substring(0, 16);
         }
 
-        $('#editEventModal').modal('show');
+        showModalSafe('editEventModal');
     }
 
     function loadAttendees(eventId, eventTitle) {
@@ -565,7 +576,7 @@
         const tbody = document.getElementById('attendeesTableBody');
         tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin"></i> جاري جلب المسجلين...</td></tr>';
         
-        $('#attendeesModal').modal('show');
+        showModalSafe('attendeesModal');
 
         fetch("/admin/job-fair/events/" + eventId + "/attendees")
             .then(res => res.json())

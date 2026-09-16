@@ -150,30 +150,39 @@ class GraduateController extends Controller
         $graduate = Auth::user();
         $graduate->load('graduateData');
 
-        // البحث عن المعرض الممرر أو الأخير
+        // جميع الفعاليات والمعارض النشطة الجارية أو القادمة (غير المنتهية) التي سجل بها هذا الخريج تحديداً
+        $myRegistrations = JobFairRegistration::where('user_id', $graduate->id)
+            ->with('jobFair')
+            ->get()
+            ->filter(function ($reg) {
+                return $reg->jobFair !== null && !$reg->jobFair->is_ended;
+            });
+
+        $selectedMode = $request->query('mode'); // 'general' or null
         $fairId = $request->query('fair_id');
+
         $activeFair = null;
         $fairRegistration = null;
 
-        if ($fairId) {
-            $activeFair = JobFair::find($fairId);
-            if ($activeFair) {
-                $fairRegistration = JobFairRegistration::where('job_fair_id', $activeFair->id)
-                    ->where('user_id', $graduate->id)
-                    ->first();
-            }
-        }
-
-        if (!$activeFair) {
-            // المعرض الأخير المسجل فيه الخريج
-            $fairRegistration = JobFairRegistration::where('user_id', $graduate->id)
-                ->with('jobFair')
-                ->latest()
-                ->first();
-            if ($fairRegistration) {
+        // 1. إذا اختار الخريج صراحة عرض "الهوية العامة" فقط
+        if ($selectedMode === 'general') {
+            $activeFair = null;
+            $fairRegistration = null;
+        } elseif ($fairId) {
+            // 2. إذا حدد الخريج فعالية معينة عبر الرابط أو شريط التبديل وكانت غير منتهية
+            $fairRegistration = $myRegistrations->firstWhere('job_fair_id', $fairId);
+            if ($fairRegistration && !$fairRegistration->jobFair->is_ended) {
                 $activeFair = $fairRegistration->jobFair;
-            } else {
-                $activeFair = JobFair::latest()->first();
+            }
+        } elseif ($myRegistrations->isNotEmpty()) {
+            // 3. التحديد التلقائي الأذكى: أقرب فعالية نشطة قادمة
+            $upcomingReg = $myRegistrations->sortBy(function ($reg) {
+                return $reg->jobFair->event_date;
+            })->first();
+
+            if ($upcomingReg) {
+                $fairRegistration = $upcomingReg;
+                $activeFair = $upcomingReg->jobFair;
             }
         }
 
@@ -184,22 +193,33 @@ class GraduateController extends Controller
             ->latest()
             ->first();
 
-        // هل هناك سياق فعالية أو مشروع نشط؟
+        // إعداد سياق الفعالية فقط في حال كان الخريج مسجلاً بالفعل في فعالية نشطة
         $eventContext = null;
         if ($activeFair && $fairRegistration) {
+            $isWhiteLogo = !empty($activeFair->fair_logo_white_path) || ($activeFair->id === 1 && file_exists(public_path('images/job_fair_logo_white.png')));
             $eventContext = [
-                'type'     => 'job_fair',
-                'title'    => $activeFair->title,
-                'subtitle' => 'معرض التوظيف — جامعة طرابلس',
-                'logo'     => $activeFair->banner_image ? asset('storage/' . $activeFair->banner_image) : asset('images/job_fair_logo_white.png'),
-                'badge'    => 'تذكرة رقم #' . $fairRegistration->registration_number,
-                'status'   => $fairRegistration->attended ? 'تم الحضور' : 'مسجل ومعتمد',
-                'date'     => $activeFair->event_date ? $activeFair->event_date->format('d/m/Y') : null,
-                'location' => $activeFair->location ?? 'جامعة طرابلس',
+                'type'          => 'job_fair',
+                'fair_id'       => $activeFair->id,
+                'title'         => $activeFair->title,
+                'subtitle'      => 'معرض التوظيف — جامعة طرابلس',
+                'logo'          => $activeFair->white_logo_url ?: $activeFair->logo_url,
+                'is_white_logo' => $isWhiteLogo,
+                'badge'         => 'تذكرة رقم #' . $fairRegistration->registration_number,
+                'status'        => $fairRegistration->attended ? 'تم الحضور' : 'مسجل ومعتمد',
+                'date'          => $activeFair->event_date ? $activeFair->event_date->format('d/m/Y') : null,
+                'location'      => $activeFair->location ?? 'جامعة طرابلس',
+                'qr_data'       => $fairRegistration->qr_code ?: route('graduate.profile.public', $graduate->id),
             ];
         }
 
-        return view('graduate.id-card', compact('graduate', 'activeFair', 'fairRegistration', 'activeTraining', 'eventContext'));
+        return view('graduate.id-card', compact(
+            'graduate',
+            'myRegistrations',
+            'activeFair',
+            'fairRegistration',
+            'activeTraining',
+            'eventContext'
+        ));
     }
 
     /**

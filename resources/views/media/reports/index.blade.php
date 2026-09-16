@@ -132,8 +132,29 @@
         </div>
     </div>
 
+@push('styles')
+<style>
+    .reports-table-card {
+        transform: none !important;
+        transition: box-shadow 0.2s ease !important;
+    }
+    .reports-table-card:hover {
+        transform: none !important;
+    }
+    .reports-table tbody tr {
+        transition: background-color 0.15s ease !important;
+        transform: none !important;
+    }
+    .reports-table tbody tr:hover {
+        background-color: #f8fafc !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+</style>
+@endpush
+
     <!-- جدول تقارير التدريبات -->
-    <div class="card-modern shadow-sm border-0 rounded-4 overflow-hidden mb-4 p-0" style="background: #ffffff;">
+    <div class="card reports-table-card shadow-sm border-0 rounded-4 overflow-hidden mb-4 p-0" style="background: #ffffff; transform: none !important;">
         <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div class="d-flex align-items-center gap-2.5">
                 <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-size: 1.1rem;">
@@ -155,7 +176,7 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table reports-table table-hover align-middle mb-0">
                 <thead class="bg-light" style="font-size: 0.82rem; border-bottom: 2px solid #e2e8f0;">
                     <tr>
                         <th class="ps-4 py-3" style="width: 45px;">#</th>

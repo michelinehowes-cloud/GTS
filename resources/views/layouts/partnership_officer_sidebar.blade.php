@@ -50,8 +50,8 @@
 <li class="nav-item">
     <a class="nav-link {{ request()->routeIs('job-fair.admin*') ? 'active' : '' }}"
         href="{{ route('job-fair.admin.index') }}">
-        <i class="fas fa-store"></i>
-        معرض التوظيف
+        <i class="fas fa-calendar-star"></i>
+        المعارض والفعاليات
     </a>
 </li>
 

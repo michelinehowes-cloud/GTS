@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'إدارة معارض التوظيف')
-@section('page-title', 'إدارة معارض التوظيف')
+@section('title', 'إدارة المعارض والفعاليات')
+@section('page-title', 'إدارة المعارض والفعاليات')
 
 @push('styles')
 <style>
@@ -109,7 +109,7 @@
         'items' => [
             ['label' => 'الرئيسية', 'url' => route('home')],
             ['label' => 'لوحة تحكم المدير', 'url' => route('admin.dashboard')],
-            ['label' => 'إدارة معارض التوظيف', 'active' => true],
+            ['label' => 'إدارة المعارض والفعاليات', 'active' => true],
         ]
     ])
 
@@ -117,13 +117,12 @@
     <div class="job-fair-hero mb-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div class="d-flex align-items-center gap-3">
-                <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="معرض التوظيف" style="height: 48px; width: auto; object-fit: contain;">
                 <div>
                     <h2 class="mb-1 fs-4">
-                        <i class="fas fa-store me-2" style="color: #fef08a;"></i>
-                        إدارة معارض التوظيف
+                        <i class="fas fa-calendar-check me-2" style="color: #fef08a;"></i>
+                        إدارة المعارض والفعاليات
                     </h2>
-                    <p class="mb-0 text-white-50 small">إدارة وتنظيم فعاليات معارض التوظيف ومتابعة حضور الخريجين والشركات</p>
+                    <p class="mb-0 text-white-50 small">إدارة وتنظيم المعارض والملتقيات والفعاليات ومتابعة حضور الخريجين والشركات</p>
                 </div>
             </div>
             <div class="d-flex gap-2 flex-wrap w-100 w-md-auto">
@@ -131,7 +130,7 @@
                     <i class="fas fa-external-link-alt me-1"></i> الصفحة العامة
                 </a>
                 <a href="{{ route('job-fair.admin.create') }}" class="btn btn-sm btn-warning rounded-pill fw-bold text-dark flex-grow-1 flex-md-grow-0" style="background: #fef08a; border: none;">
-                    <i class="fas fa-plus me-1"></i> إنشاء معرض جديد
+                    <i class="fas fa-plus me-1"></i> إنشاء فعالية جديدة
                 </a>
             </div>
         </div>
@@ -146,10 +145,10 @@
     @if($fairs->isEmpty())
     <div class="card-modern text-center py-5">
         <div style="font-size: 3.5rem">🎪</div>
-        <h5 class="fw-bold text-dark mt-3">لا توجد معارض توظيف مسجلة حتى الآن</h5>
-        <p class="text-muted small mb-4">يمكنك إنشاء أول معرض توظيف وإتاحة تسجيل الخريجين والشركات</p>
+        <h5 class="fw-bold text-dark mt-3">لا توجد معارض أو فعاليات مسجلة حتى الآن</h5>
+        <p class="text-muted small mb-4">يمكنك إنشاء أول فعالية أو معرض وإتاحة تسجيل الخريجين والشركات</p>
         <a href="{{ route('job-fair.admin.create') }}" class="btn btn-primary-modern rounded-pill px-4 mx-auto">
-            <i class="fas fa-plus me-2"></i> إنشاء أول معرض
+            <i class="fas fa-plus me-2"></i> إنشاء أول فعالية
         </a>
     </div>
     @else
@@ -167,7 +166,12 @@
                     {{-- رأس بطاقة المعرض --}}
                     <div class="d-flex justify-content-between align-items-start mb-3 gap-2">
                         <div>
-                            <h5 class="fw-bold text-dark mb-1 fs-6">{{ $fair->title }}</h5>
+                            <div class="d-flex align-items-center gap-2">
+                                <h5 class="fw-bold text-dark mb-1 fs-6">{{ $fair->title }}</h5>
+                                <a href="{{ route('job-fair.public', $fair->id) }}" target="_blank" class="text-primary small" title="عرض الصفحة العامة للفعالية">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
                             <div class="text-muted small d-flex flex-wrap gap-2">
                                 <span><i class="fas fa-calendar-alt me-1 text-primary"></i>{{ $fair->event_date->format('d/m/Y') }}</span>
                                 @if($fair->location)

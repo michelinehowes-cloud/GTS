@@ -72,7 +72,7 @@
         <div class="d-flex align-items-center gap-3 bg-white p-2 rounded-4 shadow-sm">
             <img src="{{ asset('images/logo.jpg') }}" alt="مكتب الخريجين" style="height: 40px; border-radius: 8px;">
             <div style="width: 1px; height: 30px; background: #e2e8f0;"></div>
-            <img src="{{ asset('images/job_fair_logo.png') }}" alt="شعار المعرض" style="height: 45px;">
+            <img src="{{ $fair->logo_url }}" alt="{{ $fair->title }}" style="height: 45px; max-width: 120px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo.png') }}';">
         </div>
     </div>
 

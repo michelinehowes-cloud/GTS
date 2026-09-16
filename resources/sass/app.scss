@@ -674,10 +674,8 @@ button.badge.rounded-pill:hover {
 }
 
 .submenu.show {
-    max-height: 500px;
-    /* Increased to accommodate more content */
-    overflow-y: auto;
-    /* Ensure scrolling is enabled for the submenu itself */
+    max-height: none;
+    overflow-y: visible;
 }
 
 .submenu-item {

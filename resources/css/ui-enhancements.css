@@ -143,15 +143,16 @@ a, button, .btn, .form-control, .form-select {
     transform: scale(1.01);
 }
 
-/* 9. Table Row Hover */
+/* 9. Table Row Hover (Stable, smooth, no jitter) */
 .table tbody tr {
-    transition: all 0.2s ease;
+    transition: background-color 0.15s ease;
+    transform: none !important;
 }
 
 .table tbody tr:hover {
-    background-color: rgba(30, 58, 138, 0.03);
-    transform: scale(1.01);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background-color: rgba(30, 58, 138, 0.03) !important;
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 /* 10. Smooth Page Transitions */

@@ -51,6 +51,11 @@ class JobFairRegistration extends Model
     public static function generateRegistrationNumber(int $jobFairId): string
     {
         $count = self::where('job_fair_id', $jobFairId)->count() + 1;
-        return 'JF2026-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+        $candidate = 'JF' . $jobFairId . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+        while (self::where('registration_number', $candidate)->exists()) {
+            $count++;
+            $candidate = 'JF' . $jobFairId . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+        }
+        return $candidate;
     }
 }

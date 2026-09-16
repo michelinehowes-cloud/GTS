@@ -14,9 +14,8 @@ use App\Models\Company;
 use App\Models\Announcement;
 use App\Models\Survey;
 use App\Models\SurveyResponse;
-use App\Models\LiveBroadcastSetting;
-use App\Models\MediaCamera;
 use App\Models\AuditLog;
+use App\Models\PartnershipDocument;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
@@ -219,7 +218,7 @@ class AiAssistantService
 
             $resultMessage = "💼 ✅ تم تقديم طلبك وترشحك بنجاح لوظيفة: **'{$job->title}'**! ستتم مراجعة طلبك والتواصل معك فور مطابقة البيانات.";
         } elseif ($actionType === 'nominate_graduate') {
-            if (!in_array($user->role, ['career_guidance_officer', 'admin'])) {
+            if (!in_array($user->role, ['career_guidance_officer', 'admin', 'company', 'partnership_officer'])) {
                 return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لترشيح الخريجين.'];
             }
 
@@ -237,13 +236,19 @@ class AiAssistantService
                 return ['status' => 'info', 'message' => "تم ترشيح هذا الخريج لهذه الفرصة مسبقاً."];
             }
 
+            $nomType = ($user->role === 'company') ? 'company_requested' : 'officer_nominated';
+            $nomStatus = ($user->role === 'company') ? 'under_review' : 'pending';
+            $defaultNotes = ($user->role === 'company') 
+                ? 'طلب ترشيح مباشر من الشركة عبر المساعد الذكي' 
+                : 'ترشيح رسمي من مسؤول الإرشاد المهني عبر المساعد الذكي';
+
             $nomination = Nomination::create([
                 'graduate_id' => $gradId,
                 'job_opportunity_id' => $jobId,
                 'nominated_by' => $user->id,
-                'nomination_type' => 'officer_nominated',
-                'status' => 'pending',
-                'nomination_notes' => $actionData['nomination_notes'] ?? 'ترشيح رسمي من مسؤول الإرشاد المهني عبر المساعد الذكي',
+                'nomination_type' => $nomType,
+                'status' => $nomStatus,
+                'nomination_notes' => $actionData['nomination_notes'] ?? $defaultNotes,
                 'matching_reasons' => $actionData['matching_reasons'] ?? 'مطابقة المتطلبات والتخصص والمعدل',
                 'nominated_at' => now(),
             ]);
@@ -320,32 +325,6 @@ class AiAssistantService
             ]);
 
             $resultMessage = "📢 ✅ تم نشر الإعلان الرسمي بنجاح بعنوان: **'{$announcement->title}'**! يظهر الآن في شريط الإعلانات والصفحة الرئيسية للمنظومة.";
-        } elseif ($actionType === 'toggle_broadcast') {
-            if (!in_array($user->role, ['media_officer', 'admin'])) {
-                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية للتحكم في البث المباشر.'];
-            }
-
-            $setting = LiveBroadcastSetting::current();
-            $newStatus = (bool) ($actionData['is_live_now'] ?? false);
-            $setting->is_live_now = $newStatus;
-            if (!empty($actionData['broadcast_title'])) {
-                $setting->broadcast_title = $actionData['broadcast_title'];
-            }
-            $setting->save();
-
-            AuditLog::create([
-                'user_id' => $user->id,
-                'action' => 'AI_ASSISTANT_TOGGLE_BROADCAST',
-                'entity' => 'LiveBroadcastSetting',
-                'entity_id' => $setting->id,
-                'new_values' => ['is_live_now' => $newStatus, 'title' => $setting->broadcast_title],
-                'ip_address' => request()->ip() ?? '127.0.0.1',
-                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
-                'timestamp' => now(),
-            ]);
-
-            $statusText = $newStatus ? '🔴 البث المباشر يعمل الآن (ON AIR)' : '⚪ تم إيقاف البث المباشر (OFF AIR)';
-            $resultMessage = "📡 ✅ تم تحديث حالة البث المباشر بنجاح: **{$statusText}**. العنوان المعتمد: '{$setting->broadcast_title}'.";
         } elseif ($actionType === 'create_company') {
             if (!in_array($user->role, ['partnership_officer', 'admin'])) {
                 return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لإضافة شركات شريكة.'];
@@ -378,14 +357,22 @@ class AiAssistantService
 
             $resultMessage = "🏢 ✅ تم اعتماد وإضافة شركة: **'{$company->name}'** بنجاح إلى سجل الشركاء المعتمدين في جامعة طرابلس!";
         } elseif ($actionType === 'create_job_opportunity') {
-            if (!in_array($user->role, ['career_guidance_officer', 'admin'])) {
+            if (!in_array($user->role, ['career_guidance_officer', 'admin', 'company', 'partnership_officer'])) {
                 return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لإضافة وظائف وفرص عمل.'];
+            }
+
+            $companyId = $actionData['company_id'] ?? null;
+            if ($user->role === 'company') {
+                $c = $user->company ?? Company::where('user_id', $user->id)->first();
+                if ($c) {
+                    $companyId = $c->id;
+                }
             }
 
             $job = JobOpportunity::create([
                 'title' => $actionData['title'] ?? 'فرصة وظيفية جديدة',
                 'description' => $actionData['description'] ?? 'فرصة عمل لخريجي جامعة طرابلس.',
-                'company_id' => $actionData['company_id'] ?? null,
+                'company_id' => $companyId,
                 'type' => $actionData['type'] ?? 'full-time',
                 'contract_type' => $actionData['contract_type'] ?? 'full_time',
                 'location' => $actionData['location'] ?? 'طرابلس، ليبيا',
@@ -402,13 +389,138 @@ class AiAssistantService
                 'action' => 'AI_ASSISTANT_CREATE_JOB_OPPORTUNITY',
                 'entity' => 'JobOpportunity',
                 'entity_id' => $job->id,
-                'new_values' => ['title' => $job->title, 'location' => $job->location],
+                'new_values' => ['title' => $job->title, 'location' => $job->location, 'company_id' => $job->company_id],
                 'ip_address' => request()->ip() ?? '127.0.0.1',
                 'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
                 'timestamp' => now(),
             ]);
 
             $resultMessage = "💼 ✅ تم نشر وتفعيل فرصة العمل بنجاح: **'{$job->title}'**! أصبحت متاحة الآن في بوابة الوظائف للتقديم والترشيح.";
+        } elseif ($actionType === 'update_candidate_status') {
+            $nominationId = $actionData['nomination_id'] ?? null;
+            $nomination = $nominationId ? Nomination::with(['graduate.user', 'jobOpportunity.company'])->find($nominationId) : null;
+            if (!$nomination) {
+                return ['status' => 'error', 'message' => 'سجل ترشيح المرشح غير موجود في المنظومة.'];
+            }
+
+            $companyId = $nomination->jobOpportunity ? $nomination->jobOpportunity->company_id : null;
+            if ($user->role === 'company') {
+                $userComp = $user->company ?? Company::where('user_id', $user->id)->first();
+                if (!$userComp || (int) $userComp->id !== (int) $companyId) {
+                    return ['status' => 'forbidden', 'message' => 'غير مصرح لك بتعديل ترشيحات وظائف شركات أخرى.'];
+                }
+            } elseif (!in_array($user->role, ['partnership_officer', 'career_guidance_officer', 'admin'])) {
+                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لتحديث حالة المرشحين.'];
+            }
+
+            $oldStatus = $nomination->status;
+            $newStatus = $actionData['status'] ?? $oldStatus;
+            $finalStatus = $actionData['final_status'] ?? $nomination->final_status;
+
+            $nomination->status = $newStatus;
+            if (!empty($finalStatus)) {
+                $nomination->final_status = $finalStatus;
+            }
+            if (!empty($actionData['interview_date'])) {
+                $nomination->interview_date = $actionData['interview_date'];
+            }
+            if (!empty($actionData['interview_time'])) {
+                $rawTime = (string) $actionData['interview_time'];
+                $isPm = preg_match('/(?:مساءً|مساء|م|pm)/iu', $rawTime);
+                $isAm = preg_match('/(?:صباحاً|صباح|ص|am)/iu', $rawTime);
+                if (preg_match('/(\d{1,2})(?::(\d{2}))?/u', $rawTime, $tm)) {
+                    $h = (int) $tm[1];
+                    $m = isset($tm[2]) ? (int) $tm[2] : 0;
+                    if ($isPm && $h < 12) $h += 12;
+                    if ($isAm && $h == 12) $h = 0;
+                    $nomination->interview_time = sprintf('%02d:%02d:00', $h, $m);
+                } else {
+                    $nomination->interview_time = null;
+                }
+            }
+            if (!empty($actionData['interview_location'])) {
+                $nomination->interview_location = $actionData['interview_location'];
+            }
+            if (!empty($actionData['notes'])) {
+                $nomination->interview_notes = $actionData['notes'];
+            }
+
+            if ($newStatus === 'interview_scheduled') {
+                $nomination->interview_at = now();
+            }
+            if (in_array($newStatus, ['accepted', 'rejected'])) {
+                $nomination->company_response_at = now();
+            }
+            if ($finalStatus && $finalStatus !== 'in_progress') {
+                $nomination->final_decision_at = now();
+            }
+
+            $nomination->save();
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_UPDATE_CANDIDATE_STATUS',
+                'entity' => 'Nomination',
+                'entity_id' => $nomination->id,
+                'old_values' => ['status' => $oldStatus],
+                'new_values' => [
+                    'status' => $newStatus,
+                    'final_status' => $finalStatus,
+                    'interview_date' => $actionData['interview_date'] ?? null,
+                ],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            // إرسال إشعار للخريج
+            if ($nomination->graduate && $nomination->graduate->user) {
+                try {
+                    $notifService = app(\App\Services\NotificationService::class);
+                    $compTitle = ($nomination->jobOpportunity && $nomination->jobOpportunity->company) ? $nomination->jobOpportunity->company->name : 'الشركة الشريكة';
+                    $msgText = ($newStatus === 'interview_scheduled') 
+                        ? "تم تحديد موعد مقابلة شخصية لوظيفة ({$nomination->jobOpportunity->title}) لدى {$compTitle} بتاريخ {$actionData['interview_date']}."
+                        : "قامت شركة {$compTitle} بتحديث حالة طلبك للوظيفة ({$nomination->jobOpportunity->title}) إلى: {$newStatus}.";
+                    $notifService->sendToUser($nomination->graduate->user, 'تحديث حالة طلب التوظيف', $msgText, 'info');
+                } catch (\Throwable $e) {
+                    \Log::warning('AI Notification failed: ' . $e->getMessage());
+                }
+            }
+
+            $gradName = $nomination->graduate ? $nomination->graduate->name : 'المرشح';
+            $resultMessage = "🤝 ✅ تم تحديث حالة الخريج: **'{$gradName}'** بنجاح وإرسال الإشعار وتوثيق الإجراء في سجل العمليات!";
+        } elseif ($actionType === 'toggle_company_approval') {
+            if (!in_array($user->role, ['partnership_officer', 'admin'])) {
+                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لتعديل اعتماد الشركات الشريكة.'];
+            }
+
+            $companyId = $actionData['company_id'] ?? null;
+            $company = $companyId ? Company::find($companyId) : null;
+            if (!$company) {
+                return ['status' => 'error', 'message' => 'الشركة المستهدفة غير موجودة.'];
+            }
+
+            $oldApproved = $company->is_approved;
+            $newApproved = (bool) ($actionData['target_approved'] ?? !$oldApproved);
+            $company->is_approved = $newApproved;
+            $company->partnership_status = $newApproved ? 'active' : 'under_review';
+            $company->save();
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_TOGGLE_COMPANY_APPROVAL',
+                'entity' => 'Company',
+                'entity_id' => $company->id,
+                'old_values' => ['is_approved' => $oldApproved],
+                'new_values' => ['is_approved' => $newApproved, 'partnership_status' => $company->partnership_status],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $resultMessage = $newApproved 
+                ? "🏢 ✅ تم اعتماد وتفعيل شركة **'{$company->name}'** بنجاح في منظومة جامعة طرابلس!" 
+                : "🏢 ⏸️ تم إلغاء اعتماد شركة **'{$company->name}'** وتحويلها إلى قيد المراجعة والتدقيق.";
         } elseif ($actionType === 'change_password') {
             $targetUserId = (int) ($actionData['target_user_id'] ?? $user->id);
             if ($targetUserId !== (int) $user->id && $user->role !== 'admin') {
@@ -444,6 +556,337 @@ class AiAssistantService
             $resultMessage = $isSelf
                 ? "🔐 ✅ تم تحديث وتشفير كلمة مرور حسابك بنجاح! تم حفظ البيانات وتوثيق الإجراء في سجل الأمان."
                 : "🔐 ✅ تم تحديث كلمة المرور بنجاح للمستخدم: **'{$targetUser->name}'** ({$targetUser->email})!";
+        } elseif ($actionType === 'toggle_graduate_status') {
+            if (!in_array($user->role, ['career_guidance_officer', 'admin'])) {
+                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لتعديل حالة حسابات الخريجين.'];
+            }
+
+            $targetUserId = $actionData['user_id'] ?? null;
+            $targetUser = $targetUserId ? User::find($targetUserId) : null;
+            if (!$targetUser) {
+                return ['status' => 'error', 'message' => 'تعذر العثور على حساب الخريج المستهدف.'];
+            }
+
+            $newStatus = (bool) ($actionData['new_status'] ?? false);
+            $targetUser->is_active = $newStatus;
+            $targetUser->save();
+
+            if ($targetUser->graduateData) {
+                $targetUser->graduateData->is_active = $newStatus;
+                $targetUser->graduateData->save();
+            }
+
+            $statusWord = $newStatus ? 'إلغاء تجميد وتنشيط' : 'تجميد';
+            $confirmIcon = $newStatus ? '🟢' : '❄️';
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_TOGGLE_GRADUATE_STATUS',
+                'entity' => 'User',
+                'entity_id' => $targetUser->id,
+                'new_values' => ['is_active' => $newStatus, 'name' => $targetUser->name],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $resultMessage = "{$confirmIcon} ✅ تم بنجاح **{$statusWord}** حساب الخريج: **'{$targetUser->name}'** (" . ($newStatus ? 'نشط الآن 🟢' : 'مجمد الآن 🔒') . "). تم توثيق الإجراء رسمياً في سجل العمليات.";
+        } elseif ($actionType === 'delete_graduate_account') {
+            if (!in_array($user->role, ['career_guidance_officer', 'admin'])) {
+                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لحذف حسابات الخريجين.'];
+            }
+
+            $targetUserId = $actionData['user_id'] ?? null;
+            $gradDataId = $actionData['graduate_data_id'] ?? null;
+            $targetName = $actionData['graduate_name'] ?? 'الخريج';
+
+            $targetUser = $targetUserId ? User::find($targetUserId) : null;
+            $gradData = $gradDataId ? GraduateData::find($gradDataId) : null;
+
+            if (!$targetUser && !$gradData) {
+                return ['status' => 'error', 'message' => 'تعذر العثور على سجلات الخريج المطلوب حذفها.'];
+            }
+
+            \Illuminate\Support\Facades\DB::transaction(function() use ($targetUser, $gradData, $targetUserId) {
+                if ($targetUser && $targetUser->graduateData) {
+                    $targetUser->graduateData->nominations()->delete();
+                    $targetUser->graduateData->delete();
+                }
+                if ($gradData) {
+                    $gradData->nominations()->delete();
+                    $gradData->delete();
+                }
+                if ($targetUser && $targetUser->email) {
+                    GraduateData::where('email', $targetUser->email)->delete();
+                }
+                if ($targetUserId) {
+                    TrainingApplication::where('user_id', $targetUserId)->delete();
+                    if (class_exists(SurveyResponse::class)) {
+                        SurveyResponse::where('user_id', $targetUserId)->delete();
+                    }
+                }
+                if ($targetUser) {
+                    $targetUser->permissions()->detach();
+                    $targetUser->delete();
+                }
+            });
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_DELETE_GRADUATE_ACCOUNT',
+                'entity' => 'User',
+                'entity_id' => $targetUserId ?? 0,
+                'new_values' => ['name' => $targetName],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $resultMessage = "🗑️ ✅ تم بنجاح **مسح وحذف حساب وسجلات الخريج: '{$targetName}'** نهائياً من قاعدة بيانات المنظومة.";
+        } elseif ($actionType === 'bulk_nominate_graduates') {
+            if (!in_array($user->role, ['career_guidance_officer', 'admin'])) {
+                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لترشيح الخريجين.'];
+            }
+
+            $jobId = $actionData['job_opportunity_id'] ?? null;
+            $candidateIds = $actionData['candidate_ids'] ?? [];
+            $jobTitle = $actionData['job_title'] ?? 'فرصة العمل';
+
+            if (!$jobId || empty($candidateIds)) {
+                return ['status' => 'error', 'message' => 'بيانات الترشيح الجماعي غير مكتملة.'];
+            }
+
+            $nominatedCount = 0;
+            \Illuminate\Support\Facades\DB::transaction(function() use ($jobId, $candidateIds, $user, &$nominatedCount) {
+                foreach ($candidateIds as $candId) {
+                    $exists = Nomination::where('graduate_id', $candId)
+                        ->where('job_opportunity_id', $jobId)
+                        ->exists();
+
+                    if (!$exists) {
+                        Nomination::create([
+                            'graduate_id' => $candId,
+                            'job_opportunity_id' => $jobId,
+                            'nominated_by' => $user->id,
+                            'nomination_type' => 'officer_nominated',
+                            'status' => 'pending',
+                            'nomination_notes' => 'ترشيح جماعي بواسطة المساعد الذكي لمسؤول الإرشاد المهني',
+                            'matching_reasons' => 'مطابقة التخصص والمعدل التراكمي العالي لمتطلبات الوظيفة',
+                            'nominated_at' => now(),
+                        ]);
+                        $nominatedCount++;
+                    }
+                }
+            });
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_BULK_NOMINATE_GRADUATES',
+                'entity' => 'Nomination',
+                'entity_id' => $jobId,
+                'new_values' => [
+                    'job_title' => $jobTitle,
+                    'nominated_count' => $nominatedCount,
+                    'candidates' => $actionData['candidate_names'] ?? [],
+                ],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $resultMessage = "🤝 ✅ تم بنجاح ترشيح **({$nominatedCount}) من الخريجين المتميزين** لوظيفة **'{$jobTitle}'**! تم إرسال ملفاتهم وقيدت الترشيحات في المنظومة.";
+        } elseif ($actionType === 'manage_training_applications') {
+            if (!in_array($user->role, ['training_coordinator', 'admin'])) {
+                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لإدارة وقبول طلبات التدريب.'];
+            }
+
+            $appIds = $actionData['application_ids'] ?? [];
+            $targetStatus = $actionData['target_status'] ?? 'approved';
+            $actionWord = ($targetStatus === 'approved') ? 'قبول' : 'رفض';
+
+            if (empty($appIds)) {
+                return ['status' => 'error', 'message' => 'لا توجد طلبات محددة لتنفيذ الإجراء عليها.'];
+            }
+
+            TrainingApplication::whereIn('id', $appIds)->update(['status' => $targetStatus]);
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_MANAGE_TRAINING_APPLICATIONS',
+                'entity' => 'TrainingApplication',
+                'entity_id' => 0,
+                'new_values' => [
+                    'target_status' => $targetStatus,
+                    'count' => count($appIds),
+                    'scope' => $actionData['scope_description'] ?? 'عام',
+                ],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $resultMessage = "🎓 ✅ تم بنجاح **{$actionWord} عدد (" . count($appIds) . ")** من طلبات الالتحاق بالبرامج التدريبية! تم تحديث حالة المتدربين وتوثيق العملية في سجل التدريب.";
+        } elseif ($actionType === 'toggle_job_status') {
+            if (!in_array($user->role, ['career_guidance_officer', 'admin', 'company', 'partnership_officer'])) {
+                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لتعديل حالة الوظائف.'];
+            }
+
+            $jobId = $actionData['job_id'] ?? null;
+            $job = $jobId ? JobOpportunity::find($jobId) : null;
+            if (!$job) {
+                return ['status' => 'error', 'message' => 'فرصة العمل المطلوبة غير موجودة.'];
+            }
+
+            if ($user->role === 'company') {
+                $c = $user->company ?? Company::where('user_id', $user->id)->first();
+                if (!$c || (int)$c->id !== (int)$job->company_id) {
+                    return ['status' => 'forbidden', 'message' => 'لا يمكنك تعديل وظائف تابعة لشركات أخرى.'];
+                }
+            }
+
+            $newStatus = $actionData['target_status'] ?? ($job->status === 'open' ? 'closed' : 'open');
+            $job->status = $newStatus;
+            $job->save();
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_TOGGLE_JOB_STATUS',
+                'entity' => 'JobOpportunity',
+                'entity_id' => $job->id,
+                'new_values' => ['status' => $newStatus, 'title' => $job->title],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $statusText = ($newStatus === 'open') ? 'مفتوحة للتقديم والترشيح 🟢' : 'مغلقة ومكتفية 🔒';
+            $resultMessage = "💼 ✅ تم بنجاح تحديث حالة وظيفة **'{$job->title}'** إلى: **{$statusText}**.";
+        } elseif ($actionType === 'update_company_partnership') {
+            if (!in_array($user->role, ['partnership_officer', 'admin'])) {
+                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لتحديث شروط الشراكة.'];
+            }
+
+            $companyId = $actionData['company_id'] ?? null;
+            $company = $companyId ? Company::find($companyId) : null;
+            if (!$company) {
+                return ['status' => 'error', 'message' => 'الشركة المطلوبة غير موجودة.'];
+            }
+
+            if (!empty($actionData['partnership_status'])) {
+                $company->partnership_status = $actionData['partnership_status'];
+                if ($company->partnership_status === 'active') {
+                    $company->is_approved = true;
+                }
+            }
+            if (!empty($actionData['partnership_types'])) {
+                $company->partnership_types = (array) $actionData['partnership_types'];
+                $company->partnership_type = $company->partnership_types[0] ?? $company->partnership_type;
+            }
+            if (!empty($actionData['partnership_end_date'])) {
+                $company->partnership_end_date = $actionData['partnership_end_date'];
+            }
+            if (!empty($actionData['notes'])) {
+                $company->partnership_notes = $actionData['notes'];
+            }
+            $company->save();
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_UPDATE_PARTNERSHIP',
+                'entity' => 'Company',
+                'entity_id' => $company->id,
+                'new_values' => [
+                    'partnership_status' => $company->partnership_status,
+                    'partnership_end_date' => $company->partnership_end_date,
+                ],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $resultMessage = "🤝 ✅ تم بنجاح حفظ وتحديث اتفاقية الشراكة لشركة **'{$company->name}'** في سجلات جامعة طرابلس.";
+        } elseif ($actionType === 'record_partnership_document') {
+            if (!in_array($user->role, ['partnership_officer', 'admin'])) {
+                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لتوثيق وثائق الشراكة.'];
+            }
+
+            $companyId = $actionData['company_id'] ?? null;
+            $company = $companyId ? Company::find($companyId) : null;
+            if (!$company) {
+                return ['status' => 'error', 'message' => 'الشركة المستهدفة غير موجودة.'];
+            }
+
+            $docName = $actionData['document_name'] ?? 'وثيقة شراكة رسمية';
+            $docType = $actionData['document_type'] ?? 'agreement';
+
+            $doc = PartnershipDocument::create([
+                'company_id' => $company->id,
+                'uploaded_by' => $user->id,
+                'document_name' => $docName,
+                'document_type' => $docType,
+                'description' => $actionData['description'] ?? 'وثيقة شراكة رسمية موثقة بواسطة المساعد الذكي',
+                'file_path' => 'partnership-documents/generated_' . time() . '.pdf',
+                'file_name' => $docName . '.pdf',
+                'file_size' => '1024',
+                'mime_type' => 'application/pdf',
+                'document_date' => $actionData['effective_date'] ?? now()->format('Y-m-d'),
+                'effective_date' => $actionData['effective_date'] ?? now()->format('Y-m-d'),
+                'expiry_date' => $actionData['expiry_date'] ?? now()->addYear()->format('Y-m-d'),
+                'document_status' => 'active',
+                'is_shared_with_company' => true,
+                'company_signed' => true,
+                'university_signed' => true,
+            ]);
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_RECORD_PARTNERSHIP_DOC',
+                'entity' => 'PartnershipDocument',
+                'entity_id' => $doc->id,
+                'new_values' => ['document_name' => $doc->document_name, 'company' => $company->name],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $resultMessage = "📜 ✅ تم توثيق وتسجيل وثيقة الشراكة: **'{$doc->document_name}'** لشركة **'{$company->name}'** بنجاح في أرشيف الاتفاقيات.";
+        } elseif ($actionType === 'update_company_profile') {
+            if (!in_array($user->role, ['company', 'partnership_officer', 'admin'])) {
+                return ['status' => 'forbidden', 'message' => 'ليس لديك صلاحية لتحديث ملف الشركة.'];
+            }
+
+            $companyId = $actionData['company_id'] ?? null;
+            $company = null;
+            if ($user->role === 'company') {
+                $company = $user->company ?? Company::where('user_id', $user->id)->first();
+            } elseif ($companyId) {
+                $company = Company::find($companyId);
+            }
+
+            if (!$company) {
+                return ['status' => 'error', 'message' => 'ملف الشركة غير موجود.'];
+            }
+
+            $fields = ['phone', 'website', 'city', 'address', 'description', 'contact_person', 'contact_phone', 'contact_email', 'contact_position'];
+            foreach ($fields as $f) {
+                if (!empty($actionData[$f])) {
+                    $company->$f = $actionData[$f];
+                }
+            }
+            $company->save();
+
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'AI_ASSISTANT_UPDATE_COMPANY_PROFILE',
+                'entity' => 'Company',
+                'entity_id' => $company->id,
+                'new_values' => ['name' => $company->name],
+                'ip_address' => request()->ip() ?? '127.0.0.1',
+                'user_agent' => substr(request()->userAgent() ?? 'System', 0, 255),
+                'timestamp' => now(),
+            ]);
+
+            $resultMessage = "🏢 ✅ تم تحديث بيانات الملف التعريفي لشركة **'{$company->name}'** وحفظ كافة التعديلات.";
         } else {
             return ['status' => 'error', 'message' => 'نوع الإجراء غير معروف.'];
         }
@@ -657,6 +1100,350 @@ class AiAssistantService
             }
         }
 
+        // 💡 خبير المنظومة الشامل: الإجابة التفاعلية عن كافة التساؤلات الإرشادية وشرح كيفية استخدام المنظومة
+        $isHowTo = (
+            Str::startsWith($text, ['كيف', 'طريقة', 'خطوات', 'شرح', 'علمني', 'أين أجد', 'اين اجد', 'هل يمكنني', 'كيفية']) ||
+            Str::contains($text, [
+                'كيف أرشح', 'كيف ارشح', 'كيف أضيف وظيفة', 'كيف اضيف وظيفة', 'كيف أجمد', 'كيف اجمد', 'كيف أحذف', 'كيف احذف',
+                'كيف أقبل طلبات', 'كيف اقبل طلبات', 'كيف أستورد', 'كيف استورد', 'كيف أضيف شركة', 'كيف اضيف شركة',
+                'كيف أنشئ استبيان', 'كيف انشئ استبيان', 'كيف أغير كلمة المرور', 'كيف اغير كلمة المرور',
+                'طريقة الترشيح', 'طريقة إضافة وظيفة', 'طريقة تجميد', 'طريقة قبول الطلبات', 'طريقة الاستيراد', 'خطوات الترشيح',
+                'كيف يعمل النظام', 'كيف استخدم المنظومة', 'وظائف المنظومة', 'مهام النظام', 'كيف ترشح', 'كيف تضيف وظيفة'
+            ])
+        );
+
+        if ($isHowTo) {
+            // أ. كيفية ترشيح خريج لوظيفة
+            if (Str::contains($text, ['ترشيح', 'أرشح', 'ارشح', 'رشح', 'مرشح']) && !Str::contains($text, ['إضافة وظيفة', 'اضافة وظيفة', 'نشر وظيفة', 'أضف وظيفة', 'اضف وظيفة'])) {
+                return [
+                    'content' => "🤝 **دليل ترشيح الخريجين للوظائف في المنظومة:**\n\n" .
+                        "يمكنك ترشيح الخريجين للفرص الوظيفية المتاحة بطريقتين سهلتين ومباشرتين:\n\n" .
+                        "### 1️⃣ عبر واجهة المنظومة (UI):\n" .
+                        "1. انتقل من القائمة الجانبية إلى **الإرشاد المهني** > **قائمة الخريجين** (أو **سوق العمل والوظائف**).\n" .
+                        "2. في صف الخريج المطلوب، اضغط على زر **ترشيح لوظيفة** (أيقونة المصافحة 🤝 باللون الأخضر في شريط الإجراءات).\n" .
+                        "3. ستظهر لك نافذة منبثقة تحتوي على الوظائف الشاغرة المطابقة لتخصص الخريج مع نسبة التطابق ومعدله التراكمي.\n" .
+                        "4. اختر الوظيفة المناسبة واكتب مبررات الترشيح إن وُجدت، ثم اضغط على **تأكيد الترشيح وإرسال الإشعار** للشركة الشريكة.\n\n" .
+                        "### 2️⃣ مباشرة عبر المساعد الذكي (أسرع طريقة ⚡):\n" .
+                        "• **ترشيح فردي:** اكتب مباشرة: *'رشح الخريج [الاسم] لوظيفة [اسم الوظيفة]'*\n" .
+                        "  *(مثال: `رشح الخريج المنيب محمد الشريف لوظيفة مطور ويب`)*\n" .
+                        "• **ترشيح جماعي:** اكتب: *'رشح مجموعة من الخريجين لوظيفة [اسم الوظيفة]'*\n" .
+                        "  وسأقوم بالبحث عن أفضل الخريجين تطابقاً في التخصص والمعدل وإعداد بطاقة ترشيح جماعية فورية لتأكيدها بنقرة واحدة!",
+                    'tool_executed' => 'how_to_guidance',
+                ];
+            }
+
+            // ب. كيفية إضافة ونشر وظيفة جديدة
+            if (Str::contains($text, ['وظيفة', 'وظائف', 'فرصة عمل', 'شاغر'])) {
+                return [
+                    'content' => "💼 **دليل إضافة ونشر فرصة وظيفية جديدة:**\n\n" .
+                        "### 1️⃣ عبر واجهة المنظومة (UI):\n" .
+                        "1. انتقل من القائمة الجانبية إلى **الإرشاد المهني** أو **إدارة الوظائف**.\n" .
+                        "2. اضغط على الزر العلوي **(+ إضافة فرصة وظيفية جديدة)**.\n" .
+                        "3. قم بتعبئة بيانات الوظيفة: (المسمى الوظيفي، اختيار الشركة الشريكة، نوع العقد والدوام، موقع العمل، عدد المقاعد، الشروط والمؤهلات، والحد الأقصى للتقديم).\n" .
+                        "4. اضغط على **حفظ ونشر الوظيفة** لتظهر فوراً لكافة الخريجين المؤهلين في بوابة التوظيف.\n\n" .
+                        "### 2️⃣ عبر المساعد الذكي (صياغة آلية ⚡):\n" .
+                        "• اكتب فقط: *'أضف وظيفة [المسمى الوظيفي] لدى شركة [اسم الشركة]'*\n" .
+                        "  *(مثال: `أضف وظيفة مهندس شبكات سحابية`)* وسأقوم بصياغة المتطلبات والوصف بالكامل وتجهيز بطاقة النشر بنقرة واحدة!",
+                    'tool_executed' => 'how_to_guidance',
+                ];
+            }
+
+            // ج. كيفية تجميد أو تنشيط أو حذف حساب خريج
+            if (Str::contains($text, ['تجميد', 'جمد', 'تنشيط', 'نشط', 'حذف', 'احذف', 'مسح', 'فك تجميد', 'حساب'])) {
+                return [
+                    'content' => "🔒 **دليل إدارة وتجميد وحذف حسابات الخريجين:**\n\n" .
+                        "بصفتك مسؤول الإرشاد المهني أو مدير النظام، يمكنك التحكم في حسابات الخريجين كالتالي:\n\n" .
+                        "### 1️⃣ عبر واجهة إدارة الخريجين (UI):\n" .
+                        "1. انتقل إلى صفحة **الإرشاد المهني** > **إدارة الخريجين** (`career-guidance/graduates`).\n" .
+                        "2. في جدول الخريجين، أمام كل خريج يوجد شريط الإجراءات السريعة:\n" .
+                        "   - 🔒 **تجميد / تنشيط الحساب:** اضغط على زر القفل البرتقالي. إذا كان الحساب نشطاً فسيتم تجميده وإيقاف دخوله، وإذا كان مجمداً فسيتم فك التجميد وتنشيطه فوراً مع ظهور إشعار تأكيد.\n" .
+                        "   - 🗑️ **حذف الحساب نهائياً:** اضغط على زر الحذف الأحمر (أيقونة السلة). سيظهر لك صندوق تأكيد أمني لتأكيد مسح الخريج وكافة سجلاته نهائياً من قاعدة البيانات.\n\n" .
+                        "### 2️⃣ مباشرة عبر المساعد الذكي ⚡:\n" .
+                        "• **لتجميد حساب:** اكتب: *'جمد حساب الخريج [الاسم]'* *(مثال: `جمد حساب الخريج المنيب`)*.\n" .
+                        "• **لإلغاء تجميد وتنشيط حساب:** اكتب: *'فك تجميد حساب [الاسم]'* أو *'إلغاء التجميد عن [الاسم]'* أو *'نشط حساب الخريج [الاسم]'*.\n" .
+                        "• **لحذف حساب:** اكتب: *'احذف حساب الخريج [الاسم]'* وسأعرض عليك بطاقة تأكيد أمنية مشددة لحماية البيانات.",
+                    'tool_executed' => 'how_to_guidance',
+                ];
+            }
+
+            // د. كيفية قبول أو رفض طلبات التدريب
+            if (Str::contains($text, ['قبول', 'رفض', 'طلبات التدريب', 'طلبات الالتحاق', 'طلبات'])) {
+                return [
+                    'content' => "🎓 **دليل قبول وإدارة طلبات الالتحاق بالتدريب:**\n\n" .
+                        "### 1️⃣ عبر لوحة منسق التدريب (UI):\n" .
+                        "1. انتقل إلى **إدارة التدريب** > **طلبات الالتحاق**.\n" .
+                        "2. يمكنك استعراض كافة طلبات الخريجين، ومراجعة بيانات كل متدرب والبرنامج المتقدم له وتاريخ التقديم.\n" .
+                        "3. لكل طلب: اضغط على زر **القبول ✅** أو **الاعتذار/الرفض ❌**.\n" .
+                        "4. للقبول الجماعي: يمكنك تحديد مربعات الاختيار بجانب الطلبات والضغط على زر **(قبول المحدد)** من أعلى الجدول.\n\n" .
+                        "### 2️⃣ مباشرة عبر المساعد الذكي ⚡:\n" .
+                        "• **لقبول كافة الطلبات دفعة واحدة:** اكتب: *'قبول جميع طلبات التدريب'*\n" .
+                        "• **لقبول طلبات دورة معينة:** اكتب: *'قبول طلبات دورة [اسم الدورة]'*\n" .
+                        "• **لقبول طلب متدرب محدد:** اكتب: *'قبول طلب التدريب للخريج [اسم المتدرب]'*",
+                    'tool_executed' => 'how_to_guidance',
+                ];
+            }
+
+            // هـ. كيفية استيراد أو تصدير الخريجين (Excel / PDF)
+            if (Str::contains($text, ['استيراد', 'تصدير', 'إكسل', 'اكسل', 'excel', 'pdf'])) {
+                return [
+                    'content' => "📊 **دليل استيراد وتصدير بيانات الخريجين:**\n\n" .
+                        "1. انتقل إلى صفحة **إدارة الخريجين** (`career-guidance/graduates`).\n" .
+                        "2. في أعلى الصفحة ستجد أزرار المعالجة المجمعة:\n" .
+                        "   - 📥 **استيراد خريجين (Excel):** اضغط على الزر لاختيار ملف Excel يحتوي على بيانات الخريجين (الاسم، البريد، الهاتف، الكلية، التخصص، المعدل، سنة التخرج) ليتم إدراجهم دفعة واحدة في المنظومة.\n" .
+                        "   - 📊 **تصدير Excel:** لتنزيل جدول الخريجين الحالي مع الفلاتر المطبقة في ملف إكسل رسمي.\n" .
+                        "   - 📄 **تصدير PDF:** لتوليد تقرير رسمي جاهز للطباعة ببيانات الخريجين وشعار جامعة طرابلس.",
+                    'tool_executed' => 'how_to_guidance',
+                ];
+            }
+
+            // و. كيفية إضافة وتوثيق شركة شريكة
+            if (Str::contains($text, ['شركة', 'شركات', 'شريك', 'شراكة'])) {
+                return [
+                    'content' => "🏢 **دليل إضافة وتوثيق الشركات الشريكة:**\n\n" .
+                        "1. انتقل من القائمة الجانبية إلى **إدارة الشراكات** > **الشركات والمؤسسات**.\n" .
+                        "2. اضغط على زر **(+ إضافة شركة جديدة)**.\n" .
+                        "3. أدخل اسم الشركة، القطاع الصناعي، البريد الرسمي، الهاتف، العنوان، وممثل الاتصال، ونوع الشراكة (تدريب / توظيف).\n" .
+                        "4. اضغط حفظ، وستصبح الشركة معتمدة ويمكن ربط الوظائف والبرامج التدريبية بها.\n\n" .
+                        "💡 أو اطلب مني مباشرة: *'أضف شركة [اسم الشركة] في قطاع التقنية'* وسأجهز ملف الاعتماد فوراً!",
+                    'tool_executed' => 'how_to_guidance',
+                ];
+            }
+
+            // ز. كيفية إنشاء استبيان تقييم ومتابعة
+            if (Str::contains($text, ['استبيان', 'استطلاع', 'تقييم'])) {
+                return [
+                    'content' => "📝 **دليل إنشاء استبيانات التقييم والمتابعة:**\n\n" .
+                        "1. انتقل إلى وحدة **التقييم والمتابعة** > **إدارة الاستبيانات**.\n" .
+                        "2. اضغط على زر **(+ إنشاء استبيان جديد)**.\n" .
+                        "3. حدد عنوان الاستبيان، الفئة المستهدفة (الخريجون، المتدربون، الشركات)، وتاريخ البداية والنهاية.\n" .
+                        "4. قم بإضافة أسئلة الاستبيان ومقاييس التقييم المعيارية.\n" .
+                        "5. اضغط على **نشر الاستبيان** ليصبح متاحاً فوراً برابط عام للمشاركين.\n\n" .
+                        "💡 يمكنك طلبي: *'صياغة استبيان تقييم لدورة الذكاء الاصطناعي'* وسأقوم بصياغة 5 أسئلة معيارية واعتمادها بنقرة واحدة!",
+                    'tool_executed' => 'how_to_guidance',
+                ];
+            }
+
+            // ح. كيفية مراجعة المرشحين وجدولة المقابلات (للشركات ومسؤولي التوظيف)
+            if (Str::contains($text, ['مرشح', 'مرشحين', 'مرشحون', 'مقابلة', 'مقابلات', 'توظيف']) && !Str::contains($text, ['كيف أرشح', 'كيف ارشح', 'ترشيح'])) {
+                return [
+                    'content' => "🤝 **دليل مراجعة المرشحين وجدولة المقابلات (لأرباب العمل ومسؤولي التوظيف):**\n\n" .
+                        "### 1️⃣ عبر بوابة الشركة (Company Portal):\n" .
+                        "1. انتقل من القائمة الجانبية إلى **إدارة المرشحين** (`company/nominations`).\n" .
+                        "2. يمكنك استعراض كافة الخريجين المرشحين لوظائفكم وتخصصاتهم ومعدلاتهم وتحميل سيرهم الذاتية (CV).\n" .
+                        "3. لكل مرشح، اضغط على زر **(تحديث الحالة / تفاصيل المقابلة)** لتحديد موعد وتوقيت ومكان المقابلة أو القبول النهائي.\n\n" .
+                        "### 2️⃣ مباشرة عبر المساعد الذكي ⚡ (أسرع طريقة):\n" .
+                        "• **لاستعراض المرشحين:** اطلب: *'عرض المرشحين لوظائف شركتنا'*\n" .
+                        "• **لتحديد موعد مقابلة:** اطلب: *'حدد موعد مقابلة للخريج [الاسم] يوم [التاريخ] الساعة [الوقت]'*\n" .
+                        "• **لقبول أو توظيف مرشح:** اطلب: *'قبول المرشح [الاسم]'* أو *'توظيف الخريج [الاسم]'*\n" .
+                        "• **لاقتراح كفاءات جديدة:** اطلب: *'اقترح لي 5 خريجين في تقنية المعلومات بمعدل أعلى من 85%'*",
+                    'tool_executed' => 'how_to_guidance',
+                ];
+            }
+
+            // ط. استفسار عام وشامل عن كيفية استخدام المنظومة
+            return [
+                'content' => "🌟 **دليل استخدام المنظومة الذكية لمكتب تدريب وتأهيل الخريجين — جامعة طرابلس:**\n\n" .
+                    "المنظومة مصممة لتوفير بيئة عمل متكاملة تجمع بين 5 قطاعات رئيسية:\n\n" .
+                    "1. 🎯 **قطاع الإرشاد والتوجيه المهني:** إدارة الخريجين، البحث المتقدم، ترشيح الخريجين للوظائف (فردي وجماعي)، وتجميد/تنشيط/حذف الحسابات.\n" .
+                    "2. 🎓 **قطاع التدريب والتطوير:** جدولة الدورات وورش العمل، وإدارة وقبول طلبات الالتحاق بالتدريب (فردياً أو دفعة واحدة)، ومتابعة الحضور والشهادات.\n" .
+                    "3. 🏢 **قطاع الشراكات وسوق العمل:** توثيق الشركات الشريكة، نشر فرص العمل والوظائف الشاغرة، وتتبع معدلات توظيف الخريجين.\n" .
+                    "4. 📝 **قطاع الجودة والتقييم والمتابعة:** إعداد استبيانات قياس رضا المتدربين والشركاء، ومتابعة المسار المهني للخريجين، وتوليد تقارير الجودة.\n" .
+                    "5. 📢 **قطاع الإعلام والتغطيات الصحفية:** صياغة الأخبار الصحفية، نشر الإعلانات والتعميمات الرسمية، وتوثيق الفعاليات وجدول التغطيات الميدانية.\n\n" .
+                    "💡 **الميزة الأقوى:** بصفتي مساعدك الذكي، يمكنك أن تطلب مني تنفيذ أي من هذه المهام مباشرة بالصوت أو النص دون الحاجة للتنقل بين الشاشات!\n" .
+                    "ما هي العملية أو الشاشة التي تود معرفة تفاصيل إضافية عنها؟",
+                'tool_executed' => 'how_to_guidance',
+            ];
+        }
+
+        // ❄️ / 🟢 تجميد أو تنشيط أو فك/إلغاء تجميد حساب الخريج (لمسؤول الإرشاد المهني والمدير)
+        $isUnfreezeIntent = Str::contains($text, [
+            'فك تجميد', 'فك التجميد', 
+            'الغاء تجميد', 'إلغاء تجميد', 'الغاء التجميد', 'إلغاء التجميد', 
+            'رفع تجميد', 'رفع التجميد', 'ازالة تجميد', 'إزالة تجميد', 'ازالة التجميد', 'إزالة التجميد',
+            'فك قفل', 'فك القفل', 'الغاء القفل', 'إلغاء القفل',
+            'نشط', 'تنشيط', 'اعادة تنشيط', 'إعادة تنشيط', 'اعادة تفعيل', 'إعادة تفعيل'
+        ]) || (Str::contains($text, ['تفعيل', 'تنشيط']) && Str::contains($text, ['حساب', 'خريج', 'الخريج', 'طالب', 'الطالب']));
+
+        $isFreezeIntent = Str::contains($text, [
+            'جمد', 'تجميد', 'إيقاف حساب', 'ايقاف حساب', 'قفل حساب', 'تعليق حساب', 'ايقاف تفعيل', 'إيقاف تفعيل'
+        ]) || (Str::startsWith($text, ['جمد', 'وقف']) && Str::contains($text, ['خريج', 'الخريج', 'حساب']));
+
+        if (($isUnfreezeIntent || $isFreezeIntent) && in_array('toggle_graduate_status', $authorizedNames)) {
+
+            // Always prioritize unfreeze/activate detection over freeze
+            if ($isUnfreezeIntent) {
+                $action = 'activate';
+            } elseif ($isFreezeIntent) {
+                $action = 'freeze';
+            } else {
+                $action = 'toggle';
+            }
+
+            // Extract identifier by stripping known command prefixes and descriptors
+            $prefixPattern = '/^(?:أريد\s+|ممكن\s+|برجاء\s+|رجاء\s+|لو\s+سمحت\s+|قم\s+بـ?\s*|يرجى\s+)?(?:فك\s+التجميد\s+عن|فك\s+تجميد|فك\s+التجميد|إلغاء\s+التجميد\s+عن|الغاء\s+التجميد\s+عن|إلغاء\s+تجميد|الغاء\s+تجميد|إلغاء\s+التجميد|الغاء\s+التجميد|رفع\s+التجميد\s+عن|رفع\s+تجميد|رفع\s+التجميد|إزالة\s+التجميد\s+عن|ازالة\s+التجميد\s+عن|إزالة\s+تجميد|ازالة\s+تجميد|إعادة\s+تنشيط|اعادة\s+تنشيط|إعادة\s+تفعيل|اعادة\s+تفعيل|تنشيط|نشط|تفعيل|فعل|تجميد|جمد|إيقاف|ايقاف|قفل)\s*/u';
+            $descPattern = '/^(?:عن\s+|لـ\s*|الخاص\s+بـ?\s*|حساب\s+الخريج\s+|حساب\s+خريج\s+|حساب\s+الطالب\s+|حساب\s+طالب\s+|حساب\s+|الخريج\s+|خريج\s+|الطالب\s+|طالب\s+)+/u';
+
+            $gradIdent = preg_replace($prefixPattern, '', $userMessage);
+            $gradIdent = preg_replace($descPattern, '', $gradIdent);
+            $gradIdent = preg_replace('/^[\s\p{P}]+|[\s\p{P}]+$/u', '', $gradIdent);
+            $gradIdent = trim($gradIdent);
+
+            // Fallback to older regex if stripping left empty string
+            if (empty($gradIdent)) {
+                if (preg_match('/(?:حساب\s+الخريج|حساب\s+خريج|حساب\s+الطالب|حساب\s+طالب|حساب|الخريج|خريج|الطالب|طالب)\s+([^\?\.\!,]+)/u', $userMessage, $m)) {
+                    $gradIdent = trim($m[1]);
+                }
+            }
+
+            $res = AiToolRegistry::executeTool($user, 'toggle_graduate_status', [
+                'graduate_identifier' => $gradIdent,
+                'action' => $action,
+            ]);
+
+            if (isset($res['status']) && $res['status'] === 'proposal') {
+                $actWord = $res['data']['status_word'] ?? ($action === 'activate' ? 'إلغاء تجميد وتنشيط' : 'تجميد');
+                $actIcon = ($action === 'activate') ? '🟢' : '❄️';
+                return [
+                    'content' => "{$actIcon} **تم إعداد أمر {$actWord} حساب الخريج:**\n\n" .
+                        "يرجى مراجعة تفاصيل الحساب في البطاقة أدناه ثم الضغط على **[تأكيد وحفظ]** لتطبيق التغيير فوراً.",
+                    'action_proposal' => $res,
+                    'tool_executed' => 'toggle_graduate_status',
+                ];
+            } else {
+                return [
+                    'content' => $res['message'] ?? 'تعذر تجهيز طلب تعديل حالة الحساب. يرجى التأكد من اسم الخريج.',
+                    'tool_executed' => 'toggle_graduate_status',
+                ];
+            }
+        }
+
+        // 🗑️ حذف ومسح حساب وسجلات الخريج نهائياً (لمسؤول الإرشاد المهني والمدير)
+        if (Str::contains($text, ['احذف', 'حذف', 'مسح', 'ازالة', 'إزالة', 'delete']) &&
+            Str::contains($text, ['حساب', 'خريج', 'الخريج', 'طالب', 'الطالب', 'سجل']) &&
+            in_array('delete_graduate_account', $authorizedNames)) {
+
+            $gradIdent = '';
+            if (preg_match('/(?:حساب\s+الخريج|حساب\s+خريج|حساب\s+الطالب|حساب\s+طالب|حساب|الخريج|خريج|الطالب|طالب)\s+([^\?\.\!,]+)/u', $userMessage, $m)) {
+                $gradIdent = trim($m[1]);
+            } elseif (preg_match('/(?:احذف|حذف|مسح|ازالة|إزالة)\s+([^\?\.\!,]+)/u', $userMessage, $m)) {
+                $gradIdent = trim($m[1]);
+                $gradIdent = preg_replace('/^(?:حساب\s+|الخريج\s+|خريج\s+)/u', '', $gradIdent);
+            }
+
+            $res = AiToolRegistry::executeTool($user, 'delete_graduate_account', [
+                'graduate_identifier' => $gradIdent,
+            ]);
+
+            if (isset($res['status']) && $res['status'] === 'proposal') {
+                return [
+                    'content' => "⚠️ **تم تجهيز طلب حذف حساب وسجلات الخريج:**\n\n" .
+                        "يرجى قراءة التنبيه الأمني بعناية في البطاقة أدناه ثم الضغط على **[تأكيد وحفظ]** إذا كنت متأكداً تماماً من رغبتك في الحذف النهائي.",
+                    'action_proposal' => $res,
+                    'tool_executed' => 'delete_graduate_account',
+                ];
+            } else {
+                return [
+                    'content' => $res['message'] ?? 'تعذر تجهيز طلب حذف الحساب. يرجى التحقق من اسم الخريج.',
+                    'tool_executed' => 'delete_graduate_account',
+                ];
+            }
+        }
+
+        // 🤝 الترشيح الجماعي لمجموعة خريجين لوظيفة (لمسؤول الإرشاد المهني والمدير)
+        if (Str::contains($text, [
+                'ترشيح مجموعة', 'رشح مجموعة', 'ترشيح جماعي', 'رشح لي مجموعة', 'ترشيح دفعة',
+                'رشح خريجي', 'ترشيح خريجي', 'رشح خريجين', 'ترشيح عدة', 'رشح عدة', 'ترشيح الخريجين المؤهلين'
+            ]) && in_array('bulk_nominate_graduates', $authorizedNames)) {
+
+            $jobIdent = '';
+            if (preg_match('/(?:لوظيفة|لفرصة|على وظيفة|في وظيفة|وظيفة)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
+                $jobIdent = trim($m[1]);
+                $jobIdent = preg_replace('/\s+(?:من|بمعدل|أعلى|تخصص).*$/u', '', $jobIdent);
+            }
+
+            $major = null;
+            if (preg_match('/(?:تخصص|قسم|كلية)\s+([^\s\?\.\!,]+(?:\s+[^\s\?\.\!,]+)?)/u', $userMessage, $m)) {
+                $cand = trim($m[1]);
+                if (!in_array($cand, ['مجموعة', 'الخريجين', 'خريجين', 'دفعة', 'عدة', 'لوظيفة', 'لفرصة', 'من'])) {
+                    $major = $cand;
+                }
+            } elseif (preg_match('/(?:خريجي|خريجين)\s+(تقنية|برمجيات|حاسوب|هندسة|محاسبة|إدارة|طب|صيدلة|علوم)/u', $userMessage, $m)) {
+                $major = trim($m[1]);
+            }
+
+            $minGpa = null;
+            if (preg_match('/(?:معدل|بمعدل|نسبة)\s*(?:أعلى من|فوق|تتجاوز)?\s*(\d+(?:\.\d+)?)/u', $userMessage, $m)) {
+                $minGpa = (float) $m[1];
+            }
+
+            $res = AiToolRegistry::executeTool($user, 'bulk_nominate_graduates', [
+                'job_identifier' => $jobIdent,
+                'major' => $major,
+                'min_gpa' => $minGpa,
+                'limit' => 4,
+            ]);
+
+            if (isset($res['status']) && $res['status'] === 'proposal') {
+                return [
+                    'content' => "🤝 **تم اختيار وإعداد المرشحين المؤهلين للترشيح الجماعي:**\n\n" .
+                        "يرجى استعراض قائمة الخريجين المرشحين ومعدلاتهم في البطاقة أدناه ثم الضغط على **[تأكيد وحفظ]** لإرسال الترشيحات دفعة واحدة للجهة الشريكة.",
+                    'action_proposal' => $res,
+                    'tool_executed' => 'bulk_nominate_graduates',
+                ];
+            } else {
+                return [
+                    'content' => $res['message'] ?? 'تعذر تجهيز الترشيح الجماعي. يرجى تحديد اسم الوظيفة.',
+                    'tool_executed' => 'bulk_nominate_graduates',
+                ];
+            }
+        }
+
+        // 🎓 إدارة وقبول/رفض طلبات الالتحاق بالتدريب (لمنسق التدريب والمدير)
+        if ((Str::contains($text, ['قبول طلبات', 'قبول جميع الطلبات', 'قبول كافة الطلبات', 'قبول طلب', 'الموافقة على طلبات', 'الموافقة على جميع', 'رفض طلبات', 'رفض طلب']) ||
+             (Str::contains($text, ['قبول', 'الموافقة على', 'رفض']) && Str::contains($text, ['تدريب', 'التدريب', 'دورة', 'دورات', 'ورشة', 'متدرب', 'متدربين', 'التحاق']))) &&
+            in_array('manage_training_applications', $authorizedNames)) {
+
+            $action = Str::contains($text, ['رفض']) ? 'reject' : 'approve';
+            $scope = 'all';
+            $trainingIdent = null;
+            $userIdent = null;
+
+            if (Str::contains($text, ['جميع', 'كافة', 'الكل', 'all'])) {
+                $scope = 'all';
+            } elseif (preg_match('/(?:لدورة|لتدريب|لورشة|في دورة|في تدريب|في ورشة)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
+                $scope = 'training';
+                $trainingIdent = trim($m[1]);
+            } elseif (preg_match('/(?:للخريج|للمتدرب|للطالب|طلب)\s+([^\s\?\.\!,]+(?:\s+[^\s\?\.\!,]+)?)/u', $userMessage, $m)) {
+                $cand = trim($m[1]);
+                if (!in_array($cand, ['التدريب', 'تدريب', 'دورة', 'جميع', 'كافة'])) {
+                    $scope = 'single';
+                    $userIdent = $cand;
+                }
+            }
+
+            $res = AiToolRegistry::executeTool($user, 'manage_training_applications', [
+                'action' => $action,
+                'scope' => $scope,
+                'training_identifier' => $trainingIdent,
+                'user_identifier' => $userIdent,
+            ]);
+
+            if (isset($res['status']) && $res['status'] === 'proposal') {
+                $actWord = ($action === 'reject') ? 'رفض' : 'قبول';
+                return [
+                    'content' => "🎓 **تم إعداد أمر {$actWord} طلبات الالتحاق بالتدريب:**\n\n" .
+                        "يرجى مراجعة تفاصيل الطلبات المتأثرة في البطاقة التفاعلية أدناه ثم الضغط على **[تأكيد وحفظ]** لاعتمادها فوراً.",
+                    'action_proposal' => $res,
+                    'tool_executed' => 'manage_training_applications',
+                ];
+            } else {
+                return [
+                    'content' => $res['message'] ?? 'تعذر تجهيز إجراء طلبات التدريب.',
+                    'tool_executed' => 'manage_training_applications',
+                ];
+            }
+        }
+
         // 1. صياغة خبر صحفي (لمسؤول الإعلام أو المدير)
         if (Str::contains($text, ['صغ', 'صياغة', 'اكتب خبر', 'تحرير خبر', 'مسودة خبر', 'بيان صحفي', 'خبر صحفي']) && in_array('draft_news_article', $authorizedNames)) {
             $title = "اختتام فعاليات ورشة العمل التفاعلية بجامعة طرابلس";
@@ -779,12 +1566,85 @@ class AiAssistantService
             }
         }
 
+        // 💼 استعراض والبحث في فرص العمل والوظائف المتاحة (لكافة الأدوار: مسؤول الإرشاد، المدير، الخريج، الموظف)
+        $isJobListIntent = (
+            Str::contains($text, [
+                'الفرص الوظيفية', 'فرص وظيفية', 'فرص العمل', 'فرص عمل',
+                'الوظائف المتاحة', 'وظائف متاحة', 'الوظائف الشاغرة', 'وظائف شاغرة',
+                'قائمة بالوظائف', 'قائمة الوظائف', 'عرض الوظائف', 'استعراض الوظائف',
+                'ما هي الوظائف', 'ماهي الوظائف', 'ما هي الفرص', 'ماهي الفرص',
+                'الوظائف الموجودة', 'وظائف موجودة', 'فرص التوظيف', 'سوق العمل',
+                'الوظائف المعلنة', 'وظائف معلنة'
+            ]) ||
+            (Str::contains($text, ['وظائف', 'وظيفة', 'توظيف']) && Str::contains($text, ['متاح', 'متاحة', 'مفتوح', 'مفتوحة', 'شاغر', 'شاغرة', 'قائمة', 'عرض', 'استعراض', 'جديد', 'جديدة', 'معلن', 'معلنة', 'ما هي', 'ماهي', 'شنو', 'ايش', 'أريد', 'اريد', 'اعطني', 'أعطني', 'شوفلي']))
+        ) && !Str::contains($text, ['أضف', 'اضف', 'انشر', 'نشر', 'إنشاء', 'صياغة', 'رشح', 'ترشيح', 'ترشيج', 'كيف', 'طريقة', 'مرشح', 'مرشحين', 'مرشحون', 'مقابلة', 'إحصائيات', 'احصائيات', 'ملخص', 'شركات شريكة', 'الشركات الشريكة', 'قائمة الشركات']);
+
+        if ($isJobListIntent && in_array('search_job_opportunities', $authorizedNames)) {
+            $keyword = '';
+            if (preg_match('/(?:وظائف|فرص|وظيفة)\s+(?:في\s+مجال\s+|في\s+تخصص\s+|في\s+)?([^\?\.\!؟،,]+)/u', $userMessage, $m)) {
+                $candidateKw = trim(preg_replace('/^[\s\p{P}]+|[\s\p{P}]+$/u', '', $m[1]));
+                $ignoredWords = ['المتاحة', 'الشاغرة', 'الموجودة', 'الجديدة', 'المعلنة', 'العمل', 'التوظيف', 'الوظيفية', 'متاحة', 'شاغرة', 'حالياً', 'مفتوحة', 'المفتوحة', ''];
+                if (!in_array($candidateKw, $ignoredWords) && mb_strlen($candidateKw) > 1) {
+                    $keyword = $candidateKw;
+                }
+            }
+
+            $res = AiToolRegistry::executeTool($user, 'search_job_opportunities', ['keyword' => $keyword]);
+            $jobs = $res['data'] ?? [];
+
+            if (empty($jobs)) {
+                return [
+                    'content' => "💼 **فرص العمل والتشغيل:**\n\n" .
+                        "لا توجد فرص وظيفية مفتوحة حالياً " . (!empty($keyword) ? "تطابق **'{$keyword}'**." : "في المنظومة.") . "\n\n" .
+                        "💡 يمكنك إضافة ونشر فرصة وظيفية جديدة بقول: *'أضف وظيفة مطور برمجيات لدى شركة تقنية'*.",
+                    'tool_executed' => 'search_job_opportunities',
+                ];
+            }
+
+            $out = "💼 **قائمة الفرص الوظيفية المتاحة في المنظومة (" . count($jobs) . " فرصة):**\n\n";
+            foreach ($jobs as $idx => $j) {
+                $num = $idx + 1;
+                $out .= "{$num}. 🏢 **{$j['title']}**\n";
+                $out .= "   • **الشركة الشريكة:** {$j['company']}\n";
+                $out .= "   • **الموقع:** 📍 {$j['location']} | **نوع العقد:** ⏱ {$j['type']}\n";
+                $out .= "   • **المقاعد الشاغرة:** 👥 {$j['seats']} | **آخر موعد:** 📅 {$j['deadline']}\n\n";
+            }
+
+            if (in_array($user->role, ['career_guidance_officer', 'admin'])) {
+                $firstJob = $jobs[0]['title'] ?? 'مطور واجهات وتطبيقات الويب';
+                $out .= "━━━━━━━━━━━━━━━━━━━━━━\n" .
+                    "💡 **للترشيح المباشر لأي وظيفة:**\n" .
+                    "اكتب: *'رشح الخريج [الاسم] لوظيفة [اسم الوظيفة]'*\n" .
+                    "*(مثال: `رشح الخريج المنيب محمد الشريف لوظيفة {$firstJob}`)*\n" .
+                    "أو للترشيح الجماعي: *'رشح 5 خريجين لوظيفة {$firstJob}'*.";
+            } elseif ($user->role === 'graduate') {
+                $firstJob = $jobs[0]['title'] ?? 'مطور واجهات وتطبيقات الويب';
+                $out .= "━━━━━━━━━━━━━━━━━━━━━━\n" .
+                    "💡 **للتقديم المباشر على إحدى هذه الفرص:**\n" .
+                    "اكتب: *'أريد التقديم على وظيفة {$firstJob}'* وسأقوم بتجهيز ملفك فوراً.";
+            }
+
+            return [
+                'content' => $out,
+                'tool_executed' => 'search_job_opportunities',
+            ];
+        }
+
         // 5. ترشيح خريج لوظيفة (لمسؤول الإرشاد المهني والمدير)
-        if (Str::contains($text, ['رشح الخريج', 'ترشيح الخريج', 'رشح لي الخريج', 'ترشيح خريج']) && in_array('nominate_graduate_for_job', $authorizedNames)) {
+        $isNominationIntent = (
+            Str::startsWith($text, ['رشح', 'ترشيح', 'ترشيج', 'ارشح', 'نرشح']) ||
+            Str::contains($text, [
+                'رشح الخريج', 'ترشيح الخريج', 'ترشيج الخريج', 'رشح لي الخريج', 'ترشيح خريج', 'ترشيج خريج', 'ترشيح خريجين',
+                'رشح الطالب', 'ترشيح الطالب', 'رشح لي طالب', 'ترشيح طالب', 'نرشح خريج', 'نرشح الطالب'
+            ])
+        ) && in_array('nominate_graduate_for_job', $authorizedNames);
+
+        if ($isNominationIntent) {
             $gradIdent = '';
             $jobIdent = '';
 
-            if (preg_match('/(?:الخريج|خريج)\s+([^\s]+(?:\s+[^\s]+)?)\s+(?:لوظيفة|لفرصة|على وظيفة)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
+            // الحالة أ: توفر اسم الخريج واسم الوظيفة معاً
+            if (preg_match('/(?:رشح|ترشيح)\s+(?:لي\s+)?(?:الخريج\s+|خريج\s+|الطالب\s+|طالب\s+)?(.+?)\s+(?:لوظيفة|لفرصة|على وظيفة|في وظيفة)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
                 $gradIdent = trim($m[1]);
                 $jobIdent = trim($m[2]);
             }
@@ -809,10 +1669,215 @@ class AiAssistantService
                     ];
                 }
             }
+
+            // الحالة ب: تحديد اسم الخريج فقط دون تحديد الوظيفة (مثال: "رشح الخريج المنيب")
+            if (preg_match('/(?:رشح|ترشيح)\s+(?:لي\s+)?(?:الخريج\s+|خريج\s+|الطالب\s+|طالب\s+)?([^\?\.\!]+)/u', $userMessage, $m)) {
+                $candidateGrad = trim($m[1]);
+                if (!in_array($candidateGrad, ['خريج', 'الخريج', 'طالب', 'الطالب', ''])) {
+                    $gradIdent = $candidateGrad;
+                }
+            }
+
+            if (!empty($gradIdent)) {
+                $gradData = null;
+                if (is_numeric($gradIdent)) {
+                    $gradData = GraduateData::find((int) $gradIdent) ?? GraduateData::where('phone', 'like', "%{$gradIdent}%")->first();
+                } else {
+                    $gradData = GraduateData::where('name', 'like', "%{$gradIdent}%")
+                        ->orWhere('phone', 'like', "%{$gradIdent}%")
+                        ->orWhere('email', $gradIdent)
+                        ->first();
+                    if (!$gradData) {
+                        $u = User::where('name', 'like', "%{$gradIdent}%")->where('role', 'graduate')->first();
+                        if ($u && $u->graduateData) {
+                            $gradData = $u->graduateData;
+                        }
+                    }
+                }
+
+                if ($gradData) {
+                    $openJobs = JobOpportunity::where('status', 'open')->with('company')->take(4)->get();
+                    $jobListStr = '';
+                    if ($openJobs->isNotEmpty()) {
+                        foreach ($openJobs as $idx => $job) {
+                            $compName = $job->company ? $job->company->name : 'جهة غير محددة';
+                            $num = $idx + 1;
+                            $jobListStr .= "{$num}. 💼 **{$job->title}** ({$compName})\n";
+                        }
+                    } else {
+                        $jobListStr = "• لا توجد فرص عمل مفتوحة حالياً في المنظومة.\n";
+                    }
+
+                    $firstJobTitle = $openJobs->first() ? $openJobs->first()->title : 'مطور واجهات وتطبيقات الويب';
+
+                    $out = "🤝 **ترشيح الخريج: {$gradData->name}**\n\n" .
+                        "📋 **بيانات الخريج:**\n" .
+                        "• **الكلية:** {$gradData->faculty}\n" .
+                        "• **التخصص:** {$gradData->major}\n" .
+                        "• **المعدل:** **{$gradData->gpa}%**\n" .
+                        "• **رقم الهاتف:** {$gradData->phone}\n\n" .
+                        "💼 **يرجى تحديد فرصة العمل المراد ترشيحه لها من الفرص المتاحة:**\n" .
+                        $jobListStr . "\n" .
+                        "💡 **للترشيح المباشر، تفضل بكتابة:**\n" .
+                        "*'رشح {$gradData->name} لوظيفة [اسم الوظيفة]'*\n" .
+                        "*(مثال: `رشح {$gradData->name} لوظيفة {$firstJobTitle}`)*";
+
+                    return [
+                        'content' => $out,
+                        'tool_executed' => 'nominate_graduate_for_job',
+                    ];
+                } else {
+                    return [
+                        'content' => "⚠️ لم يتم العثور على خريج يطابق **'{$gradIdent}'** في المنظومة.\n\n" .
+                            "💡 يرجى التأكد من اسم الخريج أو رقم هاتفه، أو البحث في قائمة الخريجين أولاً بقول: *'ابحث عن خريج تقنية المعلومات'*.",
+                        'tool_executed' => 'nominate_graduate_for_job',
+                    ];
+                }
+            }
+
+            // الحالة ج: لم يتم تحديد أي خريج أو وظيفة (طلب عام)
+            $openJobs = JobOpportunity::where('status', 'open')->with('company')->take(3)->get();
+            $jobSamples = [];
+            foreach ($openJobs as $j) {
+                $jobSamples[] = "• **{$j->title}** (" . ($j->company ? $j->company->name : '') . ")";
+            }
+            $jobSamplesStr = !empty($jobSamples) ? implode("\n", $jobSamples) : "• لا توجد وظائف مفتوحة حالياً.";
+
+            return [
+                'content' => "🤝 **خدمة ترشيح الخريجين لفرص العمل:**\n\n" .
+                    "بصفتك مسؤول الإرشاد المهني، يمكنك ترشيح أي خريج مؤهل لشغل الوظائف المتاحة لدى الشركات الشريكة.\n\n" .
+                    "💼 **أبرز الوظائف المفتوحة حالياً:**\n" .
+                    $jobSamplesStr . "\n\n" .
+                    "💡 **طريقة الطلب:**\n" .
+                    "اكتب: **'رشح الخريج [الاسم] لوظيفة [اسم الوظيفة]'**\n" .
+                    "*(مثال: `رشح الخريج المنيب محمد الشريف لوظيفة مطور واجهات وتطبيقات الويب`)*\n\n" .
+                    "أو اكتب اسم الخريج فقط مثل: *'رشح المنيب'* وسأعرض عليك الوظائف المناسبة لاختيار إحداها!",
+                'tool_executed' => 'nominate_graduate_for_job',
+            ];
+        }
+
+        // ==========================================
+        // 📊 استعلامات الإحصائيات والأرقام (بدون إغراق بالبيانات الشخصية)
+        // ==========================================
+
+        // أ. إحصائيات وأعداد الخريجين
+        $isGradStats = (
+            Str::contains($text, [
+                'كم عدد الخريجين', 'كم خريج', 'عدد الخريجين', 'إحصائيات الخريجين', 'احصائيات الخريجين',
+                'إحصائية الخريجين', 'احصائية الخريجين', 'كم عدد خريجي', 'كم خريج مسجل', 'كم عدد المسجلين',
+                'نسبة التوظيف', 'كم خريج توظف', 'كم باحث عن عمل', 'إحصائيات التوظيف', 'احصائيات التوظيف',
+                'أرقام الخريجين', 'ارقام الخريجين'
+            ]) ||
+            ((Str::contains($text, ['كم عدد', 'كم هو عدد', 'أعطني عدد', 'اعطني عدد', 'احصائيات', 'إحصائيات', 'أرقام', 'ارقام', 'إحصائية', 'احصائية']) || preg_match('/^كم\s+(?:خريج|خريجين|مسجل)/u', $text)) && Str::contains($text, ['خريج', 'خريجين', 'الخريجين']))
+        );
+
+        if ($isGradStats && in_array('get_graduates_statistics', $authorizedNames)) {
+            $res = AiToolRegistry::executeTool($user, 'get_graduates_statistics', []);
+            $d = $res['data'] ?? [];
+
+            $facList = [];
+            if (!empty($d['faculties'])) {
+                foreach ($d['faculties'] as $fName => $fCount) {
+                    $facList[] = "{$fName} ({$fCount})";
+                }
+            }
+            $facStr = !empty($facList) ? implode('، ', $facList) : 'غير مسجل';
+
+            $out = "📊 **إحصائيات الخريجين في منظومة جامعة طرابلس:**\n\n" .
+                "• **إجمالي حسابات الخريجين المسجلين:** **{$d['total_registered']} خريج مسجل**\n" .
+                "  - ✅ **الملفات المكتملة والسير الذاتية:** **{$d['completed_profiles']} خريجين** (جاهزون للترشيح والتوظيف)\n" .
+                "  - ⏳ **بانتظار استكمال الملف الأكاديمي:** **{$d['pending_profiles']} خريج**\n" .
+                "• **حالة الحسابات:** **{$d['active_accounts']} نشط** | **{$d['frozen_accounts']} مجمد**\n" .
+                "• **حالة التوظيف (للملفات المكتملة):**\n" .
+                "  - 🔍 باحثون عن فرصة عمل: **{$d['seeking_count']}**\n" .
+                "  - 💼 موظفون حالياً: **{$d['employed_count']}**\n" .
+                ($d['further_study_count'] > 0 ? "  - 🎓 يواصلون دراساتهم العليا: **{$d['further_study_count']}**\n" : "") .
+                "• **السير الذاتية المرفوعة:** **{$d['with_cv_count']}** سيرة ذاتية بنسبة (**{$d['cv_rate']}**)\n" .
+                "• **توزيع الكليات للملفات المكتملة:** {$facStr}\n\n" .
+                "💡 _توضيح المنظومة:_ يرجع الفرق بين إجمالي المسجلين ({$d['total_registered']}) والملفات المكتملة ({$d['completed_profiles']}) إلى أن {$d['pending_profiles']} خريجاً قاموا بإنشاء حساباتهم في المنظومة ولم يستكملوا تعبئة بيانات سيرهم الذاتية وتخصصاتهم الدقيقة بعد.";
+
+            return [
+                'content' => $out,
+                'tool_executed' => 'get_graduates_statistics',
+            ];
+        }
+
+        // ب. إحصائيات وأعداد البرامج التدريبية
+        $isTrainingStats = (
+            Str::contains($text, [
+                'كم عدد التدريبات', 'كم تدريب', 'كم دورة', 'كم دورة تدريبية', 'عدد التدريبات',
+                'إحصائيات التدريب', 'احصائيات التدريب', 'إحصائيات الدورات', 'احصائيات الدورات',
+                'إحصائية التدريب', 'كم ورشة', 'إحصائيات البرامج', 'احصائيات البرامج', 'أرقام التدريب'
+            ]) ||
+            ((Str::contains($text, ['كم عدد', 'كم هو عدد', 'احصائيات', 'إحصائيات', 'أرقام', 'ارقام']) || preg_match('/^كم\s+(?:تدريب|دورة|ورشة|برنامج)/u', $text)) && Str::contains($text, ['تدريب', 'تدريبات', 'دورة', 'دورات', 'ورشة', 'ورش']))
+        );
+
+        if ($isTrainingStats && in_array('get_trainings_statistics', $authorizedNames)) {
+            $res = AiToolRegistry::executeTool($user, 'get_trainings_statistics', []);
+            $d = $res['data'] ?? [];
+
+            $out = "🎓 **إحصائيات البرامج والدورات التدريبية بجامعة طرابلس:**\n\n" .
+                "• **إجمالي البرامج التدريبية:** **{$d['total_trainings']} برنامج تدريبي**\n" .
+                "  - 🟢 برامج نشطة ومتاحة: **{$d['active_trainings']}**\n" .
+                "  - 🏁 برامج مكتملة: **{$d['completed_trainings']}**\n" .
+                "  - 📝 مسودات قيد الإعداد: **{$d['draft_trainings']}**\n" .
+                "• **إجمالي المقاعد التدريبية المتاحة:** **{$d['total_seats']} مقعداً**\n" .
+                "• **طلبات الالتحاق المقدمة:** **{$d['total_applications']} طلب** (تم قبول **{$d['accepted_applications']}** متدرباً)\n\n" .
+                "💡 _يمكنك استعراض التدريبات المتاحة بالطلب: 'اعرض لي الدورات التدريبية النشطة'._";
+
+            return [
+                'content' => $out,
+                'tool_executed' => 'get_trainings_statistics',
+            ];
+        }
+
+        // ج. إحصائيات وأعداد الوظائف والشركات
+        $isJobStats = (
+            Str::contains($text, [
+                'كم عدد الوظائف', 'كم وظيفة', 'عدد الوظائف', 'إحصائيات الوظائف', 'احصائيات الوظائف',
+                'كم فرصة عمل', 'كم شركة', 'كم عدد الشركات', 'إحصائيات الشركات', 'احصائيات الشركات',
+                'إحصائيات الشراكات', 'احصائيات الشراكات', 'كم شركة شريكة', 'أرقام الوظائف'
+            ]) ||
+            ((Str::contains($text, ['كم عدد', 'احصائيات', 'إحصائيات', 'أرقام', 'ارقام']) || preg_match('/^كم\s+(?:وظيفة|فرصة|شركة)/u', $text)) && Str::contains($text, ['وظائف', 'وظيفة', 'فرص', 'فرصة', 'شركات', 'شراكات']))
+        );
+
+        if ($isJobStats && in_array('get_jobs_statistics', $authorizedNames)) {
+            $res = AiToolRegistry::executeTool($user, 'get_jobs_statistics', []);
+            $d = $res['data'] ?? [];
+
+            $out = "💼 **إحصائيات فرص العمل وسوق الشراكات والتوظيف:**\n\n" .
+                "• **إجمالي فرص العمل المعلنة:** **{$d['total_jobs']} فرصة** (منها **{$d['open_jobs']}** شاغرة ومتاحة للتقديم حالياً)\n" .
+                "• **الشركات والمؤسسات الشريكة:** **{$d['total_companies']} شركة معتمدة** ({$d['active_companies']} شركة نشطة)\n" .
+                "• **الترشيحات المهنية:** **{$d['total_nominations']} ترشيح تم إرساله للشركات** (تُوّج منها **{$d['hired_nominations']}** بالتوظيف الفعلي ✅)\n\n" .
+                "💡 _للبحث عن فرصة عمل محددة يمكنك طلب: 'وظائف تقنية المعلومات' أو 'عرض الوظائف الشاغرة'._";
+
+            return [
+                'content' => $out,
+                'tool_executed' => 'get_jobs_statistics',
+            ];
         }
 
         // 6. بحث متقدم عن الخريجين (لمسؤول الإرشاد المهني والمدير)
-        if ((Str::contains($text, ['خريجين', 'خريجي', 'ابحث عن خريج', 'ابحث عن خريجين', 'معدل', 'هاتف']) || (Str::contains($text, ['تخصص', 'مهندسي']) && in_array('search_graduates_advanced', $authorizedNames))) && in_array('search_graduates_advanced', $authorizedNames)) {
+        $isGradSearch = (
+            !Str::startsWith($text, ['رشح', 'ترشيح', 'ترشيج', 'جمد', 'تجميد', 'نشط', 'تنشيط', 'احذف', 'حذف', 'مسح', 'ازالة', 'إزالة', 'قبول', 'رفض', 'كيف', 'طريقة', 'خطوات', 'شرح']) &&
+            !Str::contains($text, [
+                'رشح الخريج', 'ترشيح الخريج', 'ترشيج الخريج', 'رشح لي', 'ترشيح خريج', 'ترشيج خريج', 'ترشيح خريجين', 'رشح الطالب', 'ترشيح الطالب',
+                'جمد حساب', 'تجميد حساب', 'نشط حساب', 'تنشيط حساب', 'فك تجميد', 'الغاء تجميد', 'إلغاء تجميد',
+                'احذف حساب', 'حذف حساب', 'مسح حساب', 'حذف الخريج', 'مسح الخريج',
+                'قبول طلب', 'قبول طلبات', 'رفض طلب', 'رفض طلبات', 'الموافقة على',
+                'كيف', 'طريقة', 'خطوات', 'شرح', 'علمني'
+            ]) &&
+            (
+                Str::contains($text, [
+                    'نبي خريج', 'نبي خريجين', 'أبي خريج', 'أبي خريجين', 'أريد خريج', 'أريد خريجين',
+                    'ابحث عن خريج', 'ابحث عن خريجين', 'بحث عن خريج', 'بحث عن خريجين', 'ابحث لي عن خريج',
+                    'دورلي على خريج', 'شوفلي خريج', 'أعطيني خريج', 'اعطيني خريج', 'عرض خريجي', 'استعراض الخريجين',
+                    'خريجين', 'خريجي', 'خريج', 'مهندسي', 'معدل', 'هاتف'
+                ]) || (Str::contains($text, ['تخصص', 'كلية']) && in_array('search_graduates_advanced', $authorizedNames))
+            )
+        ) && in_array('search_graduates_advanced', $authorizedNames);
+
+        if ($isGradSearch) {
             $args = [];
 
             // البحث برقم الهاتف
@@ -825,17 +1890,37 @@ class AiAssistantService
                 $args['min_gpa'] = (float) $m[1];
             }
 
-            // البحث بالتخصص
-            if (preg_match('/(?:تخصص|قسم|خريجي|مهندسي)\s+([^\s\?\.\!,]+(?:\s+[^\s\?\.\!,]+)?)/u', $userMessage, $m)) {
-                $majorKw = trim($m[1]);
-                if (!in_array($majorKw, ['بمعدل', 'أعلى', 'ولديهم', 'مع'])) {
-                    $args['major'] = $majorKw;
+            // البحث بالاسم أولاً
+            if (preg_match('/(?:الخريج|اسمه|اسم|الطالب)\s+([^\s\?\.\!,]+(?:\s+[^\s\?\.\!,]+)?)/u', $userMessage, $m)) {
+                $nameCand = trim($m[1]);
+                if (!in_array($nameCand, ['تقنية', 'هندسة', 'طب', 'علوم', 'صيدلة', 'برمجيات', 'حاسوب', 'الكلية', 'القسم', 'معدل'])) {
+                    $args['name'] = $nameCand;
                 }
             }
 
-            // البحث بالاسم
-            if (preg_match('/(?:الخريج|اسم)\s+([^\s\?\.\!,]+(?:\s+[^\s\?\.\!,]+)?)/u', $userMessage, $m)) {
-                $args['name'] = trim($m[1]);
+            // استخراج التخصص أو الكلية أو القسم
+            $majorKw = null;
+            if (preg_match('/(?:نبي|أبي|أريد|ابحث عن|ابحث لي عن|دورلي على|اعطيني|أعطيني|شوفلي|عرض)?\s*(?:خريج|خريجين|خريجي|مهندسي|طلبة)?\s*(?:كلية|قسم|تخصص)?\s+([^\?\.\!,]+)/u', $userMessage, $m)) {
+                $candidate = trim($m[1]);
+                $candidate = preg_replace('/\s+(?:بمعدل|معدل|بنسبة|أعلى|فوق|تتجاوز|ويكون|عنده|لديه|باحث|سيرة).*$/u', '', $candidate);
+                $candidate = trim($candidate);
+                if (!empty($candidate) && !in_array($candidate, ['بمعدل', 'أعلى', 'ولديهم', 'مع', 'يكون', 'متميز', 'شاطر', 'متفوق'])) {
+                    $majorKw = $candidate;
+                }
+            } elseif (preg_match('/(?:تخصص|قسم|كلية)\s+([^\?\.\!,]+)/u', $userMessage, $m)) {
+                $candidate = trim($m[1]);
+                $candidate = preg_replace('/\s+(?:بمعدل|معدل|بنسبة|أعلى|فوق|تتجاوز|ويكون|عنده|لديه|باحث|سيرة).*$/u', '', $candidate);
+                $candidate = trim($candidate);
+                if (!empty($candidate) && !in_array($candidate, ['بمعدل', 'أعلى', 'ولديهم', 'مع', 'يكون'])) {
+                    $majorKw = $candidate;
+                }
+            }
+
+            if (!empty($majorKw)) {
+                // تجنب وضع الاسم في التخصص إن كان الاسم هو المستخرج
+                if (!isset($args['name']) || stripos($majorKw, $args['name']) === false) {
+                    $args['major'] = $majorKw;
+                }
             }
 
             if (Str::contains($text, ['سيرة ذاتية', 'سير ذاتية', 'cv'])) {
@@ -846,8 +1931,9 @@ class AiAssistantService
             $grads = $res['data'] ?? [];
 
             if (empty($grads)) {
+                $critText = !empty($args['major']) ? " لتخصص أو كلية [{$args['major']}]" : "";
                 return [
-                    'content' => "لم أعثر على خريجين يطابقون معايير البحث المحددة في سجلات الإرشاد المهني. يمكنك تجربة معايير بحث أوسع.",
+                    'content' => "لم أعثر على خريجين يطابقون معايير البحث{$critText} في سجلات المنظومة المكتملة حالياً.\n\n💡 يمكنك تجربة البحث بكلمات أشمل (مثل: *تقنية*، *برمجيات*، أو *هندسة*).",
                     'tool_executed' => 'search_graduates_advanced',
                 ];
             }
@@ -946,43 +2032,19 @@ class AiAssistantService
             ];
         }
 
-        // 4. فرص العمل والتوظيف
-        if (Str::contains($text, ['وظائف', 'وظيفة', 'فرص عمل', 'توظيف', 'شركات']) && in_array('search_job_opportunities', $authorizedNames)) {
-            $res = AiToolRegistry::executeTool($user, 'search_job_opportunities', []);
-            $jobs = $res['data'] ?? [];
 
-            if (empty($jobs)) {
-                return [
-                    'content' => "لا توجد فرص عمل معلنة حالياً تطابق بحثك. يقوم المكتب بتحديث الفرص والشراكات باستمرار مع معرض التوظيف.",
-                    'tool_executed' => 'search_job_opportunities',
-                ];
-            }
-
-            $out = "💼 **أحدث الفرص الوظيفية المتاحة عبر المنصة:**\n\n";
-            foreach ($jobs as $j) {
-                $out .= "🏢 **{$j['title']}** — {$j['company']}\n";
-                $out .= "   📍 المكان: {$j['location']} | ⏱ النوع: {$j['type']} | 📅 آخر موعد: {$j['deadline']}\n\n";
-            }
-
-            return [
-                'content' => $out,
-                'tool_executed' => 'search_job_opportunities',
-            ];
-        }
 
         // 5. إحصائيات الميديا (لمسؤول الإعلام)
-        if (Str::contains($text, ['إحصائيات الميديا', 'نسبة التغطية', 'حالة البث', 'الكاميرات']) && in_array('get_media_statistics', $authorizedNames)) {
+        if (Str::contains($text, ['إحصائيات الميديا', 'نسبة التغطية', 'إحصائيات الإعلام']) && in_array('get_media_statistics', $authorizedNames)) {
             $res = AiToolRegistry::executeTool($user, 'get_media_statistics', []);
             $d = $res['data'] ?? [];
 
-            $out = "📊 **تقرير وحدة الإعلام والبث الذكي:**\n\n";
+            $out = "📊 **تقرير وحدة الإعلام والتغطيات الصحفية:**\n\n";
             $out .= "• **نسبة التغطية الإعلامية:** {$d['coverage_rate']}\n";
-            $out .= "• **التدريبات المغطاة:** {$d['covered_trainings']} من أصل {$d['total_trainings']}\n";
+            $out .= "• **التدريبات المغطاة صحفياً وميدانياً:** {$d['covered_trainings']} من أصل {$d['total_trainings']}\n";
             $out .= "• **التدريبات المنتظرة للتغطية:** {$d['pending_trainings']} تدريب\n";
             $out .= "• **الأخبار المعتمدة المنشورة:** {$d['active_news']}\n";
             $out .= "• **الإعلانات الرسمية النشطة:** {$d['active_announcements']}\n";
-            $out .= "• **كاميرات IP المتصلة:** {$d['cameras_count']} (منها {$d['live_cameras']} نشطة)\n";
-            $out .= "• **حالة البث العام المباشر:** " . ($d['is_broadcast_live'] ? '🔴 ON AIR (يعمل الآن)' : '⚪ OFF AIR (متوقف)') . "\n";
 
             return [
                 'content' => $out,
@@ -1161,7 +2223,7 @@ class AiAssistantService
         }
 
         // ==========================================
-        // 📢 11. أدوات قطاع الإعلام والبث الذكي
+        // 📢 11. أدوات قطاع الإعلام والتغطيات والاتصال المؤسسي
         // ==========================================
         if (Str::contains($text, ['صغ إعلان', 'نشر إعلان', 'إعلان رسمي', 'مسودة إعلان', 'أضف إعلان']) && in_array('draft_announcement', $authorizedNames)) {
             $title = 'إعلان هام لخريجي جامعة طرابلس';
@@ -1187,25 +2249,6 @@ class AiAssistantService
             }
         }
 
-        if (Str::contains($text, ['بث مباشر', 'تشغيل البث', 'إيقاف البث', 'go live', 'بدء البث', 'أوقف البث', 'شغل البث']) && in_array('manage_live_broadcast', $authorizedNames)) {
-            $act = Str::contains($text, ['إيقاف', 'أوقف', 'stop', 'انهاء', 'إنهاء']) ? 'stop' : 'start';
-            $res = AiToolRegistry::executeTool($user, 'manage_live_broadcast', ['action' => $act]);
-
-            if (isset($res['status']) && $res['status'] === 'proposal') {
-                return [
-                    'content' => "📡 **تم تجهيز أمر التحكم في البث المباشر الاستوديو:**\n\n" .
-                        "يرجى تأكيد التنفيذ عبر الضغط على **[تأكيد وحفظ]** أدناه.",
-                    'action_proposal' => $res,
-                    'tool_executed' => 'manage_live_broadcast',
-                ];
-            } else {
-                return [
-                    'content' => $res['message'] ?? 'تم فحص حالة البث المباشر.',
-                    'tool_executed' => 'manage_live_broadcast',
-                ];
-            }
-        }
-
         if (Str::contains($text, ['تقرير الإعلام', 'تقرير التغطية', 'تقرير الميديا', 'تقرير التغطيات الصحفية']) && in_array('generate_media_report', $authorizedNames)) {
             $res = AiToolRegistry::executeTool($user, 'generate_media_report', []);
             $m = $res['metrics'] ?? [];
@@ -1214,10 +2257,9 @@ class AiAssistantService
             $out .= "_تاريخ التوليد: {$res['generated_at']}_\n\n";
             $out .= "• **نسبة التغطية الإعلامية للمناسبات:** **{$m['coverage_rate']}**\n";
             $out .= "• **الفعاليات المغطاة صحفياً وميدانياً:** {$m['covered_trainings']} من أصل {$m['total_events']}\n";
-            $out .= "• **الأخبار المعتمدة المنشورة:** {$m['published_news']} خبر\n";
+            $out .= "• **الفعاليات بانتظار التغطية:** {$m['pending_trainings']}\n";
+            $out .= "• **الأخبار المعتمدة المنشورة:** {$m['published_news']} خبر (مسودات: {$m['draft_news']})\n";
             $out .= "• **الإعلانات الرسمية النشطة:** {$m['active_announcements']} إعلان\n";
-            $out .= "• **شبكة كاميرات IP المتصلة:** {$m['connected_cameras']}\n";
-            $out .= "• **حالة البث المباشر العام:** {$m['broadcast_status']} (المشاهدون التقديريون: {$m['viewers_count']})\n";
 
             return [
                 'content' => $out,
@@ -1268,6 +2310,534 @@ class AiAssistantService
                 'content' => $out,
                 'tool_executed' => 'generate_partnerships_report',
             ];
+        }
+
+        // ==========================================
+        // 🏢 قطاع الشركات والتوظيف وأرباب العمل (Company & Employment Copilot)
+        // ==========================================
+
+        // أ. استعراض مرشحي ومتقدمي الشركة
+        $isCandidatesIntent = (
+            Str::contains($text, ['المرشحين', 'المرشحون', 'مرشحين', 'مرشحون', 'المتقدمين', 'المتقدمون', 'طلبات التوظيف', 'مرشحينا', 'سير المتقدمين', 'من تقدم لوظائفنا', 'عرض المرشحين'])
+        ) && !preg_match('/(?:^|\s)(?:رشح|ترشيح|ترشيج|ارشح|نرشح)\s+/u', $text) && !Str::contains($text, ['كيف', 'إحصائيات', 'احصائيات', 'لوحة تحكم', 'مؤشرات']) && in_array('get_company_candidates', $authorizedNames);
+
+        if ($isCandidatesIntent) {
+            $status = 'all';
+            if (Str::contains($text, ['مقابلة', 'مقابلات'])) $status = 'interview_scheduled';
+            elseif (Str::contains($text, ['مقبول', 'مقبولين'])) $status = 'accepted';
+            elseif (Str::contains($text, ['مرفوض', 'معتذر'])) $status = 'rejected';
+            elseif (Str::contains($text, ['جديد', 'جدد', 'معلق'])) $status = 'pending';
+            elseif (Str::contains($text, ['توظيف', 'موظف', 'تم توظيفهم', 'hired'])) $status = 'hired';
+
+            $jobIdent = '';
+            if (preg_match('/(?:لوظيفة|في وظيفة|لوظائف|لفرصة)\s+([^\?\.\!؟،,]+)/u', $userMessage, $m)) {
+                $jobIdent = trim($m[1]);
+            }
+
+            $res = AiToolRegistry::executeTool($user, 'get_company_candidates', [
+                'status' => $status,
+                'job_identifier' => $jobIdent,
+            ]);
+
+            $candidates = $res['data'] ?? [];
+            if (empty($candidates)) {
+                return [
+                    'content' => "👥 **سجل المرشحين والمتقدمين للوظائف:**\n\n" .
+                        ($res['message'] ?? 'لا يوجد مرشحون يطابقون شروط البحث حالياً.') . "\n\n" .
+                        "💡 يمكنك طلب اقتراح خريجين جدد بقول: *'اقترح لي خريجين متميزين في تقنية المعلومات'*.",
+                    'tool_executed' => 'get_company_candidates',
+                ];
+            }
+
+            $out = "👥 **قائمة الخريجين المرشحين لشواغر الشركة (" . count($candidates) . " مرشحاً):**\n\n";
+            foreach ($candidates as $idx => $c) {
+                $num = $idx + 1;
+                $out .= "{$num}. 👤 **{$c['candidate_name']}**\n";
+                $out .= "   • **الوظيفة:** {$c['job_title']} | **الشركة:** {$c['company_name']}\n";
+                $out .= "   • **التخصص والمعدل:** {$c['major']} (معدل: **{$c['gpa']}**)\n";
+                $out .= "   • **حالة الطلب:** `{$c['status_arabic']}` | القرار النهائي: {$c['final_status']}\n";
+                $out .= "   • **رقم الهاتف:** `{$c['phone']}` | تاريخ الترشيح: {$c['nominated_at']}\n";
+                if (!empty($c['interview_date'])) {
+                    $out .= "   • **موعد المقابلة:** 📅 {$c['interview_date']} الساعة {$c['interview_time']} (📍 {$c['interview_location']})\n";
+                }
+                $out .= "\n";
+            }
+
+            $firstCand = $candidates[0]['candidate_name'] ?? 'المرشح';
+            $out .= "━━━━━━━━━━━━━━━━━━━━━━\n" .
+                "💡 **للتحكم في حالة أي مرشح:**\n" .
+                "• **لتحديد موعد مقابلة:** اكتب: *'حدد موعد مقابلة للخريج {$firstCand} يوم الأحد القادم الساعة 10:30 صباحاً'*.\n" .
+                "• **للقبول المبدئي:** اكتب: *'قبول المرشح {$firstCand}'*.\n" .
+                "• **للتوظيف النهائي:** اكتب: *'توظيف الخريج {$firstCand}'*.";
+
+            return [
+                'content' => $out,
+                'tool_executed' => 'get_company_candidates',
+            ];
+        }
+
+        // ب. جدولة مقابلة شخصية وتحديث حالة المرشح والتوظيف
+        $isInterviewOrStatusIntent = (
+            Str::contains($text, ['حدد مقابلة', 'موعد مقابلة', 'جدولة مقابلة', 'مقابلة شخصية', 'قبول المرشح', 'اقبل المرشح', 'اعتذار للمرشح', 'رفض المرشح', 'توظيف الخريج', 'وظف الخريج', 'تعيين الخريج'])
+        ) && in_array('update_candidate_interview_status', $authorizedNames);
+
+        if ($isInterviewOrStatusIntent) {
+            $candIdent = '';
+            if (preg_match('/(?:للخريج|للمرشح|للطالب|للخريجة|للمرشحة|المرشح|الخريج)\s+([^\?\.\!؟،,]+?)(?:\s+يوم|\s+بتاريخ|\s+الساعة|\s+في|\s+لوظيفة|\s*$)/u', $userMessage, $m)) {
+                $candIdent = trim($m[1]);
+            }
+
+            $targetStatus = 'interview_scheduled';
+            $finalStatus = null;
+            if (Str::contains($text, ['توظيف', 'وظف', 'تعيين'])) {
+                $targetStatus = 'accepted';
+                $finalStatus = 'hired';
+            } elseif (Str::contains($text, ['قبول', 'اقبل'])) {
+                $targetStatus = 'accepted';
+                $finalStatus = 'in_progress';
+            } elseif (Str::contains($text, ['اعتذار', 'رفض'])) {
+                $targetStatus = 'rejected';
+                $finalStatus = 'not_hired';
+            }
+
+            $intDate = null;
+            if (preg_match('/(?:بتاريخ|يوم)\s+([0-9]{4}-[0-9]{2}-[0-9]{2})/u', $userMessage, $mDate)) {
+                $intDate = $mDate[1];
+            } elseif (Str::contains($text, ['غداً', 'غدا'])) {
+                $intDate = now()->addDay()->format('Y-m-d');
+            } elseif (Str::contains($text, ['بعد غد', 'بعد غداً'])) {
+                $intDate = now()->addDays(2)->format('Y-m-d');
+            }
+
+            $intTime = null;
+            if (preg_match('/(?:الساعة|ساعة)\s+([0-9]{1,2}(?::[0-9]{2})?\s*(?:صباحاً|مساءً|ص|م)?)/u', $userMessage, $mTime)) {
+                $intTime = trim($mTime[1]);
+            }
+
+            $intLoc = null;
+            if (preg_match('/(?:في|بمقر|عبر|بـ)\s+(مقر[^\?\.\!]+|قاعة[^\?\.\!]+|Google Meet|Zoom|زووم|ميت)/u', $userMessage, $mLoc)) {
+                $intLoc = trim($mLoc[0]);
+            }
+
+            if (!empty($candIdent)) {
+                $res = AiToolRegistry::executeTool($user, 'update_candidate_interview_status', [
+                    'candidate_identifier' => $candIdent,
+                    'status' => $targetStatus,
+                    'final_status' => $finalStatus,
+                    'interview_date' => $intDate,
+                    'interview_time' => $intTime,
+                    'interview_location' => $intLoc,
+                ]);
+
+                if (isset($res['status']) && $res['status'] === 'proposal') {
+                    return [
+                        'content' => "📅 **تم تجهيز قرار وإجراء تحديث حالة المرشح:**\n\n" .
+                            "يرجى مراجعة بيانات الموعد والقرار في البطاقة التفاعلية أدناه وتأكيد التنفيذ ليتم إرسال الإشعار وتوثيق القرار.",
+                        'action_proposal' => $res,
+                        'tool_executed' => 'update_candidate_interview_status',
+                    ];
+                } else {
+                    return [
+                        'content' => $res['message'] ?? 'تعذر تجهيز تحديث المرشح. يرجى التأكد من اسم الخريج.',
+                        'tool_executed' => 'update_candidate_interview_status',
+                    ];
+                }
+            } else {
+                return [
+                    'content' => "📅 **خدمة إدارة المقابلات وحالات المرشحين:**\n\n" .
+                        "يرجى تحديد اسم المرشح في طلبك كالتالي:\n" .
+                        "• *'حدد موعد مقابلة للخريج [الاسم] يوم [التاريخ] الساعة 11:00 صباحاً'*.\n" .
+                        "• *'قبول المرشح [الاسم]'* أو *'توظيف الخريج [الاسم]'*.\n\n" .
+                        "💡 يمكنك أولاً استعراض المرشحين بالطلب: *'عرض المرشحين لوظائف شركتنا'*.",
+                    'tool_executed' => 'update_candidate_interview_status',
+                ];
+            }
+        }
+
+        // ج. طلب واقتراح خريجين مطابقين لشواغر الشركة
+        $isMatchingIntent = (
+            Str::contains($text, ['اقترح خريجين', 'اقترح لي خريجين', 'ابحث عن خريجين متميزين', 'خريجين مناسبين', 'أفضل الخريجين', 'افضل الخريجين', 'مطابقة خريجين', 'نريد خريجين', 'احتاج خريجين'])
+        ) && in_array('request_matching_graduates', $authorizedNames);
+
+        if ($isMatchingIntent) {
+            $minGpa = null;
+            if (preg_match('/(?:بمعدل|معدل|أعلى من|اعلى من|فوق)\s*(?:أعلى من|اعلى من|فوق)?\s*([0-9]{2}(?:\.[0-9]+)?)/u', $userMessage, $mGpa)) {
+                $minGpa = (float) $mGpa[1];
+            }
+
+            $major = '';
+            if (preg_match('/(?:في|لتخصص|تخصص|كلية|مجال)\s+([^\?\.\!؟،,\n]+?)(?:\s+(?:بمعدل|معدل|أعلى من|اعلى من|فوق|نسبة|[0-9]{2})|\s*$)/u', $userMessage, $m)) {
+                $candidateMajor = trim($m[1]);
+                $ignored = ['الجامعة', 'الخريجين', 'الوظيفة', 'العمل', 'شركتنا'];
+                if (!in_array($candidateMajor, $ignored)) {
+                    $major = $candidateMajor;
+                }
+            }
+
+            $res = AiToolRegistry::executeTool($user, 'request_matching_graduates', [
+                'major' => $major,
+                'min_gpa' => $minGpa,
+                'limit' => 5,
+            ]);
+
+            $grads = $res['data'] ?? [];
+            if (empty($grads)) {
+                return [
+                    'content' => "🔍 **مطابقة واقتراح الخريجين:**\n\n" .
+                        ($res['message'] ?? 'لم يتم العثور على خريجين يطابقون الشروط حالياً. يرجى تجربة خفض المعدل أو توسيع نطاق التخصص.'),
+                    'tool_executed' => 'request_matching_graduates',
+                ];
+            }
+
+            // Determine primary job for one-click nomination
+            $primaryJob = null;
+            if ($user->role === 'company' && $user->company) {
+                $primaryJob = JobOpportunity::where('company_id', $user->company->id)->where('status', 'open')->value('title');
+            }
+            if (!$primaryJob) {
+                $primaryJob = JobOpportunity::where('status', 'open')->value('title');
+            }
+
+            $out = "🎯 **أفضل الخريجين المطابقين لمتطلبات التوظيف (" . count($grads) . " خريجين):**\n\n";
+            foreach ($grads as $idx => $g) {
+                $num = $idx + 1;
+                $out .= "{$num}. 👤 **{$g['name']}**\n";
+                $out .= "   • **التخصص:** {$g['major']} ({$g['faculty']})\n";
+                $out .= "   • **المعدل التراكمي:** **{$g['gpa']}%** (دفعة {$g['graduation_year']})\n";
+                $out .= "   • **السيرة الذاتية:** " . ($g['has_cv'] ? 'مرفوعة ومحدثة ✅' : 'غير مرفوعة ⚠️') . " | 📞 الهاتف: `{$g['phone']}`\n";
+
+                if ($primaryJob) {
+                    $out .= "   👉 [🎯 رشح {$g['name']} لوظيفة ({$primaryJob})](#prompt:رشح الخريج {$g['name']} لوظيفة {$primaryJob})\n";
+                } else {
+                    $out .= "   👉 [🎯 ترشيح {$g['name']} المباشر](#prompt:رشح الخريج {$g['name']})\n";
+                }
+                $out .= "\n";
+            }
+
+            $out .= "━━━━━━━━━━━━━━━━━━━━━━\n" .
+                "💡 **للترشيح المباشر بضغطة زر واحدة:**\n" .
+                "اضغط مباشرة على زر **[🎯 رشح الخريج...]** أسفل كل مرشح أعلاه لتجهيز بطاقة الترشيح وتأكيدها فوراً!";
+
+            return [
+                'content' => $out,
+                'tool_executed' => 'request_matching_graduates',
+            ];
+        }
+
+        // د. لوحة تحكم الشركة وإحصائيات التوظيف
+        $isCompanyDashboardIntent = (
+            Str::contains($text, [
+                'إحصائيات شركتنا', 'احصائيات شركتنا', 'لوحة تحكم الشركة', 'ملخص التوظيف', 
+                'إحصائيات التوظيف', 'احصائيات التوظيف', 'إحصائيات المرشحين', 'احصائيات المرشحين',
+                'ملخص إحصائيات التوظيف', 'ملخص التوظيف والمرشحين', 'شواغرنا', 'وظائفنا النشطة', 'مؤشرات الشركة'
+            ])
+        ) && in_array('get_company_dashboard_overview', $authorizedNames);
+
+        if ($isCompanyDashboardIntent) {
+            $res = AiToolRegistry::executeTool($user, 'get_company_dashboard_overview', []);
+            if ($res['status'] === 'success') {
+                if (($res['role_type'] ?? '') === 'company') {
+                    $m = $res['metrics'] ?? [];
+                    $out = "🏢 **ملخص لوحة تحكم وإحصائيات شركة ({$res['company_name']}):**\n\n" .
+                        "• **حالة الاعتماد في جامعة طرابلس:** " . ($res['is_approved'] ? 'شريك معتمد وموثق ✅' : 'قيد المراجعة والتدقيق ⏳') . "\n" .
+                        "• **مجال العمل:** {$res['industry']}\n\n" .
+                        "📊 **مؤشرات التوظيف والفرص:**\n" .
+                        "• **الوظائف المفتوحة حالياً:** **{$m['active_jobs']} فرصة نشطة** (من إجمالي {$m['total_jobs']} وظيفة)\n" .
+                        "• **إجمالي المرشحين لوظائفكم:** **{$m['total_candidates']} مرشحاً**\n" .
+                        "  - ⏳ بانتظار دراسة الشركة: **{$m['new_pending_candidates']}** طلب جديد\n" .
+                        "  - 📅 مقابلات مجدولة: **{$m['scheduled_interviews']}** مقابلة\n" .
+                        "  - 🎯 تم توظيفهم رسمياً: **{$m['hired_graduates']}** خريج وخريجة\n\n" .
+                        "💡 يمكنك طلب: *'عرض المرشحين لوظائف شركتنا'* لمراجعة التفاصيل.";
+
+                    return [
+                        'content' => $out,
+                        'tool_executed' => 'get_company_dashboard_overview',
+                    ];
+                } else {
+                    $m = $res['metrics'] ?? [];
+                    $out = "🏢 **مؤشرات قطاع الشركات وسوق العمل في جامعة طرابلس:**\n\n" .
+                        "• **إجمالي الشركات الشريكة:** **{$m['total_partner_companies']}** شركة\n" .
+                        "• **الشركات المعتمدة:** **{$m['approved_companies']}** | بانتظار التدقيق: **{$m['pending_review_companies']}**\n" .
+                        "• **الفرص الوظيفية الشاغرة:** **{$m['open_vacancies']}** وظيفة مفتوحة (إجمالي المعلن: {$m['total_jobs_posted']})\n" .
+                        "• **إجمالي ترشيحات الخريجين:** **{$m['total_nominations']}** ترشيحاً لسوق العمل.";
+
+                    return [
+                        'content' => $out,
+                        'tool_executed' => 'get_company_dashboard_overview',
+                    ];
+                }
+            }
+        }
+
+        // هـ. اعتماد أو تفعيل شركة شريكة
+        $isCompanyApprovalIntent = (
+            Str::contains($text, ['اعتمد شركة', 'اعتماد شركة', 'تفعيل شركة', 'إلغاء اعتماد شركة', 'الغاء اعتماد شركة'])
+        ) && in_array('toggle_company_approval', $authorizedNames);
+
+        if ($isCompanyApprovalIntent) {
+            $companyIdent = '';
+            if (preg_match('/(?:شركة|المؤسسة|مؤسسة)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
+                $companyIdent = trim($m[1]);
+            }
+
+            if (!empty($companyIdent)) {
+                $targetStatus = Str::contains($text, ['إلغاء', 'الغاء', 'إيقاف']) ? 'unapprove' : 'approve';
+                $res = AiToolRegistry::executeTool($user, 'toggle_company_approval', [
+                    'company_identifier' => $companyIdent,
+                    'target_status' => $targetStatus,
+                ]);
+
+                if (isset($res['status']) && $res['status'] === 'proposal') {
+                    return [
+                        'content' => "🏢 **تم إعداد قرار تعديل اعتماد الشركة الشريكة:**\n\n" .
+                            "يرجى مراجعة التفاصيل في البطاقة التفاعلية أدناه وتأكيد الإجراء.",
+                        'action_proposal' => $res,
+                        'tool_executed' => 'toggle_company_approval',
+                    ];
+                } else {
+                    return [
+                        'content' => $res['message'] ?? 'تعذر العثور على الشركة المطلوبة.',
+                        'tool_executed' => 'toggle_company_approval',
+                    ];
+                }
+            }
+        }
+
+        // و. عرض قائمة الشركات الشريكة المعتمدة
+        $isSearchCompaniesIntent = (
+            Str::contains($text, ['قائمة الشركات', 'الشركات الشريكة', 'دليل الشركات', 'عرض الشركات', 'شركات معتمدة', 'شركات شريكة'])
+        ) && in_array('search_partner_companies', $authorizedNames);
+
+        if ($isSearchCompaniesIntent) {
+            $res = AiToolRegistry::executeTool($user, 'search_partner_companies', ['status' => 'approved']);
+            $comps = $res['data'] ?? [];
+
+            if (empty($comps)) {
+                return [
+                    'content' => "🏢 لا توجد شركات شريكة معتمدة مسجلة حالياً في المنظومة.\n\n💡 يمكنك إضافة شركة جديدة بقول: *'أضف شركة جديدة شريكة'*.",
+                    'tool_executed' => 'search_partner_companies',
+                ];
+            }
+
+            $out = "🏢 **دليل الشركات والمؤسسات الشريكة المعتمدة في جامعة طرابلس (" . count($comps) . " شركة):**\n\n";
+            foreach ($comps as $idx => $c) {
+                $num = $idx + 1;
+                $out .= "{$num}. 🏛️ **{$c['name']}**\n";
+                $out .= "   • **القطاع الصناعي:** {$c['industry']} | الحالة: {$c['status_arabic']}\n";
+                $out .= "   • **مسؤول الاتصال:** {$c['contact_person']} | 📞 الهاتف: `{$c['phone']}`\n";
+                $out .= "   • **الوظائف الشاغرة المطروحة:** **{$c['open_jobs_count']}** وظيفة مفتوحة\n\n";
+            }
+            $out .= "💡 _يمكنك إضافة شركة جديدة أو نشر وظيفة بالتعاون مع إحدى هذه الشركات في أي وقت._";
+
+            return [
+                'content' => $out,
+                'tool_executed' => 'search_partner_companies',
+            ];
+        }
+
+        // ز. استعراض ملف الشركة الحالي
+        $isProfileIntent = (
+            Str::contains($text, ['ملف شركتنا', 'بيانات شركتنا', 'معلومات شركتنا', 'بروفايل الشركة'])
+        ) && in_array('get_my_company_profile', $authorizedNames);
+
+        if ($isProfileIntent) {
+            $res = AiToolRegistry::executeTool($user, 'get_my_company_profile', []);
+            if ($res['status'] === 'success') {
+                $c = $res['company'] ?? [];
+                $out = "🏢 **الملف التعريفي لشركة ({$c['name']}):**\n\n" .
+                    "• **المجال الصناعي:** {$c['industry']}\n" .
+                    "• **حالة الاعتماد:** " . ($c['is_approved'] ? 'معتمدة رسمياً ✅' : 'قيد التدقيق ⏳') . "\n" .
+                    "• **البريد الرسمي:** `{$c['email']}`\n" .
+                    "• **رقم الهاتف:** `{$c['phone']}`\n" .
+                    "• **العنوان والمقر:** {$c['address']}\n" .
+                    "• **الموقع الإلكتروني:** {$c['website']}\n" .
+                    "• **مسؤول التواصل:** {$c['contact_person']}\n" .
+                    "• **الوظائف المفتوحة حالياً:** **{$c['open_jobs']}** وظيفة معلنة\n\n" .
+                    "💡 يمكنك تعديل هذه البيانات في أي وقت من خلال صفحة **الملف التعريفي للشركة**.";
+
+                return [
+                    'content' => $out,
+                    'tool_executed' => 'get_my_company_profile',
+                ];
+            }
+        }
+
+        // ح. استعراض وظائف وشواغر الشركة
+        $isCompanyJobsIntent = (
+            Str::contains($text, ['وظائفنا', 'شواغرنا', 'قائمة الوظائف', 'استعراض الوظائف', 'فرص العمل المعلنة', 'وظائف الشركة'])
+        ) && in_array('get_company_jobs', $authorizedNames);
+
+        if ($isCompanyJobsIntent) {
+            $compIdent = '';
+            if ($user->role !== 'company' && preg_match('/(?:شركة|لشركة|مؤسسة)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
+                $compIdent = trim($m[1]);
+            }
+            $status = Str::contains($text, ['المغلقة', 'مغلقة']) ? 'closed' : (Str::contains($text, ['المفتوحة', 'نشطة', 'متاحة']) ? 'open' : 'all');
+            $res = AiToolRegistry::executeTool($user, 'get_company_jobs', [
+                'status' => $status,
+                'company_identifier' => $compIdent,
+            ]);
+
+            $jobs = $res['data'] ?? [];
+            if (empty($jobs)) {
+                return [
+                    'content' => "💼 لا توجد فرص وظيفية مسجلة حالياً تطابق معايير البحث.\n\n💡 يمكنك إضافة وظيفة جديدة بقول: *'أضف وظيفة [المسمى الوظيفي]'*.",
+                    'tool_executed' => 'get_company_jobs',
+                ];
+            }
+
+            $out = "💼 **قائمة الفرص الوظيفية (" . count($jobs) . " وظيفة):**\n\n";
+            foreach ($jobs as $idx => $j) {
+                $num = $idx + 1;
+                $statusIcon = $j['status'] === 'open' ? '🟢 مفتوحة' : '🔒 مغلقة';
+                $out .= "{$num}. 📌 **{$j['title']}** ({$statusIcon})\n";
+                $out .= "   • الشركة: {$j['company_name']} | نوع العقد: {$j['contract_type']}\n";
+                $out .= "   • المقاعد: {$j['seats']} | موقع العمل: {$j['location']}\n";
+                $out .= "   • إجمالي المرشحين: **{$j['nominations_count']}** مرشحاً (تم التوظيف: {$j['hired_count']})\n";
+                $out .= "   • آخر موعد للتقديم: {$j['deadline']}\n";
+                if ($j['status'] === 'open') {
+                    $out .= "   👉 [🔒 إغلاق الوظيفة](#prompt:أغلق وظيفة {$j['title']})\n";
+                } else {
+                    $out .= "   👉 [🟢 إعادة فتح الوظيفة](#prompt:أعد فتح وظيفة {$j['title']})\n";
+                }
+                $out .= "\n";
+            }
+
+            return [
+                'content' => $out,
+                'tool_executed' => 'get_company_jobs',
+            ];
+        }
+
+        // ط. تعديل حالة الوظيفة (إغلاق / إعادة فتح)
+        $isToggleJobIntent = (
+            Str::contains($text, ['أغلق وظيفة', 'اغلق وظيفة', 'إغلاق وظيفة', 'اوقف التقديم', 'أوقف التقديم', 'إيقاف وظيفة', 'أعد فتح وظيفة', 'اعد فتح وظيفة', 'تفعيل وظيفة', 'فتح وظيفة'])
+        ) && in_array('toggle_job_status', $authorizedNames);
+
+        if ($isToggleJobIntent) {
+            $jobIdent = '';
+            if (preg_match('/(?:وظيفة|فرصة)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
+                $jobIdent = trim($m[1]);
+            }
+            $targetStatus = Str::contains($text, ['فتح', 'تفعيل', 'مفتوحة']) ? 'open' : 'closed';
+            $res = AiToolRegistry::executeTool($user, 'toggle_job_status', [
+                'job_identifier' => $jobIdent,
+                'target_status' => $targetStatus,
+            ]);
+
+            if (isset($res['status']) && $res['status'] === 'proposal') {
+                return [
+                    'content' => "💼 **تم إعداد طلب تعديل حالة فرصة العمل:**\n\n" .
+                        "يرجى مراجعة التفاصيل في البطاقة التفاعلية أدناه وتأكيد التنفيذ.",
+                    'action_proposal' => $res,
+                    'tool_executed' => 'toggle_job_status',
+                ];
+            } else {
+                return [
+                    'content' => $res['message'] ?? 'تعذر العثور على فرصة العمل المحددة.',
+                    'tool_executed' => 'toggle_job_status',
+                ];
+            }
+        }
+
+        // ي. توثيق وثيقة أو مذكرة تفاهم
+        $isDocIntent = (
+            Str::contains($text, ['وثق عقد', 'توثيق عقد', 'سجل عقد', 'مذكرة تفاهم', 'وثيقة شراكة', 'تسجيل وثيقة', 'سجل مذكرة'])
+        ) && in_array('record_partnership_document', $authorizedNames);
+
+        if ($isDocIntent) {
+            $companyIdent = '';
+            if (preg_match('/(?:مع شركة|لشركة|مع مؤسسة|لمؤسسة|شركة)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
+                $companyIdent = trim($m[1]);
+            }
+            $docName = 'اتفاقية شراكة وتعاون استراتيجي';
+            if (preg_match('/(?:وثيقة|عقد|مذكرة)\s+([^\?\.\!]+?)(?:\s+مع|\s+لشركة|\s*$)/u', $userMessage, $m)) {
+                $docName = trim($m[1]);
+            }
+
+            $res = AiToolRegistry::executeTool($user, 'record_partnership_document', [
+                'company_identifier' => $companyIdent,
+                'document_name' => $docName,
+                'document_type' => Str::contains($text, ['مذكرة تفاهم', 'mou']) ? 'mou' : 'agreement',
+            ]);
+
+            if (isset($res['status']) && $res['status'] === 'proposal') {
+                return [
+                    'content' => "📜 **تم إعداد وثيقة الشراكة الرسمية للتوثيق:**\n\n" .
+                        "يرجى مراجعة تفاصيل الاتفاقية والجهة الموقعة في البطاقة التفاعلية وتأكيد الأرشفة.",
+                    'action_proposal' => $res,
+                    'tool_executed' => 'record_partnership_document',
+                ];
+            } else {
+                return [
+                    'content' => $res['message'] ?? 'تعذر تجهيز وثيقة الشراكة.',
+                    'tool_executed' => 'record_partnership_document',
+                ];
+            }
+        }
+
+        // ك. تحديث شروط وتمديد الشراكة
+        $isUpdatePartnershipIntent = (
+            Str::contains($text, ['تمديد شراكة', 'تجديد شراكة', 'تحديث شراكة', 'شروط الشراكة', 'إنهاء شراكة', 'انهاء شراكة'])
+        ) && in_array('update_company_partnership', $authorizedNames);
+
+        if ($isUpdatePartnershipIntent) {
+            $companyIdent = '';
+            if (preg_match('/(?:لشركة|شركة|مؤسسة)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
+                $companyIdent = trim($m[1]);
+            }
+            $pStatus = Str::contains($text, ['إنهاء', 'انهاء', 'إلغاء', 'الغاء']) ? 'terminated' : 'active';
+            $res = AiToolRegistry::executeTool($user, 'update_company_partnership', [
+                'company_identifier' => $companyIdent,
+                'partnership_status' => $pStatus,
+            ]);
+
+            if (isset($res['status']) && $res['status'] === 'proposal') {
+                return [
+                    'content' => "🤝 **تم إعداد مقترح تحديث اتفاقية الشراكة:**\n\n" .
+                        "يرجى مراجعة التحديثات وتأكيد الحفظ في سجلات الجامعة.",
+                    'action_proposal' => $res,
+                    'tool_executed' => 'update_company_partnership',
+                ];
+            } else {
+                return [
+                    'content' => $res['message'] ?? 'تعذر العثور على الشركة الشريكة.',
+                    'tool_executed' => 'update_company_partnership',
+                ];
+            }
+        }
+
+        // ل. تحديث بيانات وملف الشركة
+        $isUpdateProfileIntent = (
+            Str::contains($text, ['تحديث بيانات الشركة', 'تعديل هاتف الشركة', 'تعديل موقع الشركة', 'تحديث ملف الشركة', 'تعديل بيانات شركتنا', 'تحديث هاتفنا'])
+        ) && in_array('update_company_profile', $authorizedNames);
+
+        if ($isUpdateProfileIntent) {
+            $args = [];
+            if (preg_match('/(?:هاتف|رقم|هاتفنا)\s*(?:إلى|هو)?\s*([0-9\+\-\s]{8,15})/u', $userMessage, $m)) {
+                $args['phone'] = trim($m[1]);
+            }
+            if (preg_match('/(?:موقع|موقعنا|رابط)\s*(?:إلى|هو)?\s*(https?:\/\/[^\s]+|[a-zA-Z0-9\.\-_]+\.[a-zA-Z]{2,})/u', $userMessage, $m)) {
+                $args['website'] = trim($m[1]);
+            }
+            if (preg_match('/(?:عنوان|مقر)\s*(?:إلى|هو|في)?\s*([^\?\.\!،,]+)/u', $userMessage, $m)) {
+                $args['address'] = trim($m[1]);
+            }
+
+            $res = AiToolRegistry::executeTool($user, 'update_company_profile', $args);
+            if (isset($res['status']) && $res['status'] === 'proposal') {
+                return [
+                    'content' => "🏢 **تم إعداد تحديثات الملف التعريفي للشركة:**\n\n" .
+                        "يرجى مراجعة البيانات المعدلة وتأكيد الحفظ.",
+                    'action_proposal' => $res,
+                    'tool_executed' => 'update_company_profile',
+                ];
+            } else {
+                return [
+                    'content' => $res['message'] ?? 'تعذر تجهيز تحديث ملف الشركة.',
+                    'tool_executed' => 'update_company_profile',
+                ];
+            }
         }
 
         // ==========================================
@@ -1331,8 +2901,8 @@ class AiAssistantService
             $out .= "📝 **4. " . ($sec['quality_and_evaluation']['title'] ?? 'قطاع الجودة والتقييم') . ":**\n";
             $out .= "   • الاستبيانات: {$sec['quality_and_evaluation']['total_surveys']} | الاستجابات: {$sec['quality_and_evaluation']['total_survey_responses']} | مؤشر الرضا المؤسسي: {$sec['quality_and_evaluation']['institutional_satisfaction']}\n\n";
 
-            $out .= "📢 **5. " . ($sec['media_and_relations']['title'] ?? 'قطاع الإعلام والبث') . ":**\n";
-            $out .= "   • الأخبار المعتمدة: {$sec['media_and_relations']['published_news']} | الإعلانات النشطة: {$sec['media_and_relations']['active_announcements']} | حالة البث: {$sec['media_and_relations']['broadcast_state']}\n\n";
+            $out .= "📢 **5. " . ($sec['media_and_relations']['title'] ?? 'قطاع الإعلام والتوثيق والاتصال') . ":**\n";
+            $out .= "   • الأخبار المعتمدة: {$sec['media_and_relations']['published_news']} | الإعلانات الرسمية النشطة: {$sec['media_and_relations']['active_announcements']}\n\n";
 
             $out .= "✨ **خلاصة القيادة:** النظام يعمل بتكامل تشغيلي متقدم بين كافة الوحدات الخمس، مع تحقيق مؤشرات أداء تفوق المستهدف الفصلي.";
 
@@ -1349,12 +2919,13 @@ class AiAssistantService
                 "بصفتك مسجلاً بصلاحية (**{$roleArabic}**)، يمكنني مساعدتك في تنفيذ كافة المهام التالية مباشرة:\n\n" .
                 ($user->role === 'graduate' ? "• 🎓 الاستعلام عن حالة طلبات التدريب والتقديم على البرامج بنقرة واحدة.\n• 💼 استعراض الوظائف المتاحة والترشح الذاتي لفرص العمل.\n• 📄 فحص ملفك الأكاديمي وسيرتك الذاتية ومعدلك.\n" : "") .
                 ($user->role === 'evaluation_followup' ? "• 📝 إعداد وصياغة استبيانات تقييم البرامج والفعاليات ونشرها.\n• 📊 توليد تقارير الجودة والتقييم والمتابعة الأكاديمية المفصلة.\n• 📋 استعراض ملخص الاستبيانات النشطة ومعدلات الاستجابة.\n" : "") .
-                ($user->role === 'training_coordinator' ? "• 🎓 صياغة البرامج والدورات التدريبية وجدولتها كمسودات.\n• 📈 تقارير أداء التدريبات، نسب شغل المقاعد، وحالات الطلبات.\n• 🔍 استعلام شامل عن التدريبات والمقاعد ونسب الحضور.\n" : "") .
-                ($user->role === 'partnership_officer' ? "• 🏢 إضافة وتوثيق الشركات والمؤسسات الشريكة الجديدة.\n• 📊 تقارير شاملة عن قطاع الشراكات وسوق العمل والفرص الوظيفية.\n" : "") .
-                ($user->role === 'career_guidance_officer' ? "• 🔍 البحث المتقدم في سجلات الخريجين (بالهاتف، التخصص، المعدل، السيرة الذاتية).\n• 🤝 ترشيح الخريجين المؤهلين مباشرة للوظائف المعتمدة.\n• 💼 صياغة ونشر فرص العمل الجديدة وتوليد تقارير التوجيه المهني.\n" : "") .
-                ($user->role === 'media_officer' ? "• 📰 صياغة الأخبار والبيانات الصحفية بأسلوب جامعي رصين.\n• 📢 صياغة ونشر الإعلانات الرسمية في المنظومة.\n• 📡 إدارة البث المباشر (تشغيل / إيقاف) وتقارير التغطية الإعلامية والكاميرات.\n" : "") .
-                ($user->role === 'admin' ? "• 👑 تقارير تنفيذية استراتيجية شاملة تغطي كافة القطاعات الخمسة.\n• ⚙️ تنفيذ ومراجعة كافة العمليات المعتمدة والصلاحيات في النظام بالكامل.\n" : "") .
-                "\n💡 تفضل بكتابة طلبك مباشرة أو اختيار أحد الإجراءات السريعة!",
+                ($user->role === 'training_coordinator' ? "• 🎓 صياغة البرامج والدورات التدريبية وجدولتها كمسودات.\n• ✅ قبول أو رفض طلبات الالتحاق بالتدريب (فردياً، أو لمجموعة/دورة محددة، أو لكافة الطلبات دفعة واحدة).\n• 📈 تقارير أداء التدريبات، نسب شغل المقاعد، وحالات الطلبات.\n• 🔍 استعلام شامل عن التدريبات والمقاعد ونسب الحضور.\n" : "") .
+                ($user->role === 'company' ? "• 👥 استعراض المرشحين والمتقدمين لشواغر شركتكم مع تفاصيل مؤهلاتهم وسيرهم الذاتية.\n• 📅 جدولة مواعيد المقابلات وتحديد التوقيت والمكان وإشعار الخريج آلياً.\n• ✅ قبول المرشحين المبدئي أو تأكيد التوظيف الرسمي (Hired).\n• 💼 صياغة ونشر فرص عمل وشواغر جديدة مباشرة لشركتكم.\n• 🔍 طلب واقتراح أفضل الخريجين المتطابقين مع تخصصاتكم بحسب المعدل والمهارات.\n• 📊 ملخص لوحة تحكم الشركة وإحصائيات التوظيف ومتابعة ملف الشركة.\n" : "") .
+                ($user->role === 'partnership_officer' ? "• 🏢 إضافة واعتماد وتوثيق الشركات الشريكة وسجلات أرباب العمل.\n• 💼 نشر وإدارة الفرص الوظيفية والشواغر بالتعاون مع جهات العمل.\n• 🤝 متابعة ترشيحات الخريجين ومسارات التوظيف مع الشركات.\n• 📊 تقارير تحليلية متقدمة عن قطاع الشراكات وسوق العمل والجاهزية المهنية.\n" : "") .
+                ($user->role === 'career_guidance_officer' ? "• 🔍 البحث المتقدم في سجلات الخريجين (بالهاتف، التخصص، المعدل، السيرة الذاتية).\n• 🤝 ترشيح الخريجين المؤهلين مباشرة للوظائف المعتمدة (فردي وجماعي).\n• 🔒 تجميد أو تنشيط أو حذف حسابات وسجلات الخريجين مباشرة.\n• 💼 صياغة ونشر فرص العمل الجديدة وتوليد تقارير التوجيه المهني.\n" : "") .
+                ($user->role === 'media_officer' ? "• 📰 صياغة الأخبار والبيانات الصحفية بأسلوب جامعي رصين.\n• 📢 صياغة ونشر الإعلانات والتعميمات الرسمية في المنظومة.\n• 📅 إدارة تقويم التغطيات الإعلامية الميدانية وتقارير التوثيق.\n" : "") .
+                ($user->role === 'admin' ? "• 👑 تقارير تنفيذية استراتيجية شاملة تغطي كافة القطاعات الخمسة.\n• ⚙️ تنفيذ ومراجعة كافة العمليات المعتمدة والصلاحيات في النظام بالكامل (ترشيح فردي وجماعي، تجميد وحذف الحسابات، وقبول طلبات التدريب، واعتماد الشركات والوظائف).\n" : "") .
+                "\n💡 **خبير المنظومة:** يمكنك سؤالي أيضاً عن طريقة تنفيذ أي مهمة (مثل: *'كيف أراجع المرشحين؟'* أو *'كيف أضيف وظيفة؟'*) أو طلب تنفيذها مني مباشرة!",
         ];
     }
 

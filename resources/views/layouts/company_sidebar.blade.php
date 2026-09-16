@@ -19,8 +19,8 @@
 <li class="nav-item">
     <a class="nav-link {{ request()->routeIs('company.job-fairs*') ? 'active' : '' }}" 
        href="{{ route('company.job-fairs.index') }}">
-        <i class="fas fa-store"></i>
-        معارض التوظيف
+        <i class="fas fa-calendar-star" style="color: #eeca3e;"></i>
+        المعارض والفعاليات
     </a>
 </li>
 
@@ -37,7 +37,7 @@
        href="{{ route('messages.index') }}">
         <i class="fas fa-envelope"></i>
         <span>
-            رسائل المعرض
+            الرسائل والمراسلات
             @php
                 $unreadMessages = \App\Models\Message::where('receiver_id', auth()->id())->whereNull('read_at')->count();
             @endphp

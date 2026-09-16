@@ -23,9 +23,9 @@
             <i class="fas fa-plus-circle fs-6"></i>
             <span>+ إضافة خبر جديد</span>
         </a>
-        <a href="{{ route('media.live-studio') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem;">
-            <i class="fas fa-broadcast-tower fs-6 text-danger"></i>
-            <span>أستوديو البث الحي</span>
+        <a href="{{ route('media.coverage-calendar') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem;">
+            <i class="fas fa-calendar-alt fs-6 text-primary"></i>
+            <span>تقويم التغطيات</span>
         </a>
         <a href="{{ route('media.dashboard') }}" class="btn btn-outline-light text-white fw-bold py-2.5 px-3 rounded-3 d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem;">
             <i class="fas fa-th-large fs-6"></i>

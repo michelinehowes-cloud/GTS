@@ -100,10 +100,18 @@ class CompanyController extends Controller
             'address' => 'required|string|max:500',
             'description' => 'nullable|string',
             'password' => 'required|min:8|confirmed',
-            'partnership_type' => 'required|in:employment,training,logistic_support,academic,training_employment',
+            'partnership_types' => 'nullable|array|min:1',
+            'partnership_types.*' => 'in:employment,training,logistic_support,academic,workshops,training_employment',
+            'partnership_type' => 'nullable|string',
             'partnership_status' => 'required|in:active,expired,under_review',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        $types = $request->input('partnership_types', []);
+        if (empty($types) && $request->filled('partnership_type')) {
+            $types = [$request->input('partnership_type')];
+        }
+        $primaryType = $types[0] ?? ($request->input('partnership_type') ?: 'employment');
 
         // إنشاء المستخدم أولاً
         $user = User::create([
@@ -111,6 +119,8 @@ class CompanyController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'company',
+            'is_approved' => true,
+            'is_active' => true,
         ]);
 
         // إنشاء الشركة
@@ -123,7 +133,8 @@ class CompanyController extends Controller
             'address' => $request->address,
             'description' => $request->description,
             'is_approved' => true, // الموافقة تلقائياً عند الإنشاء من قبل المدير
-            'partnership_type' => $request->partnership_type,
+            'partnership_type' => $primaryType,
+            'partnership_types' => $types,
             'partnership_status' => $request->partnership_status,
         ]);
 
@@ -169,6 +180,17 @@ class CompanyController extends Controller
             ->with('success', 'تم إضافة الشركة بنجاح');
     }
 
+    public function show($id)
+    {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('companies.view') && $user->role !== 'partnership_officer') {
+            abort(403, 'غير مصرح لك بعرض بيانات الشركة');
+        }
+
+        $company = Company::with(['jobOpportunities', 'trainings'])->findOrFail($id);
+        return view('admin.companies.show', compact('company'));
+    }
+
     public function edit($id)
     {
         $user = auth()->user();
@@ -197,7 +219,9 @@ class CompanyController extends Controller
             'industry' => 'required|string|max:255',
             'address' => 'required|string|max:500',
             'description' => 'nullable|string',
-            'partnership_type' => 'required|in:employment,training,logistic_support,academic,training_employment',
+            'partnership_types' => 'nullable|array|min:1',
+            'partnership_types.*' => 'in:employment,training,logistic_support,academic,workshops,training_employment',
+            'partnership_type' => 'nullable|string',
             'partnership_status' => 'required|in:active,expired,under_review',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -219,6 +243,15 @@ class CompanyController extends Controller
             'contact_phone',
             'contact_email'
         ]);
+
+        $types = $request->input('partnership_types', []);
+        if (empty($types) && $request->filled('partnership_type')) {
+            $types = [$request->input('partnership_type')];
+        }
+        if (!empty($types)) {
+            $data['partnership_types'] = $types;
+            $data['partnership_type'] = $types[0];
+        }
 
         if ($request->has('partnership_status')) {
             $status = $request->partnership_status;
@@ -276,7 +309,26 @@ class CompanyController extends Controller
         $oldStatus = $company->is_approved;
         $company->is_approved = !$company->is_approved;
         $company->partnership_status = $company->is_approved ? 'active' : 'under_review';
+        if ($company->is_approved) {
+            $company->rejection_notes = null;
+        }
         $company->save();
+
+        if ($company->user) {
+            $company->user->is_approved = $company->is_approved;
+            $company->user->is_active = $company->is_approved;
+            $company->user->save();
+        }
+
+        try {
+            if ($company->is_approved) {
+                $this->notificationService->notifyCompanyApproved($company);
+            } else {
+                $this->notificationService->notifyCompanyRejected($company, 'تم تحويل حالة الحساب إلى قيد المراجعة بواسطة إدارة المنظومة.');
+            }
+        } catch (\Exception $e) {
+            \Log::error('فشل إرسال إشعار تحديث حالة الشركة: ' . $e->getMessage());
+        }
 
         AuditLog::logAction(
             'COMPANY_STATUS_TOGGLED',
@@ -287,8 +339,8 @@ class CompanyController extends Controller
         );
 
         $message = $company->is_approved 
-            ? "تم اعتماد وتفعيل شركة ({$company->name}) بنجاح." 
-            : "تم إلغاء اعتماد شركة ({$company->name}) وتحويلها إلى قيد المراجعة.";
+            ? "تم اعتماد وتفعيل شركة ({$company->name}) بنجاح وإشعارها عبر المنصة والبريد الإلكتروني." 
+            : "تم إلغاء اعتماد شركة ({$company->name}) وتحويلها إلى قيد المراجعة وإشعارها.";
 
         return redirect()->back()->with('success', $message);
     }

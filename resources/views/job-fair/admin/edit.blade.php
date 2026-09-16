@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'تعديل المعرض - ' . $fair->title)
+@section('title', 'تعديل الفعالية - ' . $fair->title)
 
 @section('content')
 <div class="container py-4" style="max-width: 800px">
-    <x-bento-form title="تعديل المعرض" subtitle="تعديل تفاصيل المعرض: {{ $fair->title }}" icon="fa-calendar-alt" :backRoute="route('job-fair.admin.show', $fair->id)">
+    <x-bento-form title="نموذج تعديل فعالية" subtitle="تعديل تفاصيل الفعالية: {{ $fair->title }}" icon="fa-calendar-alt" :backRoute="route('job-fair.admin.show', $fair->id)">
         <form action="{{ route('job-fair.admin.update', $fair->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
@@ -18,7 +18,7 @@
                 <div class="p-4">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label fw-semibold">عنوان المعرض *</label>
+                            <label class="form-label fw-semibold">عنوان الفعالية / المعرض *</label>
                             <input type="text" name="title" class="form-control rounded-3 @error('title') is-invalid @enderror"
                                    value="{{ old('title', $fair->title) }}" required>
                             @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -31,7 +31,7 @@
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold">تاريخ المعرض *</label>
+                            <label class="form-label fw-semibold">تاريخ الفعالية *</label>
                             <input type="date" name="event_date" class="form-control rounded-3 @error('event_date') is-invalid @enderror"
                                    value="{{ old('event_date', $fair->event_date->format('Y-m-d')) }}" required>
                             @error('event_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -57,7 +57,7 @@
                         </div>
 
                         <div class="col-12">
-                            <label class="form-label fw-semibold">وصف المعرض</label>
+                            <label class="form-label fw-semibold">وصف الفعالية</label>
                             <textarea name="description" class="form-control rounded-3" rows="4">{{ old('description', $fair->description) }}</textarea>
                         </div>
                     </div>
@@ -68,12 +68,12 @@
             <div class="form-section mb-4">
                 <h5 class="section-title">
                     <i class="fas fa-users me-2" style="color: #10B981"></i>
-                    إعدادات التسجيل
+                    إعدادات التسجيل والحضور
                 </h5>
                 <div class="p-4">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">أقصى عدد خريجين</label>
+                            <label class="form-label fw-semibold">أقصى عدد للحضور أو الخريجين</label>
                             <input type="number" name="max_graduates" class="form-control rounded-3"
                                    value="{{ old('max_graduates', $fair->max_graduates) }}" min="1">
                         </div>
@@ -87,7 +87,7 @@
                                 <input class="form-check-input" type="checkbox" name="registration_open" id="regOpen"
                                        value="1" {{ old('registration_open', $fair->registration_open) ? 'checked' : '' }}>
                                 <label class="form-check-label fw-semibold" for="regOpen">
-                                    التسجيل مفتوح للخريجين
+                                    فتح باب التسجيل للحضور والخريجين
                                 </label>
                             </div>
                         </div>
@@ -99,7 +99,7 @@
             <div class="form-section mb-4">
                 <h5 class="section-title">
                     <i class="fas fa-toggle-on me-2" style="color: #eeca3e"></i>
-                    حالة المعرض
+                    حالة الفعالية
                 </h5>
                 <div class="p-4">
                     <div class="row g-3">
@@ -111,11 +111,18 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold">صورة البانر</label>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">شعار الفعالية المخصص</label>
+                            <input type="file" name="fair_logo_path" class="form-control rounded-3" accept="image/*">
+                            @if($fair->fair_logo_path)
+                            <small class="text-success d-block mt-1"><i class="fas fa-check-circle me-1"></i>الشعار مرفوع حالياً</small>
+                            @endif
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">صورة الغلاف / البانر</label>
                             <input type="file" name="banner_image" class="form-control rounded-3" accept="image/*">
                             @if($fair->banner_image)
-                            <small class="text-muted">الصورة الحالية: {{ basename($fair->banner_image) }}</small>
+                            <small class="text-muted d-block mt-1">الغلاف الحالي: {{ basename($fair->banner_image) }}</small>
                             @endif
                         </div>
                         <div class="col-12">

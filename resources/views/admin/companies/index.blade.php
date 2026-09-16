@@ -51,9 +51,13 @@
         secondaryBadge="معتمدة: {{ $approvedCount }}"
         secondaryBadgeIcon="fas fa-check-circle"
     >
+        <button type="button" class="btn btn-outline-light text-white fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" onclick="copyCompanyRegisterLink()" style="font-size: 0.88rem; backdrop-filter: blur(4px); transition: all 0.2s ease;">
+            <i class="fas fa-link fs-6"></i>
+            <span id="copyLinkText">نسخ رابط تسجيل الشركات</span>
+        </button>
         <a href="{{ route('job-fair.admin.index') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
-            <i class="fas fa-store fs-6"></i>
-            <span>معارض التوظيف</span>
+            <i class="fas fa-calendar-alt fs-6"></i>
+            <span>فعاليات</span>
         </a>
         <a href="{{ route('admin.companies.create') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
             <i class="fas fa-plus-circle fs-6"></i>
@@ -191,15 +195,20 @@
                                 @if(auth()->user()->role === 'admin' || auth()->user()->role === 'partnership_officer')
                                     <td class="px-4 text-end">
                                         <div class="d-flex align-items-center justify-content-end gap-1">
-                                            {{-- زر الاعتماد / التعليق المتناسق --}}
+                                            {{-- زر عرض الملف --}}
+                                            <a href="{{ route('admin.companies.show', $company->id) }}" class="btn btn-sm btn-outline-info action-circle-btn" data-bs-toggle="tooltip" title="عرض ملف الشركة">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+
+                                            {{-- زر الاعتماد / التعليق --}}
                                             <form action="{{ route('admin.companies.toggle-approval', $company->id) }}" method="POST" class="m-0">
                                                 @csrf
                                                 @if($isCompanyApproved)
-                                                    <button type="submit" class="btn btn-sm btn-outline-warning action-circle-btn" data-bs-toggle="tooltip" title="إلغاء الاعتماد (تحويل لقيد المراجعة)">
+                                                    <button type="submit" class="btn btn-sm btn-outline-warning action-circle-btn" data-bs-toggle="tooltip" title="إلغاء الاعتماد">
                                                         <i class="fas fa-pause"></i>
                                                     </button>
                                                 @else
-                                                    <button type="submit" class="btn btn-sm btn-success action-circle-btn" data-bs-toggle="tooltip" title="اعتماد وتفعيل الشركة الآن">
+                                                    <button type="submit" class="btn btn-sm btn-success action-circle-btn" data-bs-toggle="tooltip" title="اعتماد وتفعيل الشركة">
                                                         <i class="fas fa-check"></i>
                                                     </button>
                                                 @endif
@@ -284,6 +293,9 @@
                             </form>
 
                             <div class="d-flex gap-1">
+                                <a href="{{ route('admin.companies.show', $company->id) }}" class="btn btn-sm btn-outline-info rounded-pill px-3" style="font-size: 0.75rem;">
+                                    <i class="fas fa-eye me-1"></i>عرض
+                                </a>
                                 <a href="{{ route('admin.companies.edit', $company->id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.75rem;">
                                     <i class="fas fa-edit me-1"></i>تعديل
                                 </a>
@@ -328,5 +340,42 @@
           return new bootstrap.Tooltip(tooltipTriggerEl)
         });
     });
+
+    function copyCompanyRegisterLink() {
+        const link = "{{ route('company.register') }}";
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(link).then(() => {
+                showCopiedFeedback();
+            }).catch(err => {
+                fallbackCopyText(link);
+            });
+        } else {
+            fallbackCopyText(link);
+        }
+    }
+
+    function fallbackCopyText(text) {
+        const input = document.createElement('input');
+        input.value = text;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        showCopiedFeedback();
+    }
+
+    function showCopiedFeedback() {
+        const btnText = document.getElementById('copyLinkText');
+        if (btnText) {
+            const original = btnText.innerText;
+            btnText.innerText = 'تم نسخ رابط التسجيل! ✔️';
+            btnText.parentElement.classList.add('bg-success', 'border-success');
+            setTimeout(() => {
+                btnText.innerText = original;
+                btnText.parentElement.classList.remove('bg-success', 'border-success');
+            }, 3000);
+        }
+        alert('تم نسخ رابط تسجيل الشركات بنجاح:\n' + "{{ route('company.register') }}\n\nيمكنك إرساله الآن لمسؤولي الشركات للتسجيل الذاتي.");
+    }
 </script>
 @endsection

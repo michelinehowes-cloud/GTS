@@ -19,38 +19,6 @@
         border-color: #cbd5e1;
     }
 
-    /* Live Badge Pulses */
-    .pulse-live-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: rgba(239, 68, 68, 0.12);
-        border: 1px solid rgba(239, 68, 68, 0.35);
-        color: #ef4444;
-        padding: 0.35rem 0.85rem;
-        border-radius: 999px;
-        font-size: 0.8rem;
-        font-weight: 800;
-        animation: pulseTag 2s infinite ease-in-out;
-    }
-    .live-dot-mini {
-        width: 8px;
-        height: 8px;
-        background: #ef4444;
-        border-radius: 50%;
-        display: inline-block;
-        box-shadow: 0 0 8px #ef4444;
-        animation: blinkMini 1.2s infinite ease-in-out;
-    }
-    @keyframes blinkMini {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.3; transform: scale(0.7); }
-    }
-    @keyframes pulseTag {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }
-        50% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-    }
-
     .stat-circle-icon {
         width: 52px;
         height: 52px;
@@ -81,22 +49,6 @@
         transform: translateX(-4px);
         color: #1d4ed8;
     }
-
-    /* Mini Live Player Preview */
-    .mini-live-preview {
-        border-radius: 14px;
-        overflow: hidden;
-        background: #040914;
-        aspect-ratio: 16 / 9;
-        position: relative;
-    }
-    .mini-live-preview iframe,
-    .mini-live-preview video {
-        width: 100%;
-        height: 100%;
-        border: none;
-        object-fit: cover;
-    }
 </style>
 @endpush
 
@@ -113,28 +65,24 @@
                     </div>
                     <div>
                         <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                            <h4 class="fw-bold mb-0 text-white">وحدة الإعلام واستوديو البث الذكي</h4>
-                            @if($broadcastSetting->is_live_now)
-                                <span class="pulse-live-tag bg-white text-danger fw-bold"><span class="live-dot-mini"></span> بث مباشر للجمهور (ON AIR)</span>
-                            @else
-                                <span class="badge rounded-pill px-3 py-1.5" style="background: rgba(15, 23, 42, 0.55); color: #f1f5f9; border: 1px solid rgba(255, 255, 255, 0.25); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.3px;">
-                                    <i class="fas fa-circle me-1" style="font-size: 0.5rem; color: #94a3b8;"></i> البث العام متوقف (OFF AIR)
-                                </span>
-                            @endif
+                            <h4 class="fw-bold mb-0 text-white">وحدة الإعلام والتغطيات الصحفية</h4>
+                            <span class="badge rounded-pill px-3 py-1.5" style="background: rgba(15, 23, 42, 0.55); color: #f1f5f9; border: 1px solid rgba(255, 255, 255, 0.25); font-size: 0.8rem; font-weight: 600;">
+                                <i class="fas fa-check-circle text-success me-1"></i> بوابة التوثيق والنشر
+                            </span>
                         </div>
                         <p class="text-white-50 small mb-0">
-                            جامعة طرابلس &bull; إدارة التغطيات الميدانية، ربط كاميرات IP، وبث فعاليات يوم التوظيف والتدريب دون استهلاك مساحة السيرفر.
+                            جامعة طرابلس &bull; إدارة التغطيات الميدانية، تحرير ونشر الأخبار والبيانات الصحفية، ومتابعة إحصائيات المنصة الرسمية.
                         </p>
                     </div>
                 </div>
 
                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <a href="{{ route('media.live-studio') }}" class="btn btn-warning text-dark fw-bold rounded-pill px-4 py-2 shadow-sm d-flex align-items-center gap-2">
-                        <i class="fas fa-satellite-dish"></i>
-                        <span>غرفة تحكم البث والكاميرات</span>
+                    <a href="{{ route('media.news.create') }}" class="btn btn-warning text-dark fw-bold rounded-pill px-4 py-2 shadow-sm d-flex align-items-center gap-2">
+                        <i class="fas fa-pen-nib"></i>
+                        <span>تحرير خبر جديد</span>
                     </a>
-                    <a href="{{ route('job-fair.live-stream') }}" target="_blank" class="btn btn-outline-light rounded-pill px-3 py-2">
-                        <i class="fas fa-tv me-1"></i> شاشة الجمهور
+                    <a href="{{ route('media.coverage-calendar') }}" class="btn btn-outline-light rounded-pill px-3 py-2">
+                        <i class="fas fa-calendar-alt me-1"></i> تقويم التغطيات
                     </a>
                     <a href="{{ route('job-fair.public') }}" target="_blank" class="btn btn-outline-light rounded-pill px-3 py-2">
                         <i class="fas fa-globe me-1"></i> صفحة المعرض
@@ -147,23 +95,19 @@
     <!-- شبكة Bento Grid الإحصائية الحديثة -->
     <div class="row g-3 mb-4">
         
-        <!-- بطاقة الكاميرات والبث -->
+        <!-- بطاقة التقارير والبيانات الصحفية -->
         <div class="col-sm-6 col-lg-3">
             <div class="card bento-card p-3 h-100">
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div class="stat-circle-icon bg-danger bg-opacity-10 text-danger">
-                        <i class="fas fa-video"></i>
+                    <div class="stat-circle-icon bg-info bg-opacity-10 text-info">
+                        <i class="fas fa-file-invoice"></i>
                     </div>
-                    @if($broadcastSetting->is_live_now)
-                        <span class="badge bg-danger rounded-pill px-2.5 py-1 small fw-bold">ON AIR 🔴</span>
-                    @else
-                        <span class="badge bg-secondary rounded-pill px-2.5 py-1 small">OFF AIR</span>
-                    @endif
+                    <a href="{{ route('media.reports.coverage') }}" class="btn btn-sm btn-outline-info rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">استعراض &larr;</a>
                 </div>
-                <div class="small text-muted fw-bold mb-1">الكاميرات والبث المباشر</div>
-                <h3 class="fw-bold text-dark mb-1">{{ $camerasCount }} <span class="fs-6 fw-normal text-muted">كاميرات متصلة</span></h3>
+                <div class="small text-muted fw-bold mb-1">تقارير التغطية والبيانات</div>
+                <h3 class="fw-bold text-dark mb-1">{{ $reportsCount }} <span class="fs-6 fw-normal text-muted">تقرير وبيان</span></h3>
                 <div class="small text-muted">
-                    <i class="fas fa-signal text-success me-1"></i>{{ $liveCamerasCount }} كاميرات نشطة التغذية
+                    <a href="{{ route('media.reports.coverage') }}" class="text-decoration-none text-info fw-bold">البيانات الصحفية والتقارير &larr;</a>
                 </div>
             </div>
         </div>
@@ -227,61 +171,51 @@
 
     <div class="row g-4 mb-4">
         
-        <!-- نافذة البث المباشر والكاميرا على الهواء حالياً -->
+        <!-- أحدث الأخبار والتغطيات الصحفية -->
         <div class="col-lg-7">
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
                 <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
                     <h6 class="fw-bold mb-0 text-dark">
-                        <i class="fas fa-broadcast-tower text-danger me-2"></i>معاينة الكاميرا النشطة للبث المباشر
+                        <i class="fas fa-newspaper text-primary me-2"></i>أحدث الأخبار والتغطيات الصحفية
                     </h6>
-                    <a href="{{ route('media.live-studio') }}" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold" style="background: #1d4ed8;">
-                        <i class="fas fa-sliders-h me-1"></i> فتح غرفة التحكم
+                    <a href="{{ route('media.news.index') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">
+                        <i class="fas fa-list me-1"></i> إدارة الأخبار
                     </a>
                 </div>
                 <div class="card-body p-3">
-                    @if($activeCamera)
-                        <div class="mini-live-preview mb-3">
-                            @if($activeCamera->stream_type === 'youtube_live')
-                                <iframe src="{{ $activeCamera->embed_url }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                            @elseif($activeCamera->stream_type === 'hls_m3u8')
-                                <video id="dashboardMiniHls" controls autoplay muted>
-                                    <source src="{{ $activeCamera->stream_url }}" type="application/x-mpegURL">
-                                </video>
-                            @else
-                                <div class="h-100 d-flex flex-column align-items-center justify-content-center text-white p-3">
-                                    <i class="fas fa-video fa-2x mb-2 text-info"></i>
-                                    <h6>{{ $activeCamera->title }}</h6>
-                                    <small class="text-white-50">{{ $activeCamera->stream_type }}</small>
+                    @if(isset($recentNews) && $recentNews->count() > 0)
+                        <div class="d-flex flex-column gap-3">
+                            @foreach($recentNews as $news)
+                                <div class="p-3 rounded-3 border bg-light bg-opacity-50 d-flex align-items-start justify-content-between gap-3">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <div class="rounded-3 bg-primary bg-opacity-10 text-primary p-2 flex-shrink-0" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-file-alt"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold text-dark mb-1">{{ $news->title }}</h6>
+                                            <div class="d-flex align-items-center gap-2 text-muted small flex-wrap">
+                                                <span><i class="far fa-calendar-alt me-1"></i>{{ $news->published_at ? $news->published_at->format('Y-m-d') : $news->created_at->format('Y-m-d') }}</span>
+                                                <span>&bull;</span>
+                                                <span class="badge {{ $news->is_active ? 'bg-success' : 'bg-secondary' }} bg-opacity-10 text-{{ $news->is_active ? 'success' : 'secondary' }} rounded-pill px-2">
+                                                    {{ $news->is_active ? 'منشور' : 'مسودة' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <a href="{{ route('media.news.edit', $news) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                            تعديل
+                                        </a>
+                                    </div>
                                 </div>
-                            @endif
-                        </div>
-
-                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                            <div>
-                                <h6 class="fw-bold text-dark mb-0">{{ $activeCamera->title }}</h6>
-                                <small class="text-muted"><i class="fas fa-map-marker-alt text-warning me-1"></i>{{ $activeCamera->location_tag ?? 'الموقع العام' }}</small>
-                            </div>
-                            <div>
-                                <form action="{{ route('media.live-studio.broadcast.toggle') }}" method="POST" class="d-inline m-0">
-                                    @csrf
-                                    @if($broadcastSetting->is_live_now)
-                                        <button type="submit" class="btn btn-sm btn-danger rounded-pill px-3 fw-bold">
-                                            <i class="fas fa-stop me-1"></i> إيقاف البث الحي
-                                        </button>
-                                    @else
-                                        <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 fw-bold">
-                                            <i class="fas fa-play me-1"></i> إطلاق البث للجمهور 🔴
-                                        </button>
-                                    @endif
-                                </form>
-                            </div>
+                            @endforeach
                         </div>
                     @else
                         <div class="text-center py-5 text-muted">
-                            <i class="fas fa-video-slash fa-3x mb-3 opacity-50"></i>
-                            <p class="mb-2">لا توجد كاميرا نشطة حالياً</p>
-                            <a href="{{ route('media.live-studio') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                + إضافة كاميرا في الاستوديو
+                            <i class="fas fa-newspaper fa-3x mb-3 opacity-50"></i>
+                            <p class="mb-2">لا توجد أخبار منشورة حالياً</p>
+                            <a href="{{ route('media.news.create') }}" class="btn btn-sm btn-primary rounded-pill px-3">
+                                + تحرير أول خبر صحفي
                             </a>
                         </div>
                     @endif
@@ -298,17 +232,6 @@
                     </h6>
                 </div>
                 <div class="card-body p-3 d-flex flex-column gap-2">
-                    
-                    <a href="{{ route('media.live-studio') }}" class="quick-action-item">
-                        <div class="rounded-3 bg-danger bg-opacity-10 text-danger p-2 flex-shrink-0" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-satellite-dish"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <div class="fw-bold">استوديو البث وغرفة الكاميرات</div>
-                            <small class="text-muted">التحكم في زوايا البث وتبديل الكاميرات على الهواء</small>
-                        </div>
-                        <i class="fas fa-chevron-left text-muted opacity-50"></i>
-                    </a>
 
                     <a href="{{ route('media.coverage-calendar') }}" class="quick-action-item">
                         <div class="rounded-3 bg-primary bg-opacity-10 text-primary p-2 flex-shrink-0" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
@@ -453,19 +376,4 @@
 </div>
 @endsection
 
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var video = document.getElementById('dashboardMiniHls');
-        if (video && video.querySelector('source')) {
-            var src = video.querySelector('source').src;
-            if (Hls.isSupported() && src.indexOf('.m3u8') !== -1) {
-                var hls = new Hls();
-                hls.loadSource(src);
-                hls.attachMedia(video);
-            }
-        }
-    });
-</script>
-@endpush
+

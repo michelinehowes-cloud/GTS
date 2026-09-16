@@ -203,6 +203,12 @@
                     <span>البرنامج العلمي ({{ $fair->events->count() }})</span>
                 </a>
 
+                <!-- مشاريع التخرج -->
+                <a href="{{ route('job-fair.admin.projects.index', $fair->id) }}" class="fair-btn-action btn btn-light bg-white text-dark shadow-sm fw-bold">
+                    <i class="fas fa-lightbulb text-warning"></i>
+                    <span>مشاريع التخرج ({{ $fair->projects->count() }})</span>
+                </a>
+
                 <!-- الهوية البصرية -->
                 <a href="#brandIdentitySection" class="fair-btn-action fair-btn-glass">
                     <i class="fas fa-palette text-warning"></i>
@@ -292,6 +298,45 @@
             'icon' => 'fas fa-clock',
             'color' => 'info'
         ])
+    </div>
+
+    <!-- لوحة الوصول السريع للبرامج العلمية ومشاريع التخرج -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card-modern p-3 p-md-4 d-flex align-items-center justify-content-between flex-wrap gap-3" style="background: linear-gradient(135deg, rgba(238,202,62,0.1), rgba(245,158,11,0.03)); border: 1.5px solid rgba(245,158,11,0.25);">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; background: rgba(245,158,11,0.15); color: #b45309; font-size: 1.4rem;">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1 text-dark">البرنامج العلمي والتدريبي</h6>
+                        <p class="text-muted small mb-0">{{ $fair->events->count() }} فعالية وورشة عمل &bull; إشراف وإدارة المتحدثين والحضور</p>
+                    </div>
+                </div>
+                <a href="{{ route('job-fair.admin.events.index', $fair->id) }}" class="btn btn-sm btn-warning text-dark fw-bold rounded-pill px-3 shadow-sm">
+                    <span>إدارة الفعاليات</span>
+                    <i class="fas fa-arrow-left ms-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card-modern p-3 p-md-4 d-flex align-items-center justify-content-between flex-wrap gap-3" style="background: linear-gradient(135deg, rgba(4,93,176,0.1), rgba(3,105,161,0.03)); border: 1.5px solid rgba(4,93,176,0.25);">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; background: rgba(4,93,176,0.15); color: #045db0; font-size: 1.4rem;">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1 text-dark">معرض وأرشيف مشاريع التخرج</h6>
+                        <p class="text-muted small mb-0">{{ $fair->projects->count() }} مشروع تخرج مسجّل &bull; توليد QR Code، بوسترات وملفات</p>
+                    </div>
+                </div>
+                <a href="{{ route('job-fair.admin.projects.index', $fair->id) }}" class="btn btn-sm text-white fw-bold rounded-pill px-3 shadow-sm" style="background: #045db0;">
+                    <span>إدارة المشاريع</span>
+                    <i class="fas fa-arrow-left ms-1"></i>
+                </a>
+            </div>
+        </div>
     </div>
 
     <div class="row g-3 g-md-4">

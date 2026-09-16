@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معرض مشاريع التخرج والأرشيف السنوي — {{ $fair ? $fair->title : 'معرض التوظيف 2026' }}</title>
+    <meta name="description" content="معرض وأرشيف مشاريع تخرج الطلبة المتميزة المشاركة في {{ $fair ? $fair->title : 'معرض التوظيف بجامعة طرابلس' }}. ابتكارات وإبداعات خريجي كليات جامعة طرابلس.">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --gold:      #eeca3e;
+            --gold-lt:   #FDE68A;
+            --navy:      #045db0; /* University Primary Blue */
+            --navy-md:   #3b82f6; /* University Light Blue */
+            --navy-lt:   #60a5fa;
+            --navy-dark: #092347;
+            --teal:      #0EA5E9;
+            --green:     #10B981;
+            --white:     #FFFFFF;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--navy);
+            color: #ffffff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* ══════════════════════════════════
+           ANIMATED VIBRANT BACKGROUND LAYERS
+        ══════════════════════════════════ */
+        .hero-bg-layer {
+            position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 15% 30%, rgba(245,158,11,0.18) 0%, transparent 60%),
+                radial-gradient(ellipse 70% 80% at 85% 20%, rgba(14,165,233,0.22) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 60% at 50% 90%, rgba(16,185,129,0.14) 0%, transparent 50%),
+                linear-gradient(160deg, #045db0 0%, #03488a 50%, #092347 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .hero-grid {
+            position: fixed; inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+            animation: orbFloat 14s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 500px; height: 500px; background: rgba(238,202,62,0.15); top: -80px; left: -80px; }
+        .orb-2 { width: 550px; height: 550px; background: rgba(14,165,233,0.18); bottom: 10%; right: -120px; animation-duration: 18s; animation-delay: -5s; }
+        .orb-3 { width: 350px; height: 350px; background: rgba(59,130,246,0.2); top: 45%; left: 35%; animation-duration: 22s; animation-delay: -10s; }
+
+        @keyframes orbFloat {
+            0%   { transform: translate(0, 0) scale(1); }
+            50%  { transform: translate(40px, -30px) scale(1.08); }
+            100% { transform: translate(-30px, 40px) scale(0.95); }
+        }
+
+        .page-content-wrapper {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ══════════════════════════════════
+           TOP NAVBAR
+        ══════════════════════════════════ */
+        .glass-navbar {
+            background: rgba(9, 35, 71, 0.78);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-brand-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .nav-logo-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 4px;
+        }
+
+        .nav-logo-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .nav-brand-text h1 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin: 0;
+            color: #fff;
+        }
+
+        .nav-brand-text small {
+            font-size: 0.72rem;
+            color: var(--gold);
+            font-weight: 600;
+            display: block;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-nav-outline {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-nav-outline:hover {
+            background: rgba(255,255,255,0.18);
+            color: var(--gold-lt);
+            border-color: rgba(238,202,62,0.4);
+            transform: translateY(-1px);
+        }
+
+        /* ══════════════════════════════════
+           HERO SECTION & STATS BAR
+        ══════════════════════════════════ */
+        .projects-hero {
+            padding: 45px 0 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 18px;
+            border-radius: 30px;
+            background: rgba(238,202,62,0.18);
+            border: 1.5px solid rgba(238,202,62,0.45);
+            color: var(--gold-lt);
+            font-weight: 800;
+            font-size: 0.88rem;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 15px rgba(238,202,62,0.2);
+        }
+
+        .hero-title {
+            font-size: 2.6rem;
+            font-weight: 900;
+            line-height: 1.3;
+            color: #ffffff;
+            margin-bottom: 12px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: rgba(255,255,255,0.85);
+            max-width: 850px;
+            margin: 0 auto 30px;
+            line-height: 1.7;
+        }
+
+        /* Stats Bar */
+        .stats-bar-card {
+            background: rgba(8, 34, 69, 0.7);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 20px 30px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            margin-bottom: 40px;
+        }
+
+        .stat-item {
+            text-align: center;
+            position: relative;
+        }
+        .stat-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 1px;
+            background: rgba(255,255,255,0.12);
+        }
+
+        .stat-val {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--gold);
+            line-height: 1.1;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.75);
+            font-weight: 600;
+        }
+
+        /* ══════════════════════════════════
+           FILTER & SEARCH BAR
+        ══════════════════════════════════ */
+        .filter-panel {
+            background: rgba(8, 34, 69, 0.75);
+            border: 1.5px solid rgba(255, 255, 255, 0.14);
+            border-radius: 20px;
+            padding: 24px 28px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            margin-bottom: 35px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+        }
+
+        .search-input-box {
+            position: relative;
+        }
+
+        .search-input-box input {
+            background: rgba(255,255,255,0.08);
+            border: 1.5px solid rgba(255,255,255,0.18);
+            border-radius: 14px;
+            padding: 12px 46px 12px 18px;
+            color: #fff;
+            font-size: 0.95rem;
+            width: 100%;
+            transition: all 0.25s ease;
+        }
+        .search-input-box input:focus {
+            outline: none;
+            background: rgba(255,255,255,0.14);
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(238,202,62,0.2);
+            color: #fff;
+        }
+        .search-input-box input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .search-icon-pos {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gold-lt);
+            font-size: 1.05rem;
+            pointer-events: none;
+        }
+
+        .filter-select {
+            background: rgba(255,255,255,0.08);
+            border: 1.5px solid rgba(255,255,255,0.18);
+            border-radius: 14px;
+            padding: 12px 16px;
+            color: #fff;
+            font-size: 0.9rem;
+            width: 100%;
+            transition: all 0.25s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23eeca3e'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: left 14px center;
+            background-size: 14px 12px;
+        }
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--gold);
+            background-color: #092347;
+            color: #fff;
+        }
+        .filter-select option {
+            background: #092347;
+            color: #fff;
+        }
+
+        .btn-filter-reset {
+            background: rgba(255,255,255,0.08);
+            border: 1.5px solid rgba(255,255,255,0.18);
+            color: rgba(255,255,255,0.8);
+            border-radius: 14px;
+            padding: 12px 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            width: 100%;
+        }
+        .btn-filter-reset:hover {
+            background: rgba(255,255,255,0.16);
+            color: #fff;
+            border-color: var(--gold);
+        }
+
+        /* ══════════════════════════════════
+           PROJECT CARDS GRID
+        ══════════════════════════════════ */
+        .project-card {
+            background: rgba(8, 34, 69, 0.72);
+            border: 1.5px solid rgba(255, 255, 255, 0.14);
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 14px 35px rgba(0,0,0,0.25);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: all 0.35s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .project-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 45px rgba(0,0,0,0.4);
+        }
+
+        .project-thumb-header {
+            height: 160px;
+            background: linear-gradient(135deg, rgba(4,93,176,0.8) 0%, rgba(9,35,71,0.95) 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .project-thumb-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.4;
+            transition: transform 0.5s ease;
+        }
+        .project-card:hover .project-thumb-bg {
+            transform: scale(1.08);
+            opacity: 0.55;
+        }
+
+        .thumb-icon-overlay {
+            width: 65px;
+            height: 65px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.12);
+            border: 1.5px solid rgba(255,255,255,0.25);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--gold-lt);
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .thumb-top-badges {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            left: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 3;
+        }
+
+        .badge-faculty {
+            background: rgba(8, 34, 69, 0.85);
+            border: 1px solid rgba(238,202,62,0.4);
+            color: var(--gold-lt);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            backdrop-filter: blur(6px);
+        }
+
+        .badge-booth {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            box-shadow: 0 2px 8px rgba(16,185,129,0.3);
+        }
+
+        .project-card-body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .project-dept-meta {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.65);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .project-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            line-height: 1.45;
+            color: #ffffff;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 3.3em;
+        }
+
+        .project-summary {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.8);
+            line-height: 1.6;
+            margin-bottom: 18px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 4.8em;
+        }
+
+        .project-meta-box {
+            background: rgba(255,255,255,0.035);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-top: auto;
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.78rem;
+        }
+
+        .meta-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.85);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .meta-line i {
+            color: var(--gold-lt);
+            width: 14px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .btn-view-project {
+            background: linear-gradient(135deg, rgba(238,202,62,0.2) 0%, rgba(245,158,11,0.25) 100%);
+            border: 1.5px solid var(--gold);
+            color: #ffffff;
+            border-radius: 12px;
+            padding: 10px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            text-align: center;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+        }
+        .btn-view-project:hover {
+            background: linear-gradient(135deg, #eeca3e 0%, #f59e0b 100%);
+            color: #061c38;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245,158,11,0.35);
+        }
+
+        /* Footer */
+        .projects-footer {
+            margin-top: auto;
+            background: rgba(4, 30, 60, 0.85);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px 0;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        @media (max-width: 991px) {
+            .hero-title { font-size: 1.8rem; }
+            .stat-item:not(:last-child)::after { display: none; }
+            .stat-item { margin-bottom: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Elements -->
+    <div class="hero-bg-layer"></div>
+    <div class="hero-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="page-content-wrapper">
+
+        <!-- Top Navigation -->
+        <nav class="glass-navbar">
+            <div class="container py-2">
+                <div class="d-flex align-items-center justify-content-between">
+                    <a href="{{ $fair ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" class="nav-brand-group">
+                        <div class="nav-logo-box">
+                            <img src="{{ asset('images/logo.jpg') }}" alt="مكتب تدريب الخريجين" onerror="this.src='{{ asset('images/uni_logo_white.png') }}'">
+                        </div>
+                        <div class="nav-brand-text">
+                            <h1>معرض مشاريع التخرج</h1>
+                            <small>{{ $fair ? $fair->title : 'جامعة طرابلس' }}</small>
+                        </div>
+                    </a>
+
+                    <div class="nav-actions">
+                        @if($fair)
+                        <a href="{{ route('job-fair.public.program', $fair->id) }}" class="btn-nav-outline d-none d-md-inline-flex">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>البرنامج العلمي</span>
+                        </a>
+                        <a href="{{ route('job-fair.public', $fair->id) }}" class="btn-nav-outline">
+                            <i class="fas fa-home"></i>
+                            <span class="d-none d-sm-inline">الرئيسية للمعرض</span>
+                        </a>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container pb-5">
+
+            <!-- Hero Section -->
+            <section class="projects-hero">
+                <div class="hero-badge-pill">
+                    <i class="fas fa-award"></i>
+                    <span>منصة ابتكارات خريجي جامعة طرابلس — الأرشيف السنوي</span>
+                </div>
+                <h2 class="hero-title">معرض مشاريع التخرج المتميزة</h2>
+                <p class="hero-subtitle">
+                    نستعرض هنا نخبة من ابتكارات وبحوث تخرج طلبتنا في مختلف التخصصات، لربط أصحاب الأفكار الإبداعية برجال الأعمال والمؤسسات الوطنية والدولية لدعمها وتمويلها وتوظيف كوادرها.
+                </p>
+
+                <!-- Stats Bar -->
+                <div class="stats-bar-card">
+                    <div class="row g-3">
+                        <div class="col-6 col-md-3 stat-item">
+                            <div class="stat-val">{{ $totalProjects }}</div>
+                            <div class="stat-label">مشروع تخرج معروض</div>
+                        </div>
+                        <div class="col-6 col-md-3 stat-item">
+                            <div class="stat-val">{{ $totalFaculties }}</div>
+                            <div class="stat-label">كليات مشاركة</div>
+                        </div>
+                        <div class="col-6 col-md-3 stat-item">
+                            <div class="stat-val">{{ $totalStudents }}</div>
+                            <div class="stat-label">طالب وطالبة مبتكرين</div>
+                        </div>
+                        <div class="col-6 col-md-3 stat-item">
+                            <div class="stat-val">{{ $years->count() }}</div>
+                            <div class="stat-label">سنوات الأرشيف الأكاديمي</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filter & Search Bar -->
+            <div class="filter-panel">
+                <form action="{{ $fair ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" method="GET" id="filterForm">
+                    <div class="row g-3">
+                        <!-- Search Box -->
+                        <div class="col-lg-4 col-md-12">
+                            <div class="search-input-box">
+                                <i class="fas fa-search search-icon-pos"></i>
+                                <input type="text" name="search" id="projectSearchInput" value="{{ request('search') }}" placeholder="ابحث بالعنوان، المشرف، أو أسماء الطلبة...">
+                            </div>
+                        </div>
+
+                        <!-- Faculty Filter -->
+                        <div class="col-lg-3 col-md-4">
+                            <select name="faculty" class="filter-select" onchange="this.form.submit()">
+                                <option value="">جميع الكليات ({{ $faculties->count() }})</option>
+                                @foreach($faculties as $fac)
+                                    <option value="{{ $fac }}" {{ request('faculty') == $fac ? 'selected' : '' }}>{{ $fac }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Department Filter -->
+                        <div class="col-lg-3 col-md-4">
+                            <select name="department" class="filter-select" onchange="this.form.submit()">
+                                <option value="">جميع التخصصات / الأقسام</option>
+                                @foreach($departments as $dept)
+                                    <option value="{{ $dept }}" {{ request('department') == $dept ? 'selected' : '' }}>{{ $dept }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <!-- Year Filter / Reset -->
+                        <div class="col-lg-2 col-md-4 d-flex gap-2">
+                            <select name="year" class="filter-select" onchange="this.form.submit()">
+                                <option value="">سنة التخرج</option>
+                                @foreach($years as $yr)
+                                    <option value="{{ $yr }}" {{ request('year') == $yr ? 'selected' : '' }}>{{ $yr }}</option>
+                                @endforeach
+                            </select>
+
+                            @if(request()->anyFilled(['search', 'faculty', 'department', 'year']))
+                            <a href="{{ $fair ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" class="btn-filter-reset" title="إعادة تعيين الفلاتر">
+                                <i class="fas fa-undo"></i>
+                            </a>
+                            @endif
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Projects Grid -->
+            <div class="row g-4" id="projectsContainer">
+                @forelse($projects as $proj)
+                <div class="col-lg-4 col-md-6 project-item-col" 
+                     data-title="{{ strtolower($proj->title) }}" 
+                     data-faculty="{{ $proj->faculty }}" 
+                     data-dept="{{ $proj->department }}">
+                    <div class="project-card">
+                        <!-- Thumbnail Header -->
+                        <div class="project-thumb-header">
+                            @if($proj->cover_url)
+                                <img src="{{ $proj->cover_url }}" alt="{{ $proj->title }}" class="project-thumb-bg">
+                            @endif
+                            <div class="thumb-top-badges">
+                                <span class="badge-faculty">
+                                    <i class="{{ $proj->faculty_icon }}"></i>
+                                    <span>{{ $proj->faculty }}</span>
+                                </span>
+                                @if($proj->booth_number)
+                                <span class="badge-booth">
+                                    <i class="fas fa-store-alt me-1"></i>جناح {{ $proj->booth_number }}
+                                </span>
+                                @endif
+                            </div>
+
+                            <div class="thumb-icon-overlay">
+                                <i class="{{ $proj->faculty_icon }}"></i>
+                            </div>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="project-card-body">
+                            <div class="project-dept-meta">
+                                <span><i class="fas fa-layer-group text-warning"></i> {{ $proj->department }}</span>
+                                <span>•</span>
+                                <span><i class="fas fa-calendar-alt text-info"></i> {{ $proj->graduation_year }}</span>
+                            </div>
+
+                            <h3 class="project-title" title="{{ $proj->title }}">{{ $proj->title }}</h3>
+
+                            <p class="project-summary">
+                                {{ $proj->summary ?: Str::limit(strip_tags($proj->description), 140) }}
+                            </p>
+
+                            <!-- Meta Box -->
+                            <div class="project-meta-box">
+                                <div class="meta-line" title="أعضاء الفريق">
+                                    <i class="fas fa-users"></i>
+                                    <span>
+                                        @php
+                                            $names = collect($proj->team_list)->pluck('name')->filter()->implode('، ');
+                                        @endphp
+                                        {{ $names ?: 'فريق الخريجين' }}
+                                    </span>
+                                </div>
+                                <div class="meta-line" title="المشرف الأكاديمي">
+                                    <i class="fas fa-user-tie"></i>
+                                    <span>إشراف: {{ $proj->supervisor_name ?? 'القسم الأكاديمي' }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Action Button -->
+                            <a href="{{ route('job-fair.public.projects.show', $proj->id) }}" class="btn-view-project">
+                                <i class="fas fa-qrcode"></i>
+                                <span>تفاصيل المشروع ورمز QR</span>
+                                <i class="fas fa-arrow-left me-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                @empty
+                <div class="col-12 py-5 text-center">
+                    <div style="background: rgba(8, 34, 69, 0.6); border: 1.5px dashed rgba(255,255,255,0.2); border-radius: 20px; padding: 50px 20px;">
+                        <i class="fas fa-folder-open fa-4x text-warning mb-3 d-block"></i>
+                        <h4 class="fw-bold text-white mb-2">لم يتم العثور على مشاريع تخرج مطابقة</h4>
+                        <p class="text-white-50 small mb-4">جرب البحث بكلمات أخرى أو اختر كلية أو تخصصاً مختلفاً.</p>
+                        <a href="{{ $fair ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" class="btn-nav-outline">
+                            <i class="fas fa-undo"></i>
+                            <span>عرض كافة المشاريع</span>
+                        </a>
+                    </div>
+                </div>
+                @endforelse
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="projects-footer">
+            <div class="container text-center">
+                <p class="mb-1 fw-bold text-white">
+                    مكتب تدريب الخريجين — جامعة طرابلس
+                </p>
+                <p class="mb-0">
+                    أرشيف مشاريع التخرج: ربط الابتكار الأكاديمي بفرص سوق العمل والتطوير المستدام.
+                </p>
+            </div>
+        </footer>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Realtime search filtering on cards
+        const searchInput = document.getElementById('projectSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                const term = e.target.value.toLowerCase().trim();
+                const cards = document.querySelectorAll('.project-item-col');
+                cards.forEach(card => {
+                    const title = card.getAttribute('data-title') || '';
+                    const faculty = (card.getAttribute('data-faculty') || '').toLowerCase();
+                    const dept = (card.getAttribute('data-dept') || '').toLowerCase();
+                    const text = card.textContent.toLowerCase();
+
+                    if (text.includes(term) || title.includes(term) || faculty.includes(term) || dept.includes(term)) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

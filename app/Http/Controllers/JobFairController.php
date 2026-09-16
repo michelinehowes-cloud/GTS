@@ -62,10 +62,11 @@ class JobFairController extends Controller
         $companies = $fair ? $fair->companies()->with('company')->where('status', 'confirmed')->get() : collect();
         $sponsors = $fair ? $fair->sponsors()->where('is_active', true)->orderBy('display_order')->get() : collect();
         $events = $fair ? $fair->events()->withCount('attendees')->orderBy('start_time', 'asc')->get() : collect();
+        $projects = $fair ? $fair->projects()->where('status', 'approved')->orderBy('is_featured', 'desc')->latest()->get() : collect();
         $recentJobs = \App\Models\JobOpportunity::where('status', 'open')->with('company')->latest()->take(6)->get();
         $stats = $this->getFairStats($fair);
 
-        return view('job-fair.public', compact('fair', 'myRegistration', 'companies', 'sponsors', 'events', 'recentJobs', 'stats', 'favoriteCompanyIds'));
+        return view('job-fair.public', compact('fair', 'myRegistration', 'companies', 'sponsors', 'events', 'projects', 'recentJobs', 'stats', 'favoriteCompanyIds'));
     }
 
     /**

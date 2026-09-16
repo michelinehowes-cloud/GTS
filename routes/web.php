@@ -724,6 +724,19 @@ Route::get('/job-fair/events/{event}', [App\Http\Controllers\JobFairController::
     ->where('event', '[0-9]+')
     ->name('job-fair.public.events.show');
 
+// مشاريع التخرج والأرشيف السنوي (للجميع)
+Route::get('/job-fair/projects', [App\Http\Controllers\JobFairProjectController::class, 'publicIndex'])
+    ->name('job-fair.public.projects.index');
+
+Route::get('/job-fair/{fair}/projects', [App\Http\Controllers\JobFairProjectController::class, 'publicIndex'])
+    ->where('fair', '[0-9]+')
+    ->name('job-fair.public.projects');
+
+// الصفحة المستقلة لمشروع التخرج مع رمز QR وتفاصيل الفريق
+Route::get('/job-fair/projects/{project}', [App\Http\Controllers\JobFairProjectController::class, 'publicShow'])
+    ->where('project', '[0-9]+')
+    ->name('job-fair.public.projects.show');
+
 
 // تسجيل الخريج في المعرض (يتطلب تسجيل دخول)
 Route::middleware('auth')->group(function () {
@@ -769,6 +782,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin/job-fair')->name('job-fair.a
     Route::delete('/events/{event}', [App\Http\Controllers\JobFairEventController::class, 'destroy'])->name('events.destroy');
     Route::get('/events/{event}/attendees', [App\Http\Controllers\JobFairEventController::class, 'attendees'])->name('events.attendees');
     Route::get('/events/{event}/export-attendees', [App\Http\Controllers\JobFairEventController::class, 'exportAttendees'])->name('events.export-attendees');
+
+    // إدارة مشاريع التخرج والأرشيف
+    Route::get('/{fair}/projects', [App\Http\Controllers\JobFairProjectController::class, 'adminIndex'])->name('projects.index');
+    Route::post('/{fair}/projects', [App\Http\Controllers\JobFairProjectController::class, 'store'])->name('projects.store');
+    Route::put('/projects/{project}', [App\Http\Controllers\JobFairProjectController::class, 'update'])->name('projects.update');
+    Route::delete('/projects/{project}', [App\Http\Controllers\JobFairProjectController::class, 'destroy'])->name('projects.destroy');
+    Route::get('/{fair}/export-projects', [App\Http\Controllers\JobFairProjectController::class, 'export'])->name('projects.export');
 
     // إدارة الجهات الراعية (Sponsors)
     Route::post('/{fair}/sponsors', [App\Http\Controllers\JobFairController::class, 'storeSponsor'])->name('sponsors.store');

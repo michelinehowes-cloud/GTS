@@ -17,20 +17,24 @@
         secondaryBadge="مؤسسة شريكة معتمدة"
         secondaryBadgeIcon="fas fa-handshake"
     >
-        <a href="{{ route('job-opportunities.create') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+        <a href="{{ route('job-opportunities.create') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
             <i class="fas fa-plus-circle fs-6"></i>
-            <span>+ إضافة فرصة عمل جديدة</span>
+            <span>+ إضافة فرصة عمل</span>
         </a>
-        <a href="{{ route('job-opportunities.index') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+        <a href="{{ route('job-opportunities.index') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
             <i class="fas fa-briefcase fs-6"></i>
             <span>إدارة الوظائف</span>
         </a>
-        <a href="{{ route('company.nominations') }}" class="btn btn-light bg-white text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
-            <i class="fas fa-users fs-6 text-primary"></i>
+        <a href="{{ route('company.nominations') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-users fs-6"></i>
             <span>المرشحون للوظائف</span>
         </a>
-        <a href="{{ route('company.profile') }}" class="btn btn-outline-light text-white fw-bold py-2.5 px-3 rounded-3 d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem;">
-            <i class="fas fa-id-card fs-6"></i>
+        <a href="{{ route('company.job-fairs.index') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-calendar-star fs-6 text-warning"></i>
+            <span>المعارض والفعاليات</span>
+        </a>
+        <a href="{{ route('company.profile') }}" class="btn btn-outline-light text-white fw-bold py-2.5 px-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-building fs-6"></i>
             <span>الملف التعريفي</span>
         </a>
     </x-page-hero>
@@ -109,7 +113,7 @@
         <!-- مسح الباركود (معرض التوظيف) -->
         <div class="bento-card">
             <div class="bento-card-header d-flex align-items-center justify-content-between">
-                <h3 class="bento-card-title mb-0">زوار المعرض (QR)</h3>
+                <h3 class="bento-card-title mb-0">زوار الفعاليات (QR)</h3>
                 <div class="bento-card-icon bento-icon-gold">
                     <i class="fas fa-qrcode"></i>
                 </div>
@@ -117,13 +121,13 @@
             <div class="d-flex justify-content-between align-items-end mt-2">
                 <div class="bento-stat">{{ $stats['qr_scans'] ?? 0 }}</div>
                 <div class="badge rounded-pill bg-info bg-opacity-10 text-info px-3 py-1.5 mb-2 fw-bold">
-                    معرض التوظيف <i class="fas fa-id-badge ms-1"></i>
+                    المعارض والفعاليات <i class="fas fa-id-badge ms-1"></i>
                 </div>
             </div>
-            <div class="bento-desc mt-2 text-muted small">عمليات مسح كود الخريجين بجناح المعرض</div>
+            <div class="bento-desc mt-2 text-muted small">عمليات مسح كود الخريجين بأجنحة الفعاليات</div>
             <div class="mt-3 pt-2 border-top border-light">
                 <a href="{{ route('company.job-fairs.index') }}" class="small fw-bold text-primary text-decoration-none d-flex align-items-center justify-content-between">
-                    <span>فتح جناح المعرض والماسح</span>
+                    <span>فتح أجنحة الفعاليات والماسح</span>
                     <i class="fas fa-arrow-left"></i>
                 </a>
             </div>
@@ -342,14 +346,14 @@
                 <div class="card-body p-4 position-relative">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); color: #f59e0b;">
-                            <i class="fas fa-qrcode me-1"></i> بوابة المعرض الذكية
+                            <i class="fas fa-qrcode me-1"></i> بوابة الفعاليات الذكية
                         </span>
                         <i class="fas fa-building text-white-50 fs-4"></i>
                     </div>
 
-                    <h5 class="fw-bold text-white mb-2 fs-6">جناح شركتكم بمعرض التوظيف</h5>
+                    <h5 class="fw-bold text-white mb-2 fs-6">أجنحة شركتكم في المعارض والفعاليات</h5>
                     <p class="text-white-50 small mb-4" style="line-height: 1.6;">
-                        استخدم الماسح الميداني لتسجيل زيارات الخريجين فورياً، وتحميل بطاقة الـ QR الرسمية المعتمدة لجناحكم.
+                        استخدم الماسح الميداني لتسجيل زيارات الخريجين فورياً، وتحميل بطاقات الـ QR الرسمية المعتمدة لأجنحتكم.
                     </p>
 
                     <div class="d-grid gap-2">

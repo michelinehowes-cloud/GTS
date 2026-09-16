@@ -67,6 +67,8 @@ class JobOpportunityController extends Controller
             $stats = [
                 'total' => (clone $baseStats)->count(),
                 'open' => (clone $baseStats)->where('status', 'open')->count(),
+                'pending' => (clone $baseStats)->where('status', 'pending')->count(),
+                'rejected' => (clone $baseStats)->where('status', 'rejected')->count(),
                 'jobs' => (clone $baseStats)->where('type', 'job')->count(),
                 'trainings' => (clone $baseStats)->where('type', 'training')->count(),
                 'internships' => (clone $baseStats)->where('type', 'internship')->count(),
@@ -79,6 +81,7 @@ class JobOpportunityController extends Controller
             $stats = [
                 'total' => JobOpportunity::count(),
                 'open' => JobOpportunity::where('status', 'open')->count(),
+                'pending' => JobOpportunity::where('status', 'pending')->count(),
                 'jobs' => JobOpportunity::where('type', 'job')->count(),
                 'trainings' => JobOpportunity::where('type', 'training')->count(),
                 'internships' => JobOpportunity::where('type', 'internship')->count(),
@@ -286,6 +289,9 @@ class JobOpportunityController extends Controller
                 ->withInput();
         }
 
+        $isCompanyUser = $user && $user->role === 'company';
+        $initialStatus = $isCompanyUser ? 'pending' : 'open';
+
         $jobOpportunity = JobOpportunity::create([
             'title' => $request->title,
             'description' => $request->description,
@@ -303,22 +309,32 @@ class JobOpportunityController extends Controller
             'salary' => $request->salary,
             'benefits' => $request->benefits,
             'requirements' => $request->requirements,
-            'status' => 'open',
+            'status' => $initialStatus,
             'created_by' => Auth::id(),
         ]);
 
         // إرسال إشعار
         try {
-            $this->notificationService->notifyNewJobOpportunity($jobOpportunity);
+            if ($isCompanyUser) {
+                // إشعار لمسؤولي الشراكات والإرشاد المهني والمدير لمراجعة الفرصة واعتمادها
+                $this->notificationService->notifyCompanyJobSubmitted($jobOpportunity);
+            } else {
+                // إشعار فوري للخريجين إذا تم الإنشاء مباشرة من قبل المسؤول
+                $this->notificationService->notifyNewJobOpportunity($jobOpportunity);
+            }
         } catch (\Exception $e) {
             \Log::error('Failed to send job opportunity notification: ' . $e->getMessage());
         }
 
         // سجل النشاط
-        \App\Models\AuditLog::logAction('create_opportunity', "تم إنشاء فرصة عمل جديدة: {$jobOpportunity->title}", 'JobOpportunity', $jobOpportunity->id);
+        \App\Models\AuditLog::logAction('create_opportunity', "تم إنشاء فرصة عمل جديدة: {$jobOpportunity->title} (الحالة: {$initialStatus})", 'JobOpportunity', $jobOpportunity->id);
+
+        $msg = $isCompanyUser 
+            ? 'تم إرسال فرصة العمل بنجاح وهي قيد المراجعة والاعتماد من قبل إدارة المنظومة قبل نشرها للخريجين.'
+            : 'تم إنشاء فرصة العمل ونشرها بنجاح';
 
         return redirect()->route('job-opportunities.index')
-            ->with('success', 'تم إنشاء فرصة العمل بنجاح');
+            ->with('success', $msg);
     }
 
     /**
@@ -379,6 +395,11 @@ class JobOpportunityController extends Controller
             }
         }
 
+        $isCompany = $user && $user->role === 'company';
+        $statusRule = $isCompany 
+            ? 'nullable|in:new,pending,open,closed,completed,rejected' 
+            : 'required|in:new,pending,open,closed,completed,rejected';
+
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -396,7 +417,7 @@ class JobOpportunityController extends Controller
             'salary' => 'nullable|numeric|min:0',
             'benefits' => 'nullable|string',
             'requirements' => 'nullable|string',
-            'status' => 'required|in:new,open,closed,completed',
+            'status' => $statusRule,
         ]);
 
         if ($validator->fails()) {
@@ -405,12 +426,93 @@ class JobOpportunityController extends Controller
                 ->withInput();
         }
 
-        $opportunity->update($request->all());
+        $data = $request->all();
+
+        // إذا قامت الشركة بتعديل فرصة كانت مرفوضة أو معلقة، تُعاد للحالة المعلقة لإعادة المراجعة
+        if ($isCompany) {
+            if ($opportunity->status === 'rejected') {
+                $data['status'] = 'pending';
+                $data['rejection_reason'] = null;
+                try {
+                    $this->notificationService->notifyCompanyJobSubmitted($opportunity);
+                } catch (\Exception $e) {
+                    //
+                }
+            } else {
+                unset($data['status']); // لا يمكن للشركة تغيير الحالة مباشرة إلى open
+            }
+        }
+
+        $opportunity->update($data);
 
         \App\Models\AuditLog::logAction('update_opportunity', "تم تحديث بيانات فرصة العمل: {$opportunity->title}", 'JobOpportunity', $opportunity->id);
 
         return redirect()->route('job-opportunities.show', $opportunity->id)
             ->with('success', 'تم تحديث فرصة العمل بنجاح');
+    }
+
+    /**
+     * اعتماد فرصة عمل ونشرها
+     */
+    public function approve($id)
+    {
+        $user = Auth::user();
+        if (!$user || !in_array($user->role, ['admin', 'partnership_officer', 'career_guidance_officer'])) {
+            abort(403, 'غير مصرح لك باعتماد الفرص الوظيفية.');
+        }
+
+        $opportunity = JobOpportunity::with(['company', 'creator'])->findOrFail($id);
+        $opportunity->update([
+            'status' => 'open',
+            'reviewed_by' => $user->id,
+            'reviewed_at' => now(),
+            'rejection_reason' => null,
+        ]);
+
+        \App\Models\AuditLog::logAction('approve_opportunity', "تم اعتماد ونشر فرصة العمل: {$opportunity->title}", 'JobOpportunity', $opportunity->id);
+
+        try {
+            $this->notificationService->notifyJobOpportunityApproved($opportunity);
+        } catch (\Exception $e) {
+            \Log::error('فشل إرسال إشعار اعتماد الفرصة: ' . $e->getMessage());
+        }
+
+        return redirect()->back()->with('success', "تم اعتماد فرصة العمل ({$opportunity->title}) ونشرها رسمياً للخريجين بنجاح.");
+    }
+
+    /**
+     * رفض فرصة عمل مع تسجيل السبب
+     */
+    public function reject(Request $request, $id)
+    {
+        $user = Auth::user();
+        if (!$user || !in_array($user->role, ['admin', 'partnership_officer', 'career_guidance_officer'])) {
+            abort(403, 'غير مصرح لك برفض الفرص الوظيفية.');
+        }
+
+        $request->validate([
+            'rejection_reason' => 'required|string|max:1000',
+        ], [
+            'rejection_reason.required' => 'يرجى كتابة سبب رفض الفرصة لإشعار الشركة به.',
+        ]);
+
+        $opportunity = JobOpportunity::with(['company', 'creator'])->findOrFail($id);
+        $opportunity->update([
+            'status' => 'rejected',
+            'rejection_reason' => $request->rejection_reason,
+            'reviewed_by' => $user->id,
+            'reviewed_at' => now(),
+        ]);
+
+        \App\Models\AuditLog::logAction('reject_opportunity', "تم رفض فرصة العمل: {$opportunity->title}. السبب: {$request->rejection_reason}", 'JobOpportunity', $opportunity->id);
+
+        try {
+            $this->notificationService->notifyJobOpportunityRejected($opportunity, $request->rejection_reason);
+        } catch (\Exception $e) {
+            \Log::error('فشل إرسال إشعار رفض الفرصة: ' . $e->getMessage());
+        }
+
+        return redirect()->back()->with('success', "تم رفض نشر فرصة العمل ({$opportunity->title}) وإشعار الشركة بالسبب.");
     }
 
     /**

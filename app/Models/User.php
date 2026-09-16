@@ -508,4 +508,12 @@ class User extends Authenticatable
                 return route('dashboard');
         }
     }
+
+    /**
+     * الشهادات الممنوحة للمستخدم
+     */
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class);
+    }
 }

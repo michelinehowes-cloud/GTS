@@ -226,9 +226,9 @@
         ]"
         badge="التقويم المعتمد"
     >
-        <a href="{{ route('media.live-studio') }}" class="btn btn-warning text-dark fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
-            <i class="fas fa-satellite-dish"></i>
-            <span>استوديو البث المباشر</span>
+        <a href="{{ route('media.news.create') }}" class="btn btn-warning text-dark fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
+            <i class="fas fa-plus-circle"></i>
+            <span>+ إضافة خبر جديد</span>
         </a>
         <a href="{{ route('media.reports.coverage') }}" class="btn btn-light bg-white text-primary fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
             <i class="fas fa-file-invoice"></i>

@@ -9,14 +9,13 @@ use App\Models\JobOpportunity;
 use App\Models\Company;
 use App\Models\News;
 use App\Models\Announcement;
-use App\Models\MediaCamera;
-use App\Models\LiveBroadcastSetting;
 use App\Models\MediaPlatformStat;
 use App\Models\GraduateData;
 use App\Models\Nomination;
 use App\Models\Survey;
 use App\Models\SurveyResponse;
 use App\Models\AuditLog;
+use App\Models\PartnershipDocument;
 use Illuminate\Support\Carbon;
 
 class AiToolRegistry
@@ -82,6 +81,26 @@ class AiToolRegistry
      * All registered system tools
      */
     private static function defineTools(): array
+    {
+        return array_merge(
+            self::defineGeneralTools(),
+            self::defineGraduateTools(),
+            self::defineMediaOfficerTools(),
+            self::defineTrainingTools(),
+            self::defineCareerGuidanceTools(),
+            self::defineQualityAndSurveyTools(),
+            self::defineMediaTools(),
+            self::defineExecutiveTools(),
+            self::defineCompanyCandidateTools(),
+            self::defineCompanyVacancyTools(),
+            self::definePartnershipOfficerTools()
+        );
+    }
+
+    /**
+     * General Tools
+     */
+    private static function defineGeneralTools(): array
     {
         return [
             // ==========================================
@@ -223,7 +242,15 @@ class AiToolRegistry
                     ];
                 }
             ],
+        ];
+    }
 
+    /**
+     * Graduate Portal Tools
+     */
+    private static function defineGraduateTools(): array
+    {
+        return [
             // ==========================================
             // 🎓 أدوات الخريج (Graduate Tools)
             // ==========================================
@@ -286,7 +313,7 @@ class AiToolRegistry
 
             'search_job_opportunities' => [
                 'name' => 'search_job_opportunities',
-                'description' => 'البحث في فرص العمل والترشيحات الوظيفية المتاحة للخريجين.',
+                'description' => 'البحث في فرص العمل والترشيحات الوظيفية المتاحة في المنظومة.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
@@ -296,26 +323,44 @@ class AiToolRegistry
                         ]
                     ]
                 ],
-                'authorize' => fn(User $user) => $user->role === 'graduate' || $user->role === 'admin',
+                'authorize' => fn(User $user) => true,
                 'execute' => function(User $user, array $args) {
-                    $query = JobOpportunity::where('status', 'active');
+                    $query = JobOpportunity::whereIn('status', ['open', 'active']);
                     if (!empty($args['keyword'])) {
-                        $kw = trim($args['keyword']);
-                        $query->where(function($q) use ($kw) {
-                            $q->where('title', 'like', "%{$kw}%")
-                              ->orWhere('description', 'like', "%{$kw}%")
-                              ->orWhere('specialization', 'like', "%{$kw}%");
-                        });
+                        $kw = trim(preg_replace('/^[\s\p{P}]+|[\s\p{P}]+$/u', '', $args['keyword']));
+                        $stopWords = ['متاح', 'متاحة', 'المتاحة', 'شاغر', 'شاغرة', 'الشاغرة', 'مفتوح', 'مفتوحة', 'المفتوحة', 'موجود', 'موجودة', 'الموجودة', 'جديد', 'جديدة', 'الجديدة', 'عمل', 'العمل', 'توظيف', 'التوظيف', 'وظيفة', 'وظائف', 'فرص', 'الفرص'];
+                        if (!in_array($kw, $stopWords) && mb_strlen($kw) > 1) {
+                            $query->where(function($q) use ($kw) {
+                                $q->where('title', 'like', "%{$kw}%")
+                                  ->orWhere('description', 'like', "%{$kw}%")
+                                  ->orWhere('type', 'like', "%{$kw}%")
+                                  ->orWhere('contract_type', 'like', "%{$kw}%")
+                                  ->orWhereHas('company', function($cq) use ($kw) {
+                                      $cq->where('name', 'like', "%{$kw}%");
+                                  });
+                            });
+                        }
                     }
 
-                    $jobs = $query->latest()->limit(5)->get()->map(function($j) {
+                    $typeMap = [
+                        'full_time' => 'دوام كامل',
+                        'part_time' => 'دوام جزئي',
+                        'contract' => 'عقد محدد',
+                        'internship' => 'تدريب عملي',
+                        'remote' => 'عن بُعد',
+                    ];
+
+                    $jobs = $query->with('company')->latest()->limit(10)->get()->map(function($j) use ($typeMap) {
+                        $rawType = $j->contract_type ?? $j->type ?? 'full_time';
+                        $cleanType = $typeMap[$rawType] ?? $rawType;
                         return [
                             'id' => $j->id,
                             'title' => $j->title,
                             'company' => $j->company ? $j->company->name : 'جهة شريكة',
-                            'type' => $j->job_type ?? 'دوام كامل',
+                            'type' => $cleanType,
                             'location' => $j->location ?? 'طرابلس',
-                            'deadline' => $j->deadline ? $j->deadline->format('Y-m-d') : 'مفتوح',
+                            'seats' => $j->seats ?? 1,
+                            'deadline' => $j->application_deadline ? $j->application_deadline->format('Y-m-d') : 'مفتوح للتقديم',
                         ];
                     });
 
@@ -456,13 +501,21 @@ class AiToolRegistry
                     ];
                 }
             ],
+        ];
+    }
 
+    /**
+     * Media Officer Tools
+     */
+    private static function defineMediaOfficerTools(): array
+    {
+        return [
             // ==========================================
             // 📹 أدوات مسؤول وحدة الإعلام (Media Officer Tools)
             // ==========================================
             'get_media_statistics' => [
                 'name' => 'get_media_statistics',
-                'description' => 'عرض إحصائيات وحدة الإعلام شاملة نسبة تغطية التدريبات، الكاميرات المتصلة، وحالة البث المباشر والأخبار.',
+                'description' => 'عرض إحصائيات وحدة الإعلام شاملة نسبة تغطية التدريبات، والأخبار والإعلانات النشطة.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => new \stdClass(),
@@ -472,7 +525,6 @@ class AiToolRegistry
                     $totalTrainings = Training::count();
                     $coveredTrainings = Training::where('media_coverage_status', 'covered')->count();
                     $rate = $totalTrainings > 0 ? round(($coveredTrainings / $totalTrainings) * 100) : 0;
-                    $broadcast = LiveBroadcastSetting::first();
 
                     return [
                         'status' => 'success',
@@ -483,9 +535,6 @@ class AiToolRegistry
                             'pending_trainings' => $totalTrainings - $coveredTrainings,
                             'active_news' => News::active()->count(),
                             'active_announcements' => Announcement::active()->count(),
-                            'cameras_count' => MediaCamera::count(),
-                            'live_cameras' => MediaCamera::where('is_live', true)->count(),
-                            'is_broadcast_live' => $broadcast ? $broadcast->is_live_now : false,
                         ]
                     ];
                 }
@@ -570,7 +619,15 @@ class AiToolRegistry
                     ];
                 }
             ],
+        ];
+    }
 
+    /**
+     * Training Coordinator Tools
+     */
+    private static function defineTrainingTools(): array
+    {
+        return [
             // ==========================================
             // 🎓 أدوات منسق التدريب (Training Coordinator)
             // ==========================================
@@ -707,7 +764,15 @@ class AiToolRegistry
                     ];
                 }
             ],
+        ];
+    }
 
+    /**
+     * Career Guidance and Job Opportunities Tools
+     */
+    private static function defineCareerGuidanceTools(): array
+    {
+        return [
             // ==========================================
             // 🎯 أدوات الإرشاد المهني والتشغيل (Career Guidance & Nominations)
             // ==========================================
@@ -754,43 +819,53 @@ class AiToolRegistry
                 'authorize' => fn(User $user) => in_array($user->role, ['career_guidance_officer', 'admin']),
                 'execute' => function(User $user, array $args) {
                     $query = GraduateData::query();
+                    $hasFilter = false;
 
                     if (!empty($args['major'])) {
                         $major = trim($args['major']);
                         $query->where(function($q) use ($major) {
                             $q->where('major', 'like', "%{$major}%")
-                              ->orWhere('specialization', 'like', "%{$major}%");
+                              ->orWhere('specialization', 'like', "%{$major}%")
+                              ->orWhere('faculty', 'like', "%{$major}%");
                         });
+                        $hasFilter = true;
                     }
 
                     if (!empty($args['college'])) {
                         $college = trim($args['college']);
                         $query->where(function($q) use ($college) {
-                            $q->where('college', 'like', "%{$college}%")
-                              ->orWhere('faculty', 'like', "%{$college}%");
+                            $q->where('faculty', 'like', "%{$college}%")
+                              ->orWhere('major', 'like', "%{$college}%")
+                              ->orWhere('specialization', 'like', "%{$college}%");
                         });
+                        $hasFilter = true;
                     }
 
                     if (!empty($args['min_gpa'])) {
                         $query->where('gpa', '>=', (float) $args['min_gpa']);
+                        $hasFilter = true;
                     }
 
                     if (!empty($args['phone'])) {
                         $phone = trim($args['phone']);
                         $query->where('phone', 'like', "%{$phone}%");
+                        $hasFilter = true;
                     }
 
                     if (!empty($args['name'])) {
                         $name = trim($args['name']);
                         $query->where('name', 'like', "%{$name}%");
+                        $hasFilter = true;
                     }
 
                     if (isset($args['has_cv']) && $args['has_cv']) {
                         $query->whereNotNull('cv_path')->where('cv_path', '!=', '');
+                        $hasFilter = true;
                     }
 
                     if (!empty($args['employment_status'])) {
                         $query->where('employment_status', $args['employment_status']);
+                        $hasFilter = true;
                     }
 
                     $limit = !empty($args['limit']) ? min((int) $args['limit'], 20) : 8;
@@ -812,7 +887,103 @@ class AiToolRegistry
                     return [
                         'status' => 'success',
                         'count' => $graduates->count(),
-                        'data' => $graduates
+                        'data' => $graduates,
+                        'has_filter' => $hasFilter,
+                    ];
+                }
+            ],
+
+            'get_graduates_statistics' => [
+                'name' => 'get_graduates_statistics',
+                'description' => 'استرجاع إحصائيات وأرقام دقيقة وشاملة حول الخريجين المسجلين، والملفات المكتملة، وحالات التوظيف والسير الذاتية دون إظهار بيانات شخصية.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => new \stdClass(),
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['career_guidance_officer', 'admin', 'training_coordinator', 'partnership_officer']),
+                'execute' => function(User $user, array $args) {
+                    $totalRegistered = User::where('role', 'graduate')->count();
+                    $activeUsers = User::where('role', 'graduate')->where('is_active', true)->count();
+                    $frozenUsers = User::where('role', 'graduate')->where('is_active', false)->count();
+
+                    $completedProfiles = GraduateData::count();
+                    $pendingProfiles = User::where('role', 'graduate')->doesntHave('graduateData')->count();
+
+                    $employed = GraduateData::where('employment_status', 'employed')->count();
+                    $seeking = GraduateData::where('employment_status', 'seeking_opportunities')->count();
+                    $furtherStudy = GraduateData::whereIn('employment_status', ['continuing_education', 'further_study'])->count();
+                    $withCv = GraduateData::whereNotNull('cv_path')->where('cv_path', '!=', '')->count();
+                    $cvRate = $completedProfiles > 0 ? round(($withCv / $completedProfiles) * 100, 1) : 0;
+
+                    $faculties = GraduateData::whereNotNull('faculty')->where('faculty', '!=', '')
+                        ->selectRaw('faculty, count(*) as count')
+                        ->groupBy('faculty')
+                        ->pluck('count', 'faculty')
+                        ->toArray();
+
+                    return [
+                        'status' => 'success',
+                        'data' => [
+                            'total_registered' => $totalRegistered,
+                            'active_accounts' => $activeUsers,
+                            'frozen_accounts' => $frozenUsers,
+                            'completed_profiles' => $completedProfiles,
+                            'pending_profiles' => $pendingProfiles,
+                            'employed_count' => $employed,
+                            'seeking_count' => $seeking,
+                            'further_study_count' => $furtherStudy,
+                            'with_cv_count' => $withCv,
+                            'cv_rate' => $cvRate . '%',
+                            'faculties' => $faculties,
+                        ]
+                    ];
+                }
+            ],
+
+            'get_trainings_statistics' => [
+                'name' => 'get_trainings_statistics',
+                'description' => 'استرجاع إحصائيات رقمية ملخصة عن البرامج والدورات التدريبية، المقاعد، وطلبات الالتحاق.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => new \stdClass(),
+                ],
+                'authorize' => fn(User $user) => true,
+                'execute' => function(User $user, array $args) {
+                    return [
+                        'status' => 'success',
+                        'data' => [
+                            'total_trainings' => Training::count(),
+                            'active_trainings' => Training::where('status', 'active')->count(),
+                            'completed_trainings' => Training::where('status', 'completed')->count(),
+                            'draft_trainings' => Training::where('status', 'draft')->count(),
+                            'total_seats' => Training::sum('seats') ?: 0,
+                            'total_applications' => TrainingApplication::count(),
+                            'accepted_applications' => TrainingApplication::whereIn('status', ['approved', 'accepted'])->count(),
+                        ]
+                    ];
+                }
+            ],
+
+            'get_jobs_statistics' => [
+                'name' => 'get_jobs_statistics',
+                'description' => 'استرجاع إحصائيات رقمية ملخصة عن فرص العمل المعلنة، الشركات الشريكة، والترشيحات المهنية.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => new \stdClass(),
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['career_guidance_officer', 'partnership_officer', 'admin', 'company']),
+                'execute' => function(User $user, array $args) {
+                    return [
+                        'status' => 'success',
+                        'data' => [
+                            'total_jobs' => JobOpportunity::count(),
+                            'open_jobs' => JobOpportunity::where('status', 'open')->count(),
+                            'closed_jobs' => JobOpportunity::where('status', 'closed')->count(),
+                            'total_companies' => Company::count(),
+                            'active_companies' => Company::where('is_approved', true)->count(),
+                            'total_nominations' => Nomination::count(),
+                            'hired_nominations' => Nomination::where('final_status', 'hired')->count(),
+                        ]
                     ];
                 }
             ],
@@ -843,7 +1014,7 @@ class AiToolRegistry
                     'required' => ['graduate_identifier', 'job_identifier'],
                 ],
                 'requires_confirmation' => true,
-                'authorize' => fn(User $user) => in_array($user->role, ['career_guidance_officer', 'admin']),
+                'authorize' => fn(User $user) => in_array($user->role, ['company', 'partnership_officer', 'career_guidance_officer', 'admin']),
                 'execute' => function(User $user, array $args) {
                     $gradIdent = trim($args['graduate_identifier'] ?? '');
                     $jobIdent = trim($args['job_identifier'] ?? '');
@@ -859,6 +1030,13 @@ class AiToolRegistry
                     }
 
                     if (!$gradData) {
+                        $userMatch = User::where('name', 'like', "%{$gradIdent}%")->where('role', 'graduate')->first();
+                        if ($userMatch && $userMatch->graduateData) {
+                            $gradData = $userMatch->graduateData;
+                        }
+                    }
+
+                    if (!$gradData) {
                         return [
                             'status' => 'error',
                             'message' => "لم يتم العثور على خريج يطابق: '{$gradIdent}'."
@@ -870,6 +1048,11 @@ class AiToolRegistry
                         $job = JobOpportunity::find((int) $jobIdent);
                     } else {
                         $job = JobOpportunity::where('title', 'like', "%{$jobIdent}%")->first();
+                        if (!$job) {
+                            $job = JobOpportunity::whereHas('company', function($q) use ($jobIdent) {
+                                $q->where('name', 'like', "%{$jobIdent}%");
+                            })->first();
+                        }
                     }
 
                     if (!$job) {
@@ -912,6 +1095,296 @@ class AiToolRegistry
                 }
             ],
 
+            'toggle_graduate_status' => [
+                'name' => 'toggle_graduate_status',
+                'description' => 'تجميد أو تنشيط أو إلغاء تجميد حساب خريج في المنظومة (إيقاف تسجيل الدخول أو إعادة تفعيله).',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'graduate_identifier' => [
+                            'type' => 'string',
+                            'description' => 'اسم الخريج، رقم هاتفه، بريده الإلكتروني، أو معرف الحساب',
+                        ],
+                        'action' => [
+                            'type' => 'string',
+                            'description' => 'نوع العملية: freeze (تجميد)، activate (تنشيط/فك التجميد)، أو toggle (تبديل الحالة الحالية)',
+                            'enum' => ['freeze', 'activate', 'toggle']
+                        ],
+                    ],
+                    'required' => ['graduate_identifier'],
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['career_guidance_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $gradIdent = trim($args['graduate_identifier'] ?? '');
+                    if (empty($gradIdent)) {
+                        return ['status' => 'error', 'message' => 'يرجى تحديد اسم الخريج أو رقم حسابه المطلوب تجميده أو تنشيطه.'];
+                    }
+
+                    // البحث إما في User أو GraduateData
+                    $targetUser = null;
+                    $gradData = null;
+
+                    if (is_numeric($gradIdent)) {
+                        $targetUser = User::where('id', (int) $gradIdent)->where('role', 'graduate')->first();
+                        $gradData = GraduateData::find((int) $gradIdent);
+                        if (!$targetUser && $gradData) {
+                            $targetUser = $gradData->user ?? User::where('email', $gradData->email)->first();
+                        }
+                    }
+
+                    if (!$targetUser) {
+                        $targetUser = User::where('role', 'graduate')
+                            ->where(function($q) use ($gradIdent) {
+                                $q->where('name', 'like', "%{$gradIdent}%")
+                                  ->orWhere('email', $gradIdent)
+                                  ->orWhere('phone', 'like', "%{$gradIdent}%");
+                            })->first();
+                    }
+
+                    if (!$targetUser) {
+                        $gradData = GraduateData::where('name', 'like', "%{$gradIdent}%")
+                            ->orWhere('phone', 'like', "%{$gradIdent}%")
+                            ->orWhere('email', $gradIdent)
+                            ->first();
+                        if ($gradData) {
+                            $targetUser = $gradData->user ?? User::where('email', $gradData->email)->first();
+                        }
+                    }
+
+                    if (!$targetUser) {
+                        return [
+                            'status' => 'error',
+                            'message' => "لم يتم العثور على حساب خريج يطابق: '{$gradIdent}' في المنظومة."
+                        ];
+                    }
+
+                    $actionReq = $args['action'] ?? 'toggle';
+                    if ($actionReq === 'freeze') {
+                        $newStatus = false;
+                    } elseif ($actionReq === 'activate') {
+                        $newStatus = true;
+                    } else {
+                        $newStatus = !$targetUser->is_active;
+                    }
+
+                    $statusWord = $newStatus ? 'إلغاء تجميد وتنشيط' : 'تجميد';
+                    $currentStatusWord = $targetUser->is_active ? 'نشط 🟢' : 'مجمد ❄️🔒';
+                    $newStatusBadge = $newStatus ? 'نشط 🟢 (سيتم فك التجميد والسماح بالدخول للمنظومة)' : 'مجمد ❄️🔒 (سيتم إيقاف دخوله للمنظومة)';
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'toggle_graduate_status',
+                        'action_type' => 'toggle_graduate_status',
+                        'title' => "تأكيد {$statusWord} حساب الخريج",
+                        'summary' => "{$statusWord} حساب الخريج: {$targetUser->name}",
+                        'details' => "**الخريج:** {$targetUser->name}\n**البريد الإلكتروني:** `{$targetUser->email}`\n**الهاتف:** `" . ($targetUser->phone ?? ($gradData?->phone ?? 'غير متوفر')) . "`\n**الحالة الحالية:** {$currentStatusWord}\n**الحالة بعد التأكيد:** {$newStatusBadge}",
+                        'message' => "هل ترغب في تأكيد {$statusWord} حساب الخريج '{$targetUser->name}'؟",
+                        'data' => [
+                            'user_id' => $targetUser->id,
+                            'graduate_name' => $targetUser->name,
+                            'new_status' => $newStatus,
+                            'status_word' => $statusWord,
+                        ]
+                    ];
+                }
+            ],
+
+            'delete_graduate_account' => [
+                'name' => 'delete_graduate_account',
+                'description' => 'مسح وحذف حساب وسجلات الخريج نهائياً من المنظومة (يتطلب تأكيداً أمنياً).',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'graduate_identifier' => [
+                            'type' => 'string',
+                            'description' => 'اسم الخريج، رقم هاتفه، بريده، أو معرفه المطلوب حذفه',
+                        ],
+                    ],
+                    'required' => ['graduate_identifier'],
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['career_guidance_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $gradIdent = trim($args['graduate_identifier'] ?? '');
+                    if (empty($gradIdent)) {
+                        return ['status' => 'error', 'message' => 'يرجى تحديد اسم الخريج المطلوب حذف حسابه.'];
+                    }
+
+                    $targetUser = null;
+                    $gradData = null;
+
+                    if (is_numeric($gradIdent)) {
+                        $targetUser = User::where('id', (int) $gradIdent)->where('role', 'graduate')->first();
+                        $gradData = GraduateData::find((int) $gradIdent);
+                        if (!$targetUser && $gradData) {
+                            $targetUser = $gradData->user ?? User::where('email', $gradData->email)->first();
+                        }
+                    }
+
+                    if (!$targetUser) {
+                        $targetUser = User::where('role', 'graduate')
+                            ->where(function($q) use ($gradIdent) {
+                                $q->where('name', 'like', "%{$gradIdent}%")
+                                  ->orWhere('email', $gradIdent)
+                                  ->orWhere('phone', 'like', "%{$gradIdent}%");
+                            })->first();
+                    }
+
+                    if (!$targetUser) {
+                        $gradData = GraduateData::where('name', 'like', "%{$gradIdent}%")
+                            ->orWhere('phone', 'like', "%{$gradIdent}%")
+                            ->orWhere('email', $gradIdent)
+                            ->first();
+                        if ($gradData) {
+                            $targetUser = $gradData->user ?? User::where('email', $gradData->email)->first();
+                        }
+                    }
+
+                    if (!$targetUser && !$gradData) {
+                        return [
+                            'status' => 'error',
+                            'message' => "لم يتم العثور على خريج يطابق: '{$gradIdent}' في المنظومة."
+                        ];
+                    }
+
+                    $name = $targetUser ? $targetUser->name : $gradData->name;
+                    $email = $targetUser ? $targetUser->email : $gradData->email;
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'delete_graduate_account',
+                        'action_type' => 'delete_graduate_account',
+                        'title' => '⚠️ تأكيد مسح وحذف سجلات الخريج نهائياً',
+                        'summary' => "حذف حساب الخريج: {$name}",
+                        'details' => "⚠️ **تحذير أمني شديد الأهمية:**\nأنت على وشك حذف حساب وسجلات الخريج **{$name}** (`{$email}`) نهائياً.\n\n" .
+                                     "• سيتم حذف ملف الخريج وسيرته الذاتية.\n" .
+                                     "• سيتم إلغاء كافة الترشحات الوظيفية وطلبات التدريب المرتبطة به.\n" .
+                                     "• سيتم حذف حساب تسجيل الدخول بشكل نهائي ولا يمكن التراجع عن هذا الإجراء.",
+                        'message' => "هل تؤكد رغبتك في حذف حساب الخريج '{$name}' نهائياً من قاعدة البيانات؟",
+                        'data' => [
+                            'user_id' => $targetUser ? $targetUser->id : null,
+                            'graduate_data_id' => $gradData ? $gradData->id : null,
+                            'graduate_name' => $name,
+                        ]
+                    ];
+                }
+            ],
+
+            'bulk_nominate_graduates' => [
+                'name' => 'bulk_nominate_graduates',
+                'description' => 'ترشيح جماعي لمجموعة من الخريجين المؤهلين لفرصة وظيفية متاحة في النظام.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'job_identifier' => [
+                            'type' => 'string',
+                            'description' => 'اسم الوظيفة أو معرفها المراد ترشيح الخريجين لها',
+                        ],
+                        'major' => [
+                            'type' => 'string',
+                            'description' => 'التخصص العلمي المستهدف للترشيح (اختياري)',
+                        ],
+                        'min_gpa' => [
+                            'type' => 'number',
+                            'description' => 'الحد الأدنى لمعدل التخرج (اختياري)',
+                        ],
+                        'limit' => [
+                            'type' => 'integer',
+                            'description' => 'عدد الخريجين المراد ترشيحهم (افتراضياً 3 إلى 5 خريجين)',
+                        ],
+                    ],
+                    'required' => ['job_identifier'],
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['career_guidance_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $jobIdent = trim($args['job_identifier'] ?? '');
+
+                    $job = null;
+                    if (is_numeric($jobIdent)) {
+                        $job = JobOpportunity::find((int) $jobIdent);
+                    } else {
+                        $job = JobOpportunity::where('title', 'like', "%{$jobIdent}%")->first();
+                        if (!$job) {
+                            $job = JobOpportunity::whereHas('company', function($q) use ($jobIdent) {
+                                $q->where('name', 'like', "%{$jobIdent}%");
+                            })->first();
+                        }
+                    }
+
+                    if (!$job) {
+                        $openJobs = JobOpportunity::where('status', 'open')->take(4)->pluck('title')->toArray();
+                        $jobsHint = !empty($openJobs) ? " من الوظائف المتاحة: (" . implode('، ', $openJobs) . ")" : "";
+                        return [
+                            'status' => 'error',
+                            'message' => "لم يتم العثور على فرصة عمل شاغرة تطابق: '{$jobIdent}'.{$jobsHint}"
+                        ];
+                    }
+
+                    // استثناء الخريجين المرشحين بالفعل لهذه الوظيفة
+                    $alreadyNominatedGradIds = Nomination::where('job_opportunity_id', $job->id)->pluck('graduate_id')->toArray();
+
+                    $query = GraduateData::whereNotIn('id', $alreadyNominatedGradIds);
+
+                    if (!empty($args['major'])) {
+                        $major = trim($args['major']);
+                        $query->where(function($q) use ($major) {
+                            $q->where('major', 'like', "%{$major}%")
+                              ->orWhere('specialization', 'like', "%{$major}%")
+                              ->orWhere('faculty', 'like', "%{$major}%");
+                        });
+                    }
+
+                    if (!empty($args['min_gpa'])) {
+                        $query->where('gpa', '>=', (float) $args['min_gpa']);
+                    }
+
+                    $limit = !empty($args['limit']) ? min((int) $args['limit'], 10) : 4;
+                    $candidates = $query->orderBy('gpa', 'desc')->take($limit)->get();
+
+                    if ($candidates->isEmpty()) {
+                        return [
+                            'status' => 'error',
+                            'message' => "لم يتم العثور على خريجين مؤهلين غير مرشحين مسبقاً لوظيفة '{$job->title}'."
+                        ];
+                    }
+
+                    $candidateLines = [];
+                    foreach ($candidates as $idx => $cand) {
+                        $n = $idx + 1;
+                        $candidateLines[] = "{$n}. **{$cand->name}** — تخصص: {$cand->major} | معدل: **{$cand->gpa}%** | هاتف: `{$cand->phone}`";
+                    }
+                    $candidateDetails = implode("\n", $candidateLines);
+
+                    $compName = $job->company ? $job->company->name : 'جامعة طرابلس';
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'bulk_nominate_graduates',
+                        'action_type' => 'bulk_nominate_graduates',
+                        'title' => 'تأكيد الترشيح الجماعي لـ ' . $candidates->count() . ' من الخريجين',
+                        'summary' => "ترشيح " . $candidates->count() . " خريجين لوظيفة {$job->title}",
+                        'details' => "**فرصة العمل:** {$job->title} ({$compName})\n\n**الخريجون المرشحون ({$candidates->count()}):**\n{$candidateDetails}",
+                        'message' => "هل تؤكد ترشيح هؤلاء الخريجين الـ ({$candidates->count()}) دفعة واحدة لوظيفة '{$job->title}'؟",
+                        'data' => [
+                            'job_opportunity_id' => $job->id,
+                            'job_title' => $job->title,
+                            'candidate_ids' => $candidates->pluck('id')->toArray(),
+                            'candidate_names' => $candidates->pluck('name')->toArray(),
+                        ]
+                    ];
+                }
+            ],
+        ];
+    }
+
+    /**
+     * Quality, Surveys, and Analytics Tools
+     */
+    private static function defineQualityAndSurveyTools(): array
+    {
+        return [
             // ==========================================
             // 📝 قطاع التقييم والمتابعة والجودة
             // ==========================================
@@ -1149,31 +1622,200 @@ class AiToolRegistry
                 }
             ],
 
+            'manage_training_applications' => [
+                'name' => 'manage_training_applications',
+                'description' => 'إدارة وقبول أو رفض طلبات الالتحاق بالبرامج التدريبية (فردياً، أو لمجموعة/دورة محددة، أو لكافة الطلبات المعلقة دفعة واحدة).',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'action' => [
+                            'type' => 'string',
+                            'description' => 'نوع الإجراء: approve (قبول/موافقة) أو reject (رفض)',
+                            'enum' => ['approve', 'reject'],
+                        ],
+                        'scope' => [
+                            'type' => 'string',
+                            'description' => 'نطاق الإجراء: all (كافة الطلبات المعلقة)، training (طلبات دورة/برنامج محدد)، single (طلب متدرب محدد)',
+                            'enum' => ['all', 'training', 'single'],
+                        ],
+                        'training_identifier' => [
+                            'type' => 'string',
+                            'description' => 'اسم البرنامج التدريبي أو معرفه (في حال تحديد scope=training)',
+                        ],
+                        'user_identifier' => [
+                            'type' => 'string',
+                            'description' => 'اسم المتدرب أو هاتفه أو بريده (في حال تحديد scope=single)',
+                        ],
+                    ],
+                    'required' => ['action'],
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['training_coordinator', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $action = ($args['action'] ?? 'approve') === 'reject' ? 'reject' : 'approve';
+                    $scope = $args['scope'] ?? 'all';
+                    $actionWord = ($action === 'reject') ? 'رفض' : 'قبول';
+                    $actionIcon = ($action === 'reject') ? '❌' : '✅';
+
+                    $query = TrainingApplication::where('status', 'pending')->with(['training', 'user']);
+                    $scopeDesc = "كافة الطلبات المعلقة";
+
+                    if ($scope === 'training' && !empty($args['training_identifier'])) {
+                        $trIdent = trim($args['training_identifier']);
+                        $training = null;
+                        if (is_numeric($trIdent)) {
+                            $training = Training::find((int) $trIdent);
+                        } else {
+                            $training = Training::where('title', 'like', "%{$trIdent}%")->first();
+                        }
+
+                        if (!$training) {
+                            return [
+                                'status' => 'error',
+                                'message' => "لم يتم العثور على تدريب يطابق: '{$trIdent}'."
+                            ];
+                        }
+                        $query->where('training_id', $training->id);
+                        $scopeDesc = "طلبات دورة: {$training->title}";
+                    } elseif ($scope === 'single' && !empty($args['user_identifier'])) {
+                        $uIdent = trim($args['user_identifier']);
+                        $targetUser = User::where('name', 'like', "%{$uIdent}%")
+                            ->orWhere('email', $uIdent)
+                            ->orWhere('phone', 'like', "%{$uIdent}%")
+                            ->first();
+
+                        if (!$targetUser) {
+                            return [
+                                'status' => 'error',
+                                'message' => "لم يتم العثور على متدرب أو خريج يطابق: '{$uIdent}'."
+                            ];
+                        }
+                        $query->where('user_id', $targetUser->id);
+                        $scopeDesc = "طلب المتدرب: {$targetUser->name}";
+                    }
+
+                    $pendingApps = $query->get();
+                    $count = $pendingApps->count();
+
+                    if ($count === 0) {
+                        return [
+                            'status' => 'info',
+                            'message' => "لا توجد طلبات التحاق معلقة ({$scopeDesc}) بانتظار الإجراء حالياً."
+                        ];
+                    }
+
+                    $previewLines = [];
+                    foreach ($pendingApps->take(5) as $idx => $app) {
+                        $n = $idx + 1;
+                        $uName = $app->user ? $app->user->name : 'متدرب';
+                        $tTitle = $app->training ? $app->training->title : 'برنامج تدريبي';
+                        $previewLines[] = "{$n}. **{$uName}** — دورة: {$tTitle}";
+                    }
+                    if ($count > 5) {
+                        $rem = $count - 5;
+                        $previewLines[] = "• ... و ({$rem}) طلبات أخرى إضافية.";
+                    }
+                    $previewText = implode("\n", $previewLines);
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'manage_training_applications',
+                        'action_type' => 'manage_training_applications',
+                        'title' => "{$actionIcon} تأكيد {$actionWord} طلبات الالتحاق بالتدريب",
+                        'summary' => "{$actionWord} عدد ({$count}) من طلبات التدريب",
+                        'details' => "**نوع الإجراء:** {$actionWord} ({$scopeDesc})\n**عدد الطلبات المتأثرة:** **{$count} طلب تدريب معلق**\n\n**عينة من الطلبات:**\n{$previewText}",
+                        'message' => "هل تؤكد إجراء {$actionWord} لعدد ({$count}) من طلبات الالتحاق بالتدريب؟",
+                        'data' => [
+                            'action' => $action,
+                            'target_status' => ($action === 'reject') ? 'rejected' : 'approved',
+                            'application_ids' => $pendingApps->pluck('id')->toArray(),
+                            'count' => $count,
+                            'scope_description' => $scopeDesc,
+                        ]
+                    ];
+                }
+            ],
+        ];
+    }
+
+    /**
+     * Media and Platform Monitoring Tools
+     */
+    private static function defineMediaTools(): array
+    {
+        return [
             // ==========================================
-            // 📢 قطاع الإعلام والبث الذكي
+            // 📢 قطاع الإعلام والاتصال الرقمي
             // ==========================================
-            'draft_announcement' => [
-                'name' => 'draft_announcement',
-                'description' => 'صياغة ونشر إعلان رسمي من وحدة الإعلام يظهر في شريط الإعلانات وواجهة المنظومة.',
+            'draft_news_article' => [
+                'name' => 'draft_news_article',
+                'description' => 'صياغة ونشر مسودة خبر صحفي رسمي باسم قطاع الإعلام والاتصال.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
                         'title' => [
                             'type' => 'string',
-                            'description' => 'عنوان الإعلان الرسمي',
+                            'description' => 'عنوان الخبر الصحفي',
                         ],
                         'content' => [
                             'type' => 'string',
-                            'description' => 'نص الإعلان الرسمي والتفاصيل',
+                            'description' => 'المتن الصحفي الكامل للخبر',
+                        ],
+                        'summary' => [
+                            'type' => 'string',
+                            'description' => 'موجز أو ملخص الخبر (اختياري)',
+                        ],
+                        'category' => [
+                            'type' => 'string',
+                            'description' => 'تصنيف الخبر (عام، تدريب، شراكات، معرض توظيف، اعتماد)',
+                        ],
+                    ],
+                    'required' => ['title', 'content'],
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['media_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $title = $args['title'];
+                    $content = $args['content'];
+                    $summary = $args['summary'] ?? Str::limit(strip_tags($content), 150);
+                    $category = $args['category'] ?? 'عام';
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'create_news',
+                        'action_type' => 'create_news',
+                        'title' => 'تأكيد نشر خبر صحفي رسمي',
+                        'summary' => "صياغة ونشر الخبر: {$title}",
+                        'details' => "**عنوان الخبر:** {$title}\n**التصنيف:** {$category}\n**الموجز:** {$summary}\n\n**المحتوى:**\n" . Str::limit($content, 300),
+                        'message' => "هل تود اعتماد ونشر هذا الخبر الصحفي في البوابة الإعلامية للجامعة؟",
+                        'data' => [
+                            'title' => $title,
+                            'content' => $content,
+                            'summary' => $summary,
+                            'category' => $category,
+                            'is_active' => true,
+                        ]
+                    ];
+                }
+            ],
+
+            'draft_announcement' => [
+                'name' => 'draft_announcement',
+                'description' => 'صياغة ونشر إعلان رسمي أو تعميم عام يظهر في الشريط الإخباري بالمنظومة.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'title' => [
+                            'type' => 'string',
+                            'description' => 'عنوان الإعلان أو التنبيه الرسمي',
+                        ],
+                        'content' => [
+                            'type' => 'string',
+                            'description' => 'نص الإعلان الرسمي',
                         ],
                         'link' => [
                             'type' => 'string',
-                            'description' => 'رابط خارجي أو داخلي مرتبط بالإعلان (اختياري)',
                         ],
-                        'duration_days' => [
-                            'type' => 'integer',
-                            'description' => 'مدة ظهور الإعلان بالأيام (افتراضياً 7 أيام)',
-                        ]
                     ],
                     'required' => ['title', 'content'],
                 ],
@@ -1208,59 +1850,9 @@ class AiToolRegistry
                 }
             ],
 
-            'manage_live_broadcast' => [
-                'name' => 'manage_live_broadcast',
-                'description' => 'التحكم في حالة البث المباشر (تشغيل / إيقاف) وعنوان البث في استوديو الميديا.',
-                'parameters' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'action' => [
-                            'type' => 'string',
-                            'enum' => ['start', 'stop'],
-                            'description' => 'الإجراء المطلوب: start (تشغيل البث), stop (إيقاف البث)',
-                        ],
-                        'stream_title' => [
-                            'type' => 'string',
-                            'description' => 'عنوان البث المباشر (اختياري)',
-                        ]
-                    ],
-                    'required' => ['action'],
-                ],
-                'requires_confirmation' => true,
-                'authorize' => fn(User $user) => in_array($user->role, ['media_officer', 'admin']),
-                'execute' => function(User $user, array $args) {
-                    $action = $args['action'];
-                    $current = LiveBroadcastSetting::current();
-                    $willBeLive = ($action === 'start');
-
-                    if ($current->is_live_now === $willBeLive) {
-                        return [
-                            'status' => 'info',
-                            'message' => $willBeLive ? "البث المباشر في الاستوديو يعمل بالفعل (ON AIR)." : "البث المباشر متوقف بالفعل حالياً (OFF AIR)."
-                        ];
-                    }
-
-                    $streamTitle = !empty($args['stream_title']) ? $args['stream_title'] : $current->broadcast_title;
-
-                    return [
-                        'status' => 'proposal',
-                        'type' => 'toggle_broadcast',
-                        'action_type' => 'toggle_broadcast',
-                        'title' => $willBeLive ? 'تأكيد تشغيل البث المباشر (Go LIVE)' : 'تأكيد إيقاف البث المباشر (End Stream)',
-                        'summary' => $willBeLive ? "بدء البث المباشر: {$streamTitle}" : "إيقاف البث المباشر الحالي",
-                        'details' => "**الحالة الجديدة:** " . ($willBeLive ? '🔴 ON AIR (تشغيل فوري)' : '⚪ OFF AIR (إيقاف البث)') . "\n**عنوان البث:** {$streamTitle}",
-                        'message' => $willBeLive ? "هل تؤكد بدء البث المباشر للجمهور الآن؟" : "هل تؤكد إنهاء وإيقاف البث المباشر؟",
-                        'data' => [
-                            'is_live_now' => $willBeLive,
-                            'broadcast_title' => $streamTitle,
-                        ]
-                    ];
-                }
-            ],
-
             'generate_media_report' => [
                 'name' => 'generate_media_report',
-                'description' => 'توليد تقرير إعلامي رسمي يوضح حجم التغطيات الصحفية، حالة الكاميرات، وحركة البث والأخبار.',
+                'description' => 'توليد تقرير إعلامي رسمي يوضح حجم التغطيات الصحفية، ونشاط نشر الأخبار والإعلانات ومتابعة التدريبات.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => new \stdClass(),
@@ -1268,22 +1860,17 @@ class AiToolRegistry
                 'authorize' => fn(User $user) => in_array($user->role, ['media_officer', 'admin']),
                 'execute' => function(User $user, array $args) {
                     $totalTrainings = Training::count();
-                    $coveredTrainings = Training::whereNotNull('media_coverage_status')
-                        ->where('media_coverage_status', 'completed')
-                        ->count();
+                    $coveredTrainings = Training::where('media_coverage_status', 'covered')->count();
                     $pendingTrainings = max(0, $totalTrainings - $coveredTrainings);
                     $coverageRate = $totalTrainings > 0 ? round(($coveredTrainings / $totalTrainings) * 100, 1) : 0;
 
                     $publishedNews = News::where('is_active', true)->count();
                     $draftNews = News::where('is_active', false)->count();
                     $announcements = Announcement::where('is_active', true)->count();
-                    $cameras = MediaCamera::count();
-                    $onlineCameras = MediaCamera::where('is_live', true)->count();
-                    $broadcast = LiveBroadcastSetting::current();
 
                     return [
                         'status' => 'success',
-                        'report_title' => 'تقرير قطاع الإعلام والتوثيق الرقمي والبث الذكي',
+                        'report_title' => 'تقرير قطاع الإعلام والتوثيق والاتصال المؤسسي',
                         'generated_at' => now()->format('Y-m-d H:i'),
                         'metrics' => [
                             'coverage_rate' => $coverageRate . '%',
@@ -1293,9 +1880,6 @@ class AiToolRegistry
                             'published_news' => $publishedNews,
                             'draft_news' => $draftNews,
                             'active_announcements' => $announcements,
-                            'connected_cameras' => "{$onlineCameras}/{$cameras}",
-                            'broadcast_status' => $broadcast->is_live_now ? 'ON AIR (مباشر)' : 'OFF AIR (متوقف)',
-                            'viewers_count' => $broadcast->viewers_count ?? 0,
                         ]
                     ];
                 }
@@ -1455,13 +2039,21 @@ class AiToolRegistry
                     'required' => ['title'],
                 ],
                 'requires_confirmation' => true,
-                'authorize' => fn(User $user) => in_array($user->role, ['career_guidance_officer', 'admin']),
+                'authorize' => fn(User $user) => in_array($user->role, ['career_guidance_officer', 'admin', 'company', 'partnership_officer']),
                 'execute' => function(User $user, array $args) {
                     $title = trim($args['title']);
                     $companyId = null;
                     $companyName = 'إحدى الشركات الشريكة المعتمدة';
 
-                    if (!empty($args['company_identifier'])) {
+                    if ($user->role === 'company') {
+                        $comp = $user->company ?? Company::where('user_id', $user->id)->first();
+                        if ($comp) {
+                            $companyId = $comp->id;
+                            $companyName = $comp->name;
+                        }
+                    }
+
+                    if (!$companyId && !empty($args['company_identifier'])) {
                         $c = Company::where('name', 'like', "%" . trim($args['company_identifier']) . "%")->first();
                         if ($c) {
                             $companyId = $c->id;
@@ -1540,7 +2132,15 @@ class AiToolRegistry
                     ];
                 }
             ],
+        ];
+    }
 
+    /**
+     * Executive and Senior Leadership Tools
+     */
+    private static function defineExecutiveTools(): array
+    {
+        return [
             // ==========================================
             // 👑 التقرير التنفيذي الشامل (الإدارة العليا)
             // ==========================================
@@ -1584,10 +2184,9 @@ class AiToolRegistry
                                 'institutional_satisfaction' => '93.2%',
                             ],
                             'media_and_relations' => [
-                                'title' => 'قطاع الإعلام والتوثيق والبث',
+                                'title' => 'قطاع الإعلام والتوثيق والاتصال',
                                 'published_news' => News::where('is_active', true)->count(),
                                 'active_announcements' => Announcement::where('is_active', true)->count(),
-                                'broadcast_state' => LiveBroadcastSetting::current()->is_live_now ? 'ON AIR' : 'OFF AIR',
                             ],
                         ]
                     ];
@@ -1671,6 +2270,1486 @@ class AiToolRegistry
                             'new_password' => $newPass,
                             'requires_input' => empty($newPass),
                         ]
+                    ];
+                }
+            ],
+        ];
+    }
+
+    /**
+     * ==========================================
+     * 🏢 قطاع الشركات وإدارة المرشحين والمقابلات (Company & Candidate Matching Copilot)
+     * ==========================================
+     */
+    private static function defineCompanyCandidateTools(): array
+    {
+        return [
+            // 1. إحصائيات لوحة تحكم الشركة وسوق العمل
+            'get_company_dashboard_overview' => [
+                'name' => 'get_company_dashboard_overview',
+                'description' => 'عرض إحصائيات شاملة لحساب الشركة (الوظائف المفتوحة، إجمالي المرشحين، الطلبات الجديدة، المقابلات المجدولة) أو مؤشرات قطاع الشراكات وسوق العمل لمسؤولي النظام.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => new \stdClass(),
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['company', 'partnership_officer', 'career_guidance_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    if ($user->role === 'company') {
+                        $company = $user->company ?? Company::where('user_id', $user->id)->first();
+                        if (!$company) {
+                            return [
+                                'status' => 'error',
+                                'message' => 'لم يتم العثور على ملف شركة مرتبط بهذا الحساب.'
+                            ];
+                        }
+
+                        $activeJobsCount = JobOpportunity::where('company_id', $company->id)->where('status', 'open')->count();
+                        $totalJobsCount = JobOpportunity::where('company_id', $company->id)->count();
+                        $totalNominations = Nomination::whereHas('jobOpportunity', fn($q) => $q->where('company_id', $company->id))->count();
+                        $newNominations = Nomination::whereHas('jobOpportunity', fn($q) => $q->where('company_id', $company->id))
+                            ->whereIn('status', ['pending', 'nominated', 'under_review'])->count();
+                        $scheduledInterviews = Nomination::whereHas('jobOpportunity', fn($q) => $q->where('company_id', $company->id))
+                            ->where('status', 'interview_scheduled')->count();
+                        $hiredCount = Nomination::whereHas('jobOpportunity', fn($q) => $q->where('company_id', $company->id))
+                            ->where('final_status', 'hired')->count();
+
+                        return [
+                            'status' => 'success',
+                            'role_type' => 'company',
+                            'company_name' => $company->name,
+                            'is_approved' => $company->is_approved,
+                            'industry' => $company->industry,
+                            'metrics' => [
+                                'active_jobs' => $activeJobsCount,
+                                'total_jobs' => $totalJobsCount,
+                                'total_candidates' => $totalNominations,
+                                'new_pending_candidates' => $newNominations,
+                                'scheduled_interviews' => $scheduledInterviews,
+                                'hired_graduates' => $hiredCount,
+                            ]
+                        ];
+                    }
+
+                    // Admin / Partnership / Guidance officer
+                    $totalCompanies = Company::count();
+                    $activeCompanies = Company::where('is_approved', true)->count();
+                    $pendingApprovalCompanies = Company::where('is_approved', false)->orWhere('partnership_status', 'under_review')->count();
+                    $totalJobs = JobOpportunity::count();
+                    $openJobs = JobOpportunity::where('status', 'open')->count();
+                    $totalNominations = Nomination::count();
+
+                    return [
+                        'status' => 'success',
+                        'role_type' => 'officer',
+                        'metrics' => [
+                            'total_partner_companies' => $totalCompanies,
+                            'approved_companies' => $activeCompanies,
+                            'pending_review_companies' => $pendingApprovalCompanies,
+                            'total_jobs_posted' => $totalJobs,
+                            'open_vacancies' => $openJobs,
+                            'total_nominations' => $totalNominations,
+                        ]
+                    ];
+                }
+            ],
+
+            // 2. استعراض المرشحين لوظائف الشركة
+            'get_company_candidates' => [
+                'name' => 'get_company_candidates',
+                'description' => 'استعراض الخريجين المرشحين للوظائف التابعة للشركة مع تفاصيلهم وتخصصاتهم ومعدلاتهم وحالة الترشيح الحالية.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'status' => [
+                            'type' => 'string',
+                            'enum' => ['all', 'pending', 'under_review', 'interview_scheduled', 'accepted', 'rejected', 'hired'],
+                            'description' => 'فلترة بحالة الترشيح: pending (جديد)، under_review (قيد المراجعة)، interview_scheduled (مقابلة مجدولة)، accepted (مقبول)، rejected (مرفوض)، hired (تم التوظيف)'
+                        ],
+                        'job_identifier' => [
+                            'type' => 'string',
+                            'description' => 'اسم أو معرف الوظيفة لفلترة المرشحين لوظيفة معينة فقط'
+                        ],
+                        'limit' => [
+                            'type' => 'integer',
+                            'description' => 'الحد الأقصى للنتائج (افتراضي 8)'
+                        ]
+                    ]
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['company', 'partnership_officer', 'career_guidance_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $query = Nomination::with(['graduate', 'jobOpportunity.company']);
+
+                    if ($user->role === 'company') {
+                        $company = $user->company ?? Company::where('user_id', $user->id)->first();
+                        if (!$company) {
+                            return ['status' => 'error', 'message' => 'لم يتم العثور على شركة مرتبطة بحسابك.'];
+                        }
+                        $query->whereHas('jobOpportunity', fn($q) => $q->where('company_id', $company->id));
+                    }
+
+                    if (!empty($args['job_identifier'])) {
+                        $ji = trim($args['job_identifier']);
+                        $query->whereHas('jobOpportunity', fn($q) => $q->where('title', 'like', "%{$ji}%"));
+                    }
+
+                    if (!empty($args['status']) && $args['status'] !== 'all') {
+                        if ($args['status'] === 'hired') {
+                            $query->where('final_status', 'hired');
+                        } else {
+                            $query->where('status', $args['status']);
+                        }
+                    }
+
+                    $limit = (int) ($args['limit'] ?? 8);
+                    $nominations = $query->latest('nominated_at')->limit($limit)->get();
+
+                    if ($nominations->isEmpty()) {
+                        return [
+                            'status' => 'info',
+                            'count' => 0,
+                            'message' => 'لا يوجد مرشحون يطابقون شروط البحث حالياً.'
+                        ];
+                    }
+
+                    $statusMap = [
+                        'pending' => 'جديد / بانتظار المراجعة',
+                        'nominated' => 'مرشح من الإرشاد المهني',
+                        'under_review' => 'قيد دراسة الشركة',
+                        'interview_scheduled' => 'محدد موعد مقابلة 📅',
+                        'accepted' => 'مقبول مبدئياً ✅',
+                        'rejected' => 'معتذر عنه ❌',
+                    ];
+
+                    $data = $nominations->map(function($nom) use ($statusMap) {
+                        $grad = $nom->graduate;
+                        $job = $nom->jobOpportunity;
+                        return [
+                            'nomination_id' => $nom->id,
+                            'candidate_name' => $grad ? $grad->name : 'غير محدد',
+                            'major' => $grad ? $grad->major : 'غير محدد',
+                            'gpa' => $grad ? ($grad->gpa . '%') : '—',
+                            'phone' => $grad ? $grad->phone : '—',
+                            'job_title' => $job ? $job->title : 'وظيفة غير محددة',
+                            'company_name' => ($job && $job->company) ? $job->company->name : '—',
+                            'status' => $nom->status,
+                            'status_arabic' => $statusMap[$nom->status] ?? $nom->status,
+                            'final_status' => $nom->final_status === 'hired' ? 'تم التوظيف الرسمي 🎯' : ($nom->final_status ?? 'قيد الإجراء'),
+                            'interview_date' => $nom->interview_date ? $nom->interview_date->format('Y-m-d') : null,
+                            'interview_time' => $nom->interview_time,
+                            'interview_location' => $nom->interview_location,
+                            'nominated_at' => $nom->nominated_at ? $nom->nominated_at->format('Y-m-d') : $nom->created_at->format('Y-m-d'),
+                        ];
+                    });
+
+                    return [
+                        'status' => 'success',
+                        'count' => $data->count(),
+                        'data' => $data
+                    ];
+                }
+            ],
+
+            // 3. تحديث حالة المرشح وجدولة موعد مقابلة أو التوظيف
+            'update_candidate_interview_status' => [
+                'name' => 'update_candidate_interview_status',
+                'description' => 'تحديث حالة مرشح لوظيفة (جدولة موعد مقابلة شخصية، قبول مبدئي، اعتذار، أو تأكيد توظيف الخريج) مع إشعار الخريج آلياً.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'candidate_identifier' => [
+                            'type' => 'string',
+                            'description' => 'اسم المرشح أو رقم معرف الترشيح'
+                        ],
+                        'status' => [
+                            'type' => 'string',
+                            'enum' => ['interview_scheduled', 'accepted', 'rejected', 'under_review'],
+                            'description' => 'الحالة المطلوبة: interview_scheduled (مقابلة شخصية)، accepted (قبول)، rejected (اعتذار/رفض)، under_review (قيد المراجعة)'
+                        ],
+                        'final_status' => [
+                            'type' => 'string',
+                            'enum' => ['hired', 'not_hired', 'in_progress'],
+                            'description' => 'القرار النهائي: hired (تم التوظيف الفعلي)، not_hired (لم يتم التوظيف)'
+                        ],
+                        'interview_date' => [
+                            'type' => 'string',
+                            'description' => 'تاريخ المقابلة (YYYY-MM-DD)'
+                        ],
+                        'interview_time' => [
+                            'type' => 'string',
+                            'description' => 'وقت المقابلة (مثال: 10:30 صباحاً)'
+                        ],
+                        'interview_location' => [
+                            'type' => 'string',
+                            'description' => 'موقع المقابلة (مثال: مقر الشركة الرئيسي / قاعة الاجتماعات / رابط Google Meet)'
+                        ],
+                        'notes' => [
+                            'type' => 'string',
+                            'description' => 'ملاحظات أو تعليمات إضافية للمرشح'
+                        ]
+                    ],
+                    'required' => ['candidate_identifier', 'status']
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['company', 'partnership_officer', 'career_guidance_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $ident = trim($args['candidate_identifier']);
+                    $query = Nomination::with(['graduate', 'jobOpportunity.company']);
+
+                    if ($user->role === 'company') {
+                        $company = $user->company ?? Company::where('user_id', $user->id)->first();
+                        if (!$company) {
+                            return ['status' => 'error', 'message' => 'لم يتم العثور على شركة مرتبطة بحسابك.'];
+                        }
+                        $query->whereHas('jobOpportunity', fn($q) => $q->where('company_id', $company->id));
+                    }
+
+                    $nom = null;
+                    if (is_numeric($ident)) {
+                        $nom = (clone $query)->find((int) $ident);
+                    }
+                    if (!$nom) {
+                        $nom = (clone $query)->whereHas('graduate', function($g) use ($ident) {
+                            $g->where('name', 'like', "%{$ident}%")
+                              ->orWhere('phone', 'like', "%{$ident}%");
+                        })->latest()->first();
+                    }
+
+                    if (!$nom) {
+                        return [
+                            'status' => 'error',
+                            'message' => "لم يتم العثور على مرشح نشط يطابق: '{$ident}' في وظائف الشركة."
+                        ];
+                    }
+
+                    $gradName = $nom->graduate ? $nom->graduate->name : 'مرشح غير محدد';
+                    $jobTitle = $nom->jobOpportunity ? $nom->jobOpportunity->title : 'وظيفة شاغرة';
+                    $compName = ($nom->jobOpportunity && $nom->jobOpportunity->company) ? $nom->jobOpportunity->company->name : 'الشركة الشريكة';
+
+                    $targetStatus = $args['status'];
+                    $finalStatus = $args['final_status'] ?? ($targetStatus === 'accepted' ? 'in_progress' : ($targetStatus === 'rejected' ? 'not_hired' : null));
+                    if ($targetStatus === 'hired' || $finalStatus === 'hired') {
+                        $finalStatus = 'hired';
+                        $targetStatus = 'accepted';
+                    }
+
+                    $interviewDate = $args['interview_date'] ?? ($targetStatus === 'interview_scheduled' ? now()->addDays(3)->format('Y-m-d') : null);
+                    $interviewTime = $args['interview_time'] ?? ($targetStatus === 'interview_scheduled' ? '11:00 صباحاً' : null);
+                    $interviewLocation = $args['interview_location'] ?? ($targetStatus === 'interview_scheduled' ? 'مقر الشركة / قسم الموارد البشرية' : null);
+                    $notes = $args['notes'] ?? '';
+
+                    $statusLabels = [
+                        'interview_scheduled' => '📅 تحديد موعد مقابلة شخصية',
+                        'accepted' => '✅ قبول مبدئي للمرشح',
+                        'rejected' => '❌ اعتذار عن عدم القبول',
+                        'under_review' => '⏳ إعادة الطلب لقيد المراجعة',
+                    ];
+                    $title = "تأكيد " . ($statusLabels[$targetStatus] ?? 'تحديث حالة المرشح');
+                    $summary = "تحديث طلب: {$gradName} لوظيفة ({$jobTitle})";
+
+                    $details = "**المرشح:** {$gradName}\n" .
+                               "**الوظيفة:** {$jobTitle} لدى ({$compName})\n" .
+                               "**الإجراء المطلوب:** " . ($statusLabels[$targetStatus] ?? $targetStatus);
+
+                    if ($targetStatus === 'interview_scheduled') {
+                        $details .= "\n**موعد المقابلة:** {$interviewDate} الساعة {$interviewTime}\n" .
+                                    "**المكان / الرابط:** {$interviewLocation}";
+                    }
+                    if ($finalStatus === 'hired') {
+                        $details .= "\n**القرار النهائي:** 🎯 تم التوظيف الرسمي (Hired)";
+                    }
+                    if (!empty($notes)) {
+                        $details .= "\n**ملاحظات:** {$notes}";
+                    }
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'update_candidate_status',
+                        'action_type' => 'update_candidate_status',
+                        'title' => $title,
+                        'summary' => $summary,
+                        'details' => $details,
+                        'message' => "هل تود تأكيد تطبيق هذا القرار على ترشيح الخريج **{$gradName}** وإرسال إشعار فوري له؟",
+                        'data' => [
+                            'nomination_id' => $nom->id,
+                            'candidate_name' => $gradName,
+                            'job_title' => $jobTitle,
+                            'company_name' => $compName,
+                            'status' => $targetStatus,
+                            'final_status' => $finalStatus,
+                            'interview_date' => $interviewDate,
+                            'interview_time' => $interviewTime,
+                            'interview_location' => $interviewLocation,
+                            'notes' => $notes,
+                        ]
+                    ];
+                }
+            ],
+
+            // 4. طلب واقتراح خريجين مطابقين (Smart Graduate Matching)
+            'request_matching_graduates' => [
+                'name' => 'request_matching_graduates',
+                'description' => 'بحث واقتراح أفضل الخريجين المطابقين لاحتياجات الشركة بحسب التخصص، المعدل التراكمي، والمهارات لطلب ترشيحهم.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'major' => [
+                            'type' => 'string',
+                            'description' => 'التخصص الأكاديمي المطلوب (مثال: تقنية معلومات، هندسة برمجيات، محاسبة، إدارة أعمال)'
+                        ],
+                        'min_gpa' => [
+                            'type' => 'number',
+                            'description' => 'الحد الأدنى للمعدل التراكمي (مثال: 80)'
+                        ],
+                        'skill' => [
+                            'type' => 'string',
+                            'description' => 'مهارة مطلوبة (مثال: Laravel, Python, Excel, تحليل بيانات)'
+                        ],
+                        'limit' => [
+                            'type' => 'integer',
+                            'description' => 'عدد الخريجين المطلوب (افتراضي 5)'
+                        ]
+                    ]
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['company', 'partnership_officer', 'career_guidance_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $query = GraduateData::where('is_active', true);
+
+                    if (!empty($args['major'])) {
+                        $major = trim($args['major']);
+                        $query->where(function($q) use ($major) {
+                            $q->where('major', 'like', "%{$major}%")
+                              ->orWhere('faculty', 'like', "%{$major}%");
+                        });
+                    }
+
+                    if (!empty($args['min_gpa'])) {
+                        $query->where('gpa', '>=', (float) $args['min_gpa']);
+                    }
+
+                    if (!empty($args['skill'])) {
+                        $skill = trim($args['skill']);
+                        $query->where(function($q) use ($skill) {
+                            $q->where('skills', 'like', "%{$skill}%")
+                              ->orWhere('bio', 'like', "%{$skill}%");
+                        });
+                    }
+
+                    $limit = (int) ($args['limit'] ?? 5);
+                    $graduates = $query->orderByDesc('gpa')->limit($limit)->get();
+
+                    if ($graduates->isEmpty()) {
+                        return [
+                            'status' => 'info',
+                            'count' => 0,
+                            'message' => 'لم يتم العثور على خريجين يطابقون هذه المعايير بدقة. يرجى تجربة خفض المعدل أو توسيع نطاق التخصص.'
+                        ];
+                    }
+
+                    $results = $graduates->map(function($g) {
+                        return [
+                            'id' => $g->id,
+                            'name' => $g->name,
+                            'major' => $g->major,
+                            'faculty' => $g->faculty,
+                            'gpa' => $g->gpa,
+                            'graduation_year' => $g->graduation_year,
+                            'phone' => $g->phone,
+                            'has_cv' => !empty($g->cv_path),
+                        ];
+                    });
+
+                    return [
+                        'status' => 'success',
+                        'count' => $results->count(),
+                        'data' => $results,
+                        'recommendation' => "يمكنك ترشيح أي من هؤلاء الخريجين مباشرة لوظيفتك عبر قول: 'رشح الخريج [الاسم] لوظيفة [اسم الوظيفة]'."
+                    ];
+                }
+            ],
+
+            // 5. البحث في دليل وسجلات الشركات الشريكة
+            'search_partner_companies' => [
+                'name' => 'search_partner_companies',
+                'description' => 'البحث في دليل وسجلات الشركات والمؤسسات الشريكة بحسب الاسم أو المجال الصناعي أو حالة الاعتماد.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'keyword' => [
+                            'type' => 'string',
+                            'description' => 'اسم الشركة، المجال، أو المدينة'
+                        ],
+                        'status' => [
+                            'type' => 'string',
+                            'enum' => ['all', 'approved', 'pending'],
+                            'description' => 'حالة الاعتماد: approved (معتمدة)، pending (قيد المراجعة)، all (الكل)'
+                        ]
+                    ]
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['company', 'partnership_officer', 'career_guidance_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $query = Company::query();
+
+                    if (!empty($args['keyword'])) {
+                        $kw = trim($args['keyword']);
+                        $query->where(function($q) use ($kw) {
+                            $q->where('name', 'like', "%{$kw}%")
+                              ->orWhere('industry', 'like', "%{$kw}%")
+                              ->orWhere('address', 'like', "%{$kw}%")
+                              ->orWhere('contact_person', 'like', "%{$kw}%");
+                        });
+                    }
+
+                    if (!empty($args['status'])) {
+                        if ($args['status'] === 'approved') {
+                            $query->where('is_approved', true);
+                        } elseif ($args['status'] === 'pending') {
+                            $query->where('is_approved', false);
+                        }
+                    }
+
+                    $companies = $query->latest()->limit(10)->get()->map(function($c) {
+                        return [
+                            'id' => $c->id,
+                            'name' => $c->name,
+                            'industry' => $c->industry,
+                            'is_approved' => $c->is_approved,
+                            'status_arabic' => $c->is_approved ? 'معتمدة ✅' : 'قيد المراجعة ⏳',
+                            'contact_person' => $c->contact_person ?? 'غير محدد',
+                            'phone' => $c->phone ?? '—',
+                            'email' => $c->email ?? '—',
+                            'open_jobs_count' => $c->jobOpportunities()->where('status', 'open')->count(),
+                        ];
+                    });
+
+                    return [
+                        'status' => 'success',
+                        'count' => $companies->count(),
+                        'data' => $companies
+                    ];
+                }
+            ],
+        ];
+    }
+
+    /**
+     * ==========================================
+     * 💼 قطاع الوظائف واعتماد الشركات (Company Vacancies & Profiles Copilot)
+     * ==========================================
+     */
+    private static function defineCompanyVacancyTools(): array
+    {
+        return [
+            // 6. اعتماد أو إلغاء اعتماد شركة شريكة (لمسؤول الشراكات والمدير)
+            'toggle_company_approval' => [
+                'name' => 'toggle_company_approval',
+                'description' => 'اعتماد وتفعيل شراكة رسمية مع شركة أو إيقاف اعتمادها وتحويلها إلى قيد التدقيق عبر بطاقة تأكيد تفاعلية.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'company_identifier' => [
+                            'type' => 'string',
+                            'description' => 'اسم الشركة أو معرفها'
+                        ],
+                        'target_status' => [
+                            'type' => 'string',
+                            'enum' => ['approve', 'unapprove', 'toggle'],
+                            'description' => 'approve (اعتماد وتنشيط)، unapprove (إلغاء الاعتماد)، toggle (تبديل الحالة)'
+                        ]
+                    ],
+                    'required' => ['company_identifier']
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['partnership_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $ident = trim($args['company_identifier']);
+                    $company = null;
+                    if (is_numeric($ident)) {
+                        $company = Company::find((int) $ident);
+                    }
+                    if (!$company) {
+                        $company = Company::where('name', 'like', "%{$ident}%")->first();
+                    }
+
+                    if (!$company) {
+                        return [
+                            'status' => 'error',
+                            'message' => "لم يتم العثور على شركة تطابق: '{$ident}' في المنظومة."
+                        ];
+                    }
+
+                    $mode = $args['target_status'] ?? 'toggle';
+                    $newApproved = ($mode === 'approve') ? true : (($mode === 'unapprove') ? false : !$company->is_approved);
+
+                    $actionWord = $newApproved ? 'اعتماد وتفعيل شراكة' : 'إلغاء اعتماد وتحويل إلى قيد المراجعة';
+                    $title = "تأكيد {$actionWord}: {$company->name}";
+                    $summary = "{$actionWord} لشركة {$company->name}";
+                    $details = "**اسم الشركة:** {$company->name}\n" .
+                               "**القطاع:** {$company->industry}\n" .
+                               "**الحالة الحالية:** " . ($company->is_approved ? 'معتمدة حالياً' : 'قيد المراجعة') . "\n" .
+                               "**الحالة الجديدة:** " . ($newApproved ? 'معتمدة ورسمية ✅' : 'قيد المراجعة ⏳');
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'toggle_company_approval',
+                        'action_type' => 'toggle_company_approval',
+                        'title' => $title,
+                        'summary' => $summary,
+                        'details' => $details,
+                        'message' => "هل تؤكد إجراء **{$actionWord}** لشركة **'{$company->name}'** في سجلات جامعة طرابلس؟",
+                        'data' => [
+                            'company_id' => $company->id,
+                            'company_name' => $company->name,
+                            'target_approved' => $newApproved,
+                        ]
+                    ];
+                }
+            ],
+
+            // 7. استعراض وتحديث ملف الشركة الحالي
+            'get_my_company_profile' => [
+                'name' => 'get_my_company_profile',
+                'description' => 'عرض بيانات الملف التعريفي للشركة الحالية، معلومات الاتصال، ونوع الشراكة المعتمد.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => new \stdClass(),
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['company', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $company = $user->company ?? Company::where('user_id', $user->id)->first();
+                    if (!$company) {
+                        return [
+                            'status' => 'error',
+                            'message' => 'لا يوجد ملف شركة مسجل لهذا الحساب.'
+                        ];
+                    }
+
+                    return [
+                        'status' => 'success',
+                        'company' => [
+                            'id' => $company->id,
+                            'name' => $company->name,
+                            'email' => $company->email,
+                            'phone' => $company->phone,
+                            'industry' => $company->industry,
+                            'address' => $company->address,
+                            'website' => $company->website ?? '—',
+                            'is_approved' => $company->is_approved,
+                            'partnership_type' => $company->partnership_type,
+                            'partnership_status' => $company->partnership_status,
+                            'contact_person' => $company->contact_person,
+                            'open_jobs' => $company->jobOpportunities()->where('status', 'open')->count(),
+                        ]
+                    ];
+                }
+            ],
+
+            // 8. نشر وإضافة فرصة عمل أو تدريب جديدة
+            'create_job_opportunity' => [
+                'name' => 'create_job_opportunity',
+                'description' => 'نشر وإضافة فرصة عمل أو تدريب وظيفي جديدة لدى شركة شريكة أو للشركة الحالية مع تحديد المسمى، المتطلبات، نوع العقد، الراتب، وعدد المقاعد الشاغرة.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'title' => [
+                            'type' => 'string',
+                            'description' => 'المسمى الوظيفي (مثال: مطور ويب، مهندس شبكات، محاسب مالي)'
+                        ],
+                        'description' => [
+                            'type' => 'string',
+                            'description' => 'الوصف الوظيفي والمسؤوليات الرئيسية'
+                        ],
+                        'requirements' => [
+                            'type' => 'string',
+                            'description' => 'المؤهلات والشروط والمهارات المطلوبة'
+                        ],
+                        'contract_type' => [
+                            'type' => 'string',
+                            'enum' => ['full_time', 'part_time', 'internship', 'contract', 'remote'],
+                            'description' => 'نوع العقد: full_time (دوام كامل)، part_time (دوام جزئي)، internship (تدريب على رأس العمل)، contract (عقد مؤقت)، remote (عن بعد)'
+                        ],
+                        'seats' => [
+                            'type' => 'integer',
+                            'description' => 'عدد المقاعد أو الشواغر المتاحة (افتراضي 1)'
+                        ],
+                        'salary' => [
+                            'type' => 'string',
+                            'description' => 'الراتب أو المكافأة إن وُجدت (مثال: 2500 د.ل أو يحدد بعد المقابلة)'
+                        ],
+                        'location' => [
+                            'type' => 'string',
+                            'description' => 'موقع العمل (مثال: طرابلس، جنزور، أو عن بعد)'
+                        ],
+                        'application_deadline' => [
+                            'type' => 'string',
+                            'description' => 'آخر موعد للتقديم بصيغة YYYY-MM-DD'
+                        ],
+                        'company_identifier' => [
+                            'type' => 'string',
+                            'description' => 'اسم الشركة أو معرفها (خاص بمسؤولي النظام؛ تترك فارغة لمستخدمي الشركات)'
+                        ],
+                    ],
+                    'required' => ['title']
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['company', 'career_guidance_officer', 'partnership_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $title = trim($args['title']);
+                    $company = null;
+
+                    if ($user->role === 'company') {
+                        $company = $user->company ?? Company::where('user_id', $user->id)->first();
+                        if (!$company) {
+                            return ['status' => 'error', 'message' => 'لم يتم العثور على ملف شركة مرتبط بهذا الحساب.'];
+                        }
+                    } elseif (!empty($args['company_identifier'])) {
+                        $cIdent = trim($args['company_identifier']);
+                        $company = is_numeric($cIdent) ? Company::find((int)$cIdent) : Company::where('name', 'like', "%{$cIdent}%")->first();
+                    }
+
+                    if (!$company && $user->role !== 'company') {
+                        $company = Company::where('is_approved', true)->first();
+                    }
+
+                    $companyName = $company ? $company->name : 'الشركة الشريكة';
+                    $companyId = $company ? $company->id : null;
+                    $contractType = $args['contract_type'] ?? 'full_time';
+                    $contractMap = [
+                        'full_time' => 'دوام كامل',
+                        'part_time' => 'دوام جزئي',
+                        'internship' => 'تدريب عملي / تأهيل',
+                        'contract' => 'عقد محدد المدة',
+                        'remote' => 'عمل عن بُعد',
+                    ];
+                    $contractArabic = $contractMap[$contractType] ?? $contractType;
+                    $seats = (int) ($args['seats'] ?? 1);
+                    $location = $args['location'] ?? ($company && $company->city ? $company->city : 'طرابلس، ليبيا');
+                    $salary = $args['salary'] ?? 'يحدد حسب الكفاءة والمقابلة';
+                    $deadline = $args['application_deadline'] ?? now()->addDays(21)->format('Y-m-d');
+                    $desc = $args['description'] ?? "فرصة وظيفية واعدة لدى شركة ({$companyName}) تستهدف كفاءات وخريجي جامعة طرابلس.";
+                    $reqs = $args['requirements'] ?? 'الحصول على المؤهل الأكاديمي المناسب وإتقان المهارات التخصصية المطلوبة للوظيفة.';
+
+                    $details = "**المسمى الوظيفي:** {$title}\n" .
+                               "**الشركة المشغلة:** {$companyName}\n" .
+                               "**نوع العمل:** {$contractArabic}\n" .
+                               "**عدد المقاعد الشاغرة:** {$seats}\n" .
+                               "**موقع العمل:** {$location}\n" .
+                               "**المكافأة / الراتب:** {$salary}\n" .
+                               "**آخر موعد للتقديم:** {$deadline}\n" .
+                               "**الشروط:** {$reqs}";
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'create_job_opportunity',
+                        'action_type' => 'create_job_opportunity',
+                        'title' => "تأكيد نشر فرصة عمل: {$title}",
+                        'summary' => "نشر شاغر ({$title}) لدى {$companyName}",
+                        'details' => $details,
+                        'message' => "هل تود تأكيد نشر وتفعيل فرصة العمل **'{$title}'** في بوابة التوظيف لكافة خريجي الجامعة؟",
+                        'data' => [
+                            'title' => $title,
+                            'description' => $desc,
+                            'requirements' => $reqs,
+                            'company_id' => $companyId,
+                            'contract_type' => $contractType,
+                            'seats' => $seats,
+                            'salary' => $salary,
+                            'location' => $location,
+                            'application_deadline' => $deadline,
+                        ]
+                    ];
+                }
+            ],
+
+            // 9. إغلاق أو إعادة فتح فرصة عمل شاغرة
+            'toggle_job_opportunity_status' => [
+                'name' => 'toggle_job_opportunity_status',
+                'description' => 'إغلاق أو إعادة فتح فرصة وظيفية تابعة للشركة (تبديل حالة التقديم بين مفتوحة open ومغلقة closed).',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'job_identifier' => [
+                            'type' => 'string',
+                            'description' => 'مسمى الوظيفة أو رقم معرفها'
+                        ],
+                        'target_status' => [
+                            'type' => 'string',
+                            'enum' => ['open', 'closed', 'toggle'],
+                            'description' => 'الحالة المطلوبة: open (مفتوحة)، closed (مغلقة ومكتفية)، toggle (تبديل الحالة الحالية)'
+                        ]
+                    ],
+                    'required' => ['job_identifier']
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['company', 'career_guidance_officer', 'partnership_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $ident = trim($args['job_identifier']);
+                    $query = JobOpportunity::with('company');
+
+                    if ($user->role === 'company') {
+                        $company = $user->company ?? Company::where('user_id', $user->id)->first();
+                        if (!$company) {
+                            return ['status' => 'error', 'message' => 'لم يتم العثور على ملف شركة مرتبط بهذا الحساب.'];
+                        }
+                        $query->where('company_id', $company->id);
+                    }
+
+                    $job = is_numeric($ident) ? (clone $query)->find((int)$ident) : (clone $query)->where('title', 'like', "%{$ident}%")->first();
+                    if (!$job) {
+                        return ['status' => 'error', 'message' => "لم يتم العثور على فرصة عمل تطابق: '{$ident}'."];
+                    }
+
+                    $mode = $args['target_status'] ?? 'toggle';
+                    $newStatus = ($mode === 'open') ? 'open' : (($mode === 'closed') ? 'closed' : ($job->status === 'open' ? 'closed' : 'open'));
+                    $statusArabic = ($newStatus === 'open') ? 'مفتوحة للتقديم ✅' : 'مغلقة ومكتفية 🔒';
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'toggle_job_status',
+                        'action_type' => 'toggle_job_status',
+                        'title' => "تأكيد تعديل حالة وظيفة: {$job->title}",
+                        'summary' => "تغيير حالة الوظيفة إلى ({$statusArabic})",
+                        'details' => "**الوظيفة:** {$job->title}\n**الشركة:** " . ($job->company ? $job->company->name : '—') . "\n**الحالة الحالية:** " . ($job->status === 'open' ? 'مفتوحة حالياً' : 'مغلقة حالياً') . "\n**الحالة الجديدة:** {$statusArabic}",
+                        'message' => "هل تؤكد تغيير حالة التقديم لوظيفة **'{$job->title}'** إلى **{$statusArabic}**؟",
+                        'data' => [
+                            'job_id' => $job->id,
+                            'target_status' => $newStatus,
+                            'job_title' => $job->title,
+                        ]
+                    ];
+                }
+            ],
+
+            // 10. استعراض قائمة وظائف الشركة الحالية
+            'get_my_company_jobs' => [
+                'name' => 'get_my_company_jobs',
+                'description' => 'استعراض قائمة الوظائف والفرص المنشورة التابعة للشركة مع حالة كل شاغر وإجمالي عدد المرشحين والمتقدمين.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'status' => [
+                            'type' => 'string',
+                            'enum' => ['all', 'open', 'closed'],
+                            'description' => 'فلترة بحالة الوظيفة: open (المفتوحة فقط)، closed (المغلقة فقط)، all (الكل)'
+                        ],
+                        'company_identifier' => [
+                            'type' => 'string',
+                            'description' => 'اسم الشركة (خاص بالمسؤولين)'
+                        ]
+                    ]
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['company', 'career_guidance_officer', 'partnership_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $query = JobOpportunity::with(['company', 'nominations']);
+
+                    if ($user->role === 'company') {
+                        $company = $user->company ?? Company::where('user_id', $user->id)->first();
+                        if (!$company) {
+                            return ['status' => 'error', 'message' => 'لم يتم العثور على شركة مسجلة لهذا الحساب.'];
+                        }
+                        $query->where('company_id', $company->id);
+                    } elseif (!empty($args['company_identifier'])) {
+                        $cIdent = trim($args['company_identifier']);
+                        $query->whereHas('company', fn($q) => $q->where('name', 'like', "%{$cIdent}%"));
+                    }
+
+                    if (!empty($args['status']) && $args['status'] !== 'all') {
+                        $query->where('status', $args['status']);
+                    }
+
+                    $jobs = $query->latest()->limit(10)->get()->map(function($j) {
+                        return [
+                            'id' => $j->id,
+                            'title' => $j->title,
+                            'company_name' => $j->company ? $j->company->name : '—',
+                            'status' => $j->status,
+                            'status_arabic' => $j->status === 'open' ? 'مفتوحة 🟢' : 'مغلقة 🔒',
+                            'contract_type' => $j->contract_type_arabic ?? $j->contract_type,
+                            'seats' => $j->seats,
+                            'candidates_count' => $j->nominations()->count(),
+                            'pending_count' => $j->nominations()->whereIn('status', ['pending', 'nominated', 'under_review'])->count(),
+                            'hired_count' => $j->nominations()->where('final_status', 'hired')->count(),
+                            'deadline' => $j->application_deadline ? Carbon::parse($j->application_deadline)->format('Y-m-d') : 'مفتوح',
+                        ];
+                    });
+
+                    return [
+                        'status' => 'success',
+                        'count' => $jobs->count(),
+                        'data' => $jobs,
+                    ];
+                }
+            ],
+        ];
+    }
+
+    /**
+     * ==========================================
+     * 🤝 قطاع إدارة الشراكات والاتفاقيات (Partnership Officer & Agreements Copilot)
+     * ==========================================
+     */
+    private static function definePartnershipOfficerTools(): array
+    {
+        return [
+            // 11. تسجيل وإضافة شركة شريكة جديدة
+            'register_partner_company' => [
+                'name' => 'register_partner_company',
+                'description' => 'تسجيل واعتماد شركة أو مؤسسة شريكة جديدة في قاعدة بيانات جامعة طرابلس مع تحديد قطاع العمل ومسؤول الاتصال ونوع الشراكة.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'name' => [
+                            'type' => 'string',
+                            'description' => 'اسم الشركة أو المؤسسة الرسمي'
+                        ],
+                        'industry' => [
+                            'type' => 'string',
+                            'description' => 'قطاع ومجال العمل (مثال: تقنية معلومات، اتصالات، خدمات نفطية، مصارف ومحاسبة)'
+                        ],
+                        'email' => [
+                            'type' => 'string',
+                            'description' => 'البريد الإلكتروني الرسمي للشركة'
+                        ],
+                        'phone' => [
+                            'type' => 'string',
+                            'description' => 'رقم هاتف الشركة'
+                        ],
+                        'city' => [
+                            'type' => 'string',
+                            'description' => 'المدينة (مثال: طرابلس، مصراتة، بنغازي)'
+                        ],
+                        'address' => [
+                            'type' => 'string',
+                            'description' => 'العنوان التفصيلي للمقر'
+                        ],
+                        'website' => [
+                            'type' => 'string',
+                            'description' => 'رابط الموقع الرسمي'
+                        ],
+                        'contact_person' => [
+                            'type' => 'string',
+                            'description' => 'اسم ممثل الشركة أو مسؤول الاتصال'
+                        ],
+                        'contact_phone' => [
+                            'type' => 'string',
+                            'description' => 'هاتف مسؤول الاتصال المباشر'
+                        ],
+                        'partnership_types' => [
+                            'type' => 'array',
+                            'items' => ['type' => 'string'],
+                            'description' => 'مجالات الشراكة: employment (توظيف), training (تدريب), logistic_support (دعم), academic (أكاديمي), workshops (ورش عمل)'
+                        ],
+                        'description' => [
+                            'type' => 'string',
+                            'description' => 'نبذة تعريفية عن أنشطة الشركة'
+                        ]
+                    ],
+                    'required' => ['name', 'industry']
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['partnership_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $name = trim($args['name']);
+                    $exists = Company::where('name', 'like', "%{$name}%")->first();
+                    if ($exists) {
+                        return ['status' => 'error', 'message' => "يوجد شركة مسجلة مسبقاً بهذا الاسم: '{$exists->name}'."];
+                    }
+
+                    $industry = trim($args['industry']);
+                    $city = $args['city'] ?? 'طرابلس';
+                    $address = $args['address'] ?? "{$city}، ليبيا";
+                    $email = $args['email'] ?? null;
+                    $phone = $args['phone'] ?? null;
+                    $contact = $args['contact_person'] ?? 'مكتب العلاقات العامة';
+                    $types = $args['partnership_types'] ?? ['employment', 'training'];
+
+                    $details = "**اسم الشركة:** {$name}\n" .
+                               "**القطاع:** {$industry}\n" .
+                               "**المدينة والمقر:** {$address}\n" .
+                               "**البريد الرسمي:** " . ($email ?: '—') . "\n" .
+                               "**الهاتف:** " . ($phone ?: '—') . "\n" .
+                               "**مسؤول الاتصال:** {$contact}\n" .
+                               "**مجالات الشراكة:** " . implode('، ', (array)$types);
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'create_company',
+                        'action_type' => 'create_company',
+                        'title' => "تأكيد تسجيل شركة شريكة جديدة: {$name}",
+                        'summary' => "إضافة شركة {$name} إلى شبكة الشركاء المعتمدين",
+                        'details' => $details,
+                        'message' => "هل تود تأكيد تسجيل واعتماد شركة **'{$name}'** رسمياً في شبكة شركاء جامعة طرابلس؟",
+                        'data' => [
+                            'name' => $name,
+                            'industry' => $industry,
+                            'email' => $email,
+                            'phone' => $phone,
+                            'city' => $city,
+                            'address' => $address,
+                            'website' => $args['website'] ?? null,
+                            'contact_person' => $contact,
+                            'contact_phone' => $args['contact_phone'] ?? $phone,
+                            'partnership_types' => $types,
+                            'description' => $args['description'] ?? "شركة شريكة في قطاع {$industry}.",
+                        ]
+                    ];
+                }
+            ],
+
+            // 12. تحديث وتمديد شروط اتفاقية شراكة
+            'update_company_partnership' => [
+                'name' => 'update_company_partnership',
+                'description' => 'تحديث شروط وبيانات الشراكة لشركة مسجلة (تمديد المدة، تعديل حالة الشراكة إلى نشطة/منتهية، تحديث مجالات الشراكة أو الملاحظات).',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'company_identifier' => [
+                            'type' => 'string',
+                            'description' => 'اسم أو معرف الشركة'
+                        ],
+                        'partnership_status' => [
+                            'type' => 'string',
+                            'enum' => ['active', 'under_review', 'expired'],
+                            'description' => 'حالة الشراكة: active (نشطة ومعتمدة)، under_review (قيد المراجعة)، expired (منتهية)'
+                        ],
+                        'partnership_end_date' => [
+                            'type' => 'string',
+                            'description' => 'تاريخ انتهاء أو تمديد الشراكة (YYYY-MM-DD)'
+                        ],
+                        'partnership_types' => [
+                            'type' => 'array',
+                            'items' => ['type' => 'string'],
+                            'description' => 'تحديث مجالات الشراكة'
+                        ],
+                        'notes' => [
+                            'type' => 'string',
+                            'description' => 'ملاحظات أو بنود إضافية للشراكة'
+                        ]
+                    ],
+                    'required' => ['company_identifier']
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['partnership_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $ident = trim($args['company_identifier']);
+                    $company = is_numeric($ident) ? Company::find((int)$ident) : Company::where('name', 'like', "%{$ident}%")->first();
+                    if (!$company) {
+                        return ['status' => 'error', 'message' => "لم يتم العثور على شركة تطابق: '{$ident}'."];
+                    }
+
+                    $status = $args['partnership_status'] ?? $company->partnership_status;
+                    $endDate = $args['partnership_end_date'] ?? ($company->partnership_end_date ? Carbon::parse($company->partnership_end_date)->format('Y-m-d') : now()->addYear()->format('Y-m-d'));
+                    $types = $args['partnership_types'] ?? $company->partnership_types;
+                    $notes = $args['notes'] ?? $company->partnership_notes;
+
+                    $details = "**الشركة:** {$company->name}\n" .
+                               "**حالة الشراكة الجديدة:** " . ($status === 'active' ? 'نشطة ومعتمدة ✅' : ($status === 'expired' ? 'منتهية ⚠️' : 'قيد المراجعة ⏳')) . "\n" .
+                               "**تاريخ نهاية الشراكة / التمديد:** {$endDate}\n" .
+                               "**الملاحظات:** " . ($notes ?: 'لا توجد ملاحظات');
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'update_company_partnership',
+                        'action_type' => 'update_company_partnership',
+                        'title' => "تأكيد تحديث شروط شراكة: {$company->name}",
+                        'summary' => "تحديث بيانات الشراكة لشركة {$company->name}",
+                        'details' => $details,
+                        'message' => "هل تؤكد حفظ التحديثات وتمديد اتفاقية الشراكة لشركة **'{$company->name}'**؟",
+                        'data' => [
+                            'company_id' => $company->id,
+                            'partnership_status' => $status,
+                            'partnership_end_date' => $endDate,
+                            'partnership_types' => $types,
+                            'notes' => $notes,
+                        ]
+                    ];
+                }
+            ],
+
+            // 13. توثيق وتسجيل وثيقة شراكة رسمية (MOU / عقد)
+            'record_partnership_document' => [
+                'name' => 'record_partnership_document',
+                'description' => 'توثيق وتسجيل وثيقة شراكة رسمية أو مذكرة تفاهم (MOU) أو اتفاقية تعاون مع شركة شريكة في المنظومة.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'company_identifier' => [
+                            'type' => 'string',
+                            'description' => 'اسم أو معرف الشركة الشريكة'
+                        ],
+                        'document_name' => [
+                            'type' => 'string',
+                            'description' => 'مسمى الوثيقة (مثال: مذكرة تفاهم للتدريب الميداني 2026، اتفاقية توظيف سنوية)'
+                        ],
+                        'document_type' => [
+                            'type' => 'string',
+                            'enum' => ['mou', 'contract', 'agreement', 'renewal', 'other'],
+                            'description' => 'نوع الوثيقة: mou (مذكرة تفاهم), contract (عقد رسمي), agreement (اتفاقية تعاون), renewal (ملحق تجديد)'
+                        ],
+                        'effective_date' => [
+                            'type' => 'string',
+                            'description' => 'تاريخ بدء السريان (YYYY-MM-DD)'
+                        ],
+                        'expiry_date' => [
+                            'type' => 'string',
+                            'description' => 'تاريخ انتهاء السريان (YYYY-MM-DD)'
+                        ],
+                        'description' => [
+                            'type' => 'string',
+                            'description' => 'ملخص بنود ومخرجات الاتفاقية'
+                        ]
+                    ],
+                    'required' => ['company_identifier', 'document_name']
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['partnership_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $ident = trim($args['company_identifier']);
+                    $company = is_numeric($ident) ? Company::find((int)$ident) : Company::where('name', 'like', "%{$ident}%")->first();
+                    if (!$company) {
+                        return ['status' => 'error', 'message' => "لم يتم العثور على شركة تطابق: '{$ident}'."];
+                    }
+
+                    $docName = trim($args['document_name']);
+                    $docType = $args['document_type'] ?? 'mou';
+                    $typeMap = [
+                        'mou' => 'مذكرة تفاهم (MOU)',
+                        'contract' => 'عقد شراكة رسمي',
+                        'agreement' => 'اتفاقية تعاون مشترك',
+                        'renewal' => 'ملحق تجديد شراكة',
+                        'other' => 'وثيقة أخرى',
+                    ];
+                    $typeArabic = $typeMap[$docType] ?? $docType;
+                    $effDate = $args['effective_date'] ?? now()->format('Y-m-d');
+                    $expDate = $args['expiry_date'] ?? now()->addYear()->format('Y-m-d');
+                    $desc = $args['description'] ?? "توثيق رسمي للشراكة الاستراتيجية بين جامعة طرابلس وشركة {$company->name}.";
+
+                    $details = "**الشركة الشريكة:** {$company->name}\n" .
+                               "**عنوان الوثيقة:** {$docName}\n" .
+                               "**نوع الوثيقة:** {$typeArabic}\n" .
+                               "**تاريخ السريان:** {$effDate} حتى {$expDate}\n" .
+                               "**ملخص البنود:** {$desc}";
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'record_partnership_document',
+                        'action_type' => 'record_partnership_document',
+                        'title' => "تأكيد تسجيل وثيقة الشراكة: {$docName}",
+                        'summary' => "توثيق {$typeArabic} لشركة {$company->name}",
+                        'details' => $details,
+                        'message' => "هل تود تأكيد إدراج وتوثيق هذه الوثيقة في أرشيف اتفاقيات جامعة طرابلس لشركة **'{$company->name}'**؟",
+                        'data' => [
+                            'company_id' => $company->id,
+                            'document_name' => $docName,
+                            'document_type' => $docType,
+                            'effective_date' => $effDate,
+                            'expiry_date' => $expDate,
+                            'description' => $desc,
+                        ]
+                    ];
+                }
+            ],
+
+            // 14. تحديث الملف التعريفي للشركة
+            'update_my_company_profile' => [
+                'name' => 'update_my_company_profile',
+                'description' => 'تحديث بيانات الشركة الحالية (الهاتف، العنوان، الموقع الإلكتروني، النبذة، مسؤول الاتصال).',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'phone' => ['type' => 'string', 'description' => 'رقم هاتف الشركة'],
+                        'website' => ['type' => 'string', 'description' => 'الموقع الإلكتروني'],
+                        'city' => ['type' => 'string', 'description' => 'المدينة'],
+                        'address' => ['type' => 'string', 'description' => 'العنوان التفصيلي'],
+                        'description' => ['type' => 'string', 'description' => 'النبذة التعريفية'],
+                        'contact_person' => ['type' => 'string', 'description' => 'اسم مسؤول الاتصال'],
+                        'contact_phone' => ['type' => 'string', 'description' => 'هاتف مسؤول الاتصال'],
+                        'contact_email' => ['type' => 'string', 'description' => 'بريد مسؤول الاتصال'],
+                    ]
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['company', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $company = $user->company ?? Company::where('user_id', $user->id)->first();
+                    if (!$company) {
+                        return ['status' => 'error', 'message' => 'لا يوجد ملف شركة مسجل لهذا الحساب.'];
+                    }
+
+                    $changes = [];
+                    foreach ($args as $k => $v) {
+                        if (!empty($v)) {
+                            $changes[$k] = trim($v);
+                        }
+                    }
+
+                    if (empty($changes)) {
+                        return ['status' => 'info', 'message' => 'لم يتم إدخال بيانات جديدة لتحديثها.'];
+                    }
+
+                    $details = "**الشركة:** {$company->name}\n";
+                    foreach ($changes as $k => $v) {
+                        $details .= "• **{$k}:** {$v}\n";
+                    }
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'update_company_profile',
+                        'action_type' => 'update_company_profile',
+                        'title' => "تأكيد تحديث الملف التعريفي لشركة: {$company->name}",
+                        'summary' => "تحديث بيانات الاتصال والمقر للشركة",
+                        'details' => $details,
+                        'message' => "هل تود تأكيد حفظ هذه التعديلات على ملف الشركة؟",
+                        'data' => array_merge($changes, ['company_id' => $company->id])
+                    ];
+                }
+            ],
+
+            // 15. ترشيح دفعة من أفضل الخريجين المطابقين (Batch Nomination)
+            'batch_nominate_graduates' => [
+                'name' => 'batch_nominate_graduates',
+                'description' => 'ترشيح دفعة من أفضل الخريجين المطابقين لمعايير وظيفة شاغرة دفعة واحدة بناءً على التخصص والمعدل التراكمي.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'job_identifier' => [
+                            'type' => 'string',
+                            'description' => 'اسم الوظيفة الشاغرة أو معرفها'
+                        ],
+                        'major' => [
+                            'type' => 'string',
+                            'description' => 'التخصص الأكاديمي المطلوب (اختياري، يطابق الوظيفة تلقائياً)'
+                        ],
+                        'min_gpa' => [
+                            'type' => 'number',
+                            'description' => 'الحد الأدنى للمعدل التراكمي (افتراضي 75)'
+                        ],
+                        'limit' => [
+                            'type' => 'integer',
+                            'description' => 'عدد المرشحين المطلوب ترشيحهم (افتراضي 3)'
+                        ],
+                        'notes' => [
+                            'type' => 'string',
+                            'description' => 'ملاحظات الترشيح المشتركة'
+                        ]
+                    ],
+                    'required' => ['job_identifier']
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['career_guidance_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $jobIdent = trim($args['job_identifier']);
+                    $job = is_numeric($jobIdent) ? JobOpportunity::with('company')->find((int)$jobIdent) : JobOpportunity::with('company')->where('title', 'like', "%{$jobIdent}%")->first();
+                    if (!$job) {
+                        return ['status' => 'error', 'message' => "لم يتم العثور على فرصة عمل تطابق: '{$jobIdent}'."];
+                    }
+
+                    $minGpa = (float) ($args['min_gpa'] ?? 75);
+                    $limit = (int) ($args['limit'] ?? 3);
+                    $query = GraduateData::where('is_active', true)->where('gpa', '>=', $minGpa);
+
+                    if (!empty($args['major'])) {
+                        $m = trim($args['major']);
+                        $query->where(fn($q) => $q->where('major', 'like', "%{$m}%")->orWhere('faculty', 'like', "%{$m}%"));
+                    }
+
+                    // استبعاد الخريجين المرشحين بالفعل لهذه الوظيفة
+                    $existingGradIds = Nomination::where('job_opportunity_id', $job->id)->pluck('graduate_id')->toArray();
+                    if (!empty($existingGradIds)) {
+                        $query->whereNotIn('id', $existingGradIds);
+                    }
+
+                    $candidates = $query->orderByDesc('gpa')->limit($limit)->get();
+                    if ($candidates->isEmpty()) {
+                        return [
+                            'status' => 'info',
+                            'message' => "لم يتم العثور على خريجين مؤهلين غير مرشحين مسبقاً لهذه الوظيفة بمعدل أعلى من {$minGpa}%."
+                        ];
+                    }
+
+                    $candidateNames = $candidates->pluck('name')->toArray();
+                    $candidateIds = $candidates->pluck('id')->toArray();
+                    $details = "**الوظيفة:** {$job->title} لدى (" . ($job->company ? $job->company->name : '—') . ")\n" .
+                               "**عدد المرشحين في الدفعة:** " . count($candidates) . " مرشحاً\n" .
+                               "**قائمة المرشحين:**\n";
+                    foreach ($candidates as $idx => $g) {
+                        $details .= ($idx + 1) . ". {$g->name} - تخصص: {$g->major} (معدل: **{$g->gpa}%**)\n";
+                    }
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'bulk_nominate_graduates',
+                        'action_type' => 'bulk_nominate_graduates',
+                        'title' => "تأكيد ترشيح دفعة خريجين لوظيفة: {$job->title}",
+                        'summary' => "ترشيح " . count($candidates) . " خريجاً لوظيفة {$job->title}",
+                        'details' => $details,
+                        'message' => "هل تود تأكيد ترشيح هذه الدفعة من الخريجين المتميزين دفعة واحدة لوظيفة **'{$job->title}'**؟",
+                        'data' => [
+                            'job_opportunity_id' => $job->id,
+                            'job_title' => $job->title,
+                            'candidate_ids' => $candidateIds,
+                            'candidate_names' => $candidateNames,
+                        ]
+                    ];
+                }
+            ],
+
+            // 16. تقرير إحصائي مفصل عن قطاع الشراكات
+            'get_partnerships_report' => [
+                'name' => 'get_partnerships_report',
+                'description' => 'استخراج تقرير تفصيلي وإحصائي عن قطاع الشراكات (توزيع الشركات حسب المجال، حالة الشراكات، الشراكات المنتهية أو التي قاربت على الانتهاء).',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => new \stdClass(),
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['partnership_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $total = Company::count();
+                    $active = Company::where('is_approved', true)->where('partnership_status', 'active')->count();
+                    $underReview = Company::where('partnership_status', 'under_review')->orWhere('is_approved', false)->count();
+                    $expired = Company::where('partnership_status', 'expired')->count();
+                    $docsCount = class_exists(PartnershipDocument::class) ? PartnershipDocument::count() : 0;
+                    $totalJobs = JobOpportunity::count();
+                    $openJobs = JobOpportunity::where('status', 'open')->count();
+
+                    $topIndustries = Company::selectRaw('industry, count(*) as count')
+                        ->whereNotNull('industry')
+                        ->groupBy('industry')
+                        ->orderByDesc('count')
+                        ->limit(4)
+                        ->get();
+
+                    return [
+                        'status' => 'success',
+                        'generated_at' => now()->format('Y-m-d H:i'),
+                        'metrics' => [
+                            'total_companies' => $total,
+                            'active_partnerships' => $active,
+                            'under_review_partnerships' => $underReview,
+                            'expired_partnerships' => $expired,
+                            'partnership_documents' => $docsCount,
+                            'total_jobs_posted' => $totalJobs,
+                            'open_jobs' => $openJobs,
+                            'top_industries' => $topIndustries->pluck('count', 'industry')->toArray(),
+                        ]
+                    ];
+                }
+            ],
+
+            // 17. تحليلات وإحصائيات التوظيف ومطابقة سوق العمل
+            'get_employment_analytics' => [
+                'name' => 'get_employment_analytics',
+                'description' => 'استخراج تحليلات وإحصائيات التوظيف ومطابقة سوق العمل والوظائف الشاغرة ومؤشرات التوظيف.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => new \stdClass(),
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['career_guidance_officer', 'admin', 'partnership_officer']),
+                'execute' => function(User $user, array $args) {
+                    $totalJobs = JobOpportunity::count();
+                    $openJobs = JobOpportunity::where('status', 'open')->count();
+                    $totalNominations = Nomination::count();
+                    $acceptedNominations = Nomination::where('status', 'accepted')->count();
+                    $interviewsCount = Nomination::where('status', 'interview_scheduled')->count();
+                    $hiredGraduates = Nomination::where('final_status', 'hired')->count();
+
+                    $topMajorsDemanded = GraduateData::whereIn('id', Nomination::pluck('graduate_id'))
+                        ->selectRaw('major, count(*) as count')
+                        ->groupBy('major')
+                        ->orderByDesc('count')
+                        ->limit(4)
+                        ->get();
+
+                    return [
+                        'status' => 'success',
+                        'generated_at' => now()->format('Y-m-d H:i'),
+                        'metrics' => [
+                            'total_vacancies' => $totalJobs,
+                            'active_vacancies' => $openJobs,
+                            'total_nominations' => $totalNominations,
+                            'interviews_scheduled' => $interviewsCount,
+                            'accepted_nominations' => $acceptedNominations,
+                            'hired_graduates' => $hiredGraduates,
+                            'employment_success_rate' => $totalNominations > 0 ? round(($hiredGraduates / $totalNominations) * 100, 1) . '%' : '0%',
+                            'top_demanded_majors' => $topMajorsDemanded->pluck('count', 'major')->toArray(),
+                        ]
+                    ];
+                }
+            ],
+
+            // 18. استعراض وظائف وشواغر الشركة
+            'get_company_jobs' => [
+                'name' => 'get_company_jobs',
+                'description' => 'استعراض الفرص الوظيفية والشواغر المتاحة لشركة معينة أو شواغر الشركة الحالية مع إحصائيات المرشحين والمقاعد.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'company_identifier' => [
+                            'type' => 'string',
+                            'description' => 'اسم الشركة أو معرفها (اختياري، يحدد تلقائياً لحساب الشركة)'
+                        ],
+                        'status' => [
+                            'type' => 'string',
+                            'description' => 'حالة الوظيفة: all (الكل), open (مفتوحة), closed (مغلقة)',
+                            'enum' => ['all', 'open', 'closed']
+                        ]
+                    ]
+                ],
+                'authorize' => fn(User $user) => in_array($user->role, ['company', 'career_guidance_officer', 'partnership_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $query = JobOpportunity::with('company');
+
+                    if ($user->role === 'company') {
+                        $company = $user->company ?? Company::where('user_id', $user->id)->first();
+                        if (!$company) {
+                            return ['status' => 'error', 'message' => 'لم يتم العثور على شركة مرتبطة بحسابك.'];
+                        }
+                        $query->where('company_id', $company->id);
+                    } elseif (!empty($args['company_identifier'])) {
+                        $ci = trim($args['company_identifier']);
+                        $query->whereHas('company', fn($q) => $q->where('name', 'like', "%{$ci}%")->orWhere('id', $ci));
+                    }
+
+                    if (!empty($args['status']) && in_array($args['status'], ['open', 'closed'])) {
+                        $query->where('status', $args['status']);
+                    }
+
+                    $jobs = $query->latest()->limit(10)->get();
+                    if ($jobs->isEmpty()) {
+                        return [
+                            'status' => 'info',
+                            'count' => 0,
+                            'message' => 'لا توجد فرص وظيفية مسجلة حالياً تطابق معايير البحث.'
+                        ];
+                    }
+
+                    $data = $jobs->map(function($j) {
+                        return [
+                            'id' => $j->id,
+                            'title' => $j->title,
+                            'company_name' => $j->company ? $j->company->name : 'غير محدد',
+                            'status' => $j->status,
+                            'seats' => $j->seats ?? $j->vacancies_count ?? 1,
+                            'location' => $j->location ?? 'طرابلس',
+                            'contract_type' => $j->contract_type ?? 'دوام كامل',
+                            'deadline' => $j->deadline ? $j->deadline->format('Y-m-d') : 'مفتوح',
+                            'nominations_count' => $j->nominations()->count(),
+                            'hired_count' => $j->nominations()->where('final_status', 'hired')->count(),
+                        ];
+                    });
+
+                    return [
+                        'status' => 'success',
+                        'count' => $data->count(),
+                        'data' => $data->toArray(),
+                    ];
+                }
+            ],
+
+            // 19. تعديل حالة الوظيفة (إغلاق / إعادة فتح)
+            'toggle_job_status' => [
+                'name' => 'toggle_job_status',
+                'description' => 'تعديل حالة فرصة العمل (إغلاق التقديم أو إعادة فتح التقديم والترشيح).',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'job_identifier' => [
+                            'type' => 'string',
+                            'description' => 'المسمى الوظيفي أو معرف الوظيفة'
+                        ],
+                        'target_status' => [
+                            'type' => 'string',
+                            'description' => 'الحالة المطلوبة: open (فتح/تفعيل) أو closed (إغلاق)',
+                            'enum' => ['open', 'closed']
+                        ]
+                    ],
+                    'required' => ['job_identifier']
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['company', 'career_guidance_officer', 'partnership_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $jobIdent = trim($args['job_identifier']);
+                    $query = JobOpportunity::with('company');
+
+                    if ($user->role === 'company') {
+                        $company = $user->company ?? Company::where('user_id', $user->id)->first();
+                        if (!$company) {
+                            return ['status' => 'error', 'message' => 'لم يتم العثور على شركة مرتبطة بحسابك.'];
+                        }
+                        $query->where('company_id', $company->id);
+                    }
+
+                    $job = is_numeric($jobIdent) ? $query->find((int)$jobIdent) : $query->where('title', 'like', "%{$jobIdent}%")->first();
+                    if (!$job) {
+                        return ['status' => 'error', 'message' => "لم يتم العثور على فرصة عمل تطابق: '{$jobIdent}'."];
+                    }
+
+                    $targetStatus = $args['target_status'] ?? ($job->status === 'open' ? 'closed' : 'open');
+                    $actionWord = ($targetStatus === 'open') ? 'إعادة فتح وتفعيل التقديم' : 'إغلاق واكتفاء التقديم';
+                    $statusBadge = ($targetStatus === 'open') ? 'مفتوحة للتقديم والترشيح 🟢' : 'مغلقة ومكتفية 🔒';
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'toggle_job_status',
+                        'action_type' => 'toggle_job_status',
+                        'title' => "تأكيد {$actionWord} لوظيفة: {$job->title}",
+                        'summary' => "تغيير حالة وظيفة '{$job->title}' إلى {$statusBadge}",
+                        'details' => "**الوظيفة:** {$job->title}\n**الشركة:** " . ($job->company ? $job->company->name : '—') . "\n**الحالة الحالية:** " . ($job->status === 'open' ? 'مفتوحة 🟢' : 'مغلقة 🔒') . "\n**الحالة الجديدة:** {$statusBadge}",
+                        'message' => "هل ترغب في تأكيد {$actionWord} لفرصة العمل **'{$job->title}'**؟",
+                        'data' => [
+                            'job_id' => $job->id,
+                            'target_status' => $targetStatus,
+                        ]
+                    ];
+                }
+            ],
+
+            // 20. تحديث بيانات الملف التعريفي للشركة
+            'update_company_profile' => [
+                'name' => 'update_company_profile',
+                'description' => 'تحديث بيانات الملف التعريفي للشركة (الهاتف، الموقع الإلكتروني، العنوان، مسؤول التواصل).',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'company_identifier' => [
+                            'type' => 'string',
+                            'description' => 'اسم الشركة أو معرفها (اختياري للشركات)'
+                        ],
+                        'phone' => ['type' => 'string', 'description' => 'رقم الهاتف الرسمي'],
+                        'website' => ['type' => 'string', 'description' => 'الموقع الإلكتروني'],
+                        'address' => ['type' => 'string', 'description' => 'عنوان المقر'],
+                        'contact_person' => ['type' => 'string', 'description' => 'اسم مسؤول التواصل'],
+                        'contact_phone' => ['type' => 'string', 'description' => 'هاتف مسؤول التواصل'],
+                    ]
+                ],
+                'requires_confirmation' => true,
+                'authorize' => fn(User $user) => in_array($user->role, ['company', 'partnership_officer', 'admin']),
+                'execute' => function(User $user, array $args) {
+                    $company = null;
+                    if ($user->role === 'company') {
+                        $company = $user->company ?? Company::where('user_id', $user->id)->first();
+                    } elseif (!empty($args['company_identifier'])) {
+                        $ci = trim($args['company_identifier']);
+                        $company = is_numeric($ci) ? Company::find((int)$ci) : Company::where('name', 'like', "%{$ci}%")->first();
+                    }
+
+                    if (!$company) {
+                        return ['status' => 'error', 'message' => 'لم يتم العثور على ملف الشركة المطلوب تحديثه.'];
+                    }
+
+                    $changes = [];
+                    if (!empty($args['phone'])) $changes[] = "• **الهاتف:** {$args['phone']}";
+                    if (!empty($args['website'])) $changes[] = "• **الموقع الإلكتروني:** {$args['website']}";
+                    if (!empty($args['address'])) $changes[] = "• **العنوان:** {$args['address']}";
+                    if (!empty($args['contact_person'])) $changes[] = "• **مسؤول التواصل:** {$args['contact_person']}";
+
+                    return [
+                        'status' => 'proposal',
+                        'type' => 'update_company_profile',
+                        'action_type' => 'update_company_profile',
+                        'title' => "تحديث الملف التعريفي لشركة: {$company->name}",
+                        'summary' => "تحديث بيانات الاتصال والملف التعريفي لشركة {$company->name}",
+                        'details' => implode("\n", $changes),
+                        'message' => "هل تود تأكيد حفظ التعديلات في الملف التعريفي لشركة **'{$company->name}'**؟",
+                        'data' => array_merge(['company_id' => $company->id], $args),
                     ];
                 }
             ],

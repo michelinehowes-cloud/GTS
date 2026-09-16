@@ -113,7 +113,7 @@ class EvaluationFollowupController extends Controller
 
     public function partnershipReports()
     {
-        $partnershipController = new PartnershipController();
+        $partnershipController = new PartnershipController($this->notificationService);
         $data = $partnershipController->reports()->getData(); // Get data from the reports method
 
         return view('evaluation-followup.partnership-reports', $data);

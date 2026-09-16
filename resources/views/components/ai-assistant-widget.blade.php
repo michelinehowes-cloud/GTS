@@ -45,15 +45,18 @@
     } elseif ($userRole === 'partnership_officer') {
         $quickPrompts = [
             'أضف شركة جديدة شريكة',
-            'اكتب لي تقرير الشراكات وسوق العمل',
             'عرض قائمة الشركات الشريكة المعتمدة',
+            'اكتب لي تقرير الشراكات وسوق العمل',
             'ما هي الفرص الوظيفية المعلنة حالياً؟',
+            'اقترح خريجين متميزين لسوق العمل',
         ];
     } elseif ($userRole === 'company') {
         $quickPrompts = [
-            'عرض قائمة الشركات الشريكة المعتمدة',
-            'ما هي التدريبات والفعاليات المتاحة حالياً؟',
-            'عرض أحدث أخبار وإعلانات الجامعة',
+            'عرض المرشحين لوظائف شركتنا',
+            'أضف وظيفة جديدة لشركتنا',
+            'ابحث عن خريجين متميزين في تقنية المعلومات',
+            'ملخص إحصائيات التوظيف والمرشحين',
+            'عرض وتحديث ملف شركتنا',
         ];
     } elseif ($userRole === 'admin') {
         $quickPrompts = [
@@ -161,7 +164,13 @@
             <div class="ai-bubble p-2 rounded-3 shadow-sm" style="max-width: 85%; background: #ffffff; border: 1px solid #e2e8f0; font-size: 0.86rem; color: #1e293b; line-height: 1.6;">
                 مرحباً بك يا <strong>{{ $userName }}</strong> 👋!
                 <br>
-                أنا مساعدك الذكي في منظومة تدريب وتشغيل الخريجين. يمكنني مساعدتك في استعراض التدريبات، متابعة الطلبات، صياغة الأخبار والبرامج التدريبية بحسب صلاحياتك كـ <em>{{ $roleLabel }}</em>.
+                @if($userRole === 'company')
+                    أنا مساعدك الذكي في منظومة جامعة طرابلس. يمكنني مساعدتك في استعراض الخريجين المرشحين، جدولة المقابلات، نشر الوظائف، واقتراح أفضل الكفاءات الأكاديمية بحسب صلاحياتك كـ <em>{{ $roleLabel }}</em>.
+                @elseif($userRole === 'partnership_officer')
+                    أنا مساعدك الذكي في منظومة تدريب وتشغيل الخريجين. يمكنني مساعدتك في إدارة واعتماد الشركات الشريكة، نشر فرص العمل، وترشيح الخريجين بحسب صلاحياتك كـ <em>{{ $roleLabel }}</em>.
+                @else
+                    أنا مساعدك الذكي في منظومة تدريب وتشغيل الخريجين. يمكنني مساعدتك في استعراض التدريبات، متابعة الطلبات، صياغة الأخبار والبرامج التدريبية بحسب صلاحياتك كـ <em>{{ $roleLabel }}</em>.
+                @endif
                 <br>
                 <span class="text-muted" style="font-size: 0.78rem;">💡 يمكنك كتابة أي استفسار أو اختيار أحد المقترحات السريعة بالأعلى.</span>
             </div>
@@ -234,6 +243,24 @@
         display: inline-block;
         margin-bottom: 4px;
         font-family: monospace;
+    }
+    .ai-inline-prompt-btn {
+        font-size: 0.76rem !important;
+        font-weight: 600;
+        border: 1px solid #0d3882 !important;
+        color: #0d3882 !important;
+        background: #ffffff !important;
+        transition: all 0.2s ease !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        cursor: pointer !important;
+    }
+    .ai-inline-prompt-btn:hover {
+        background: #0d3882 !important;
+        color: #ffffff !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 2px 6px rgba(13, 56, 130, 0.25) !important;
     }
     /* Hide native horizontal scrollbars cleanly for prompt chips ribbon */
     .ai-quick-prompts {
@@ -321,6 +348,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Inline message prompt buttons delegation (e.g. one-click direct nomination)
+    if (messagesContainer) {
+        messagesContainer.addEventListener('click', function(e) {
+            const promptBtn = e.target.closest('.ai-inline-prompt-btn');
+            if (promptBtn) {
+                const promptText = promptBtn.getAttribute('data-prompt');
+                if (promptText && !isWaitingResponse) {
+                    chatInput.value = promptText;
+                    sendMessage(promptText);
+                }
+            }
+        });
+    }
+
     // Form submit
     if (chatForm) {
         chatForm.addEventListener('submit', function(e) {
@@ -380,6 +421,11 @@ document.addEventListener('DOMContentLoaded', function() {
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             // Bullet points
             .replace(/^\s*[\-\*]\s+(.*$)/gim, '<li class="ms-3 mb-1">$1</li>')
+            // Action Prompt Buttons (#prompt:...)
+            .replace(/\[(.*?)\]\(#prompt:(.*?)\)/g, function(match, label, prompt) {
+                const cleanPrompt = decodeURIComponent(prompt).replace(/"/g, '&quot;');
+                return `<button type="button" class="btn btn-sm btn-outline-primary rounded-pill py-0 px-2 my-1 ai-inline-prompt-btn" data-prompt="${cleanPrompt}"><i class="fas fa-hand-pointer me-1"></i>${label}</button>`;
+            })
             // Links
             .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-decoration-underline text-primary fw-bold">$1</a>')
             // Line breaks

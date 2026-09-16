@@ -18,8 +18,8 @@
         secondaryBadgeIcon="fas fa-shield-alt"
     >
         <a href="{{ route('job-fair.admin.index') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
-            <i class="fas fa-store fs-6"></i>
-            <span>معارض التوظيف</span>
+            <i class="fas fa-calendar-alt fs-6"></i>
+            <span>فعاليات</span>
         </a>
         <a href="{{ route('admin.companies') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
             <i class="fas fa-building fs-6"></i>

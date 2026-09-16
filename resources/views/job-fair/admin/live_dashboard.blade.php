@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'إحصائيات المعرض المباشرة - ' . $fair->title)
+@section('title', 'المتابعة اللحظية لإحصائيات المعرض - ' . $fair->title)
 
 @section('content')
 <div class="container-fluid py-4" style="background-color: #f8f9fa;">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-0 text-gray-800">
-                <i class="fas fa-satellite-dish text-danger blink mr-2"></i> البث المباشر للإحصائيات
+                <i class="fas fa-chart-line text-primary mr-2"></i> لوحة المتابعة اللحظية للحضور
             </h1>
             <p class="text-muted mt-2">تحديث تلقائي لحالة الحضور والمشاركة في: <strong>{{ $fair->title }}</strong></p>
         </div>

@@ -44,10 +44,15 @@ Route::get('/', function () {
         'opportunities_count' => $statsSettings['cards']['opportunities']['value'],
     ];
 
-    // معرض التوظيف
-    $activeFair = \App\Models\JobFair::latest()->first();
+    // جلب الفعاليات والمعارض النشطة والجارية أو القادمة (غير المنتهية)
+    $activeFairs = \App\Models\JobFair::whereIn('status', ['published', 'ongoing'])
+        ->get()
+        ->filter(fn($fair) => !$fair->is_ended);
 
-    return view('welcome', compact('advertisedTrainings', 'latestNews', 'activeAnnouncements', 'stats', 'statsSettings', 'activeFair'));
+    // الفعالية النشطة الأقرب زمنياً
+    $activeFair = $activeFairs->sortBy('event_date')->first();
+
+    return view('welcome', compact('advertisedTrainings', 'latestNews', 'activeAnnouncements', 'stats', 'statsSettings', 'activeFair', 'activeFairs'));
 })->name('home');
 
 // أضف هذا السطر لحل المشكلة
@@ -68,6 +73,11 @@ Route::middleware('guest')->group(function () {
     // تسجيل خريج جديد
     Route::get('/register/graduate', [App\Http\Controllers\GraduateRegistrationController::class, 'showRegistrationForm'])->name('graduate.register');
     Route::post('/register/graduate', [App\Http\Controllers\GraduateRegistrationController::class, 'register'])->name('graduate.register.store');
+
+    // تسجيل شركة أو مؤسسة جديدة
+    Route::get('/register/company', [App\Http\Controllers\CompanyRegistrationController::class, 'showRegistrationForm'])->name('company.register');
+    Route::post('/register/company', [App\Http\Controllers\CompanyRegistrationController::class, 'register'])->name('company.register.store');
+    Route::get('/register/company/success', [App\Http\Controllers\CompanyRegistrationController::class, 'success'])->name('company.register.success');
 });
 
 // ==================== 🔑 تغيير كلمة المرور الإجباري ====================
@@ -160,8 +170,11 @@ Route::middleware('auth')->group(function () {
 
         // 🏢 إدارة الشركات
         Route::get('/companies', [CompanyController::class, 'index'])->name('admin.companies');
+        Route::get('/companies/index.blade.php', fn() => redirect()->route('admin.companies'));
+        Route::get('/companies/index', fn() => redirect()->route('admin.companies'));
         Route::get('/companies/create', [CompanyController::class, 'create'])->name('admin.companies.create');
         Route::post('/companies', [CompanyController::class, 'store'])->name('admin.companies.store');
+        Route::get('/companies/{company}', [CompanyController::class, 'show'])->name('admin.companies.show');
         Route::get('/companies/{company}/edit', [CompanyController::class, 'edit'])->name('admin.companies.edit');
         Route::put('/companies/{company}', [CompanyController::class, 'update'])->name('admin.companies.update');
         Route::delete('/companies/{company}', [CompanyController::class, 'destroy'])->name('admin.companies.destroy');
@@ -211,6 +224,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/graduates/{id}', [CareerGuidanceController::class, 'showGraduate'])->name('admin.career-guidance.graduates.show');
             Route::get('/graduates/{id}/edit', [CareerGuidanceController::class, 'editGraduate'])->name('admin.career-guidance.graduates.edit');
             Route::put('/graduates/{id}', [CareerGuidanceController::class, 'updateGraduate'])->name('admin.career-guidance.graduates.update');
+            Route::patch('/graduates/{id}/toggle-status', [CareerGuidanceController::class, 'toggleGraduateStatus'])->name('admin.career-guidance.graduates.toggle-status');
+            Route::delete('/graduates/{id}', [CareerGuidanceController::class, 'destroyGraduate'])->name('admin.career-guidance.graduates.destroy');
             Route::patch('/graduates/{id}/reset-password', [CareerGuidanceController::class, 'resetGraduatePassword'])->name('admin.career-guidance.graduates.reset-password');
             Route::post('/graduates/{id}/create-user', [CareerGuidanceController::class, 'createGraduateAccount'])->name('admin.career-guidance.graduates.create-user');
 
@@ -346,6 +361,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [PartnershipController::class, 'dashboard'])->name('partnership.dashboard');
 
         // 🏢 إدارة الشركات - كاملة
+        Route::get('/companies/index.blade.php', fn() => redirect()->route('partnership.companies'));
+        Route::get('/companies/index', fn() => redirect()->route('partnership.companies'));
         Route::get('/companies', [PartnershipController::class, 'companies'])->name('partnership.companies');
         Route::get('/companies/create', [PartnershipController::class, 'createCompany'])->name('partnership.companies.create');
         Route::post('/companies', [PartnershipController::class, 'storeCompany'])->name('partnership.companies.store');
@@ -354,6 +371,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/companies/{company}', [PartnershipController::class, 'updateCompany'])->name('partnership.companies.update');
         Route::delete('/companies/{company}', [PartnershipController::class, 'destroyCompany'])->name('partnership.companies.destroy');
         Route::post('/companies/{id}/toggle-approval', [PartnershipController::class, 'toggleApproval'])->name('partnership.companies.toggle-approval');
+        Route::post('/companies/{id}/approve', [PartnershipController::class, 'approveCompany'])->name('partnership.companies.approve');
+        Route::post('/companies/{id}/reject', [PartnershipController::class, 'rejectCompany'])->name('partnership.companies.reject');
         Route::put('/companies/{id}/partnership', [PartnershipController::class, 'updateCompanyPartnership'])->name('partnership.companies.update-partnership');
 
         // 📎 إدارة الوثائق
@@ -448,14 +467,6 @@ Route::middleware('auth')->group(function () {
     Route::prefix('media')->middleware(['auth', 'media_officer'])->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\MediaController::class, 'dashboard'])->name('media.dashboard');
 
-        // 🎥 استوديو البث المباشر وغرفة التحكم بالكاميرات
-        Route::get('/live-studio', [App\Http\Controllers\MediaController::class, 'liveStudio'])->name('media.live-studio');
-        Route::post('/live-studio/cameras', [App\Http\Controllers\MediaController::class, 'storeCamera'])->name('media.live-studio.cameras.store');
-        Route::post('/live-studio/cameras/{camera}/on-air', [App\Http\Controllers\MediaController::class, 'setCameraOnAir'])->name('media.live-studio.cameras.on-air');
-        Route::patch('/live-studio/cameras/{camera}/toggle', [App\Http\Controllers\MediaController::class, 'toggleCameraLive'])->name('media.live-studio.cameras.toggle');
-        Route::delete('/live-studio/cameras/{camera}', [App\Http\Controllers\MediaController::class, 'deleteCamera'])->name('media.live-studio.cameras.destroy');
-        Route::post('/live-studio/broadcast/toggle', [App\Http\Controllers\MediaController::class, 'toggleBroadcast'])->name('media.live-studio.broadcast.toggle');
-        Route::post('/live-studio/broadcast/update', [App\Http\Controllers\MediaController::class, 'updateBroadcast'])->name('media.live-studio.broadcast.update');
 
         // 📅 تقويم وجدول التغطيات الإعلامية
         Route::get('/coverage-calendar', [App\Http\Controllers\MediaController::class, 'coverageCalendar'])->name('media.coverage-calendar');
@@ -520,6 +531,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/graduates/{id}/edit', [CareerGuidanceController::class, 'editGraduate'])->name('career-guidance.graduates.edit');
         Route::put('/graduates/{id}', [CareerGuidanceController::class, 'updateGraduate'])->name('career-guidance.graduates.update');
         Route::patch('/graduates/{id}/toggle-status', [CareerGuidanceController::class, 'toggleGraduateStatus'])->name('career-guidance.graduates.toggle-status');
+        Route::delete('/graduates/{id}', [CareerGuidanceController::class, 'destroyGraduate'])->name('career-guidance.graduates.destroy');
         Route::patch('/graduates/{id}/reset-password', [CareerGuidanceController::class, 'resetGraduatePassword'])->name('career-guidance.graduates.reset-password');
         Route::post('/graduates/{id}/create-user', [CareerGuidanceController::class, 'createGraduateAccount'])->name('career-guidance.graduates.create-user');
         Route::get('/advanced-reports', [CareerGuidanceController::class, 'advancedReports'])->name('career-guidance.advanced-reports');
@@ -546,18 +558,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/create', [JobOpportunityController::class, 'create'])->name('job-opportunities.create');
         Route::post('/', [JobOpportunityController::class, 'store'])->name('job-opportunities.store');
         Route::get('/', [JobOpportunityController::class, 'index'])->name('job-opportunities.index');
+        Route::get('/index.blade.php', fn() => redirect()->route('job-opportunities.index'));
+        Route::get('/index', fn() => redirect()->route('job-opportunities.index'));
 
-        // مسارات متاحة لمسؤول الشراكات والإرشاد
+        // مسارات متاحة للجميع وفق الصلاحيات وسياسات الوصول
         Route::get('/search', [JobOpportunityController::class, 'search'])->name('job-opportunities.search');
-        Route::get('/{id}', [JobOpportunityController::class, 'show'])->name('job-opportunities.show');
-        Route::get('/{id}/nominations', [JobOpportunityController::class, 'nominations'])->name('job-opportunities.nominations')->middleware('can:manage-nominations');
+        Route::get('/{id}', [JobOpportunityController::class, 'show'])->where('id', '[0-9]+')->name('job-opportunities.show');
+        Route::get('/{id}/edit', [JobOpportunityController::class, 'edit'])->where('id', '[0-9]+')->name('job-opportunities.edit');
+        Route::put('/{id}', [JobOpportunityController::class, 'update'])->where('id', '[0-9]+')->name('job-opportunities.update');
+        Route::delete('/{id}', [JobOpportunityController::class, 'destroy'])->where('id', '[0-9]+')->name('job-opportunities.destroy');
+        Route::post('/{id}/approve', [JobOpportunityController::class, 'approve'])->where('id', '[0-9]+')->name('job-opportunities.approve');
+        Route::post('/{id}/reject', [JobOpportunityController::class, 'reject'])->where('id', '[0-9]+')->name('job-opportunities.reject');
+        Route::get('/{id}/nominations', [JobOpportunityController::class, 'nominations'])->where('id', '[0-9]+')->name('job-opportunities.nominations')->middleware('can:manage-nominations');
         Route::get('/statistics', [JobOpportunityController::class, 'statistics'])->name('job-opportunities.statistics');
 
         // مسارات خاصة بمسؤول الشراكات فقط
         Route::middleware('partnership_officer')->group(function () {
-            Route::get('/{id}/edit', [JobOpportunityController::class, 'edit'])->name('job-opportunities.edit');
-            Route::put('/{id}', [JobOpportunityController::class, 'update'])->name('job-opportunities.update');
-            Route::delete('/{id}', [JobOpportunityController::class, 'destroy'])->name('job-opportunities.destroy');
             Route::post('/{id}/status', [JobOpportunityController::class, 'updateStatus'])->name('job-opportunities.update-status');
             Route::post('/import', [JobOpportunityController::class, 'importFromExcel'])->name('job-opportunities.import');
             Route::post('/{id}/duplicate', [JobOpportunityController::class, 'duplicate'])->name('job-opportunities.duplicate');
@@ -577,8 +593,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
         Route::get('/{notification}', [App\Http\Controllers\NotificationController::class, 'show'])->name('notifications.show');
         Route::get('/api/notifications', [App\Http\Controllers\NotificationController::class, 'getNotifications'])->name('notifications.api');
-        Route::patch('/{notification}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
-        Route::patch('/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+        Route::match(['patch', 'post'], '/{notification}/read', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+        Route::match(['patch', 'post'], '/{notification}/mark-as-read', [App\Http\Controllers\NotificationController::class, 'markAsRead']);
+        Route::match(['patch', 'post'], '/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
         Route::delete('/{notification}', [App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
         Route::delete('/read/delete', [App\Http\Controllers\NotificationController::class, 'destroyRead'])->name('notifications.destroy-read');
         Route::get('/stats', [App\Http\Controllers\NotificationController::class, 'stats'])->name('notifications.stats');
@@ -625,6 +642,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/job-fairs/{fair}/search', [App\Http\Controllers\CompanyJobFairController::class, 'searchGraduates'])->name('job-fairs.search');
         Route::post('/job-fairs/update-lead-status', [App\Http\Controllers\CompanyJobFairController::class, 'updateLeadStatus'])->name('job-fairs.update-lead-status');
         Route::post('/job-fairs/visits/{visit}/outcome', [App\Http\Controllers\CompanyJobFairController::class, 'updateVisitOutcome'])->name('job-fairs.visit-outcome');
+        Route::get('/job-fairs/{fair}/assets/{type}', [App\Http\Controllers\CompanyJobFairController::class, 'downloadAsset'])->name('job-fairs.download-asset');
     });
 
 }); // نهاية مجموعة المسارات للمستخدمين المسجلين
@@ -667,17 +685,32 @@ Route::middleware(['auth'])->prefix('graduate')->name('graduate.')->group(functi
     // المفضلة
     Route::get('/favorites', [App\Http\Controllers\FavoriteController::class, 'index'])->name('favorites.index');
     Route::post('/favorites/{companyId}/toggle', [App\Http\Controllers\FavoriteController::class, 'toggle'])->name('favorites.toggle');
+
+    // 📜 شهادات المتدربين الخريجين
+    Route::get('/certificates', [App\Http\Controllers\CertificateController::class, 'index'])->name('certificates.index');
+    Route::get('/certificates/{certificate}', [App\Http\Controllers\CertificateController::class, 'show'])->name('certificates.show');
 });
+
+// ==================== 📜 التحقق العام من الشهادات ====================
+Route::get('/certificates/verify/{code}', [App\Http\Controllers\CertificateController::class, 'verify'])->name('certificates.verify');
 
 require __DIR__ . '/auth.php';
 
 // ==================== 🎪 معرض التوظيف 2026 ====================
 
-// الصفحة العامة للمعرض (للجميع)
-Route::get('/job-fair', [App\Http\Controllers\JobFairController::class, 'publicShow'])->name('job-fair.public');
+// الصفحة العامة للفعالية / المعرض (للجميع)
+Route::get('/job-fair/{fair?}', [App\Http\Controllers\JobFairController::class, 'publicShow'])
+    ->where('fair', '[0-9]+')
+    ->name('job-fair.public');
 
-// صفحة البث المباشر للجمهور (للجميع)
-Route::get('/live-stream', [App\Http\Controllers\JobFairController::class, 'liveStream'])->name('job-fair.live-stream');
+// دليل الشركات والمؤسسات المشاركة في المعرض (للجميع)
+Route::get('/job-fair/companies', [App\Http\Controllers\JobFairController::class, 'publicCompanies'])
+    ->name('job-fair.public.companies.index');
+
+Route::get('/job-fair/{fair}/companies', [App\Http\Controllers\JobFairController::class, 'publicCompanies'])
+    ->where('fair', '[0-9]+')
+    ->name('job-fair.public.companies');
+
 
 // تسجيل الخريج في المعرض (يتطلب تسجيل دخول)
 Route::middleware('auth')->group(function () {
@@ -720,4 +753,28 @@ Route::middleware(['auth', 'admin'])->prefix('admin/job-fair')->name('job-fair.a
     Route::get('/{fair}/events', [App\Http\Controllers\JobFairEventController::class, 'index'])->name('events.index');
     Route::post('/{fair}/events', [App\Http\Controllers\JobFairEventController::class, 'store'])->name('events.store');
     Route::delete('/events/{event}', [App\Http\Controllers\JobFairEventController::class, 'destroy'])->name('events.destroy');
+
+    // إدارة الجهات الراعية (Sponsors)
+    Route::post('/{fair}/sponsors', [App\Http\Controllers\JobFairController::class, 'storeSponsor'])->name('sponsors.store');
+    Route::put('/sponsors/{sponsor}', [App\Http\Controllers\JobFairController::class, 'updateSponsor'])->name('sponsors.update');
+    Route::delete('/sponsors/{sponsor}', [App\Http\Controllers\JobFairController::class, 'destroySponsor'])->name('sponsors.destroy');
+
+    // إدارة الهوية البصرية والأصول الإعلامية للمعرض
+    Route::post('/{fair}/brand-identity', [App\Http\Controllers\JobFairController::class, 'updateBrandIdentity'])->name('brand-identity.update');
+    Route::delete('/{fair}/brand-identity/{asset}', [App\Http\Controllers\JobFairController::class, 'deleteBrandAsset'])->name('brand-identity.delete');
+    Route::get('/{fair}/brand-identity/download/{type}', [App\Http\Controllers\JobFairController::class, 'downloadBrandAsset'])->name('brand-identity.download');
 });
+
+// ==================== 🛡️ توجيه تلقائي ذكي لمنع أخطاء كتابة مسارات ملفات Blade ====================
+Route::get('{any}', function ($any) {
+    if (str_ends_with($any, '/index.blade.php')) {
+        $clean = substr($any, 0, -strlen('/index.blade.php'));
+        return redirect('/' . $clean);
+    }
+    if (str_ends_with($any, '.blade.php')) {
+        $clean = substr($any, 0, -strlen('.blade.php'));
+        return redirect('/' . $clean);
+    }
+    abort(404);
+})->where('any', '.*\.blade\.php$');
+

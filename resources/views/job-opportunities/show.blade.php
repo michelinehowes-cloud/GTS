@@ -36,12 +36,41 @@
                                             <i class="fas fa-users me-1"></i>
                                             {{ $opportunity->seats }} مقاعد
                                         </span>
+                                        @if($opportunity->status === 'pending')
+                                            <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold" style="font-size: 0.9rem;">
+                                                <i class="fas fa-clock me-1"></i>بانتظار الاعتماد والمراجعة
+                                            </span>
+                                        @elseif($opportunity->status === 'rejected')
+                                            <span class="badge rounded-pill bg-danger text-white px-3 py-2 fw-bold" style="font-size: 0.9rem;">
+                                                <i class="fas fa-times-circle me-1"></i>مرفوضة
+                                            </span>
+                                        @elseif($opportunity->status === 'open')
+                                            <span class="badge rounded-pill bg-success text-white px-3 py-2 fw-bold" style="font-size: 0.9rem;">
+                                                <i class="fas fa-check-circle me-1"></i>مفتوحة للتقديم
+                                            </span>
+                                        @else
+                                            <span class="badge rounded-pill bg-secondary text-white px-3 py-2" style="font-size: 0.9rem;">
+                                                {{ $opportunity->status }}
+                                            </span>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-lg-4">
                             <div class="d-flex flex-column gap-2">
+                                @if(in_array(auth()->user()->role, ['admin', 'partnership_officer', 'career_guidance_officer']) && $opportunity->status === 'pending')
+                                    <form action="{{ route('job-opportunities.approve', $opportunity->id) }}" method="POST" class="d-grid m-0">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success fw-bold rounded-pill py-2 shadow-sm" onclick="return confirm('هل أنت متأكد من اعتماد فرصة العمل ونشرها رسمياً للخريجين؟')">
+                                            <i class="fas fa-check-circle me-2"></i>اعتماد ونشر الفرصة الآن
+                                        </button>
+                                    </form>
+                                    <button type="button" class="btn btn-danger fw-bold rounded-pill py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#rejectJobModal">
+                                        <i class="fas fa-times-circle me-2"></i>رفض الفرصة
+                                    </button>
+                                @endif
+
                                 <a href="{{ route('job-opportunities.nominations', $opportunity->id) }}" class="btn btn-light text-primary fw-bold rounded-pill py-2 shadow-sm">
                                     <i class="fas fa-users me-2"></i>الترشيحات ({{ $nominationsCount['total'] ?? 0 }})
                                 </a>
@@ -64,6 +93,66 @@
                 </div>
             </div>
         </div>
+
+        {{-- شريط تنبيه حالة الاعتماد والمراجعة --}}
+        @if($opportunity->status === 'pending')
+            <div class="col-12">
+                <div class="alert alert-warning border-warning border-opacity-25 rounded-4 p-3.5 shadow-sm mb-0">
+                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-warning bg-opacity-20 text-warning d-flex align-items-center justify-content-center flex-shrink-0" style="width: 46px; height: 46px; font-size: 1.3rem;">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 fw-bold text-dark">فرصة العمل قيد المراجعة والاعتماد</h6>
+                                <p class="mb-0 text-secondary small">
+                                    هذه الفرصة تم إنشاؤها من قبل الشركة وهي حالياً غير منشورة للخريجين لحين مراجعتها والموافقة عليها من قبل إدارة المنظومة.
+                                </p>
+                            </div>
+                        </div>
+                        @if(in_array(auth()->user()->role, ['admin', 'partnership_officer', 'career_guidance_officer']))
+                            <div class="d-flex align-items-center gap-2">
+                                <form action="{{ route('job-opportunities.approve', $opportunity->id) }}" method="POST" class="d-inline m-0">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 py-2 fw-bold text-nowrap" onclick="return confirm('هل أنت متأكد من اعتماد الفرصة ونشرها؟')">
+                                        <i class="fas fa-check me-1"></i>اعتماد ونشر
+                                    </button>
+                                </form>
+                                <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-2 fw-bold text-nowrap" data-bs-toggle="modal" data-bs-target="#rejectJobModal">
+                                    <i class="fas fa-times me-1"></i>رفض
+                                </button>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @elseif($opportunity->status === 'rejected')
+            <div class="col-12">
+                <div class="alert alert-danger border-danger border-opacity-25 rounded-4 p-3.5 shadow-sm mb-0">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="rounded-circle bg-danger bg-opacity-20 text-danger d-flex align-items-center justify-content-center flex-shrink-0 mt-1" style="width: 44px; height: 44px; font-size: 1.25rem;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1 fw-bold text-danger">تم رفض نشر هذه الفرصة</h6>
+                            @if($opportunity->rejection_reason)
+                                <div class="bg-white bg-opacity-75 p-2.5 rounded-3 border border-danger border-opacity-25 my-2 text-dark small">
+                                    <strong>سبب الرفض وملاحظات الإدارة:</strong> {{ $opportunity->rejection_reason }}
+                                </div>
+                            @endif
+                            <p class="mb-0 text-secondary small">
+                                يمكن للشركة تعديل بيانات الفرصة واستيفاء الملاحظات أعلاه، وعند الحفظ سيتم إرسالها مجدداً للمراجعة والاعتماد.
+                            </p>
+                        </div>
+                        @can('update', $opportunity)
+                            <a href="{{ route('job-opportunities.edit', $opportunity->id) }}" class="btn btn-warning btn-sm rounded-pill px-3 py-2 fw-bold text-nowrap align-self-center">
+                                <i class="fas fa-edit me-1"></i>تعديل الفرصة الآن
+                            </a>
+                        @endcan
+                    </div>
+                </div>
+            </div>
+        @endif
 
         @if(session('success'))
             <div class="col-12">
@@ -263,8 +352,43 @@
 
             </div>
         </div>
+<!-- Modal رفض فرصة العمل -->
+@if(in_array(auth()->user()->role, ['admin', 'partnership_officer', 'career_guidance_officer']) && $opportunity->status === 'pending')
+<div class="modal fade" id="rejectJobModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header bg-danger text-white rounded-top-4 py-3">
+                <h5 class="modal-title fs-6 fw-bold">
+                    <i class="fas fa-times-circle me-2"></i>رفض نشر فرصة العمل
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ route('job-opportunities.reject', $opportunity->id) }}">
+                @csrf
+                <div class="modal-body p-4">
+                    <p class="text-secondary small mb-3">
+                        يرجى تدوين سبب الرفض أو التوجيهات المطلوبة. سيتم إشعار الشركة بذلك لتتمكن من تصحيح الفرصة وإعادة إرسالها.
+                    </p>
+                    <div class="alert alert-light border rounded-3 p-3 mb-3">
+                        <div class="fw-bold text-dark mb-1">{{ $opportunity->title }}</div>
+                        <small class="text-muted">الشركة: {{ $opportunity->company->name ?? 'غير محدد' }}</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="rejection_reason" class="form-label fw-bold text-dark small">سبب الرفض والملاحظات <span class="text-danger">*</span></label>
+                        <textarea name="rejection_reason" id="rejection_reason" rows="4" class="form-control rounded-3" placeholder="اكتب سبب الرفض والملاحظات التوجيهية للشركة..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">
+                        <i class="fas fa-paper-plane me-1"></i>تأكيد الرفض وإشعار الشركة
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+@endif
 
 <style>
     .hover-shadow:hover {

@@ -26,7 +26,7 @@
 
             <div class="row align-items-center g-4">
                 <!-- Graduate User Info -->
-                <div class="col-12 col-lg-7">
+                <div class="col-12 col-xl-6 col-lg-6">
                     <div class="d-flex align-items-center gap-3 gap-md-4">
                         <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center shadow flex-shrink-0" style="width: 64px; height: 64px; font-size: 1.75rem; font-weight: 700; border: 3px solid rgba(255,255,255,0.4);">
                             <i class="fas fa-user-graduate"></i>
@@ -54,21 +54,25 @@
                 </div>
 
                 <!-- Quick Action Buttons -->
-                <div class="col-12 col-lg-6 text-lg-start">
-                    <div class="d-flex gap-2 gap-md-2.5 justify-content-between justify-content-lg-end flex-wrap flex-sm-nowrap">
-                        <a href="{{ route('graduate.id-card') }}" class="btn btn-warning text-dark fw-bold py-2 px-2.5 py-sm-2.5 px-sm-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-1.5 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.84rem; transition: transform 0.2s ease;">
+                <div class="col-12 col-xl-6 col-lg-6 text-lg-start">
+                    <div class="d-flex gap-2 justify-content-start justify-content-lg-end flex-wrap align-items-center">
+                        <a href="{{ route('graduate.id-card') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
                             <i class="fas fa-id-card"></i>
                             <span>بطاقتي الرقمية</span>
                         </a>
-                        <a href="{{ route('graduate.trainings') }}" class="btn btn-light bg-white text-primary fw-bold py-2 px-2.5 py-sm-2.5 px-sm-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-1.5 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.84rem; transition: transform 0.2s ease;">
+                        <a href="{{ route('graduate.certificates.index') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+                            <i class="fas fa-certificate text-warning"></i>
+                            <span>شهاداتي</span>
+                        </a>
+                        <a href="{{ route('graduate.trainings') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
                             <i class="fas fa-graduation-cap"></i>
                             <span>التدريبات</span>
                         </a>
-                        <a href="{{ route('graduate.job-opportunities.index') }}" class="btn btn-outline-light text-white fw-bold py-2 px-2.5 py-sm-2.5 px-sm-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-1.5 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.84rem; transition: transform 0.2s ease;">
+                        <a href="{{ route('graduate.job-opportunities.index') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
                             <i class="fas fa-briefcase"></i>
                             <span>فرص العمل</span>
                         </a>
-                        <button class="btn btn-info text-white fw-bold py-2 px-2.5 py-sm-2.5 px-sm-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-1.5 border-0 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.84rem; transition: transform 0.2s ease;" data-bs-toggle="modal" data-bs-target="#qrScannerModal">
+                        <button class="btn btn-outline-light text-white fw-bold py-2.5 px-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;" data-bs-toggle="modal" data-bs-target="#qrScannerModal">
                             <i class="fas fa-qrcode"></i>
                             <span>مسح QR</span>
                         </button>

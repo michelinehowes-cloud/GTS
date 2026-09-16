@@ -25,6 +25,9 @@ class JobOpportunity extends Model
         'required_experience',
         'salary',
         'status',
+        'rejection_reason',
+        'reviewed_by',
+        'reviewed_at',
         'benefits',
         'requirements',
         'created_by'
@@ -36,7 +39,8 @@ class JobOpportunity extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'application_deadline' => 'date',
-        'salary' => 'decimal:2'
+        'salary' => 'decimal:2',
+        'reviewed_at' => 'datetime',
     ];
 
     /**
@@ -53,6 +57,54 @@ class JobOpportunity extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * العلاقة مع المستخدم المراجع (الذي اعتمد أو رفض الفرصة)
+     */
+    public function reviewer()
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    /**
+     * هل الفرصة قيد المراجعة والاعتماد
+     */
+    public function isPending(): bool
+    {
+        return $this->status === 'pending';
+    }
+
+    /**
+     * هل الفرصة معتمدة ومفتوحة
+     */
+    public function isApproved(): bool
+    {
+        return $this->status === 'open';
+    }
+
+    /**
+     * هل الفرصة مرفوضة
+     */
+    public function isRejected(): bool
+    {
+        return $this->status === 'rejected';
+    }
+
+    /**
+     * نطاق الفرص بانتظار الاعتماد
+     */
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    /**
+     * نطاق الفرص المنشورة المعتمدة
+     */
+    public function scopePublished($query)
+    {
+        return $query->where('status', 'open');
     }
 
     /**

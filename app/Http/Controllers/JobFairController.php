@@ -8,7 +8,10 @@ use App\Models\JobFairCompany;
 use App\Models\JobFairRegistration;
 use App\Models\Company;
 use App\Models\User;
+use App\Models\JobFairSponsor;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class JobFairController extends Controller
@@ -16,17 +19,28 @@ class JobFairController extends Controller
     // ==================== الصفحة العامة للمعرض ====================
 
     /**
-     * صفحة المعرض العامة (للزوار والخريجين)
+     * صفحة المعرض / الفعالية العامة (للزوار والخريجين)
      */
-    public function publicShow()
+    public function publicShow(Request $request, $fair = null)
     {
-        // نجلب المعرض المنشور الأحدث أو القادم
-        $fair = JobFair::where('status', 'published')
-                       ->orderBy('event_date', 'asc')
-                       ->first();
+        // 1. إذا تم تحديد الفعالية عبر الرابط أو المعامل ?fair=ID
+        if ($fair) {
+            if (!($fair instanceof JobFair)) {
+                $fair = JobFair::find($fair);
+            }
+        } elseif ($request->has('fair')) {
+            $fair = JobFair::find($request->query('fair'));
+        }
 
+        // 2. إذا لم تُحدد، نجلب الفعالية المنشورة الأحدث أو القادمة افتراضياً
         if (!$fair) {
-            $fair = JobFair::where('status', 'ongoing')->first();
+            $fair = JobFair::where('status', 'published')
+                           ->orderBy('event_date', 'asc')
+                           ->first();
+
+            if (!$fair) {
+                $fair = JobFair::where('status', 'ongoing')->first();
+            }
         }
 
         $myRegistration = null;
@@ -44,36 +58,80 @@ class JobFairController extends Controller
         }
 
         $companies = $fair ? $fair->companies()->with('company')->where('status', 'confirmed')->get() : collect();
+        $sponsors = $fair ? $fair->sponsors()->where('is_active', true)->orderBy('display_order')->get() : collect();
         $events = $fair ? $fair->events()->orderBy('start_time', 'asc')->get() : collect();
         $recentJobs = \App\Models\JobOpportunity::where('status', 'open')->with('company')->latest()->take(6)->get();
         $stats = $this->getFairStats($fair);
 
-        return view('job-fair.public', compact('fair', 'myRegistration', 'companies', 'events', 'recentJobs', 'stats', 'favoriteCompanyIds'));
+        return view('job-fair.public', compact('fair', 'myRegistration', 'companies', 'sponsors', 'events', 'recentJobs', 'stats', 'favoriteCompanyIds'));
     }
 
     /**
-     * صفحة البث المباشر للجمهور والخريجين
+     * دليل الشركات والمؤسسات المشاركة في المعرض (صفحة عامة مخصصة وفق هوية المعرض)
      */
-    public function liveStream(Request $request)
+    public function publicCompanies(Request $request, $fair = null)
     {
-        $fair = JobFair::whereIn('status', ['published', 'ongoing'])
-            ->orderBy('event_date', 'asc')
-            ->first();
-
-        $myRegistration = null;
-        if (Auth::check() && $fair) {
-            $myRegistration = JobFairRegistration::where('job_fair_id', $fair->id)
-                ->where('user_id', Auth::id())
-                ->first();
+        // 1. إذا تم تحديد الفعالية عبر الرابط أو المعامل ?fair=ID
+        if ($fair) {
+            if (!($fair instanceof JobFair)) {
+                $fair = JobFair::find($fair);
+            }
+        } elseif ($request->has('fair')) {
+            $fair = JobFair::find($request->query('fair'));
         }
 
-        $setting = \App\Models\LiveBroadcastSetting::current();
-        $cameras = \App\Models\MediaCamera::where('is_live', true)->orderBy('display_order')->get();
-        $activeCamera = $setting->activeCamera ?? $cameras->first();
-        $events = $fair ? $fair->events()->orderBy('start_time', 'asc')->get() : collect();
-        $recentJobs = \App\Models\JobOpportunity::where('status', 'open')->with('company')->latest()->take(6)->get();
+        // 2. إذا لم تُحدد، نجلب الفعالية المنشورة الأحدث أو الجارية افتراضياً
+        if (!$fair) {
+            $fair = JobFair::where('status', 'published')
+                           ->orderBy('event_date', 'asc')
+                           ->first();
 
-        return view('job-fair.live_stream', compact('fair', 'setting', 'cameras', 'activeCamera', 'myRegistration', 'events', 'recentJobs'));
+            if (!$fair) {
+                $fair = JobFair::where('status', 'ongoing')->first();
+            }
+        }
+
+        $companies = $fair 
+            ? $fair->companies()
+                ->with(['company.jobOpportunities' => function($q) {
+                    $q->where('status', 'open');
+                }])
+                ->where('status', 'confirmed')
+                ->orderBy('booth_number', 'asc')
+                ->get() 
+            : collect();
+
+        // تجميع القطاعات الفريدة لتوليد فلاتر التصنيف السريع
+        $industries = $companies->map(function ($fc) {
+            return $fc->company->industry ?? null;
+        })->filter()->map(fn($i) => trim($i))->unique()->values();
+
+        $totalCompanies = $companies->count();
+        $totalPositions = $companies->sum(function ($fc) {
+            $positions = (int) ($fc->available_positions ?? 0);
+            if ($positions > 0) {
+                return $positions;
+            }
+            return $fc->company && $fc->company->jobOpportunities ? $fc->company->jobOpportunities->count() : 0;
+        });
+        $totalBooths = $companies->filter(fn($fc) => !empty($fc->booth_number))->count();
+
+        $favoriteCompanyIds = [];
+        if (Auth::check() && Auth::user()->role === 'graduate') {
+            $favoriteCompanyIds = \App\Models\Favorite::where('graduate_id', Auth::id())
+                ->pluck('company_id')
+                ->toArray();
+        }
+
+        return view('job-fair.companies', compact(
+            'fair',
+            'companies',
+            'industries',
+            'totalCompanies',
+            'totalPositions',
+            'totalBooths',
+            'favoriteCompanyIds'
+        ));
     }
 
     /**
@@ -204,6 +262,10 @@ class JobFairController extends Controller
         $data = $request->except(['_token', 'companies']);
         $data['created_by'] = Auth::id();
 
+        if ($request->hasFile('fair_logo_path')) {
+            $data['fair_logo_path'] = $request->file('fair_logo_path')->store('job-fair/logos', 'public');
+        }
+
         if ($request->hasFile('banner_image')) {
             $data['banner_image'] = $request->file('banner_image')->store('job-fair/banners', 'public');
         }
@@ -235,7 +297,7 @@ class JobFairController extends Controller
      */
     public function show(JobFair $fair)
     {
-        $fair->load(['companies.company', 'registrations.graduate']);
+        $fair->load(['companies.company', 'registrations.graduate', 'sponsors']);
         $stats = $this->getFairStats($fair);
 
         $registrations = $fair->registrations()
@@ -338,6 +400,10 @@ class JobFairController extends Controller
 
         $data = $request->except(['_token', '_method', 'companies']);
 
+        if ($request->hasFile('fair_logo_path')) {
+            $data['fair_logo_path'] = $request->file('fair_logo_path')->store('job-fair/logos', 'public');
+        }
+
         if ($request->hasFile('banner_image')) {
             $data['banner_image'] = $request->file('banner_image')->store('job-fair/banners', 'public');
         }
@@ -411,6 +477,235 @@ class JobFairController extends Controller
     {
         $stats = $this->getFairStats($fair);
         return view('job-fair.admin.attendance', compact('fair', 'stats'));
+    }
+
+    // ==================== إدارة الجهات الراعية ====================
+
+    /**
+     * إضافة جهة راعية للمعرض
+     */
+    public function storeSponsor(Request $request, JobFair $fair)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'tier' => 'required|in:diamond,platinum,gold,silver',
+            'website' => 'nullable|url|max:255',
+            'description' => 'nullable|string|max:1000',
+            'display_order' => 'nullable|integer|min:0',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
+        ]);
+
+        $logoPath = null;
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('sponsors', 'public');
+        }
+
+        $fair->sponsors()->create([
+            'name' => $validated['name'],
+            'tier' => $validated['tier'],
+            'website' => $validated['website'] ?? null,
+            'description' => $validated['description'] ?? null,
+            'display_order' => $validated['display_order'] ?? 0,
+            'is_active' => $request->has('is_active') ? true : false,
+            'logo_path' => $logoPath,
+        ]);
+
+        return back()->with('success', 'تمت إضافة جهة الرعاية بنجاح.');
+    }
+
+    /**
+     * تحديث بيانات جهة راعية
+     */
+    public function updateSponsor(Request $request, JobFairSponsor $sponsor)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'tier' => 'required|in:diamond,platinum,gold,silver',
+            'website' => 'nullable|url|max:255',
+            'description' => 'nullable|string|max:1000',
+            'display_order' => 'nullable|integer|min:0',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
+        ]);
+
+        $data = [
+            'name' => $validated['name'],
+            'tier' => $validated['tier'],
+            'website' => $validated['website'] ?? null,
+            'description' => $validated['description'] ?? null,
+            'display_order' => $validated['display_order'] ?? 0,
+            'is_active' => $request->has('is_active') ? true : false,
+        ];
+
+        if ($request->hasFile('logo')) {
+            if ($sponsor->logo_path && \Storage::disk('public')->exists($sponsor->logo_path)) {
+                \Storage::disk('public')->delete($sponsor->logo_path);
+            }
+            $data['logo_path'] = $request->file('logo')->store('sponsors', 'public');
+        }
+
+        $sponsor->update($data);
+
+        return back()->with('success', 'تم تحديث بيانات جهة الرعاية بنجاح.');
+    }
+
+    /**
+     * حذف جهة راعية
+     */
+    public function destroySponsor(JobFairSponsor $sponsor)
+    {
+        if ($sponsor->logo_path && \Storage::disk('public')->exists($sponsor->logo_path)) {
+            \Storage::disk('public')->delete($sponsor->logo_path);
+        }
+        $sponsor->delete();
+
+        return back()->with('success', 'تم حذف جهة الرعاية بنجاح.');
+    }
+
+    /**
+     * تحديث الهوية البصرية والأصول الإعلامية للمعرض
+     */
+    public function updateBrandIdentity(Request $request, JobFair $fair)
+    {
+        $request->validate([
+            'fair_logo'              => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:4096',
+            'fair_logo_white'        => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:4096',
+            'fair_logo_horizontal'   => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:4096',
+            'brand_guidelines'       => 'nullable|file|mimes:pdf|max:25600',
+            'media_kit_zip'          => 'nullable|file|mimes:zip,rar,7z|max:61440',
+            'media_kit_description'  => 'nullable|string|max:4000',
+        ]);
+
+        $data = [];
+
+        if ($request->has('media_kit_description')) {
+            $data['media_kit_description'] = $request->media_kit_description;
+        }
+
+        if ($request->hasFile('fair_logo')) {
+            if ($fair->fair_logo_path && Storage::disk('public')->exists($fair->fair_logo_path)) {
+                Storage::disk('public')->delete($fair->fair_logo_path);
+            }
+            $data['fair_logo_path'] = $request->file('fair_logo')->store('job-fairs/brand', 'public');
+        }
+
+        if ($request->hasFile('fair_logo_white')) {
+            if ($fair->fair_logo_white_path && Storage::disk('public')->exists($fair->fair_logo_white_path)) {
+                Storage::disk('public')->delete($fair->fair_logo_white_path);
+            }
+            $data['fair_logo_white_path'] = $request->file('fair_logo_white')->store('job-fairs/brand', 'public');
+        }
+
+        if ($request->hasFile('fair_logo_horizontal')) {
+            if ($fair->fair_logo_horizontal_path && Storage::disk('public')->exists($fair->fair_logo_horizontal_path)) {
+                Storage::disk('public')->delete($fair->fair_logo_horizontal_path);
+            }
+            $data['fair_logo_horizontal_path'] = $request->file('fair_logo_horizontal')->store('job-fairs/brand', 'public');
+        }
+
+        if ($request->hasFile('brand_guidelines')) {
+            if ($fair->brand_guidelines_path && Storage::disk('public')->exists($fair->brand_guidelines_path)) {
+                Storage::disk('public')->delete($fair->brand_guidelines_path);
+            }
+            $data['brand_guidelines_path'] = $request->file('brand_guidelines')->store('job-fairs/brand', 'public');
+        }
+
+        if ($request->hasFile('media_kit_zip')) {
+            if ($fair->media_kit_path && Storage::disk('public')->exists($fair->media_kit_path)) {
+                Storage::disk('public')->delete($fair->media_kit_path);
+            }
+            $data['media_kit_path'] = $request->file('media_kit_zip')->store('job-fairs/brand', 'public');
+        }
+
+        $fair->update($data);
+
+        \App\Models\AuditLog::logAction('update_job_fair_brand', "تم تحديث الهوية البصرية والأصول الإعلامية لمعرض: {$fair->title}", 'JobFair', $fair->id);
+
+        return back()->with('success', 'تم حفظ وتحديث الهوية البصرية والأصول الإعلامية للمعرض بنجاح.');
+    }
+
+    /**
+     * حذف أصل محدد من الهوية البصرية
+     */
+    public function deleteBrandAsset(JobFair $fair, $asset)
+    {
+        $allowed = [
+            'fair_logo'            => 'fair_logo_path',
+            'fair_logo_white'      => 'fair_logo_white_path',
+            'fair_logo_horizontal' => 'fair_logo_horizontal_path',
+            'brand_guidelines'     => 'brand_guidelines_path',
+            'media_kit_zip'        => 'media_kit_path',
+        ];
+
+        if (!isset($allowed[$asset])) {
+            return back()->with('error', 'الأصل المطلوب حذفه غير صالح.');
+        }
+
+        $column = $allowed[$asset];
+        if ($fair->$column && Storage::disk('public')->exists($fair->$column)) {
+            Storage::disk('public')->delete($fair->$column);
+        }
+
+        $fair->update([$column => null]);
+
+        return back()->with('success', 'تم حذف الملف بنجاح، وستستخدم الصفحة النسخة الافتراضية للنظام.');
+    }
+
+    /**
+     * تحميل أصل محدد من الهوية البصرية (للأدمن)
+     */
+    public function downloadBrandAsset(JobFair $fair, $type)
+    {
+        switch ($type) {
+            case 'fair-logo':
+                if ($fair->fair_logo_path && Storage::disk('public')->exists($fair->fair_logo_path)) {
+                    $ext = pathinfo($fair->fair_logo_path, PATHINFO_EXTENSION) ?: 'png';
+                    return response()->download(Storage::disk('public')->path($fair->fair_logo_path), 'شعار_' . Str::slug($fair->title) . '.' . $ext);
+                }
+                $path = public_path('images/job_fair_logo.png');
+                return response()->download($path, 'شعار_معرض_التوظيف_الافتراضي.png');
+
+            case 'fair-logo-white':
+                if ($fair->fair_logo_white_path && Storage::disk('public')->exists($fair->fair_logo_white_path)) {
+                    $ext = pathinfo($fair->fair_logo_white_path, PATHINFO_EXTENSION) ?: 'png';
+                    return response()->download(Storage::disk('public')->path($fair->fair_logo_white_path), 'شعار_' . Str::slug($fair->title) . '_أبيض_شفاف.' . $ext);
+                }
+                $path = public_path('images/job_fair_logo_white.png');
+                return response()->download($path, 'شعار_معرض_التوظيف_أبيض_شفاف.png');
+
+            case 'fair-logo-horizontal':
+                if ($fair->fair_logo_horizontal_path && Storage::disk('public')->exists($fair->fair_logo_horizontal_path)) {
+                    $ext = pathinfo($fair->fair_logo_horizontal_path, PATHINFO_EXTENSION) ?: 'png';
+                    return response()->download(Storage::disk('public')->path($fair->fair_logo_horizontal_path), 'شعار_' . Str::slug($fair->title) . '_أفقي.' . $ext);
+                }
+                $path = public_path('images/job_fair_logo_horizontal.png');
+                return response()->download($path, 'شعار_معرض_التوظيف_أفقي.png');
+
+            case 'brand-guidelines':
+                if ($fair->brand_guidelines_path && Storage::disk('public')->exists($fair->brand_guidelines_path)) {
+                    return response()->download(Storage::disk('public')->path($fair->brand_guidelines_path), 'دليل_الهوية_البصرية_' . Str::slug($fair->title) . '.pdf');
+                }
+                return back()->with('error', 'دليل الهوية البصرية غير متوفر لهذا المعرض بعد.');
+
+            case 'office-logo':
+                $path = public_path('images/logo.jpg');
+                return response()->download($path, 'شعار_مكتب_تدريب_الخريجين.jpg');
+
+            case 'university-logo':
+                $path = public_path('images/uni_logo_white.png');
+                return response()->download($path, 'شعار_جامعة_طرابلس.png');
+
+            case 'media-kit':
+            default:
+                if ($fair->media_kit_path && Storage::disk('public')->exists($fair->media_kit_path)) {
+                    $ext = pathinfo($fair->media_kit_path, PATHINFO_EXTENSION) ?: 'zip';
+                    return response()->download(Storage::disk('public')->path($fair->media_kit_path), 'الحقيبة_الإعلامية_' . Str::slug($fair->title) . '.' . $ext);
+                }
+                $path = public_path('assets/media-kit-2026.zip');
+                if (file_exists($path)) {
+                    return response()->download($path, 'الحقيبة_الإعلامية_معرض_التوظيف_2026.zip');
+                }
+                return back()->with('error', 'الحقيبة الإعلامية غير متوفرة بعد.');
+        }
     }
 
     // ==================== مساعد ====================

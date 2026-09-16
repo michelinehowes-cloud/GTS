@@ -16,6 +16,9 @@ use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\TrainingApplication;
+use App\Models\Certificate;
+use App\Models\JobFairRegistration;
 
 
 class CareerGuidanceController extends Controller
@@ -320,10 +323,12 @@ class CareerGuidanceController extends Controller
             $query->whereHas('graduateData', fn ($gq) => $gq->whereIn('employment_status', $statuses));
         }
 
-        $graduates = $query->latest()->get();
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $graduates */
+        $graduates = $query->latest()->paginate(25);
+        $graduates->withQueryString();
 
         // احسب عدد ترشيحات كل خريج (عبر GraduateData)
-        $graduateDataIds = $graduates->pluck('graduateData.id')->filter();
+        $graduateDataIds = $graduates->getCollection()->pluck('graduateData.id')->filter();
         $nominationCounts = \DB::table('nominations')
             ->whereIn('graduate_id', $graduateDataIds)
             ->selectRaw('graduate_id, COUNT(*) as total, SUM(CASE WHEN final_status="hired" THEN 1 ELSE 0 END) as hired')
@@ -331,7 +336,7 @@ class CareerGuidanceController extends Controller
             ->get()
             ->keyBy('graduate_id');
 
-        $graduates->each(function ($user) use ($nominationCounts) {
+        $graduates->getCollection()->each(function ($user) use ($nominationCounts) {
             $gdId = optional($user->graduateData)->id;
             $counts = $gdId ? ($nominationCounts[$gdId] ?? null) : null;
             $user->nominations_count = $counts ? $counts->total : 0;
@@ -575,7 +580,50 @@ class CareerGuidanceController extends Controller
         $graduate = GraduateData::with(['nominations.jobOpportunity.company', 'nominations.nominator'])->findOrFail($id);
         $this->authorize('view', $graduate); // Authorize viewing the graduate details
 
-        return view('career-guidance.graduates.show', compact('graduate'));
+        // البحث عن حساب المستخدم المرتبط أو ربطه بالبريد الإلكتروني
+        $user = $graduate->user;
+        if (!$user && $graduate->email) {
+            $user = User::where('email', $graduate->email)->first();
+            if ($user && !$graduate->user_id) {
+                $graduate->updateQuietly(['user_id' => $user->id]);
+            }
+        }
+
+        $trainingApplications = collect();
+        $certificates = collect();
+        $jobFairRegistrations = collect();
+
+        if ($user) {
+            $trainingApplications = TrainingApplication::where('user_id', $user->id)
+                ->with(['training.company', 'attendances'])
+                ->latest()
+                ->get();
+
+            $certificates = Certificate::where('user_id', $user->id)
+                ->with(['training', 'company'])
+                ->latest()
+                ->get();
+
+            $jobFairRegistrations = JobFairRegistration::where('user_id', $user->id)
+                ->with('jobFair')
+                ->latest()
+                ->get();
+        }
+
+        // فرص العمل المتاحة للترشيح الفوري
+        $openOpportunities = JobOpportunity::where('status', 'open')
+            ->with('company')
+            ->latest()
+            ->get();
+
+        return view('career-guidance.graduates.show', compact(
+            'graduate',
+            'user',
+            'trainingApplications',
+            'certificates',
+            'jobFairRegistrations',
+            'openOpportunities'
+        ));
     }
 
     /**
@@ -901,7 +949,12 @@ class CareerGuidanceController extends Controller
             \Log::error('Failed to send job nomination notification: ' . $e->getMessage());
         }
 
-        return redirect()->route('career-guidance.nominations')
+        if ($request->filled('redirect_to_graduate') || $request->filled('redirect_back')) {
+            return redirect()->back()->with('success', 'تم ترشيح الخريج لفرصة العمل بنجاح.');
+        }
+
+        $prefix = request()->routeIs('admin.*') ? 'admin.career-guidance' : 'career-guidance';
+        return redirect()->route($prefix . '.nominations')
             ->with('success', 'تم ترشيح الخريج بنجاح');
     }
 
@@ -1887,26 +1940,100 @@ class CareerGuidanceController extends Controller
      */
     public function toggleGraduateStatus($id)
     {
-        $graduate = GraduateData::findOrFail($id);
-        $this->authorize('update', $graduate);
+        $authUser = auth()->user();
+        if (!$authUser->isAdmin() && !$authUser->hasPermission('graduates.edit') && $authUser->role !== 'career_guidance_officer') {
+            abort(403, 'غير مصرح لك بتعديل حالة حسابات الخريجين.');
+        }
 
-        // البحث عن حساب المستخدم المرتبط
-        $user = User::where('email', $graduate->email)->first();
+        // البحث إما عن طريق User id، أو GraduateData id
+        $user = User::where('id', $id)->where('role', 'graduate')->first();
+        if (!$user) {
+            $gradData = GraduateData::find($id);
+            if ($gradData) {
+                $user = User::where('email', $gradData->email)->first() ?? $gradData->user;
+            }
+        }
 
         if (!$user) {
             return back()->with('error', 'لم يتم العثور على حساب مستخدم لهذا الخريج');
         }
 
-        // التأكد من أن المستخدم خريج فقط
-        if ($user->role !== 'graduate') {
-            return back()->with('error', 'لا يمكنك تعديل حالة هذا المستخدم');
-        }
-
         $user->is_active = !$user->is_active;
         $user->save();
 
-        $status = $user->is_active ? 'تنشيط' : 'تجميد';
-        return back()->with('success', "تم {$status} حساب الخريج بنجاح");
+        if ($user->graduateData) {
+            $user->graduateData->is_active = $user->is_active;
+            $user->graduateData->save();
+        }
+
+        $statusWord = $user->is_active ? 'تنشيط' : 'تجميد';
+
+        \App\Models\AuditLog::logAction('toggle_graduate_status', "تم {$statusWord} حساب الخريج: {$user->name}", 'User', $user->id);
+
+        return back()->with('success', "تم {$statusWord} حساب الخريج [{$user->name}] بنجاح.");
+    }
+
+    /**
+     * مسح وحذف سجلات وحساب الخريج نهائياً
+     */
+    public function destroyGraduate($id)
+    {
+        $authUser = auth()->user();
+        if (!$authUser->isAdmin() && !$authUser->hasPermission('graduates.delete') && $authUser->role !== 'career_guidance_officer') {
+            abort(403, 'غير مصرح لك بحذف حسابات وسجلات الخريجين.');
+        }
+
+        // البحث إما عن طريق User id، أو GraduateData id
+        $user = User::where('id', $id)->where('role', 'graduate')->first();
+        $gradData = null;
+        if (!$user) {
+            $gradData = GraduateData::find($id);
+            if ($gradData) {
+                $user = User::where('email', $gradData->email)->first() ?? $gradData->user;
+            }
+        }
+
+        if (!$user && !$gradData) {
+            return back()->with('error', 'لم يتم العثور على سجل الخريج المطلوب حذفه.');
+        }
+
+        $graduateName = $user ? $user->name : ($gradData ? $gradData->name : 'الخريج');
+        $userId = $user ? $user->id : null;
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($user, $gradData, $userId) {
+            // 1. حذف الترشيحات المرتبطة وبيانات الخريج
+            if ($user && $user->graduateData) {
+                $user->graduateData->nominations()->delete();
+                $user->graduateData->delete();
+            }
+            if ($gradData) {
+                $gradData->nominations()->delete();
+                $gradData->delete();
+            }
+            if ($user && $user->email) {
+                GraduateData::where('email', $user->email)->delete();
+            }
+
+            // 2. حذف طلبات التقديم على التدريب
+            if ($userId) {
+                TrainingApplication::where('user_id', $userId)->delete();
+            }
+
+            // 3. حذف استجابات الاستبيانات إن وجدت
+            if ($userId && class_exists(\App\Models\SurveyResponse::class)) {
+                \App\Models\SurveyResponse::where('user_id', $userId)->delete();
+            }
+
+            // 4. حذف حساب المستخدم والصلاحيات
+            if ($user) {
+                $user->permissions()->detach();
+                $user->delete();
+            }
+        });
+
+        \App\Models\AuditLog::logAction('delete_graduate', "تم مسح حساب وسجلات الخريج: {$graduateName} نهائياً من المنظومة", 'User', $userId);
+
+        return back()->with('success', "تم مسح الخريج [{$graduateName}] وكافة سجلاته المرتبطة بنجاح.");
     }
 
     /**

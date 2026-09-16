@@ -269,11 +269,7 @@
         <!-- Header -->
         <div class="ticket-header">
             <div class="d-flex justify-content-center align-items-center gap-3 mb-2 ticket-logo">
-                @if($registration->jobFair->banner_image)
-                    <img src="{{ asset('storage/' . $registration->jobFair->banner_image) }}" alt="شعار المعرض" style="height: 48px; width: auto; max-width: 140px; object-fit: contain;" onerror="this.src='{{ asset('images/job_fair_logo_white.png') }}'">
-                @else
-                    <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="شعار المعرض" style="height: 45px; width: auto;" onerror="this.style.display='none'">
-                @endif
+                <img src="{{ $registration->jobFair->white_logo_url }}" alt="{{ $registration->jobFair->title }}" style="height: 48px; width: auto; max-width: 140px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
                 <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب الخريجين بجامعة طرابلس" style="height: 55px; width: auto;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
             </div>
             <div class="ticket-event-name">{{ $registration->jobFair->title }}</div>

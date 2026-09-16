@@ -39,6 +39,63 @@
         <strong>تم حفظ البطاقة بنجاح!</strong> تم تنزيل صورة الهوية الرقمية بجودة فائقة إلى جهازك.
     </div>
 
+    {{-- ── شريط تبديل الفعاليات والهوية العامة بتصميم معتمد وأنيق ── --}}
+    @if(isset($myRegistrations) && $myRegistrations->count() > 0)
+    <div class="row justify-content-center mb-4">
+        <div class="col-12 col-md-10 col-lg-8">
+            <div class="card border-0 rounded-4 shadow-sm bg-white p-3 p-md-3.5">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 pb-2 border-bottom">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-3 bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                            <i class="fas fa-layer-group fs-6"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.95rem;">أنماط وتصاريح بطاقة الخريج</h6>
+                            <small class="text-muted" style="font-size: 0.76rem;">اختر البطاقة لعرض شعارها أو إبراز تصريح الدخول عند البوابات</small>
+                        </div>
+                    </div>
+                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1.5 fw-bold" style="font-size: 0.78rem;">
+                        <i class="fas fa-calendar-check text-success me-1"></i> {{ $myRegistrations->count() }} فعالية نشطة
+                    </span>
+                </div>
+
+                <div class="d-flex flex-wrap align-items-center justify-content-center gap-2.5">
+                    {{-- خيار 1: الهوية العامة للجامعة (شعار المكتب فقط) --}}
+                    @php $isGeneral = !isset($eventContext); @endphp
+                    <a href="{{ route('graduate.id-card', ['mode' => 'general']) }}"
+                       class="btn rounded-pill text-nowrap d-inline-flex align-items-center gap-2 px-3.5 py-2 transition-all {{ $isGeneral ? 'btn-primary shadow-sm border-primary fw-bold' : 'btn-light border text-dark fw-semibold hover-shadow' }}"
+                       style="font-size: 0.86rem;">
+                        <img src="{{ asset('storage/logo.jpg') }}" alt="شعار المكتب" class="rounded-circle border" style="width: 22px; height: 22px; object-fit: cover; background: #fff;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                        <span>الهوية العامة (شعار المكتب فقط)</span>
+                        @if($isGeneral)
+                            <i class="fas fa-check-circle text-warning ms-1"></i>
+                        @endif
+                    </a>
+
+                    {{-- خيارات الفعاليات النشطة المسجل بها الخريج --}}
+                    @foreach($myRegistrations as $reg)
+                        @php
+                            $isCurrentFair = isset($eventContext) && ($eventContext['fair_id'] == $reg->job_fair_id);
+                        @endphp
+                        <a href="{{ route('graduate.id-card', ['fair_id' => $reg->job_fair_id]) }}"
+                           class="btn rounded-pill text-nowrap d-inline-flex align-items-center gap-2 px-3.5 py-2 transition-all {{ $isCurrentFair ? 'btn-warning text-dark shadow-sm border-warning fw-bold' : 'btn-light border text-dark fw-semibold hover-shadow' }}"
+                           style="font-size: 0.86rem;">
+                            <img src="{{ $reg->jobFair->logo_url ?? asset('storage/logo.jpg') }}" alt="{{ $reg->jobFair->title }}" class="rounded-circle bg-white border" style="width: 22px; height: 22px; object-fit: contain; padding: 1px;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                            <span>{{ $reg->jobFair->title }}</span>
+                            <span class="badge {{ $isCurrentFair ? 'bg-dark text-white' : 'bg-secondary bg-opacity-10 text-secondary' }} rounded-pill px-2 py-0.5" style="font-size: 0.7rem;">
+                                #{{ $reg->registration_number }}
+                            </span>
+                            @if($isCurrentFair)
+                                <i class="fas fa-check-circle text-dark ms-0.5"></i>
+                            @endif
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- البطاقة الرئيسية بتصميمها المعتمد المحبوب -->
     <div class="row justify-content-center my-3">
         <div class="col-12 col-md-7 col-lg-5 col-xl-4">
@@ -46,14 +103,20 @@
                 
                 <!-- الجزء العلوي من البطاقة (Header Banner) -->
                 <div class="p-4 text-center text-white position-relative" style="background: linear-gradient(135deg, #045db0 0%, #1e3a8a 100%);">
-                    <div class="d-flex align-items-center justify-content-center gap-3 mb-2">
-                        <!-- شعار مكتب تدريب الخريجين بجامعة طرابلس -->
-                        <img src="{{ asset('storage/logo.jpg') }}" alt="شعار مكتب الخريجين" class="rounded-circle border border-3 border-white shadow-sm" style="width: 75px; height: 75px; object-fit: cover; background: #ffffff;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                    <div class="d-flex align-items-center justify-content-center gap-3 mb-2.5">
+                        <!-- شعار مكتب تدريب الخريجين بجامعة طرابلس الدائم -->
+                        <img src="{{ asset('storage/logo.jpg') }}" alt="شعار مكتب الخريجين" class="rounded-circle border border-3 border-white shadow-sm" style="width: 72px; height: 72px; object-fit: cover; background: #ffffff;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
                         
-                        <!-- في حال وجود سياق فعالية أو معرض، إظهار اللوقو الأبيض المعتمد -->
+                        <!-- في حال وجود سياق فعالية محددة، يظهر شعار تلك الفعالية تحديداً بجوار شعار المكتب -->
                         @if(isset($eventContext) && !empty($eventContext['logo']))
-                            <div style="width: 1px; height: 48px; background: rgba(255,255,255,0.35);"></div>
-                            <img src="{{ $eventContext['logo'] }}" alt="{{ $eventContext['title'] }}" style="height: 48px; width: auto; max-width: 120px; object-fit: contain;" onerror="this.src='{{ asset('images/job_fair_logo_white.png') }}'">
+                            <div style="width: 1.5px; height: 48px; background: rgba(255,255,255,0.35);"></div>
+                            @if(!empty($eventContext['is_white_logo']))
+                                <img src="{{ $eventContext['logo'] }}" alt="{{ $eventContext['title'] }}" style="height: 50px; width: auto; max-width: 125px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));" onerror="this.style.display='none';">
+                            @else
+                                <div class="bg-white rounded-3 p-1.5 shadow-sm d-inline-flex align-items-center justify-content-center" style="width: 54px; height: 54px;">
+                                    <img src="{{ $eventContext['logo'] }}" alt="{{ $eventContext['title'] }}" style="width: 46px; height: 46px; object-fit: contain;" onerror="this.parentElement.style.display='none';">
+                                </div>
+                            @endif
                         @endif
                     </div>
 
@@ -62,24 +125,37 @@
 
                     @if(isset($eventContext))
                         <span class="badge rounded-pill bg-warning text-dark fw-bold px-3 py-1.5 shadow-sm" style="font-size: 0.78rem;">
-                            <i class="fas fa-star me-1 text-dark"></i>
+                            <i class="fas fa-calendar-check me-1 text-dark"></i>
                             {{ $eventContext['title'] }} • {{ $eventContext['badge'] }}
                         </span>
+                        @if(!empty($eventContext['date']) || !empty($eventContext['location']))
+                        <div class="text-white-50 small mt-1.5 fw-semibold" style="font-size: 0.74rem;">
+                            @if(!empty($eventContext['location']))
+                                <i class="fas fa-map-marker-alt me-1 text-warning"></i>{{ $eventContext['location'] }}
+                            @endif
+                            @if(!empty($eventContext['date']) && !empty($eventContext['location']))
+                                &nbsp;·&nbsp;
+                            @endif
+                            @if(!empty($eventContext['date']))
+                                <i class="fas fa-calendar-day me-1 text-warning"></i>{{ $eventContext['date'] }}
+                            @endif
+                        </div>
+                        @endif
                     @else
-                        <span class="badge rounded-pill px-3 py-1 fw-bold" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); font-size: 0.75rem;">
-                            <i class="fas fa-shield-check me-1 text-success"></i> هوية رقمية معتمدة
+                        <span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); font-size: 0.75rem;">
+                            <i class="fas fa-shield-check me-1 text-success"></i> هوية رقمية معتمدة — جامعة طرابلس
                         </span>
                     @endif
                 </div>
 
-                <!-- الجزء الأوسط - المعلومات الأكاديمية والوطنية -->
+                <!-- الجزء الأوسط - المعلومات الأكاديمية -->
                 <div class="card-body p-4 bg-white">
                     <div class="row g-2.5 mb-3">
-                        <!-- الرقم الجامعي / الوطني -->
+                        <!-- الرقم الجامعي فقط بدون كلمة الوطني -->
                         <div class="col-12">
                             <div class="d-flex flex-column bg-light rounded-3 p-2.5 text-center border">
-                                <span class="text-muted small fw-bold mb-0.5" style="font-size: 0.78rem;">الرقم الوطني / الجامعي</span>
-                                <span class="text-dark fw-bold fs-5" dir="ltr">{{ $graduate->graduateData->university_id ?? $graduate->graduateData->national_id ?? $graduate->national_id ?? '---' }}</span>
+                                <span class="text-muted small fw-bold mb-0.5" style="font-size: 0.78rem;">الرقم الجامعي</span>
+                                <span class="text-dark fw-bold fs-5" dir="ltr">{{ $graduate->graduateData->university_id ?? $graduate->national_id ?? '---' }}</span>
                             </div>
                         </div>
 
@@ -129,7 +205,7 @@
                         </div>
                         <p class="text-muted small mt-2.5 fw-bold mb-0" style="font-size: 0.82rem;">
                             <i class="fas fa-qrcode me-1 text-primary"></i>
-                            امسح الرمز لتسجيل الحضور والتحقق من الهوية
+                            {{ isset($eventContext) ? 'امسح الرمز للدخول السريع وتسجيل الحضور بالمعرض' : 'امسح الرمز للتحقق من هوية الخريج الرسمية المعتمدة' }}
                         </p>
                     </div>
                 </div>
@@ -175,7 +251,7 @@
         const qrContainer = document.getElementById('qr-code');
         if (qrContainer) {
             new QRCode(qrContainer, {
-                text: "{{ route('graduate.profile.public', $graduate->id) }}",
+                text: "{{ isset($eventContext) && !empty($eventContext['qr_data']) ? $eventContext['qr_data'] : route('graduate.profile.public', $graduate->id) }}",
                 width: 180,
                 height: 180,
                 colorDark: "#1e3a8a",

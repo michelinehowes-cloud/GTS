@@ -140,6 +140,122 @@ class NotificationService
     }
 
     /**
+     * إرسال إشعار عند تسجيل شركة جديدة ذاتياً
+     */
+    public function notifyNewCompanyRegistration(\App\Models\Company $company): void
+    {
+        $title = 'طلب تسجيل شركة جديدة';
+        $message = "قامت شركة ({$company->name}) بالتسجيل في المنظومة وتنتظر المراجعة والاعتماد.";
+        $type = 'info';
+
+        $this->sendToRoles(['partnership_officer', 'admin'], $title, $message, $type, [
+            'model_type' => get_class($company),
+            'model_id' => $company->id,
+            'send_email' => true,
+        ]);
+    }
+
+    /**
+     * إرسال إشعار للشركة عند اعتمادها
+     */
+    public function notifyCompanyApproved(\App\Models\Company $company): void
+    {
+        if (!$company->user) {
+            return;
+        }
+
+        $title = 'تم اعتماد وتفعيل حساب شركتكم';
+        $message = "تهانينا! تم اعتماد وتفعيل حساب شركة ({$company->name}) في المنظومة. يمكنكم الآن تسجيل الدخول وإضافة وإدارة فرص العمل والتدريب.";
+        $type = 'success';
+
+        $this->sendToUser($company->user, $title, $message, $type, [
+            'model_type' => get_class($company),
+            'model_id' => $company->id,
+            'send_email' => true,
+        ]);
+    }
+
+    /**
+     * إرسال إشعار للشركة عند رفض الطلب
+     */
+    public function notifyCompanyRejected(\App\Models\Company $company, ?string $reason = null): void
+    {
+        if (!$company->user) {
+            return;
+        }
+
+        $title = 'تحديث بشأن طلب تسجيل شركتكم';
+        $message = "نأسف لإبلاغكم بأنه لم يتم اعتماد طلب تسجيل شركة ({$company->name}) حالياً." . ($reason ? " السبب: {$reason}" : "");
+        $type = 'warning';
+
+        $this->sendToUser($company->user, $title, $message, $type, [
+            'model_type' => get_class($company),
+            'model_id' => $company->id,
+            'send_email' => true,
+        ]);
+    }
+
+    /**
+     * إرسال إشعار للمسؤولين عند قيام شركة بإنشاء فرصة عمل تنتظر الاعتماد
+     */
+    public function notifyCompanyJobSubmitted(\App\Models\JobOpportunity $jobOpportunity): void
+    {
+        $companyName = $jobOpportunity->company ? $jobOpportunity->company->name : 'إحدى الشركات';
+        $title = 'فرصة عمل جديدة بانتظار الاعتماد';
+        $message = "أضافت شركة ({$companyName}) فرصة جديدة: \"{$jobOpportunity->title}\" وتنتظر المراجعة والاعتماد قبل النشر.";
+        $type = 'info';
+
+        $this->sendToRoles(['partnership_officer', 'career_guidance_officer', 'admin'], $title, $message, $type, [
+            'model_type' => get_class($jobOpportunity),
+            'model_id' => $jobOpportunity->id,
+            'send_email' => true,
+        ]);
+    }
+
+    /**
+     * إرسال إشعار للشركة عند اعتماد فرصة العمل ونشرها
+     */
+    public function notifyJobOpportunityApproved(\App\Models\JobOpportunity $jobOpportunity): void
+    {
+        $recipient = $jobOpportunity->creator ?? ($jobOpportunity->company ? $jobOpportunity->company->user : null);
+
+        if ($recipient) {
+            $title = 'تمت الموافقة على نشر فرصة العمل';
+            $message = "تمت الموافقة على فرصة العمل \"{$jobOpportunity->title}\" ونشرها رسمياً للخريجين في المنظومة.";
+            $type = 'success';
+
+            $this->sendToUser($recipient, $title, $message, $type, [
+                'model_type' => get_class($jobOpportunity),
+                'model_id' => $jobOpportunity->id,
+                'send_email' => true,
+            ]);
+        }
+
+        // إشعار الخريجين بالفرصة الجديدة
+        $this->notifyNewJobOpportunity($jobOpportunity);
+    }
+
+    /**
+     * إرسال إشعار للشركة عند رفض فرصة العمل
+     */
+    public function notifyJobOpportunityRejected(\App\Models\JobOpportunity $jobOpportunity, ?string $reason = null): void
+    {
+        $recipient = $jobOpportunity->creator ?? ($jobOpportunity->company ? $jobOpportunity->company->user : null);
+
+        if ($recipient) {
+            $title = 'لم تتم الموافقة على نشر فرصة العمل';
+            $message = "نأسف، لم تتم الموافقة على نشر فرصة العمل \"{$jobOpportunity->title}\"." . ($reason ? " سبب الرفض: {$reason}" : "");
+            $type = 'warning';
+
+            $this->sendToUser($recipient, $title, $message, $type, [
+                'model_type' => get_class($jobOpportunity),
+                'model_id' => $jobOpportunity->id,
+                'send_email' => true,
+            ]);
+        }
+    }
+
+    /**
      * إرسال إشعار إجراء نظامي عام
      */
     public function notifySystemAction(string $title, string $message, array $roles = [], string $type = 'info', $model = null): void

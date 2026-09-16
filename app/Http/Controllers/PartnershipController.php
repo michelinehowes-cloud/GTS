@@ -8,11 +8,21 @@ use App\Models\JobOpportunity;
 use App\Models\PartnershipDocument;
 use App\Models\GraduateData;
 use App\Models\Nomination;
+use App\Models\User;
+use App\Models\AuditLog;
+use App\Services\NotificationService;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class PartnershipController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * عرض لوحة تحكم مسؤول الشراكات
      */
@@ -45,14 +55,45 @@ class PartnershipController extends Controller
     /**
      * عرض قائمة الشركات الشريكة
      */
-    public function companies()
+    public function companies(Request $request)
     {
-        $companies = Company::with(['user', 'jobOpportunities'])
-            ->withCount(['jobOpportunities', 'partnershipDocuments'])
-            ->latest()
-            ->get();
+        $query = Company::with(['user', 'jobOpportunities'])
+            ->withCount(['jobOpportunities', 'partnershipDocuments']);
 
-        return view('partnership.companies.index', compact('companies'));
+        if ($request->filled('partnership_status')) {
+            $query->where('partnership_status', $request->partnership_status);
+        }
+
+        if ($request->has('approval_status')) {
+            if ($request->approval_status === 'pending') {
+                $query->where('is_approved', false);
+            } elseif ($request->approval_status === 'approved') {
+                $query->where('is_approved', true);
+            }
+        }
+
+        if ($request->filled('partnership_type')) {
+            $type = $request->partnership_type;
+            $query->where(function($q) use ($type) {
+                $q->where('partnership_type', $type)
+                  ->orWhereJsonContains('partnership_types', $type);
+            });
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('industry', 'like', "%{$search}%")
+                  ->orWhere('contact_person', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $companies = $query->latest()->get();
+        $pendingCount = Company::where('is_approved', false)->count();
+
+        return view('partnership.companies.index', compact('companies', 'pendingCount'));
     }
 
     /**
@@ -213,45 +254,7 @@ class PartnershipController extends Controller
         return redirect()->route('partnership.documents')->with('success', 'تم تحديث الوثيقة بنجاح.');
     }
 
-    /**
-     * تحديث بيانات الشركة
-     */
-    public function updateCompany(Request $request, $id)
-    {
-        try {
-            $company = Company::findOrFail($id);
 
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:companies,email,' . $id,
-                'phone' => 'required|string|max:20',
-                'industry' => 'required|string|max:255',
-                'address' => 'required|string',
-                'website' => 'nullable|url',
-                'description' => 'nullable|string',
-                'partnership_type' => 'required|in:employment,training,logistic_support,academic',
-                'partnership_status' => 'required|in:active,expired,under_review',
-                'partnership_start_date' => 'nullable|date',
-                'partnership_end_date' => 'nullable|date|after:partnership_start_date',
-                'contact_person' => 'nullable|string|max:255',
-                'contact_position' => 'nullable|string|max:255',
-                'contact_phone' => 'nullable|string|max:20',
-                'contact_email' => 'nullable|email',
-            ]);
-
-            $company->update($request->all());
-
-            // ✅ تأكد أن هذا هو الـ redirect الوحيد
-            return redirect()->route('partnership.companies')
-                           ->with('success', 'تم تحديث بيانات الشركة بنجاح');
-
-        } catch (\Exception $e) {
-            // ✅ في حالة الخطأ، ارجع مع رسالة خطأ واحدة
-            return redirect()->back()
-                           ->with('error', 'حدث خطأ أثناء التحديث: ' . $e->getMessage())
-                           ->withInput();
-        }
-    }
 
     /**
      * رفع وثيقة شراكة
@@ -387,23 +390,191 @@ class PartnershipController extends Controller
             'email' => 'required|email|unique:companies',
             'phone' => 'required|string|max:20',
             'industry' => 'required|string|max:255',
-            'address' => 'required|string',
-            'partnership_type' => 'required|in:employment,training,logistic_support,academic',
-            'website' => 'nullable|url',
+            'address' => 'required|string|max:500',
+            'city' => 'nullable|string|max:100',
+            'website' => 'nullable|url|max:255',
             'description' => 'nullable|string',
+            'contact_person' => 'required|string|max:255',
+            'contact_position' => 'nullable|string|max:255',
+            'contact_phone' => 'required|string|max:20',
+            'contact_email' => 'nullable|email|max:255',
+            'password' => 'nullable|string|min:8|confirmed',
+            'partnership_types' => 'nullable|array|min:1',
+            'partnership_types.*' => 'in:employment,training,logistic_support,academic,workshops,training_employment',
+            'partnership_type' => 'nullable|string',
+            'partnership_status' => 'required|in:active,expired,under_review',
+            'partnership_start_date' => 'nullable|date',
+            'partnership_end_date' => 'nullable|date|after_or_equal:partnership_start_date',
+            'partnership_notes' => 'nullable|string',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        Company::create($request->all());
+        $types = $request->input('partnership_types', []);
+        if (empty($types) && $request->filled('partnership_type')) {
+            $types = [$request->input('partnership_type')];
+        }
+        $primaryType = !empty($types) ? $types[0] : ($request->input('partnership_type') ?: 'employment');
 
-        return redirect()->route('partnership.companies')->with('success', 'تم إضافة الشركة بنجاح');
+        // إنشاء المستخدم إذا تم إدخال كلمة مرور أو إنشاء مستخدم تلقائي
+        $user = null;
+        if ($request->filled('password')) {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => 'company',
+                'is_approved' => ($request->partnership_status === 'active'),
+                'is_active' => ($request->partnership_status === 'active'),
+            ]);
+        }
+
+        $company = Company::create([
+            'user_id' => $user ? $user->id : null,
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'industry' => $request->industry,
+            'address' => $request->address,
+            'city' => $request->city ?? 'طرابلس',
+            'website' => $request->website,
+            'description' => $request->description,
+            'contact_person' => $request->contact_person,
+            'contact_position' => $request->contact_position,
+            'contact_phone' => $request->contact_phone,
+            'contact_email' => $request->contact_email,
+            'is_approved' => ($request->partnership_status === 'active'),
+            'partnership_type' => $primaryType,
+            'partnership_types' => $types,
+            'partnership_status' => $request->partnership_status,
+            'partnership_start_date' => $request->partnership_start_date,
+            'partnership_end_date' => $request->partnership_end_date,
+            'partnership_notes' => $request->partnership_notes,
+        ]);
+
+        if ($request->hasFile('logo')) {
+            $path = $request->file('logo')->store('companies/logos', 'public');
+            $company->logo_path = $path;
+            $company->save();
+        }
+
+        // تسجيل في سجل الرقابة
+        try {
+            AuditLog::logAction(
+                'COMPANY_CREATED',
+                'Company',
+                $company->id,
+                null,
+                ['name' => $company->name, 'email' => $company->email, 'industry' => $company->industry]
+            );
+        } catch (\Throwable $e) {
+            //
+        }
+
+        return redirect()->route('partnership.companies')
+            ->with('success', 'تم إضافة الشركة بنجاح');
     }
 
     /**
      * عرض نموذج تعديل الشركة
      */
-    public function editCompany(Company $company)
+    public function editCompany($company)
     {
+        $company = $company instanceof Company ? $company : Company::findOrFail($company);
         return view('partnership.companies.edit', compact('company'));
+    }
+
+    /**
+     * تحديث بيانات الشركة
+     */
+    public function updateCompany(Request $request, $company)
+    {
+        $company = $company instanceof Company ? $company : Company::findOrFail($company);
+        $oldData = $company->only(['name', 'email', 'phone', 'industry', 'partnership_status', 'is_approved']);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:companies,email,' . $company->id,
+            'phone' => 'required|string|max:20',
+            'industry' => 'required|string|max:255',
+            'address' => 'required|string|max:500',
+            'city' => 'nullable|string|max:100',
+            'website' => 'nullable|url|max:255',
+            'description' => 'nullable|string',
+            'contact_person' => 'required|string|max:255',
+            'contact_position' => 'nullable|string|max:255',
+            'contact_phone' => 'required|string|max:20',
+            'contact_email' => 'nullable|email|max:255',
+            'partnership_types' => 'nullable|array|min:1',
+            'partnership_types.*' => 'in:employment,training,logistic_support,academic,workshops,training_employment',
+            'partnership_type' => 'nullable|string',
+            'partnership_status' => 'required|in:active,expired,under_review',
+            'partnership_start_date' => 'nullable|date',
+            'partnership_end_date' => 'nullable|date',
+            'partnership_notes' => 'nullable|string',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $types = $request->input('partnership_types', []);
+        if (empty($types) && $request->filled('partnership_type')) {
+            $types = [$request->input('partnership_type')];
+        }
+        $primaryType = !empty($types) ? $types[0] : ($request->input('partnership_type') ?: 'employment');
+
+        $data = $request->only([
+            'name',
+            'email',
+            'phone',
+            'industry',
+            'address',
+            'city',
+            'website',
+            'description',
+            'partnership_status',
+            'partnership_notes',
+            'partnership_start_date',
+            'partnership_end_date',
+            'contact_person',
+            'contact_position',
+            'contact_phone',
+            'contact_email'
+        ]);
+
+        $data['partnership_types'] = $types;
+        $data['partnership_type'] = $primaryType;
+        $data['is_approved'] = ($request->partnership_status === 'active');
+
+        if ($request->hasFile('logo')) {
+            if ($company->logo_path && Storage::disk('public')->exists($company->logo_path)) {
+                Storage::disk('public')->delete($company->logo_path);
+            }
+            $data['logo_path'] = $request->file('logo')->store('companies/logos', 'public');
+        }
+
+        $company->update($data);
+
+        // مزامنة مع حساب المستخدم إن وجد
+        if ($company->user) {
+            $company->user->name = $company->name;
+            $company->user->email = $company->email;
+            $company->user->is_approved = $company->is_approved;
+            $company->user->is_active = $company->is_approved;
+            $company->user->save();
+        }
+
+        try {
+            AuditLog::logAction(
+                'COMPANY_UPDATED',
+                'Company',
+                $company->id,
+                $oldData,
+                $company->only(['name', 'email', 'phone', 'industry', 'partnership_status', 'is_approved'])
+            );
+        } catch (\Throwable $e) {
+            //
+        }
+
+        return redirect()->route('partnership.companies')
+            ->with('success', 'تم تحديث بيانات الشركة بنجاح');
     }
 
     /**
@@ -427,7 +598,73 @@ class PartnershipController extends Controller
         }
         $company->save();
 
-        $msg = $company->is_approved ? 'تم اعتماد الشركة بنجاح' : 'تم إلغاء اعتماد الشركة';
+        if ($company->user) {
+            $company->user->is_approved = $company->is_approved;
+            $company->user->is_active = $company->is_approved;
+            $company->user->save();
+        }
+
+        if ($company->is_approved) {
+            try {
+                $this->notificationService->notifyCompanyApproved($company);
+            } catch (\Exception $e) {
+                //
+            }
+        }
+
+        $msg = $company->is_approved ? 'تم اعتماد وتفعيل الشركة بنجاح' : 'تم إلغاء اعتماد الشركة';
         return redirect()->back()->with('success', $msg);
+    }
+
+    /**
+     * اعتماد شركة رسمياً
+     */
+    public function approveCompany($id)
+    {
+        $company = Company::findOrFail($id);
+        $company->is_approved = true;
+        $company->partnership_status = 'active';
+        $company->rejection_notes = null;
+        $company->save();
+
+        if ($company->user) {
+            $company->user->is_approved = true;
+            $company->user->is_active = true;
+            $company->user->save();
+        }
+
+        try {
+            $this->notificationService->notifyCompanyApproved($company);
+        } catch (\Exception $e) {
+            \Log::error('فشل إرسال إشعار اعتماد الشركة: ' . $e->getMessage());
+        }
+
+        return redirect()->back()->with('success', "تم اعتماد وتفعيل حساب شركة ({$company->name}) بنجاح وإشعارها.");
+    }
+
+    /**
+     * رفض طلب تسجيل شركة
+     */
+    public function rejectCompany(Request $request, $id)
+    {
+        $company = Company::findOrFail($id);
+        $company->is_approved = false;
+        $company->partnership_status = 'under_review';
+        $company->rejection_notes = $request->input('rejection_notes');
+        $company->save();
+
+        if ($company->user) {
+            $company->user->is_approved = false;
+            $company->user->is_active = false;
+            $company->user->save();
+        }
+
+        try {
+            $this->notificationService->notifyCompanyRejected($company, $company->rejection_notes);
+        } catch (\Exception $e) {
+            \Log::error('فشل إرسال إشعار رفض الشركة: ' . $e->getMessage());
+        }
+
+        return redirect()->back()->with('success', "تم رفض طلب تسجيل شركة ({$company->name}) وإشعارها بالسبب.");
     }
 }

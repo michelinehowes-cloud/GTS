@@ -261,11 +261,11 @@
         <div class="d-flex justify-content-between align-items-start position-relative" style="z-index:1">
             <div class="d-flex align-items-start gap-3">
                 {{-- Fair Banner/Logo --}}
-                <img src="{{ asset('images/job_fair_logo.png') }}"
+                <img src="{{ $fair->logo_url }}"
                      alt="{{ $fair->title }}"
                      class="rounded-3 flex-shrink-0"
                      style="width:72px; height:72px; object-fit:contain; border:2px solid rgba(255,255,255,0.3); box-shadow:0 4px 15px rgba(0,0,0,0.2); background: white; padding: 4px;"
-                     onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                     onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo.png') }}';">
                 <div>
                     <p class="mb-1 text-white-50 small fw-semibold" style="letter-spacing:0.5px;">
                         <i class="fas fa-calendar-alt me-1"></i>

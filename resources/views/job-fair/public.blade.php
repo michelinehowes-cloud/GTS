@@ -70,11 +70,10 @@
         .nav-brand img.jf-logo {
             width: auto; height: 38px;
             border: none;
-            /* If the logo is white, invert it so it shows on white background */
-            filter: invert(1) brightness(0.5);
             border-radius: 0;
             margin-right: 15px;
             object-fit: contain;
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.25));
         }
         .nav-brand-text {
             line-height: 1.2;
@@ -746,6 +745,131 @@
         }
 
         /* ══════════════════════════════════
+           SPONSORS SECTION (الجهات الراعية)
+        ══════════════════════════════════ */
+        .sponsors-section {
+            padding: 90px 0;
+            background: linear-gradient(180deg, #071324 0%, #0a182e 50%, #071324 100%);
+            position: relative;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .sponsors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.8rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .sponsor-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 22px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(12px);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .sponsor-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(245, 158, 11, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+        }
+
+        .sponsor-tier-badge {
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 14px;
+            border-radius: 50px;
+            margin-bottom: 1.2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.5px;
+        }
+        .tier-diamond {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(14, 165, 233, 0.3));
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+        .tier-platinum {
+            background: linear-gradient(135deg, rgba(226, 232, 240, 0.2), rgba(203, 213, 225, 0.3));
+            color: #f1f5f9;
+            border: 1px solid rgba(226, 232, 240, 0.4);
+            box-shadow: 0 0 15px rgba(226, 232, 240, 0.15);
+        }
+        .tier-gold {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3));
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+        }
+        .tier-silver {
+            background: linear-gradient(135deg, rgba(156, 163, 175, 0.2), rgba(107, 114, 128, 0.3));
+            color: #d1d5db;
+            border: 1px solid rgba(156, 163, 175, 0.4);
+        }
+
+        .sponsor-logo-box {
+            width: 130px;
+            height: 90px;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.2rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+            transition: transform 0.3s;
+        }
+        .sponsor-card:hover .sponsor-logo-box {
+            transform: scale(1.05);
+        }
+        .sponsor-logo-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .sponsor-name {
+            color: #ffffff;
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .sponsor-desc {
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 0.88rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+        .sponsor-link {
+            color: var(--gold);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+        }
+        .sponsor-link:hover {
+            color: #fbbf24;
+            text-decoration: underline;
+        }
+
+        /* ══════════════════════════════════
            COMPANIES SECTION (Logos Grid)
         ══════════════════════════════════ */
         .companies-section {
@@ -835,6 +959,42 @@
             white-space: nowrap;
         }
 
+        .jobs-badge.jobs-badge-info {
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.4);
+        }
+
+        .companies-dir-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, #045db0 0%, #1e40af 50%, #d97706 150%);
+            color: #ffffff;
+            border: 1.5px solid rgba(238, 202, 62, 0.5);
+            padding: 14px 34px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            text-decoration: none;
+            box-shadow: 0 10px 25px rgba(4, 93, 176, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .companies-dir-btn:hover {
+            color: #ffffff;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(238, 202, 62, 0.4);
+            border-color: #eeca3e;
+        }
+
+        .companies-dir-btn i {
+            transition: transform 0.25s ease;
+        }
+
+        .companies-dir-btn:hover i {
+            transform: translateX(-4px);
+        }
+
         /* ══════════════════════════════════
            MODAL
         ══════════════════════════════════ */
@@ -860,6 +1020,72 @@
         }
         .grad-info-item .lbl { font-size: 0.7rem; color: #94a3b8; font-weight: 600; margin-bottom: 3px; }
         .grad-info-item .val { font-weight: 700; color: var(--navy); font-size: 0.9rem; }
+
+        /* Company Detail Modal */
+        .company-modal-dialog {
+            max-width: 580px;
+        }
+        .company-modal-content {
+            background: #0b192e;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+            color: #ffffff;
+        }
+        .company-modal-header {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.5) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 2rem 2rem 1.5rem;
+            position: relative;
+        }
+        .company-modal-logo-wrapper {
+            width: 100px;
+            height: 100px;
+            background: #ffffff;
+            border-radius: 22px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.2rem;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+        }
+        .company-modal-logo-wrapper img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .company-modal-badge {
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .company-modal-body {
+            padding: 1.8rem 2rem 2rem;
+        }
+        .company-info-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 0.85rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .company-info-chip .icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
 
         /* ══════════════════════════════════
            FOOTER
@@ -914,20 +1140,20 @@
             <div class="main">مكتب تدريب الخريجين</div>
             <div class="sub">جامعة طرابلس</div>
         </div>
-        <img src="{{ asset('images/job_fair_logo_horizontal.png') }}" class="jf-logo" alt="شعار المعرض" onerror="this.style.display='none'">
+        @if($fair)
+            <img src="{{ $fair->white_logo_url }}" class="jf-logo" alt="{{ $fair->title }}" onerror="this.onerror=null;this.src='{{ $fair->horizontal_logo_url }}';">
+        @else
+            <img src="{{ asset('images/job_fair_logo_white.png') }}" class="jf-logo" alt="شعار الفعالية" onerror="this.style.display='none'">
+        @endif
     </a>
-
     <div class="nav-links">
-        <a href="{{ route('job-fair.live-stream') }}" class="nav-btn" style="background: rgba(239, 68, 68, 0.2); border: 1.5px solid #ef4444; color: #ffffff;">
-            <i class="fas fa-broadcast-tower text-danger me-1"></i>البث المباشر 🔴
-        </a>
         @auth
             <a href="{{ route('dashboard') }}" class="nav-btn nav-btn-outline">
                 <i class="fas fa-th-large me-1"></i>لوحة التحكم
             </a>
             @if(auth()->user()->role === 'admin' || auth()->user()->role === 'partnership_officer')
             <a href="{{ route('job-fair.admin.index') }}" class="nav-btn nav-btn-gold">
-                <i class="fas fa-cog me-1"></i>إدارة المعرض
+                <i class="fas fa-calendar-check me-1"></i>إدارة الفعاليات
             </a>
             @endif
         @else
@@ -962,22 +1188,11 @@
         <div class="row align-items-center mb-4">
             {{-- Text Side --}}
             <div class="col-lg-6 hero-text-col text-lg-end text-center mt-5 mt-lg-0 order-2 order-lg-1">
-                @php
-                    $liveSetting = \App\Models\LiveBroadcastSetting::current();
-                @endphp
-                @if($liveSetting && $liveSetting->is_live_now)
-                    <div class="mb-3">
-                        <a href="{{ route('job-fair.live-stream') }}" class="btn rounded-pill px-4 py-2 text-white fw-bold shadow-lg d-inline-flex align-items-center gap-2" style="background: linear-gradient(135deg, #dc2626, #ef4444); border: 2px solid rgba(255,255,255,0.4); box-shadow: 0 0 20px rgba(239,68,68,0.6);">
-                            <span style="width: 10px; height: 10px; background: white; border-radius: 50%; display: inline-block;"></span>
-                            <span>بث حي ومباشر الآن — انقر للمشاهدة &larr;</span>
-                        </a>
-                    </div>
-                @endif
 
                 {{-- Eyebrow --}}
                 <div class="hero-eyebrow">
                     <span class="dot"></span>
-                    معرض التوظيف السنوي
+                    {{ $fair->subtitle ?: ($fair->title ?? 'فعالية معتمدة') }}
                     <span class="dot"></span>
                 </div>
 
@@ -1038,7 +1253,7 @@
                 <div class="d-flex justify-content-lg-start justify-content-center mb-4">
                     <span style="background: rgba(16,185,129,0.2); border: 1.5px solid rgba(16,185,129,0.5); color: #6EE7B7; padding: 10px 28px; border-radius: 50px; font-weight: 700; font-size: 1rem">
                         <i class="fas fa-circle me-2" style="animation: blink 1s infinite; font-size: 0.6rem"></i>
-                        المعرض يجري الآن
+                        الحدث جارٍ الآن
                     </span>
                 </div>
                 @endif
@@ -1063,8 +1278,8 @@
                         @endif
                     @endauth
                     
-                    <a href="#about" class="nav-btn nav-btn-outline px-4 py-2" style="font-size: 1.1rem">
-                        <i class="fas fa-info-circle me-2"></i>اعرف أكثر
+                    <a href="{{ route('job-fair.public.companies', $fair->id) }}" class="nav-btn nav-btn-outline px-4 py-2" style="font-size: 1.1rem">
+                        <i class="fas fa-building me-2" style="color:var(--gold)"></i>دليل الشركات والأجنحة
                     </a>
                 </div>
             </div>
@@ -1074,7 +1289,11 @@
                 <div class="premium-3d-composition">
                     <div class="premium-glow"></div>
                     <div class="premium-glass-card">
-                        <img src="{{ asset('images/job_fair_logo.png') }}" class="premium-logo-img" alt="شعار المعرض">
+                        @if($fair)
+                            <img src="{{ $fair->logo_url }}" class="premium-logo-img" alt="{{ $fair->title }}" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo.png') }}';">
+                        @else
+                            <img src="{{ asset('images/job_fair_logo.png') }}" class="premium-logo-img" alt="شعار المعرض">
+                        @endif
                     </div>
                     
                     {{-- Floating Depth Elements --}}
@@ -1102,7 +1321,7 @@
                     <div class="hero-stat-divider"></div>
                     <div class="hero-stat">
                         <div class="hero-stat-num">{{ $stats['total_attended'] }}</div>
-                        <div class="hero-stat-lbl">حضر المعرض</div>
+                        <div class="hero-stat-lbl">حضور الفعالية</div>
                     </div>
                     @endif
                     @if($fair->is_upcoming)
@@ -1137,126 +1356,145 @@
     </div>
 </section>
 
-{{-- INFO SECTION (Bento Box) --}}
-<section class="info-section" id="info">
+{{-- SPONSORS SECTION (الجهات الراعية) --}}
+@if(isset($sponsors) && $sponsors->count() > 0)
+<section class="sponsors-section" id="sponsors">
     <div class="container">
-
         <div class="text-center mb-5">
-            <div class="section-badge"><i class="fas fa-info-circle"></i>عن المعرض</div>
+            <div class="section-badge"><i class="fas fa-crown text-warning me-1"></i>الجهات الراعية والداعمة</div>
             <div class="title-line"></div>
-            <h2 class="section-title">كل ما تحتاج معرفته</h2>
-            <p class="section-subtitle">تفاصيل شاملة عن {{ $fair->title }}</p>
+            <h2 class="section-title">شركاء الرعاية والتميز</h2>
+            <p class="section-subtitle">نفتخر برعاية ودعم نخبة المؤسسات الوطنية الرائدة لمسيرة تمكين وتوظيف الكفاءات الشابة</p>
         </div>
 
-        <div class="bento-grid">
-            
-            <!-- Registration Block (Large) -->
-            <div class="bento-item bento-reg">
-                <div class="bento-glow" style="bottom: -20px; left: -20px; background: #10B981;"></div>
-                <div class="bento-icon-wrapper" style="color: #34D399; border-color: rgba(52, 211, 153, 0.2);">
-                    <i class="fas fa-user-check"></i>
+        <div class="sponsors-grid">
+            @foreach($sponsors as $sponsor)
+            <div class="sponsor-card">
+                @php
+                    $tierClass = match($sponsor->tier) {
+                        'diamond' => 'tier-diamond',
+                        'platinum' => 'tier-platinum',
+                        'silver' => 'tier-silver',
+                        default => 'tier-gold',
+                    };
+                    $tierIcon = match($sponsor->tier) {
+                        'diamond' => '💎',
+                        'platinum' => '⭐',
+                        'silver' => '🥈',
+                        default => '🏆',
+                    };
+                @endphp
+                <div class="sponsor-tier-badge {{ $tierClass }}">
+                    <span>{{ $tierIcon }}</span>
+                    <span>{{ $sponsor->tier_label }}</span>
                 </div>
-                <h3 class="bento-title">حالة التسجيل</h3>
-                <div class="bento-text">
-                    @if($fair->can_register)
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                            <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34D399; padding: 8px 16px; font-size: 1rem; border: 1px solid rgba(16, 185, 129, 0.3);">
-                                <i class="fas fa-circle me-1" style="font-size: 0.6rem;"></i> التسجيل متاح الآن
-                            </span>
-                        </div>
-                        @if($fair->registration_deadline)
-                            <p class="mb-2"><i class="far fa-clock me-2 opacity-75"></i> ينتهي التسجيل في: <strong class="text-white">{{ \Carbon\Carbon::parse($fair->registration_deadline)->format('d/m/Y') }}</strong></p>
-                        @endif
-                        @if($fair->max_graduates)
-                            <p class="mb-0"><i class="fas fa-users me-2 opacity-75"></i> المقاعد المحجوزة: <strong class="text-white">{{ $stats['total_registered'] ?? 0 }} من {{ $fair->max_graduates }}</strong></p>
-                        @endif
+
+                <div class="sponsor-logo-box">
+                    @if($sponsor->logo_path)
+                        <img src="{{ Storage::url($sponsor->logo_path) }}" alt="{{ $sponsor->name }}">
                     @else
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                            <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #F87171; padding: 8px 16px; font-size: 1rem; border: 1px solid rgba(239, 68, 68, 0.3);">
-                                <i class="fas fa-times-circle me-1"></i> التسجيل مغلق
-                            </span>
-                        </div>
-                        <p class="mb-0">نعتذر، تم إغلاق باب التسجيل في المعرض حالياً.</p>
+                        <i class="fas fa-award fa-2x text-warning"></i>
                     @endif
                 </div>
-            </div>
 
-            <!-- Date & Time Block -->
-            <div class="bento-item bento-date">
-                <div class="bento-glow" style="top: -20px; right: -20px; background: #3B82F6;"></div>
-                <div class="bento-icon-wrapper" style="color: #60A5FA; border-color: rgba(96, 165, 250, 0.2);">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <h4 class="bento-title">التاريخ والوقت</h4>
-                <div class="bento-text">
-                    <p class="mb-1 text-white fw-bold">{{ \Carbon\Carbon::parse($fair->event_date)->locale('ar')->translatedFormat('l، j F Y') }}</p>
-                    @if($fair->start_time)
-                        <p class="mb-0 opacity-75">
-                            من {{ \Str::substr($fair->start_time,0,5) }} 
-                            @if($fair->end_time) إلى {{ \Str::substr($fair->end_time,0,5) }} @endif
-                        </p>
-                    @endif
-                </div>
-            </div>
+                <h3 class="sponsor-name">{{ $sponsor->name }}</h3>
+                <p class="sponsor-desc">{{ $sponsor->description }}</p>
 
-            <!-- Location Block -->
-            <div class="bento-item bento-loc">
-                <div class="bento-glow" style="bottom: -20px; right: -20px; background: #F59E0B;"></div>
-                <div class="bento-icon-wrapper" style="color: var(--gold); border-color: rgba(245, 158, 11, 0.2);">
-                    <i class="fas fa-map-marker-alt"></i>
-                </div>
-                <h4 class="bento-title">الموقع</h4>
-                <div class="bento-text">
-                    <p class="mb-0 text-white fw-bold">{{ $fair->location }}</p>
-                    <p class="mb-0 opacity-75 mt-2"><i class="fas fa-location-arrow me-1"></i> طرابلس، ليبيا</p>
-                </div>
+                @if($sponsor->website)
+                    <a href="{{ $sponsor->website }}" target="_blank" rel="noopener noreferrer" class="sponsor-link">
+                        <span>زيارة الموقع الإلكتروني</span>
+                        <i class="fas fa-external-link-alt" style="font-size: 0.75rem;"></i>
+                    </a>
+                @endif
             </div>
-
-            <!-- Description Block -->
-            @if($fair->description)
-            <div class="bento-item bento-desc">
-                <h4 class="bento-title" style="color: #38BDF8;"><i class="fas fa-align-right me-2"></i>تفاصيل الحدث</h4>
-                <p class="bento-text mt-2">{{ $fair->description }}</p>
-            </div>
-            @endif
-
+            @endforeach
         </div>
     </div>
 </section>
+@endif
 
-{{-- COMPANIES SECTION (Logos Only) --}}
+{{-- COMPANIES SECTION (Interactive Popup Cards) --}}
 @if($companies->count() > 0)
+@php
+    $totalComp = $companies->count();
+    if ($totalComp === 1) {
+        $countText = 'شركة رائدة واحدة تتواجد';
+    } elseif ($totalComp === 2) {
+        $countText = 'شركتان رائدتان تتواجدان';
+    } elseif ($totalComp >= 3 && $totalComp <= 10) {
+        $countText = "{$totalComp} شركات رائدة تتواجد";
+    } else {
+        $countText = "{$totalComp} شركة رائدة تتواجد";
+    }
+    // عرض معاينة لأول 12 شركة لإبقاء الصفحة الرئيسية خفيفة وسريعة التصفح
+    $previewCompanies = $companies->take(12);
+@endphp
 <section class="companies-section" id="companies">
     <div class="container">
 
         <div class="text-center mb-5">
-            <div class="section-badge"><i class="fas fa-building"></i>الشركاء</div>
+            <div class="section-badge"><i class="fas fa-building"></i>الشركات والمؤسسات المشاركة</div>
             <div class="title-line"></div>
             <h2 class="section-title">الشركات المشاركة</h2>
-            <p class="section-subtitle">{{ $companies->count() }} شركة رائدة ستتواجد في المعرض</p>
+            <p class="section-subtitle">{{ $countText }} في المعرض — اضغط على أي شركة للتعرف على تفاصيلها وجناحها</p>
         </div>
 
         <div class="companies-logo-grid">
-            @foreach($companies as $fc)
-            <a href="javascript:void(0)" class="company-logo-item" title="{{ $fc->company->name ?? 'شركة' }}">
+            @foreach($previewCompanies as $fc)
+            @php
+                $companyLogo = $fc->company->logo_path ? Storage::url($fc->company->logo_path) : ($fc->company->logo ? Storage::url($fc->company->logo) : '');
+                $companyName = $fc->company->name ?? 'شركة مشاركة';
+                $companyDesc = $fc->company->description ?: ('جهة رائدة مشاركة في فعاليات ' . ($fair->title ?? 'المعرض والملتقى') . ' لتوفير أفضل الفرص للخرجين.');
+                $pos = (int)($fc->available_positions ?? 0);
+            @endphp
+            <div role="button" 
+                 tabindex="0"
+                 class="company-logo-item" 
+                 data-bs-toggle="modal" 
+                 data-bs-target="#companyDetailModal"
+                 data-name="{{ $companyName }}"
+                 data-logo="{{ $companyLogo }}"
+                 data-industry="{{ $fc->company->industry ?? 'قطاع الأعمال والخدمات' }}"
+                 data-booth="{{ $fc->booth_number ? strtoupper($fc->booth_number) : '' }}"
+                 data-jobs="{{ $pos }}"
+                 data-desc="{{ $companyDesc }}"
+                 data-website="{{ $fc->company->website ?? '' }}"
+                 data-email="{{ $fc->company->email ?? '' }}"
+                 data-phone="{{ $fc->company->phone ?? '' }}"
+                 title="انقر للاطلاع على تفاصيل {{ $companyName }}">
                 
                 @if($fc->booth_number)
-                    <span class="booth-badge"><i class="fas fa-map-marker-alt me-1"></i>{{ $fc->booth_number }}</span>
+                    <span class="booth-badge"><i class="fas fa-map-marker-alt me-1"></i>جناح {{ strtoupper($fc->booth_number) }}</span>
                 @endif
 
-                @if($fc->available_positions)
-                    <span class="jobs-badge">{{ $fc->available_positions }} فرصة</span>
+                @if($pos > 0)
+                    @php
+                        $posText = ($pos == 1 ? 'فرصة واحدة' : ($pos == 2 ? 'فرصتان' : ($pos <= 10 ? $pos.' فرص' : $pos.' فرصة')));
+                    @endphp
+                    <span class="jobs-badge"><i class="fas fa-briefcase me-1"></i>{{ $posText }}</span>
+                @else
+                    <span class="jobs-badge jobs-badge-info"><i class="fas fa-handshake me-1"></i>جناح تعريفي</span>
                 @endif
 
-                @if($fc->company->logo_path)
-                    <img src="{{ Storage::url($fc->company->logo_path) }}" alt="{{ $fc->company->name }}">
+                @if($companyLogo)
+                    <img src="{{ $companyLogo }}" alt="{{ $companyName }}">
                 @else
                     <i class="fas fa-building fallback-icon"></i>
-                    <span class="fallback-text">{{ $fc->company->name ?? 'شركة' }}</span>
+                    <span class="fallback-text">{{ $companyName }}</span>
                 @endif
-                
-            </a>
+            </div>
             @endforeach
+        </div>
+
+        {{-- زر استعراض الدليل الكامل المخصص لجميع الشركات --}}
+        <div class="text-center mt-5">
+            <a href="{{ route('job-fair.public.companies', $fair->id) }}" class="companies-dir-btn">
+                <span>استعراض الدليل الكامل لجميع الشركات المشاركة ({{ $totalComp }} شركة)</span>
+                <i class="fas fa-arrow-left ms-2"></i>
+            </a>
+            <div class="mt-2 text-white-50" style="font-size: 0.88rem;">
+                <i class="fas fa-search me-1 text-warning"></i> تصفح حسب القطاع، رقم الجناح، والفرص الوظيفية المتاحة
+            </div>
         </div>
 
     </div>
@@ -1324,16 +1562,103 @@
 @endif
 @endauth
 
+{{-- COMPANY DETAIL POPUP MODAL (نافذة تفاصيل الشركة المشاركة) --}}
+<div class="modal fade" id="companyDetailModal" tabindex="-1" aria-labelledby="companyDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered company-modal-dialog">
+        <div class="modal-content company-modal-content">
+            <div class="company-modal-header text-center position-relative">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+                
+                <div class="company-modal-logo-wrapper" id="modalCompanyLogoBox">
+                    <img id="modalCompanyLogo" src="" alt="شعار الشركة" style="display:none;">
+                    <i id="modalCompanyLogoFallback" class="fas fa-building fa-2x text-primary" style="display:none;"></i>
+                </div>
+
+                <h3 class="fw-bold mb-2 text-white" id="modalCompanyName">اسم الشركة</h3>
+                
+                <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap mb-1">
+                    <span class="company-modal-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3);">
+                        <i class="fas fa-tag me-1"></i>
+                        <span id="modalCompanyIndustry">قطاع الأعمال</span>
+                    </span>
+                    <span class="company-modal-badge" id="modalCompanyBoothBadge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); display:none;">
+                        <i class="fas fa-map-marker-alt me-1"></i>
+                        <span id="modalCompanyBooth">جناح 1</span>
+                    </span>
+                    <span class="company-modal-badge" id="modalCompanyJobsBadge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); display:none;">
+                        <i class="fas fa-briefcase me-1"></i>
+                        <span id="modalCompanyJobs">0</span> فرصة متاحة
+                    </span>
+                </div>
+            </div>
+
+            <div class="company-modal-body">
+                <div class="mb-4">
+                    <h6 class="fw-bold mb-2" style="font-size: 0.88rem; color: #fbbf24;">
+                        <i class="fas fa-info-circle me-1"></i>نبذة تعريفية عن الشركة:
+                    </h6>
+                    <p class="lh-lg mb-0" id="modalCompanyDesc" style="font-size: 0.95rem; color: #cbd5e1; white-space: pre-line;">
+                        وصف الشركة
+                    </p>
+                </div>
+
+                <div class="d-flex flex-column gap-2 mb-4" id="modalCompanyContacts">
+                    <div class="company-info-chip" id="modalWebsiteChip" style="display:none;">
+                        <div class="icon bg-primary bg-opacity-25 text-primary">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="text-truncate">
+                            <small class="text-white-50 d-block" style="font-size:0.72rem">الموقع الإلكتروني الرسمي</small>
+                            <a href="#" target="_blank" id="modalCompanyWebsite" class="text-white fw-semibold text-decoration-none" style="font-size:0.9rem"></a>
+                        </div>
+                    </div>
+
+                    <div class="company-info-chip" id="modalEmailChip" style="display:none;">
+                        <div class="icon bg-success bg-opacity-25 text-success">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="text-truncate">
+                            <small class="text-white-50 d-block" style="font-size:0.72rem">البريد الإلكتروني للتوظيف / التواصل</small>
+                            <a href="#" id="modalCompanyEmail" class="text-white fw-semibold text-decoration-none" style="font-size:0.9rem"></a>
+                        </div>
+                    </div>
+
+                    <div class="company-info-chip" id="modalPhoneChip" style="display:none;">
+                        <div class="icon bg-warning bg-opacity-25 text-warning">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div class="text-truncate">
+                            <small class="text-white-50 d-block" style="font-size:0.72rem">هاتف الشركة</small>
+                            <span id="modalCompanyPhone" class="text-white fw-semibold" style="font-size:0.9rem"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">إغلاق</button>
+                    @auth
+                        @if(auth()->user()->role === 'graduate')
+                            <a href="{{ route('graduate.jobs.index') }}" class="cta-primary py-2 px-4 text-decoration-none">
+                                <i class="fas fa-briefcase"></i>تصفح الفرص المتاحة
+                            </a>
+                        @endif
+                    @endauth
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @else
 
 {{-- NO FAIR STATE --}}
 <div class="empty-hero">
     <div class="empty-icon">🎪</div>
     <h2 style="font-size:2rem; font-weight:800; margin-bottom:0.8rem; color:white">
-        لا يوجد معرض منشور حالياً
+        لا توجد فعاليات أو معارض منشورة حالياً
     </h2>
     <p style="color:rgba(255,255,255,0.55); max-width:400px; margin-bottom:2rem; line-height:1.7">
-        تابع الإعلانات للاطلاع على موعد معرض التوظيف القادم
+        تابع الإعلانات للاطلاع على مواعيد المعارض والفعاليات القادمة
     </p>
     <a href="{{ route('home') }}" class="cta-primary">
         <i class="fas fa-home"></i>الصفحة الرئيسية
@@ -1346,7 +1671,7 @@
 <footer class="page-footer">
     مكتب تدريب وتوظيف الخريجين — <a href="{{ route('home') }}">جامعة طرابلس</a>
     &nbsp;|&nbsp;
-    {{ $fair ? $fair->title : 'معرض التوظيف السنوي' }}
+    {{ $fair ? $fair->title : 'المعارض والفعاليات' }}
 </footer>
 
 {{-- ══════════════════════════════════
@@ -1403,6 +1728,87 @@ window.addEventListener('scroll', function() {
     setInterval(tick, 1000);
 })();
 @endif
+
+// ── Company Detail Modal Population
+(function() {
+    const companyModal = document.getElementById('companyDetailModal');
+    if (!companyModal) return;
+
+    companyModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        if (!button) return;
+
+        const name = button.getAttribute('data-name') || 'شركة مشاركة';
+        const logo = button.getAttribute('data-logo') || '';
+        const industry = button.getAttribute('data-industry') || 'قطاع الأعمال والخدمات';
+        const booth = button.getAttribute('data-booth') || '';
+        const jobs = parseInt(button.getAttribute('data-jobs') || '0');
+        const desc = button.getAttribute('data-desc') || '';
+        const website = button.getAttribute('data-website') || '';
+        const email = button.getAttribute('data-email') || '';
+        const phone = button.getAttribute('data-phone') || '';
+
+        document.getElementById('modalCompanyName').textContent = name;
+        document.getElementById('modalCompanyIndustry').textContent = industry;
+        document.getElementById('modalCompanyDesc').textContent = desc;
+
+        const logoImg = document.getElementById('modalCompanyLogo');
+        const logoFallback = document.getElementById('modalCompanyLogoFallback');
+        if (logo) {
+            logoImg.src = logo;
+            logoImg.style.display = 'block';
+            logoFallback.style.display = 'none';
+        } else {
+            logoImg.style.display = 'none';
+            logoFallback.style.display = 'block';
+        }
+
+        const boothBadge = document.getElementById('modalCompanyBoothBadge');
+        if (booth) {
+            document.getElementById('modalCompanyBooth').textContent = 'جناح ' + booth;
+            boothBadge.style.display = 'inline-flex';
+        } else {
+            boothBadge.style.display = 'none';
+        }
+
+        const jobsBadge = document.getElementById('modalCompanyJobsBadge');
+        if (jobs > 0) {
+            document.getElementById('modalCompanyJobs').textContent = jobs;
+            jobsBadge.style.display = 'inline-flex';
+        } else {
+            jobsBadge.style.display = 'none';
+        }
+
+        const webChip = document.getElementById('modalWebsiteChip');
+        const webLink = document.getElementById('modalCompanyWebsite');
+        if (website) {
+            webLink.href = website.startsWith('http') ? website : 'https://' + website;
+            webLink.textContent = website.replace(/^https?:\/\//, '');
+            webChip.style.display = 'flex';
+        } else {
+            webChip.style.display = 'none';
+        }
+
+        const emailChip = document.getElementById('modalEmailChip');
+        const emailLink = document.getElementById('modalCompanyEmail');
+        if (email) {
+            emailLink.href = 'mailto:' + email;
+            emailLink.textContent = email;
+            emailChip.style.display = 'flex';
+        } else {
+            emailChip.style.display = 'none';
+        }
+
+        const phoneChip = document.getElementById('modalPhoneChip');
+        const phoneSpan = document.getElementById('modalCompanyPhone');
+        if (phone) {
+            phoneSpan.textContent = phone;
+            phoneChip.style.display = 'flex';
+        } else {
+            phoneChip.style.display = 'none';
+        }
+    });
+})();
 </script>
 </body>
 </html>

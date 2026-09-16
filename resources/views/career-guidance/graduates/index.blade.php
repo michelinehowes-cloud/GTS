@@ -246,12 +246,13 @@
                         <thead>
                             <tr>
                                 <th class="text-center" style="width: 45px;">#</th>
-                                <th style="min-width: 200px;">الخريج</th>
-                                <th style="min-width: 170px;">التخصص والكلية</th>
-                                <th class="text-center" style="width: 110px;">التخرج والمعدل</th>
-                                <th class="text-center" style="width: 130px;">حالة التوظيف</th>
-                                <th class="text-center" style="width: 110px;">الترشيحات</th>
-                                <th class="text-center" style="width: 130px;">الإجراءات</th>
+                                <th style="min-width: 210px;">الخريج</th>
+                                <th style="min-width: 180px;">التخصص والكلية</th>
+                                <th class="text-center" style="width: 120px;">سنة التخرج والمعدل</th>
+                                <th class="text-center" style="width: 110px;">حالة التوظيف</th>
+                                <th class="text-center" style="width: 95px;">حالة الحساب</th>
+                                <th class="text-center" style="width: 85px;">الترشيحات</th>
+                                <th class="text-center" style="width: 180px; min-width: 180px;">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -273,33 +274,36 @@
                             <tr class="{{ !$hasProfile ? 'table-warning' : '' }}">
                                 <td class="text-center text-muted fw-bold">{{ $loop->iteration }}</td>
                                 <td>
-                                    <div class="d-flex align-items-center gap-2.5">
+                                    <div class="d-flex align-items-center gap-2">
                                         <div class="graduate-avatar flex-shrink-0" style="{{ !$hasProfile ? 'background: linear-gradient(135deg,#f59e0b,#d97706);' : '' }}">
                                             {{ mb_substr($graduate->name, 0, 1) }}
                                         </div>
-                                        <div class="graduate-details">
-                                            @if($showRouteId)
-                                                <a href="{{ route($prefix . '.graduates.show', $showRouteId) }}" class="graduate-name" title="{{ $graduate->name }}">
-                                                    {{ $graduate->name }}
-                                                </a>
-                                            @else
-                                                <span class="graduate-name fw-bold text-dark">{{ $graduate->name }}</span>
-                                            @endif
-                                            <div class="graduate-meta d-flex align-items-center gap-2 flex-wrap mt-0.5">
-                                                @if($gPhone)
-                                                    <a href="tel:{{ $gPhone }}" class="graduate-phone" dir="ltr" title="الاتصال بالخريج">
-                                                        <i class="fas fa-phone-alt me-1"></i>{{ $gPhone }}
+                                        <div class="graduate-details" style="min-width: 0;">
+                                            <div class="d-flex align-items-center gap-1.5 flex-nowrap">
+                                                @if($showRouteId)
+                                                    <a href="{{ route($prefix . '.graduates.show', $showRouteId) }}" class="graduate-name text-truncate" title="{{ $graduate->name }}">
+                                                        {{ $graduate->name }}
                                                     </a>
-                                                @endif
-                                                @if($graduate->email)
-                                                    <span class="graduate-email" title="{{ $graduate->email }}">
-                                                        <i class="fas fa-envelope me-1"></i>{{ $graduate->email }}
-                                                    </span>
+                                                @else
+                                                    <span class="graduate-name fw-bold text-dark text-truncate">{{ $graduate->name }}</span>
                                                 @endif
                                                 @if(!$hasProfile)
-                                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-2 py-0.5" style="font-size:0.7rem;">
-                                                        <i class="fas fa-exclamation-triangle me-1"></i>لم يكتمل الملف
+                                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-1.5 py-0.5" style="font-size:0.65rem; white-space: nowrap;">
+                                                        غير مكتمل
                                                     </span>
+                                                @endif
+                                            </div>
+                                            <div class="graduate-meta d-flex align-items-center gap-2 text-nowrap mt-0.5" style="font-size: 0.74rem; color: #64748b;">
+                                                @if($gPhone)
+                                                    <a href="tel:{{ $gPhone }}" class="text-success text-decoration-none fw-semibold" dir="ltr" title="اتصال">
+                                                        <i class="fas fa-phone-alt me-1 text-muted" style="font-size: 0.68rem;"></i>{{ $gPhone }}
+                                                    </a>
+                                                @endif
+                                                @if($gPhone && $graduate->email)
+                                                    <span class="text-muted opacity-50">•</span>
+                                                @endif
+                                                @if($graduate->email)
+                                                    <span class="text-muted text-truncate" style="max-width: 150px;" title="{{ $graduate->email }}">{{ $graduate->email }}</span>
                                                 @endif
                                             </div>
                                         </div>
@@ -307,32 +311,31 @@
                                 </td>
                                 <td>
                                     @if($gMajor)
-                                        <div class="fw-bold text-dark" style="font-size: 0.92rem;">
+                                        <div class="fw-bold text-dark text-truncate" style="font-size: 0.85rem; max-width: 190px;" title="{{ $gMajor }}">
                                             {{ $gMajor }}
                                         </div>
-                                        <div class="small text-muted d-flex align-items-center gap-1 mt-0.5">
-                                            <i class="fas fa-university text-secondary" style="font-size: 0.78rem;"></i>
-                                            <span>{{ $gFaculty ?? $gUniversity }}</span>
+                                        <div class="text-muted text-truncate" style="font-size: 0.74rem; max-width: 190px;" title="{{ $gFaculty ?? $gUniversity }}">
+                                            <i class="fas fa-university text-secondary me-1" style="font-size: 0.68rem;"></i>{{ $gFaculty ?? $gUniversity }}
                                         </div>
                                     @else
                                         <span class="text-muted small fst-italic">غير مكتمل</span>
                                     @endif
                                 </td>
-                                <td class="text-center">
-                                    @if($gYear)
-                                        <div class="fw-bold text-dark" style="font-size: 0.95rem;">
-                                            {{ $gYear }}
-                                        </div>
-                                    @endif
-                                    @if($gGpa)
-                                        <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-2.5 py-0.5 fw-bold mt-1" style="font-size: 0.75rem;">
-                                            {{ $gGpa }}%
-                                        </span>
-                                    @elseif(!$gYear)
-                                        <span class="text-muted small">—</span>
-                                    @endif
+                                <td class="text-center text-nowrap">
+                                    <div class="d-inline-flex align-items-center gap-1.5 flex-nowrap justify-content-center">
+                                        @if($gYear)
+                                            <span class="fw-bold text-dark" style="font-size: 0.84rem;">{{ $gYear }}</span>
+                                        @endif
+                                        @if($gGpa)
+                                            <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-2 py-0.5 fw-bold" style="font-size: 0.72rem;">
+                                                {{ $gGpa }}%
+                                            </span>
+                                        @elseif(!$gYear)
+                                            <span class="text-muted small">—</span>
+                                        @endif
+                                    </div>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center text-nowrap">
                                     @if($gEmpStatus == 'employed')
                                         <span class="status-badge status-employed">
                                             <i class="fas fa-check-circle"></i> موظف
@@ -347,13 +350,24 @@
                                         </span>
                                     @elseif(in_array($gEmpStatus, ['continuing_education','further_study']))
                                         <span class="status-badge status-student">
-                                            <i class="fas fa-graduation-cap"></i> يواصل دراسته
+                                            <i class="fas fa-graduation-cap"></i> دراسات عليا
                                         </span>
                                     @else
-                                        <span class="badge bg-light text-secondary border rounded-pill px-3 py-1">غير محدد</span>
+                                        <span class="badge bg-light text-secondary border rounded-pill px-2.5 py-0.5" style="font-size:0.72rem;">غير محدد</span>
                                     @endif
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center text-nowrap">
+                                    @if($graduate->is_active)
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.74rem;">
+                                            <i class="fas fa-check-circle me-1"></i> نشط
+                                        </span>
+                                    @else
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2.5 py-1 fw-bold" style="font-size: 0.74rem;">
+                                            <i class="fas fa-snowflake me-1"></i> مجمد
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="text-center text-nowrap">
                                     <span class="nomination-pill {{ $graduate->accepted_nominations_count > 0 ? 'has-accepted' : '' }}">
                                         <i class="fas fa-paper-plane me-1"></i>
                                         <span>{{ $graduate->nominations_count }}</span>
@@ -362,8 +376,8 @@
                                         @endif
                                     </span>
                                 </td>
-                                <td class="text-center">
-                                    <div class="d-inline-flex align-items-center gap-1.5">
+                                <td class="text-center text-nowrap" style="width: 180px; min-width: 180px;">
+                                    <div class="actions-wrapper">
                                         @if($showRouteId)
                                             <a href="{{ route($prefix . '.graduates.show', $showRouteId) }}" class="action-btn action-btn-info" title="عرض الملف الكامل">
                                                 <i class="fas fa-eye"></i>
@@ -380,6 +394,30 @@
                                                 <i class="fas fa-user-plus"></i>
                                             </a>
                                         @endif
+
+                                        {{-- زر التجميد / التنشيط --}}
+                                        <form id="toggle-form-{{ $graduate->id }}" action="{{ route($prefix . '.graduates.toggle-status', $graduate->id) }}" method="POST" class="d-none">
+                                            @csrf
+                                            @method('PATCH')
+                                        </form>
+                                        @if($graduate->is_active)
+                                            <button type="button" onclick="confirmToggleStatus('toggle-form-{{ $graduate->id }}', 'تجميد')" class="action-btn action-btn-freeze" title="تجميد حساب الخريج">
+                                                <i class="fas fa-snowflake"></i>
+                                            </button>
+                                        @else
+                                            <button type="button" onclick="confirmToggleStatus('toggle-form-{{ $graduate->id }}', 'تنشيط')" class="action-btn action-btn-unfreeze" title="تنشيط حساب الخريج">
+                                                <i class="fas fa-sun"></i>
+                                            </button>
+                                        @endif
+
+                                        {{-- زر مسح / حذف الخريج نهائياً --}}
+                                        <form id="delete-form-{{ $graduate->id }}" action="{{ route($prefix . '.graduates.destroy', $graduate->id) }}" method="POST" class="d-none">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                        <button type="button" onclick="confirmDeleteGraduate('delete-form-{{ $graduate->id }}', '{{ addslashes($graduate->name) }}')" class="action-btn action-btn-danger" title="مسح الخريج وسجلاته نهائياً">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -388,6 +426,17 @@
                         </tbody>
                     </table>
                 </div>
+
+                @if(method_exists($graduates, 'hasPages') && $graduates->hasPages())
+                    <div class="card-footer bg-white py-2.5 px-4 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <span class="small text-muted">
+                            عرض <strong>{{ $graduates->firstItem() }}</strong> إلى <strong>{{ $graduates->lastItem() }}</strong> من أصل <strong>{{ $graduates->total() }}</strong> خريج
+                        </span>
+                        <div>
+                            {{ $graduates->links('pagination::bootstrap-5') }}
+                        </div>
+                    </div>
+                @endif
             @else
                 <div class="text-center py-5">
                     <div class="empty-state-icon mb-3">
@@ -595,92 +644,82 @@
         color: #dc2626;
     }
 
-    /* Table Styling */
+    /* Table Styling - Compact Single-Row Enterprise Design */
     .table-card-premium {
         border: 1px solid #e2e8f0 !important;
         box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05) !important;
+        overflow: hidden;
+    }
+    .table-responsive {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
     }
     .premium-graduates-table {
         margin-bottom: 0;
         border-collapse: separate;
         border-spacing: 0;
+        width: 100%;
     }
     .premium-graduates-table thead th {
         background-color: #f8fafc;
         color: #475569;
-        font-size: 0.84rem;
+        font-size: 0.82rem;
         font-weight: 700;
-        padding: 14px 16px;
+        padding: 10px 12px;
         border-bottom: 2px solid #e2e8f0;
         white-space: nowrap;
+        vertical-align: middle;
     }
     .premium-graduates-table tbody td {
-        padding: 13px 16px;
+        padding: 8px 12px;
         border-bottom: 1px solid #f1f5f9;
         vertical-align: middle;
         background-color: #ffffff;
         transition: background-color 0.15s ease;
+        height: 50px;
     }
     .premium-graduates-table tbody tr:hover td {
         background-color: #f8fafc;
     }
+    .premium-graduates-table tbody tr:last-child td {
+        border-bottom: none;
+    }
     .graduate-avatar {
-        width: 42px;
-        height: 42px;
-        border-radius: 12px;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
         background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
         color: #ffffff;
-        font-weight: 800;
-        font-size: 1.1rem;
+        font-weight: 700;
+        font-size: 0.9rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+        box-shadow: 0 1px 3px rgba(2, 132, 199, 0.2);
     }
     .graduate-name {
         font-weight: 700;
-        font-size: 0.95rem;
+        font-size: 0.88rem;
         color: #0f172a;
         text-decoration: none;
-        display: block;
+        display: inline-block;
         transition: color 0.15s;
+        line-height: 1.25;
     }
     .graduate-name:hover {
         color: #2563eb;
     }
-    .graduate-phone {
-        font-size: 0.78rem;
-        color: #15803d;
-        background-color: #f0fdf4;
-        border: 1px solid #bbf7d0;
-        border-radius: 6px;
-        padding: 1px 7px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.15s;
-    }
-    .graduate-phone:hover {
-        background-color: #dcfce7;
-        color: #166534;
-    }
-    .graduate-email {
-        font-size: 0.78rem;
-        color: #64748b;
-        max-width: 170px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: inline-block;
-    }
     .status-badge {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 5px 12px;
+        gap: 5px;
+        padding: 3px 9px;
         border-radius: 50rem;
-        font-size: 0.8rem;
+        font-size: 0.74rem;
         font-weight: 600;
         white-space: nowrap;
+        line-height: 1.3;
     }
     .status-employed {
         background-color: #f0fdf4;
@@ -709,10 +748,11 @@
         background-color: #f8fafc;
         border: 1px solid #e2e8f0;
         color: #475569;
-        padding: 4px 10px;
+        padding: 2px 8px;
         border-radius: 50rem;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         font-weight: 600;
+        white-space: nowrap;
     }
     .nomination-pill.has-accepted {
         background-color: #f0fdf4;
@@ -723,24 +763,34 @@
         background-color: #16a34a;
         color: #ffffff;
         border-radius: 50rem;
-        padding: 1px 6px;
-        font-size: 0.72rem;
+        padding: 0 5px;
+        font-size: 0.68rem;
         font-weight: 700;
     }
-    .action-btn {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
+    .actions-wrapper {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.88rem;
-        transition: all 0.15s ease;
+        gap: 4px;
+        flex-wrap: nowrap !important;
+        white-space: nowrap !important;
+    }
+    .action-btn {
+        width: 29px;
+        height: 29px;
+        border-radius: 7px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.78rem;
+        transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
         border: 1px solid transparent;
         text-decoration: none;
+        flex-shrink: 0;
     }
+    /* Fixed: NO transform: translateY or layout-changing rules on hover! Keeps table 100% jitter-free! */
     .action-btn:hover {
-        transform: translateY(-2px);
+        /* Intentionally no transform to prevent jitter and scrollbar loops */
     }
     .action-btn-info {
         background-color: #f0f9ff;
@@ -750,7 +800,7 @@
     .action-btn-info:hover {
         background-color: #0284c7;
         color: #ffffff;
-        box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
+        border-color: #0284c7;
     }
     .action-btn-warning {
         background-color: #fffbeb;
@@ -760,7 +810,7 @@
     .action-btn-warning:hover {
         background-color: #d97706;
         color: #ffffff;
-        box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);
+        border-color: #d97706;
     }
     .action-btn-primary {
         background-color: #eff6ff;
@@ -770,7 +820,89 @@
     .action-btn-primary:hover {
         background-color: #2563eb;
         color: #ffffff;
-        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+        border-color: #2563eb;
+    }
+    .action-btn-freeze {
+        background-color: #f8fafc;
+        color: #475569;
+        border-color: #cbd5e1;
+    }
+    .action-btn-freeze:hover {
+        background-color: #475569;
+        color: #ffffff;
+        border-color: #475569;
+    }
+    .action-btn-unfreeze {
+        background-color: #f0fdf4;
+        color: #16a34a;
+        border-color: #bbf7d0;
+    }
+    .action-btn-unfreeze:hover {
+        background-color: #16a34a;
+        color: #ffffff;
+        border-color: #16a34a;
+    }
+    .action-btn-danger {
+        background-color: #fef2f2;
+        color: #dc2626;
+        border-color: #fecaca;
+    }
+    .action-btn-danger:hover {
+        background-color: #dc2626;
+        color: #ffffff;
+        border-color: #dc2626;
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+function confirmToggleStatus(formId, actionText) {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: `هل أنت متأكد من ${actionText} حساب الخريج؟`,
+            text: actionText === 'تجميد' 
+                ? 'عند التجميد لن يتمكن الخريج من تسجيل الدخول إلى المنظومة أو تقديم طلبات جديدة.' 
+                : 'عند التنشيط سيستعيد الخريج إمكانية الوصول إلى حسابه والمنظومة بشكل طبيعي.',
+            icon: actionText === 'تجميد' ? 'warning' : 'info',
+            showCancelButton: true,
+            confirmButtonColor: actionText === 'تجميد' ? '#f59e0b' : '#10b981',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: `نعم، ${actionText} الحساب`,
+            cancelButtonText: 'إلغاء'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(formId).submit();
+            }
+        });
+    } else {
+        if (confirm(`هل أنت متأكد من ${actionText} حساب الخريج؟`)) {
+            document.getElementById(formId).submit();
+        }
+    }
+}
+
+function confirmDeleteGraduate(formId, graduateName) {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: `مسح الخريج [${graduateName}]؟`,
+            text: 'تحذير: سيتم مسح حساب الخريج وجميع سجلاته وبياناته وترشيحاته نهائياً من قاعدة البيانات ولا يمكن التراجع عن هذه العملية!',
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'نعم، مسح الخريج نهائياً',
+            cancelButtonText: 'إلغاء'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(formId).submit();
+            }
+        });
+    } else {
+        if (confirm(`تحذير نهائي: هل أنت متأكد من مسح الخريج [${graduateName}] وجميع سجلاته نهائياً؟`)) {
+            document.getElementById(formId).submit();
+        }
+    }
+}
+</script>
 @endpush

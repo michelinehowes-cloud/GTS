@@ -76,7 +76,7 @@ class NewsController extends Controller
 
         $data = [
             'title' => $request->title,
-            'content' => $request->content,
+            'content' => $request->input('content'),
             'published_at' => $request->published_at ? $request->published_at : now(),
             'expires_at' => $request->expires_at,
             'is_active' => $request->boolean('is_active'),
@@ -139,7 +139,7 @@ class NewsController extends Controller
 
         $data = [
             'title' => $request->title,
-            'content' => $request->content,
+            'content' => $request->input('content'),
             'published_at' => $request->published_at,
             'expires_at' => $request->expires_at,
             'is_active' => $request->boolean('is_active'),

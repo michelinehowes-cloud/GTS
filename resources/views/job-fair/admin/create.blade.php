@@ -1,160 +1,161 @@
 @extends('layouts.app')
 
-@section('title', 'إنشاء معرض توظيف جديد')
+@section('title', 'نموذج إنشاء فعالية جديدة')
 
 @section('content')
 <div class="container py-4" style="max-width: 800px">
 
-    
+    <x-bento-form title="نموذج إنشاء فعالية" subtitle="أدخل تفاصيل الفعالية أو المعرض الجديد" icon="fa-calendar-plus" :backRoute="route('job-fair.admin.index')">
+        <form action="{{ route('job-fair.admin.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
 
-    <x-bento-form title="إنشاء معرض توظيف" subtitle="أدخل تفاصيل المعرض الجديد" icon="fa-calendar-plus">
-<form action="{{ route('job-fair.admin.store') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-
-        <!-- بيانات أساسية -->
-        <div class="form-section mb-4">
-            <h5 class="section-title">
-                <h5 class="fw-bold mb-0">
+            <!-- بيانات أساسية -->
+            <div class="form-section mb-4">
+                <h5 class="section-title">
                     <i class="fas fa-info-circle me-2" style="color: #3B82F6"></i>
                     المعلومات الأساسية
                 </h5>
-            <div class="p-4">
-                <div class="row g-3">
-                    <div class="col-12">
-                        <label class="form-label fw-semibold">عنوان المعرض *</label>
-                        <input type="text" name="title" class="form-control rounded-3 @error('title') is-invalid @enderror"
-                               value="{{ old('title', 'معرض التوظيف 2026') }}" required
-                               placeholder="مثال: معرض التوظيف السنوي 2026">
-                        @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
+                <div class="p-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">عنوان الفعالية / المعرض *</label>
+                            <input type="text" name="title" class="form-control rounded-3 @error('title') is-invalid @enderror"
+                                   value="{{ old('title') }}" required
+                                   placeholder="مثال: ملتقى التوظيف السنوي 2026، معرض المشاريع التقنية، أسبوع ريادة الأعمال...">
+                            @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
 
-                    <div class="col-12">
-                        <label class="form-label fw-semibold">العنوان الفرعي</label>
-                        <input type="text" name="subtitle" class="form-control rounded-3"
-                               value="{{ old('subtitle') }}"
-                               placeholder="مثال: نحو مستقبل مهني أفضل">
-                    </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">العنوان الفرعي</label>
+                            <input type="text" name="subtitle" class="form-control rounded-3"
+                                   value="{{ old('subtitle') }}"
+                                   placeholder="مثال: نحو مستقبل مهني أفضل">
+                        </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">تاريخ المعرض *</label>
-                        <input type="date" name="event_date" class="form-control rounded-3 @error('event_date') is-invalid @enderror"
-                               value="{{ old('event_date') }}" required>
-                        @error('event_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">تاريخ الفعالية *</label>
+                            <input type="date" name="event_date" class="form-control rounded-3 @error('event_date') is-invalid @enderror"
+                                   value="{{ old('event_date') }}" required>
+                            @error('event_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">وقت البداية</label>
-                        <input type="time" name="start_time" class="form-control rounded-3"
-                               value="{{ old('start_time', '09:00') }}">
-                    </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">وقت البداية</label>
+                            <input type="time" name="start_time" class="form-control rounded-3"
+                                   value="{{ old('start_time', '09:00') }}">
+                        </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold">وقت النهاية</label>
-                        <input type="time" name="end_time" class="form-control rounded-3"
-                               value="{{ old('end_time', '16:00') }}">
-                    </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">وقت النهاية</label>
+                            <input type="time" name="end_time" class="form-control rounded-3"
+                                   value="{{ old('end_time', '16:00') }}">
+                        </div>
 
-                    <div class="col-12">
-                        <label class="form-label fw-semibold">مكان الانعقاد *</label>
-                        <input type="text" name="location" class="form-control rounded-3 @error('location') is-invalid @enderror"
-                               value="{{ old('location') }}" required
-                               placeholder="مثال: القاعة الكبرى — كلية الهندسة — جامعة طرابلس">
-                        @error('location')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">مكان الانعقاد *</label>
+                            <input type="text" name="location" class="form-control rounded-3 @error('location') is-invalid @enderror"
+                                   value="{{ old('location') }}" required
+                                   placeholder="مثال: القاعة الكبرى — كلية الهندسة — جامعة طرابلس">
+                            @error('location')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
 
-                    <div class="col-12">
-                        <label class="form-label fw-semibold">وصف المعرض</label>
-                        <textarea name="description" class="form-control rounded-3" rows="4"
-                                  placeholder="اكتب تفاصيل المعرض، أهدافه، وما يمكن للخريجين توقعه...">{{ old('description') }}</textarea>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- التسجيل -->
-        <div class="form-section mb-4">
-            <h5 class="section-title">
-                <h5 class="fw-bold mb-0">
-                    <i class="fas fa-users me-2" style="color: #10B981"></i>
-                    إعدادات التسجيل
-                </h5>
-            <div class="p-4">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">أقصى عدد خريجين</label>
-                        <input type="number" name="max_graduates" class="form-control rounded-3"
-                               value="{{ old('max_graduates') }}" placeholder="اتركه فارغاً للتسجيل المفتوح" min="1">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">موعد انتهاء التسجيل</label>
-                        <input type="datetime-local" name="registration_deadline" class="form-control rounded-3"
-                               value="{{ old('registration_deadline') }}">
-                    </div>
-                    <div class="col-12">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" name="registration_open" id="regOpen"
-                                   value="1" {{ old('registration_open', '1') ? 'checked' : '' }}>
-                            <label class="form-check-label fw-semibold" for="regOpen">
-                                التسجيل مفتوح للخريجين
-                            </label>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">وصف الفعالية</label>
+                            <textarea name="description" class="form-control rounded-3" rows="4"
+                                      placeholder="اكتب تفاصيل وأهداف الفعالية، وما يمكن للمشاركين والحضور توقعه...">{{ old('description') }}</textarea>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- الحالة -->
-        <div class="form-section mb-4">
-            <h5 class="section-title">
-                <h5 class="fw-bold mb-0">
-                    <i class="fas fa-toggle-on me-2" style="color: #eeca3e"></i>
-                    حالة المعرض
+            <!-- التسجيل -->
+            <div class="form-section mb-4">
+                <h5 class="section-title">
+                    <i class="fas fa-users me-2" style="color: #10B981"></i>
+                    إعدادات التسجيل والحضور
                 </h5>
-            <div class="p-4">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <select name="status" class="form-select rounded-3">
-                            <option value="draft" {{ old('status') == 'draft' ? 'selected' : '' }}>مسودة (غير مرئي للعموم)</option>
-                            <option value="published" {{ old('status') == 'published' ? 'selected' : '' }}>منشور (مرئي للجميع)</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">صورة البانر</label>
-                        <input type="file" name="banner_image" class="form-control rounded-3" accept="image/*">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label fw-semibold">ملاحظات داخلية</label>
-                        <textarea name="notes" class="form-control rounded-3" rows="2"
-                                  placeholder="ملاحظات للإدارة فقط...">{{ old('notes') }}</textarea>
+                <div class="p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">أقصى عدد للحضور أو الخريجين</label>
+                            <input type="number" name="max_graduates" class="form-control rounded-3"
+                                   value="{{ old('max_graduates') }}" placeholder="اتركه فارغاً للتسجيل المفتوح" min="1">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">موعد انتهاء التسجيل</label>
+                            <input type="datetime-local" name="registration_deadline" class="form-control rounded-3"
+                                   value="{{ old('registration_deadline') }}">
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="registration_open" id="regOpen"
+                                       value="1" {{ old('registration_open', '1') ? 'checked' : '' }}>
+                                <label class="form-check-label fw-semibold" for="regOpen">
+                                    فتح باب التسجيل للحضور والخريجين
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- الشركات المشاركة -->
-        <div class="form-section mb-4">
-            <h5 class="section-title">
-                <h5 class="fw-bold mb-0">
+            <!-- الحالة -->
+            <div class="form-section mb-4">
+                <h5 class="section-title">
+                    <i class="fas fa-toggle-on me-2" style="color: #eeca3e"></i>
+                    حالة الفعالية
+                </h5>
+                <div class="p-4">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">حالة النشر</label>
+                            <select name="status" class="form-select rounded-3">
+                                <option value="draft" {{ old('status') == 'draft' ? 'selected' : '' }}>مسودة (غير مرئي للعموم)</option>
+                                <option value="published" {{ old('status') == 'published' ? 'selected' : '' }}>منشور (مرئي للجميع)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">شعار الفعالية المخصص</label>
+                            <input type="file" name="fair_logo_path" class="form-control rounded-3" accept="image/*">
+                            <div class="form-text text-muted small">شعار مستقل للفعالية (اختياري)</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">صورة الغلاف / البانر</label>
+                            <input type="file" name="banner_image" class="form-control rounded-3" accept="image/*">
+                            <div class="form-text text-muted small">بانر ترويجي للفعالية</div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">ملاحظات داخلية</label>
+                            <textarea name="notes" class="form-control rounded-3" rows="2"
+                                      placeholder="ملاحظات للإدارة فقط...">{{ old('notes') }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الشركات والجهات المشاركة -->
+            <div class="form-section mb-4">
+                <h5 class="section-title">
                     <i class="fas fa-building me-2" style="color: #6366F1"></i>
-                    الشركات المشاركة
+                    الشركات أو الجهات المشاركة
                     <small class="text-muted fw-normal">(يمكن الإضافة لاحقاً)</small>
                 </h5>
-            <div class="p-4">
-                <div id="companies-container"></div>
-                <button type="button" class="btn btn-outline-primary rounded-pill btn-sm" onclick="addCompanyRow()">
-                    <i class="fas fa-plus me-2"></i>إضافة شركة
+                <div class="p-4">
+                    <div id="companies-container"></div>
+                    <button type="button" class="btn btn-outline-primary rounded-pill btn-sm" onclick="addCompanyRow()">
+                        <i class="fas fa-plus me-2"></i>إضافة جهة / شركة
+                    </button>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 justify-content-end">
+                <a href="{{ route('job-fair.admin.index') }}" class="btn btn-light rounded-pill px-4">إلغاء</a>
+                <button type="submit" class="btn btn-warning rounded-pill px-5 fw-bold text-dark">
+                    <i class="fas fa-save me-2"></i>إنشاء الفعالية
                 </button>
             </div>
-        </div>
-
-        <div class="d-flex gap-3 justify-content-end">
-            <a href="{{ route('job-fair.admin.index') }}" class="btn btn-light rounded-pill px-4">إلغاء</a>
-            <button type="submit" class="btn btn-warning rounded-pill px-5 fw-bold text-dark">
-                <i class="fas fa-save me-2"></i>إنشاء المعرض
-            </button>
-        </div>
-    </form>
-</x-bento-form>
+        </form>
+    </x-bento-form>
 </div>
 @endsection
 
@@ -169,18 +170,18 @@ function addCompanyRow() {
     div.className = 'row g-2 mb-3 align-items-center border rounded-3 p-3';
     div.innerHTML = `
         <div class="col-md-4">
-            <label class="form-label small fw-semibold">الشركة</label>
+            <label class="form-label small fw-semibold">الشركة أو الجهة</label>
             <select name="companies[${companyIndex}][company_id]" class="form-select form-select-sm rounded-3">
-                <option value="">-- اختر شركة --</option>
+                <option value="">-- اختر شركة أو جهة --</option>
                 ${companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
             </select>
         </div>
         <div class="col-md-3">
-            <label class="form-label small fw-semibold">رقم الجناح</label>
+            <label class="form-label small fw-semibold">رقم الجناح / المنصة</label>
             <input type="text" name="companies[${companyIndex}][booth_number]" class="form-control form-control-sm rounded-3" placeholder="A1">
         </div>
         <div class="col-md-4">
-            <label class="form-label small fw-semibold">عدد الوظائف المتاحة</label>
+            <label class="form-label small fw-semibold">عدد الفرص أو الوظائف</label>
             <input type="number" name="companies[${companyIndex}][available_positions]" class="form-control form-control-sm rounded-3" placeholder="5" min="0">
         </div>
         <div class="col-md-1 d-flex align-items-end">

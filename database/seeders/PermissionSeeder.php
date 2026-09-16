@@ -147,12 +147,6 @@ class PermissionSeeder extends Seeder
                 'module' => 'job_fair',
                 'description' => 'متابعة تسجيلات الخريجين والزوار وتأكيد الدخول عبر التذاكر',
             ],
-            [
-                'name' => 'job_fair.stream',
-                'display_name' => 'إدارة البث المباشر للمعرض',
-                'module' => 'job_fair',
-                'description' => 'تحديث وإدارة رابط البث المباشر والنافذة التفاعلية للزوار',
-            ],
 
             // 💼 وحدة فرص العمل والترشيحات
             [

@@ -1120,7 +1120,25 @@ class AiAssistantService
 
             if (!$response->successful()) {
                 Log::warning('Groq API Error (' . $response->status() . '): ' . $response->body());
-                return null;
+
+                // إذا كان الخطأ 404 (النموذج غير موجود أو محذوف)، نحاول تلقائياً مع النماذج البديلة المتاحة
+                if ($response->status() === 404) {
+                    $fallbackModels = ['llama-3.1-8b-instant', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'mixtral-8x7b-32768'];
+                    foreach ($fallbackModels as $altModel) {
+                        if ($altModel === $model) continue;
+                        $payload['model'] = $altModel;
+                        $altResp = Http::timeout(20)->withToken($apiKey)->post($url, $payload);
+                        if ($altResp->successful()) {
+                            $response = $altResp;
+                            Log::info("Groq successfully fell back to model: {$altModel}");
+                            break;
+                        }
+                    }
+                }
+
+                if (!$response->successful()) {
+                    return null;
+                }
             }
 
             $data = $response->json();

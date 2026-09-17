@@ -1026,7 +1026,7 @@ class AiAssistantService
                 }
 
                 // Format rich conversational report directly from tool execution
-                $finalText = $this->formatToolResultFallback($toolName, $toolResult);
+                $finalText = $this->formatToolResultFallback($toolName, $toolResult, $user);
 
                 return [
                     'content' => $finalText,
@@ -1166,7 +1166,7 @@ class AiAssistantService
                 }
 
                 if (empty($finalText)) {
-                    $finalText = $this->formatToolResultFallback($toolName, $toolResult);
+                    $finalText = $this->formatToolResultFallback($toolName, $toolResult, $user);
                 }
 
                 return [
@@ -1720,23 +1720,35 @@ class AiAssistantService
         }
 
         // 💼 استعراض والبحث في فرص العمل والوظائف المتاحة (لكافة الأدوار: مسؤول الإرشاد، المدير، الخريج، الموظف)
+        $cleanedMsg = trim($text, " ?.!\t\n\r\0\x0B؟،,");
         $isJobListIntent = (
             Str::contains($text, [
-                'الفرص الوظيفية', 'فرص وظيفية', 'فرص العمل', 'فرص عمل',
+                'ماذا عن الوظائف', 'ماذا عن العمل', 'ماذا عن فرص العمل', 'ماذا بخصوص الوظائف', 'وماذا عن الوظائف', 'عن الوظائف', 'بخصوص الوظائف',
+                'الفرص الوظيفية', 'فرص وظيفية', 'فرص العمل', 'فرص عمل', 'فرصة عمل',
                 'الوظائف المتاحة', 'وظائف متاحة', 'الوظائف الشاغرة', 'وظائف شاغرة',
                 'قائمة بالوظائف', 'قائمة الوظائف', 'عرض الوظائف', 'استعراض الوظائف',
                 'ما هي الوظائف', 'ماهي الوظائف', 'ما هي الفرص', 'ماهي الفرص',
                 'الوظائف الموجودة', 'وظائف موجودة', 'فرص التوظيف', 'سوق العمل',
-                'الوظائف المعلنة', 'وظائف معلنة'
+                'الوظائف المعلنة', 'وظائف معلنة', 'شواغر العمل', 'الشواغر المتاحة',
+                'شن الوظائف', 'شن في وظائف', 'شنو الوظائف', 'هل في وظائف', 'هل توجد وظائف', 'هل هناك وظائف',
+                'ابحث عن وظيفة', 'ابحث لي عن وظيفة', 'نبي وظيفة', 'نبي عمل', 'أريد وظيفة', 'اريد وظيفة', 'أريد عمل', 'اريد عمل'
             ]) ||
-            (Str::contains($text, ['وظائف', 'وظيفة', 'توظيف']) && Str::contains($text, ['متاح', 'متاحة', 'مفتوح', 'مفتوحة', 'شاغر', 'شاغرة', 'قائمة', 'عرض', 'استعراض', 'جديد', 'جديدة', 'معلن', 'معلنة', 'ما هي', 'ماهي', 'شنو', 'ايش', 'أريد', 'اريد', 'اعطني', 'أعطني', 'شوفلي']))
-        ) && !Str::contains($text, ['أضف', 'اضف', 'انشر', 'نشر', 'إنشاء', 'صياغة', 'رشح', 'ترشيح', 'ترشيج', 'كيف', 'طريقة', 'مرشح', 'مرشحين', 'مرشحون', 'مقابلة', 'إحصائيات', 'احصائيات', 'ملخص', 'شركات شريكة', 'الشركات الشريكة', 'قائمة الشركات']);
+            in_array($cleanedMsg, ['الوظائف', 'وظائف', 'فرص العمل', 'فرص عمل', 'الشواغر', 'شواغر', 'سوق العمل', 'وظيفة', 'عمل', 'التوظيف']) ||
+            (
+                Str::contains($text, ['وظائف', 'وظيفة', 'توظيف', 'شواغر', 'فرص عمل', 'فرصة عمل']) &&
+                Str::contains($text, ['ماذا', 'عن', 'بخصوص', 'متاح', 'متاحة', 'مفتوح', 'مفتوحة', 'شاغر', 'شاغرة', 'قائمة', 'عرض', 'استعراض', 'جديد', 'جديدة', 'معلن', 'معلنة', 'ما هي', 'ماهي', 'شنو', 'شن', 'ايش', 'أريد', 'اريد', 'نبي', 'اعطني', 'أعطني', 'شوفلي', 'هل', 'أين', 'اين'])
+            )
+        ) && !Str::contains($text, ['أضف', 'اضف', 'انشر', 'نشر', 'إنشاء', 'صياغة', 'رشح', 'ترشيح', 'ترشيج', 'كيف', 'طريقة', 'مرشح', 'مرشحين', 'مرشحون', 'مقابلة', 'إحصائيات', 'احصائيات', 'ملخص', 'شركات شريكة', 'الشركات الشريكة', 'قائمة الشركات', 'تقديم على', 'التقديم على', 'سجلني']);
 
         if ($isJobListIntent && in_array('search_job_opportunities', $authorizedNames)) {
             $keyword = '';
-            if (preg_match('/(?:وظائف|فرص|وظيفة)\s+(?:في\s+مجال\s+|في\s+تخصص\s+|في\s+)?([^\?\.\!؟،,]+)/u', $userMessage, $m)) {
+            if (preg_match('/(?:الوظائف|وظائف|فرص|الفرص|وظيفة|الوظيفة)\s+(?:في\s+مجال\s+|في\s+تخصص\s+|في\s+|تخص\s+|بـ\s*)?([^\?\.\!؟،,]+)/u', $userMessage, $m)) {
                 $candidateKw = trim(preg_replace('/^[\s\p{P}]+|[\s\p{P}]+$/u', '', $m[1]));
-                $ignoredWords = ['المتاحة', 'الشاغرة', 'الموجودة', 'الجديدة', 'المعلنة', 'العمل', 'التوظيف', 'الوظيفية', 'متاحة', 'شاغرة', 'حالياً', 'مفتوحة', 'المفتوحة', ''];
+                $ignoredWords = [
+                    'المتاحة', 'الشاغرة', 'الموجودة', 'الجديدة', 'المعلنة', 'العمل', 'التوظيف', 
+                    'الوظيفية', 'متاحة', 'شاغرة', 'حالياً', 'مفتوحة', 'المفتوحة', 'عنها', 'بخصوصها',
+                    'المعروضة', 'معروضة', 'لنا', 'للخريجين', 'الخاصة', ''
+                ];
                 if (!in_array($candidateKw, $ignoredWords) && mb_strlen($candidateKw) > 1) {
                     $keyword = $candidateKw;
                 }
@@ -1749,7 +1761,7 @@ class AiAssistantService
                 return [
                     'content' => "💼 **فرص العمل والتشغيل:**\n\n" .
                         "لا توجد فرص وظيفية مفتوحة حالياً " . (!empty($keyword) ? "تطابق **'{$keyword}'**." : "في المنظومة.") . "\n\n" .
-                        "💡 يمكنك إضافة ونشر فرصة وظيفية جديدة بقول: *'أضف وظيفة مطور برمجيات لدى شركة تقنية'*.",
+                        "💡 يمكنك متابعة التحديثات أو سؤال مسؤولي الإرشاد المهني.",
                     'tool_executed' => 'search_job_opportunities',
                 ];
             }
@@ -1760,21 +1772,20 @@ class AiAssistantService
                 $out .= "{$num}. 🏢 **{$j['title']}**\n";
                 $out .= "   • **الشركة الشريكة:** {$j['company']}\n";
                 $out .= "   • **الموقع:** 📍 {$j['location']} | **نوع العقد:** ⏱ {$j['type']}\n";
-                $out .= "   • **المقاعد الشاغرة:** 👥 {$j['seats']} | **آخر موعد:** 📅 {$j['deadline']}\n\n";
+                $out .= "   • **المقاعد الشاغرة:** 👥 {$j['seats']} | **آخر موعد:** 📅 {$j['deadline']}\n";
+
+                if ($user->role === 'graduate') {
+                    $out .= "   👉 [📝 التقديم على هذه الوظيفة](#prompt:أريد التقديم على وظيفة {$j['title']})\n\n";
+                } elseif (in_array($user->role, ['career_guidance_officer', 'admin'])) {
+                    $out .= "   👉 [🤝 ترشيح خريج لهذه الوظيفة](#prompt:رشح الخريج لوظيفة {$j['title']})\n\n";
+                } else {
+                    $out .= "\n";
+                }
             }
 
-            if (in_array($user->role, ['career_guidance_officer', 'admin'])) {
-                $firstJob = $jobs[0]['title'] ?? 'مطور واجهات وتطبيقات الويب';
+            if ($user->role === 'graduate') {
                 $out .= "━━━━━━━━━━━━━━━━━━━━━━\n" .
-                    "💡 **للترشيح المباشر لأي وظيفة:**\n" .
-                    "اكتب: *'رشح الخريج [الاسم] لوظيفة [اسم الوظيفة]'*\n" .
-                    "*(مثال: `رشح الخريج المنيب محمد الشريف لوظيفة {$firstJob}`)*\n" .
-                    "أو للترشيح الجماعي: *'رشح 5 خريجين لوظيفة {$firstJob}'*.";
-            } elseif ($user->role === 'graduate') {
-                $firstJob = $jobs[0]['title'] ?? 'مطور واجهات وتطبيقات الويب';
-                $out .= "━━━━━━━━━━━━━━━━━━━━━━\n" .
-                    "💡 **للتقديم المباشر على إحدى هذه الفرص:**\n" .
-                    "اكتب: *'أريد التقديم على وظيفة {$firstJob}'* وسأقوم بتجهيز ملفك فوراً.";
+                    "💡 **للتقديم المباشر:** اضغط على زر التقديم أسفل أي وظيفة، أو اكتب: *'أريد التقديم على وظيفة [اسم الوظيفة]'*.";
             }
 
             return [
@@ -2122,28 +2133,66 @@ class AiAssistantService
         }
 
         // 7. استعلام عن التدريبات والبرامج المتاحة
-        if (!Str::contains($text, ['استبيان', 'استطلاع', 'تقرير']) && Str::contains($text, ['تدريب', 'دورة', 'ورشة', 'دورات', 'تدريبات', 'برنامج']) && in_array('search_trainings', $authorizedNames)) {
+        $cleanedMsg = trim($text, " ?.!\t\n\r\0\x0B؟،,");
+        $isTrainingListIntent = (
+            Str::contains($text, [
+                'ماذا عن التدريب', 'ماذا عن التدريبات', 'ماذا عن الدورات', 'ماذا عن البرامج',
+                'التدريبات المتاحة', 'تدريبات متاحة', 'الدورات المتاحة', 'دورات متاحة',
+                'البرامج المتاحة', 'برامج متاحة', 'قائمة التدريبات', 'قائمة الدورات',
+                'عرض التدريبات', 'عرض الدورات', 'استعراض الدورات', 'استعراض التدريبات',
+                'ما هي الدورات', 'ماهي الدورات', 'ما هي التدريبات', 'ماهي التدريبات',
+                'ما الدورات', 'ما التدريبات', 'شن في دورات', 'شن الدورات', 'شن التدريبات',
+                'هل في دورات', 'هل توجد دورات', 'هل هناك دورات', 'هل في تدريبات', 'هل توجد تدريبات'
+            ]) ||
+            in_array($cleanedMsg, ['التدريبات', 'الدورات', 'تدريبات', 'دورات', 'التدريب', 'الدورة', 'برامج تدريبية', 'البرامج التدريبية']) ||
+            (
+                Str::contains($text, ['تدريب', 'تدريبات', 'دورة', 'دورات', 'برنامج تدريبي', 'ورشة', 'ورش']) &&
+                Str::contains($text, ['ماذا عن', 'بخصوص', 'متاح', 'متاحة', 'مفتوح', 'مفتوحة', 'قائمة', 'عرض', 'استعراض', 'شن', 'هل', 'ماهي', 'ما هي', 'اريد', 'أريد', 'نبي', 'ابحث', 'اعطني', 'أعطني'])
+            )
+        ) && !Str::contains($text, ['أضف', 'اضف', 'إنشاء', 'صياغة', 'اقترح', 'تقرير', 'استبيان', 'استطلاع', 'طلبات', 'طلباتي', 'قبول', 'رفض', 'تقديم على', 'التقديم على', 'سجلني']);
+
+        if ($isTrainingListIntent && in_array('search_trainings', $authorizedNames)) {
             $kw = '';
-            if (preg_match('/(?:عن|في|حول)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
-                $kw = trim($m[1]);
+            if (preg_match('/(?:عن|في|حول|بمجال)\s+([^\?\.\!؟،,]+)/u', $userMessage, $m)) {
+                $cand = trim(preg_replace('/^[\s\p{P}]+|[\s\p{P}]+$/u', '', $m[1]));
+                $ignoredTrainWords = [
+                    'تدريب', 'التدريب', 'تدريبات', 'التدريبات', 'دورة', 'الدورة', 'دورات', 'الدورات', 
+                    'برنامج', 'البرنامج', 'برامج', 'البرامج', 'ورشة', 'الورشة', 'ورش', 'الورش',
+                    'المتاحة', 'متاحة', 'الجديدة', 'جديدة', 'المتوفرة', 'متوفرة', 'المفتوحة', 'مفتوحة',
+                    'الجامعة', 'جامعة طرابلس', 'المنظومة', 'عنها', 'بخصوصها'
+                ];
+                if (!in_array($cand, $ignoredTrainWords) && mb_strlen($cand) > 1) {
+                    $kw = $cand;
+                }
             }
             $res = AiToolRegistry::executeTool($user, 'search_trainings', ['keyword' => $kw]);
             $list = $res['data'] ?? [];
 
             if (empty($list)) {
                 return [
-                    'content' => "بحثت في سجلات جامعة طرابلس ولم أجد حالياً تدريبات تطابق كلمة البحث: **'{$kw}'**. يمكنك متابعة صفحة التدريبات الرئيسية أو سؤال منسق التدريب.",
+                    'content' => "بحثت في سجلات جامعة طرابلس ولم أجد حالياً تدريبات تطابق كلمة البحث: " . (!empty($kw) ? "**'{$kw}'**" : "في المنظومة") . ". يمكنك متابعة صفحة التدريبات الرئيسية أو سؤال منسق التدريب.",
                     'tool_executed' => 'search_trainings',
                 ];
             }
 
-            $out = "وجدت **" . count($list) . "** من البرامج التدريبية المتاحة في المنظومة:\n\n";
+            $out = "🎓 **البرامج والدورات التدريبية المتاحة في المنظومة (" . count($list) . " برنامج):**\n\n";
             foreach ($list as $t) {
                 $out .= "🔹 **{$t['title']}** ({$t['type']})\n";
-                $out .= "   📍 المكان: {$t['location']} | ⏳ المدة: {$t['duration']} | 👥 المقاعد: {$t['seats']}\n";
-                $out .= "   📅 البداية: {$t['start_date']}\n\n";
+                $out .= "   • المكان: 📍 {$t['location']} | ⏳ المدة: {$t['duration']} | 👥 المقاعد: {$t['seats']}\n";
+                $out .= "   • تاريخ البدء: 📅 {$t['start_date']}\n";
+
+                if ($user->role === 'graduate') {
+                    $out .= "   👉 [📝 التقديم على هذا البرنامج](#prompt:أريد التقديم على برنامج {$t['title']})\n\n";
+                } else {
+                    $out .= "\n";
+                }
             }
-            $out .= "هل ترغب في معرفة تفاصيل تدريب معين أو التقدم له؟";
+
+            if ($user->role === 'graduate') {
+                $out .= "━━━━━━━━━━━━━━━━━━━━━━\n💡 **للتقديم الفوري:** اضغط على زر التقديم أسفل البرنامج المطلوب، أو اكتب: *'أريد التقديم على [اسم التدريب]'*.";
+            } else {
+                $out .= "هل ترغب في معرفة تفاصيل تدريب معين أو التقدم له؟";
+            }
 
             return [
                 'content' => $out,
@@ -2152,7 +2201,16 @@ class AiAssistantService
         }
 
         // 2. طلبات الخريج الشخصية
-        if (Str::contains($text, ['طلباتي', 'تسجيلي', 'حالة الطلب', 'مقبول', 'تقديمي']) && in_array('get_my_applications', $authorizedNames)) {
+        $isMyAppsIntent = (
+            Str::contains($text, [
+                'طلباتي', 'تسجيلي', 'حالة الطلب', 'حالة طلباتي', 'مقبول', 'تقديمي', 
+                'طلبات التدريب', 'ماذا عن طلباتي', 'ماذا عن التقديم', 'متابعة طلبي', 'متابعة الطلب',
+                'سجل طلباتي', 'هل تم قبولي', 'هل قبلت', 'استعلام عن طلباتي', 'طلباتي في التدريب'
+            ]) ||
+            in_array($cleanedMsg, ['طلباتي', 'طلبات التدريب', 'سجل طلباتي', 'الطلبات', 'طلباتي السابقة'])
+        ) && in_array('get_my_applications', $authorizedNames);
+
+        if ($isMyAppsIntent) {
             $res = AiToolRegistry::executeTool($user, 'get_my_applications', []);
             $apps = $res['data'] ?? [];
 
@@ -2163,13 +2221,13 @@ class AiAssistantService
                 ];
             }
 
-            $out = "إليك سجل طلبات التدريب الخاصة بك:\n\n";
+            $out = "🎓 **إليك سجل طلبات التدريب الخاصة بك (" . count($apps) . " طلب):**\n\n";
             foreach ($apps as $a) {
-                $statusIcon = $a['status'] === 'accepted' ? '🟢' : ($a['status'] === 'rejected' ? '🔴' : '🟡');
+                $statusIcon = in_array($a['status'], ['accepted', 'approved']) ? '🟢' : ($a['status'] === 'rejected' ? '🔴' : '🟡');
                 $out .= "{$statusIcon} **{$a['training_title']}**\n";
-                $out .= "   الحالة: **{$a['status_text']}** (تاريخ التقديم: {$a['applied_at']})\n";
+                $out .= "   • الحالة: **{$a['status_text']}** (تاريخ التقديم: {$a['applied_at']})\n";
                 if (!empty($a['admin_feedback'])) {
-                    $out .= "   ملاحظة الإدارة: _{$a['admin_feedback']}_\n";
+                    $out .= "   • ملاحظة الإدارة: _{$a['admin_feedback']}_\n";
                 }
                 $out .= "\n";
             }
@@ -2181,18 +2239,26 @@ class AiAssistantService
         }
 
         // 3. الملف الأكاديمي للخريج
-        if (Str::contains($text, ['ملفي', 'بياناتي', 'سيرتي', 'معدلي', 'تخصصي']) && in_array('get_my_profile', $authorizedNames)) {
+        $isMyProfileIntent = (
+            Str::contains($text, [
+                'ملفي', 'بياناتي', 'سيرتي', 'معدلي', 'تخصصي', 'سيرتي الذاتية', 'الملف الشخصي',
+                'الملف الأكاديمي', 'بيانات تخرجي', 'ماذا عن ملفي', 'ماذا عن بياناتي', 'ماذا عن سيرتي'
+            ]) ||
+            in_array($cleanedMsg, ['ملفي', 'بياناتي', 'سيرتي', 'سيرتي الذاتية', 'الملف الشخصي', 'بروفايلي'])
+        ) && in_array('get_my_profile', $authorizedNames);
+
+        if ($isMyProfileIntent) {
             $res = AiToolRegistry::executeTool($user, 'get_my_profile', []);
             $d = $res['data'] ?? [];
 
-            $out = "📄 **ملفك الأكاديمي المسجل في المنظومة:**\n\n";
+            $out = "📄 **ملفك الأكاديمي والمهني المسجل في المنظومة:**\n\n";
             $out .= "• **الاسم:** {$d['name']}\n";
             $out .= "• **الكلية:** {$d['college']}\n";
             $out .= "• **التخصص:** {$d['major']}\n";
             if (!empty($d['gpa'])) $out .= "• **المعدل التراكمي:** {$d['gpa']}%\n";
             if (!empty($d['graduation_year'])) $out .= "• **سنة التخرج:** {$d['graduation_year']}\n";
-            $out .= "• **السيرة الذاتية المرفوعة:** " . ($d['has_cv'] ? 'نعم (مرفوعة ومحدثة ✅)' : 'لا يوجد ملف سيرة ذاتية مرفوع ⚠️') . "\n\n";
-            $out .= "هل ترغب في نصائح لتحسين وتطوير سيرتك الذاتية؟";
+            $out .= "• **السيرة الذاتية المرفوعة:** " . (!empty($d['has_cv']) ? 'نعم (مرفوعة ومحدثة ✅)' : 'لا يوجد ملف سيرة ذاتية مرفوع ⚠️') . "\n\n";
+            $out .= "هل ترغب في نصائح لتحسين وتطوير سيرتك الذاتية أو التقديم على فرصة عمل؟";
 
             return [
                 'content' => $out,
@@ -2255,7 +2321,13 @@ class AiAssistantService
         }
 
         // 7. آخر الأخبار
-        if (Str::contains($text, ['أخبار', 'الأخبار', 'أحدث الأخبار', 'البيانات الصحفية']) && in_array('get_latest_news', $authorizedNames)) {
+        $cleanedMsg = trim($text, " ?.!\t\n\r\0\x0B؟،,");
+        $isNewsIntent = (
+            Str::contains($text, ['أخبار', 'الأخبار', 'أحدث الأخبار', 'البيانات الصحفية', 'ماذا عن الأخبار', 'ماذا عن الإعلانات', 'الإعلانات والتعميمات', 'الإعلانات الرسمية', 'ماذا عن الأخبار الصحفية']) ||
+            in_array($cleanedMsg, ['الأخبار', 'أخبار', 'الإعلانات', 'إعلانات', 'البيانات الصحفية', 'شريط الأخبار'])
+        ) && in_array('get_latest_news', $authorizedNames);
+
+        if ($isNewsIntent) {
             $res = AiToolRegistry::executeTool($user, 'get_latest_news', ['limit' => 4]);
             $news = $res['data'] ?? [];
 
@@ -2772,8 +2844,13 @@ class AiAssistantService
         }
 
         // و. عرض قائمة الشركات الشريكة المعتمدة
+        $cleanedMsg = trim($text, " ?.!\t\n\r\0\x0B؟،,");
         $isSearchCompaniesIntent = (
-            Str::contains($text, ['قائمة الشركات', 'الشركات الشريكة', 'دليل الشركات', 'عرض الشركات', 'شركات معتمدة', 'شركات شريكة'])
+            Str::contains($text, [
+                'قائمة الشركات', 'الشركات الشريكة', 'دليل الشركات', 'عرض الشركات', 'شركات معتمدة', 
+                'شركات شريكة', 'ماذا عن الشركات', 'ماذا عن الشركاء', 'الشركات المتعاونة', 'شركاء النجاح'
+            ]) ||
+            in_array($cleanedMsg, ['الشركات', 'شركات', 'الشركاء', 'شركاء', 'الشركات الشريكة'])
         ) && in_array('search_partner_companies', $authorizedNames);
 
         if ($isSearchCompaniesIntent) {
@@ -3100,7 +3177,7 @@ class AiAssistantService
     /**
      * Comprehensive, rich Arabic formatter for tool results
      */
-    protected function formatToolResultFallback(string $toolName, array $result): string
+    protected function formatToolResultFallback(string $toolName, array $result, ?User $user = null): string
     {
         if (isset($result['status']) && $result['status'] === 'proposal') {
             return $result['message'] ?? 'تم تجهيز الإجراء المقترح بنجاح.';
@@ -3218,13 +3295,24 @@ class AiAssistantService
         if ($toolName === 'search_job_opportunities') {
             $jobs = $result['data'] ?? [];
             if (empty($jobs)) {
-                return "💼 لا توجد فرص عمل مطابقة للبحث حالياً.";
+                return "💼 **فرص العمل والتشغيل:**\n\nلا توجد فرص وظيفية مفتوحة حالياً في المنظومة.";
             }
-            $out = "💼 **تم العثور على " . count($jobs) . " فرصة وظيفية متاحة:**\n\n";
+            $out = "💼 **تم العثور على " . count($jobs) . " فرصة وظيفية متاحة في المنظومة:**\n\n";
             foreach ($jobs as $i => $j) {
                 $num = $i + 1;
-                $out .= "{$num}. **{$j['title']}** لدى **{$j['company']}**\n";
-                $out .= "   • الموقع: {$j['location']} | نوع الدوام: {$j['type']}\n\n";
+                $out .= "{$num}. 🏢 **{$j['title']}** لدى **{$j['company']}**\n";
+                $out .= "   • الموقع: 📍 {$j['location']} | نوع العقد: ⏱ {$j['type']}\n";
+                if (!empty($j['seats'])) $out .= "   • المقاعد: 👥 {$j['seats']} | آخر موعد: 📅 " . ($j['deadline'] ?? 'مفتوح') . "\n";
+                if ($user && $user->role === 'graduate') {
+                    $out .= "   👉 [📝 التقديم على هذه الوظيفة](#prompt:أريد التقديم على وظيفة {$j['title']})\n\n";
+                } elseif ($user && in_array($user->role, ['career_guidance_officer', 'admin'])) {
+                    $out .= "   👉 [🤝 ترشيح خريج لهذه الوظيفة](#prompt:رشح الخريج لوظيفة {$j['title']})\n\n";
+                } else {
+                    $out .= "\n";
+                }
+            }
+            if ($user && $user->role === 'graduate') {
+                $out .= "━━━━━━━━━━━━━━━━━━━━━━\n💡 اضغط على زر التقديم أسفل أي وظيفة لتقديم طلبك فوراً.";
             }
             return $out;
         }
@@ -3232,14 +3320,53 @@ class AiAssistantService
         if ($toolName === 'search_trainings') {
             $trainings = $result['data'] ?? [];
             if (empty($trainings)) {
-                return "🎓 لا توجد برامج تدريبية مطابقة لمعايير البحث حالياً.";
+                return "🎓 **البرامج التدريبية:**\n\nلا توجد برامج تدريبية مطابقة لمعايير البحث حالياً في المنظومة.";
             }
             $out = "🎓 **تم العثور على " . count($trainings) . " برنامج تدريبي متاح:**\n\n";
             foreach ($trainings as $i => $t) {
                 $num = $i + 1;
-                $out .= "{$num}. **{$t['title']}** ({$t['type']})\n";
-                $out .= "   • المكان: {$t['location']} | المدة: {$t['duration']} | المقاعد: {$t['seats']} | البداية: {$t['start_date']}\n\n";
+                $out .= "{$num}. 🔹 **{$t['title']}** ({$t['type']})\n";
+                $out .= "   • المكان: 📍 {$t['location']} | المدة: ⏳ {$t['duration']} | المقاعد: 👥 {$t['seats']}\n";
+                $out .= "   • تاريخ البدء: 📅 {$t['start_date']}\n";
+                if ($user && $user->role === 'graduate') {
+                    $out .= "   👉 [📝 التقديم على هذا البرنامج](#prompt:أريد التقديم على برنامج {$t['title']})\n\n";
+                } else {
+                    $out .= "\n";
+                }
             }
+            if ($user && $user->role === 'graduate') {
+                $out .= "━━━━━━━━━━━━━━━━━━━━━━\n💡 اضغط على زر التقديم أسفل أي دورة للتسجيل فوراً.";
+            }
+            return $out;
+        }
+
+        if ($toolName === 'get_my_applications') {
+            $apps = $result['data'] ?? [];
+            if (empty($apps)) {
+                return "🎓 **طلبات التدريب:**\n\nلم تتقدم بأي طلب تدريب حتى الآن. يمكنك تصفح البرامج التدريبية المتاحة والتقديم عليها فوراً!";
+            }
+            $out = "🎓 **إليك سجل طلبات التدريب الخاصة بك (" . count($apps) . " طلب):**\n\n";
+            foreach ($apps as $a) {
+                $statusIcon = in_array($a['status'], ['accepted', 'approved']) ? '🟢' : ($a['status'] === 'rejected' ? '🔴' : '🟡');
+                $out .= "{$statusIcon} **{$a['training_title']}**\n";
+                $out .= "   • الحالة: **{$a['status_text']}** (تاريخ التقديم: {$a['applied_at']})\n";
+                if (!empty($a['admin_feedback'])) {
+                    $out .= "   • ملاحظة الإدارة: _{$a['admin_feedback']}_\n";
+                }
+                $out .= "\n";
+            }
+            return $out;
+        }
+
+        if ($toolName === 'get_my_profile') {
+            $d = $result['data'] ?? [];
+            $out = "📄 **ملفك الأكاديمي والمهني المسجل:**\n\n";
+            $out .= "• **الاسم:** {$d['name']}\n";
+            $out .= "• **الكلية:** {$d['college']}\n";
+            $out .= "• **التخصص:** {$d['major']}\n";
+            if (!empty($d['gpa'])) $out .= "• **المعدل التراكمي:** {$d['gpa']}%\n";
+            if (!empty($d['graduation_year'])) $out .= "• **سنة التخرج:** {$d['graduation_year']}\n";
+            $out .= "• **السيرة الذاتية المرفوعة:** " . (!empty($d['has_cv']) ? 'نعم (مرفوعة ومحدثة ✅)' : 'لا يوجد ملف سيرة ذاتية مرفوع ⚠️') . "\n";
             return $out;
         }
 

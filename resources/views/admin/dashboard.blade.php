@@ -25,6 +25,10 @@
             <i class="fas fa-building fs-6"></i>
             <span>الشركات</span>
         </a>
+        <a href="{{ route('admin.settings.ai') }}" class="btn btn-outline-light text-white border-white border-opacity-50 fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-robot text-warning fs-6"></i>
+            <span>إعدادات الـ API</span>
+        </a>
     </x-page-hero>
 
     @if(isset($pendingGraduatesCount) && $pendingGraduatesCount > 0)
@@ -220,24 +224,29 @@
             </h5>
         </div>
         <div class="row g-2">
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md">
                 <a href="{{ route('admin.companies.create') }}" class="btn btn-outline-primary w-100 rounded-3 py-2 text-nowrap" style="font-size: 0.8rem;">
                     <i class="fas fa-plus me-1"></i> إضافة شركة
                 </a>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md">
                 <a href="{{ route('admin.trainings.create') }}" class="btn btn-outline-success w-100 rounded-3 py-2 text-nowrap" style="font-size: 0.8rem;">
                     <i class="fas fa-plus-circle me-1"></i> إضافة تدريب
                 </a>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md">
                 <a href="{{ route('job-fair.admin.create') }}" class="btn btn-outline-warning w-100 rounded-3 py-2 text-nowrap" style="font-size: 0.8rem;">
-                    <i class="fas fa-store me-1"></i> إنشاء معرض توظيف
+                    <i class="fas fa-store me-1"></i> إنشاء معرض
                 </a>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md">
                 <a href="{{ route('admin.reports.index') }}" class="btn btn-outline-info w-100 rounded-3 py-2 text-nowrap" style="font-size: 0.8rem;">
                     <i class="fas fa-chart-bar me-1"></i> تقارير النظام
+                </a>
+            </div>
+            <div class="col-12 col-md">
+                <a href="{{ route('admin.settings.ai') }}" class="btn btn-outline-dark w-100 rounded-3 py-2 text-nowrap" style="font-size: 0.8rem;">
+                    <i class="fas fa-robot text-warning me-1"></i> إعدادات الـ API
                 </a>
             </div>
         </div>

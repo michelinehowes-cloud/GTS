@@ -541,6 +541,18 @@
                         </li>
                     @endif
 
+                    <!-- إعدادات الذكاء الاصطناعي ومفاتيح الـ API -->
+                    @if(auth()->user()->role == 'admin')
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.settings.ai*') ? 'active' : '' }}"
+                                href="{{ route('admin.settings.ai') }}">
+                                <i class="fas fa-robot text-warning"></i>
+                                إعدادات الذكاء الاصطناعي (API)
+                                <span class="badge bg-primary ms-auto" style="font-size: 0.68rem;">API</span>
+                            </a>
+                        </li>
+                    @endif
+
                     <!-- الأقسام الإدارية (للمسؤول فقط) -->
                     @if(auth()->user()->role == 'admin')
 

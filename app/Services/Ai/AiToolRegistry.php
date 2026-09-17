@@ -149,12 +149,15 @@ class AiToolRegistry
                     $query = Training::query();
 
                     if (!empty($args['keyword'])) {
-                        $kw = trim($args['keyword']);
-                        $query->where(function($q) use ($kw) {
-                            $q->where('title', 'like', "%{$kw}%")
-                              ->orWhere('description', 'like', "%{$kw}%")
-                              ->orWhere('location', 'like', "%{$kw}%");
-                        });
+                        $kw = trim(preg_replace('/^[\s\p{P}]+|[\s\p{P}]+$/u', '', $args['keyword']));
+                        $stopWords = ['تدريب', 'التدريب', 'تدريبات', 'التدريبات', 'دورة', 'الدورة', 'دورات', 'الدورات', 'برنامج', 'البرنامج', 'برامج', 'البرامج', 'ورشة', 'الورشة', 'ورش', 'الورش', 'متاح', 'المتاح', 'متاحة', 'المتاحة', 'جديد', 'جديدة', 'الجديدة', 'الكل', 'جميع', 'كافة'];
+                        if (!in_array($kw, $stopWords) && mb_strlen($kw) > 1) {
+                            $query->where(function($q) use ($kw) {
+                                $q->where('title', 'like', "%{$kw}%")
+                                  ->orWhere('description', 'like', "%{$kw}%")
+                                  ->orWhere('location', 'like', "%{$kw}%");
+                            });
+                        }
                     }
 
                     if (!empty($args['type']) && $args['type'] !== 'all') {
@@ -2685,9 +2688,12 @@ class AiToolRegistry
                         ]
                     ]
                 ],
-                'authorize' => fn(User $user) => in_array($user->role, ['company', 'partnership_officer', 'career_guidance_officer', 'admin']),
+                'authorize' => fn(User $user) => true,
                 'execute' => function(User $user, array $args) {
                     $query = Company::query();
+                    if ($user->role === 'graduate') {
+                        $query->where('is_approved', true);
+                    }
 
                     if (!empty($args['keyword'])) {
                         $kw = trim($args['keyword']);

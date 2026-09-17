@@ -127,6 +127,33 @@ class AiToolRegistry
                 }
             ],
 
+            'get_office_contact_and_location' => [
+                'name' => 'get_office_contact_and_location',
+                'description' => 'الاستعلام عن موقع المقر الرسمي لمكتب تدريب وتأهيل الخريجين بجامعة طرابلس، رابطه على خرائط جوجل، ساعات العمل والدوام، والبريد ورقم الهاتف الرسمي لإدارة المكتب والجامعة.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => new \stdClass(),
+                ],
+                'authorize' => fn(User $user) => true,
+                'execute' => function(User $user, array $args) {
+                    return [
+                        'status' => 'success',
+                        'data' => [
+                            'office_name' => 'مكتب تدريب وتأهيل الخريجين — جامعة طرابلس',
+                            'university' => 'جامعة طرابلس (University of Tripoli)',
+                            'campus' => 'الحرم الجامعي الرئيسي (سيدي المصري / طريق الفرناج)',
+                            'city' => 'طرابلس، ليبيا',
+                            'google_maps_url' => 'https://maps.google.com/?q=University+of+Tripoli',
+                            'coordinates' => '32.8536, 13.2081',
+                            'official_email' => 'graduate.training@uot.edu.ly',
+                            'official_phone' => '+218 21 4625500',
+                            'working_hours' => 'الأحد إلى الخميس: 8:30 صباحاً – 2:30 ظهراً (الجمعة والسبت عطلة رسمية)',
+                            'directions_note' => 'يقع المكتب داخل الحرم الجامعي الرئيسي لجامعة طرابلس في منطقة سيدي المصري / طريق الفرناج بالقرب من مبنى الإدارة العامة للجامعة.'
+                        ]
+                    ];
+                }
+            ],
+
             'search_trainings' => [
                 'name' => 'search_trainings',
                 'description' => 'البحث في البرامج والدورات التدريبية المتاحة في جامعة طرابلس، مع إمكانية الفلترة بالكلمة المفتاحية أو النوع.',

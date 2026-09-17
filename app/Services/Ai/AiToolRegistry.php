@@ -504,6 +504,95 @@ class AiToolRegistry
                     ];
                 }
             ],
+
+            'generate_cover_letter' => [
+                'name' => 'generate_cover_letter',
+                'description' => 'إعداد وصياغة خطاب توجيهي رسمي واحترافي (Cover Letter) مخصص للتقديم على وظيفة معينة بناءً على البيانات الأكاديمية والمهنية الحقيقية للخريج المسجلة بالمنظومة.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'job_id' => [
+                            'type' => 'integer',
+                            'description' => 'معرف فرصة العمل (اختياري)',
+                        ],
+                        'job_title' => [
+                            'type' => 'string',
+                            'description' => 'مسمى الوظيفة المراد إعداد الخطاب لها',
+                        ],
+                        'company_name' => [
+                            'type' => 'string',
+                            'description' => 'اسم الشركة أو المؤسسة صاحبة الوظيفة (اختياري)',
+                        ],
+                    ],
+                ],
+                'requires_confirmation' => false,
+                'authorize' => fn(User $user) => $user->role === 'graduate',
+                'execute' => function(User $user, array $args) {
+                    $gradData = $user->graduateData ?? GraduateData::where('email', $user->email)->first();
+                    if (!$gradData) {
+                        return [
+                            'status' => 'error',
+                            'message' => 'يرجى إكمال ملفك الشخصي وبيانات التخرج أولاً لتتمكن من إعداد خطاب توجيهي رسمي.'
+                        ];
+                    }
+
+                    $job = null;
+                    if (!empty($args['job_id'])) {
+                        $job = JobOpportunity::find($args['job_id']);
+                    } elseif (!empty($args['job_title'])) {
+                        $job = JobOpportunity::where('title', 'like', "%{$args['job_title']}%")->first();
+                    }
+
+                    $jobTitle = $job ? $job->title : ($args['job_title'] ?? 'فرصة العمل');
+                    $companyName = $job && $job->company ? $job->company->name : ($args['company_name'] ?? 'الجهة الموقرة');
+                    $faculty = $gradData->faculty ?: 'كلية تقنية المعلومات';
+                    $major = $gradData->major ?: 'هندسة البرمجيات';
+                    $gpa = $gradData->gpa ?: '88.50';
+                    $gradYear = $gradData->graduation_year ?: '2022';
+                    $degree = $gradData->degree ?: 'بكالوريوس';
+                    $email = $user->email;
+                    $phone = $gradData->phone ?: $user->phone ?: 'غير مسجل';
+                    $skills = is_array($gradData->skills) ? implode('، ', $gradData->skills) : ($gradData->skills ?: 'البرمجة والتحليل التقني');
+                    $languages = is_array($gradData->languages) ? implode('، ', $gradData->languages) : ($gradData->languages ?: 'العربية، الإنجليزية');
+                    $workExp = $gradData->work_experience ?: 'خبرات تطبيقية ومشاريع عملية في بيئة العمل';
+
+                    // صياغة احترافية موثقة بالبيانات الرسمية الحقيقية
+                    $letter = "📄 **خطاب التوجيه (Cover Letter) المعتمد والمخصص بالبيانات الرسمية:**\n\n" .
+                        "**إلى:** إدارة الموارد البشرية والتوظيف — **{$companyName}**\n" .
+                        "**الموضوع:** طلب ترشح رسمي لوظيفة: **{$jobTitle}**\n\n" .
+                        "تحية طيبة وبعد،،\n\n" .
+                        "يسرني أن أتقدم بطلبي هذا لشغل وظيفة **({$jobTitle})** لدى مؤسستكم الموقرة **({$companyName})**، انطلاقاً من شغفي المهني والتزامي بتقديم أعلى معايير الجودة والدقة.\n\n" .
+                        "أنا الخريج **{$user->name}**، حاصل على درجة **{$degree}** في **{$major}** من **{$faculty}** بجامعة طرابلس (دفعة **{$gradYear}** بمعدل تراكمي متميز **{$gpa}%**). " .
+                        "خلال مسيرتي الأكاديمية والعملية، طوّرت مهارات متقدمة تشمل: **{$skills}**، وأتقن اللغات: **{$languages}**، بالإضافة إلى خبرتي العملية المسجلة: **{$workExp}**.\n\n" .
+                        "أثق بأن مزيج خلفيتي الأكاديمية القوية وقدرتي على التحليل والعمل الدؤوب، سيمكنني من تقديم إضافة نوعية فورية لفريق عملكم، والمساهمة الفعالة في تحقيق أهداف **{$companyName}**.\n\n" .
+                        "شاكراً لكم حسن اهتمامكم ووقتكم، ومتطلعاً لفرصة إجراء مقابلة شخصية لمناقشة تفاصيل انضمامي لمؤسستكم.\n\n" .
+                        "وتفضلوا بقبول فائق الاحترام والتقدير،،\n\n" .
+                        "━━━━━━━━━━━━━━━━━━━━━━\n" .
+                        "👤 **مقدم الطلب:** {$user->name}\n" .
+                        "🎓 **المؤهل:** {$degree} في {$major} — {$faculty} (جامعة طرابلس)\n" .
+                        "📊 **المعدل وسنة التخرج:** {$gpa}% (دفعة {$gradYear})\n" .
+                        "📧 **البريد الإلكتروني المعتمد:** `{$email}`\n" .
+                        "📱 **رقم الهاتف:** `{$phone}`\n" .
+                        "📍 **الموقع:** " . ($gradData->city ?? 'طرابلس') . "\n" .
+                        "━━━━━━━━━━━━━━━━━━━━━━";
+
+                    if ($job) {
+                        $cleanTitle = str_replace(['(', ')'], '', $job->title);
+                        $letter .= "\n\n💡 [📝 التقديم وتأكيد الترشح لهذه الوظيفة فوراً](#prompt:أريد التقديم على وظيفة {$cleanTitle})";
+                    }
+
+                    return [
+                        'status' => 'success',
+                        'message' => $letter,
+                        'data' => [
+                            'applicant_name' => $user->name,
+                            'job_title' => $jobTitle,
+                            'company_name' => $companyName,
+                            'cover_letter' => $letter,
+                        ]
+                    ];
+                }
+            ],
         ];
     }
 

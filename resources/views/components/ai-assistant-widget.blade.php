@@ -422,9 +422,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Bullet points
             .replace(/^\s*[\-\*]\s+(.*$)/gim, '<li class="ms-3 mb-1">$1</li>')
             // Action Prompt Buttons (#prompt:...)
-            .replace(/\[(.*?)\]\(#prompt:(.*?)\)/g, function(match, label, prompt) {
-                const cleanPrompt = decodeURIComponent(prompt).replace(/"/g, '&quot;');
-                return `<button type="button" class="btn btn-sm btn-outline-primary rounded-pill py-0 px-2 my-1 ai-inline-prompt-btn" data-prompt="${cleanPrompt}"><i class="fas fa-hand-pointer me-1"></i>${label}</button>`;
+            .replace(/\[(.*?)\]\(#prompt:(.+?)\)(?!\))/g, function(match, label, prompt) {
+                let cleanPrompt = prompt;
+                try {
+                    cleanPrompt = decodeURIComponent(prompt);
+                } catch(e) {
+                    cleanPrompt = prompt;
+                }
+                cleanPrompt = cleanPrompt.replace(/"/g, '&quot;');
+                return `<button type="button" class="btn btn-sm btn-outline-primary rounded-pill py-1 px-3 my-1 ai-inline-prompt-btn shadow-sm" data-prompt="${cleanPrompt}"><i class="fas fa-hand-pointer me-1"></i>${label}</button>`;
             })
             // Links
             .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-decoration-underline text-primary fw-bold">$1</a>');

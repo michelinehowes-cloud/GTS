@@ -1519,50 +1519,68 @@ class AiAssistantService
             ];
         }
 
-        // 3. تقديم الخريج على برنامج تدريبي (سجلني في دورة / تدريب)
-        if (Str::contains($text, ['سجلني', 'سجل في', 'التقديم على تدريب', 'التحاق بتدريب', 'قدم لي على تدريب', 'أريد التسجيل في', 'تسجيل في تدريب']) && in_array('apply_for_training', $authorizedNames)) {
-            $kw = '';
-            if (preg_match('/(?:في|على|بدورة|بتدريب)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
-                $kw = trim($m[1]);
-                $kw = preg_replace('/^(?:دورة|تدريب|ورشة|برنامج)\s+/u', '', $kw);
-            }
-            $res = AiToolRegistry::executeTool($user, 'apply_for_training', ['training_title' => $kw]);
+        // 3. تقديم الخريج على برنامج تدريبي أو فرصة وظيفية (تقديم على / سجلني في / أريد التقديم على)
+        $isApplyIntent = Str::contains($text, [
+            'تقديم على', 'التقديم على', 'قدم على', 'قدم لي على', 'سجلني في', 'سجلني على',
+            'تسجيل في', 'التحاق بـ', 'التحاق في', 'التحاق بتدريب', 'أريد التقديم', 'اريد تقديم',
+            'أريد تقديم', 'اريد اقدم', 'أريد أن أقدم', 'ترشح لـ', 'ترشيح نفسي', 'أريد الترشح',
+            'اريد الترشح', 'قدم لي'
+        ]);
 
-            if (isset($res['status']) && $res['status'] === 'proposal') {
-                return [
-                    'content' => "🎓 **تم تجهيز طلب التقديم على البرنامج التدريبي بنجاح:**\n\n" .
-                        "يرجى مراجعة تفاصيل التدريب والمقاعد أدناه، والضغط على **[تأكيد وحفظ]** لإرسال الطلب رسمياً لمنسق التدريب.",
-                    'action_proposal' => $res,
-                    'tool_executed' => 'apply_for_training',
-                ];
-            } else {
-                return [
-                    'content' => $res['message'] ?? 'تعذر تجهيز طلب التقديم. يرجى التحقق من اسم التدريب.',
-                    'tool_executed' => 'apply_for_training',
-                ];
+        if ($isApplyIntent) {
+            $extractedKw = '';
+            if (preg_match('/(?:تقديم على|التقديم على|قدم على|قدم لي على|قدم لي في|قدم لي|سجلني في|سجلني على|تسجيل في|تسجيل على|التحاق بـ|التحاق في|التحاق بتدريب|اقدم على|أقدم على|ترشح لـ|ترشيح لـ|ترشيح نفسي لـ|ترشيح نفسي في|لوظيفة|على وظيفة|في وظيفة|بدورة|بتدريب)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
+                $extractedKw = trim($m[1]);
             }
-        }
 
-        // 4. تقديم الخريج على فرصة وظيفية (قدم لي على وظيفة)
-        if (Str::contains($text, ['قدم لي على وظيفة', 'سجلني في وظيفة', 'التقديم على وظيفة', 'ترشيح نفسي', 'أريد الترشح لوظيفة', 'قدم على وظيفة']) && in_array('apply_for_job', $authorizedNames)) {
-            $kw = '';
-            if (preg_match('/(?:لوظيفة|على وظيفة|في وظيفة|وظيفة)\s+([^\?\.\!]+)/u', $userMessage, $m)) {
-                $kw = trim($m[1]);
+            // تنظيف الكلمة المفتاحية من البادئات الشائعة
+            $cleanKw = preg_replace('/^(?:وظيفة|فرصة|شغل|دورة|تدريب|برنامج|ورشة)\s+/u', '', $extractedKw);
+            $cleanKw = trim($cleanKw);
+
+            $isExplicitJob = Str::contains($text, ['وظيفة', 'عمل', 'شاغر', 'وظائف', 'شغل']) || 
+                (!empty($cleanKw) && JobOpportunity::where('title', 'like', "%{$cleanKw}%")->exists());
+
+            $isExplicitTraining = Str::contains($text, ['تدريب', 'دورة', 'ورشة', 'برنامج تدريبي']) ||
+                (!empty($cleanKw) && Training::where('title', 'like', "%{$cleanKw}%")->exists() && !$isExplicitJob);
+
+            // أ. مسار التقديم على الوظيفة
+            if ($isExplicitJob && in_array('apply_for_job', $authorizedNames)) {
+                $jobTitle = $cleanKw ?: $extractedKw;
+                $res = AiToolRegistry::executeTool($user, 'apply_for_job', ['job_title' => $jobTitle]);
+
+                if (isset($res['status']) && $res['status'] === 'proposal') {
+                    return [
+                        'content' => "💼 **تم إعداد طلب الترشح لفرصة العمل بنجاح:**\n\n" .
+                            "يرجى مراجعة تفاصيل الوظيفة في البطاقة أدناه ثم الضغط على **[تأكيد وحفظ]** لإرسال ملفك.",
+                        'action_proposal' => $res,
+                        'tool_executed' => 'apply_for_job',
+                    ];
+                } else {
+                    return [
+                        'content' => $res['message'] ?? 'تعذر تجهيز طلب التقديم على الوظيفة. يرجى التحقق من مسمى الوظيفة.',
+                        'tool_executed' => 'apply_for_job',
+                    ];
+                }
             }
-            $res = AiToolRegistry::executeTool($user, 'apply_for_job', ['job_title' => $kw]);
 
-            if (isset($res['status']) && $res['status'] === 'proposal') {
-                return [
-                    'content' => "💼 **تم إعداد طلب الترشح لفرصة العمل بنجاح:**\n\n" .
-                        "يرجى مراجعة تفاصيل الوظيفة في البطاقة أدناه ثم الضغط على **[تأكيد وحفظ]** لإرسال ملفك.",
-                    'action_proposal' => $res,
-                    'tool_executed' => 'apply_for_job',
-                ];
-            } else {
-                return [
-                    'content' => $res['message'] ?? 'تعذر تجهيز طلب التقديم على الوظيفة.',
-                    'tool_executed' => 'apply_for_job',
-                ];
+            // ب. مسار التقديم على البرنامج التدريبي
+            if ($isExplicitTraining && in_array('apply_for_training', $authorizedNames)) {
+                $trainTitle = $cleanKw ?: $extractedKw;
+                $res = AiToolRegistry::executeTool($user, 'apply_for_training', ['training_title' => $trainTitle]);
+
+                if (isset($res['status']) && $res['status'] === 'proposal') {
+                    return [
+                        'content' => "🎓 **تم تجهيز طلب التقديم على البرنامج التدريبي بنجاح:**\n\n" .
+                            "يرجى مراجعة تفاصيل التدريب والمقاعد أدناه، والضغط على **[تأكيد وحفظ]** لإرسال الطلب رسمياً لمنسق التدريب.",
+                        'action_proposal' => $res,
+                        'tool_executed' => 'apply_for_training',
+                    ];
+                } else {
+                    return [
+                        'content' => $res['message'] ?? 'تعذر تجهيز طلب التقديم. يرجى التحقق من اسم التدريب.',
+                        'tool_executed' => 'apply_for_training',
+                    ];
+                }
             }
         }
 

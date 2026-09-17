@@ -41,14 +41,35 @@ class AiAssistantService
         // 2. Fetch authorized tools for this user
         $authorizedTools = AiToolRegistry::getAuthorizedTools($user);
 
-        // 3. Check for API key
-        $apiKey = config('ai.api_key');
-        $provider = config('ai.provider', 'gemini');
+        // 3. Provider Resolution & Autonomous AI Dispatch (Groq LLaMA / Gemini / Local Engine)
+        $configuredProvider = strtolower(config('ai.provider', 'auto'));
+        $geminiKey = config('ai.gemini_api_key') ?: env('GEMINI_API_KEY', '');
+        $groqKey = config('ai.groq_api_key') ?: env('GROQ_API_KEY', '');
+        $generalKey = config('ai.api_key') ?: env('AI_API_KEY', '');
+
+        // Auto-detect provider if generic AI_API_KEY is supplied
+        if (!empty($generalKey)) {
+            if (str_starts_with($generalKey, 'gsk_')) {
+                $groqKey = $groqKey ?: $generalKey;
+            } elseif (str_starts_with($generalKey, 'AIza')) {
+                $geminiKey = $geminiKey ?: $generalKey;
+            }
+        }
 
         $response = null;
 
-        if (!empty($apiKey) && $provider === 'gemini') {
-            $response = $this->callGeminiApi($user, $sessionId, $userMessage, $authorizedTools, $apiKey);
+        // Try Groq (LLaMA 3.3 70B) first if selected or if Groq key is present
+        if ($configuredProvider === 'groq' || ($configuredProvider === 'auto' && !empty($groqKey))) {
+            if (!empty($groqKey)) {
+                $response = $this->callGroqApi($user, $sessionId, $userMessage, $authorizedTools, $groqKey);
+            }
+        }
+
+        // Try Gemini if Groq was not used or failed
+        if (!$response && ($configuredProvider === 'gemini' || $configuredProvider === 'auto' || !empty($geminiKey))) {
+            if (!empty($geminiKey)) {
+                $response = $this->callGeminiApi($user, $sessionId, $userMessage, $authorizedTools, $geminiKey);
+            }
         }
 
         // Fallback to intelligent local engine if API not configured or failed
@@ -1050,6 +1071,147 @@ class AiAssistantService
             ];
         } catch (\Throwable $e) {
             Log::error('AI Service Gemini Exception: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Call Groq Cloud API with LLaMA 3.3 / LLaMA 3.1 & Tool Calling
+     */
+    protected function callGroqApi(User $user, string $sessionId, string $userMessage, array $authorizedTools, string $apiKey): ?array
+    {
+        try {
+            $model = config('ai.groq_model', 'llama-3.3-70b-versatile');
+            $url = 'https://api.groq.com/openai/v1/chat/completions';
+
+            // Format tools for Groq / OpenAI specification
+            $groqTools = [];
+            if (!empty($authorizedTools)) {
+                foreach ($authorizedTools as $tool) {
+                    $groqTools[] = [
+                        'type' => 'function',
+                        'function' => [
+                            'name' => $tool['name'],
+                            'description' => $tool['description'],
+                            'parameters' => (object) ($tool['parameters'] ?? new \stdClass()),
+                        ],
+                    ];
+                }
+            }
+
+            // Build system instructions
+            $roleArabic = $user->role_arabic ?? $user->role;
+            $systemInstruction = "أنت 'المساعد الذكي لمكتب تدريب وتأهيل الخريجين بجامعة طرابلس'.\n" .
+                "المستخدم الحالي: {$user->name}، وصلاحيته/دوره في المنظومة: {$roleArabic}.\n" .
+                "تعليمات وقواعد ملزمة:\n" .
+                "1. تحدث بلغة عربية فصحى طبيعية وسلسة واحترافية تلائم البيئة الأكاديمية والمهنية لجامعة طرابلس.\n" .
+                "2. لا تخمن أو تبتدع أي معلومات أو بيانات شخصية؛ استخدم دوماً الأدوات (Tools) المتاحة لك للاستعلام عن البيانات الحقيقية أو التقديم أو الترشيح.\n" .
+                "3. التزم بالصلاحيات المقررة لدور المستخدم في النظام.\n" .
+                "4. عند صياغة الأخبار أو التدريبات أو الإعلانات، استخدم أسلوباً رفيعاً ومنظماً.";
+
+            // Load recent chat history
+            $history = AiChatMessage::where('user_id', $user->id)
+                ->where('session_id', $sessionId)
+                ->orderBy('id', 'desc')
+                ->limit(6)
+                ->get()
+                ->reverse();
+
+            $messages = [
+                ['role' => 'system', 'content' => $systemInstruction]
+            ];
+
+            foreach ($history as $msg) {
+                $messages[] = [
+                    'role' => $msg->role === 'assistant' ? 'assistant' : 'user',
+                    'content' => $msg->content,
+                ];
+            }
+
+            // Current user message
+            $messages[] = ['role' => 'user', 'content' => $userMessage];
+
+            $payload = [
+                'model' => $model,
+                'messages' => $messages,
+                'temperature' => config('ai.temperature', 0.3),
+                'max_tokens' => config('ai.max_tokens', 2048),
+            ];
+
+            if (!empty($groqTools)) {
+                $payload['tools'] = $groqTools;
+                $payload['tool_choice'] = 'auto';
+            }
+
+            $response = Http::timeout(25)->withToken($apiKey)->post($url, $payload);
+
+            if (!$response->successful()) {
+                Log::warning('Groq API Error (' . $response->status() . '): ' . $response->body());
+                return null;
+            }
+
+            $data = $response->json();
+            $choice = $data['choices'][0]['message'] ?? null;
+            if (!$choice) return null;
+
+            // Check if model invoked tool calls
+            if (!empty($choice['tool_calls'])) {
+                $toolCall = $choice['tool_calls'][0];
+                $toolName = $toolCall['function']['name'] ?? '';
+                $rawArgs = $toolCall['function']['arguments'] ?? '{}';
+                $arguments = is_string($rawArgs) ? json_decode($rawArgs, true) : $rawArgs;
+                $arguments = is_array($arguments) ? $arguments : [];
+
+                // Execute tool
+                $toolResult = AiToolRegistry::executeTool($user, $toolName, $arguments);
+
+                $actionProposal = null;
+                if (isset($toolResult['status']) && $toolResult['status'] === 'proposal') {
+                    $actionProposal = $toolResult;
+                }
+
+                // Append assistant tool call and tool result back to message thread
+                $messages[] = $choice;
+                $messages[] = [
+                    'role' => 'tool',
+                    'tool_call_id' => $toolCall['id'],
+                    'name' => $toolName,
+                    'content' => json_encode($toolResult, JSON_UNESCAPED_UNICODE),
+                ];
+
+                $secondPayload = [
+                    'model' => $model,
+                    'messages' => $messages,
+                    'temperature' => config('ai.temperature', 0.3),
+                    'max_tokens' => config('ai.max_tokens', 2048),
+                ];
+
+                $secondResponse = Http::timeout(20)->withToken($apiKey)->post($url, $secondPayload);
+                $finalText = '';
+                if ($secondResponse->successful()) {
+                    $finalText = $secondResponse->json()['choices'][0]['message']['content'] ?? '';
+                }
+
+                if (empty($finalText)) {
+                    $finalText = $this->formatToolResultFallback($toolName, $toolResult);
+                }
+
+                return [
+                    'content' => $finalText,
+                    'tool_calls' => [$toolName => $arguments],
+                    'tool_results' => $toolResult,
+                    'tool_executed' => $toolName,
+                    'action_proposal' => $actionProposal,
+                ];
+            }
+
+            return [
+                'content' => $choice['content'] ?? 'مرحباً، كيف يمكنني مساعدتك اليوم؟',
+                'tool_calls' => null,
+                'tool_results' => null,
+            ];
+        } catch (\Throwable $e) {
+            Log::error('AI Service Groq Exception: ' . $e->getMessage());
             return null;
         }
     }

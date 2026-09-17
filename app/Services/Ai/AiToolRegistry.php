@@ -759,7 +759,7 @@ class AiToolRegistry
                             'applications_count' => TrainingApplication::count(),
                             'job_opportunities_count' => JobOpportunity::count(),
                             'published_news' => News::published()->count(),
-                            'recent_audits' => AuditLog::latest()->limit(3)->pluck('action')->toArray(),
+                            'recent_audits' => AuditLog::orderBy('id', 'desc')->limit(3)->pluck('action')->toArray(),
                         ]
                     ];
                 }

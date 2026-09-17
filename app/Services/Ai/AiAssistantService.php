@@ -933,7 +933,7 @@ class AiAssistantService
     protected function callGeminiApi(User $user, string $sessionId, string $userMessage, array $authorizedTools, string $apiKey): ?array
     {
         try {
-            $model = config('ai.model', 'gemini-1.5-flash');
+            $model = config('ai.gemini_model', config('ai.model', 'gemini-3.6-flash'));
             $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
 
             // Format tools for Gemini API schema

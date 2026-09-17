@@ -1672,21 +1672,77 @@ class AiAssistantService
             $cleanKw = preg_replace('/^(?:وظيفة|فرصة|شغل|دورة|تدريب|برنامج|ورشة)\s+/u', '', $extractedKw);
             $cleanKw = trim($cleanKw);
 
-            $isExplicitJob = Str::contains($text, ['وظيفة', 'عمل', 'شاغر', 'وظائف', 'شغل']) || 
+            $isExplicitJob = Str::contains($text, ['وظيفة', 'عمل', 'شاغر', 'وظائف', 'شغل', 'توظيف', 'فرصة توظيف', 'فرص توظيف']) || 
                 (!empty($cleanKw) && JobOpportunity::where('title', 'like', "%{$cleanKw}%")->exists());
 
             $isExplicitTraining = Str::contains($text, ['تدريب', 'دورة', 'ورشة', 'برنامج تدريبي']) ||
                 (!empty($cleanKw) && Training::where('title', 'like', "%{$cleanKw}%")->exists() && !$isExplicitJob);
 
+            // التحقق إن كان الطلب عاماً (مثل: مناسبة، تناسبني، تناسب تخصصي، لي، ملائمة)
+            $genericKeywords = ['مناسبة', 'تناسبني', 'ملائمة', 'تناسب تخصصي', 'توظيف مناسبة', 'عمل مناسبة', 'لي', 'متاحة', 'شاغرة'];
+            $isGenericRequest = empty($cleanKw) || in_array(mb_strtolower($cleanKw), $genericKeywords) || Str::contains($cleanKw, ['مناسب', 'ملائم', 'تخصصي']);
+
             // أ. مسار التقديم على الوظيفة
-            if ($isExplicitJob && in_array('apply_for_job', $authorizedNames)) {
-                $jobTitle = $cleanKw ?: $extractedKw;
-                $res = AiToolRegistry::executeTool($user, 'apply_for_job', ['job_title' => $jobTitle]);
+            if (($isExplicitJob || (!$isExplicitTraining && in_array('apply_for_job', $authorizedNames))) && in_array('apply_for_job', $authorizedNames)) {
+                $gradData = $user->graduateData ?? GraduateData::where('email', $user->email)->first();
+                $appliedJobIds = $gradData ? Nomination::where('graduate_id', $gradData->id)->pluck('job_opportunity_id')->toArray() : [];
+
+                $selectedJob = null;
+
+                if ($isGenericRequest) {
+                    // البحث الذكي عن وظيفة شاغرة متوافقة مع تخصص الخريج ولم يسبق التقديم عليها
+                    $openJobs = JobOpportunity::whereIn('status', ['open', 'active'])
+                        ->whereNotIn('id', $appliedJobIds)
+                        ->get();
+
+                    if ($openJobs->isNotEmpty()) {
+                        // محاولة المطابقة مع تخصص الخريج
+                        $gradMajor = $gradData ? mb_strtolower($gradData->major ?? '') : '';
+                        if (!empty($gradMajor)) {
+                            // استخراج الكلمات الأساسية من التخصص (مثل برمجيات، حاسوب، تقنية، شبكات)
+                            $majorWords = array_filter(explode(' ', preg_replace('/[^\p{Arabic}\w\s]/u', '', $gradMajor)), fn($w) => mb_strlen($w) > 2 && !in_array($w, ['قسم', 'كلية', 'جامعة']));
+                            foreach ($openJobs as $job) {
+                                $jobText = mb_strtolower($job->title . ' ' . ($job->major ?? '') . ' ' . ($job->description ?? ''));
+                                foreach ($majorWords as $mw) {
+                                    if (Str::contains($jobText, $mw)) {
+                                        $selectedJob = $job;
+                                        break 2;
+                                    }
+                                }
+                            }
+                        }
+                        if (!$selectedJob) {
+                            $selectedJob = $openJobs->first();
+                        }
+                    } else {
+                        // لا توجد وظائف جديدة غير مقدم عليها
+                        if (!empty($appliedJobIds)) {
+                            return [
+                                'content' => "💼 لقد تقدمت بالفعل لكافة الفرص الوظيفية المتاحة حالياً المتوافقة معك.\n\n" .
+                                    "يمكنك متابعة حالة قبولك وترشيحك من خلال الضغط على:\n\n" .
+                                    "#prompt:ما هي حالة طلباتي للتوظيف والتدريب؟ [📊 استعراض ومتابعة حالة طلباتي]",
+                                'tool_executed' => 'apply_for_job',
+                            ];
+                        } else {
+                            return [
+                                'content' => "لا توجد فرص وظيفية شاغرة ومتاحة للتقديم في الوقت الحالي. سنقوم بإشعارك فور فتح أي شواغر جديدة.",
+                                'tool_executed' => 'apply_for_job',
+                            ];
+                        }
+                    }
+                }
+
+                $args = $selectedJob ? ['job_id' => $selectedJob->id] : ['job_title' => ($cleanKw ?: $extractedKw)];
+                $res = AiToolRegistry::executeTool($user, 'apply_for_job', $args);
 
                 if (isset($res['status']) && $res['status'] === 'proposal') {
+                    $prefixMsg = $selectedJob
+                        ? "💼 **بناءً على تخصصك الأكاديمي (" . ($gradData->major ?? 'المسجل') . ")، تم ترشيح أفضل فرصة عمل متاحة وتجهيز طلبك:**\n\n"
+                        : "💼 **تم إعداد طلب الترشح لفرصة العمل بنجاح:**\n\n";
+
                     return [
-                        'content' => "💼 **تم إعداد طلب الترشح لفرصة العمل بنجاح:**\n\n" .
-                            "يرجى مراجعة تفاصيل الوظيفة في البطاقة أدناه ثم الضغط على **[تأكيد وحفظ]** لإرسال ملفك.",
+                        'content' => $prefixMsg .
+                            "يرجى مراجعة تفاصيل الوظيفة في البطاقة أدناه ثم الضغط على **[تأكيد وحفظ]** لإرسال ملفك رسمياً.",
                         'action_proposal' => $res,
                         'tool_executed' => 'apply_for_job',
                     ];
@@ -1700,12 +1756,43 @@ class AiAssistantService
 
             // ب. مسار التقديم على البرنامج التدريبي
             if ($isExplicitTraining && in_array('apply_for_training', $authorizedNames)) {
-                $trainTitle = $cleanKw ?: $extractedKw;
-                $res = AiToolRegistry::executeTool($user, 'apply_for_training', ['training_title' => $trainTitle]);
+                $appliedTrainIds = TrainingApplication::where('user_id', $user->id)->pluck('training_id')->toArray();
+                $selectedTraining = null;
+
+                if ($isGenericRequest) {
+                    $openTrainings = Training::whereIn('status', ['active', 'open', 'upcoming'])
+                        ->whereNotIn('id', $appliedTrainIds)
+                        ->get();
+
+                    if ($openTrainings->isNotEmpty()) {
+                        $selectedTraining = $openTrainings->first();
+                    } else {
+                        if (!empty($appliedTrainIds)) {
+                            return [
+                                'content' => "🎓 لقد تقدمت بالفعل بطلبات التحاق بكافة البرامج التدريبية المتاحة حالياً.\n\n" .
+                                    "يمكنك متابعة حالة طلباتك من خلال الضغط على:\n\n" .
+                                    "#prompt:ما هي حالة طلباتي للتوظيف والتدريب؟ [📊 استعراض حالة طلباتي للتدريب]",
+                                'tool_executed' => 'apply_for_training',
+                            ];
+                        } else {
+                            return [
+                                'content' => "لا توجد برامج تدريبية مفتوحة للتسجيل حالياً. سنقوم بإعلامك فور إطلاق دورات تدريبية جديدة.",
+                                'tool_executed' => 'apply_for_training',
+                            ];
+                        }
+                    }
+                }
+
+                $args = $selectedTraining ? ['training_id' => $selectedTraining->id] : ['training_title' => ($cleanKw ?: $extractedKw)];
+                $res = AiToolRegistry::executeTool($user, 'apply_for_training', $args);
 
                 if (isset($res['status']) && $res['status'] === 'proposal') {
+                    $prefixMsg = $selectedTraining
+                        ? "🎓 **بناءً على ملفك الأكاديمي، تم اختيار هذا البرنامج التدريبي وتجهيز طلب الالتحاق:**\n\n"
+                        : "🎓 **تم تجهيز طلب التقديم على البرنامج التدريبي بنجاح:**\n\n";
+
                     return [
-                        'content' => "🎓 **تم تجهيز طلب التقديم على البرنامج التدريبي بنجاح:**\n\n" .
+                        'content' => $prefixMsg .
                             "يرجى مراجعة تفاصيل التدريب والمقاعد أدناه، والضغط على **[تأكيد وحفظ]** لإرسال الطلب رسمياً لمنسق التدريب.",
                         'action_proposal' => $res,
                         'tool_executed' => 'apply_for_training',

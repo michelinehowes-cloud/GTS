@@ -1419,7 +1419,10 @@
                     <ul class="list-unstyled text-white-50 small mb-0">
                         <li class="d-flex align-items-start gap-2 mb-2">
                             <i class="fas fa-map-marker-alt text-warning mt-1"></i>
-                            <span>جامعة طرابلس، سيدي المصري، طرابلس — ليبيا</span>
+                            <a href="https://maps.app.goo.gl/U8z9xwycDn9qAYz47" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none text-hover-warning" title="عرض موقع مكتب تدريب الخريجين على خرائط جوجل">
+                                جامعة طرابلس، سيدي المصري، طرابلس — ليبيا
+                                <i class="fas fa-external-link-alt ms-1 text-warning" style="font-size: 0.7rem;"></i>
+                            </a>
                         </li>
                         <li class="d-flex align-items-center gap-2 mb-2">
                             <i class="fas fa-envelope text-warning"></i>
@@ -1427,7 +1430,7 @@
                         </li>
                         <li class="d-flex align-items-center gap-2 mb-2">
                             <i class="fas fa-phone-alt text-warning"></i>
-                            <span>+218 (0) 21 000 0000</span>
+                            <span>+218 21 4625500</span>
                         </li>
                         <li class="d-flex align-items-center gap-2">
                             <i class="fas fa-clock text-warning"></i>

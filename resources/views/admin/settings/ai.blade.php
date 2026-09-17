@@ -364,14 +364,20 @@
                         <!-- اختيار نموذج Groq -->
                         <div class="mb-2">
                             <label class="form-label fw-bold text-dark small mb-1">
-                                <i class="fas fa-microchip text-warning me-1"></i> نموذج LLaMA المعتمد في Groq
+                                <i class="fas fa-microchip text-warning me-1"></i> نموذج الذكاء الاصطناعي المعتمد في Groq
                             </label>
                             <select name="groq_model" id="groq_model" class="form-select">
                                 <option value="llama-3.3-70b-versatile" {{ $groqModel === 'llama-3.3-70b-versatile' ? 'selected' : '' }}>
-                                    llama-3.3-70b-versatile (الأفضل والأقوى عالمياً في اللغة والتوليد المنظم)
+                                    llama-3.3-70b-versatile (Meta LLaMA 3.3 70B - متعدد القدرات)
                                 </option>
                                 <option value="llama-3.1-8b-instant" {{ $groqModel === 'llama-3.1-8b-instant' ? 'selected' : '' }}>
-                                    llama-3.1-8b-instant (فائق الخفة والسرعة اللحظية)
+                                    llama-3.1-8b-instant (Meta LLaMA 3.1 8B - فائق السرعة والخفة)
+                                </option>
+                                <option value="openai/gpt-oss-120b" {{ $groqModel === 'openai/gpt-oss-120b' ? 'selected' : '' }}>
+                                    openai/gpt-oss-120b (MoE عالي التفكير والاستدلال)
+                                </option>
+                                <option value="openai/gpt-oss-20b" {{ $groqModel === 'openai/gpt-oss-20b' ? 'selected' : '' }}>
+                                    openai/gpt-oss-20b (سريع وذكي جداً في المهام المتعددة)
                                 </option>
                                 <option value="mixtral-8x7b-32768" {{ $groqModel === 'mixtral-8x7b-32768' ? 'selected' : '' }}>
                                     mixtral-8x7b-32768 (سياق ضخم 32k)
@@ -549,6 +555,24 @@
             btn.innerHTML = originalBtnHtml;
 
             if (result.body.success) {
+                // تحديث النموذج المختار تلقائياً إذا اقترح الخادم نموذجاً متاحاً في الحساب
+                if (result.body.suggested_model && modelSelect.value !== result.body.suggested_model) {
+                    let exists = false;
+                    for (let i = 0; i < modelSelect.options.length; i++) {
+                        if (modelSelect.options[i].value === result.body.suggested_model) {
+                            exists = true;
+                            break;
+                        }
+                    }
+                    if (!exists) {
+                        let opt = document.createElement('option');
+                        opt.value = result.body.suggested_model;
+                        opt.textContent = result.body.suggested_model + ' (متوفر ونشط في حسابك)';
+                        modelSelect.appendChild(opt);
+                    }
+                    modelSelect.value = result.body.suggested_model;
+                }
+
                 feedback.innerHTML = `
                     <div class="alert alert-success py-2.5 px-3 small d-flex align-items-start gap-2 mb-0 rounded-3 shadow-sm border border-success border-opacity-25">
                         <i class="fas fa-check-circle text-success fs-5 mt-0.5"></i>
@@ -556,7 +580,7 @@
                             <strong class="d-block text-success fs-6">${result.body.message}</strong>
                             <div class="text-muted mt-1">
                                 <span>المزود: <strong>${result.body.provider}</strong></span> | 
-                                <span>النموذج: <strong>${result.body.model}</strong></span> | 
+                                <span>النموذج النشط: <strong class="badge bg-success bg-opacity-10 text-success border border-success">${result.body.model}</strong></span> | 
                                 <span>زمن الاستجابة: <strong>${result.body.latency_ms} ms</strong></span>
                             </div>
                         </div>

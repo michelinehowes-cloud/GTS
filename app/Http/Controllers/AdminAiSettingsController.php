@@ -159,6 +159,23 @@ class AdminAiSettingsController extends Controller
             ], 422);
         }
 
+        // Quick prefix check to prevent mixing up keys
+        if ($provider === 'groq' && (str_starts_with($apiKey, 'AIza') || str_starts_with($apiKey, 'AQ.'))) {
+            return response()->json([
+                'success' => false,
+                'status_code' => 400,
+                'message' => 'المفتاح المدخل يبدو أنه خاص بـ Google Gemini وليس Groq! مفاتيح Groq تبدأ دائماً بـ (gsk_...). يرجى استخراج مفتاح مجاني من console.groq.com ولصقه في هذه الخانة.'
+            ], 400);
+        }
+
+        if ($provider === 'gemini' && str_starts_with($apiKey, 'gsk_')) {
+            return response()->json([
+                'success' => false,
+                'status_code' => 400,
+                'message' => 'المفتاح المدخل يبدو أنه خاص بـ Groq وليس Google Gemini! مفتاح Groq يجب وضعه في خانة Groq أدناه.'
+            ], 400);
+        }
+
         $startTime = microtime(true);
 
         try {
@@ -203,10 +220,49 @@ class AdminAiSettingsController extends Controller
                 ], 400);
 
             } else {
-                // Groq Test
-                $targetModel = $model ?: env('GROQ_MODEL', config('ai.groq_model', 'llama-3.3-70b-versatile'));
-                $url = 'https://api.groq.com/openai/v1/chat/completions';
+                // Groq Test: Check available models on this specific account
+                $modelsUrl = 'https://api.groq.com/openai/v1/models';
+                $modelsResp = Http::timeout(10)->withToken($apiKey)->get($modelsUrl);
 
+                if ($modelsResp->status() === 401) {
+                    return response()->json([
+                        'success' => false,
+                        'status_code' => 401,
+                        'message' => 'فشل الاتصال بـ Groq (رمز 401): مفتاح API غير صالح. تأكد من نسخه كاملاً من console.groq.com ويبدأ بـ (gsk_).'
+                    ], 400);
+                }
+
+                $availableModels = [];
+                if ($modelsResp->successful()) {
+                    $modelsJson = $modelsResp->json();
+                    if (!empty($modelsJson['data']) && is_array($modelsJson['data'])) {
+                        foreach ($modelsJson['data'] as $m) {
+                            $mId = $m['id'] ?? '';
+                            if ($mId && !str_contains($mId, 'whisper') && !str_contains($mId, 'orpheus') && !str_contains($mId, 'guard')) {
+                                $availableModels[] = $mId;
+                            }
+                        }
+                    }
+                }
+
+                $requestedModel = $model ?: env('GROQ_MODEL', config('ai.groq_model', 'llama-3.3-70b-versatile'));
+                $targetModel = $requestedModel;
+
+                // If the requested model is not found in the account's active models, pick an available one
+                if (!empty($availableModels) && !in_array($requestedModel, $availableModels)) {
+                    // Try to prefer general chat models
+                    $preferred = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'mixtral-8x7b-32768'];
+                    $picked = null;
+                    foreach ($preferred as $pref) {
+                        if (in_array($pref, $availableModels)) {
+                            $picked = $pref;
+                            break;
+                        }
+                    }
+                    $targetModel = $picked ?: $availableModels[0];
+                }
+
+                $url = 'https://api.groq.com/openai/v1/chat/completions';
                 $response = Http::timeout(15)->withToken($apiKey)->post($url, [
                     'model' => $targetModel,
                     'messages' => [
@@ -221,22 +277,35 @@ class AdminAiSettingsController extends Controller
                 if ($response->successful()) {
                     $json = $response->json();
                     $reply = $json['choices'][0]['message']['content'] ?? 'جاهز';
+                    $msg = "تم الاتصال بنجاح بنموذج ({$targetModel}) خلال {$duration}ms! رد النموذج: '{$reply}'";
+                    if ($targetModel !== $requestedModel) {
+                        $msg .= " (ملاحظة: النموذج المطلوب {$requestedModel} غير متاح في حسابك، وتم الاعتماد تلقائياً على {$targetModel}).";
+                    }
+
                     return response()->json([
                         'success' => true,
                         'provider' => 'Groq Cloud',
                         'model' => $targetModel,
+                        'suggested_model' => $targetModel,
+                        'available_models' => $availableModels,
                         'latency_ms' => $duration,
                         'reply' => trim($reply),
-                        'message' => "تم الاتصال بنجاح بنموذج ({$targetModel}) خلال {$duration}ms! رد النموذج: '{$reply}'"
+                        'message' => $msg
                     ]);
                 }
 
                 $errorData = $response->json();
                 $errMessage = $errorData['error']['message'] ?? $response->body();
+                $extraHelp = '';
+                if (!empty($availableModels)) {
+                    $extraHelp = "\nالنماذج المتاحة في حسابك هي: " . implode(' ، ', array_slice($availableModels, 0, 5));
+                }
+
                 return response()->json([
                     'success' => false,
                     'status_code' => $response->status(),
-                    'message' => "فشل الاتصال بـ Groq (رمز {$response->status()}): {$errMessage}"
+                    'available_models' => $availableModels,
+                    'message' => "فشل الاتصال بـ Groq (رمز {$response->status()}): {$errMessage}{$extraHelp}"
                 ], 400);
             }
         } catch (\Throwable $e) {

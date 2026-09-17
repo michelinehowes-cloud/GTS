@@ -1177,14 +1177,30 @@ class AiAssistantService
                     'max_tokens' => config('ai.max_tokens', 2048),
                 ];
 
-                $secondResponse = Http::timeout(20)->withToken($apiKey)->post($url, $secondPayload);
-                $finalText = '';
-                if ($secondResponse->successful()) {
-                    $finalText = $secondResponse->json()['choices'][0]['message']['content'] ?? '';
-                }
+                // الأدوات التي تحتوي على بطاقات تفاعلية وأزرار تقديم منسقة
+                $structuredUiTools = [
+                    'search_job_opportunities', 
+                    'search_trainings', 
+                    'get_my_applications', 
+                    'get_my_profile', 
+                    'get_system_statistics', 
+                    'search_partner_companies',
+                    'get_platform_summary',
+                    'list_graduates_for_counselor'
+                ];
 
-                if (empty($finalText)) {
+                if (in_array($toolName, $structuredUiTools) && isset($toolResult['status']) && $toolResult['status'] === 'success') {
                     $finalText = $this->formatToolResultFallback($toolName, $toolResult, $user);
+                } else {
+                    $secondResponse = Http::timeout(20)->withToken($apiKey)->post($url, $secondPayload);
+                    $finalText = '';
+                    if ($secondResponse->successful()) {
+                        $finalText = $secondResponse->json()['choices'][0]['message']['content'] ?? '';
+                    }
+
+                    if (empty($finalText)) {
+                        $finalText = $this->formatToolResultFallback($toolName, $toolResult, $user);
+                    }
                 }
 
                 return [

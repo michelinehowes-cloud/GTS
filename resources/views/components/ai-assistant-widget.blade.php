@@ -427,9 +427,46 @@ document.addEventListener('DOMContentLoaded', function() {
                 return `<button type="button" class="btn btn-sm btn-outline-primary rounded-pill py-0 px-2 my-1 ai-inline-prompt-btn" data-prompt="${cleanPrompt}"><i class="fas fa-hand-pointer me-1"></i>${label}</button>`;
             })
             // Links
-            .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-decoration-underline text-primary fw-bold">$1</a>')
-            // Line breaks
-            .replace(/\n/g, '<br>');
+            .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-decoration-underline text-primary fw-bold">$1</a>');
+
+        // Markdown Table Parser (convert tables into styled responsive HTML tables)
+        html = html.replace(/((?:^[ \t]*\|?.*\|.*$[ \t]*(?:\r?\n|$))+)/gm, function(block) {
+            const lines = block.trim().split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+            const sepIdx = lines.findIndex(l => /^\|?\s*[-:]+\s*\|[-:\|\s]*$/.test(l) || (/[-]{3,}/.test(l) && l.includes('|')));
+            if (sepIdx < 1) return block; // Not a table
+
+            const parseRow = (line) => {
+                let cells = line.split('|');
+                if (cells.length > 1 && cells[0].trim() === '') cells.shift();
+                if (cells.length > 0 && cells[cells.length - 1].trim() === '') cells.pop();
+                return cells.map(c => c.trim());
+            };
+
+            const headerCells = parseRow(lines[0]);
+            let tableHtml = '<div class="table-responsive my-2 rounded-3 border bg-white shadow-sm" style="max-height: 280px; overflow-x: auto;"><table class="table table-sm table-striped table-hover mb-0 text-center align-middle" style="font-size: 0.74rem;">';
+            tableHtml += '<thead class="table-light text-nowrap"><tr>';
+            headerCells.forEach(cell => {
+                tableHtml += `<th class="py-1.5 px-2 fw-bold text-dark border-bottom">${cell}</th>`;
+            });
+            tableHtml += '</tr></thead><tbody>';
+
+            for (let i = 0; i < lines.length; i++) {
+                if (i <= sepIdx) continue;
+                const rowCells = parseRow(lines[i]);
+                if (rowCells.length === 0 || rowCells.every(c => c === '')) continue;
+                tableHtml += '<tr>';
+                rowCells.forEach(c => {
+                    tableHtml += `<td class="py-1.5 px-2 text-secondary">${c}</td>`;
+                });
+                tableHtml += '</tr>';
+            }
+
+            tableHtml += '</tbody></table></div>';
+            return tableHtml;
+        });
+
+        // Line breaks
+        html = html.replace(/\n/g, '<br>');
 
         return html;
     }

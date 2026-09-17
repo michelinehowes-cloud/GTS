@@ -146,6 +146,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/dashboard/live-stats', [AdminController::class, 'liveStats'])->name('admin.dashboard.live-stats');
 
+        // 🤖 إعدادات النظام والذكاء الاصطناعي (API Settings)
+        Route::prefix('settings')->name('admin.settings.')->group(function () {
+            Route::get('/ai', [App\Http\Controllers\AdminAiSettingsController::class, 'index'])->name('ai');
+            Route::post('/ai', [App\Http\Controllers\AdminAiSettingsController::class, 'update'])->name('ai.update');
+            Route::post('/ai/test', [App\Http\Controllers\AdminAiSettingsController::class, 'testConnection'])->name('ai.test');
+        });
+
         // 📈 التقارير والإحصائيات
         Route::get('/reports', [AdminReportController::class, 'index'])->name('admin.reports');
         Route::prefix('reports')->group(function () {

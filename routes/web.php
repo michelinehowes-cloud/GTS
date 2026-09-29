@@ -694,6 +694,7 @@ Route::middleware(['auth'])->prefix('graduate')->name('graduate.')->group(functi
 
     // فرص العمل
     Route::get('/job-opportunities', [App\Http\Controllers\GraduateJobController::class, 'index'])->name('job-opportunities.index');
+    Route::get('/jobs', [App\Http\Controllers\GraduateJobController::class, 'index'])->name('jobs.index');
     Route::get('/job-opportunities/{id}', [App\Http\Controllers\GraduateJobController::class, 'show'])->name('job-opportunities.show');
     Route::post('/job-opportunities/{id}/apply', [App\Http\Controllers\GraduateJobController::class, 'apply'])->name('job-opportunities.apply');
 

@@ -1993,7 +1993,7 @@
                     <button type="button" class="btn btn-outline-light rounded-pill px-4" data-bs-dismiss="modal">إغلاق</button>
                     @auth
                         @if(auth()->user()->role === 'graduate')
-                            <a href="{{ route('graduate.jobs.index') }}" class="cta-primary py-2 px-4 text-decoration-none">
+                            <a href="{{ route('graduate.job-opportunities.index') }}" class="cta-primary py-2 px-4 text-decoration-none">
                                 <i class="fas fa-briefcase"></i>تصفح الفرص المتاحة
                             </a>
                         @endif

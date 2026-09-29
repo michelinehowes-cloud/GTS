@@ -1292,7 +1292,7 @@
                             data-bs-dismiss="modal">إغلاق</button>
                         @auth
                             @if(auth()->user()->role === 'graduate')
-                                <a href="{{ route('graduate.jobs.index') }}"
+                                <a href="{{ route('graduate.job-opportunities.index') }}"
                                     class="nav-btn nav-btn-gold px-4 py-2 text-decoration-none">
                                     <i class="fas fa-briefcase me-1"></i>تصفح الفرص المتاحة
                                 </a>

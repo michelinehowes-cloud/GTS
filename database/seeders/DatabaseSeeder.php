@@ -16,6 +16,8 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             CompanySeeder::class,
             PermissionSeeder::class,
+            JobFairEventsSeeder::class,
+            JobFairProjectsSeeder::class,
         ]);
     }
 }

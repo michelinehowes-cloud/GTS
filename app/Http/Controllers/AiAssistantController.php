@@ -84,13 +84,32 @@ class AiAssistantController extends Controller
     public function history(Request $request): JsonResponse
     {
         $user = $request->user();
-        $sessionId = $request->input('session_id') ?: session()->getId();
+        $sessionId = $request->input('session_id');
+
+        // إذا لم يتم تمرير session_id، نبحث عن آخر جلسة محادثة للمستخدم
+        if (!$sessionId) {
+            $latestMsg = AiChatMessage::where('user_id', $user->id)->latest()->first();
+            $sessionId = $latestMsg ? $latestMsg->session_id : session()->getId();
+        }
 
         $messages = AiChatMessage::where('user_id', $user->id)
             ->where('session_id', $sessionId)
             ->orderBy('created_at', 'asc')
             ->take(50)
             ->get(['id', 'role', 'content', 'meta_data', 'created_at']);
+
+        // إذا كانت الجلسة الممررة فارغة، ولكن للمستخدم رسائل حديثة أخرى
+        if ($messages->isEmpty()) {
+            $latestMsg = AiChatMessage::where('user_id', $user->id)->latest()->first();
+            if ($latestMsg && $latestMsg->session_id) {
+                $sessionId = $latestMsg->session_id;
+                $messages = AiChatMessage::where('user_id', $user->id)
+                    ->where('session_id', $sessionId)
+                    ->orderBy('created_at', 'asc')
+                    ->take(50)
+                    ->get(['id', 'role', 'content', 'meta_data', 'created_at']);
+            }
+        }
 
         return response()->json([
             'status' => 'success',

@@ -300,41 +300,97 @@
         ])
     </div>
 
-    <!-- لوحة الوصول السريع للبرامج العلمية ومشاريع التخرج -->
+    <!-- لوحة الوصول السريع وإعدادات نشر البرامج العلمية ومشاريع التخرج -->
     <div class="row g-3 mb-4">
+        <!-- البرنامج العلمي والتدريبي -->
         <div class="col-md-6">
-            <div class="card-modern p-3 p-md-4 d-flex align-items-center justify-content-between flex-wrap gap-3" style="background: linear-gradient(135deg, rgba(238,202,62,0.1), rgba(245,158,11,0.03)); border: 1.5px solid rgba(245,158,11,0.25);">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; background: rgba(245,158,11,0.15); color: #b45309; font-size: 1.4rem;">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold mb-1 text-dark">البرنامج العلمي والتدريبي</h6>
-                        <p class="text-muted small mb-0">{{ $fair->events->count() }} فعالية وورشة عمل &bull; إشراف وإدارة المتحدثين والحضور</p>
+            <div class="card-modern p-3 p-md-4 d-flex flex-column justify-content-between h-100 gap-3" style="background: linear-gradient(135deg, rgba(238,202,62,0.1), rgba(245,158,11,0.03)); border: 1.5px solid rgba(245,158,11,0.25);">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px; background: rgba(245,158,11,0.15); color: #b45309; font-size: 1.35rem;">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <h6 class="fw-bold mb-0 text-dark">البرنامج العلمي والتدريبي</h6>
+                                <span id="badge-program-status" class="badge {{ $fair->is_program_published ? 'bg-success text-white' : 'bg-warning text-dark' }} px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                                    <i class="fas {{ $fair->is_program_published ? 'fa-eye' : 'fa-clock' }} me-1"></i>
+                                    <span>{{ $fair->is_program_published ? 'منشور للزوار' : 'Coming Soon (قريباً)' }}</span>
+                                </span>
+                            </div>
+                            <p class="text-muted small mb-0 mt-1">{{ $fair->events->count() }} فعالية وورشة عمل &bull; إشراف وإدارة المتحدثين والحضور</p>
+                        </div>
                     </div>
                 </div>
-                <a href="{{ route('job-fair.admin.events.index', $fair->id) }}" class="btn btn-sm btn-warning text-dark fw-bold rounded-pill px-3 shadow-sm">
-                    <span>إدارة الفعاليات</span>
-                    <i class="fas fa-arrow-left ms-1"></i>
-                </a>
+
+                <div class="d-flex align-items-center justify-content-between pt-2 border-top border-warning border-opacity-25 flex-wrap gap-2">
+                    <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                        <input class="form-check-input feature-toggle-switch" type="checkbox" role="switch" id="toggleProgramSwitch" 
+                               data-feature="program" 
+                               data-url="{{ route('job-fair.admin.toggle-feature', $fair->id) }}"
+                               {{ $fair->is_program_published ? 'checked' : '' }}
+                               style="width: 2.8rem; height: 1.4rem; cursor: pointer;">
+                        <label class="form-check-label fw-bold small text-dark" for="toggleProgramSwitch" style="cursor: pointer;">
+                            عرض الفعاليات للجمهور
+                        </label>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('job-fair.public.program', $fair->id) }}" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-sm" title="معاينة الصفحة العامة للبرنامج">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                        <a href="{{ route('job-fair.admin.events.index', $fair->id) }}" class="btn btn-sm btn-warning text-dark fw-bold rounded-pill px-3 shadow-sm">
+                            <span>إدارة الفعاليات</span>
+                            <i class="fas fa-arrow-left ms-1"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
+        <!-- معرض وأرشيف مشاريع التخرج -->
         <div class="col-md-6">
-            <div class="card-modern p-3 p-md-4 d-flex align-items-center justify-content-between flex-wrap gap-3" style="background: linear-gradient(135deg, rgba(4,93,176,0.1), rgba(3,105,161,0.03)); border: 1.5px solid rgba(4,93,176,0.25);">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; background: rgba(4,93,176,0.15); color: #045db0; font-size: 1.4rem;">
-                        <i class="fas fa-lightbulb"></i>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold mb-1 text-dark">معرض وأرشيف مشاريع التخرج</h6>
-                        <p class="text-muted small mb-0">{{ $fair->projects->count() }} مشروع تخرج مسجّل &bull; توليد QR Code، بوسترات وملفات</p>
+            <div class="card-modern p-3 p-md-4 d-flex flex-column justify-content-between h-100 gap-3" style="background: linear-gradient(135deg, rgba(4,93,176,0.1), rgba(3,105,161,0.03)); border: 1.5px solid rgba(4,93,176,0.25);">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 50px; height: 50px; background: rgba(4,93,176,0.15); color: #045db0; font-size: 1.35rem;">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <h6 class="fw-bold mb-0 text-dark">معرض وأرشيف مشاريع التخرج</h6>
+                                <span id="badge-projects-status" class="badge {{ $fair->is_projects_published ? 'bg-success text-white' : 'bg-warning text-dark' }} px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                                    <i class="fas {{ $fair->is_projects_published ? 'fa-eye' : 'fa-clock' }} me-1"></i>
+                                    <span>{{ $fair->is_projects_published ? 'منشور للزوار' : 'Coming Soon (قريباً)' }}</span>
+                                </span>
+                            </div>
+                            <p class="text-muted small mb-0 mt-1">{{ $fair->projects->count() }} مشروع تخرج مسجّل &bull; توليد QR Code، بوسترات وملفات</p>
+                        </div>
                     </div>
                 </div>
-                <a href="{{ route('job-fair.admin.projects.index', $fair->id) }}" class="btn btn-sm text-white fw-bold rounded-pill px-3 shadow-sm" style="background: #045db0;">
-                    <span>إدارة المشاريع</span>
-                    <i class="fas fa-arrow-left ms-1"></i>
-                </a>
+
+                <div class="d-flex align-items-center justify-content-between pt-2 border-top border-primary border-opacity-25 flex-wrap gap-2">
+                    <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                        <input class="form-check-input feature-toggle-switch" type="checkbox" role="switch" id="toggleProjectsSwitch" 
+                               data-feature="projects" 
+                               data-url="{{ route('job-fair.admin.toggle-feature', $fair->id) }}"
+                               {{ $fair->is_projects_published ? 'checked' : '' }}
+                               style="width: 2.8rem; height: 1.4rem; cursor: pointer;">
+                        <label class="form-check-label fw-bold small text-dark" for="toggleProjectsSwitch" style="cursor: pointer;">
+                            عرض المشاريع للجمهور
+                        </label>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('job-fair.public.projects', $fair->id) }}" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-sm" title="معاينة الصفحة العامة للمشاريع">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                        <a href="{{ route('job-fair.admin.projects.index', $fair->id) }}" class="btn btn-sm text-white fw-bold rounded-pill px-3 shadow-sm" style="background: #045db0;">
+                            <span>إدارة المشاريع</span>
+                            <i class="fas fa-arrow-left ms-1"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1345,4 +1401,54 @@
     </div>
 
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.feature-toggle-switch').forEach(function(toggle) {
+        toggle.addEventListener('change', function() {
+            const feature = this.getAttribute('data-feature');
+            const url = this.getAttribute('data-url');
+            const isChecked = this.checked;
+            const badge = document.getElementById('badge-' + feature + '-status');
+
+            this.disabled = true;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ feature: feature })
+            })
+            .then(res => res.json())
+            .then(data => {
+                this.disabled = false;
+                if (data.success) {
+                    if (badge) {
+                        if (data.published) {
+                            badge.className = 'badge bg-success text-white px-2.5 py-1 rounded-pill';
+                            badge.innerHTML = '<i class="fas fa-eye me-1"></i><span>منشور للزوار</span>';
+                        } else {
+                            badge.className = 'badge bg-warning text-dark px-2.5 py-1 rounded-pill';
+                            badge.innerHTML = '<i class="fas fa-clock me-1"></i><span>Coming Soon (قريباً)</span>';
+                        }
+                    }
+                } else {
+                    this.checked = !isChecked;
+                    alert(data.message || 'حدث خطأ أثناء تعديل حالة النشر.');
+                }
+            })
+            .catch(err => {
+                this.disabled = false;
+                this.checked = !isChecked;
+                alert('تعذر الاتصال بالخادم.');
+            });
+        });
+    });
+});
+</script>
+@endpush
 @endsection

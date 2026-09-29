@@ -18,3 +18,7 @@ yarn-error.log
 /.vscode
 /scratch
 _ide_helper_custom.php
+cloudflared.exe
+cloudflared*.log
+fix_cert_names.php
+

@@ -16,6 +16,14 @@
             </p>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
+            <form action="{{ route('job-fair.admin.toggle-feature', $fair->id) }}" method="POST" class="d-inline m-0">
+                @csrf
+                <input type="hidden" name="feature" value="program">
+                <button type="submit" class="btn {{ $fair->is_program_published ? 'btn-success' : 'btn-warning text-dark' }} shadow-sm fw-bold d-inline-flex align-items-center gap-1.5" title="انقر للتبديل بين إظهار الفعاليات للجمهور أو إخفائها كـ Coming Soon">
+                    <i class="fas {{ $fair->is_program_published ? 'fa-eye' : 'fa-clock' }}"></i>
+                    <span>{{ $fair->is_program_published ? 'البرنامج منشور ومتاح للجمهور' : 'البرنامج قيد التحضير (Coming Soon)' }}</span>
+                </button>
+            </form>
             <a href="{{ route('job-fair.public.program', $fair->id) }}" target="_blank" class="btn btn-outline-primary shadow-sm">
                 <i class="fas fa-external-link-alt"></i> معاينة البرنامج العلمي للجمهور
             </a>

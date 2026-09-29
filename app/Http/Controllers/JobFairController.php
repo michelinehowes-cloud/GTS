@@ -521,6 +521,50 @@ class JobFairController extends Controller
     }
 
     /**
+     * تبديل نشر البرنامج العلمي أو مشاريع التخرج (إظهار / Coming Soon)
+     */
+    public function toggleFeature(Request $request, JobFair $fair)
+    {
+        $feature = $request->input('feature');
+
+        if ($feature === 'program') {
+            $fair->is_program_published = !$fair->is_program_published;
+            $fair->save();
+            $state = $fair->is_program_published ? 'متاح للزوار (منشور)' : 'قيد التحضير (Coming Soon)';
+            \App\Models\AuditLog::logAction('toggle_program', "تم تغيير حالة البرنامج العلمي إلى: {$state}", 'JobFair', $fair->id);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'feature' => 'program',
+                    'published' => $fair->is_program_published,
+                    'message' => "تم تحديث حالة البرنامج العلمي إلى: {$state}"
+                ]);
+            }
+            return back()->with('success', "تم تحديث حالة البرنامج العلمي إلى: {$state}");
+        }
+
+        if ($feature === 'projects') {
+            $fair->is_projects_published = !$fair->is_projects_published;
+            $fair->save();
+            $state = $fair->is_projects_published ? 'متاح للزوار (منشور)' : 'قيد التحضير (Coming Soon)';
+            \App\Models\AuditLog::logAction('toggle_projects', "تم تغيير حالة مشاريع التخرج إلى: {$state}", 'JobFair', $fair->id);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'feature' => 'projects',
+                    'published' => $fair->is_projects_published,
+                    'message' => "تم تحديث حالة مشاريع التخرج إلى: {$state}"
+                ]);
+            }
+            return back()->with('success', "تم تحديث حالة مشاريع التخرج إلى: {$state}");
+        }
+
+        return back()->with('error', 'خاصية غير معروفة.');
+    }
+
+    /**
      * إضافة شركة للمعرض
      */
     public function addCompany(Request $request, JobFair $fair)
@@ -747,34 +791,37 @@ class JobFairController extends Controller
      */
     public function downloadBrandAsset(JobFair $fair, $type)
     {
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+
         switch ($type) {
             case 'fair-logo':
-                if ($fair->fair_logo_path && Storage::disk('public')->exists($fair->fair_logo_path)) {
+                if ($fair->fair_logo_path && $disk->exists($fair->fair_logo_path)) {
                     $ext = pathinfo($fair->fair_logo_path, PATHINFO_EXTENSION) ?: 'png';
-                    return response()->download(Storage::disk('public')->path($fair->fair_logo_path), 'شعار_' . Str::slug($fair->title) . '.' . $ext);
+                    return response()->download($disk->path($fair->fair_logo_path), 'شعار_' . Str::slug($fair->title) . '.' . $ext);
                 }
                 $path = public_path('images/job_fair_logo.png');
                 return response()->download($path, 'شعار_معرض_التوظيف_الافتراضي.png');
 
             case 'fair-logo-white':
-                if ($fair->fair_logo_white_path && Storage::disk('public')->exists($fair->fair_logo_white_path)) {
+                if ($fair->fair_logo_white_path && $disk->exists($fair->fair_logo_white_path)) {
                     $ext = pathinfo($fair->fair_logo_white_path, PATHINFO_EXTENSION) ?: 'png';
-                    return response()->download(Storage::disk('public')->path($fair->fair_logo_white_path), 'شعار_' . Str::slug($fair->title) . '_أبيض_شفاف.' . $ext);
+                    return response()->download($disk->path($fair->fair_logo_white_path), 'شعار_' . Str::slug($fair->title) . '_أبيض_شفاف.' . $ext);
                 }
                 $path = public_path('images/job_fair_logo_white.png');
                 return response()->download($path, 'شعار_معرض_التوظيف_أبيض_شفاف.png');
 
             case 'fair-logo-horizontal':
-                if ($fair->fair_logo_horizontal_path && Storage::disk('public')->exists($fair->fair_logo_horizontal_path)) {
+                if ($fair->fair_logo_horizontal_path && $disk->exists($fair->fair_logo_horizontal_path)) {
                     $ext = pathinfo($fair->fair_logo_horizontal_path, PATHINFO_EXTENSION) ?: 'png';
-                    return response()->download(Storage::disk('public')->path($fair->fair_logo_horizontal_path), 'شعار_' . Str::slug($fair->title) . '_أفقي.' . $ext);
+                    return response()->download($disk->path($fair->fair_logo_horizontal_path), 'شعار_' . Str::slug($fair->title) . '_أفقي.' . $ext);
                 }
                 $path = public_path('images/job_fair_logo_horizontal.png');
                 return response()->download($path, 'شعار_معرض_التوظيف_أفقي.png');
 
             case 'brand-guidelines':
-                if ($fair->brand_guidelines_path && Storage::disk('public')->exists($fair->brand_guidelines_path)) {
-                    return response()->download(Storage::disk('public')->path($fair->brand_guidelines_path), 'دليل_الهوية_البصرية_' . Str::slug($fair->title) . '.pdf');
+                if ($fair->brand_guidelines_path && $disk->exists($fair->brand_guidelines_path)) {
+                    return response()->download($disk->path($fair->brand_guidelines_path), 'دليل_الهوية_البصرية_' . Str::slug($fair->title) . '.pdf');
                 }
                 return back()->with('error', 'دليل الهوية البصرية غير متوفر لهذا المعرض بعد.');
 
@@ -788,9 +835,9 @@ class JobFairController extends Controller
 
             case 'media-kit':
             default:
-                if ($fair->media_kit_path && Storage::disk('public')->exists($fair->media_kit_path)) {
+                if ($fair->media_kit_path && $disk->exists($fair->media_kit_path)) {
                     $ext = pathinfo($fair->media_kit_path, PATHINFO_EXTENSION) ?: 'zip';
-                    return response()->download(Storage::disk('public')->path($fair->media_kit_path), 'الحقيبة_الإعلامية_' . Str::slug($fair->title) . '.' . $ext);
+                    return response()->download($disk->path($fair->media_kit_path), 'الحقيبة_الإعلامية_' . Str::slug($fair->title) . '.' . $ext);
                 }
                 $path = public_path('assets/media-kit-2026.zip');
                 if (file_exists($path)) {

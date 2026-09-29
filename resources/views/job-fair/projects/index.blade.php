@@ -550,10 +550,195 @@
             color: rgba(255, 255, 255, 0.65);
         }
 
+        /* Coming Soon Styles */
+        .coming-soon-wrapper {
+            position: relative;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 28px;
+            padding: 4rem 2rem;
+            text-align: center;
+            backdrop-filter: blur(16px);
+            overflow: hidden;
+            margin: 2rem auto 4rem;
+            max-width: 1100px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+        }
+
+        .coming-soon-glow {
+            position: absolute;
+            top: -120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(238, 202, 62, 0.25) 0%, transparent 70%);
+            pointer-events: none;
+            filter: blur(40px);
+        }
+
+        .cs-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: rgba(238, 202, 62, 0.15);
+            border: 1px solid rgba(238, 202, 62, 0.35);
+            border-radius: 50px;
+            color: var(--gold);
+            font-size: 0.92rem;
+            font-weight: 700;
+            margin-bottom: 1.8rem;
+        }
+
+        .pulse-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--gold);
+            box-shadow: 0 0 10px var(--gold);
+            animation: pulse-gold 1.5s infinite;
+        }
+
+        @keyframes pulse-gold {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+        }
+
+        .cs-main-title {
+            font-size: 2.4rem;
+            font-weight: 900;
+            color: #ffffff;
+            line-height: 1.35;
+            margin-bottom: 1.2rem;
+        }
+
+        .cs-main-title span {
+            background: linear-gradient(135deg, #ffffff 30%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cs-description {
+            font-size: 1.12rem;
+            color: rgba(255, 255, 255, 0.82);
+            max-width: 800px;
+            margin: 0 auto 2.8rem;
+            line-height: 1.8;
+        }
+
+        .cs-tracks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1.4rem;
+            max-width: 1050px;
+            margin: 0 auto 3rem;
+            text-align: right;
+        }
+
+        .cs-track-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 1.4rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .cs-track-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(238, 202, 62, 0.4);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .cs-track-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .cs-icon-gold { background: rgba(238, 202, 62, 0.2); color: var(--gold); }
+        .cs-icon-blue { background: rgba(14, 165, 233, 0.2); color: #38bdf8; }
+        .cs-icon-purple { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+        .cs-icon-green { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+
+        .cs-track-text h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .cs-track-text p {
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.65);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .cs-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-cs-gold {
+            background: linear-gradient(135deg, var(--gold), #f59e0b);
+            color: #061c38;
+            border: none;
+            padding: 14px 34px;
+            border-radius: 50px;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.35);
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+        .btn-cs-gold:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(245, 158, 11, 0.5);
+            color: #04244d;
+        }
+
+        .btn-cs-outline {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            padding: 14px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+        .btn-cs-outline:hover {
+            background: rgba(255, 255, 255, 0.16);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: #ffffff;
+            transform: translateY(-3px);
+        }
+
         @media (max-width: 991px) {
             .hero-title { font-size: 1.8rem; }
             .stat-item:not(:last-child)::after { display: none; }
             .stat-item { margin-bottom: 16px; }
+            .cs-main-title { font-size: 1.8rem; }
         }
     </style>
 </head>
@@ -633,6 +818,89 @@
                     </div>
                 </div>
             </section>
+
+            @php
+                $isProjectsComingSoon = !($fair && $fair->is_projects_published);
+            @endphp
+
+            @if($isProjectsComingSoon)
+            {{-- ══════════════════════════════════
+                 COMING SOON SECTION (مشاريع التخرج قريباً)
+            ══════════════════════════════════ --}}
+            <div class="coming-soon-wrapper">
+                <div class="coming-soon-glow"></div>
+                
+                <div class="cs-badge-pill">
+                    <span class="pulse-dot"></span>
+                    <span>ترقبوا الإطلاق الرسمي قريباً</span>
+                    <span class="badge bg-warning text-dark px-2.5 py-1 rounded-pill ms-2 font-monospace" style="font-size: 0.76rem;">Coming Soon</span>
+                </div>
+
+                <h2 class="cs-main-title">
+                    معرض وأرشيف مشاريع التخرج <br>
+                    <span>قيد التحضير والفهرسة النهائية</span>
+                </h2>
+
+                <p class="cs-description">
+                    نستكمل حالياً استقبال وفهرسة نخبة مشاريع وبحوث تخرج طلبة كليات جامعة طرابلس، وتجهيز أجنحة العرض التفاعلية ورموز الـ QR Code الخاصة بكل ابتكار.
+                    <br>
+                    <strong class="text-white">سيتم إتاحة الأرشيف الكامل وتصفح المشاريع وتنزيل البوسترات قريباً لكافة الزوار والشركات.</strong>
+                </p>
+
+                {{-- Features Preview Grid --}}
+                <div class="cs-tracks-grid">
+                    <div class="cs-track-card">
+                        <div class="cs-track-icon cs-icon-blue">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                        <div class="cs-track-text">
+                            <h4>الذكاء الاصطناعي والتقنية</h4>
+                            <p>حلول برمجية وأنظمة ذكية من خريجي تقنية المعلومات والهندسة</p>
+                        </div>
+                    </div>
+
+                    <div class="cs-track-card">
+                        <div class="cs-track-icon cs-icon-gold">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <div class="cs-track-text">
+                            <h4>الابتكارات الهندسية والصناعية</h4>
+                            <p>نماذج تطبيقية واختراعات صناعية قابلة للتبني والتطوير</p>
+                        </div>
+                    </div>
+
+                    <div class="cs-track-card">
+                        <div class="cs-track-icon cs-icon-green">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div class="cs-track-text">
+                            <h4>الاستدامة والطاقة والبيئة</h4>
+                            <p>بحوث تطبيقية لمعالجة قضايا البيئة والموارد المستدامة</p>
+                        </div>
+                    </div>
+
+                    <div class="cs-track-card">
+                        <div class="cs-track-icon cs-icon-purple">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div class="cs-track-text">
+                            <h4>مشاريع ريادية واستثمارية</h4>
+                            <p>أفكار مشاريع ناشئة واعدة تلبي احتياجات سوق العمل الليبي</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cs-actions">
+                    <a href="{{ route('job-fair.public.companies', $fair ? $fair->id : 1) }}" class="btn-cs-gold">
+                        <i class="fas fa-building me-1"></i>استكشف الشركات والجهات المشاركة في المعرض
+                    </a>
+                    <a href="{{ route('job-fair.public', $fair ? $fair->id : null) }}" class="btn-cs-outline">
+                        <i class="fas fa-arrow-right me-1"></i>العودة للصفحة الرئيسية للمعرض
+                    </a>
+                </div>
+            </div>
+
+            @else
 
             <!-- Filter & Search Bar -->
             <div class="filter-panel">
@@ -769,6 +1037,8 @@
                 </div>
                 @endforelse
             </div>
+
+            @endif
 
         </div>
 

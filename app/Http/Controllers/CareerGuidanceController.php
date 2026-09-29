@@ -904,7 +904,8 @@ class CareerGuidanceController extends Controller
             \Log::error('Failed to send nomination status update notification: ' . $e->getMessage());
         }
 
-        return redirect()->route('career-guidance.nominations.edit-status', $id)
+        $prefix = request()->routeIs('admin.*') ? 'admin.career-guidance' : (request()->routeIs('partnership.*') ? 'partnership' : 'career-guidance');
+        return redirect()->route($prefix . '.nominations.edit-status', $id)
             ->with('success', 'تم تحديث حالة الترشيح بنجاح');
     }
 
@@ -953,7 +954,7 @@ class CareerGuidanceController extends Controller
             return redirect()->back()->with('success', 'تم ترشيح الخريج لفرصة العمل بنجاح.');
         }
 
-        $prefix = request()->routeIs('admin.*') ? 'admin.career-guidance' : 'career-guidance';
+        $prefix = request()->routeIs('admin.*') ? 'admin.career-guidance' : (request()->routeIs('partnership.*') ? 'partnership' : 'career-guidance');
         return redirect()->route($prefix . '.nominations')
             ->with('success', 'تم ترشيح الخريج بنجاح');
     }

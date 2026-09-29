@@ -65,10 +65,20 @@
     ]"
     badge="التقييم والمتابعة"
 >
-    <a href="{{ route('evaluation-followup.surveys.create') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center gap-2">
-        <i class="fas fa-plus"></i>
-        <span>إضافة استبيان جديد</span>
-    </a>
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ route('evaluation-followup.survey-reports') }}" class="btn btn-outline-light py-2.5 px-3.5 rounded-3 shadow-sm fw-bold d-flex align-items-center gap-2">
+            <i class="fas fa-chart-pie"></i>
+            <span>التقارير والإحصائيات</span>
+        </a>
+        <a href="{{ route('evaluation-followup.surveys.templates.index') }}" class="btn btn-light py-2.5 px-3.5 rounded-3 shadow-sm text-primary fw-bold d-flex align-items-center gap-2">
+            <i class="fas fa-layer-group text-warning"></i>
+            <span>مكتبة القوالب</span>
+        </a>
+        <a href="{{ route('evaluation-followup.surveys.create') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center gap-2">
+            <i class="fas fa-plus"></i>
+            <span>إضافة استبيان جديد</span>
+        </a>
+    </div>
 </x-page-hero>
 
 @if(session('success'))
@@ -126,7 +136,11 @@
                     <td><span class="resp-count"><i class="fas fa-comment-alt"></i>{{ $survey->responses_count ?? 0 }}</span></td>
                     <td>
                         <div class="tbl-actions">
-                            <a href="{{ route('evaluation-followup.surveys.show', $survey) }}" class="tbl-btn view" title="عرض"><i class="fas fa-eye"></i></a>
+                            <a href="{{ route('evaluation-followup.surveys.show', $survey) }}" class="tbl-btn view" title="التقرير والتحليل الإحصائي"><i class="fas fa-chart-pie"></i></a>
+                            <a href="{{ route('evaluation-followup.surveys.export-responses', $survey) }}" class="tbl-btn" style="background:#ecfdf5;color:#059669;" title="تصدير النتائج إلى Excel"><i class="fas fa-file-excel"></i></a>
+                            <button type="button" class="tbl-btn" style="background:#fdf4ff;color:#a855f7;" title="حفظ كقالب جاهز" onclick="openSaveAsTemplateModal({{ $survey->id }}, '{{ addslashes($survey->title) }}', '{{ addslashes($survey->description ?? '') }}', '{{ $survey->type ?? 'general' }}')">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
                             <a href="{{ route('evaluation-followup.surveys.edit', $survey) }}" class="tbl-btn edit" title="تعديل"><i class="fas fa-edit"></i></a>
                             <form action="{{ route('evaluation-followup.surveys.destroy', $survey) }}" method="POST" class="d-inline" onsubmit="return confirm('هل تريد حذف هذا الاستبيان؟')">
                                 @csrf @method('DELETE')
@@ -154,8 +168,60 @@
     <div class="d-flex justify-content-center p-4">{{ $surveys->links() }}</div>
     @endif
 </div>
+
+<!-- Modal حفظ الاستبيان كقالب -->
+<div class="modal fade" id="saveAsTemplateModal" tabindex="-1" aria-labelledby="saveTemplateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <form id="saveAsTemplateForm" method="POST">
+                @csrf
+                <div class="modal-header bg-light border-bottom py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="rounded-3 bg-purple text-white d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: #8b5cf6;">
+                            <i class="fas fa-bookmark"></i>
+                        </div>
+                        <h5 class="modal-title fw-bold text-dark mb-0">حفظ الاستبيان كقالب دائم</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted small mb-3">
+                        سيتم حفظ كافة أسئلة هذا الاستبيان وخياراته في مكتبة القوالب لتتمكن من إعادة استخدامها بضغطة زر واحدة في أي وقت.
+                    </p>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-dark">اسم القالب الجديد <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="template_title" id="modal_template_title" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-dark">تصنيف القالب <span class="text-danger">*</span></label>
+                        <select class="form-select" name="template_category" id="modal_template_category" required>
+                            <option value="training">🎓 التدريب وورش العمل</option>
+                            <option value="employment">💼 التوظيف والشراكات</option>
+                            <option value="events">🎪 المعارض والفعاليات</option>
+                            <option value="general">📋 قالب عام</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-dark">وصف مختصر للقالب</label>
+                        <textarea class="form-control" name="template_description" id="modal_template_description" rows="2" placeholder="أدخل وصفاً يوضح الغرض من هذا القالب..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold" style="background: #8b5cf6; border-color: #8b5cf6;">
+                        <i class="fas fa-save me-1"></i> حفظ في مكتبة القوالب
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.getElementById('surveySearch')?.addEventListener('input', function(){
     const q=this.value.toLowerCase();
@@ -163,5 +229,23 @@ document.getElementById('surveySearch')?.addEventListener('input', function(){
         r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';
     });
 });
+
+function openSaveAsTemplateModal(surveyId, title, description, type) {
+    const form = document.getElementById('saveAsTemplateForm');
+    form.action = `{{ url('/evaluation-followup/surveys') }}/${surveyId}/save-template`;
+
+    document.getElementById('modal_template_title').value = title + ' (قالب)';
+    document.getElementById('modal_template_description').value = description || '';
+
+    let category = 'general';
+    if (type === 'training') category = 'training';
+    else if (type === 'job_opportunity') category = 'employment';
+    else if (type === 'job_fair') category = 'events';
+
+    document.getElementById('modal_template_category').value = category;
+
+    const modal = new bootstrap.Modal(document.getElementById('saveAsTemplateModal'));
+    modal.show();
+}
 </script>
 @endpush

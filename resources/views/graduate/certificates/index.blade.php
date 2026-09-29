@@ -9,6 +9,39 @@
         <div class="col-12">
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0369a1 100%);">
                 <div class="card-body p-4 p-md-5 text-white position-relative">
+                    <!-- Mobile Header Top Bar (Brand + Menu Trigger) -->
+                    <div class="d-flex justify-content-between align-items-center w-100 mb-3 d-md-none">
+                        <span class="badge rounded-pill px-3 py-1.5 small" style="background: rgba(255, 255, 255, 0.22) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.3) !important; font-size: 0.75rem; backdrop-filter: blur(6px);">
+                            <i class="fas fa-certificate me-1 text-warning"></i>شهادات المتدرب
+                        </span>
+                        <div class="d-flex align-items-center gap-2">
+                            <!-- زر الرسائل المنزلق بالموبايل -->
+                            <button type="button" class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none" onclick="openMessagesDrawer()" style="width: 36px; height: 36px;" title="الرسائل">
+                                <i class="fas fa-envelope"></i>
+                                @php
+                                    $unreadMsgs = \App\Models\Message::where('receiver_id', auth()->id())->whereNull('read_at')->count();
+                                @endphp
+                                @if($unreadMsgs > 0)
+                                    <span class="position-absolute bg-danger rounded-circle border border-2 border-white" style="width: 10px; height: 10px; top: 0px; right: 0px;"></span>
+                                @endif
+                            </button>
+                            <!-- زر الإشعارات المنزلق بالموبايل -->
+                            <button type="button" class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none" onclick="openNotificationsDrawer()" style="width: 36px; height: 36px;" title="الإشعارات">
+                                <i class="fas fa-bell"></i>
+                                @php
+                                    $unreadNotifs = \App\Models\Notification::forUser(auth()->id())->unread()->count();
+                                @endphp
+                                @if($unreadNotifs > 0)
+                                    <span class="position-absolute bg-danger rounded-circle border border-2 border-white" style="width: 10px; height: 10px; top: 0px; right: 0px;"></span>
+                                @endif
+                            </button>
+                            <!-- زر القائمة الجانبية للموبايل -->
+                            <button type="button" class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 36px; height: 36px;" onclick="window.toggleSidebarFunc ? window.toggleSidebarFunc() : null">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="row align-items-center">
                         <div class="col-lg-8">
                             <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill bg-white bg-opacity-10 border border-white border-opacity-20 mb-3">
@@ -21,14 +54,38 @@
                             </p>
                         </div>
                         <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
-                            <div class="d-inline-flex align-items-center gap-3 bg-white bg-opacity-10 p-3 rounded-4 backdrop-blur border border-white border-opacity-20">
-                                <div class="text-center px-3 border-end border-white border-opacity-20">
-                                    <div class="h3 fw-bold mb-0 text-warning">{{ $stats['total'] ?? 0 }}</div>
-                                    <small class="text-white-50">شهادة صادرة</small>
+                            <div class="d-flex align-items-center justify-content-end gap-3 flex-wrap">
+                                <!-- Desktop Notifications and Messages -->
+                                <div class="d-none d-md-flex gap-2 align-items-center mb-3 mb-lg-0 me-0 me-lg-3">
+                                    <button class="btn btn-light bg-white bg-opacity-25 text-white border-0 px-3 py-2 rounded-pill fw-bold" onclick="openMessagesDrawer()">
+                                        <i class="fas fa-envelope me-1"></i>الرسائل
+                                        @php
+                                            $unreadMsgsDesktop = \App\Models\Message::where('receiver_id', auth()->id())->whereNull('read_at')->count();
+                                        @endphp
+                                        @if($unreadMsgsDesktop > 0)
+                                            <span class="badge bg-danger ms-1 rounded-pill">{{ $unreadMsgsDesktop }}</span>
+                                        @endif
+                                    </button>
+                                    <button class="btn btn-light bg-white bg-opacity-25 text-white border-0 px-3 py-2 rounded-pill fw-bold" onclick="openNotificationsDrawer()">
+                                        <i class="fas fa-bell me-1"></i>الإشعارات
+                                        @php
+                                            $unreadNotifsDesktop = \App\Models\Notification::forUser(auth()->id())->unread()->count();
+                                        @endphp
+                                        @if($unreadNotifsDesktop > 0)
+                                            <span class="badge bg-danger ms-1 rounded-pill">{{ $unreadNotifsDesktop }}</span>
+                                        @endif
+                                    </button>
                                 </div>
-                                <div class="text-center px-3">
-                                    <div class="h3 fw-bold mb-0 text-info">{{ $stats['total_hours'] ?? 0 }}</div>
-                                    <small class="text-white-50">ساعة تدريبية</small>
+
+                                <div class="d-inline-flex align-items-center gap-3 bg-white bg-opacity-10 p-3 rounded-4 backdrop-blur border border-white border-opacity-20">
+                                    <div class="text-center px-3 border-end border-white border-opacity-20">
+                                        <div class="h3 fw-bold mb-0 text-warning">{{ $stats['total'] ?? 0 }}</div>
+                                        <small class="text-white-50">شهادة صادرة</small>
+                                    </div>
+                                    <div class="text-center px-3">
+                                        <div class="h3 fw-bold mb-0 text-info">{{ $stats['total_hours'] ?? 0 }}</div>
+                                        <small class="text-white-50">ساعة تدريبية</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -129,7 +186,7 @@
                 لم يتم العثور على شهادات معتمدة وفقاً لمعايير البحث الحالية. يتم إصدار الشهادات فور إتمام البرامج التدريبية وورش العمل بنجاح.
             </p>
             <div>
-                <a href="{{ route('trainings.index') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold">
+                <a href="{{ route('graduate.trainings') }}" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold">
                     <i class="fas fa-graduation-cap me-1"></i> استكشف البرامج التدريبية المتاحة
                 </a>
             </div>

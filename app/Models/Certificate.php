@@ -38,6 +38,20 @@ class Certificate extends Model
         'hours' => 'integer',
     ];
 
+    /**
+     * إطلاق حدث الإشعار التلقائي عند اعتماد وإصدار الشهادة
+     */
+    protected static function booted()
+    {
+        static::created(function ($certificate) {
+            try {
+                app(\App\Services\NotificationService::class)->notifyCertificateIssued($certificate);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('فشل إرسال إشعار الشهادة: ' . $e->getMessage());
+            }
+        });
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -51,6 +65,16 @@ class Certificate extends Model
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * الحصول على شعار الشركة المعتمد مع التراجع الذكي لبيانات الشركة المرتبطة
+     */
+    public function getEffectiveCompanyLogoAttribute(): ?string
+    {
+        return $this->company_logo 
+            ?: $this->company?->logo_path 
+            ?: $this->training?->company?->logo_path;
     }
 
     /**

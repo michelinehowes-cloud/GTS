@@ -86,16 +86,19 @@ class JobFairProject extends Model
 
     public function getTeamListAttribute(): array
     {
-        if (is_array($this->team_members)) {
-            return $this->team_members;
+        $members = $this->team_members;
+        if (is_array($members)) {
+            return $members;
         }
-        if (is_string($this->team_members)) {
-            $decoded = json_decode($this->team_members, true);
+
+        $raw = is_string($members) ? $members : (string)($this->attributes['team_members'] ?? '');
+        if ($raw !== '') {
+            $decoded = json_decode($raw, true);
             if (is_array($decoded)) {
                 return $decoded;
             }
             // fallback: split lines
-            $lines = array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $this->team_members)));
+            $lines = array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $raw) ?: []));
             return array_map(fn($line) => ['name' => $line], $lines);
         }
         return [];

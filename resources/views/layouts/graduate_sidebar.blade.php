@@ -51,7 +51,8 @@
 
 <li class="nav-item">
     <a class="nav-link {{ request()->routeIs('messages.*') ? 'active' : '' }}"
-        href="{{ route('messages.index') }}">
+        href="{{ route('messages.index') }}"
+        onclick="if(window.openMessagesDrawer){window.openMessagesDrawer(); return false;}">
         <i class="fas fa-fw fa-envelope"></i>
         <span>
             صندوق الرسائل
@@ -89,7 +90,8 @@
 
 <li class="nav-item">
     <a class="nav-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}"
-        href="{{ route('notifications.index') }}">
+        href="{{ route('notifications.index') }}"
+        onclick="if(window.openNotificationsDrawer){window.openNotificationsDrawer(); return false;}">
         <i class="fas fa-fw fa-bell"></i>
         <span>الإشعارات</span>
     </a>

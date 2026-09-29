@@ -8,7 +8,7 @@
         @include('components.breadcrumbs', [
             'items' => [
                 ['label' => 'الرئيسية', 'url' => route('home')],
-                ['label' => 'التدريبات', 'url' => route('trainings.index')],
+                ['label' => 'التدريبات', 'url' => route('admin.trainings')],
                 ['label' => 'إضافة تدريب جديد', 'active' => true],
             ]
         ])
@@ -145,7 +145,7 @@
                             </div>
 
                             <div class="d-flex justify-content-end gap-2">
-                                <a href="{{ route('trainings.index') }}" class="btn btn-secondary-modern">
+                                <a href="{{ route('admin.trainings') }}" class="btn btn-secondary-modern">
                                     <i class="fas fa-times me-1"></i> إلغاء
                                 </a>
                                 <button type="submit" class="btn btn-primary-modern px-4">

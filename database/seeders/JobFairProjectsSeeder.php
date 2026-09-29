@@ -15,9 +15,15 @@ class JobFairProjectsSeeder extends Seeder
             return;
         }
 
+        // تحديث حالة المعرض لنشر المشاريع
+        $fair->update([
+            'is_projects_published' => true,
+        ]);
+
         JobFairProject::where('job_fair_id', $fair->id)->delete();
 
         $projects = [
+            // 1. تقنية المعلومات - الذكاء الاصطناعي والصحة
             [
                 'job_fair_id'      => $fair->id,
                 'title'            => 'منصة "نبض" للرعاية الصحية الذكية والتشخيص المبكر باستخدام الذكاء الاصطناعي',
@@ -28,20 +34,22 @@ class JobFairProjectsSeeder extends Seeder
                 'supervisor_name'  => 'د. طارق ميلاد القمودي',
                 'supervisor_title' => 'أستاذ مشارك - قسم هندسة البرمجيات',
                 'team_members'     => [
-                    ['name' => 'عمر عبد الباسط الطاهر', 'role' => 'مهندس ذكاء اصطناعي ونماذج تعلم عميق', 'email' => 'omar.tahir@example.com', 'phone' => '+218 91 234 5678', 'linkedin' => 'https://linkedin.com'],
-                    ['name' => 'سارة عبد الله الزنتاني', 'role' => 'مطور واجهات وتجربة مستخدم (Full-Stack)', 'email' => 'sara.zintani@example.com', 'phone' => '+218 92 345 6789', 'linkedin' => 'https://linkedin.com'],
-                    ['name' => 'محمد إبراهيم الورفلي', 'role' => 'مهندس بنية سحابية وقواعد بيانات', 'email' => 'mohamed.warfalli@example.com', 'phone' => '+218 94 567 8901', 'linkedin' => 'https://linkedin.com']
+                    ['name' => 'عمر عبد الباسط الطاهر', 'role' => 'مهندس ذكاء اصطناعي ونماذج تعلم عميق', 'email' => 'omar.tahir@tripoliuniversity.edu.ly', 'phone' => '+218 91 234 5678', 'linkedin' => 'https://linkedin.com/in/omar-tahir'],
+                    ['name' => 'سارة عبد الله الزنتاني', 'role' => 'مطور واجهات وتجربة مستخدم (Full-Stack)', 'email' => 'sara.zintani@tripoliuniversity.edu.ly', 'phone' => '+218 92 345 6789', 'linkedin' => 'https://linkedin.com/in/sara-zintani'],
+                    ['name' => 'محمد إبراهيم الورفلي', 'role' => 'مهندس بنية سحابية وقواعد بيانات', 'email' => 'mohamed.warfalli@tripoliuniversity.edu.ly', 'phone' => '+218 94 567 8901', 'linkedin' => 'https://linkedin.com/in/mohamed-warfalli']
                 ],
                 'summary'          => 'منصة رقمية متكاملة تقدم نظام فرز وتشخيص مبكر للأشعة السينية والتقارير الطبية بالاعتماد على خوارزميات الرؤية الحاسوبية (Computer Vision)، مع تطبيق للهاتف يربط المريض بالمركز الصحي مباشرة.',
                 'objectives'       => "• تقليص زمن انتظار التشخيص الأولي في أقسام الطوارئ والمستشفيات بنسبة 60%.\n• رفع دقة رصد الأنماط غير الطبيعية في صور الأشعة السينية إلى أكثر من 94%.\n• توفير سجل صحي إلكتروني آمن ومحمي طبقاً لمعايير الخصوصية الطبية العالمية.",
                 'description'      => "يعالج هذا المشروع مشكلة نقص الكوادر التخصصية في المراكز الطبية النائية من خلال نموذج خفيف الوزن يمكن نشره محلياً بدون الحاجة لاتصال دائم بالإنترنت. تم تدريب النموذج على أكثر من 45 ألف صورة شعاعية مصنفة مع التحقق الإكلينيكي بالتعاون مع أطباء مستشفى طرابلس المركزي. يحتوي النظام على لوحة تحكم متطورة للطبيب تدعم المراجعة اليدوية وإبداء التوصيات وإصدار الوصفات الدوائية الرقمية.",
                 'booth_number'     => 'IT-01',
-                'project_url'      => 'https://github.com',
-                'video_url'        => 'https://youtube.com',
+                'project_url'      => 'https://github.com/nabd-health/ai-platform',
+                'video_url'        => 'https://youtube.com/watch?v=demo-nabd',
                 'status'           => 'published',
                 'is_featured'      => true,
-                'views_count'      => 342,
+                'views_count'      => 452,
             ],
+
+            // 2. الهندسة - الطاقة المتجددة وإنترنت الأشياء
             [
                 'job_fair_id'      => $fair->id,
                 'title'            => 'نظام شبكات الطاقة الشمسية الذكية مع التوزيع الديناميكي ومراقبة إنترنت الأشياء (IoT)',
@@ -52,19 +60,21 @@ class JobFairProjectsSeeder extends Seeder
                 'supervisor_name'  => 'د. مفتاح محمد الزوي',
                 'supervisor_title' => 'أستاذ التحكم والأنظمة الذكية',
                 'team_members'     => [
-                    ['name' => 'عبد الرحمن فرج الكيلاني', 'role' => 'تصميم الدوائر ومتحكمات الـ Microcontroller', 'email' => 'abdurahman.k@example.com', 'phone' => '+218 91 333 4455', 'linkedin' => 'https://linkedin.com'],
-                    ['name' => 'أسامة خالد بن ساسي', 'role' => 'برمجة أنظمة إنترنت الأشياء وشبكات الحساسات', 'email' => 'osama.b@example.com', 'phone' => '+218 92 444 5566', 'linkedin' => 'https://linkedin.com'],
-                    ['name' => 'فاطمة الصادق الفرجاني', 'role' => 'تحليل الأحمال وكفاءة الطاقة المتجددة', 'email' => 'fatima.f@example.com', 'phone' => '+218 93 555 6677', 'linkedin' => 'https://linkedin.com']
+                    ['name' => 'عبد الرحمن فرج الكيلاني', 'role' => 'تصميم الدوائر ومتحكمات الـ Microcontroller', 'email' => 'abdurahman.k@tripoliuniversity.edu.ly', 'phone' => '+218 91 333 4455', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'أسامة خالد بن ساسي', 'role' => 'برمجة أنظمة إنترنت الأشياء وشبكات الحساسات', 'email' => 'osama.b@tripoliuniversity.edu.ly', 'phone' => '+218 92 444 5566', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'فاطمة الصادق الفرجاني', 'role' => 'تحليل الأحمال وكفاءة الطاقة المتجددة', 'email' => 'fatima.f@tripoliuniversity.edu.ly', 'phone' => '+218 93 555 6677', 'linkedin' => 'https://linkedin.com']
                 ],
                 'summary'          => 'نظام إلكتروني لإدارة وتوزيع الطاقة المولدة من الألواح الكهروضوئية بذكاء بين البطاريات والشبكة العامة والأحمال الحيوية، مع مراقبة لحظية عبر أجهزة استشعار إنترنت الأشياء وسحابة بيانات.',
                 'objectives'       => "• تحسين كفاءة استغلال الطاقة الشمسية في المنشآت والمؤسسات بنسبة تصل إلى 28%.\n• التحويل التلقائي الآمن بين مصادر الطاقة لتفادي انقطاع التيار الكهربائي.\n• كشف الأعطال وتراجع أداء الألواح مبكراً عبر تحليل بيانات التيار والجهد والحرارة.",
                 'description'      => "يتكون النموذج الأولي من وحدة تحكم هجينة (Hybrid Inverter Controller) تعتمد على معالج ESP32 ولوغاريتمات التتبع لأقصى نقطة قدرة (MPPT). يتيح النظام للمستخدم عبر شاشة اللمس وتطبيق الموبايل مراقبة الإنتاج والاستهلاك والتنبؤ بكميات الطاقة المولدة للأيام القادمة بالاعتماد على توقعات الطقس المحلية.",
                 'booth_number'     => 'ENG-04',
-                'project_url'      => 'https://github.com',
+                'project_url'      => 'https://github.com/iot-solar-grid',
                 'status'           => 'published',
                 'is_featured'      => true,
-                'views_count'      => 289,
+                'views_count'      => 389,
             ],
+
+            // 3. الهندسة - الروبوتات والنفط
             [
                 'job_fair_id'      => $fair->id,
                 'title'            => 'تصميم وتصنيع روبوت فحص الأنابيب النفطية المستقل تحت سطح البحر (AUV)',
@@ -75,9 +85,9 @@ class JobFairProjectsSeeder extends Seeder
                 'supervisor_name'  => 'د. عادل البشير الترهوني',
                 'supervisor_title' => 'رئيس قسم الهندسة الميكانيكية',
                 'team_members'     => [
-                    ['name' => 'مالك عادل البكوش', 'role' => 'التصميم الهيدروديناميكي ونمذجة الـ CAD/CFD', 'email' => 'malik.b@example.com', 'phone' => '+218 91 777 8899', 'linkedin' => 'https://linkedin.com'],
-                    ['name' => 'إيهاب فوزي المزوغي', 'role' => 'أنظمة الدفع والمحركات تحت المائية وعزل الضغط', 'email' => 'ehab.m@example.com', 'phone' => '+218 92 888 9900', 'linkedin' => 'https://linkedin.com'],
-                    ['name' => 'بلال رمضان الشريف', 'role' => 'أنظمة الاستشعار بالموجات الصوتية ومعالجة الصور', 'email' => 'belal.s@example.com', 'phone' => '+218 94 999 0011', 'linkedin' => 'https://linkedin.com']
+                    ['name' => 'مالك عادل البكوش', 'role' => 'التصميم الهيدروديناميكي ونمذجة الـ CAD/CFD', 'email' => 'malik.b@tripoliuniversity.edu.ly', 'phone' => '+218 91 777 8899', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'إيهاب فوزي المزوغي', 'role' => 'أنظمة الدفع والمحركات تحت المائية وعزل الضغط', 'email' => 'ehab.m@tripoliuniversity.edu.ly', 'phone' => '+218 92 888 9900', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'بلال رمضان الشريف', 'role' => 'أنظمة الاستشعار بالموجات الصوتية ومعالجة الصور', 'email' => 'belal.s@tripoliuniversity.edu.ly', 'phone' => '+218 94 999 0011', 'linkedin' => 'https://linkedin.com']
                 ],
                 'summary'          => 'غواصة روبوتية ذاتية القيادة مجهزة بكاميرات فحص بالموجات فوق الصوتية ومستشعرات تسرب للكشف عن تآكل خطوط الأنابيب والمنصات النفطية البحرية وتخفيض تكاليف الصيانة والمخاطر البشرية.',
                 'objectives'       => "• تقليل تكلفة فحص الأنابيب البحرية ومخاطر إرسال غطاسي الأعماق بنسبة تفوق 75%.\n• الرصد الدقيق للشروخ وتآكل الجدران بمقاييس المليمتر قبل حدوث كوارث التسرب.\n• القدرة على العمل المستمر تحت ضغط حتى عمق 120 متراً لمدة تصل إلى 6 ساعات.",
@@ -85,8 +95,10 @@ class JobFairProjectsSeeder extends Seeder
                 'booth_number'     => 'ENG-12',
                 'status'           => 'published',
                 'is_featured'      => true,
-                'views_count'      => 410,
+                'views_count'      => 512,
             ],
+
+            // 4. الصيدلة - الطب النانوي
             [
                 'job_fair_id'      => $fair->id,
                 'title'            => 'استخلاص وتطوير جزيئات نانوية علاجية من نباتات البيئة الليبية لعلاج الالتهابات المقاومة',
@@ -97,9 +109,9 @@ class JobFairProjectsSeeder extends Seeder
                 'supervisor_name'  => 'د. نجلاء سالم التاجوري',
                 'supervisor_title' => 'أستاذ العقاقير والنباتات الطبية',
                 'team_members'     => [
-                    ['name' => 'آية مصطفى النعاس', 'role' => 'الاستخلاص والتحليل الكيميائي الطيفي (HPLC)', 'email' => 'aya.naas@example.com', 'phone' => '+218 91 112 2334', 'linkedin' => 'https://linkedin.com'],
-                    ['name' => 'ريان عبد الحكيم المبروك', 'role' => 'تحضير النواقل النانوية والتوصيل الدوائي المستهدف', 'email' => 'rayan.m@example.com', 'phone' => '+218 92 223 3445', 'linkedin' => 'https://linkedin.com'],
-                    ['name' => 'إيناس سالم شنيب', 'role' => 'الاختبارات البيولوجية ودراسة السمية المخبرية', 'email' => 'inas.s@example.com', 'phone' => '+218 93 334 4556', 'linkedin' => 'https://linkedin.com']
+                    ['name' => 'آية مصطفى النعاس', 'role' => 'الاستخلاص والتحليل الكيميائي الطيفي (HPLC)', 'email' => 'aya.naas@tripoliuniversity.edu.ly', 'phone' => '+218 91 112 2334', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'ريان عبد الحكيم المبروك', 'role' => 'تحضير النواقل النانوية والتوصيل الدوائي المستهدف', 'email' => 'rayan.m@tripoliuniversity.edu.ly', 'phone' => '+218 92 223 3445', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'إيناس سالم شنيب', 'role' => 'الاختبارات البيولوجية ودراسة السمية المخبرية', 'email' => 'inas.s@tripoliuniversity.edu.ly', 'phone' => '+218 93 334 4556', 'linkedin' => 'https://linkedin.com']
                 ],
                 'summary'          => 'بحث تطبيقي صيدلاني يستغل المركبات النشطة في نباتات الزعتر والعرعر الليبي عبر تحميلها على جزيئات نانوية لزيادة ثباتها وفاعليتها في القضاء على البكتيريا المقاومة للمضادات الحيوية التقليدية.',
                 'objectives'       => "• ابتكار بدائل علاجية طبيعية للميكروبات المقاومة للمضادات الحيوية (MRSA).\n• زيادة التوافر الحيوي للمستخلصات النباتية عبر تقنية التغليف النانوي (Nanocapsules).\n• إثبات الجدوى الاقتصادية لتصنيع مستحضرات صيدلانية محلية الصنع بجودة منافسة عالمياً.",
@@ -107,8 +119,10 @@ class JobFairProjectsSeeder extends Seeder
                 'booth_number'     => 'PHARM-02',
                 'status'           => 'published',
                 'is_featured'      => false,
-                'views_count'      => 195,
+                'views_count'      => 295,
             ],
+
+            // 5. العلوم - الأمن السيبراني
             [
                 'job_fair_id'      => $fair->id,
                 'title'            => 'نظام أمني لرصد الاختراقات السحابية في الوقت الحقيقي باستخدام التعلم العميق والـ Graph Neural Networks',
@@ -119,18 +133,20 @@ class JobFairProjectsSeeder extends Seeder
                 'supervisor_name'  => 'د. خالد علي الفيتوري',
                 'supervisor_title' => 'أستاذ الأمن السيبراني والشبكات',
                 'team_members'     => [
-                    ['name' => 'حسام أحمد الصادق', 'role' => 'بناء نماذج الـ GNN وتحليل سلوك الشبكات', 'email' => 'hossam.s@example.com', 'phone' => '+218 91 555 6688', 'linkedin' => 'https://linkedin.com'],
-                    ['name' => 'مريم عبد العظيم بن غرسة', 'role' => 'هندسة خطوط البيانات السحابية (Data Pipelines)', 'email' => 'maryam.b@example.com', 'phone' => '+218 92 666 7799', 'linkedin' => 'https://linkedin.com']
+                    ['name' => 'حسام أحمد الصادق', 'role' => 'بناء نماذج الـ GNN وتحليل سلوك الشبكات', 'email' => 'hossam.s@tripoliuniversity.edu.ly', 'phone' => '+218 91 555 6688', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'مريم عبد العظيم بن غرسة', 'role' => 'هندسة خطوط البيانات السحابية (Data Pipelines)', 'email' => 'maryam.b@tripoliuniversity.edu.ly', 'phone' => '+218 92 666 7799', 'linkedin' => 'https://linkedin.com']
                 ],
                 'summary'          => 'منظومة دفاع سيبراني متقدمة تحول حركة البيانات السحابية إلى تمثيل بياني شبكي (Graph) لاكتشاف الهجمات المعقدة والمتسللين الصامتين (Zero-Day Exploits) في أجزاء من الثانية.',
                 'objectives'       => "• خفض الإنذارات الكاذبة (False Positives) بنسبة 45% مقارنة بأنظمة الـ IDS التقليدية.\n• كشف سلاسل الهجمات المعقدة الممتدة عبر عدة خوادم سحابية افتراضية.\n• الاستجابة الفورية بعزل الحاويات المخترقة تلقائياً دون إيقاف الخدمة العامة.",
                 'description'      => "يعتمد النظام على خوارزميات التعلم البياني العميق (GNN) لربط الأحداث الأمنية المتفرقة ورسم خريطة التهديد اللحظية. خضع النظام لاختبارات اختراق افتراضية مكثفة حقق خلالها نسبة دقة 98.2% في التمييز بين الحركة الطبيعية للمستخدمين والهجمات الموجهة (APT).",
                 'booth_number'     => 'SCI-08',
-                'project_url'      => 'https://github.com',
+                'project_url'      => 'https://github.com/cloud-gnn-ids',
                 'status'           => 'published',
                 'is_featured'      => false,
-                'views_count'      => 230,
+                'views_count'      => 330,
             ],
+
+            // 6. الاقتصاد والعلوم السياسية - FinTech
             [
                 'job_fair_id'      => $fair->id,
                 'title'            => 'نموذج تقييم الجدارة الائتمانية للمشاريع الناشئة في ليبيا باستخدام تقنيات الـ FinTech والذكاء المالي',
@@ -141,9 +157,9 @@ class JobFairProjectsSeeder extends Seeder
                 'supervisor_name'  => 'د. عبد السلام رمضان العكروت',
                 'supervisor_title' => 'أستاذ التمويل المصرفي والأسواق المالية',
                 'team_members'     => [
-                    ['name' => 'طه حسين المشري', 'role' => 'النمذجة المالية الإحصائية وهندسة المخاطر', 'email' => 'taha.m@example.com', 'phone' => '+218 91 888 1122', 'linkedin' => 'https://linkedin.com'],
-                    ['name' => 'خديجة مفتاح المجبري', 'role' => 'تحليل البيانات السوقية والمؤشرات البديلة', 'email' => 'khadija.m@example.com', 'phone' => '+218 92 999 2233', 'linkedin' => 'https://linkedin.com'],
-                    ['name' => 'زكريا نوري بالراس علي', 'role' => 'تصميم منصة الربط المصرفي وتجربة المستثمر', 'email' => 'zakaria.b@example.com', 'phone' => '+218 94 000 3344', 'linkedin' => 'https://linkedin.com']
+                    ['name' => 'طه حسين المشري', 'role' => 'النمذجة المالية الإحصائية وهندسة المخاطر', 'email' => 'taha.m@tripoliuniversity.edu.ly', 'phone' => '+218 91 888 1122', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'خديجة مفتاح المجبري', 'role' => 'تحليل البيانات السوقية والمؤشرات البديلة', 'email' => 'khadija.m@tripoliuniversity.edu.ly', 'phone' => '+218 92 999 2233', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'زكريا نوري بالراس علي', 'role' => 'تصميم منصة الربط المصرفي وتجربة المستثمر', 'email' => 'zakaria.b@tripoliuniversity.edu.ly', 'phone' => '+218 94 000 3344', 'linkedin' => 'https://linkedin.com']
                 ],
                 'summary'          => 'منصة تقنية مالية (FinTech) تعتمد على المؤشرات البديلة وحركة المعاملات الرقمية لبناء سجل ائتماني دقيق للشركات الناشئة ورواد الأعمال لمساعدتهم في الحصول على التمويل المصرفي والاستثماري.',
                 'objectives'       => "• تيسير وصول أصحاب المشاريع الصغيرة لتمويلات مصرفية بدون اشتراط ضمانات عقارية تعجيزية.\n• تزويد المصارف الليبية بأداة تقييم مخاطر آلية وشفافة متوافقة مع الصيرفة الإسلامية.\n• تقليص دراسة الملف الائتماني من 3 أسابيع إلى أقل من 48 ساعة.",
@@ -151,8 +167,10 @@ class JobFairProjectsSeeder extends Seeder
                 'booth_number'     => 'ECON-03',
                 'status'           => 'published',
                 'is_featured'      => true,
-                'views_count'      => 315,
+                'views_count'      => 415,
             ],
+
+            // 7. تقنية المعلومات - البلوك تشين والشهادات
             [
                 'job_fair_id'      => $fair->id,
                 'title'            => 'نظام التوثيق والتحقق من صحة الشهادات الأكاديمية اللامركزي بالاعتماد على البلوك تشين (Blockchain)',
@@ -163,18 +181,20 @@ class JobFairProjectsSeeder extends Seeder
                 'supervisor_name'  => 'د. معتز سالم القذافي',
                 'supervisor_title' => 'أستاذ تقنيات السجلات الموزعة',
                 'team_members'     => [
-                    ['name' => 'يوسف جمال التائب', 'role' => 'مطور العقود الذكية (Smart Contracts / Solidity)', 'email' => 'youssef.t@example.com', 'phone' => '+218 91 666 4433', 'linkedin' => 'https://linkedin.com'],
-                    ['name' => 'ريهام عصام الشيباني', 'role' => 'تطوير واجهات المستخدم والربط مع المحافظ الرقمية', 'email' => 'riham.s@example.com', 'phone' => '+218 92 777 5544', 'linkedin' => 'https://linkedin.com']
+                    ['name' => 'يوسف جمال التائب', 'role' => 'مطور العقود الذكية (Smart Contracts / Solidity)', 'email' => 'youssef.t@tripoliuniversity.edu.ly', 'phone' => '+218 91 666 4433', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'ريهام عصام الشيباني', 'role' => 'تطوير واجهات المستخدم والربط مع المحافظ الرقمية', 'email' => 'riham.s@tripoliuniversity.edu.ly', 'phone' => '+218 92 777 5544', 'linkedin' => 'https://linkedin.com']
                 ],
                 'summary'          => 'منظومة جامعية لمنع تزوير الشهادات والوثائق الأكاديمية عبر إصدار شهادات رقمية مشفرة وغير قابلة للتعديل على شبكة البلوك تشين مع إمكانية التحقق الفوري برمز QR لأصحاب العمل حول العالم.',
                 'objectives'       => "• القضاء التام على ظاهرة تزوير المؤهلات العلمية والشهادات التدريبية.\n• تمكين أصحاب العمل والسفارات من التحقق اللحظي المجاني من الشهادة برمز QR في ثوانٍ.\n• منح الخريج ملكية كاملة لوثائقه الأكاديمية ضمن محفظة هوية رقمية معتمدة.",
                 'description'      => "تعتمد المنصة على شبكة Polygon المتوافقة مع الإيثيريوم لتقليل تكلفة الغاز. تُمنح كل كلية مفتاح توقيع رقمي متعدد التواقيع (Multi-sig) لضمان اعتماد العميد والمسجل العام قبل تسجيل بصمة الوثيقة (Hash) على السلسلة إلى الأبد، مع حماية بيانات الخصوصية للخريج.",
                 'booth_number'     => 'IT-07',
-                'project_url'      => 'https://github.com',
+                'project_url'      => 'https://github.com/blockchain-cert-verify',
                 'status'           => 'published',
                 'is_featured'      => false,
-                'views_count'      => 278,
+                'views_count'      => 378,
             ],
+
+            // 8. الفنون والإعلام - الواقع الافتراضي والتراث
             [
                 'job_fair_id'      => $fair->id,
                 'title'            => 'منصة تفاعلية بالواقع الافتراضي (VR) لتوثيق وترميم التراث المعماري للمدينة القديمة طرابلس',
@@ -185,19 +205,113 @@ class JobFairProjectsSeeder extends Seeder
                 'supervisor_name'  => 'أ.د. هدى عثمان الفقي',
                 'supervisor_title' => 'أستاذة الإعلام التفاعلي والفنون البصرية',
                 'team_members'     => [
-                    ['name' => 'سندس علي بالحاج', 'role' => 'المسح الفوتوغرامتري والنمذجة ثلاثية الأبعاد 3D', 'email' => 'sondos.b@example.com', 'phone' => '+218 91 333 9988', 'linkedin' => 'https://linkedin.com'],
-                    ['name' => 'معاذ جمعة الدرسي', 'role' => 'برمجة تفاعلية ومحرك الألعاب (Unreal Engine 5)', 'email' => 'moaz.d@example.com', 'phone' => '+218 92 444 8877', 'linkedin' => 'https://linkedin.com'],
-                    ['name' => 'ليث عبد السلام بادي', 'role' => 'تصميم الإضاءة والبيئات التاريخية والصوت المكاني', 'email' => 'laith.b@example.com', 'phone' => '+218 94 555 7766', 'linkedin' => 'https://linkedin.com']
+                    ['name' => 'سندس علي بالحاج', 'role' => 'المسح الفوتوغرامتري والنمذجة ثلاثية الأبعاد 3D', 'email' => 'sondos.b@tripoliuniversity.edu.ly', 'phone' => '+218 91 333 9988', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'معاذ جمعة الدرسي', 'role' => 'برمجة تفاعلية ومحرك الألعاب (Unreal Engine 5)', 'email' => 'moaz.d@tripoliuniversity.edu.ly', 'phone' => '+218 92 444 8877', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'ليث عبد السلام بادي', 'role' => 'تصميم الإضاءة والبيئات التاريخية والصوت المكاني', 'email' => 'laith.b@tripoliuniversity.edu.ly', 'phone' => '+218 94 555 7766', 'linkedin' => 'https://linkedin.com']
                 ],
                 'summary'          => 'تجربة غامرة بنظارات الواقع الافتراضي (VR) وموقع ويب تفاعلي تقدم توثيقاً دقيقاً لمعالم مدينة طرابلس القديمة مع تصور رقمي افتراضي لترميم المباني التراثية المتضررة.',
                 'objectives'       => "• صون وتوثيق المعالم التاريخية رقمياً بمقاييس دقيقة تحفظ الهوية الليبية للأجيال القادمة.\n• تنشيط السياحة الافتراضية والترويج الثقافي لمعالم العاصمة محلياً ودولياً.\n• إتاحة قاعدة بيانات هندسية وبصرية ثلاثية الأبعاد لجهات الترميم والتخطيط الحضري.",
                 'description'      => "استخدم الفريق تقنيات المسح بالليزر والفوتوغرامتري عالي الدقة لأكثر من 15 موقعاً أثرياً شملت أقواس وأسواق ومساجد تاريخية. تم بناء التجربة باستخدام Unreal Engine 5 مع محاكاة إضاءة واقعية، بحيث يستطيع الزائر التجول والتفاعل والاستماع للروايات التاريخية الموثقة لكل معلم.",
                 'booth_number'     => 'ART-01',
-                'video_url'        => 'https://youtube.com',
+                'video_url'        => 'https://youtube.com/watch?v=tripoli-oldcity-vr',
                 'status'           => 'published',
                 'is_featured'      => false,
-                'views_count'      => 360,
-            ]
+                'views_count'      => 460,
+            ],
+
+            // 9. الطب البشري - نظم المعلومات الصحية والوبائيات
+            [
+                'job_fair_id'      => $fair->id,
+                'title'            => 'المنظومة الوطنية للرصد الوبائي الذكي والإنذار المبكر عبر نظم المعلومات الجغرافية الصحية (GIS-Health)',
+                'faculty'          => 'كلية الطب البشري',
+                'department'       => 'طب المجتمع والصحة العامة',
+                'graduation_year'  => 2026,
+                'academic_year'    => '2025/2026',
+                'supervisor_name'  => 'د. الصديق إبراهيم المجذوب',
+                'supervisor_title' => 'استشاري الوبائيات والصحة العامة',
+                'team_members'     => [
+                    ['name' => 'نور الهدى فتحي المبروك', 'role' => 'تحليل البيانات الوبائية ونمذجة انتشار العدوى', 'email' => 'nour.m@tripoliuniversity.edu.ly', 'phone' => '+218 91 445 5667', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'أنس عثمان قريش', 'role' => 'تطوير خرائط التوزيع المكاني ونظم الـ GIS', 'email' => 'anas.q@tripoliuniversity.edu.ly', 'phone' => '+218 92 556 6778', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'براءة كمال الأسطى', 'role' => 'تصميم بروتوكولات الإبلاغ الميداني للمراكز الصحية', 'email' => 'baraa.o@tripoliuniversity.edu.ly', 'phone' => '+218 93 667 7889', 'linkedin' => 'https://linkedin.com']
+                ],
+                'summary'          => 'منظومة وبائية رقمية تربط المستشفيات والمراكز الصحية في طرابلس برسم خرائط حرارية جغرافية لحظية لكشف بؤر تفشي الأمراض المعدية وتوزيع الموارد الطبية بكفاءة استباقية.',
+                'objectives'       => "• تقليص زمن الاستجابة للبؤر الوبائية الناشئة من أيام إلى بضع ساعات.\n• الربط الشبكي بين وحدات الرعاية الصحية الأولية والمركز الوطني لمكافحة الأمراض.\n• توجيه حملات التطعيم وتوزيع الأدوية بناءً على خوارزميات التنبؤ المكاني.",
+                'description'      => "يتضمن النظام تطبيقاً لوحياً للأطباء في أقسام الطوارئ للإبلاغ الفوري المشفر، مع لوحة قيادة مركزية لوزارة الصحة تعرض المؤشرات الحيوية والتنبؤ بمسار انتشار العدوى باستخدام نماذج SIR الرياضية المدعمة بالتعلم الآلي.",
+                'booth_number'     => 'MED-02',
+                'status'           => 'published',
+                'is_featured'      => true,
+                'views_count'      => 340,
+            ],
+
+            // 10. الزراعة - التكنولوجيا الزراعية والري الذكي
+            [
+                'job_fair_id'      => $fair->id,
+                'title'            => 'نظام الزراعة الدقيقة والري الذكي ومراقبة الإجهاد المائي للمحاصيل عبر طائرات الدرون وإنترنت الأشياء',
+                'faculty'          => 'كلية الزراعة',
+                'department'       => 'الموارد الطبيعية والهندسة الزراعية',
+                'graduation_year'  => 2026,
+                'academic_year'    => '2025/2026',
+                'supervisor_name'  => 'د. البشير الهادي بن رمضان',
+                'supervisor_title' => 'أستاذ إدارة المياه والتربة الزراعية',
+                'team_members'     => [
+                    ['name' => 'حمزة سليمان الشاوش', 'role' => 'تحليل صور الطيف المتعدد (Multispectral) للدرون', 'email' => 'hamza.s@tripoliuniversity.edu.ly', 'phone' => '+218 91 778 8990', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'سارة مسعود الفيتوري', 'role' => 'معايرة مجسات الرطوبة والملوحة اللاسلكية', 'email' => 'sara.m@tripoliuniversity.edu.ly', 'phone' => '+218 92 889 9001', 'linkedin' => 'https://linkedin.com']
+                ],
+                'summary'          => 'مشروع تطبيقي لمعالجة شح المياه في المشاريع الزراعية الليبية عبر شبكة حساسات رطوبة أرضية متصلة بمحطة ري ذكية ومحلل طيفي بصور الدرون لتحديد احتياج كل شجرة ومحصول بدقة.',
+                'objectives'       => "• توفير ما بين 35% إلى 50% من استهلاك المياه المخصصة للري السطحي والمحوري.\n• الكشف المبكر عن الآفات الزراعية ونقص التسميد قبل ظهور أعراضها بالعين المجردة.\n• تمكين المزارع من إدارة مشروعه بالكامل عبر تطبيق الهاتف الذكي باللغة العربية.",
+                'description'      => "تم تطبيق النموذج الأولي على مزرعة تجريبية لأشجار الزيتون والحبوب بمنطقة وادي المجينين، حيث أثبت النظام قدرته على رصد مؤشر الغطاء النباتي (NDVI) وتوجيه صمامات الري الكهربائية ذاتياً استناداً لمعدلات البخر والنتح وبيانات الطقس المحلية.",
+                'booth_number'     => 'AGRI-05',
+                'status'           => 'published',
+                'is_featured'      => false,
+                'views_count'      => 270,
+            ],
+
+            // 11. الهندسة - الاستدامة البيئية ومواد البناء
+            [
+                'job_fair_id'      => $fair->id,
+                'title'            => 'تطوير خرسانة خضراء عالية المقاومة وصديقة للبيئة باستخدام مخلفات البناء والركام المعاد تدويره',
+                'faculty'          => 'كلية الهندسة',
+                'department'       => 'الهندسة المدنية والبيئية',
+                'graduation_year'  => 2026,
+                'academic_year'    => '2025/2026',
+                'supervisor_name'  => 'د. سالم عاشور بن زاهية',
+                'supervisor_title' => 'أستاذ خواص ومقاومة المواد الإنشائية',
+                'team_members'     => [
+                    ['name' => 'طارق فرج المنصوري', 'role' => 'تصميم الخلطات الخرسانية واختبارات الإجهاد والكسر', 'email' => 'tarek.m@tripoliuniversity.edu.ly', 'phone' => '+218 91 990 0112', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'عائشة نوري الغرياني', 'role' => 'الدراسات الميكروسكوبية والمتانة الكيميائية', 'email' => 'aisha.g@tripoliuniversity.edu.ly', 'phone' => '+218 92 001 1223', 'linkedin' => 'https://linkedin.com']
+                ],
+                'summary'          => 'ابتكار خلطة خرسانية مستدامة تعتمد على إعادة تدوير مخلفات الهدم والركام الإسمنتي بنسبة استبدال تصل إلى 40%، مما يخفف من التلوث البيئي ويقلل تكلفة المشاريع السكنية.',
+                'objectives'       => "• خفض البصمة الكربونية لإنتاج الخرسانة المسلحة بنسبة 30%.\n• استثمار ركام مخلفات البناء المتراكمة في ضواحي طرابلس وحماية البيئة العمرانية.\n• تحقيق مقاومة ضغط تتجاوز 35 ميجاباسكال تلائم المنشآت متعددة الطوابق.",
+                'description'      => "أجرى الفريق أكثر من 80 اختبار كسر وضغط ومقاومة كبريتات في معامل كلية الهندسة، وتم التوصل إلى صيغة كيميائية تستخدم خبث الأفران والركام المعالج لإنتاج بلوكات خرسانية وعناصر مسبقة الصب تمتاز بعزل حراري أعلى وتكلفة أقل بنسبة 22%.",
+                'booth_number'     => 'ENG-18',
+                'status'           => 'published',
+                'is_featured'      => false,
+                'views_count'      => 310,
+            ],
+
+            // 12. القانون - التحول الرقمي والذكاء الاصطناعي القانوني
+            [
+                'job_fair_id'      => $fair->id,
+                'title'            => 'منصة "عدالة الرقمية" للتحليل الذكي للعقود التجارية وصياغة النماذج القانونية للشركات الناشئة',
+                'faculty'          => 'كلية القانون',
+                'department'       => 'القانون التجاري والملكية الفكرية',
+                'graduation_year'  => 2026,
+                'academic_year'    => '2025/2026',
+                'supervisor_name'  => 'د. نجوى عبد الله المقريف',
+                'supervisor_title' => 'أستاذة التشريعات الرقمية وقانون المعاملات',
+                'team_members'     => [
+                    ['name' => 'إسراء عبد السلام العزابي', 'role' => 'صياغة القوالب القانونية ومواءمة التشريعات الليبية', 'email' => 'esraa.a@tripoliuniversity.edu.ly', 'phone' => '+218 91 123 7890', 'linkedin' => 'https://linkedin.com'],
+                    ['name' => 'معتز بالله عبد الرزاق', 'role' => 'تصنيف بنود العقود وتدريب نماذج معالجة اللغة (NLP)', 'email' => 'moataz.r@tripoliuniversity.edu.ly', 'phone' => '+218 92 234 8901', 'linkedin' => 'https://linkedin.com']
+                ],
+                'summary'          => 'منصة تقنية قانونية (LegalTech) تستند إلى معالجة اللغات الطبيعية (NLP) لمراجعة العقود والاتفاقيات التجارية طبقاً للقانون التجاري الليبي وتنبيه رواد الأعمال للثغرات القانونية.',
+                'objectives'       => "• تمكين الشركات الناشئة وأصحاب الأعمال الحرة من الحصول على صياغات قانونية محكمة بتكلفة ميسرة.\n• تدقيق العقود واستكشاف البنود المجحفة ومخاطر المسؤولية المدنية والجزائية آلياً.\n• نشر الثقافة القانونية وحماية حقوق الملكية الفكرية للمبتكرين والباحثين.",
+                'description'      => "تم تدريب نموذج ذكاء اصطناعي عربي متخصص على أكثر من 3000 عقد وحكم قضائي وقانون تجاري ليبي ومقارن، لتوليد عقود الشراكة، وتوزيع الحصص، واتفاقيات عدم الإفصاح (NDA)، وعقود التوظيف مع تدقيق فوري ومراجعة الصياغات.",
+                'booth_number'     => 'LAW-04',
+                'project_url'      => 'https://github.com/adalah-legaltech',
+                'status'           => 'published',
+                'is_featured'      => true,
+                'views_count'      => 365,
+            ],
         ];
 
         foreach ($projects as $proj) {

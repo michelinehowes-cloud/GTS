@@ -1072,25 +1072,6 @@
                                 </span>
                             </div>
 
-                            @if($event->capacity)
-                            <div class="capacity-bar-wrap">
-                                <div class="capacity-header">
-                                    <span>المقاعد المتاحة</span>
-                                    <span class="capacity-number">{{ $event->attendees_count }} / {{ $event->capacity }} مقعد محجوز</span>
-                                </div>
-                                <div class="progress-track">
-                                    @php
-                                        $percent = min(100, round(($event->attendees_count / $event->capacity) * 100));
-                                    @endphp
-                                    <div class="progress-fill" style="width: {{ $percent }}%;"></div>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center mt-2" style="font-size: 0.75rem; color: rgba(255,255,255,0.7);">
-                                    <span>نسبة الحجز: {{ $percent }}%</span>
-                                    <span class="text-warning">المتبقي: {{ $event->available_spots }} مقعد</span>
-                                </div>
-                            </div>
-                            @endif
-
                             <!-- Registration Buttons based on Auth & Status -->
                             @auth
                                 @if(Auth::user()->role === 'graduate')
@@ -1103,15 +1084,15 @@
                                             </button>
                                         </form>
                                         <small class="d-block text-center mt-2" style="font-size: 0.76rem; color: rgba(255,255,255,0.7);">
-                                            <i class="fas fa-info-circle text-info"></i> تم حجز مقعدك بنجاح، يرجى الحضور قبل الموعد بـ 15 دقيقة.
+                                            <i class="fas fa-info-circle text-info"></i> تم تسجيلك بنجاح، يرجى الحضور قبل الموعد بـ 15 دقيقة.
                                         </small>
                                     @elseif($event->effective_status === 'completed')
                                         <button class="btn-register-action btn-reg-disabled" disabled>
                                             <i class="fas fa-ban"></i>
-                                            <span>نعتذر، اكتملت كافة المقاعد</span>
+                                            <span>نعتذر، اكتمل التسجيل في هذه الفعالية</span>
                                         </button>
                                         <small class="d-block text-center mt-2" style="font-size: 0.76rem; color: #fca5a5;">
-                                            يمكنك متابعة الملخص أو مراجعة منصة الاستقبال في يوم المعرض في حال توفر مقاعد شاغرة.
+                                            يمكنك متابعة الملخص أو مراجعة منصة الاستقبال في يوم المعرض في حال توفر أماكن شاغرة.
                                         </small>
                                     @elseif($event->effective_status === 'ended')
                                         <button class="btn-register-action btn-reg-disabled" disabled>
@@ -1123,7 +1104,7 @@
                                             @csrf
                                             <button type="submit" class="btn-register-action btn-reg-primary">
                                                 <i class="fas fa-user-plus"></i>
-                                                <span>سجّل الآن واحجز مقعدك</span>
+                                                <span>سجّل الآن في الفعالية</span>
                                             </button>
                                         </form>
                                         <small class="d-block text-center mt-2 text-warning" style="font-size: 0.76rem;">
@@ -1139,7 +1120,7 @@
                             @else
                                 <a href="{{ route('login') }}?redirect={{ urlencode(url()->current()) }}" class="btn-register-action btn-reg-primary">
                                     <i class="fas fa-sign-in-alt"></i>
-                                    <span>تسجيل الدخول لحجز المقعد</span>
+                                    <span>تسجيل الدخول للتسجيل في الفعالية</span>
                                 </a>
                                 <small class="d-block text-center mt-2" style="font-size: 0.76rem; color: rgba(255,255,255,0.75);">
                                     التسجيل يتطلب حساب خريج مسجل في النظام

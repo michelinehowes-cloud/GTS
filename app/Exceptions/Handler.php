@@ -46,5 +46,17 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+
+        // التعامل الذكي مع انتهاء صلاحية الجلسة أو الرمز المميز CSRF دون إظهار صفحة 419 المزعجة
+        $this->renderable(function (\Illuminate\Session\TokenMismatchException $e, $request) {
+            if (\Illuminate\Support\Facades\Auth::check()) {
+                \Illuminate\Support\Facades\Auth::logout();
+            }
+            if ($request->hasSession()) {
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+            }
+            return redirect('/')->with('info', 'تم تسجيل الخروج بنجاح نظراً لانتهاء صلاحية الجلسة.');
+        });
     }
 }

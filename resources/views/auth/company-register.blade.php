@@ -452,6 +452,11 @@
                         </div>
                     </div>
 
+                    <x-honeypot />
+                    <div class="mb-4">
+                        <x-turnstile action="register_company" />
+                    </div>
+
                     <!-- زر الإرسال -->
                     <div class="text-center pt-2">
                         <button type="submit" class="btn btn-submit-reg">

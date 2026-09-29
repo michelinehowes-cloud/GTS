@@ -17,6 +17,7 @@ use App\Models\SurveyResponse;
 use App\Models\AuditLog;
 use App\Models\PartnershipDocument;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 class AiToolRegistry
 {
@@ -2062,13 +2063,15 @@ class AiToolRegistry
                     $email = $args['email'] ?? (strtolower(str_replace(' ', '', $name)) . '@partner.uot.edu.ly');
                     $address = $args['address'] ?? 'طرابلس، ليبيا';
 
+                    $defaultPassword = $args['password'] ?? 'Company@2026!';
+
                     return [
                         'status' => 'proposal',
                         'type' => 'create_company',
                         'action_type' => 'create_company',
                         'title' => 'تأكيد إضافة وتوثيق شركة شريكة جديدة',
                         'summary' => "إضافة شركة شريكة: {$name}",
-                        'details' => "**اسم الشركة:** {$name}\n**مجال العمل:** {$industry}\n**البريد والهاتف:** {$email} | {$phone}\n**العنوان:** {$address}\n**مسؤول الاتصال:** " . ($args['contact_person'] ?? 'غير محدد'),
+                        'details' => "**اسم الشركة:** {$name}\n**مجال العمل:** {$industry}\n**البريد والهاتف:** {$email} | {$phone}\n**العنوان:** {$address}\n**مسؤول الاتصال:** " . ($args['contact_person'] ?? 'غير محدد') . "\n**كلمة المرور التلقائية:** `{$defaultPassword}`",
                         'message' => "هل تؤكد إضافة شركة '{$name}' كشريك استراتيجي في منظومة الشراكات وتوظيف الخريجين؟",
                         'data' => [
                             'name' => $name,
@@ -2078,6 +2081,7 @@ class AiToolRegistry
                             'address' => $address,
                             'website' => $args['website'] ?? null,
                             'contact_person' => $args['contact_person'] ?? null,
+                            'password' => $defaultPassword,
                             'is_approved' => true,
                             'partnership_status' => 'active',
                             'partnership_type' => 'training_employment',

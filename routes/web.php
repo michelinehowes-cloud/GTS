@@ -191,6 +191,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/companies/{id}/create-user', [CompanyController::class, 'createUserAccount'])->name('admin.companies.create-user');
 
 
+        // 📊 تصدير تقرير إكسل لبرامج وورش العمل (شهري / مخصص)
+        Route::get('trainings/export-report', [TrainingController::class, 'exportMonthlyReport'])->name('admin.trainings.export-report');
+        Route::post('trainings/import', [TrainingController::class, 'importTrainings'])->name('admin.trainings.import');
+
         // 🎯 إدارة برامج التدريب
         Route::resource('trainings', TrainingController::class)->names([
             'index' => 'admin.trainings',
@@ -207,6 +211,7 @@ Route::middleware('auth')->group(function () {
         Route::get('trainings/{training}/attendance', [TrainingController::class, 'attendance'])->name('admin.trainings.attendance');
         Route::post('trainings/{training}/attendance/toggle', [TrainingController::class, 'toggleAttendance'])->name('admin.trainings.attendance.toggle');
         Route::get('trainings/{training}/attendance/export', [TrainingController::class, 'exportAttendance'])->name('admin.trainings.attendance.export');
+        Route::post('trainings/{training}/certificates/issue', [TrainingController::class, 'issueCertificates'])->name('admin.trainings.certificates.issue');
         Route::post('trainings/{training}/bulk-accept', [TrainingController::class, 'bulkAcceptApplications'])->name('admin.trainings.bulk-accept');
 
         // 📝 إدارة طلبات التدريب
@@ -285,6 +290,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/applications/{id}/reject', [TrainingController::class, 'rejectApplication'])->name('training-coordinator.applications.reject');
         Route::post('/applications/{id}/pending', [TrainingController::class, 'pendingApplication'])->name('training-coordinator.applications.pending');
         Route::delete('/applications/{id}', [TrainingController::class, 'destroyApplication'])->name('training-coordinator.applications.destroy');
+        // 📊 تصدير واستيراد تقارير وبرامج التدريب لمنسق التدريب
+        Route::get('/trainings/export-report', [TrainingController::class, 'exportMonthlyReport'])->name('training-coordinator.trainings.export-report');
+        Route::post('/trainings/import', [TrainingController::class, 'importTrainings'])->name('training-coordinator.trainings.import');
+
         // 🎯 إدارة التدريبات لمنسق التدريب
         // تم استبعاد طريقة index من مسار الموارد وتحديدها بشكل منفصل
         // لضمان استخدام طريقة coordinatorTrainings الصحيحة
@@ -303,6 +312,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/trainings/{training}/attendance', [TrainingController::class, 'attendance'])->name('training-coordinator.trainings.attendance');
         Route::post('/trainings/{training}/attendance/toggle', [TrainingController::class, 'toggleAttendance'])->name('training-coordinator.trainings.attendance.toggle');
         Route::get('/trainings/{training}/attendance/export', [TrainingController::class, 'exportAttendance'])->name('training-coordinator.trainings.attendance.export');
+        Route::post('/trainings/{training}/certificates/issue', [TrainingController::class, 'issueCertificates'])->name('training-coordinator.trainings.certificates.issue');
 
         // التقارير
         Route::get('/reports', [TrainingController::class, 'reports'])->name('training-coordinator.reports');
@@ -405,11 +415,14 @@ Route::middleware('auth')->group(function () {
 
         // 📨 إدارة الترشيحات
         Route::get('/nominations', [CareerGuidanceController::class, 'nominations'])->name('partnership.nominations');
+        Route::get('/nominations/create', [CareerGuidanceController::class, 'createNomination'])->name('partnership.nominations.create');
+        Route::post('/nominations', [CareerGuidanceController::class, 'nominateGraduate'])->name('partnership.nominations.store');
         Route::get('/nominations/{id}', [CareerGuidanceController::class, 'showNomination'])->name('partnership.nominations.show');
         // Route for displaying the edit form (if any) - assuming it's a GET request
         Route::get('/nominations/{id}/edit-status', [CareerGuidanceController::class, 'editNominationStatusForm'])->name('partnership.nominations.edit-status');
         // Route for updating the status - using PUT/PATCH for RESTful consistency
         Route::put('/nominations/{id}/status', [CareerGuidanceController::class, 'updateNominationStatus'])->name('partnership.nominations.update-status');
+        Route::put('/nominations/{id}/status-fullpage', [CareerGuidanceController::class, 'updateNominationStatusFullPage'])->name('partnership.nominations.update-status-fullpage');
 
         // 📈 التقارير
         Route::get('/reports', [PartnershipController::class, 'reports'])->name('partnership.reports');
@@ -428,6 +441,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [EvaluationFollowupController::class, 'dashboard'])->name('evaluation-followup.dashboard');
         Route::get('/training-calendar', [EvaluationFollowupController::class, 'trainingCalendarIndex'])->name('evaluation-followup.training-calendar');
         Route::get('/training-programs', [EvaluationFollowupController::class, 'trainingProgramsIndex'])->name('evaluation-followup.training-programs.index');
+        Route::get('/training-programs-list', [EvaluationFollowupController::class, 'trainingProgramsIndex'])->name('evaluation-followup.training-programs');
         Route::get('/training-programs/create', [EvaluationFollowupController::class, 'trainingProgramsCreate'])->name('evaluation-followup.training-programs.create');
         Route::get('/training-applications', [EvaluationFollowupController::class, 'trainingApplicationsIndex'])->name('evaluation-followup.training-applications.index');
         Route::get('/training-statistics', [EvaluationFollowupController::class, 'trainingStatistics'])->name('evaluation-followup.training-statistics');
@@ -437,7 +451,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/export-reports/pdf', [EvaluationFollowupController::class, 'exportReportsPDF'])->name('evaluation-followup.export-reports.pdf');
         Route::get('/export-reports/excel', [EvaluationFollowupController::class, 'exportReportsExcel'])->name('evaluation-followup.export-reports.excel');
 
+        // ==================== 📋 قوالب الاستبيانات ====================
+        Route::get('surveys/templates', [App\Http\Controllers\SurveyTemplateController::class, 'index'])->name('evaluation-followup.surveys.templates.index');
+        Route::get('surveys/templates/api/list', [App\Http\Controllers\SurveyTemplateController::class, 'apiList'])->name('evaluation-followup.surveys.templates.api-list');
+        Route::get('surveys/templates/{template}', [App\Http\Controllers\SurveyTemplateController::class, 'show'])->name('evaluation-followup.surveys.templates.show');
+        Route::post('surveys/templates', [App\Http\Controllers\SurveyTemplateController::class, 'store'])->name('evaluation-followup.surveys.templates.store');
+        Route::delete('surveys/templates/{template}', [App\Http\Controllers\SurveyTemplateController::class, 'destroy'])->name('evaluation-followup.surveys.templates.destroy');
+        Route::post('surveys/{survey}/save-template', [App\Http\Controllers\SurveyTemplateController::class, 'saveFromSurvey'])->name('evaluation-followup.surveys.save-template');
+
         // ==================== 📊 إدارة الاستبيانات ====================
+        Route::get('surveys/{survey}/report', [App\Http\Controllers\SurveyController::class, 'report'])->name('evaluation-followup.surveys.report');
+        Route::get('surveys/{survey}/export-responses', [App\Http\Controllers\SurveyController::class, 'exportResponses'])->name('evaluation-followup.surveys.export-responses');
         Route::resource('surveys', App\Http\Controllers\SurveyController::class)->names([
             'index' => 'evaluation-followup.surveys.index',
             'create' => 'evaluation-followup.surveys.create',
@@ -618,13 +642,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // 🚪 تسجيل الخروج
-    Route::post('/logout', function () {
-        Auth::logout();
-        request()->session()->invalidate();
-        request()->session()->regenerateToken();
-        return redirect('/login');
-    })->name('logout');
 
     // ==================== 🏢 مسارات الشركة ====================
     Route::middleware(['auth', 'company'])->prefix('company')->name('company.')->group(function () {
@@ -775,6 +792,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin/job-fair')->name('job-fair.a
     Route::get('/{fair}/edit', [App\Http\Controllers\JobFairController::class, 'edit'])->name('edit');
     Route::put('/{fair}', [App\Http\Controllers\JobFairController::class, 'update'])->name('update');
     Route::post('/{fair}/status', [App\Http\Controllers\JobFairController::class, 'updateStatus'])->name('status');
+    Route::post('/{fair}/toggle-feature', [App\Http\Controllers\JobFairController::class, 'toggleFeature'])->name('toggle-feature');
     Route::post('/{fair}/companies', [App\Http\Controllers\JobFairController::class, 'addCompany'])->name('add-company');
     Route::delete('/{fair}/companies/{company}', [App\Http\Controllers\JobFairController::class, 'removeCompany'])->name('remove-company');
     Route::get('/{fair}/export', [App\Http\Controllers\JobFairController::class, 'exportRegistrations'])->name('export');

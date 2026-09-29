@@ -34,6 +34,35 @@ class CompanyRegistrationController extends Controller
      */
     public function register(Request $request)
     {
+        // 1. فحص مصيدة الروبوتات (Honeypot)
+        $securityService = app(\App\Services\SecurityService::class);
+        $honeypot = $securityService->verifyHoneypot($request);
+        if (!$honeypot['success']) {
+            return back()->withInput()->withErrors([
+                'company_name' => $honeypot['message'],
+            ]);
+        }
+
+        // 2. التحقق من كاشف الروبوتات (Cloudflare Turnstile)
+        $turnstile = $securityService->verifyTurnstile($request->input('cf-turnstile-response'), $request->ip());
+        if (!$turnstile['success']) {
+            return back()->withInput()->withErrors([
+                'cf-turnstile-response' => $turnstile['message'],
+                'security' => $turnstile['message'],
+            ]);
+        }
+
+        // 3. تقييد معدل طلبات تسجيل الشركات للحماية من هجمات الإغراق
+        $throttleKey = 'register-company|' . $request->ip();
+        $maxAttempts = config('security.rate_limits.register_max_attempts', 3);
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($throttleKey, $maxAttempts)) {
+            $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($throttleKey);
+            return back()->withInput()->withErrors([
+                'email' => "تم تجاوز عدد محاولات التسجيل المسموح بها من هذا الجهاز. يرجى الانتظار {$seconds} ثانية.",
+            ]);
+        }
+        \Illuminate\Support\Facades\RateLimiter::hit($throttleKey, 300);
+
         $request->validate([
             // بيانات ممثل الشركة والحساب
             'contact_name' => 'required|string|max:255',

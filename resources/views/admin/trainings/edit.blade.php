@@ -45,6 +45,26 @@
         border-color: #3b82f6;
         box-shadow: none;
     }
+    .day-select-card {
+        cursor: pointer;
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        user-select: none;
+    }
+    .day-select-card:hover {
+        border-color: #93c5fd;
+        background: #f8fafc;
+        transform: translateY(-2px);
+    }
+    .day-select-card.active {
+        border-color: #0d3882;
+        background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+        box-shadow: 0 4px 12px rgba(13, 56, 130, 0.08);
+    }
+    .day-select-card.active .day-name {
+        color: #0d3882 !important;
+    }
 </style>
 @endpush
 
@@ -138,8 +158,11 @@
                             <div class="col-12 col-md-6">
                                 <label for="category" class="form-label fw-semibold text-dark small mb-1">المجال / الفئة التخصصية <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-modern rounded-3 overflow-hidden">
-                                    <span class="input-group-text border-end-0"><i class="fas fa-layer-group"></i></span>
+                                    <span class="input-group-text border-end-0"><i class="fas fa-layer-group text-primary"></i></span>
                                     <select class="form-select border-start-0 @error('category') is-invalid @enderror" id="category" name="category" required>
+                                        @if($training->category && !in_array($training->category, $categories))
+                                            <option value="{{ $training->category }}" selected>{{ $training->category }}</option>
+                                        @endif
                                         @foreach($categories as $category)
                                             <option value="{{ $category }}" {{ old('category', $training->category) == $category ? 'selected' : '' }}>{{ $category }}</option>
                                         @endforeach
@@ -227,6 +250,90 @@
                                 </div>
                                 @error('status') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
+
+                            <!-- اختيار أيام التدريب الأسبوعية المعتمدة وتحديد / استثناء الجمعة والسبت -->
+                            <div class="col-12">
+                                <div class="p-3.5 rounded-4 bg-light bg-opacity-50 border border-secondary-subtle">
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                                        <div>
+                                            <label class="form-label fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                                                <i class="fas fa-calendar-week text-primary"></i>
+                                                <span>أيام التدريب الأسبوعية المعتمدة <span class="text-danger">*</span></span>
+                                            </label>
+                                            <div class="text-muted small mt-0.5">حدد أيام الأسبوع التي تعقد فيها جلسات التدريب (يمكنك استثناء الجمعة والسبت أو اختيار أيام معينة)</div>
+                                        </div>
+                                        <div class="d-flex align-items-center flex-wrap gap-1.5">
+                                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold" onclick="applySchedulePreset('workdays')">
+                                                <i class="fas fa-briefcase me-1"></i> أيام العمل (الأحد - الخميس)
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-semibold" onclick="applySchedulePreset('all')">
+                                                <i class="fas fa-calendar-alt me-1"></i> كامل الأسبوع
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1" onclick="applySchedulePreset('odd')" title="الأحد، الثلاثاء، الخميس">
+                                                أيام فردية
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1" onclick="applySchedulePreset('even')" title="السبت، الإثنين، الأربعاء">
+                                                أيام زوجية
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- بطاقات أيام الأسبوع السبعة -->
+                                    @php
+                                        $weekDays = [
+                                            ['val' => 0, 'name' => 'الأحد', 'short' => 'Sun', 'is_weekend' => false],
+                                            ['val' => 1, 'name' => 'الإثنين', 'short' => 'Mon', 'is_weekend' => false],
+                                            ['val' => 2, 'name' => 'الثلاثاء', 'short' => 'Tue', 'is_weekend' => false],
+                                            ['val' => 3, 'name' => 'الأربعاء', 'short' => 'Wed', 'is_weekend' => false],
+                                            ['val' => 4, 'name' => 'الخميس', 'short' => 'Thu', 'is_weekend' => false],
+                                            ['val' => 5, 'name' => 'الجمعة', 'short' => 'Fri', 'is_weekend' => true],
+                                            ['val' => 6, 'name' => 'السبت', 'short' => 'Sat', 'is_weekend' => true],
+                                        ];
+                                        // إذا كانت مسجلة في قاعدة البيانات نستخدمها، وإلا افتراضياً استثناء الجمعة والسبت
+                                        $selectedDays = old('training_days_of_week', $training->training_days_of_week ?? [0, 1, 2, 3, 4]);
+                                    @endphp
+
+                                    <div class="row g-2 mb-3" id="trainingDaysContainer">
+                                        @foreach($weekDays as $day)
+                                            @php
+                                                $isChecked = in_array($day['val'], (array)$selectedDays);
+                                            @endphp
+                                            <div class="col-6 col-sm-4 col-md-3 col-lg">
+                                                <label class="day-select-card d-flex flex-column align-items-center justify-content-center p-2.5 rounded-3 text-center transition-all {{ $isChecked ? 'active' : '' }}" for="day_{{ $day['val'] }}">
+                                                    <input type="checkbox" name="training_days_of_week[]" value="{{ $day['val'] }}" id="day_{{ $day['val'] }}" class="day-checkbox d-none" {{ $isChecked ? 'checked' : '' }} onchange="onDayToggle(this)">
+                                                    <div class="d-flex align-items-center justify-content-between w-100 mb-1 px-1">
+                                                        <span class="day-icon-check rounded-circle d-flex align-items-center justify-content-center" style="width: 20px; height: 20px;">
+                                                            <i class="fas {{ $isChecked ? 'fa-check-circle text-primary' : 'fa-circle text-muted opacity-50' }}"></i>
+                                                        </span>
+                                                        @if($day['is_weekend'])
+                                                            <span class="badge bg-warning bg-opacity-25 text-dark" style="font-size: 0.65rem;">عطلة</span>
+                                                        @else
+                                                            <span class="badge bg-light text-muted" style="font-size: 0.65rem;">عمل</span>
+                                                        @endif
+                                                    </div>
+                                                    <div class="fw-bold day-name fs-6">{{ $day['name'] }}</div>
+                                                    <small class="text-muted" style="font-size: 0.75rem;">{{ $day['is_weekend'] ? 'نهاية أسبوع' : 'يوم تدريبي' }}</small>
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    @error('training_days_of_week') <div class="text-danger small mt-1 mb-2">{{ $message }}</div> @enderror
+
+                                    <!-- عداد الأيام التفاعلي الحقيقي وملخص الجدولة -->
+                                    <div id="scheduleSummaryBox" class="p-2.5 rounded-3 bg-white border d-flex align-items-center justify-content-between flex-wrap gap-2 text-dark small">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge bg-primary px-3 py-2 fs-6 rounded-pill" id="totalDaysBadge">
+                                                <i class="fas fa-calendar-check me-1"></i> <span id="calcTotalDays">0</span> يوم تدريبي فعلي
+                                            </span>
+                                            <span class="text-muted" id="scheduleNote">جاري الحساب...</span>
+                                        </div>
+                                        <div class="text-muted" id="excludedDaysNote">
+                                            <i class="fas fa-info-circle text-info me-1"></i>
+                                            <span id="excludedDaysText">يتم استثناء أيام العطلة غير المحددة تلقائياً من الحضور والمصفوفة</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- القسم 3: المدرب والوصف -->
@@ -286,3 +393,125 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    function applySchedulePreset(preset) {
+        const checkboxes = document.querySelectorAll('.day-checkbox');
+        checkboxes.forEach(cb => {
+            const val = parseInt(cb.value);
+            let shouldCheck = false;
+            if (preset === 'workdays') {
+                // Sunday(0) to Thursday(4)
+                shouldCheck = (val >= 0 && val <= 4);
+            } else if (preset === 'all') {
+                shouldCheck = true;
+            } else if (preset === 'odd') {
+                shouldCheck = [0, 2, 4].includes(val);
+            } else if (preset === 'even') {
+                shouldCheck = [1, 3, 6].includes(val);
+            }
+            cb.checked = shouldCheck;
+            updateDayCardUI(cb);
+        });
+        calculateTrainingDays();
+    }
+
+    function onDayToggle(checkbox) {
+        updateDayCardUI(checkbox);
+        calculateTrainingDays();
+    }
+
+    function updateDayCardUI(checkbox) {
+        const card = checkbox.closest('.day-select-card');
+        if (!card) return;
+        const icon = card.querySelector('.day-icon-check i');
+        if (checkbox.checked) {
+            card.classList.add('active');
+            if (icon) {
+                icon.className = 'fas fa-check-circle text-primary';
+            }
+        } else {
+            card.classList.remove('active');
+            if (icon) {
+                icon.className = 'fas fa-circle text-muted opacity-50';
+            }
+        }
+    }
+
+    function calculateTrainingDays() {
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        const totalDaysBadge = document.getElementById('calcTotalDays');
+        const scheduleNote = document.getElementById('scheduleNote');
+        const excludedDaysText = document.getElementById('excludedDaysText');
+
+        if (!startDateInput || !endDateInput) return;
+
+        const startVal = startDateInput.value;
+        const endVal = endDateInput.value;
+
+        // الأيام المحددة
+        const checkedDays = Array.from(document.querySelectorAll('.day-checkbox:checked')).map(cb => parseInt(cb.value));
+
+        // نص الأيام المستثناة
+        const dayNames = {0: 'الأحد', 1: 'الإثنين', 2: 'الثلاثاء', 3: 'الأربعاء', 4: 'الخميس', 5: 'الجمعة', 6: 'السبت'};
+        const excluded = [0, 1, 2, 3, 4, 5, 6].filter(d => !checkedDays.includes(d)).map(d => dayNames[d]);
+
+        if (excludedDaysText) {
+            if (excluded.length > 0) {
+                excludedDaysText.innerHTML = 'الأيام المستثناة أسبوعياً: <span class="fw-bold text-danger">' + excluded.join('، ') + '</span>';
+            } else {
+                excludedDaysText.innerHTML = '<span class="fw-bold text-success">شامل لكامل أيام الأسبوع بدون استثناء</span>';
+            }
+        }
+
+        if (!startVal || !endVal) {
+            if (totalDaysBadge) totalDaysBadge.innerText = '0';
+            if (scheduleNote) scheduleNote.innerText = 'اختر تواريخ البدء والانتهاء لحساب الأيام بدقة';
+            return;
+        }
+
+        const start = new Date(startVal + 'T00:00:00');
+        const end = new Date(endVal + 'T00:00:00');
+
+        if (end < start) {
+            if (totalDaysBadge) totalDaysBadge.innerText = '0';
+            if (scheduleNote) scheduleNote.innerHTML = '<span class="text-danger fw-bold">تنبيه: تاريخ الانتهاء يجب أن يكون بعد تاريخ البدء</span>';
+            return;
+        }
+
+        if (checkedDays.length === 0) {
+            if (totalDaysBadge) totalDaysBadge.innerText = '0';
+            if (scheduleNote) scheduleNote.innerHTML = '<span class="text-danger fw-bold">تنبيه: يرجى اختيار يوم واحد على الأقل</span>';
+            return;
+        }
+
+        // حساب عدد الأيام الفعلية الواقعة ضمن الأيام المحددة
+        let count = 0;
+        let cur = new Date(start);
+        while (cur <= end) {
+            const dayOfWeek = cur.getDay(); // 0 is Sunday, 6 is Saturday
+            if (checkedDays.includes(dayOfWeek)) {
+                count++;
+            }
+            cur.setDate(cur.getDate() + 1);
+        }
+
+        if (totalDaysBadge) totalDaysBadge.innerText = count;
+
+        const weeks = Math.max(1, Math.ceil(count / Math.max(checkedDays.length, 1)));
+        if (scheduleNote) {
+            scheduleNote.innerHTML = `الفترة تتضمن <strong>${count} يوم تدريبي فعلي</strong> (حوالي ${weeks} أسبوع تدريبي)`;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const startInput = document.getElementById('start_date');
+        const endInput = document.getElementById('end_date');
+        if (startInput) startInput.addEventListener('change', calculateTrainingDays);
+        if (endInput) endInput.addEventListener('change', calculateTrainingDays);
+        calculateTrainingDays();
+    });
+</script>
+@endpush

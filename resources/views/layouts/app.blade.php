@@ -1075,6 +1075,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('graduate.certificates*') ? 'active' : '' }}"
+                                href="{{ route('graduate.certificates.index') }}">
+                                <i class="fas fa-certificate text-warning"></i>
+                                شهاداتي المعتمدة
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('graduate.job-opportunities*') ? 'active' : '' }}"
                                 href="{{ route('graduate.job-opportunities.index') }}">
                                 <i class="fas fa-briefcase"></i>
@@ -1408,8 +1415,8 @@
         </div>
     </nav>
 
-    <!-- زر إظهار القائمة الجانبية العائم عند الإخفاء -->
-    <button type="button" class="floating-sidebar-toggle btn" id="floatingSidebarToggle" title="إظهار القائمة الجانبية">
+    <!-- زر إظهار القائمة الجانبية العائم عند الإخفاء (فقط في الديسكتوب) -->
+    <button type="button" class="floating-sidebar-toggle btn d-none d-md-flex" id="floatingSidebarToggle" title="إظهار القائمة الجانبية">
         <i class="fas fa-bars"></i>
     </button>
 
@@ -1639,6 +1646,7 @@
                     sidebar.classList.remove('active-mobile');
                     mainContent?.classList.add('expanded');
                     navbarMain?.classList.add('expanded');
+                    updateToggleIcon();
                 } else {
                     // الديسكتوب
                     if (savedState === 'true') {

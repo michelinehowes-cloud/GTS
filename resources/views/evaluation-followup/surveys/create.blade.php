@@ -17,6 +17,30 @@
                                     </ul>
                                 </div>
                             @endif
+                            <!-- 💡 شريط قوالب الاستبيانات الجاهزة -->
+                            <div class="card border-0 mb-4 rounded-4 shadow-sm" style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1px solid #a7f3d0 !important;">
+                                <div class="card-body p-3.5 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="rounded-3 bg-success text-white d-flex align-items-center justify-content-center shadow-sm" style="width: 44px; height: 44px; font-size: 1.2rem;">
+                                            <i class="fas fa-magic"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold text-dark mb-0">وفر وقتك عبر قوالب الاستبيانات الجاهزة</h6>
+                                            <small class="text-muted">اختر قالباً معداً مسبقاً (تقييم التدريب، رضا أرباب العمل، معارض التوظيف، وغيرها) لتعبئة البيانات والأسئلة تلقائياً!</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-success fw-bold px-3.5 py-2 rounded-pill shadow-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#templateSelectorModal">
+                                            <i class="fas fa-layer-group"></i>
+                                            <span>تصفح واختيار قالب جاهز</span>
+                                        </button>
+                                        <a href="{{ route('evaluation-followup.surveys.templates.index') }}" target="_blank" class="btn btn-outline-success fw-bold px-3 py-2 rounded-pill d-flex align-items-center gap-1.5" title="عرض كافة القوالب في صفحة منفصلة">
+                                            <i class="fas fa-external-link-alt"></i>
+                                            <span>مكتبة القوالب</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="row">
                                 <div class="col-md-8">
@@ -132,7 +156,32 @@
                             </div>
                         </div>
 
-                <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                <!-- حفظ كقالب اختياري -->
+                <div class="card bg-light border-dashed rounded-3 p-3 my-3">
+                    <div class="form-check form-switch mb-1">
+                        <input class="form-check-input" type="checkbox" id="save_as_template" name="save_as_template" value="1" onchange="toggleSaveTemplateOptions(this)">
+                        <label class="form-check-label fw-bold text-dark" for="save_as_template" style="cursor: pointer;">
+                            <i class="fas fa-bookmark text-primary ms-1"></i> حفظ هذا الاستبيان أيضاً كقالب جديد للاستخدام المستقبلي
+                        </label>
+                    </div>
+                    <div id="save_template_options" class="row g-2 mt-1" style="display: none;">
+                        <div class="col-md-7">
+                            <label class="form-label small text-muted mb-1">اسم القالب الجديد</label>
+                            <input type="text" class="form-control form-control-sm" name="template_title" id="template_title" placeholder="أدخل اسماً للقالب الجديد...">
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label small text-muted mb-1">تصنيف القالب</label>
+                            <select class="form-select form-select-sm" name="template_category">
+                                <option value="training">التدريب وورش العمل</option>
+                                <option value="employment">التوظيف والشراكات</option>
+                                <option value="events">المعارض والفعاليات</option>
+                                <option value="general">قالب عام</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
                     <a href="{{ route('evaluation-followup.surveys.index') }}" class="btn btn-secondary px-4 py-2 rounded-pill">
                         <i class="fas fa-times me-2"></i> إلغاء
                     </a>
@@ -147,37 +196,201 @@
                 </div>
             </form>
         </x-bento-form>
+
+        <!-- Modal اختيار قالب جاهز -->
+        <div class="modal fade" id="templateSelectorModal" tabindex="-1" aria-labelledby="templateSelectorModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header bg-light border-bottom py-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-3 bg-success text-white d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                <i class="fas fa-magic"></i>
+                            </div>
+                            <div>
+                                <h5 class="modal-title fw-bold text-dark mb-0">اختيار قالب استبيان جاهز</h5>
+                                <small class="text-muted">تطبيق القالب يملأ العنوان، الوصف، ويولد كافة الأسئلة والخيارات فوراً</small>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <!-- التبويبات -->
+                        <ul class="nav nav-pills mb-4 gap-2" id="templateTabs" role="tablist">
+                            <li class="nav-item">
+                                <button class="nav-link active rounded-pill px-3 py-2 fw-bold" id="tab-all-btn" data-bs-toggle="pill" data-bs-target="#tab-all" type="button">
+                                    كافة القوالب ({{ count($templates ?? []) }})
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link rounded-pill px-3 py-2 fw-bold" id="tab-training-btn" data-bs-toggle="pill" data-bs-target="#tab-training" type="button">
+                                    <i class="fas fa-graduation-cap me-1 text-success"></i> التدريب وورش العمل
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link rounded-pill px-3 py-2 fw-bold" id="tab-employment-btn" data-bs-toggle="pill" data-bs-target="#tab-employment" type="button">
+                                    <i class="fas fa-briefcase me-1 text-primary"></i> التوظيف والشراكات
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link rounded-pill px-3 py-2 fw-bold" id="tab-events-btn" data-bs-toggle="pill" data-bs-target="#tab-events" type="button">
+                                    <i class="fas fa-calendar-star me-1 text-warning"></i> المعارض والفعاليات
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link rounded-pill px-3 py-2 fw-bold" id="tab-custom-btn" data-bs-toggle="pill" data-bs-target="#tab-custom" type="button">
+                                    <i class="fas fa-bookmark me-1 text-purple"></i> قوالبي المحفوظة
+                                </button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="templateTabsContent">
+                            @php
+                                $tabCategories = [
+                                    'tab-all' => $templates ?? collect(),
+                                    'tab-training' => ($templates ?? collect())->where('category', 'training'),
+                                    'tab-employment' => ($templates ?? collect())->where('category', 'employment'),
+                                    'tab-events' => ($templates ?? collect())->where('category', 'events'),
+                                    'tab-custom' => ($templates ?? collect())->where('is_system', false),
+                                ];
+                            @endphp
+
+                            @foreach($tabCategories as $tabId => $tList)
+                            <div class="tab-pane fade {{ $tabId === 'tab-all' ? 'show active' : '' }}" id="{{ $tabId }}" role="tabpanel">
+                                <div class="row g-3">
+                                    @forelse($tList as $t)
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="card h-100 border rounded-3 p-3 shadow-sm hover-shadow d-flex flex-column justify-content-between">
+                                            <div>
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <span class="badge bg-{{ $t->category === 'training' ? 'success' : ($t->category === 'employment' ? 'primary' : 'warning') }}-subtle text-dark border">
+                                                        {{ $t->category_label }}
+                                                    </span>
+                                                    <span class="badge bg-light text-muted border">
+                                                        {{ count($t->questions ?? []) }} أسئلة
+                                                    </span>
+                                                </div>
+                                                <h6 class="fw-bold text-dark mb-1">{{ $t->title }}</h6>
+                                                <p class="text-muted small mb-2" style="font-size: 0.8rem; line-height: 1.4;">
+                                                    {{ Str::limit($t->description, 90) }}
+                                                </p>
+                                            </div>
+                                            <div class="pt-2 border-top d-flex gap-2 align-items-center mt-2">
+                                                <button type="button" class="btn btn-sm btn-success rounded-pill flex-grow-1 fw-bold" onclick='applyTemplate(@json($t))'>
+                                                    <i class="fas fa-check-circle me-1"></i> تطبيق القالب
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @empty
+                                    <div class="col-12 py-4 text-center text-muted">
+                                        لا توجد قوالب في هذا القسم حالياً.
+                                    </div>
+                                    @endforelse
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light border-top">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">إغلاق</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 
 @section('scripts')
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        function toggleSaveTemplateOptions(checkbox) {
+            const optionsDiv = document.getElementById('save_template_options');
+            if (checkbox.checked) {
+                optionsDiv.style.display = 'flex';
+                const titleInput = document.getElementById('template_title');
+                if (!titleInput.value) {
+                    titleInput.value = document.getElementById('title').value || '';
+                }
+            } else {
+                optionsDiv.style.display = 'none';
+            }
+        }
+
+        window.applyTemplate = function(template) {
+            if (!template) return;
+            if (confirm(`هل ترغب في تطبيق قالب «${template.title}»؟ سيتم استبدال الأسئلة الحالية بأسئلة هذا القالب.`)) {
+                $('#title').val(template.title);
+                $('#description').val(template.description || '');
+                if (template.target_audience) {
+                    $('#target_audience').val(template.target_audience);
+                }
+                
+                // مسح الأسئلة الحالية
+                $('#questions-container').empty();
+                window.resetQuestionCount();
+                
+                // إضافة أسئلة القالب
+                if (template.questions && Array.isArray(template.questions)) {
+                    template.questions.forEach(function(q) {
+                        window.doAddQuestion(q);
+                    });
+                }
+                
+                // إغلاق المودال
+                const modalEl = document.getElementById('templateSelectorModal');
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }
+            }
+        };
 
         $(document).ready(function () {
             console.log('create.blade.php script: Document ready. Initializing question logic.');
             let questionCount = 0;
 
+            window.resetQuestionCount = function() {
+                questionCount = 0;
+            };
+
+            window.doAddQuestion = function(qData) {
+                addQuestion(qData);
+            };
+
             // إضافة سؤال جديد
             $('#add-question-btn').on('click', function (e) {
                 e.preventDefault();
-                console.log('Add question button clicked');
                 try {
                     addQuestion();
-                    console.log('Question added successfully. Current questionCount:', questionCount);
                 } catch (error) {
                     console.error('Error adding question:', error);
                 }
             });
 
-            // إضافة سؤال أول عند تحميل الصفحة
-            if ($('.question-item').length === 0) {
-                console.log('No questions found, adding initial question.');
-                try {
-                    addQuestion();
-                } catch (error) {
-                    console.error('Error adding initial question:', error);
+            @if(isset($selectedTemplate) && $selectedTemplate)
+                // إذا تم تمرير قالب مسبقاً عبر الرابط (?template_id=X)
+                const initialTemplate = @json($selectedTemplate);
+                $('#title').val(initialTemplate.title);
+                $('#description').val(initialTemplate.description || '');
+                if (initialTemplate.target_audience) {
+                    $('#target_audience').val(initialTemplate.target_audience);
                 }
-            }
+                if (initialTemplate.questions && Array.isArray(initialTemplate.questions)) {
+                    initialTemplate.questions.forEach(function(q) {
+                        addQuestion(q);
+                    });
+                }
+            @else
+                // إضافة سؤال أول عند تحميل الصفحة إذا لم يتم تمرير قالب
+                if ($('.question-item').length === 0) {
+                    try {
+                        addQuestion();
+                    } catch (error) {
+                        console.error('Error adding initial question:', error);
+                    }
+                }
+            @endif
 
             function addQuestion(questionData = null) {
                 questionCount++;

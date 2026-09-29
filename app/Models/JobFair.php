@@ -29,6 +29,8 @@ class JobFair extends Model
         'status',
         'survey_id',
         'registration_open',
+        'is_program_published',
+        'is_projects_published',
         'registration_deadline',
         'notes',
         'media_kit_path',
@@ -45,6 +47,8 @@ class JobFair extends Model
         'event_date'            => 'date',
         'registration_deadline' => 'datetime',
         'registration_open'     => 'boolean',
+        'is_program_published'  => 'boolean',
+        'is_projects_published' => 'boolean',
     ];
 
     // ========== العلاقات ==========

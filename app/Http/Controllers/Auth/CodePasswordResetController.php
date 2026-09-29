@@ -22,6 +22,29 @@ class CodePasswordResetController extends Controller
     // إرسال الرمز
     public function store(Request $request)
     {
+        // 1. فحص مصيدة الروبوتات (Honeypot)
+        $securityService = app(\App\Services\SecurityService::class);
+        $honeypot = $securityService->verifyHoneypot($request);
+        if (!$honeypot['success']) {
+            return redirect('/?open_forgot=1')->withErrors(['email' => $honeypot['message']])->withInput();
+        }
+
+        // 2. التحقق من كاشف الروبوتات (Cloudflare Turnstile)
+        $turnstile = $securityService->verifyTurnstile($request->input('cf-turnstile-response'), $request->ip());
+        if (!$turnstile['success']) {
+            return redirect('/?open_forgot=1')->withErrors(['cf-turnstile-response' => $turnstile['message'], 'email' => $turnstile['message']])->withInput();
+        }
+
+        // 3. تقييد معدل طلبات استعادة كلمة المرور
+        $throttleKey = 'pwd-reset|' . $request->ip();
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($throttleKey, 3)) {
+            $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($throttleKey);
+            return redirect('/?open_forgot=1')->withErrors([
+                'email' => "تم تجاوز عدد محاولات طلب رمز التحقق. يرجى الانتظار {$seconds} ثانية.",
+            ])->withInput();
+        }
+        \Illuminate\Support\Facades\RateLimiter::hit($throttleKey, 180);
+
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'email' => 'required|email|exists:users,email'
         ], [

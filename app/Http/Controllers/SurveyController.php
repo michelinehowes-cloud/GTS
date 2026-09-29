@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Survey;
 use App\Models\SurveyResponse;
+use App\Services\SurveyAnalyticsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -22,9 +23,16 @@ class SurveyController extends Controller
         return view('evaluation-followup.surveys.index', compact('surveys'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('evaluation-followup.surveys.create');
+        $selectedTemplate = null;
+        if ($request->filled('template_id')) {
+            $selectedTemplate = \App\Models\SurveyTemplate::find($request->input('template_id'));
+        }
+
+        $templates = \App\Models\SurveyTemplate::all();
+
+        return view('evaluation-followup.surveys.create', compact('selectedTemplate', 'templates'));
     }
 
     public function store(Request $request)
@@ -58,7 +66,7 @@ class SurveyController extends Controller
             'questions.*.max_rating' => 'nullable|in:5,10',
             'target_audience' => 'required|in:all,graduates,companies,training_coordinators',
             'start_date' => 'required|date|after_or_equal:today',
-            'end_date' => 'required|date|after:start_date',
+            'end_date' => 'required|date|after_or_equal:start_date',
         ]);
 
         // Custom validation for options based on question type
@@ -94,7 +102,7 @@ class SurveyController extends Controller
                 ->withInput();
         }
 
-        Survey::create([
+        $survey = Survey::create([
             'title' => $request->title,
             'description' => $request->description,
             'questions' => $request->questions,
@@ -106,19 +114,44 @@ class SurveyController extends Controller
             'related_id' => $request->related_id,
         ]);
 
+        // حفظ كقالب جديد إذا تم اختيار ذلك
+        if ($request->has('save_as_template') && !empty($request->input('template_title'))) {
+            \App\Models\SurveyTemplate::create([
+                'title' => $request->input('template_title'),
+                'description' => $request->input('description'),
+                'category' => $request->input('template_category', 'general'),
+                'target_audience' => $request->input('target_audience', 'all'),
+                'type' => $request->input('type'),
+                'questions' => $request->input('questions'),
+                'is_system' => false,
+                'created_by' => Auth::id(),
+            ]);
+        }
+
         return redirect()->route('evaluation-followup.surveys.index')
-            ->with('success', 'تم إنشاء الاستبيان بنجاح');
+            ->with('success', 'تم إنشاء الاستبيان بنجاح' . ($request->has('save_as_template') ? ' وحفظه أيضاً كقالب جديد للاستخدام المستقبلي!' : ''));
     }
 
 
 
-    public function show(Survey $survey)
+    public function show(Survey $survey, SurveyAnalyticsService $analyticsService)
     {
         $survey->load(['responses.user']);
-        $responsesCount = $survey->responses()->count();
-        $completionRate = $this->calculateCompletionRate($survey);
+        $analytics = $analyticsService->compute($survey);
+        $responsesCount = $analytics['total_responses'];
+        $completionRate = $analytics['completion_rate'];
 
-        return view('evaluation-followup.surveys.show', compact('survey', 'responsesCount', 'completionRate'));
+        return view('evaluation-followup.surveys.show', compact('survey', 'analytics', 'responsesCount', 'completionRate'));
+    }
+
+    public function report(Survey $survey, SurveyAnalyticsService $analyticsService)
+    {
+        return $this->show($survey, $analyticsService);
+    }
+
+    public function exportResponses(Survey $survey, SurveyAnalyticsService $analyticsService)
+    {
+        return $analyticsService->exportResponsesCsv($survey);
     }
 
     public function edit(Survey $survey)
@@ -157,7 +190,7 @@ class SurveyController extends Controller
             'questions.*.max_rating' => 'nullable|in:5,10',
             'target_audience' => 'required|in:all,graduates,companies,training_coordinators',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
+            'end_date' => 'required|date|after_or_equal:start_date',
         ]);
 
         // Custom validation for options based on question type

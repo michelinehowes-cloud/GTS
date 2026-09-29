@@ -16,6 +16,14 @@
             </p>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
+            <form action="{{ route('job-fair.admin.toggle-feature', $fair->id) }}" method="POST" class="d-inline m-0">
+                @csrf
+                <input type="hidden" name="feature" value="projects">
+                <button type="submit" class="btn {{ $fair->is_projects_published ? 'btn-success' : 'btn-warning text-dark' }} shadow-sm fw-bold d-inline-flex align-items-center gap-1.5" title="انقر للتبديل بين إظهار المشاريع للجمهور أو إخفائها كـ Coming Soon">
+                    <i class="fas {{ $fair->is_projects_published ? 'fa-eye' : 'fa-clock' }}"></i>
+                    <span>{{ $fair->is_projects_published ? 'المشاريع منشورة ومتاحة للجمهور' : 'المشاريع قيد التحضير (Coming Soon)' }}</span>
+                </button>
+            </form>
             <a href="{{ route('job-fair.public.projects', $fair->id) }}" target="_blank" class="btn btn-outline-primary shadow-sm">
                 <i class="fas fa-external-link-alt"></i> معاينة معرض المشاريع للجمهور
             </a>
@@ -204,7 +212,7 @@
 <!-- Modal: Add Project -->
 <div class="modal fade" id="addProjectModal" tabindex="-1" role="dialog" aria-labelledby="addProjectModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
-        <form action="{{ route('job-fair.admin.projects.store', $fair->id) }}" method="POST" enctype="multipart/form-data">
+        <form id="addProjectForm" action="{{ route('job-fair.admin.projects.store', $fair->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
@@ -273,12 +281,20 @@
 
                     <div class="row">
                         <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">بوستر المشروع (Poster Image)</label>
-                            <input type="file" name="poster_image" class="form-control" accept="image/*">
+                            <label class="font-weight-bold d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-image text-primary me-1"></i> بوستر المشروع (Poster)</span>
+                                <small class="text-success"><i class="fas fa-bolt me-1"></i>ضغط ذكي فوري</small>
+                            </label>
+                            <input type="file" name="poster_image" id="add_poster_image" class="form-control" accept="image/*">
+                            <div id="add_poster_preview" class="mt-2 d-none"></div>
                         </div>
                         <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">صورة الغلاف / الواجهة (Cover)</label>
-                            <input type="file" name="cover_image" class="form-control" accept="image/*">
+                            <label class="font-weight-bold d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-camera text-primary me-1"></i> صورة الغلاف / الواجهة (Cover)</span>
+                                <small class="text-success"><i class="fas fa-bolt me-1"></i>ضغط ذكي فوري</small>
+                            </label>
+                            <input type="file" name="cover_image" id="add_cover_image" class="form-control" accept="image/*">
+                            <div id="add_cover_preview" class="mt-2 d-none"></div>
                         </div>
                     </div>
 
@@ -312,9 +328,24 @@
                         </div>
                     </div>
                 </div>
+
+                <div id="add_upload_progress" class="px-3 py-2 d-none bg-light border-top">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="small font-weight-bold text-primary">
+                            <i class="fas fa-spinner fa-spin me-1"></i> جاري حفظ المشروع ورفع الصور...
+                        </span>
+                        <span class="small text-muted" id="add_progress_text">يرجى الانتظار لحظات</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 100%"></div>
+                    </div>
+                </div>
+
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">إلغاء</button>
-                    <button type="submit" class="btn btn-primary">حفظ المشروع</button>
+                    <button type="submit" id="addProjectSubmitBtn" class="btn btn-primary fw-bold">
+                        <i class="fas fa-save me-1"></i> حفظ المشروع
+                    </button>
                 </div>
             </div>
         </form>
@@ -394,12 +425,20 @@
 
                     <div class="row">
                         <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">تحديث بوستر المشروع</label>
-                            <input type="file" name="poster_image" class="form-control" accept="image/*">
+                            <label class="font-weight-bold d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-image text-primary me-1"></i> تحديث بوستر المشروع</span>
+                                <small class="text-success"><i class="fas fa-bolt me-1"></i>ضغط ذكي فوري</small>
+                            </label>
+                            <input type="file" name="poster_image" id="edit_poster_image" class="form-control" accept="image/*">
+                            <div id="edit_poster_preview" class="mt-2 d-none"></div>
                         </div>
                         <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">تحديث صورة الغلاف</label>
-                            <input type="file" name="cover_image" class="form-control" accept="image/*">
+                            <label class="font-weight-bold d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-camera text-primary me-1"></i> تحديث صورة الغلاف</span>
+                                <small class="text-success"><i class="fas fa-bolt me-1"></i>ضغط ذكي فوري</small>
+                            </label>
+                            <input type="file" name="cover_image" id="edit_cover_image" class="form-control" accept="image/*">
+                            <div id="edit_cover_preview" class="mt-2 d-none"></div>
                         </div>
                     </div>
 
@@ -433,9 +472,24 @@
                         </div>
                     </div>
                 </div>
+
+                <div id="edit_upload_progress" class="px-3 py-2 d-none bg-light border-top">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="small font-weight-bold text-primary">
+                            <i class="fas fa-spinner fa-spin me-1"></i> جاري حفظ التعديلات ورفع الصور...
+                        </span>
+                        <span class="small text-muted" id="edit_progress_text">يرجى الانتظار لحظات</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 100%"></div>
+                    </div>
+                </div>
+
                 <div class="modal-footer bg-light">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">إلغاء</button>
-                    <button type="submit" class="btn btn-primary">حفظ التعديلات</button>
+                    <button type="submit" id="editProjectSubmitBtn" class="btn btn-primary fw-bold">
+                        <i class="fas fa-save me-1"></i> حفظ التعديلات
+                    </button>
                 </div>
             </div>
         </form>
@@ -493,14 +547,184 @@
         document.body.classList.remove('modal-open');
     }
 
-    // Auto bind close buttons
+    // تنسيق الحجم بصيغة مقروءة (KB / MB)
+    function formatBytes(bytes, decimals = 1) {
+        if (!bytes || bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    // ضغط ذكي فوري للصور باستخدام HTML5 Canvas قبل الرفع لتسريع الحفظ 10 أضعاف
+    async function compressImageFile(file, maxWidth = 1920, maxHeight = 1920, quality = 0.85) {
+        if (!file || !file.type.startsWith('image/')) return file;
+        if (file.type === 'image/svg+xml' || file.type === 'image/gif') return file;
+        if (file.size < 350 * 1024) return file; // إذا كان حجمها أقل من 350 كيلوبايت لا تحتاج لضغط
+
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth || height > maxHeight) {
+                        if (width / height > maxWidth / maxHeight) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        } else {
+                            width = Math.round((width * maxHeight) / height);
+                            height = maxHeight;
+                        }
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    canvas.toBlob((blob) => {
+                        if (!blob || blob.size >= file.size) {
+                            resolve(file); // إذا لم ينخفض الحجم نبقي الأصل
+                        } else {
+                            const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+                            const compressed = new File([blob], newName, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            });
+                            resolve(compressed);
+                        }
+                    }, 'image/jpeg', quality);
+                };
+                img.onerror = () => resolve(file);
+                img.src = e.target.result;
+            };
+            reader.onerror = () => resolve(file);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // إعداد معاينة وضغط الصور للحقول
+    function setupImageHandler(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        if (!input || !preview) return;
+
+        input.addEventListener('change', async function() {
+            const file = this.files[0];
+            if (!file) {
+                preview.classList.add('d-none');
+                preview.innerHTML = '';
+                return;
+            }
+
+            const origSize = file.size;
+            preview.classList.remove('d-none');
+            preview.innerHTML = `
+                <div class="d-flex align-items-center gap-2 p-2 rounded bg-light border">
+                    <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                    <small class="text-muted">جاري معالجة وضغط الصورة لسرعة الرفع...</small>
+                </div>
+            `;
+
+            try {
+                const compressedFile = await compressImageFile(file);
+                
+                // تحديث ملف الحقل بالنسخة المضغوطة لتسريع الإرسال
+                if (window.DataTransfer) {
+                    const dt = new DataTransfer();
+                    dt.items.add(compressedFile);
+                    this.files = dt.files;
+                }
+
+                const newSize = compressedFile.size;
+                const savedPercent = Math.max(0, Math.round((1 - (newSize / origSize)) * 100));
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `
+                        <div class="card p-2 border shadow-sm bg-white mt-1">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="${e.target.result}" class="rounded border" style="width: 55px; height: 55px; object-fit: cover;">
+                                <div class="flex-grow-1" style="font-size: 0.8rem;">
+                                    <div class="fw-bold text-dark text-truncate" style="max-width: 200px;">${compressedFile.name}</div>
+                                    <div class="text-muted">
+                                        الحجم: <strong class="text-success">${formatBytes(newSize)}</strong>
+                                        ${savedPercent > 10 ? `<span class="badge bg-success-subtle text-success border ms-1">⚡ توفير ${savedPercent}%</span>` : ''}
+                                    </div>
+                                    <small class="text-primary"><i class="fas fa-check-circle me-1"></i> جاهزة للرفع السريع</small>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 rounded-pill" onclick="clearFileInput('${inputId}', '${previewId}')" title="إلغاء الصورة">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(compressedFile);
+            } catch(err) {
+                console.error('Image compression error:', err);
+                preview.classList.add('d-none');
+            }
+        });
+    }
+
+    function clearFileInput(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        if (input) input.value = '';
+        if (preview) {
+            preview.classList.add('d-none');
+            preview.innerHTML = '';
+        }
+    }
+
+    // تفعيل مراقبة رفع الصور لكل النماذج
     document.addEventListener('DOMContentLoaded', function() {
+        setupImageHandler('add_poster_image', 'add_poster_preview');
+        setupImageHandler('add_cover_image', 'add_cover_preview');
+        setupImageHandler('edit_poster_image', 'edit_poster_preview');
+        setupImageHandler('edit_cover_image', 'edit_cover_preview');
+
+        // ربط أزرار الإغلاق
         document.querySelectorAll('[data-bs-dismiss="modal"], [data-dismiss="modal"]').forEach(btn => {
             btn.addEventListener('click', function() {
                 const modal = this.closest('.modal');
                 if (modal) hideModalSafe(modal.id);
             });
         });
+
+        // إدارة حالة الرفع للنموذج الأول (إضافة مشروع)
+        const addForm = document.getElementById('addProjectForm');
+        if (addForm) {
+            addForm.addEventListener('submit', function() {
+                const submitBtn = document.getElementById('addProjectSubmitBtn');
+                const progressDiv = document.getElementById('add_upload_progress');
+                if (progressDiv) progressDiv.classList.remove('d-none');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> جاري الرفع والحفظ...';
+                }
+            });
+        }
+
+        // إدارة حالة الرفع للنموذج الثاني (تعديل مشروع)
+        const editForm = document.getElementById('editProjectForm');
+        if (editForm) {
+            editForm.addEventListener('submit', function() {
+                const submitBtn = document.getElementById('editProjectSubmitBtn');
+                const progressDiv = document.getElementById('edit_upload_progress');
+                if (progressDiv) progressDiv.classList.remove('d-none');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> جاري حفظ التعديلات...';
+                }
+            });
+        }
     });
 
     function editProjectById(id) {
@@ -525,6 +749,39 @@
         document.getElementById('edit_video_url').value = proj.video_url || '';
         document.getElementById('edit_status').value = proj.status || 'published';
         document.getElementById('editProjFeatured').checked = Boolean(proj.is_featured);
+
+        // مسح وإعادة تعيين حقول الصور ومعايناتها
+        clearFileInput('edit_poster_image', 'edit_poster_preview');
+        clearFileInput('edit_cover_image', 'edit_cover_preview');
+
+        // إظهار الصور الحالية للمشروع إن وُجدت
+        const posterPrev = document.getElementById('edit_poster_preview');
+        if (proj.poster_image && posterPrev) {
+            const posterUrl = proj.poster_image.startsWith('http') ? proj.poster_image : ('/storage/' + proj.poster_image);
+            posterPrev.classList.remove('d-none');
+            posterPrev.innerHTML = `
+                <div class="card p-2 border bg-light mt-1">
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="${posterUrl}" class="rounded border" style="width: 45px; height: 45px; object-fit: cover;">
+                        <small class="text-muted flex-grow-1">البوستر الحالي مسجل بالنظام (يمكنك تركه أو اختيار جديد لتغييره)</small>
+                    </div>
+                </div>
+            `;
+        }
+
+        const coverPrev = document.getElementById('edit_cover_preview');
+        if (proj.cover_image && coverPrev) {
+            const coverUrl = proj.cover_image.startsWith('http') ? proj.cover_image : ('/storage/' + proj.cover_image);
+            coverPrev.classList.remove('d-none');
+            coverPrev.innerHTML = `
+                <div class="card p-2 border bg-light mt-1">
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="${coverUrl}" class="rounded border" style="width: 45px; height: 45px; object-fit: cover;">
+                        <small class="text-muted flex-grow-1">الغلاف الحالي مسجل بالنظام</small>
+                    </div>
+                </div>
+            `;
+        }
 
         // Format team members to lines
         let teamLines = '';

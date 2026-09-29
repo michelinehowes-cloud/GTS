@@ -39,7 +39,7 @@ class MonitoringEvaluationController extends Controller
             'questions' => 'required|array|min:1',
             'target_audience' => 'required|string',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
+            'end_date' => 'required|date|after_or_equal:start_date',
         ]);
 
         Survey::create($request->all());

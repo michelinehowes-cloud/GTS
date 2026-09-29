@@ -64,6 +64,19 @@ class User extends Authenticatable
     ];
 
     /**
+     * مزامنة اسم المتدرب في الشهادات تلقائياً عند تغيير الاسم
+     */
+    protected static function booted(): void
+    {
+        static::updated(function (User $user) {
+            if ($user->isDirty('name') || $user->wasChanged('name')) {
+                \App\Models\Certificate::where('user_id', $user->id)
+                    ->update(['recipient_name' => $user->name]);
+            }
+        });
+    }
+
+    /**
      * الأدوار المتاحة في النظام
      */
     public static function getAvailableRoles()
@@ -307,6 +320,35 @@ class User extends Authenticatable
     {
         $roles = self::getAvailableRoles();
         return $roles[$this->role] ?? $this->role;
+    }
+
+    /**
+     * المسمى العربي الرسمي للدور
+     */
+    public function getRoleArabicAttribute(): string
+    {
+        $map = [
+            'admin' => 'مدير النظام',
+            'partnership_officer' => 'مسؤول الشراكات وعلاقات الشركات ومعرض التوظيف',
+            'career_guidance_officer' => 'مسؤول الإرشاد والتوجيه المهني',
+            'training_coordinator' => 'منسق التدريب والتأهيل',
+            'evaluation_followup' => 'مسؤول التقييم والمتابعة',
+            'media_officer' => 'مسؤول الإعلام والتواصل',
+            'company' => 'شركة شريكة',
+            'graduate' => 'خريج',
+            'staff' => 'موظف إداري',
+        ];
+        return $map[$this->role] ?? ($this->role_name ?? $this->role);
+    }
+
+    /**
+     * التحقق إذا كان المستخدم يملك صلاحية إدارة معرض التوظيف
+     */
+    public function canManageJobFair(): bool
+    {
+        return $this->isAdmin() ||
+               in_array($this->role, ['partnership_officer']) ||
+               $this->hasAnyPermission(['partnerships.manage', 'companies.view', 'job_fair.manage', 'job_fair.view']);
     }
 
     /**

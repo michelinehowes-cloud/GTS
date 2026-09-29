@@ -150,7 +150,7 @@
             width: 100%;
             aspect-ratio: 297 / 210;
             background-color: #ffffff;
-            background-image: url('{{ asset("images/certificate_template_a4_landscape_hd.png") }}');
+            background-image: url('{{ asset("images/certificate_template_a4_landscape_hd.png") }}?v={{ filemtime(public_path("images/certificate_template_a4_landscape_hd.png")) }}');
             background-size: 100% 100%;
             background-repeat: no-repeat;
             background-position: center;
@@ -160,120 +160,185 @@
             user-select: text;
         }
 
-        /* Dynamic Field: Trainee Name (المتدرب/ة)
-           Positioned above the first teal underline */
+        /* ═════════════════════════════════════════════
+           DYNAMIC FIELDS ACCORDING TO NEW CERTIFICATE DESIGN
+        ═════════════════════════════════════════════ */
+
+        /* 1. Trainee Name (المتدرب/ة)
+           Positioned directly above the trainee underline */
         .cert-field-recipient {
             position: absolute;
-            top: 36.6%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 66%;
-            text-align: center;
-            font-family: 'Amiri', 'Cairo', serif;
-            font-size: 3.5cqi;
-            font-weight: 700;
-            color: #1a365d;
-            letter-spacing: 0.4px;
-            line-height: 1.15;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-shadow: 0 1px 1px rgba(26, 54, 93, 0.08);
-            z-index: 10;
-        }
-
-        /* Dynamic Field: Course / Program Name (الدورة التدريبية)
-           Positioned above the second teal underline */
-        .cert-field-course {
-            position: absolute;
-            top: 51.4%;
+            top: 38.5%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 72%;
             text-align: center;
-            font-family: 'Cairo', 'Alexandria', sans-serif;
-            font-size: 2.25cqi;
+            font-family: 'Amiri', 'Cairo', serif;
+            font-size: 3.4cqi;
             font-weight: 700;
-            color: #0f4c5c;
-            letter-spacing: 0.2px;
-            line-height: 1.3;
+            color: #0f3a53;
+            letter-spacing: 0.3px;
+            line-height: 1.15;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            text-shadow: 0 1px 2px rgba(15, 58, 83, 0.08);
             z-index: 10;
         }
 
-        /* Dynamic Field: Official Digital Verification Strip (Bottom Left)
-           Balanced opposite to the Director's signature on the right */
-        .cert-field-verification {
+        /* 2. Middle Section: Completion Sentence + Course Title + Accreditation Ribbon
+           Spanning smoothly between Y = 40.5% and Y = 71.5% */
+        .cert-middle-block {
             position: absolute;
-            bottom: 6.8%;
-            left: 7.2%;
-            display: flex;
-            align-items: center;
-            gap: 1.2cqi;
-            z-index: 10;
-            direction: rtl;
-        }
-
-        .cert-qr-wrapper {
-            position: relative;
-            background: #ffffff;
-            padding: 0.35cqi;
-            border-radius: 0.6cqi;
-            border: 1px solid rgba(13, 148, 136, 0.35);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .cert-qr-wrapper img {
-            width: 5.2cqi;
-            height: 5.2cqi;
-            display: block;
-            border-radius: 0.3cqi;
-        }
-
-        .cert-meta-info {
+            top: 55.5%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 82%;
             display: flex;
             flex-direction: column;
-            gap: 0.35cqi;
-            text-align: right;
-            color: #334155;
+            align-items: center;
+            text-align: center;
+            z-index: 10;
+            gap: 0.8cqi;
         }
 
-        .cert-meta-code {
-            font-family: 'Alexandria', 'Cairo', monospace;
-            font-size: 1.12cqi;
-            font-weight: 700;
-            color: #0f3a53;
-            letter-spacing: 0.5px;
+        .cert-completion-intro {
+            font-family: 'Cairo', 'Alexandria', sans-serif;
+            font-size: 1.4cqi;
+            font-weight: 600;
+            color: #334155;
+            letter-spacing: 0.2px;
+            line-height: 1.2;
+        }
+
+        .cert-course-name {
+            font-family: 'Cairo', 'Alexandria', sans-serif;
+            font-size: 2.5cqi;
+            font-weight: 800;
+            color: #0f4c5c;
+            letter-spacing: 0.2px;
+            line-height: 1.25;
+            max-width: 95%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Executive Accreditation & Hours Ribbon */
+        .cert-accreditation-ribbon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.4cqi;
+            background: rgba(240, 249, 250, 0.92);
+            backdrop-filter: blur(4px);
+            border: 1.5px solid rgba(13, 148, 136, 0.3);
+            padding: 0.35cqi 1.4cqi;
+            border-radius: 50px;
+            box-shadow: 0 3px 12px rgba(15, 76, 92, 0.06);
+            white-space: nowrap;
+            max-width: 90%;
+        }
+
+        .cert-accreditation-ribbon .accred-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45cqi;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.15cqi;
+        }
+
+        .cert-accreditation-ribbon .accred-icon {
+            color: #0d9488;
+            font-size: 1.15cqi;
             display: flex;
             align-items: center;
-            gap: 0.4cqi;
         }
 
-        .cert-meta-code i {
-            color: #0d9488;
-            font-size: 1.0cqi;
-        }
-
-        .cert-meta-date {
-            font-size: 0.98cqi;
+        .cert-accreditation-ribbon .accred-label {
+            color: #64748b;
             font-weight: 600;
+        }
+
+        .cert-accreditation-ribbon .accred-name {
+            color: #0f3a53;
+            font-weight: 800;
+        }
+
+        .cert-accreditation-ribbon .accred-logo {
+            height: 2.1cqi;
+            width: 2.1cqi;
+            object-fit: contain;
+            border-radius: 5px;
+            background: #ffffff;
+            padding: 0.1cqi;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .cert-accreditation-ribbon .accred-divider {
+            width: 1px;
+            height: 1.8cqi;
+            background: rgba(203, 213, 225, 0.9);
+        }
+
+        /* 3. Trainer Field (بغطاء المدرب/ة)
+           Positioned directly and perfectly under 'بعطاء المدرب/ة' at X = 61.6%, Y = 87.5% */
+        .cert-field-trainer {
+            position: absolute;
+            left: 61.6%;
+            top: 87.5%;
+            transform: translate(-50%, -50%);
+            width: 26cqi;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .cert-trainer-name {
+            font-family: 'Cairo', 'Alexandria', sans-serif;
+            font-size: 1.85cqi;
+            font-weight: 800;
+            color: #0f3a53;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 4. Official Subtle Document Code (NO QR CODE as requested)
+           Placed in the bottom left margin corner */
+        .cert-doc-meta {
+            position: absolute;
+            bottom: 3.2%;
+            left: 4.5%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.15cqi;
+            z-index: 10;
+            direction: rtl;
+            text-align: right;
+            font-family: 'Alexandria', 'Cairo', monospace;
+            font-size: 0.76cqi;
             color: #64748b;
         }
 
-        .cert-meta-hours {
-            font-size: 0.92cqi;
+        .cert-doc-code {
             font-weight: 700;
+            color: #0f3a53;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3cqi;
+            letter-spacing: 0.3px;
+        }
+
+        .cert-doc-code i {
             color: #0d9488;
-            background: rgba(13, 148, 136, 0.08);
-            padding: 0.1cqi 0.6cqi;
-            border-radius: 50px;
-            display: inline-block;
-            width: fit-content;
+            font-size: 0.8cqi;
+        }
+
+        .cert-doc-date {
+            font-size: 0.7cqi;
+            color: #64748b;
         }
 
         /* ═════════════════════════════════════════════
@@ -367,46 +432,70 @@
     <div class="cert-viewport-wrapper">
         <div class="a4-landscape-cert" id="certificateDoc">
 
-            {{-- 1. Trainee Name (المتدرب/ة) --}}
+            {{-- 1. Trainee Name (المتدرب/ة) - فوق الخط الأفقي الأول تماماً --}}
             <div class="cert-field-recipient" title="{{ $certificate->recipient_name }}">
                 {{ $certificate->recipient_name }}
             </div>
 
-            {{-- 2. Course Name (الدورة التدريبية) --}}
+            {{-- 2. Middle Block: Course Details & Accreditation Ribbon --}}
             @php
-                // Clean leading redundant prefix like "شهادة إتمام" or "شهادة مشاركة في" so it fits naturally into "قد اجتاز الدورة التدريبية بنجاح بكافة متطلباتها: « ... »"
                 $cleanTitle = preg_replace('/^(شهادة إتمام\s*|شهادة مشاركة في\s*|شهادة\s*)/u', '', $certificate->title);
                 $cleanTitle = trim($cleanTitle);
+                $companyLogoPath = $certificate->effective_company_logo;
             @endphp
-            <div class="cert-field-course" title="{{ $cleanTitle }}">
-                « {{ $cleanTitle }} »
+            <div class="cert-middle-block">
+                <div class="cert-completion-intro">قد اجتاز بنجاح الدورة التدريبية بكافة متطلباتها:</div>
+                <div class="cert-course-name" title="{{ $cleanTitle }}">« {{ $cleanTitle }} »</div>
+
+                @if(($certificate->has_company_collaboration && $certificate->company_name) || ($certificate->hours && $certificate->hours > 0))
+                <div class="cert-accreditation-ribbon">
+                    @if($certificate->hours && $certificate->hours > 0)
+                        <div class="accred-item">
+                            <span class="accred-icon"><i class="fas fa-clock"></i></span>
+                            <span class="accred-label">المدة:</span>
+                            <span class="accred-name">{{ $certificate->hours }} ساعة تدريبية معتمدة</span>
+                        </div>
+                    @endif
+
+                    @if($certificate->has_company_collaboration && $certificate->company_name)
+                        @if($certificate->hours && $certificate->hours > 0)
+                            <div class="accred-divider"></div>
+                        @endif
+                        <div class="accred-item">
+                            <span class="accred-icon"><i class="fas fa-handshake"></i></span>
+                            <span class="accred-label">بالشراكة والتعاون مع:</span>
+                            @if($companyLogoPath)
+                                <img src="{{ asset('storage/' . $companyLogoPath) }}" alt="{{ $certificate->company_name }}" class="accred-logo">
+                            @endif
+                            <span class="accred-name">{{ $certificate->company_name }}</span>
+                        </div>
+                    @endif
+                </div>
+                @endif
             </div>
 
-            {{-- 3. Digital Verification Block (Bottom Left) --}}
-            <div class="cert-field-verification">
-                <div class="cert-qr-wrapper">
-                    @php
-                        $verifyUrl = route('certificates.verify', $certificate->certificate_code);
-                        $qrApiUrl = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=" . urlencode($verifyUrl);
-                    @endphp
-                    <img src="{{ $qrApiUrl }}" alt="QR Code" onerror="this.src='https://chart.googleapis.com/chart?chs=220x220&cht=qr&chl={{ urlencode($verifyUrl) }}&choe=UTF-8'">
+            {{-- 3. Trainer / Instructor Field (بغطاء المدرب/ة - فوق الخط الأوسط السفلي) --}}
+            @php
+                $instructorName = $certificate->instructor_name 
+                    ?: ($certificate->training?->instructor_name ?? ($certificate->training?->trainer?->name ?? ''));
+            @endphp
+            @if($instructorName)
+            <div class="cert-field-trainer" title="{{ $instructorName }}">
+                <div class="cert-trainer-name">{{ $instructorName }}</div>
+            </div>
+            @endif
+
+            {{-- 4. رمز الشهادة والتاريخ بشكل رسمي ومختصر (بدون QR Code بناءً على طلب المستخدم) --}}
+            <div class="cert-doc-meta">
+                <div class="cert-doc-code">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>{{ $certificate->certificate_code }}</span>
                 </div>
-                <div class="cert-meta-info">
-                    <div class="cert-meta-code">
-                        <i class="fas fa-shield-check"></i>
-                        <span>{{ $certificate->certificate_code }}</span>
-                    </div>
-                    @if($certificate->issue_date)
-                    <div class="cert-meta-date">
-                        تاريخ الإصدار: {{ $certificate->issue_date->locale('ar')->translatedFormat('d F Y') }}
-                    </div>
-                    @endif
-                    @if($certificate->hours)
-                    <div class="cert-meta-hours">
-                        {{ $certificate->hours }} ساعة تدريبية معتمدة
-                    </div>
-                    @endif
+                @if($certificate->issue_date)
+                <div class="cert-doc-date">
+                    {{ $certificate->issue_date->locale('ar')->translatedFormat('d F Y') }}
                 </div>
+                @endif
             </div>
 
         </div>

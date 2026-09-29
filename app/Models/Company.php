@@ -156,4 +156,12 @@ class Company extends Model
     {
         return $query->where('is_approved', false)->orWhere('partnership_status', 'under_review');
     }
+
+    /**
+     * متوافق مع الاستخدام القديم أو المباشر: رابط أو مسار الشعار
+     */
+    public function getLogoAttribute(): ?string
+    {
+        return $this->logo_path;
+    }
 }

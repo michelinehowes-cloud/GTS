@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\TrainingAttendance;
+use App\Models\Certificate;
 use Carbon\Carbon;
 use App\Services\NotificationService;
 
@@ -49,7 +50,7 @@ class TrainingController extends Controller
 
         $companies = Company::all();
         $trainers = \App\Models\Trainer::all();
-        $categories = ['برمجة', 'تصميم', 'شبكات', 'إدارة', 'لغات', 'أخرى'];
+        $categories = Training::getCategories();
         if ($user->role == 'training_coordinator') {
             return view('training-coordinator.trainings.create', compact('companies', 'trainers', 'categories'));
         } else {
@@ -70,20 +71,37 @@ class TrainingController extends Controller
             'type' => 'required|in:workshop,course,seminar,internship',
             'duration' => 'required|string|max:100',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
+            'end_date' => 'required|date|after_or_equal:start_date',
             'location' => 'required|string|max:255',
             'seats' => 'required|integer|min:1',
             'status' => 'required|in:active,inactive,completed',
             'company_id' => 'nullable|exists:companies,id',
             'trainer_id' => 'nullable|exists:trainers,id',
             'category' => 'required|string|max:255',
-            'instructor_name' => 'required|string|max:255',
+            'instructor_name' => 'required_without:trainer_id|nullable|string|max:255',
+            'training_days_of_week' => 'nullable|array',
+            'training_days_of_week.*' => 'integer|between:0,6',
+        ], [
+            'end_date.after_or_equal' => 'يجب أن يكون تاريخ الانتهاء مساوياً لتاريخ البدء أو بعده.',
+            'start_date.required' => 'تاريخ بدء البرنامج التدريبي مطلوب.',
+            'end_date.required' => 'تاريخ انتهاء البرنامج التدريبي مطلوب.',
+            'title.required' => 'اسم البرنامج التدريبي مطلوب.',
+            'duration.required' => 'المدة التقديرية مطلوبة.',
+            'seats.required' => 'عدد المقاعد المتاحة مطلوب.',
         ]);
 
         $data = $request->all();
 
         if ($user->role == 'training_coordinator') {
             $data['coordinator_id'] = $user->id;
+        }
+
+        // استخراج أيام التدريب المحددة في الأسبوع أو افتراض أيام العمل (الأحد - الخميس)
+        if ($request->has('training_days_of_week') && is_array($request->input('training_days_of_week')) && count($request->input('training_days_of_week')) > 0) {
+            $data['training_days_of_week'] = array_values(array_map('intval', $request->input('training_days_of_week')));
+        } else {
+            // أيام العمل الرسمية تلقائياً: الأحد(0) إلى الخميس(4) واستثناء الجمعة(5) والسبت(6)
+            $data['training_days_of_week'] = [0, 1, 2, 3, 4];
         }
 
         $training = Training::create($data);
@@ -106,10 +124,10 @@ class TrainingController extends Controller
 
         if ($user->role == 'training_coordinator') {
             return redirect()->route('training-coordinator.trainings')
-                ->with('success', 'تم إضافة برنامج التدريب بنجاح');
+                ->with('success', 'تم إنشاء برنامج التدريب بنجاح');
         } else {
             return redirect()->route('admin.trainings')
-                ->with('success', 'تم إضافة برنامج التدريب بنجاح');
+                ->with('success', 'تم إنشاء برنامج التدريب بنجاح');
         }
     }
 
@@ -153,7 +171,7 @@ class TrainingController extends Controller
         $training = Training::findOrFail($id);
         $companies = Company::all();
         $trainers = \App\Models\Trainer::all();
-        $categories = ['برمجة', 'تصميم', 'شبكات', 'إدارة', 'لغات', 'أخرى'];
+        $categories = Training::getCategories();
 
         if ($user->role == 'training_coordinator') {
             return view('training-coordinator.trainings.edit', compact('training', 'companies', 'trainers', 'categories'));
@@ -178,15 +196,57 @@ class TrainingController extends Controller
             'type' => 'required|in:workshop,course,seminar,internship',
             'duration' => 'required|string|max:100',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
+            'end_date' => 'required|date|after_or_equal:start_date',
             'location' => 'required|string|max:255',
             'seats' => 'required|integer|min:1',
             'status' => 'required|in:active,inactive,completed',
             'company_id' => 'nullable|exists:companies,id',
             'trainer_id' => 'nullable|exists:trainers,id',
+            'category' => 'required|string|max:255',
+            'instructor_name' => 'required_without:trainer_id|nullable|string|max:255',
+            'training_days_of_week' => 'nullable|array',
+            'training_days_of_week.*' => 'integer|between:0,6',
+        ], [
+            'end_date.after_or_equal' => 'يجب أن يكون تاريخ الانتهاء مساوياً لتاريخ البدء أو بعده.',
+            'start_date.required' => 'تاريخ بدء البرنامج التدريبي مطلوب.',
+            'end_date.required' => 'تاريخ انتهاء البرنامج التدريبي مطلوب.',
+            'title.required' => 'اسم البرنامج التدريبي مطلوب.',
+            'duration.required' => 'المدة التقديرية مطلوبة.',
+            'seats.required' => 'عدد المقاعد المتاحة مطلوب.',
         ]);
 
-        $training->update($request->all());
+        $data = $request->all();
+
+        // تحديث أيام التدريب المعتمدة
+        if ($request->has('training_days_of_week') && is_array($request->input('training_days_of_week')) && count($request->input('training_days_of_week')) > 0) {
+            $data['training_days_of_week'] = array_values(array_map('intval', $request->input('training_days_of_week')));
+        } else {
+            // أيام العمل الرسمية كخيار افتراضي عند الإلغاء
+            $data['training_days_of_week'] = [0, 1, 2, 3, 4];
+        }
+
+        $training->update($data);
+
+        // ======================================================
+        // مزامنة الشهادات الصادرة مع بيانات التدريب المحدثة
+        // يتم تحديث: اسم المدرب، عنوان البرنامج، بيانات الشركة، التواريخ
+        // لا يتغير: رمز الشهادة، اسم المستلم، تاريخ الإصدار الأصلي
+        // ======================================================
+        $training->refresh()->load('trainer', 'company'); // إعادة تحميل البيانات والعلاقات المرتبطة
+        $updatedInstructor = $training->trainer?->name ?? $training->instructor_name ?? 'مكتب تدريب وتأهيل الخريجين';
+
+        Certificate::where('training_id', $training->id)
+            ->where('status', 'valid')
+            ->update([
+                'instructor_name' => $updatedInstructor,
+                'title'           => $training->title,
+                'company_id'      => $training->company_id,
+                'company_name'    => $training->company?->name,
+                'company_logo'    => $training->company?->logo_path ?? $training->company?->logo,
+                'has_company_collaboration' => (bool) $training->company_id,
+                'start_date'      => $training->start_date,
+                'end_date'        => $training->end_date,
+            ]);
 
         AuditLog::logAction(
             'TRAINING_UPDATED',
@@ -520,9 +580,20 @@ class TrainingController extends Controller
                     $startStr = $training->start_date ? $training->start_date->format('Y-m-d') : null;
                     $endStr   = $training->end_date ? $training->end_date->format('Y-m-d') : null;
 
+                    $isOngoing = ($training->start_date && $training->end_date && $curr->between($training->start_date->startOfDay(), $training->end_date->endOfDay()));
+
+                    // تحقق من أن هذا اليوم ضمن أيام التدريب الأسبوعية المعتمدة
+                    if ($isOngoing) {
+                        $allowedWeekDays = $training->training_days_of_week;
+                        if (is_array($allowedWeekDays) && count($allowedWeekDays) > 0) {
+                            if (!in_array($curr->dayOfWeek, array_map('intval', $allowedWeekDays), true)) {
+                                continue; // يوم مستثنى: تخطّى التدريب لهذا اليوم
+                            }
+                        }
+                    }
+
                     $isStart   = ($startStr === $dateStr);
                     $isEnd     = ($endStr === $dateStr && $startStr !== $endStr);
-                    $isOngoing = ($training->start_date && $training->end_date && $curr->between($training->start_date->startOfDay(), $training->end_date->endOfDay()));
 
                     $typeColors = [
                         'workshop'   => ['bg' => '#059669', 'prefix' => 'ورشة: '],
@@ -590,7 +661,7 @@ class TrainingController extends Controller
                 'locations' => $trainings->pluck('location')->filter()->unique()->count(),
             ];
 
-            // تحضير أحداث FullCalendar بنفس صيغة وهوية تقويم الخريج
+            // تحضير أحداث FullCalendar مع الأخذ بعين الاعتبار أيام التدريب الأسبوعية المستثناة
             $typeColors = [
                 'workshop'   => ['bg' => '#059669', 'border' => '#047857', 'prefix' => 'ورشة: '],
                 'course'     => ['bg' => '#0d3882', 'border' => '#1e40af', 'prefix' => 'دورة: '],
@@ -598,34 +669,70 @@ class TrainingController extends Controller
                 'seminar'    => ['bg' => '#d97706', 'border' => '#b45309', 'prefix' => 'ندوة: '],
             ];
 
-            $calendarTrainings = $trainings->map(function ($t) use ($typeColors) {
+            // بدلاً من حدث نطاق واحد يغطي كامل الفترة (مما يُظهر الأيام المستثناة)،
+            // نُولّد أحداثاً يومية مستقلة لكل يوم تدريب فعلي حسب أيام الأسبوع المعتمدة
+            $calendarTrainings = collect();
+
+            foreach ($trainings as $t) {
                 $cfg = $typeColors[$t->type] ?? ['bg' => '#0d3882', 'border' => '#1e40af', 'prefix' => ''];
-                $endDate = $t->end_date ? $t->end_date->copy()->addDay()->format('Y-m-d') : null;
-                return [
-                    'id'              => $t->id,
-                    'title'           => $cfg['prefix'] . $t->title,
-                    'start'           => $t->start_date ? $t->start_date->format('Y-m-d') : null,
-                    'end'             => $endDate,
-                    'url'             => route('training-coordinator.trainings.show', $t->id),
-                    'backgroundColor' => $cfg['bg'],
-                    'borderColor'     => $cfg['border'],
-                    'textColor'       => '#ffffff',
-                    'extendedProps'   => [
-                        'type'          => $t->type,
-                        'location'      => $t->location ?? 'غير محدد',
-                        'rawTitle'      => $t->title,
-                        'instructor'    => $t->instructor_name ?? ($t->trainer->name ?? 'غير محدد'),
-                        'seats'         => $t->seats ?? '—',
-                        'status'        => $t->status,
-                        'duration'      => $t->duration ?? '—',
-                        'startDate'     => $t->start_date ? $t->start_date->format('Y-m-d') : '—',
-                        'endDate'       => $t->end_date ? $t->end_date->format('Y-m-d') : '—',
-                        'showUrl'       => route('training-coordinator.trainings.show', $t->id),
-                        'attendanceUrl' => route('training-coordinator.trainings.attendance', $t->id),
-                    ],
-                    'className'       => 'fc-event-custom fc-event-' . $t->type
+                $extendedProps = [
+                    'type'          => $t->type,
+                    'location'      => $t->location ?? 'غير محدد',
+                    'rawTitle'      => $t->title,
+                    'instructor'    => $t->instructor_name ?? ($t->trainer->name ?? 'غير محدد'),
+                    'seats'         => $t->seats ?? '—',
+                    'status'        => $t->status,
+                    'duration'      => $t->duration ?? '—',
+                    'startDate'     => $t->start_date ? $t->start_date->format('Y-m-d') : '—',
+                    'endDate'       => $t->end_date ? $t->end_date->format('Y-m-d') : '—',
+                    'showUrl'       => route('training-coordinator.trainings.show', $t->id),
+                    'attendanceUrl' => route('training-coordinator.trainings.attendance', $t->id),
                 ];
-            })->values();
+
+                if (!$t->start_date) continue;
+
+                $allowedDays = $t->training_days_of_week;
+                $hasSpecificDays = is_array($allowedDays) && count($allowedDays) > 0 && count($allowedDays) < 7;
+
+                if (!$hasSpecificDays) {
+                    // لا توجد أيام مستثناة: استخدم حدث نطاق واحد
+                    $calendarTrainings->push([
+                        'id'              => $t->id,
+                        'title'           => $cfg['prefix'] . $t->title,
+                        'start'           => $t->start_date->format('Y-m-d'),
+                        'end'             => $t->end_date ? $t->end_date->copy()->addDay()->format('Y-m-d') : null,
+                        'url'             => route('training-coordinator.trainings.show', $t->id),
+                        'backgroundColor' => $cfg['bg'],
+                        'borderColor'     => $cfg['border'],
+                        'textColor'       => '#ffffff',
+                        'extendedProps'   => $extendedProps,
+                        'className'       => 'fc-event-custom fc-event-' . $t->type,
+                    ]);
+                } else {
+                    // توجد أيام مستثناة: نُولّد أحداثاً يومية للأيام الفعلية فقط
+                    $allowedDays = array_map('intval', $allowedDays);
+                    $current = Carbon::parse($t->start_date);
+                    $endDate = $t->end_date ? Carbon::parse($t->end_date) : $current->copy();
+
+                    while ($current->lte($endDate)) {
+                        if (in_array($current->dayOfWeek, $allowedDays, true)) {
+                            $calendarTrainings->push([
+                                'id'              => $t->id . '_' . $current->format('Ymd'),
+                                'title'           => $cfg['prefix'] . $t->title,
+                                'start'           => $current->format('Y-m-d'),
+                                'end'             => $current->copy()->addDay()->format('Y-m-d'),
+                                'url'             => route('training-coordinator.trainings.show', $t->id),
+                                'backgroundColor' => $cfg['bg'],
+                                'borderColor'     => $cfg['border'],
+                                'textColor'       => '#ffffff',
+                                'extendedProps'   => $extendedProps,
+                                'className'       => 'fc-event-custom fc-event-' . $t->type,
+                            ]);
+                        }
+                        $current->addDay();
+                    }
+                }
+            }
 
             return view('training-coordinator.calendar', compact(
                 'trainings', 'weeks', 'month', 'year', 'monthName', 'arabicMonths',
@@ -1454,7 +1561,8 @@ class TrainingController extends Controller
     }
 
     /**
-     * تصدير مصفوفة الحضور بصيغة CSV المتوافقة مع Excel باللغة العربية
+     * تصدير كشف الحضور بصيغة CSV المتوافقة تماماً مع Microsoft Excel باللغة العربية
+     * يدعم تصدير الحاضرين فقط أو الكشف الشامل متضمناً: الاسم، رقم الهاتف، التخصص، الكلية، الرقم الوطني، نسبة الالتزام
      */
     public function exportAttendance(Request $request, Training $training)
     {
@@ -1463,80 +1571,174 @@ class TrainingController extends Controller
             abort(403, 'غير مصرح لك بتصدير كشف الحضور');
         }
 
-        $applications = TrainingApplication::with(['user.graduateData'])
+        $attendedOnly = $request->boolean('attended_only') || $request->get('filter') === 'attended';
+
+        // جلب جميع الطلبات المقبولة مع بيانات المستخدم
+        $applications = TrainingApplication::with(['user'])
             ->where('training_id', $training->id)
-            ->where('status', 'approved')
+            ->whereIn('status', ['approved', 'completed'])
             ->get();
 
-        $trainingDays = $training->training_days;
-        $totalDays = $training->total_days_count;
+        $trainingDays = $training->training_days ?? [];
+        $totalDays = $training->total_days_count > 0 ? $training->total_days_count : (count($trainingDays) > 0 ? count($trainingDays) : 1);
 
         $allAttendances = TrainingAttendance::where('training_id', $training->id)
             ->get()
             ->groupBy('user_id');
 
-        $fileName = 'attendance_' . Str::slug($training->title) . '_' . date('Y-m-d') . '.csv';
+        // تجهيز بيانات المتدربين مع احتساب الحضور ونسبة الالتزام بدقة
+        $rowsData = [];
+        foreach ($applications as $app) {
+            $trainee = $app->user;
+            if (!$trainee) continue;
 
-        $headers = [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
-        ];
+            $userAttendances = $allAttendances[$trainee->id] ?? collect();
+            $userAttendancesByDate = $userAttendances->keyBy(function ($a) {
+                return $a->date ? Carbon::parse($a->date)->format('Y-m-d') : '';
+            });
 
-        $callback = function () use ($applications, $trainingDays, $allAttendances, $totalDays) {
+            $attendedCount = 0;
+            $dayStatuses = [];
+
+            foreach ($trainingDays as $day) {
+                $dayDate = $day['date'] ?? '';
+                $att = $dayDate ? ($userAttendancesByDate[$dayDate] ?? null) : null;
+
+                if ($att && $att->status === 'present') {
+                    $timeStr = $att->attended_at ? ' (' . Carbon::parse($att->attended_at)->format('H:i') . ')' : '';
+                    $dayStatuses[] = 'حاضر' . $timeStr;
+                    $attendedCount++;
+                } elseif ($att && $att->status === 'late') {
+                    $timeStr = $att->attended_at ? ' (' . Carbon::parse($att->attended_at)->format('H:i') . ')' : '';
+                    $dayStatuses[] = 'متأخر' . $timeStr;
+                    $attendedCount++;
+                } elseif ($att && $att->status === 'excused') {
+                    $dayStatuses[] = 'معذور';
+                } else {
+                    $dayStatuses[] = 'غائب';
+                }
+            }
+
+            // فحص إضافي لدعم attended_at المباشر إذا لم تكن هناك سجلات تفصيلية
+            if ($attendedCount === 0 && $app->attended_at !== null) {
+                $attendedCount = 1;
+            }
+
+            // فلترة الطلبة الذين حضروا فقط عند تفعيل خيار الحاضرين فقط
+            if ($attendedOnly && $attendedCount === 0) {
+                continue;
+            }
+
+            $attendanceRate = $totalDays > 0 ? round(($attendedCount / $totalDays) * 100, 1) : 0;
+
+            // تحديد وصف حالة الالتزام
+            $commitmentStatus = 'غائب (لم يحضر)';
+            if ($attendanceRate >= 100) {
+                $commitmentStatus = 'ملتزم بالكامل (100%)';
+            } elseif ($attendanceRate >= 80) {
+                $commitmentStatus = 'ملتزم ممتاز (مؤهل للشهادة)';
+            } elseif ($attendanceRate >= 50) {
+                $commitmentStatus = 'التزام متوسط';
+            } elseif ($attendanceRate > 0) {
+                $commitmentStatus = 'حضور جزئي منخفض';
+            }
+
+            // تنسيق رقم الهاتف والرقم الوطني لتظهر كنص كامل في إكسل دون حذف الأصفار أو التحويل العلمي
+            $rawPhone = $trainee->phone ?? '';
+            $phoneStr = !empty($rawPhone) ? '="' . $rawPhone . '"' : '—';
+
+            $rawNid = $trainee->national_id ?? '';
+            $nidStr = !empty($rawNid) ? '="' . $rawNid . '"' : '—';
+
+            $specialization = $trainee->specialization ?: ($trainee->major ?: '—');
+            $faculty = $trainee->faculty ?: '—';
+
+            $rowsData[] = [
+                'name'              => $trainee->name ?? 'غير معروف',
+                'phone'             => $phoneStr,
+                'specialization'    => $specialization,
+                'faculty'           => $faculty,
+                'national_id'       => $nidStr,
+                'email'             => $trainee->email ?: '—',
+                'attended_count'    => $attendedCount,
+                'attended_ratio'    => "{$attendedCount} / {$totalDays}",
+                'attendance_rate'   => "{$attendanceRate}%",
+                'commitment_status' => $commitmentStatus,
+                'day_statuses'      => $dayStatuses,
+            ];
+        }
+
+        $typeLabel = $attendedOnly ? 'الحاضرين_فقط' : 'الكشف_الشامل';
+        $safeTitle = preg_replace('/[^\p{Arabic}\p{L}\p{N}_\-]+/u', '_', $training->title);
+        $fileName = 'كشف_حضور_' . $safeTitle . '_' . $typeLabel . '_' . date('Y-m-d') . '.csv';
+        $asciiName = 'attendance_' . $training->id . '_' . ($attendedOnly ? 'attended_only' : 'all') . '_' . date('Y-m-d') . '.csv';
+
+        $callback = function () use ($rowsData, $trainingDays, $training, $attendedOnly, $totalDays) {
             $file = fopen('php://output', 'w');
-            // Add UTF-8 BOM for Arabic support in Excel
+            // إضافة UTF-8 BOM لفتح الملف باللغة العربية مباشرة في Microsoft Excel
             fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
-            // Header row
-            $header = ['#', 'اسم الخريج', 'الرقم الجامعي/الوطني', 'الكلية', 'القسم'];
+            // معلومات الدورة والتقرير في الترويسة
+            fputcsv($file, ['البرنامج التدريبي:', $training->title]);
+            fputcsv($file, ['الجهة / المنظمة:', $training->company->name ?? 'مكتب تدريب الخريجين']);
+            fputcsv($file, ['فترة التدريب:', ($training->start_date ? $training->start_date->format('Y-m-d') : '—') . ' إلى ' . ($training->end_date ? $training->end_date->format('Y-m-d') : '—')]);
+            fputcsv($file, ['إجمالي أيام التدريب:', $totalDays . ' يوم']);
+            fputcsv($file, ['نوع الكشف المستخرج:', $attendedOnly ? 'الطلبة الذين حضروا فقط (نسبة الالتزام > 0%)' : 'الكشف الشامل لجميع المتدربين المقبولين']);
+            fputcsv($file, ['عدد المتدربين في الكشف:', count($rowsData) . ' متدرب']);
+            fputcsv($file, ['تاريخ ووقت التصدير:', date('Y-m-d H:i')]);
+            fputcsv($file, []); // سطر فاصل
+
+            // عناوين الأعمدة المطلوبة
+            $header = [
+                '#',
+                'اسم الطالب / المتدرب',
+                'رقم الهاتف',
+                'التخصص',
+                'الكلية',
+                'الرقم الوطني',
+                'البريد الإلكتروني',
+                'أيام الحضور الفعلية',
+                'إجمالي أيام الدورة',
+                'نسبة الالتزام والحضور',
+                'حالة الالتزام',
+            ];
+
             foreach ($trainingDays as $day) {
                 $header[] = "يوم {$day['day_number']} ({$day['date']})";
             }
-            $header[] = 'أيام الحضور';
-            $header[] = 'نسبة الحضور (%)';
 
             fputcsv($file, $header);
 
-            // Rows
-            foreach ($applications as $index => $app) {
-                $user = $app->user;
-                $userAttendances = $allAttendances[$user->id] ?? collect();
-                $userAttendancesByDate = $userAttendances->keyBy(fn($a) => $a->date->format('Y-m-d'));
-
-                $row = [
+            // صفوف بيانات الطلبة
+            foreach ($rowsData as $index => $row) {
+                $csvRow = [
                     $index + 1,
-                    $user->name,
-                    $user->graduateData->national_id ?? $user->graduateData->university_id ?? '---',
-                    $user->graduateData->faculty ?? '---',
-                    $user->graduateData->department ?? '---',
+                    $row['name'],
+                    $row['phone'],
+                    $row['specialization'],
+                    $row['faculty'],
+                    $row['national_id'],
+                    $row['email'],
+                    $row['attended_count'],
+                    $totalDays,
+                    $row['attendance_rate'],
+                    $row['commitment_status'],
                 ];
 
-                $attendedCount = 0;
-                foreach ($trainingDays as $day) {
-                    $att = $userAttendancesByDate[$day['date']] ?? null;
-                    if ($att && $att->status === 'present') {
-                        $row[] = 'حاضر (' . ($att->attended_at ? $att->attended_at->format('H:i') : '') . ')';
-                        $attendedCount++;
-                    } elseif ($att && $att->status === 'late') {
-                        $row[] = 'متأخر';
-                        $attendedCount++;
-                    } elseif ($att && $att->status === 'excused') {
-                        $row[] = 'معذور';
-                    } else {
-                        $row[] = 'غائب';
-                    }
+                foreach ($row['day_statuses'] as $status) {
+                    $csvRow[] = $status;
                 }
 
-                $row[] = "{$attendedCount} / {$totalDays}";
-                $row[] = ($totalDays > 0 ? round(($attendedCount / $totalDays) * 100, 1) : 0) . '%';
-
-                fputcsv($file, $row);
+                fputcsv($file, $csvRow);
             }
 
             fclose($file);
         };
 
-        return response()->stream($callback, 200, $headers);
+        return response()->streamDownload($callback, $asciiName, [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$asciiName}\"; filename*=UTF-8''" . rawurlencode($fileName),
+        ]);
     }
 
     /**
@@ -1576,5 +1778,626 @@ class TrainingController extends Controller
         }
 
         return redirect()->back()->with('success', 'تم قبول ' . count($ids) . ' طلب(ات) بنجاح');
+    }
+
+    /**
+     * اعتماد وإصدار الشهادات للمتدربين المجتازين بنسبة الحضور المقررة
+     */
+    public function issueCertificates(Request $request, Training $training)
+    {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('trainings.attendance') && $user->role !== 'training_coordinator') {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'غير مصرح لك باعتماد وإصدار الشهادات.'], 403);
+            }
+            abort(403, 'غير مصرح لك باعتماد وإصدار الشهادات.');
+        }
+
+        $minPercentage = (int) $request->input('min_percentage', 75);
+        // السماح بـ 0% (الجميع) وحتى 100%، مع رفض القيم السالبة أو أكثر من 100
+        if ($minPercentage < 0 || $minPercentage > 100) {
+            $minPercentage = 75;
+        }
+
+        $selectedUserIds = $request->input('selected_users', []);
+        if (is_string($selectedUserIds)) {
+            $selectedUserIds = array_filter(explode(',', $selectedUserIds));
+        }
+
+        $applications = TrainingApplication::with(['user.graduateData'])
+            ->where('training_id', $training->id)
+            ->where('status', 'approved')
+            ->get();
+
+        // ✅ حساب الحضور مباشرةً من جدول training_attendances (user_id + training_id)
+        // بدلاً من الاعتماد على الـ accessor الذي قد يُرجع 0 بسبب training_application_id الفارغ
+        $totalDays = max(1, (int) ($training->total_days_count ?? 1));
+
+        $attendanceCounts = TrainingAttendance::where('training_id', $training->id)
+            ->whereIn('status', ['present', 'late'])
+            ->select('user_id', \Illuminate\Support\Facades\DB::raw('COUNT(*) as attended'))
+            ->groupBy('user_id')
+            ->pluck('attended', 'user_id');
+
+        $issuedCount = 0;
+        $alreadyIssuedCount = 0;
+        $issuedNames = [];
+
+        // حساب ساعات التدريب (إذا لم تكن محددة صراحة، تُحسب كـ 4 ساعات لكل يوم تدريبي)
+        $hours = $training->duration ? (int) filter_var($training->duration, FILTER_SANITIZE_NUMBER_INT) : null;
+        if (!$hours || $hours <= 0) {
+            $hours = $totalDays * 4;
+        }
+
+        // نوع الشهادة
+        $certType = 'training_attendance';
+        if ($training->type === 'internship') {
+            $certType = 'cooperative_attendance';
+        } elseif ($training->type === 'workshop') {
+            $certType = 'workshop_attendance';
+        }
+
+        foreach ($applications as $app) {
+            $trainee = $app->user;
+            if (!$trainee) {
+                continue;
+            }
+
+            // حساب النسبة من جدول الحضور الفعلي مباشرةً
+            $attendedDays = (int) ($attendanceCounts[$trainee->id] ?? 0);
+            $pct = (int) round(($attendedDays / $totalDays) * 100);
+            $isExplicitlySelected = !empty($selectedUserIds) && in_array($trainee->id, $selectedUserIds);
+            $meetsPercentage = $pct >= $minPercentage;
+
+            if (!$isExplicitlySelected && (!empty($selectedUserIds) || !$meetsPercentage)) {
+                continue;
+            }
+
+            // فحص هل الشهادة صادرة مسبقاً لهذا المتدرب في هذا البرنامج
+            $existing = Certificate::where('training_id', $training->id)
+                ->where('user_id', $trainee->id)
+                ->first();
+
+            if ($existing) {
+                $alreadyIssuedCount++;
+                continue;
+            }
+
+            // إنشاء الشهادة المعتمدة (الحدث التلقائي في الموديل سيرسل الإشعار فوراً)
+            Certificate::create([
+                'certificate_code' => Certificate::generateCode(),
+                'user_id' => $trainee->id,
+                'training_id' => $training->id,
+                'company_id' => $training->company_id,
+                'type' => $certType,
+                'title' => $training->title,
+                'recipient_name' => $trainee->name,
+                'hours' => $hours,
+                'issue_date' => now(),
+                'start_date' => $training->start_date,
+                'end_date' => $training->end_date,
+                'instructor_name' => $training->trainer?->name ?? $training->instructor_name ?? 'مكتب تدريب وتأهيل الخريجين',
+                'has_company_collaboration' => (bool) $training->company_id,
+                'company_name' => $training->company?->name,
+                'company_logo' => $training->company?->logo_path ?? $training->company?->logo,
+                'status' => 'valid',
+                'notes' => "تم اعتماد الشهادة بنسبة حضور {$pct}% من إجمالي {$totalDays} أيام تدريبية.",
+            ]);
+
+            $issuedCount++;
+            $issuedNames[] = $trainee->name;
+        }
+
+        // تسجيل في سجل التدقيق
+        try {
+            AuditLog::create([
+                'user_id' => $user->id,
+                'action' => 'issue_certificates',
+                'model_type' => Training::class,
+                'model_id' => $training->id,
+                'description' => "قام {$user->name} باعتماد وإصدار {$issuedCount} شهادة تدريبية للمجتازين بنسبة حضور {$minPercentage}% فأكثر.",
+                'ip_address' => $request->ip(),
+            ]);
+        } catch (\Throwable $e) {}
+
+        $message = "تم بنجاح اعتماد وإصدار ({$issuedCount}) شهادة تدريبية معتمدة وفق نسبة حضور ({$minPercentage}%+) وإرسال إشعارات التهنئة الفورية للمتدربين.";
+        if ($alreadyIssuedCount > 0) {
+            $message .= " (كما وُجدت {$alreadyIssuedCount} شهادة صادرة مسبقاً لم يتم تكرارها).";
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'issued_count' => $issuedCount,
+                'already_issued' => $alreadyIssuedCount,
+                'message' => $message,
+            ]);
+        }
+
+        return redirect()->back()->with('success', $message);
+    }
+
+    /**
+     * تصدير تقرير إكسل لبرامج وورش العمل المنفذة في شهر محدد (مثل شهر 9 - سبتمبر)
+     * يشمل: اسم التدريب، نوع البرنامج، المدرب، تاريخ التدريب، عدد الحضور، وطلبة الملتزمين
+     */
+    public function exportMonthlyReport(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('trainings.view') && $user->role !== 'training_coordinator') {
+            abort(403, 'غير مصرح لك بتصدير تقارير التدريب.');
+        }
+
+        $month = $request->input('month', 9); // افتراضياً شهر 9 (سبتمبر)
+        $year = $request->input('year', 2026); // افتراضياً سنة 2026
+        $type = $request->input('type', 'all'); // ورش عمل / دورات / الكل
+        $commitmentThreshold = (int) $request->input('commitment_rate', 75);
+        if ($commitmentThreshold <= 0 || $commitmentThreshold > 100) {
+            $commitmentThreshold = 75;
+        }
+        $reportFormat = $request->input('format', 'summary'); // summary أو detailed
+
+        // بناء الاستعلام
+        $query = Training::with(['company', 'coordinator', 'applications.user.graduateData', 'attendances']);
+
+        // فلترة بالنوع
+        if ($type && $type !== 'all') {
+            $query->where('type', $type);
+        }
+
+        // فلترة بالسنة
+        if ($year && $year !== 'all') {
+            $query->where(function ($q) use ($year) {
+                $q->whereYear('start_date', $year)
+                  ->orWhereYear('end_date', $year);
+            });
+        }
+
+        // فلترة بالشهر
+        if ($month && $month !== 'all') {
+            $selectedYear = ($year && $year !== 'all') ? (int) $year : Carbon::now()->year;
+            $monthStart = Carbon::create($selectedYear, (int) $month, 1)->startOfMonth();
+            $monthEnd = $monthStart->copy()->endOfMonth();
+
+            $query->where(function ($q) use ($month, $monthStart, $monthEnd) {
+                $q->whereMonth('start_date', $month)
+                  ->orWhereMonth('end_date', $month)
+                  ->orWhere(function ($sub) use ($monthStart, $monthEnd) {
+                      $sub->where('start_date', '<=', $monthEnd)
+                          ->where('end_date', '>=', $monthStart);
+                  });
+            });
+        }
+
+        $trainings = $query->orderBy('start_date', 'asc')->get();
+
+        // تجميع وتحليل البيانات لكل برنامج
+        $reportData = [];
+        $totalAttendeesAll = 0;
+        $totalCommittedAll = 0;
+
+        foreach ($trainings as $training) {
+            $totalDays = max(1, (int) ($training->total_days_count ?? 1));
+            $approvedApps = $training->applications->where('status', 'approved');
+
+            // حساب عدد الأيام الفعلية التي حضرها كل طالب مسجل
+            $attendanceCounts = TrainingAttendance::where('training_id', $training->id)
+                ->whereIn('status', ['present', 'late'])
+                ->groupBy('user_id')
+                ->selectRaw('user_id, COUNT(DISTINCT date) as days_attended')
+                ->pluck('days_attended', 'user_id');
+
+            $attendeesCount = 0;
+            $committedStudents = [];
+            $allTraineesDetails = [];
+
+            foreach ($approvedApps as $app) {
+                $trainee = $app->user;
+                if (!$trainee) continue;
+
+                $daysAttended = (int) ($attendanceCounts[$trainee->id] ?? 0);
+                if ($daysAttended === 0 && $app->attended_at !== null) {
+                    $daysAttended = 1;
+                }
+
+                $attPct = (int) round(($daysAttended / $totalDays) * 100);
+                $isCommitted = ($attPct >= $commitmentThreshold);
+
+                if ($daysAttended > 0) {
+                    $attendeesCount++;
+                }
+
+                if ($isCommitted) {
+                    $committedStudents[] = [
+                        'id' => $trainee->id,
+                        'name' => $trainee->name,
+                        'email' => $trainee->email,
+                        'phone' => $trainee->phone ?? $trainee->graduateData?->phone ?? '—',
+                        'faculty' => $trainee->faculty ?? $trainee->graduateData?->faculty ?? '—',
+                        'major' => $trainee->major ?? $trainee->graduateData?->department ?? '—',
+                        'attended_days' => $daysAttended,
+                        'total_days' => $totalDays,
+                        'percentage' => $attPct,
+                    ];
+                }
+
+                $allTraineesDetails[] = [
+                    'id' => $trainee->id,
+                    'name' => $trainee->name,
+                    'email' => $trainee->email,
+                    'phone' => $trainee->phone ?? $trainee->graduateData?->phone ?? '—',
+                    'faculty' => $trainee->faculty ?? $trainee->graduateData?->faculty ?? '—',
+                    'major' => $trainee->major ?? $trainee->graduateData?->department ?? '—',
+                    'graduation_year' => $trainee->graduation_year ?? $trainee->graduateData?->graduation_year ?? '—',
+                    'applied_at' => $app->applied_at ? $app->applied_at->format('Y-m-d') : '—',
+                    'attended_days' => $daysAttended,
+                    'total_days' => $totalDays,
+                    'percentage' => $attPct,
+                    'is_committed' => $isCommitted,
+                ];
+            }
+
+            $committedCount = count($committedStudents);
+            $commitmentRate = $attendeesCount > 0 ? round(($committedCount / $attendeesCount) * 100, 1) : 0;
+
+            $totalAttendeesAll += $attendeesCount;
+            $totalCommittedAll += $committedCount;
+
+            $typeLabel = match($training->type) {
+                'workshop' => 'ورشة عمل',
+                'course' => 'دورة تدريبية',
+                'internship' => 'تدريب عملي / تعاوني',
+                default => $training->type ?? 'برنامج تدريبي',
+            };
+
+            $statusLabel = match($training->status) {
+                'completed' => 'مكتمل',
+                'active' => 'نشط',
+                'inactive' => 'غير نشط',
+                default => $training->status ?? '—',
+            };
+
+            $reportData[] = [
+                'training_id' => $training->id,
+                'title' => $training->title,
+                'type_label' => $typeLabel,
+                'category' => $training->category ?? 'عام',
+                'instructor_name' => $training->instructor_name ?: ($training->coordinator?->name ?? 'مكتب تدريب وتأهيل الخريجين'),
+                'start_date' => $training->start_date ? Carbon::parse($training->start_date)->format('Y-m-d') : '—',
+                'end_date' => $training->end_date ? Carbon::parse($training->end_date)->format('Y-m-d') : '—',
+                'training_days_count' => $totalDays,
+                'location' => $training->location ?? 'غير محدد',
+                'seats' => $training->seats ?? 'غير محدد',
+                'approved_count' => $approvedApps->count(),
+                'attendees_count' => $attendeesCount,
+                'committed_count' => $committedCount,
+                'commitment_rate' => $commitmentRate,
+                'committed_students' => $committedStudents,
+                'all_trainees' => $allTraineesDetails,
+                'status_label' => $statusLabel,
+            ];
+        }
+
+        // إذا كان الطلب استعراضاً سريعاً (Live Preview AJAX)
+        if ($request->has('preview') || $request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'month' => $month,
+                'year' => $year,
+                'trainings_count' => count($reportData),
+                'total_attendees' => $totalAttendeesAll,
+                'total_committed' => $totalCommittedAll,
+                'commitment_threshold' => $commitmentThreshold,
+                'data' => $reportData,
+            ]);
+        }
+
+        // إعداد ملف Excel (CSV with UTF-8 BOM)
+        $monthName = match((string)$month) {
+            '1' => 'يناير',
+            '2' => 'فبراير',
+            '3' => 'مارس',
+            '4' => 'أبريل',
+            '5' => 'مايو',
+            '6' => 'يونيو',
+            '7' => 'يوليو',
+            '8' => 'أغسطس',
+            '9' => 'سبتمبر_شهر_9',
+            '10' => 'أكتوبر',
+            '11' => 'نوفمبر',
+            '12' => 'ديسمبر',
+            default => 'كل_الأشهر',
+        };
+
+        $yearSuffix = ($year !== 'all' ? $year : date('Y'));
+        $fileName = 'تقرير_تدريبات_وورش_عمل_' . $monthName . '_' . $yearSuffix . '_' . date('Ymd_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ];
+
+        $callback = function () use ($reportData, $reportFormat, $commitmentThreshold) {
+            $file = fopen('php://output', 'w');
+            // Add UTF-8 BOM for Arabic support in Excel
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            if ($reportFormat === 'detailed') {
+                // تقرير تفصيلي بكل متدرب في كل برنامج
+                fputcsv($file, [
+                    '#',
+                    'اسم البرنامج التدريبي / ورشة العمل',
+                    'نوع البرنامج',
+                    'التخصص / المجال',
+                    'اسم المدرب',
+                    'تاريخ التدريب',
+                    'اسم الطالب / الخريج',
+                    'البريد الإلكتروني',
+                    'رقم الهاتف',
+                    'الكلية',
+                    'التخصص / القسم',
+                    'سنة التخرج',
+                    'أيام الحضور الفعلية',
+                    'إجمالي أيام التدريب',
+                    'نسبة الحضور (%)',
+                    'حالة الالتزام (' . $commitmentThreshold . '%+)',
+                    'تاريخ التسجيل',
+                ]);
+
+                $index = 1;
+                foreach ($reportData as $item) {
+                    foreach ($item['all_trainees'] as $trainee) {
+                        fputcsv($file, [
+                            $index++,
+                            $item['title'],
+                            $item['type_label'],
+                            $item['category'],
+                            $item['instructor_name'],
+                            $item['start_date'] . ' إلى ' . $item['end_date'],
+                            $trainee['name'],
+                            $trainee['email'],
+                            $trainee['phone'],
+                            $trainee['faculty'],
+                            $trainee['major'],
+                            $trainee['graduation_year'],
+                            $trainee['attended_days'],
+                            $trainee['total_days'],
+                            $trainee['percentage'] . '%',
+                            $trainee['is_committed'] ? 'ملتزم ✅' : 'غير ملتزم ❌',
+                            $trainee['applied_at'],
+                        ]);
+                    }
+                }
+            } else {
+                // تقرير ملخص البرامج مع أعداد وقوائم الملتزمين (المطلوب الرئيسي)
+                fputcsv($file, [
+                    '#',
+                    'اسم التدريب / ورشة العمل',
+                    'نوع البرنامج',
+                    'التخصص / المجال',
+                    'اسم المدرب',
+                    'تاريخ البداية',
+                    'تاريخ النهاية',
+                    'عدد أيام التدريب الفعلية',
+                    'المقاعد المتاحة',
+                    'إجمالي المسجلين المقبولين',
+                    'عدد الحضور الفعلي',
+                    'عدد الطلبة الملتزمين (' . $commitmentThreshold . '%+)',
+                    'نسبة الالتزام العامة (%)',
+                    'أسماء ونسب الطلبة الملتزمين',
+                    'حالة البرنامج',
+                ]);
+
+                $index = 1;
+                foreach ($reportData as $item) {
+                    $committedNamesList = collect($item['committed_students'])->map(function ($s) {
+                        return $s['name'] . ' (' . $s['percentage'] . '%)';
+                    })->implode(' | ');
+
+                    if (empty($committedNamesList)) {
+                        $committedNamesList = 'لا يوجد طلبة استوفوا النسبة';
+                    }
+
+                    fputcsv($file, [
+                        $index++,
+                        $item['title'],
+                        $item['type_label'],
+                        $item['category'],
+                        $item['instructor_name'],
+                        $item['start_date'],
+                        $item['end_date'],
+                        $item['training_days_count'],
+                        $item['seats'],
+                        $item['approved_count'],
+                        $item['attendees_count'],
+                        $item['committed_count'],
+                        $item['commitment_rate'] . '%',
+                        $committedNamesList,
+                        $item['status_label'],
+                    ]);
+                }
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * استيراد برامج وورش عمل تدريبية من ملف إكسل / CSV
+     */
+    public function importTrainings(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user->isAdmin() && !$user->hasPermission('trainings.create') && $user->role !== 'training_coordinator') {
+            abort(403, 'غير مصرح لك باستيراد برامج التدريب.');
+        }
+
+        $request->validate([
+            'csv_file' => 'required|file|max:5120',
+        ], [
+            'csv_file.required' => 'يرجى اختيار ملف الإكسل أو الـ CSV المراد استيراده',
+        ]);
+
+        $file = $request->file('csv_file');
+        $path = $file->getRealPath();
+
+        $imported = 0;
+        $errors = [];
+
+        if (($handle = fopen($path, 'r')) !== false) {
+            // تجاهل الـ BOM إذا كان موجوداً
+            $bom = fread($handle, 3);
+            if ($bom !== "\xEF\xBB\xBF") {
+                rewind($handle);
+            }
+
+            // قراءة سطر العناوين
+            $header = fgetcsv($handle, 2000, ',');
+            if (!$header) {
+                fclose($handle);
+                return back()->with('error', 'الملف فارغ أو غير صالح.');
+            }
+
+            // تنظيف أسماء الأعمدة وتحويلها إلى أحرف صغيرة
+            $header = array_map(function ($h) {
+                return strtolower(trim(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $h)));
+            }, $header);
+
+            $coordinatorId = $user->role === 'training_coordinator' ? $user->id : (\App\Models\User::where('role', 'training_coordinator')->value('id') ?? $user->id);
+
+            $rowNum = 1;
+            while (($row = fgetcsv($handle, 2000, ',')) !== false) {
+                $rowNum++;
+                if (empty(array_filter($row))) {
+                    continue; // تجاهل الأسطر الفارغة
+                }
+
+                $data = [];
+                foreach ($header as $colIdx => $colName) {
+                    $data[$colName] = isset($row[$colIdx]) ? trim($row[$colIdx]) : null;
+                }
+
+                $title = $data['title'] ?? $data['اسم_التدريب'] ?? $data['العنوان'] ?? null;
+                if (!$title) {
+                    $errors[] = "السطر {$rowNum}: اسم التدريب مفقود.";
+                    continue;
+                }
+
+                // معالجة نوع التدريب
+                $rawType = strtolower($data['type'] ?? $data['النوع'] ?? '');
+                $type = 'workshop';
+                if (str_contains($rawType, 'دورة') || str_contains($title, 'دورة') || str_contains($rawType, 'course')) {
+                    $type = 'course';
+                } elseif (str_contains($rawType, 'تدريب عملي') || str_contains($rawType, 'تعاوني') || str_contains($rawType, 'internship')) {
+                    $type = 'internship';
+                }
+
+                // معالجة حالة البرنامج
+                $rawStatus = strtolower($data['status'] ?? $data['الحالة'] ?? 'متاح');
+                $status = 'active';
+                if (str_contains($rawStatus, 'مكتمل') || str_contains($rawStatus, 'completed')) {
+                    $status = 'completed';
+                } elseif (str_contains($rawStatus, 'غير نشط') || str_contains($rawStatus, 'inactive')) {
+                    $status = 'inactive';
+                }
+
+                // معالجة التواريخ (يدعم 10/4/2026 و 2026-10-04 وغيرها)
+                $startDate = null;
+                if (!empty($data['start_date'])) {
+                    try {
+                        $startDate = Carbon::parse($data['start_date'])->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        try {
+                            $startDate = Carbon::createFromFormat('m/d/Y', $data['start_date'])->format('Y-m-d');
+                        } catch (\Exception $e2) {
+                            $startDate = now()->format('Y-m-d');
+                        }
+                    }
+                }
+
+                $endDate = null;
+                if (!empty($data['end_date'])) {
+                    try {
+                        $endDate = Carbon::parse($data['end_date'])->format('Y-m-d');
+                    } catch (\Exception $e) {
+                        try {
+                            $endDate = Carbon::createFromFormat('m/d/Y', $data['end_date'])->format('Y-m-d');
+                        } catch (\Exception $e2) {
+                            $endDate = $startDate;
+                        }
+                    }
+                }
+
+                // معالجة الشركة الشريكة
+                $companyId = !empty($data['company_id']) ? (int) $data['company_id'] : null;
+                if ($companyId && !Company::where('id', $companyId)->exists()) {
+                    $companyId = Company::first()?->id;
+                }
+
+                // المدرب
+                $instructorName = $data['instructor_name'] ?? $data['المدرب'] ?? $data['اسم_المدرب'] ?? 'مكتب تدريب الخريجين';
+
+                // المقاعد
+                $seats = !empty($data['seats']) ? (int) $data['seats'] : 25;
+
+                // الموقع
+                $location = $data['location'] ?? 'جامعة طرابلس';
+
+                // المدة
+                $duration = $data['duration'] ?? '3 أيام';
+
+                // الحفظ في قاعدة البيانات
+                Training::updateOrCreate(
+                    ['title' => $title],
+                    [
+                        'description' => $data['description'] ?? "برنامج تدريبي في: {$title}",
+                        'type' => $type,
+                        'duration' => $duration,
+                        'start_date' => $startDate,
+                        'end_date' => $endDate,
+                        'location' => $location,
+                        'seats' => $seats,
+                        'status' => $status,
+                        'company_id' => $companyId,
+                        'coordinator_id' => $coordinatorId,
+                        'instructor_name' => $instructorName,
+                        'category' => $this->inferCategory($title),
+                        'training_days_of_week' => [0, 1, 2, 3, 4],
+                    ]
+                );
+
+                $imported++;
+            }
+
+            fclose($handle);
+        }
+
+        $msg = "تم استيراد ({$imported}) برنامج تدريبي بنجاح إلى قاعدة البيانات!";
+        if (!empty($errors)) {
+            $msg .= ' ملاحظات: ' . implode(' | ', $errors);
+        }
+
+        return redirect()->back()->with('success', $msg);
+    }
+
+    /**
+     * استنتاج التخصص تلقائياً من عنوان التدريب
+     */
+    private function inferCategory(string $title): string
+    {
+        if (str_contains($title, 'بيانات') || str_contains($title, 'أمن') || str_contains($title, 'سيبراني') || str_contains($title, 'ذكاء') || str_contains($title, 'برمج')) {
+            return 'تقنية المعلومات والتحول الرقمي';
+        } elseif (str_contains($title, 'تسويق') || str_contains($title, 'مبيعات') || str_contains($title, 'إعلام')) {
+            return 'التسويق والمبيعات';
+        } elseif (str_contains($title, 'مشاريع') || str_contains($title, 'إدارة') || str_contains($title, 'قيادة')) {
+            return 'الإدارة والقيادة';
+        } elseif (str_contains($title, 'سوق العمل') || str_contains($title, 'مهارات') || str_contains($title, 'تنمية') || str_contains($title, 'ذاتية')) {
+            return 'التنمية البشرية والمهارات الشخصية';
+        } elseif (str_contains($title, 'محاسب') || str_contains($title, 'مالي') || str_contains($title, 'اقتصاد')) {
+            return 'الاقتصاد والمالية والمحاسبة';
+        }
+        return 'التنمية البشرية والمهارات الشخصية';
     }
 }

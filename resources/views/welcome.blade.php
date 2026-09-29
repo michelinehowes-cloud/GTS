@@ -1032,8 +1032,12 @@
                             </div>
                             <div class="col-lg-4 text-center">
                                 <div class="p-4 rounded-4" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px);">
-                                    @if($fair->logo_url)
-                                        <img src="{{ $fair->logo_url }}" alt="{{ $fair->title }}" class="img-fluid mb-3 rounded-3 bg-white p-1.5 shadow-sm" style="max-height: 85px; max-width: 150px; object-fit: contain;" onerror="this.style.display='none'">
+                                    @if($fair->white_logo_url)
+                                        <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" class="img-fluid mb-3" style="max-height: 85px; max-width: 180px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25));" onerror="this.onerror=null;this.src='{{ $fair->logo_url }}';">
+                                    @elseif($fair->logo_url)
+                                        <div class="d-inline-block bg-white rounded-3 p-2 mb-3 shadow-sm">
+                                            <img src="{{ $fair->logo_url }}" alt="{{ $fair->title }}" class="img-fluid" style="max-height: 70px; max-width: 140px; object-fit: contain;" onerror="this.style.display='none'">
+                                        </div>
                                     @elseif($fair->banner_image)
                                         <img src="{{ asset('storage/' . $fair->banner_image) }}" alt="{{ $fair->title }}" class="img-fluid mb-3 rounded-3" style="max-height: 70px; object-fit: contain;" onerror="this.style.display='none'">
                                     @else
@@ -1483,9 +1487,9 @@
                         @csrf
                         <div class="mb-3 text-start text-rtl">
                             <label for="modalEmail" class="form-label fw-bold text-dark small mb-1">
-                                <i class="fas fa-envelope text-primary me-1"></i>البريد الإلكتروني
+                                <i class="fas fa-user-circle text-primary me-1"></i>البريد الإلكتروني أو اسم المستخدم
                             </label>
-                            <input type="email" class="form-control modal-login-input @error('email') is-invalid @enderror" id="modalEmail" name="email" value="{{ old('email') }}" placeholder="example@uot.edu.ly" required autofocus>
+                            <input type="text" class="form-control modal-login-input @error('email') is-invalid @enderror" id="modalEmail" name="email" value="{{ old('email') }}" placeholder="البريد الإلكتروني أو اسم المستخدم (مثال: admin)" required autofocus>
                         </div>
 
                         <div class="mb-3 text-start text-rtl">
@@ -1505,14 +1509,17 @@
                             </div>
                         </div>
 
-                        <div class="form-check mb-4 text-start text-rtl">
+                        <div class="form-check mb-3 text-start text-rtl">
                             <input class="form-check-input" type="checkbox" name="remember" id="modalRemember">
                             <label class="form-check-label text-muted small" for="modalRemember">
                                 تذكر بياناتي على هذا الجهاز
                             </label>
                         </div>
 
-                        <button type="submit" class="btn btn-modal-login w-100 d-flex align-items-center justify-content-center gap-2">
+                        <x-honeypot />
+                        <x-turnstile action="login" />
+
+                        <button type="submit" class="btn btn-modal-login w-100 d-flex align-items-center justify-content-center gap-2 mt-2">
                             <i class="fas fa-sign-in-alt"></i><span>دخول إلى النظام</span>
                         </button>
                     </form>
@@ -1568,7 +1575,10 @@
                             <small class="text-muted" style="font-size: 0.78rem;">سنرسل لك رمز تحقق مكون من 6 أرقام لإعادة تعيين كلمة المرور.</small>
                         </div>
 
-                        <button type="submit" class="btn btn-modal-login w-100 d-flex align-items-center justify-content-center gap-2 mb-3">
+                        <x-honeypot />
+                        <x-turnstile action="forgot_password" />
+
+                        <button type="submit" class="btn btn-modal-login w-100 d-flex align-items-center justify-content-center gap-2 mb-3 mt-2">
                             <i class="fas fa-paper-plane"></i><span>إرسال رمز التحقق</span>
                         </button>
 
@@ -1718,6 +1728,7 @@
                     <form method="POST" action="{{ route('graduate.register.store') }}" id="modalRegistrationForm">
                         @csrf
                         <input type="hidden" name="from_register_modal" value="1">
+                        <x-honeypot />
 
                         <!-- Step 1: Personal Info -->
                         <div class="reg-step-section" id="regSection1">
@@ -2022,6 +2033,10 @@
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
+                            </div>
+
+                            <div class="my-3">
+                                <x-turnstile action="register_graduate" />
                             </div>
 
                             <div class="d-flex justify-content-between mt-4 pt-2 border-top">

@@ -273,7 +273,7 @@ class JobOpportunityController extends Controller
             'location' => 'required|string|max:255',
             'seats' => 'required|integer|min:1',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
+            'end_date' => 'required|date|after_or_equal:start_date',
             'application_deadline' => 'required|date|after:today',
             'required_specializations' => 'nullable|array',
             'required_skills' => 'nullable|array',

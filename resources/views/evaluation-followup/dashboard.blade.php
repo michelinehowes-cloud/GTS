@@ -196,7 +196,7 @@
             <div class="chart-body d-flex flex-column gap-2" style="padding-top:12px;">
                 <a href="{{ route('evaluation-followup.surveys.index') }}" class="quick-link"><div class="ql-icon" style="background:#eff6ff;color:#3b82f6;"><i class="fas fa-poll"></i></div>إدارة الاستبيانات</a>
                 <a href="{{ route('evaluation-followup.evaluations.index') }}" class="quick-link"><div class="ql-icon" style="background:#f5f3ff;color:#7c3aed;"><i class="fas fa-star"></i></div>إدارة التقييمات</a>
-                <a href="{{ route('evaluation-followup.training-programs') }}" class="quick-link"><div class="ql-icon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-graduation-cap"></i></div>برامج التدريب</a>
+                <a href="{{ route('evaluation-followup.training-programs.index') }}" class="quick-link"><div class="ql-icon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-graduation-cap"></i></div>برامج التدريب</a>
                 <a href="{{ route('evaluation-followup.training-reports') }}" class="quick-link"><div class="ql-icon" style="background:#fffbeb;color:#d97706;"><i class="fas fa-chart-bar"></i></div>تقارير التدريب</a>
                 <a href="{{ route('evaluation-followup.performance-reports') }}" class="quick-link"><div class="ql-icon" style="background:#fdf2f8;color:#be185d;"><i class="fas fa-tachometer-alt"></i></div>تقارير الأداء</a>
             </div>

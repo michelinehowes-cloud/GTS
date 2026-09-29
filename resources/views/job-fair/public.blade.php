@@ -1069,27 +1069,37 @@
         .event-speaker-strip {
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: space-between;
+            gap: 14px;
             margin: 1rem 0 1.2rem;
             padding: 10px 14px;
             background: rgba(255, 255, 255, 0.06);
             border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.08);
+            direction: rtl;
+        }
+
+        .event-speaker-info {
+            flex: 1;
+            min-width: 0;
+            text-align: right;
         }
 
         .event-speaker-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: rgba(238, 202, 62, 0.2);
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
             color: var(--gold);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 2.2rem;
             flex-shrink: 0;
-            border: 1.5px solid var(--gold);
             object-fit: cover;
+            margin-right: auto;
         }
 
         /* ══════════════════════════════════
@@ -1633,6 +1643,29 @@
             </p>
         </div>
 
+        @php
+            $isProgramComingSoon = !($fair && $fair->is_program_published);
+        @endphp
+
+        @if($isProgramComingSoon)
+            <div class="text-center p-5 rounded-4" style="background: rgba(255,255,255,0.04); border: 1px dashed rgba(238, 202, 62, 0.35); backdrop-filter: blur(10px); max-width: 820px; margin: 0 auto 2.5rem;">
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill mb-3" style="background: rgba(238, 202, 62, 0.15); border: 1px solid rgba(238, 202, 62, 0.3); color: var(--gold); font-size: 0.88rem; font-weight: 700;">
+                    <i class="fas fa-clock"></i>
+                    <span>ترقبوا الإطلاق الرسمي قريباً</span>
+                    <span class="badge bg-warning text-dark rounded-pill ms-1 font-monospace">Coming Soon</span>
+                </div>
+                <h3 class="fw-bold text-white mb-3" style="font-size: 1.75rem;">
+                    البرنامج العلمي والتدريبي قيد التحضير النهائي
+                </h3>
+                <p class="text-white-50 mb-4 mx-auto" style="max-width: 650px; font-size: 0.98rem; line-height: 1.7;">
+                    نضع حالياً اللمسات الأخيرة على جدول ورش العمل التطبيقية وجلسات الماستر كلاس مع نخبة من كبار المدربين والخبراء. سيتم فتح باب التسجيل وتأكيد الحضور قريباً لجميع المسجلين.
+                </p>
+                <a href="{{ route('job-fair.public.program', $fair->id) }}" class="companies-dir-btn d-inline-flex align-items-center">
+                    <span>استعراض محاور البرنامج والتفاصيل</span>
+                    <i class="fas fa-arrow-left ms-2"></i>
+                </a>
+            </div>
+        @else
         <div class="program-preview-grid">
             @foreach($previewEvents as $event)
             @php
@@ -1659,6 +1692,10 @@
 
                     @if($event->speaker_name)
                     <div class="event-speaker-strip">
+                        <div class="event-speaker-info text-truncate">
+                            <div class="fw-bold text-white" style="font-size: 0.95rem;">{{ $event->speaker_name }}</div>
+                            <small class="text-white-50 d-block text-truncate" style="font-size: 0.72rem;">{{ $event->speaker_title ?: 'متحدث وخبير معتمد' }}</small>
+                        </div>
                         @if($event->speaker_image_url)
                             <img src="{{ $event->speaker_image_url }}" alt="{{ $event->speaker_name }}" class="event-speaker-avatar">
                         @else
@@ -1666,10 +1703,6 @@
                                 <i class="fas fa-user-tie"></i>
                             </div>
                         @endif
-                        <div class="text-truncate">
-                            <div class="fw-bold text-white" style="font-size: 0.9rem;">{{ $event->speaker_name }}</div>
-                            <small class="text-white-50 d-block text-truncate" style="font-size: 0.72rem;">{{ $event->speaker_title ?: 'متحدث وخبير معتمد' }}</small>
-                        </div>
                     </div>
                     @endif
 
@@ -1704,6 +1737,7 @@
                 <i class="fas fa-calendar-alt me-1 text-warning"></i> مواعيد ورش العمل، الماستر كلاس، والجلسات الحوارية، وتأكيد الحضور
             </div>
         </div>
+        @endif
 
     </div>
 </section>
@@ -1713,6 +1747,7 @@
 @if(isset($projects) && $projects->count() > 0)
 @php
     $previewProjects = $projects->take(3);
+    $isProjectsComingSoon = !($fair && $fair->is_projects_published);
 @endphp
 <section class="projects-preview-section" id="projects" style="padding: 5rem 0; position: relative; background: radial-gradient(circle at 80% 20%, rgba(238,202,62,0.06) 0%, transparent 50%), linear-gradient(180deg, rgba(6,30,62,0.95) 0%, rgba(4,22,46,0.98) 100%); border-top: 1px solid rgba(255,255,255,0.06);">
     <div class="container position-relative z-10">
@@ -1727,6 +1762,25 @@
             </p>
         </div>
 
+        @if($isProjectsComingSoon)
+        <div class="text-center p-5 rounded-4 mb-4" style="background: rgba(255,255,255,0.04); border: 1px dashed rgba(238, 202, 62, 0.35); backdrop-filter: blur(10px); max-width: 820px; margin: 0 auto 2.5rem;">
+            <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill mb-3" style="background: rgba(238, 202, 62, 0.15); border: 1px solid rgba(238, 202, 62, 0.3); color: var(--gold); font-size: 0.88rem; font-weight: 700;">
+                <i class="fas fa-clock"></i>
+                <span>ترقبوا الإطلاق الرسمي قريباً</span>
+                <span class="badge bg-warning text-dark rounded-pill ms-1 font-monospace">Coming Soon</span>
+            </div>
+            <h3 class="fw-bold text-white mb-3" style="font-size: 1.75rem;">
+                معرض وأرشيف مشاريع التخرج قيد التحضير والتنسيق
+            </h3>
+            <p class="text-white-50 mb-4 mx-auto" style="max-width: 650px; font-size: 0.98rem; line-height: 1.7;">
+                نستكمل حالياً استقبال وفهرسة نخبة مشاريع وبحوث تخرج طلبة كليات جامعة طرابلس، وتجهيز أجنحة العرض التفاعلية ورموز الـ QR Code الخاصة بكل ابتكار. ترقبوا التدشين الرسمي قريباً!
+            </p>
+            <a href="{{ route('job-fair.public.projects', $fair->id) }}" class="companies-dir-btn d-inline-flex align-items-center">
+                <span>استعراض محاور ومسارات المشاريع</span>
+                <i class="fas fa-arrow-left ms-2"></i>
+            </a>
+        </div>
+        @else
         <div class="row g-4 mb-5">
             @foreach($previewProjects as $project)
             <div class="col-lg-4 col-md-6">
@@ -1797,6 +1851,7 @@
                 <i class="fas fa-search me-1 text-warning"></i> تصفح وفلترة حسب الكلية، التخصص، وسنة التخرج، وتحميل الملصقات والملفات
             </div>
         </div>
+        @endif
     </div>
 </section>
 @endif

@@ -1,46 +1,60 @@
 /**
- * Simple and Robust Dark Mode Toggler
+ * =========================================================================
+ * نظام تفعيل الوضع الليلي الذكي والموثوق
+ * Smart & Robust Dark Mode Controller
+ * =========================================================================
  */
 (function () {
-    // 1. Define the Global Function IMMEDIATELY
+    // تطبيق الوضع فوراً قبل اكتمال تحميل الصفحة لمنع الوميض الأبيض (No-Flash Script)
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    const html = document.documentElement;
+
+    if (savedTheme === 'dark') {
+        html.setAttribute('data-theme', 'dark');
+        html.setAttribute('data-bs-theme', 'dark');
+    } else {
+        html.removeAttribute('data-theme');
+        html.setAttribute('data-bs-theme', 'light');
+    }
+
+    // دالة تبديل الوضع المعرفة عالمياً
     window.toggleDarkMode = function (e) {
         if (e) {
             e.preventDefault();
             e.stopPropagation();
         }
 
-        const html = document.documentElement;
         const currentTheme = html.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
-        // Apply
         if (newTheme === 'dark') {
             html.setAttribute('data-theme', 'dark');
+            html.setAttribute('data-bs-theme', 'dark');
             localStorage.setItem('theme', 'dark');
         } else {
             html.removeAttribute('data-theme');
+            html.setAttribute('data-bs-theme', 'light');
             localStorage.setItem('theme', 'light');
         }
 
-        // Update Icons
         updateIcons(newTheme);
-
-        console.log('Dark Mode Toggled to:', newTheme);
+        console.log('Theme switched to:', newTheme);
     };
+
+    // مرادف للدالة القديمة لضمان التوافق التام
+    window.toggleThemeGlobal = window.toggleDarkMode;
 
     function updateIcons(theme) {
         const isDark = theme === 'dark';
-        const buttons = document.querySelectorAll('#darkModeToggle, #darkModeMenuToggle, .dark-mode-trigger');
+        const buttons = document.querySelectorAll('#darkModeToggle, #darkModeMenuToggle, .dark-mode-trigger, [onclick*="toggleDarkMode"], [onclick*="toggleThemeGlobal"]');
 
         buttons.forEach(btn => {
             const icon = btn.querySelector('i');
             if (icon) {
-                // Remove all possible icon classes to be safe
-                icon.classList.remove('fa-moon', 'fa-sun', 'text-warning', 'text-white');
-
+                icon.classList.remove('fa-moon', 'fa-sun', 'text-warning', 'text-white', 'text-amber-400');
                 if (isDark) {
                     icon.classList.add('fa-sun');
-                    icon.classList.add('text-warning'); // Make sun yellow
+                    icon.classList.add('text-warning');
                 } else {
                     icon.classList.add('fa-moon');
                 }
@@ -48,21 +62,21 @@
         });
     }
 
-    // 2. Initialize on Load
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    if (savedTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-    }
-
-    // Update icons immediately
+    // تهيئة الأيقونات وربط الأحداث عند اكتمال DOM
     document.addEventListener('DOMContentLoaded', () => {
         updateIcons(savedTheme);
 
-        // Attach Event Listeners (Backup for onclick)
         const buttons = document.querySelectorAll('#darkModeToggle, #darkModeMenuToggle');
         buttons.forEach(btn => {
             btn.onclick = window.toggleDarkMode;
         });
     });
 
+    // اختصار لوحة المفاتيح: Alt + D
+    document.addEventListener('keydown', function (e) {
+        if ((e.altKey || e.metaKey) && (e.key === 'd' || e.key === 'D')) {
+            e.preventDefault();
+            window.toggleDarkMode();
+        }
+    });
 })();

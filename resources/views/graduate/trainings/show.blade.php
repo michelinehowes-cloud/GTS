@@ -96,6 +96,10 @@
                                     <span class="fw-bold text-dark">{{ \Carbon\Carbon::parse($training->end_date)->format('Y-m-d') }}</span>
                                 </div>
                                 <div class="small mb-2 d-flex justify-content-between">
+                                    <span class="text-muted">أيام التدريب:</span>
+                                    <span class="fw-bold text-primary">{{ $training->training_days_text }}</span>
+                                </div>
+                                <div class="small mb-2 d-flex justify-content-between">
                                     <span class="text-muted">المكان:</span>
                                     <span class="fw-bold text-dark">{{ $training->location }}</span>
                                 </div>

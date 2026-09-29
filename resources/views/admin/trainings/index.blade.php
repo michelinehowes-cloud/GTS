@@ -16,6 +16,14 @@
         ]"
         badge="لوحة الإدارة العامة"
     >
+        <button type="button" class="btn btn-success text-white fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" data-bs-toggle="modal" data-bs-target="#exportReportModal" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-file-excel fs-6"></i>
+            <span>تصدير تقرير إكسل</span>
+        </button>
+        <button type="button" class="btn btn-primary text-white fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" data-bs-toggle="modal" data-bs-target="#importTrainingsModal" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-file-import fs-6"></i>
+            <span>استيراد من إكسل</span>
+        </button>
         <a href="{{ route('admin.applications.index') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
             <i class="fas fa-clipboard-list fs-6"></i>
             <span>طلبات التدريب</span>
@@ -210,6 +218,9 @@
         </div>
     </div>
 </div>
+
+@include('trainings.partials.export_modal', ['exportRoute' => route('admin.trainings.export-report')])
+@include('trainings.partials.import_modal', ['importRoute' => route('admin.trainings.import')])
 @endsection
 
 @push('scripts')

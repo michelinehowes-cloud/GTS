@@ -205,9 +205,15 @@ $audLabelsMap = [
                         </span>
                     </td>
                     <td>
-                        <a href="{{ route('evaluation-followup.surveys.show', $survey->id) }}" class="action-icon-btn" title="عرض التفاصيل">
-                            <i class="fas fa-eye"></i>
-                        </a>
+                        <div class="d-flex align-items-center gap-1.5">
+                            <a href="{{ route('evaluation-followup.surveys.show', $survey->id) }}" class="btn btn-sm btn-primary py-1 px-2.5 rounded-2 d-inline-flex align-items-center gap-1 text-white text-decoration-none shadow-sm" style="font-size: 0.78rem;" title="التقرير الإحصائي والتحليلي">
+                                <i class="fas fa-chart-pie"></i>
+                                <span>التقرير الإحصائي</span>
+                            </a>
+                            <a href="{{ route('evaluation-followup.surveys.export-responses', $survey->id) }}" class="action-icon-btn" style="background:#ecfdf5;color:#059669;" title="تصدير النتائج إلى Excel">
+                                <i class="fas fa-file-excel"></i>
+                            </a>
+                        </div>
                     </td>
                 </tr>
                 @empty

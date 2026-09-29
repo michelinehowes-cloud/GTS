@@ -454,6 +454,30 @@ class NotificationService
     }
 
     /**
+     * إرسال إشعار فوري للخريج عند اعتماد وإصدار شهادته التدريبية
+     */
+    public function notifyCertificateIssued(\App\Models\Certificate $certificate): void
+    {
+        if (!$certificate->user) {
+            return;
+        }
+
+        $title = 'تم اعتماد وإصدار شهادتك التدريبية 🎓';
+        $message = "تهانينا يا {$certificate->recipient_name}! تم اعتماد وإصدار شهادتك الرسمية في «{$certificate->title}». يمكنك الآن معاينتها وتحميلها PDF عبر سجل الشهادات.";
+
+        $this->sendToUser($certificate->user, $title, $message, 'success', [
+            'model_type' => get_class($certificate),
+            'model_id' => $certificate->id,
+            'data' => [
+                'certificate_code' => $certificate->certificate_code,
+                'hours' => $certificate->hours,
+                'url' => route('graduate.certificates.show', $certificate->id),
+            ],
+            'send_email' => true,
+        ]);
+    }
+
+    /**
      * إرسال إشعار الواتساب
      */
     private function sendWhatsappNotification(Notification $notification): void

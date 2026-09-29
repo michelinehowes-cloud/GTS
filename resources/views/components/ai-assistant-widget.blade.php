@@ -308,24 +308,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let isPanelOpen = false;
     let isWaitingResponse = false;
-    let sessionId = 'session_' + Math.random().toString(36).substring(2, 12);
+
+    const USER_ID = '{{ auth()->id() }}';
+    const SESSION_STORAGE_KEY = 'uot_ai_session_' + USER_ID;
+    const PANEL_STATE_KEY = 'uot_ai_panel_open_' + USER_ID;
+
+    // Persistent Session ID across page refreshes and navigations
+    let sessionId = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!sessionId) {
+        sessionId = 'session_' + USER_ID + '_' + Math.random().toString(36).substring(2, 10);
+        localStorage.setItem(SESSION_STORAGE_KEY, sessionId);
+    }
 
     // Toggle Panel
-    function togglePanel() {
-        isPanelOpen = !isPanelOpen;
+    function togglePanel(explicitState = null) {
+        isPanelOpen = (explicitState !== null) ? explicitState : !isPanelOpen;
         if (isPanelOpen) {
             panel.classList.remove('d-none');
             panel.style.display = 'flex';
+            localStorage.setItem(PANEL_STATE_KEY, 'true');
             chatInput.focus();
             scrollToBottom();
         } else {
             panel.classList.add('d-none');
             panel.style.display = 'none';
+            localStorage.setItem(PANEL_STATE_KEY, 'false');
         }
     }
 
-    if (fabBtn) fabBtn.addEventListener('click', togglePanel);
-    if (closeBtn) closeBtn.addEventListener('click', togglePanel);
+    if (fabBtn) fabBtn.addEventListener('click', () => togglePanel());
+    if (closeBtn) closeBtn.addEventListener('click', () => togglePanel(false));
+
+    // Restore panel open state across page navigations/refreshes
+    if (localStorage.getItem(PANEL_STATE_KEY) === 'true') {
+        togglePanel(true);
+    }
 
     // Quick prompts
     const quickPromptsRibbon = document.querySelector('.ai-quick-prompts');
@@ -385,6 +402,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     },
                     body: JSON.stringify({ session_id: sessionId })
                 }).then(() => {
+                    // Generate new persistent session ID for fresh chat
+                    sessionId = 'session_' + USER_ID + '_' + Math.random().toString(36).substring(2, 10);
+                    localStorage.setItem(SESSION_STORAGE_KEY, sessionId);
                     messagesContainer.innerHTML = '';
                     appendMessage('assistant', 'تم مسح المحادثة بنجاح. كيف يمكنني مساعدتك الآن؟');
                 });
@@ -680,6 +700,11 @@ document.addEventListener('DOMContentLoaded', function() {
             isWaitingResponse = false;
             chatInput.focus();
 
+            if (data.session_id && data.session_id !== sessionId) {
+                sessionId = data.session_id;
+                localStorage.setItem(SESSION_STORAGE_KEY, sessionId);
+            }
+
             if (data.status === 'success' || data.content) {
                 appendMessage('assistant', data.content, data.tool_executed, data.action_proposal);
             } else {
@@ -694,5 +719,33 @@ document.addEventListener('DOMContentLoaded', function() {
             appendMessage('assistant', 'عذراً، تعذر الاتصال بالخادم. يرجى المحاولة مرة أخرى.');
         });
     }
+
+    // Automatically load and restore previous chat history seamlessly
+    function loadChatHistory() {
+        fetch(`{{ route("ai-assistant.history") }}?session_id=${encodeURIComponent(sessionId)}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success' && data.messages && data.messages.length > 0) {
+                    if (data.session_id && data.session_id !== sessionId) {
+                        sessionId = data.session_id;
+                        localStorage.setItem(SESSION_STORAGE_KEY, sessionId);
+                    }
+                    messagesContainer.innerHTML = '';
+                    data.messages.forEach(msg => {
+                        const meta = msg.meta_data || {};
+                        const actionProp = meta.action_proposal || (meta.type ? meta : null);
+                        const toolExec = meta.tool_executed || null;
+                        appendMessage(msg.role, msg.content, toolExec, actionProp);
+                    });
+                    scrollToBottom();
+                }
+            })
+            .catch(err => {
+                console.warn('Could not load AI chat history:', err);
+            });
+    }
+
+    // Call on page load
+    loadChatHistory();
 });
 </script>

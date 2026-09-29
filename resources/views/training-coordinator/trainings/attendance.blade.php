@@ -150,12 +150,42 @@
                 <a href="{{ route($prefix . '.trainings.scanner', $training->id) }}" class="btn btn-warning fw-bold px-4 py-2" style="border-radius: 12px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);">
                     <i class="fas fa-qrcode me-2"></i> فتح ماسح الـ QR
                 </a>
+                {{-- ✅ زر إصدار الشهادات الذكي --}}
+                <button type="button" class="btn fw-bold px-4 py-2" id="btn-issue-certificates"
+                        data-bs-toggle="modal" data-bs-target="#issueCertificatesModal"
+                        style="border-radius: 12px; background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.45);">
+                    <i class="fas fa-award me-2"></i> إصدار الشهادات
+                </button>
                 <button onclick="window.print()" class="btn btn-light fw-bold px-3 py-2" style="border-radius: 12px;">
                     <i class="fas fa-print me-1"></i> طباعة الكشف
                 </button>
-                <a href="{{ route($prefix . '.trainings.attendance.export', $training->id) }}" class="btn btn-outline-light fw-bold px-3 py-2" style="border-radius: 12px;">
-                    <i class="fas fa-file-excel me-1"></i> تصدير Excel
-                </a>
+                {{-- ✅ تصدير إكسل الذكي (الحاضرين فقط أو الكشف الشامل) --}}
+                <div class="dropdown d-inline-block">
+                    <button class="btn btn-outline-light fw-bold px-3 py-2 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 12px;">
+                        <i class="fas fa-file-excel text-success me-1"></i> تصدير Excel
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2" style="border-radius: 12px; min-width: 250px;">
+                        <li>
+                            <a class="dropdown-item py-2.5 d-flex align-items-center gap-2" href="{{ route($prefix . '.trainings.attendance.export', ['training' => $training->id, 'attended_only' => 1]) }}">
+                                <i class="fas fa-user-check text-success fs-5"></i>
+                                <div>
+                                    <div class="fw-bold text-dark">تصدير الحاضرين فقط</div>
+                                    <small class="text-muted" style="font-size: 0.75rem;">الاسم، الهاتف، التخصص، ونسبة الالتزام</small>
+                                </div>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <a class="dropdown-item py-2.5 d-flex align-items-center gap-2" href="{{ route($prefix . '.trainings.attendance.export', $training->id) }}">
+                                <i class="fas fa-users text-primary fs-5"></i>
+                                <div>
+                                    <div class="fw-bold text-dark">تصدير الكشف الشامل</div>
+                                    <small class="text-muted" style="font-size: 0.75rem;">جميع الطلبة المسجلين ومصفوفة الأيام</small>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
                 <a href="{{ route($prefix . '.trainings.show', $training->id) }}" class="btn btn-outline-light" style="border-radius: 12px;">
                     <i class="fas fa-arrow-right me-1"></i> تفاصيل الدورة
                 </a>
@@ -369,6 +399,156 @@
     </div>
 </div>
 
+{{-- ============================================================
+     🏆 Modal: إصدار الشهادات الذكي (المستوى الثاني)
+     ============================================================ --}}
+<div class="modal fade" id="issueCertificatesModal" tabindex="-1" aria-labelledby="issueCertificatesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+
+            {{-- Modal Header --}}
+            <div class="modal-header border-0 text-white" style="background: linear-gradient(135deg, #1e3a8a 0%, #0369a1 100%); padding: 1.5rem 2rem;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-white d-flex align-items-center justify-content-center" style="width:48px;height:48px;font-size:1.4rem;color:#0369a1;">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold mb-0 text-white" id="issueCertificatesModalLabel">إصدار شهادات المشاركة</h5>
+                        <div class="text-white-50 small">{{ $training->title }}</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+            </div>
+
+            {{-- Modal Body --}}
+            <div class="modal-body p-4">
+
+                {{-- Info Alert --}}
+                <div class="alert border-0 mb-4" style="background: #eff6ff; border-right: 4px solid #3b82f6 !important; border-radius: 12px;">
+                    <div class="d-flex align-items-start gap-2">
+                        <i class="fas fa-info-circle text-primary mt-1"></i>
+                        <div class="small text-primary-emphasis">
+                            سيتم إصدار الشهادات تلقائياً لجميع المتدربين الذين تجاوزت نسبة حضورهم الحد الأدنى المحدد أدناه.
+                            يصل إشعار تهنئة فوري لكل خريج مؤهل، وتظهر الشهادة في ملفه الشخصي مباشرةً.
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Training Summary Cards --}}
+                <div class="row g-3 mb-4">
+                    <div class="col-4">
+                        <div class="text-center p-3 rounded-3" style="background: #f0fdf4;">
+                            <div class="fs-4 fw-bold text-success">{{ $totalApproved }}</div>
+                            <div class="small text-muted">إجمالي المتدربين</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-center p-3 rounded-3" style="background: #eff6ff;">
+                            <div class="fs-4 fw-bold text-primary">{{ $totalDays }}</div>
+                            <div class="small text-muted">أيام التدريب</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-center p-3 rounded-3" style="background: #fefce8;">
+                            <div class="fs-4 fw-bold text-warning" id="eligible-count-display">{{ $totalApproved }}</div>
+                            <div class="small text-muted">مؤهلون للشهادة</div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Threshold Slider --}}
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-dark mb-2">
+                        <i class="fas fa-sliders-h me-2 text-primary"></i>
+                        الحد الأدنى لنسبة الحضور للاستحقاق
+                    </label>
+                    <div class="d-flex align-items-center gap-3">
+                        <input type="range" class="form-range flex-grow-1" id="min-percentage-slider"
+                               min="0" max="100" step="5" value="75"
+                               oninput="updateSliderDisplay(this.value)">
+                        <div class="fw-bold text-white px-3 py-1 rounded-pill" id="slider-value-badge"
+                             style="background: #0369a1; min-width: 65px; text-align: center; font-size: 1.1rem;">
+                            75%
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted" style="font-size: 0.75rem; margin-top: 4px;">
+                        <span>0% (الجميع)</span>
+                        <span>50% (الحد التقليدي)</span>
+                        <span>75% (موصى به ✓)</span>
+                        <span>100% (مثالي)</span>
+                    </div>
+                </div>
+
+                {{-- Eligible Trainees Preview --}}
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="fw-bold text-dark small"><i class="fas fa-list-check me-1 text-success"></i> معاينة المؤهلين للشهادة</span>
+                        <span class="badge bg-success rounded-pill" id="preview-count-badge">{{ $totalApproved }} متدرب</span>
+                    </div>
+                    <div class="rounded-3 border" style="max-height: 220px; overflow-y: auto;" id="eligible-preview-container">
+                        <table class="table table-sm table-hover mb-0" id="eligible-preview-table">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th class="text-center" style="width:40px;">#</th>
+                                    <th>اسم المتدرب</th>
+                                    <th class="text-center">نسبة الحضور</th>
+                                    <th class="text-center">الحالة</th>
+                                </tr>
+                            </thead>
+                            <tbody id="eligible-preview-body">
+                                @php $previewIndex = 1; @endphp
+                                @foreach($applications as $app)
+                                    @php
+                                        $trainee = $app->user;
+                                        $userAttendances = $attendancesByUser[$trainee->id] ?? collect();
+                                        $presentCount = $userAttendances->where('status', 'present')->count();
+                                        $traineePct = $totalDays > 0 ? round(($presentCount / $totalDays) * 100) : 0;
+                                    @endphp
+                                    <tr class="preview-row" data-pct="{{ $traineePct }}" data-user-id="{{ $trainee->id }}">
+                                        <td class="text-center text-muted">{{ $previewIndex++ }}</td>
+                                        <td class="fw-semibold">{{ $trainee->name }}</td>
+                                        <td class="text-center">
+                                            <span class="badge {{ $traineePct >= 75 ? 'bg-success' : ($traineePct >= 50 ? 'bg-warning text-dark' : 'bg-danger') }} rounded-pill">
+                                                {{ $traineePct }}%
+                                            </span>
+                                        </td>
+                                        <td class="text-center eligible-status-cell">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Result Alert (hidden by default) --}}
+                <div id="issue-result-alert" class="alert d-none mt-3" role="alert" style="border-radius: 12px;"></div>
+
+            </div>
+
+            {{-- Modal Footer --}}
+            <div class="modal-footer border-0 px-4 pb-4 pt-0 d-flex justify-content-between align-items-center">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" style="border-radius: 10px;">
+                    <i class="fas fa-times me-1"></i> إلغاء
+                </button>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-muted small" id="issue-confirm-text">
+                        سيتم إصدار شهادة لـ <strong id="issue-confirm-count" class="text-success">{{ $totalApproved }}</strong> متدرب
+                    </div>
+                    <button type="button" class="btn fw-bold px-4 py-2" id="btn-confirm-issue"
+                            style="border-radius: 12px; background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 4px 12px rgba(16,185,129,0.4);">
+                        <i class="fas fa-award me-2"></i>
+                        <span id="btn-issue-text">اعتماد وإصدار الشهادات</span>
+                        <span id="btn-issue-spinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"></span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 {{-- Printable Official Attendance Sheet (Visible only on print) --}}
 <div id="print-attendance-sheet" class="d-none d-print-block">
     <div style="border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 20px;">
@@ -464,8 +644,132 @@
 
 @push('scripts')
 <script>
-const TOGGLE_URL = "{{ route($prefix . '.trainings.attendance.toggle', $training->id) }}";
-const CSRF_TOKEN = "{{ csrf_token() }}";
+const TOGGLE_URL        = "{{ route($prefix . '.trainings.attendance.toggle', $training->id) }}";
+const ISSUE_URL         = "{{ route($prefix . '.trainings.certificates.issue', $training->id) }}";
+const TRAINING_SHOW_URL = "{{ route($prefix . '.trainings.show', $training->id) }}";
+const CSRF_TOKEN        = "{{ csrf_token() }}";
+const TOTAL_DAYS        = {{ $totalDays }};
+
+/* ================================================================
+   🏆 Smart Certificate Issuance — Level 2
+================================================================ */
+
+/** بيانات المتدربين من PHP → JS لحساب المؤهلين ديناميكياً */
+const TRAINEE_DATA = [
+    @foreach($applications as $app)
+    @php
+        $trainee = $app->user;
+        $presentCount = ($attendancesByUser[$trainee->id] ?? collect())->where('status','present')->count();
+        $traineePct   = $totalDays > 0 ? round(($presentCount / $totalDays) * 100) : 0;
+    @endphp
+    { id: {{ $trainee->id }}, name: @json($trainee->name), pct: {{ $traineePct }} },
+    @endforeach
+];
+
+/** تحديث الشريط المنزلق وإعادة حساب المؤهلين */
+function updateSliderDisplay(val) {
+    const pct   = parseInt(val);
+    const badge = document.getElementById('slider-value-badge');
+    const rows  = document.querySelectorAll('#eligible-preview-table .preview-row');
+    let eligible = 0;
+
+    // تلوين الـ badge حسب النسبة
+    let bg = '#dc2626';
+    if (pct <= 50)  bg = '#d97706';
+    if (pct <= 75)  bg = '#0369a1';
+    if (pct === 0)  bg = '#6b7280';
+
+    badge.textContent  = pct + '%';
+    badge.style.background = bg;
+
+    // إظهار/إخفاء صفوف الجدول بناءً على النسبة
+    rows.forEach(row => {
+        const rowPct = parseInt(row.getAttribute('data-pct'));
+        const statusCell = row.querySelector('.eligible-status-cell');
+        if (rowPct >= pct) {
+            row.style.opacity = '1';
+            if (statusCell) statusCell.innerHTML = '<i class="fas fa-check-circle text-success"></i>';
+            eligible++;
+        } else {
+            row.style.opacity = '0.35';
+            if (statusCell) statusCell.innerHTML = '<i class="fas fa-times-circle text-danger"></i>';
+        }
+    });
+
+    document.getElementById('eligible-count-display').textContent = eligible;
+    document.getElementById('preview-count-badge').textContent    = eligible + ' متدرب';
+    const confirmCount = document.getElementById('issue-confirm-count');
+    if (confirmCount) confirmCount.textContent = eligible;
+}
+
+// تشغيل الحساب الأولي عند فتح Modal
+document.getElementById('issueCertificatesModal')?.addEventListener('show.bs.modal', function () {
+    updateSliderDisplay(document.getElementById('min-percentage-slider').value);
+    document.getElementById('issue-result-alert').className = 'alert d-none mt-3';
+});
+
+/** إرسال طلب إصدار الشهادات عبر AJAX */
+document.getElementById('btn-confirm-issue')?.addEventListener('click', function () {
+    const minPct    = parseInt(document.getElementById('min-percentage-slider').value);
+    const btnText   = document.getElementById('btn-issue-text');
+    const spinner   = document.getElementById('btn-issue-spinner');
+    const alertBox  = document.getElementById('issue-result-alert');
+    const confirmBtn = this;
+
+    // تعطيل الزر وإظهار السبينر
+    confirmBtn.disabled = true;
+    btnText.textContent = 'جاري الإصدار...';
+    spinner.classList.remove('d-none');
+    alertBox.className = 'alert d-none mt-3';
+
+    fetch(ISSUE_URL, {
+        method : 'POST',
+        headers: {
+            'Content-Type' : 'application/json',
+            'Accept'       : 'application/json',
+            'X-CSRF-TOKEN' : CSRF_TOKEN
+        },
+        body: JSON.stringify({ min_percentage: minPct })
+    })
+    .then(res => res.json())
+    .then(data => {
+        confirmBtn.disabled = false;
+        btnText.textContent = 'اعتماد وإصدار الشهادات';
+        spinner.classList.add('d-none');
+
+        if (data.success) {
+            alertBox.className = 'alert alert-success mt-3 fw-semibold';
+            alertBox.style.borderRadius = '12px';
+            alertBox.innerHTML =
+                '<i class="fas fa-check-circle me-2"></i>' +
+                `تم بنجاح إصدار <strong>${data.issued_count}</strong> شهادة تدريبية وإرسال إشعارات التهنئة الفورية للمتدربين المؤهلين.` +
+                (data.already_issued > 0
+                    ? `<br><small class="text-muted">ملاحظة: ${data.already_issued} شهادة كانت مصدرة مسبقاً ولم تتكرر.</small>`
+                    : '');
+
+            // إضافة زر لعرض تفاصيل الدورة بعد النجاح
+            setTimeout(() => {
+                alertBox.innerHTML += '<div class="mt-2"><a href="' + TRAINING_SHOW_URL + '" class="btn btn-sm btn-success me-2"><i class="fas fa-eye me-1"></i> عرض تفاصيل الدورة</a></div>';
+            }, 500);
+        } else {
+            alertBox.className = 'alert alert-danger mt-3';
+            alertBox.style.borderRadius = '12px';
+            alertBox.innerHTML =
+                '<i class="fas fa-exclamation-triangle me-2"></i>' +
+                (data.message || 'حدث خطأ أثناء إصدار الشهادات. يرجى المحاولة مجدداً.');
+        }
+    })
+    .catch(err => {
+        confirmBtn.disabled = false;
+        btnText.textContent = 'اعتماد وإصدار الشهادات';
+        spinner.classList.add('d-none');
+        alertBox.className = 'alert alert-danger mt-3';
+        alertBox.style.borderRadius = '12px';
+        alertBox.innerHTML = '<i class="fas fa-wifi me-2"></i> فشل الاتصال بالخادم. تأكد من اتصالك بالإنترنت وأعد المحاولة.';
+        console.error('issueCertificates error:', err);
+    });
+});
+
 
 function toggleAttendanceCell(btn) {
     const userId = btn.getAttribute('data-user-id');

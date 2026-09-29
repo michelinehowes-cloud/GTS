@@ -20,6 +20,7 @@ class Training extends Model
         'duration',
         'start_date',
         'end_date',
+        'training_days_of_week',
         'location',
         'seats',
         'status',
@@ -46,7 +47,32 @@ class Training extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'media_coverage_date' => 'date',
+        'training_days_of_week' => 'array',
     ];
+
+    /**
+     * قائمة التخصصات والمجالات المعتمدة
+     */
+    public static function getCategories(): array
+    {
+        return [
+            'الهندسة والتخصصات التقنية',
+            'تقنية المعلومات والتحول الرقمي',
+            'الإدارة والقيادة',
+            'الاقتصاد والمالية والمحاسبة',
+            'التسويق والمبيعات',
+            'الموارد البشرية',
+            'القانون',
+            'الطب والعلوم الصحية',
+            'الإعلام',
+            'ريادة الأعمال',
+            'اللغات والترجمة',
+            'البحث العلمي والمهارات الأكاديمية',
+            'العلوم والبيئة والطاقة',
+            'التنمية البشرية والمهارات الشخصية',
+            'أخرى',
+        ];
+    }
 
     /**
      * العلاقة مع الشركة
@@ -74,6 +100,7 @@ class Training extends Model
 
     /**
      * الحصول على قائمة تواريخ أيام التدريب من تاريخ البدء إلى تاريخ الانتهاء
+     * مع تطبيق استثناء الأيام غير المحددة (مثل الجمعة والسبت)
      * @return \Illuminate\Support\Collection
      */
     public function getTrainingDaysAttribute()
@@ -93,13 +120,27 @@ class Training extends Model
         $current = $startDate->copy();
         $dayIndex = 1;
 
+        $allowedDays = $this->training_days_of_week;
+        if (is_array($allowedDays)) {
+            $allowedDays = array_map('intval', $allowedDays);
+        }
+
         while ($current->lte($endDate)) {
+            // إذا تم تحديد أيام معينة للأسبوع، نستثني الأيام غير المحددة
+            if (is_array($allowedDays) && count($allowedDays) > 0) {
+                if (!in_array($current->dayOfWeek, $allowedDays, true)) {
+                    $current->addDay();
+                    continue;
+                }
+            }
+
             $dates->push([
                 'day_number' => $dayIndex,
                 'date' => $current->format('Y-m-d'),
                 'carbon' => $current->copy(),
                 'formatted' => $current->format('Y-m-d'),
                 'day_name' => $this->getArabicDayName($current->dayOfWeek),
+                'day_of_week' => $current->dayOfWeek,
                 'is_today' => $current->isToday(),
                 'is_past' => $current->isPast() && !$current->isToday(),
                 'is_future' => $current->isFuture() && !$current->isToday(),
@@ -112,7 +153,7 @@ class Training extends Model
     }
 
     /**
-     * إجمالي عدد أيام التدريب
+     * إجمالي عدد أيام التدريب الفعلية
      */
     public function getTotalDaysCountAttribute()
     {
@@ -123,7 +164,7 @@ class Training extends Model
     /**
      * اسم اليوم بالعربية
      */
-    private function getArabicDayName($dayOfWeek)
+    public function getArabicDayName($dayOfWeek)
     {
         $days = [
             0 => 'الأحد',
@@ -135,6 +176,31 @@ class Training extends Model
             6 => 'السبت',
         ];
         return $days[$dayOfWeek] ?? '';
+    }
+
+    /**
+     * نص توصيف أيام التدريب الأسبوعية المعتمدة
+     */
+    public function getTrainingDaysTextAttribute(): string
+    {
+        $days = $this->training_days_of_week;
+        if (!is_array($days) || empty($days)) {
+            return 'طيلة أيام الأسبوع (شاملة الجمعة والسبت)';
+        }
+
+        $days = array_map('intval', $days);
+        sort($days);
+
+        if ($days === [0, 1, 2, 3, 4]) {
+            return 'أيام العمل الرسمية: الأحد - الخميس (استثناء الجمعة والسبت)';
+        }
+
+        if (count($days) === 7) {
+            return 'طيلة أيام الأسبوع (شاملة الجمعة والسبت)';
+        }
+
+        $names = array_map(fn($d) => $this->getArabicDayName($d), $days);
+        return implode('، ', $names);
     }
 
     /**

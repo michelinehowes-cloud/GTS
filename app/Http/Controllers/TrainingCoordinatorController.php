@@ -23,8 +23,10 @@ class TrainingCoordinatorController extends Controller
             'description' => 'required|string',
             'duration' => 'required|string',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
+            'end_date' => 'required|date|after_or_equal:start_date',
             'capacity' => 'required|integer|min:1',
+        ], [
+            'end_date.after_or_equal' => 'يجب أن يكون تاريخ الانتهاء في نفس يوم البدء أو بعده.',
         ]);
 
         TrainingProgram::create([

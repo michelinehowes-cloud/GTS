@@ -69,6 +69,34 @@
             <i class="fas fa-clipboard-check"></i>
             <span>سجل ومصفوفة الحضور</span>
         </a>
+        {{-- زر تصدير إكسل السريع --}}
+        <div class="dropdown d-inline-block">
+            <button class="btn btn-light bg-white text-success fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-file-excel text-success"></i>
+                <span>تصدير الحضور (Excel)</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 py-2" style="border-radius: 12px; min-width: 250px;">
+                <li>
+                    <a class="dropdown-item py-2.5 d-flex align-items-center gap-2" href="{{ route($prefix . '.trainings.attendance.export', ['training' => $training->id, 'attended_only' => 1]) }}">
+                        <i class="fas fa-user-check text-success fs-5"></i>
+                        <div>
+                            <div class="fw-bold text-dark">تصدير الحاضرين فقط</div>
+                            <small class="text-muted" style="font-size: 0.75rem;">بيانات الطلبة الذين حضروا التدريب بالفعل</small>
+                        </div>
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider my-1"></li>
+                <li>
+                    <a class="dropdown-item py-2.5 d-flex align-items-center gap-2" href="{{ route($prefix . '.trainings.attendance.export', $training->id) }}">
+                        <i class="fas fa-users text-primary fs-5"></i>
+                        <div>
+                            <div class="fw-bold text-dark">تصدير الكشف الشامل</div>
+                            <small class="text-muted" style="font-size: 0.75rem;">جميع الطلبة المسجلين ومصفوفة الأيام</small>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
         @if($training->status == 'active')
         <a href="{{ route($prefix . '.trainings.scanner', $training->id) }}" class="btn btn-light bg-white text-primary fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-1.5">
             <i class="fas fa-qrcode"></i>
@@ -208,6 +236,13 @@
                         <div>
                             <small class="text-muted d-block">تاريخ الانتهاء</small>
                             <strong class="text-dark">{{ $training->end_date ? $training->end_date->format('Y-m-d') : 'غير محدد' }}</strong>
+                        </div>
+                    </div>
+                    <div class="info-list-item">
+                        <div class="info-icon-box bg-light text-info"><i class="fas fa-calendar-week"></i></div>
+                        <div>
+                            <small class="text-muted d-block">أيام التدريب الأسبوعية</small>
+                            <strong class="text-dark">{{ $training->training_days_text }}</strong>
                         </div>
                     </div>
                     <div class="info-list-item">

@@ -116,6 +116,19 @@ class NotificationController extends Controller
                     $redirectUrl = route('admin.companies.edit', $notification->model_id);
                 }
             }
+            // 5. شهادة تدريبية معتمدة
+            elseif (str_contains($notification->model_type, 'Certificate')) {
+                if ($user->role === 'graduate') {
+                    $redirectUrl = route('graduate.certificates.show', $notification->model_id);
+                } else {
+                    $redirectUrl = route('certificates.show', $notification->model_id);
+                }
+            }
+        }
+
+        // استخدام الرابط المباشر من مصفوفة البيانات إن وجد
+        if (isset($notification->data['url']) && !empty($notification->data['url'])) {
+            $redirectUrl = $notification->data['url'];
         }
 
         // حذف الإشعار بعد عرضه
@@ -142,8 +155,12 @@ class NotificationController extends Controller
         $notifications = Notification::forUser($user->id)
             ->with(['sender'])
             ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get();
+            ->limit(30)
+            ->get()
+            ->map(function($notif) {
+                $notif->time_ago = $notif->created_at ? $notif->created_at->diffForHumans() : '';
+                return $notif;
+            });
 
         return response()->json([
             'notifications' => $notifications,

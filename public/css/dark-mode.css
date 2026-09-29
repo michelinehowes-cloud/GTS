@@ -1,0 +1,762 @@
+/**
+ * =========================================================================
+ * نظام الوضع الليلي الاحترافي - منصة تدريب وتأهيل الخريجين
+ * PROFESSIONAL DARK MODE STYLESHEET (Obsidian & Executive Slate)
+ * =========================================================================
+ */
+
+:root[data-theme='dark'],
+:root[data-bs-theme='dark'],
+html[data-theme='dark'],
+html[data-bs-theme='dark'] {
+    /* لوحة الألوان الاحترافية - Deep Executive Slate Palette */
+    --dm-bg-body: #090d16;
+    --dm-bg-surface: #111827;
+    --dm-bg-surface-elevated: #1e293b;
+    --dm-bg-surface-hover: #1f2d42;
+    --dm-bg-input: #131c2e;
+    
+    --dm-border: rgba(255, 255, 255, 0.08);
+    --dm-border-medium: #27354a;
+    --dm-border-accent: rgba(59, 130, 246, 0.35);
+    
+    --dm-text-primary: #f8fafc;
+    --dm-text-secondary: #cbd5e1;
+    --dm-text-muted: #94a3b8;
+    --dm-text-dim: #64748b;
+    
+    --dm-accent-primary: #3b82f6;
+    --dm-accent-primary-hover: #60a5fa;
+    --dm-accent-gold: #f59e0b;
+    --dm-accent-gold-light: #fbbf24;
+    --dm-accent-success: #10b981;
+    --dm-accent-warning: #f59e0b;
+    --dm-accent-danger: #ef4444;
+    --dm-accent-info: #0ea5e9;
+
+    --dm-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --dm-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --dm-shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.65);
+
+    /* تجاوز متغيرات Bootstrap */
+    --bs-body-bg: var(--dm-bg-body) !important;
+    --bs-body-color: var(--dm-text-secondary) !important;
+    --bs-card-bg: var(--dm-bg-surface) !important;
+    --bs-card-border-color: var(--dm-border) !important;
+    --bs-border-color: var(--dm-border) !important;
+    --bs-tertiary-bg: var(--dm-bg-surface-elevated) !important;
+    --bs-secondary-bg: var(--dm-bg-surface-elevated) !important;
+
+    /* تجاوز متغيرات Bento Dashboard */
+    --bento-bg: #090d16 !important;
+    --bento-surface: #111827 !important;
+    --bento-surface-hover: #1e293b !important;
+    --bento-border: rgba(255, 255, 255, 0.08) !important;
+    --bento-text: #f8fafc !important;
+    --bento-text-muted: #94a3b8 !important;
+    --bento-sidebar-bg: #070c18 !important;
+    --bento-nav-bg: #111827 !important;
+}
+
+/* =========================================================================
+   1. الهيكل العام والخلفية (Global Layout & Background)
+   ========================================================================= */
+html[data-theme='dark'],
+html[data-theme='dark'] body {
+    background-color: var(--dm-bg-body) !important;
+    color: var(--dm-text-secondary) !important;
+}
+
+html[data-theme='dark'] .main-content {
+    background-color: var(--dm-bg-body) !important;
+}
+
+/* =========================================================================
+   2. البطاقات والحاويات (Cards, Bento Panels & Containers)
+   ========================================================================= */
+html[data-theme='dark'] .card,
+html[data-theme='dark'] .card-modern,
+html[data-theme='dark'] .bento-card,
+html[data-theme='dark'] .stat-card,
+html[data-theme='dark'] .stat-card-clean,
+html[data-theme='dark'] .dashboard-card,
+html[data-theme='dark'] .card[style*="background: #ffffff"],
+html[data-theme='dark'] .card[style*="background:#ffffff"],
+html[data-theme='dark'] .card[style*="background: white"],
+html[data-theme='dark'] .card[style*="background:white"],
+html[data-theme='dark'] div[style*="background: #ffffff"],
+html[data-theme='dark'] div[style*="background:#ffffff"],
+html[data-theme='dark'] div[style*="background: white"],
+html[data-theme='dark'] div[style*="background:white"] {
+    background-color: var(--dm-bg-surface) !important;
+    background: var(--dm-bg-surface) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text-secondary) !important;
+    box-shadow: var(--dm-shadow-sm) !important;
+}
+
+html[data-theme='dark'] .card-header,
+html[data-theme='dark'] .card-footer,
+html[data-theme='dark'] .card-modern .card-header,
+html[data-theme='dark'] .bento-card-header,
+html[data-theme='dark'] .card-header.bg-white,
+html[data-theme='dark'] .card-header[style*="background: #ffffff"],
+html[data-theme='dark'] .card-header[style*="background:#ffffff"] {
+    background-color: var(--dm-bg-surface) !important;
+    background: var(--dm-bg-surface) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+/* بطاقات وتفاصيل الحاويات الثانوية المرتفعة */
+html[data-theme='dark'] .bg-light,
+html[data-theme='dark'] .bg-white,
+html[data-theme='dark'] div[style*="background: #f8fafc"],
+html[data-theme='dark'] div[style*="background:#f8fafc"] {
+    background-color: var(--dm-bg-surface-elevated) !important;
+    background: var(--dm-bg-surface-elevated) !important;
+    border-color: var(--dm-border) !important;
+}
+
+/* تأثير التمرير للبطاقات التفاعلية */
+html[data-theme='dark'] .transition-hover:hover {
+    background-color: var(--dm-bg-surface-hover) !important;
+    border-color: var(--dm-border-accent) !important;
+}
+
+/* =========================================================================
+   3. العناوين والنصوص (Typography & Headings)
+   ========================================================================= */
+html[data-theme='dark'] h1,
+html[data-theme='dark'] h2,
+html[data-theme='dark'] h3,
+html[data-theme='dark'] h4,
+html[data-theme='dark'] h5,
+html[data-theme='dark'] h6,
+html[data-theme='dark'] .card-title,
+html[data-theme='dark'] .bento-card-title,
+html[data-theme='dark'] .fs-1,
+html[data-theme='dark'] .fs-2,
+html[data-theme='dark'] .fs-3,
+html[data-theme='dark'] .fs-4,
+html[data-theme='dark'] .fs-5,
+html[data-theme='dark'] .fs-6 {
+    color: var(--dm-text-primary) !important;
+}
+
+html[data-theme='dark'] .text-dark {
+    color: var(--dm-text-primary) !important;
+}
+
+html[data-theme='dark'] .text-muted,
+html[data-theme='dark'] .text-secondary {
+    color: var(--dm-text-muted) !important;
+}
+
+html[data-theme='dark'] .text-primary {
+    color: #60a5fa !important;
+}
+
+html[data-theme='dark'] .text-success {
+    color: #34d399 !important;
+}
+
+html[data-theme='dark'] .text-warning {
+    color: #fbbf24 !important;
+}
+
+html[data-theme='dark'] .text-info {
+    color: #38bdf8 !important;
+}
+
+html[data-theme='dark'] .text-danger {
+    color: #f87171 !important;
+}
+
+/* =========================================================================
+   4. بطاقات الإحصائيات (Stat Cards & Dashboard Widgets)
+   ========================================================================= */
+.stat-card-widget {
+    background: #ffffff;
+    border: 1px solid #e2e8f0 !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card-widget:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07) !important;
+}
+
+html[data-theme='dark'] .stat-card-widget,
+html[data-bs-theme='dark'] .stat-card-widget {
+    background: var(--dm-bg-surface) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text-secondary) !important;
+    box-shadow: var(--dm-shadow-sm) !important;
+}
+
+html[data-theme='dark'] .stat-card-widget:hover,
+html[data-bs-theme='dark'] .stat-card-widget:hover {
+    background: var(--dm-bg-surface-hover) !important;
+    border-color: var(--dm-border-accent) !important;
+    box-shadow: var(--dm-shadow-md) !important;
+}
+
+html[data-theme='dark'] .stat-card-clean p,
+html[data-theme='dark'] .stat-card .stat-trend {
+    color: var(--dm-text-muted) !important;
+}
+
+html[data-theme='dark'] .stat-card-clean h2 {
+    color: var(--dm-text-primary) !important;
+}
+
+/* أيقونات البطاقات في الداشبورد */
+html[data-theme='dark'] div[style*="background: rgba(37, 99, 235, 0.1)"],
+html[data-theme='dark'] div[style*="background:rgba(37, 99, 235, 0.1)"] {
+    background: rgba(59, 130, 246, 0.2) !important;
+    color: #60a5fa !important;
+}
+
+html[data-theme='dark'] div[style*="background: rgba(16, 185, 129, 0.1)"],
+html[data-theme='dark'] div[style*="background:rgba(16, 185, 129, 0.1)"] {
+    background: rgba(16, 185, 129, 0.2) !important;
+    color: #34d399 !important;
+}
+
+html[data-theme='dark'] div[style*="background: rgba(245, 158, 11, 0.1)"],
+html[data-theme='dark'] div[style*="background:rgba(245, 158, 11, 0.1)"] {
+    background: rgba(245, 158, 11, 0.2) !important;
+    color: #fbbf24 !important;
+}
+
+html[data-theme='dark'] div[style*="background: rgba(14, 165, 233, 0.1)"],
+html[data-theme='dark'] div[style*="background:rgba(14, 165, 233, 0.1)"] {
+    background: rgba(14, 165, 233, 0.2) !important;
+    color: #38bdf8 !important;
+}
+
+/* =========================================================================
+   5. تقويم التدريبات والفعاليات (FullCalendar & Agenda View)
+   ========================================================================= */
+html[data-theme='dark'] #calendar {
+    background-color: var(--dm-bg-surface) !important;
+    color: var(--dm-text-secondary) !important;
+}
+
+html[data-theme='dark'] .fc {
+    --fc-page-bg-color: var(--dm-bg-surface);
+    --fc-neutral-bg-color: var(--dm-bg-surface-elevated);
+    --fc-list-event-hover-bg-color: var(--dm-bg-surface-hover);
+    --fc-border-color: #27354a;
+}
+
+html[data-theme='dark'] .fc th,
+html[data-theme='dark'] .fc thead th,
+html[data-theme='dark'] .fc-theme-standard th,
+html[data-theme='dark'] .fc-col-header-cell,
+html[data-theme='dark'] .fc .fc-col-header-cell-cushion {
+    background-color: #1a2436 !important;
+    color: #f1f5f9 !important;
+    border-color: #27354a !important;
+    font-weight: 700 !important;
+}
+
+html[data-theme='dark'] .fc-theme-standard td,
+html[data-theme='dark'] .fc-daygrid-day {
+    background-color: var(--dm-bg-surface) !important;
+    border-color: #1e293b !important;
+}
+
+html[data-theme='dark'] .fc-daygrid-day-number {
+    color: #94a3b8 !important;
+}
+
+html[data-theme='dark'] .fc-day-today {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+}
+
+html[data-theme='dark'] .fc-day-today .fc-daygrid-day-number {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border-radius: 6px;
+    padding: 2px 7px;
+    font-weight: bold;
+}
+
+html[data-theme='dark'] .fc-day-other {
+    background-color: #0b1120 !important;
+    opacity: 0.65;
+}
+
+html[data-theme='dark'] .fc-toolbar-title {
+    color: var(--dm-text-primary) !important;
+}
+
+html[data-theme='dark'] .fc-button-primary {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #f1f5f9 !important;
+}
+
+html[data-theme='dark'] .fc-button-primary:hover,
+html[data-theme='dark'] .fc-button-primary.fc-button-active {
+    background: #2563eb !important;
+    border-color: #3b82f6 !important;
+    color: #ffffff !important;
+}
+
+/* =========================================================================
+   6. حقول الإدخال والنماذج (Forms, Inputs & Filters)
+   ========================================================================= */
+html[data-theme='dark'] .form-control,
+html[data-theme='dark'] .form-select,
+html[data-theme='dark'] .form-control-modern,
+html[data-theme='dark'] .form-select-modern,
+html[data-theme='dark'] input[type="text"],
+html[data-theme='dark'] input[type="search"],
+html[data-theme='dark'] input[type="email"],
+html[data-theme='dark'] input[type="password"],
+html[data-theme='dark'] input[type="number"],
+html[data-theme='dark'] input[type="date"],
+html[data-theme='dark'] input[type="datetime-local"],
+html[data-theme='dark'] textarea,
+html[data-theme='dark'] select {
+    background-color: var(--dm-bg-input) !important;
+    border-color: #27354a !important;
+    color: var(--dm-text-primary) !important;
+}
+
+html[data-theme='dark'] .form-control:focus,
+html[data-theme='dark'] .form-select:focus,
+html[data-theme='dark'] .form-control-modern:focus,
+html[data-theme='dark'] .form-select-modern:focus {
+    background-color: #172238 !important;
+    border-color: var(--dm-accent-primary) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+}
+
+html[data-theme='dark'] input::placeholder,
+html[data-theme='dark'] textarea::placeholder {
+    color: #64748b !important;
+}
+
+html[data-theme='dark'] .input-group-text {
+    background-color: var(--dm-bg-surface-elevated) !important;
+    border-color: #27354a !important;
+    color: var(--dm-text-muted) !important;
+}
+
+html[data-theme='dark'] .form-label,
+html[data-theme='dark'] .form-label-modern {
+    color: var(--dm-text-secondary) !important;
+}
+
+/* =========================================================================
+   7. الجداول وقوائم البيانات (Tables & Lists)
+   ========================================================================= */
+html[data-theme='dark'] .table {
+    --bs-table-bg: var(--dm-bg-surface) !important;
+    --bs-table-color: var(--dm-text-secondary) !important;
+    --bs-table-border-color: var(--dm-border) !important;
+    color: var(--dm-text-secondary) !important;
+    border-color: var(--dm-border) !important;
+}
+
+html[data-theme='dark'] .table th,
+html[data-theme='dark'] .table thead th {
+    background-color: var(--dm-bg-surface-elevated) !important;
+    color: var(--dm-text-primary) !important;
+    border-color: #27354a !important;
+}
+
+html[data-theme='dark'] .table td {
+    background-color: var(--dm-bg-surface) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text-secondary) !important;
+}
+
+html[data-theme='dark'] .table-hover tbody tr:hover td {
+    background-color: var(--dm-bg-surface-hover) !important;
+}
+
+html[data-theme='dark'] .list-group-item {
+    background-color: var(--dm-bg-surface) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text-secondary) !important;
+}
+
+html[data-theme='dark'] .list-group-item:hover,
+html[data-theme='dark'] .list-group-item-action:hover {
+    background-color: var(--dm-bg-surface-hover) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+/* =========================================================================
+   8. الشارات والتنبيهات الملونة (Badges & Subtle Alerts)
+   ========================================================================= */
+html[data-theme='dark'] .bg-primary-subtle {
+    background-color: rgba(59, 130, 246, 0.16) !important;
+    color: #93c5fd !important;
+    border-color: rgba(59, 130, 246, 0.35) !important;
+}
+
+html[data-theme='dark'] .bg-success-subtle {
+    background-color: rgba(16, 185, 129, 0.16) !important;
+    color: #6ee7b7 !important;
+    border-color: rgba(16, 185, 129, 0.35) !important;
+}
+
+html[data-theme='dark'] .bg-warning-subtle {
+    background-color: rgba(245, 158, 11, 0.16) !important;
+    color: #fde68a !important;
+    border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+html[data-theme='dark'] .bg-danger-subtle {
+    background-color: rgba(239, 68, 68, 0.16) !important;
+    color: #fca5a5 !important;
+    border-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+html[data-theme='dark'] .badge.bg-light {
+    background-color: var(--dm-bg-surface-elevated) !important;
+    color: var(--dm-text-secondary) !important;
+    border-color: var(--dm-border) !important;
+}
+
+html[data-theme='dark'] .badge[style*="background: #eff6ff"],
+html[data-theme='dark'] .badge[style*="background:#eff6ff"] {
+    background: rgba(59, 130, 246, 0.18) !important;
+    color: #93c5fd !important;
+    border-color: rgba(59, 130, 246, 0.35) !important;
+}
+
+html[data-theme='dark'] .badge[style*="background: #f0fdf4"],
+html[data-theme='dark'] .badge[style*="background:#f0fdf4"] {
+    background: rgba(16, 185, 129, 0.18) !important;
+    color: #6ee7b7 !important;
+    border-color: rgba(16, 185, 129, 0.35) !important;
+}
+
+html[data-theme='dark'] .badge[style*="background: #fffbeb"],
+html[data-theme='dark'] .badge[style*="background:#fffbeb"] {
+    background: rgba(245, 158, 11, 0.18) !important;
+    color: #fde68a !important;
+    border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+html[data-theme='dark'] .badge[style*="background: #fef2f2"],
+html[data-theme='dark'] .badge[style*="background:#fef2f2"] {
+    background: rgba(239, 68, 68, 0.18) !important;
+    color: #fca5a5 !important;
+    border-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+/* =========================================================================
+   9. الشريط الجانبي الفاخر (Executive Dark Sidebar)
+   ========================================================================= */
+html[data-theme='dark'] .sidebar {
+    background: linear-gradient(180deg, #070c18 0%, #0d1527 50%, #090e1a 100%) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: -6px 0 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+html[data-theme='dark'] .sidebar .sidebar-heading {
+    color: #64748b !important;
+}
+
+html[data-theme='dark'] .sidebar .nav-link {
+    color: #94a3b8 !important;
+}
+
+html[data-theme='dark'] .sidebar .nav-link:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+}
+
+html[data-theme='dark'] .sidebar .nav-link.active {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.35) 0%, rgba(37, 99, 235, 0.2) 100%) !important;
+    color: #60a5fa !important;
+    border-right: 3px solid #3b82f6 !important;
+}
+
+html[data-theme='dark'] .sidebar hr.sidebar-divider {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* زر إظهار القائمة الجانبية العائم */
+html[data-theme='dark'] .floating-sidebar-toggle {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    border: 1px solid #334155 !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* =========================================================================
+   10. البانر العلوي الفاخر (Executive Hero Banner)
+   ========================================================================= */
+html[data-theme='dark'] .graduate-hero-banner,
+html[data-theme='dark'] .card[style*="linear-gradient(135deg, #0d3882"] {
+    background: linear-gradient(135deg, #070e1b 0%, #0d172a 50%, #152238 100%) !important;
+    border: 1px solid rgba(59, 130, 246, 0.28) !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65) !important;
+}
+
+html[data-theme='dark'] .graduate-hero-banner .bg-white,
+html[data-theme='dark'] .graduate-hero-banner div.bg-white {
+    background: #1e293b !important;
+    color: #60a5fa !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* أزرار الإجراءات في البانر */
+html[data-theme='dark'] .graduate-hero-banner .btn-light,
+html[data-theme='dark'] .card[style*="linear-gradient(135deg, #0d3882"] .btn-light {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+    border: 1px solid #334155 !important;
+}
+html[data-theme='dark'] .graduate-hero-banner .btn-light:hover,
+html[data-theme='dark'] .card[style*="linear-gradient(135deg, #0d3882"] .btn-light:hover {
+    background: #27354a !important;
+    color: #ffffff !important;
+}
+
+/* تنبيه الرسائل غير المقروءة */
+html[data-theme='dark'] .unread-messages-alert {
+    background: linear-gradient(135deg, #0b1728 0%, #11233d 100%) !important;
+    border: 1px solid rgba(59, 130, 246, 0.3) !important;
+    border-right: 5px solid #3b82f6 !important;
+    color: #f1f5f9 !important;
+}
+html[data-theme='dark'] .unread-messages-alert .text-dark {
+    color: #f8fafc !important;
+}
+html[data-theme='dark'] .unread-messages-alert .text-muted {
+    color: #94a3b8 !important;
+}
+
+/* عناصر رسائل الشركات في الداشبورد */
+.dashboard-msg-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0 !important;
+    transition: all 0.2s ease;
+}
+.dashboard-msg-item.is-unread {
+    background: #f0fdf4;
+    border-color: #bbf7d0 !important;
+}
+html[data-theme='dark'] .dashboard-msg-item {
+    background: var(--dm-bg-surface-elevated) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text-secondary) !important;
+}
+html[data-theme='dark'] .dashboard-msg-item.is-unread {
+    background: rgba(16, 185, 129, 0.12) !important;
+    border-color: rgba(16, 185, 129, 0.3) !important;
+}
+html[data-theme='dark'] .dashboard-msg-item:hover {
+    background: var(--dm-bg-surface-hover) !important;
+    border-color: var(--dm-border-accent) !important;
+}
+html[data-theme='dark'] .dashboard-msg-item .text-dark {
+    color: var(--dm-text-primary) !important;
+}
+html[data-theme='dark'] .dashboard-msg-item .text-muted {
+    color: var(--dm-text-muted) !important;
+}
+
+/* عناصر تتبع التدريبات الحالية */
+html[data-theme='dark'] .training-progress-item {
+    background: var(--dm-bg-surface-elevated) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text-secondary) !important;
+}
+html[data-theme='dark'] .training-progress-item .text-dark {
+    color: var(--dm-text-primary) !important;
+}
+html[data-theme='dark'] .progress {
+    background-color: var(--dm-bg-surface-elevated) !important;
+}
+
+/* =========================================================================
+   11. تتبع خطوات التوظيف (Job Nominations Stepper Progress)
+   ========================================================================= */
+.nomination-card-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0 !important;
+    transition: all 0.2s ease;
+}
+html[data-theme='dark'] .nomination-card-item {
+    background: var(--dm-bg-surface-elevated) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text-secondary) !important;
+}
+html[data-theme='dark'] .nomination-card-item:hover {
+    background: var(--dm-bg-surface-hover) !important;
+    border-color: var(--dm-border-accent) !important;
+}
+html[data-theme='dark'] .nomination-card-item .text-dark {
+    color: var(--dm-text-primary) !important;
+}
+
+/* خط التقدم ودوائر الخطوات */
+html[data-theme='dark'] .stepper-line-bg,
+html[data-theme='dark'] div[style*="background: #e2e8f0"] {
+    background-color: #27354a !important;
+}
+
+.stepper-node-circle {
+    border: 3px solid #ffffff;
+}
+html[data-theme='dark'] .stepper-node-circle,
+html[data-theme='dark'] .rounded-circle[style*="border: 3px solid #ffffff"],
+html[data-theme='dark'] .rounded-circle[style*="border: 3px solid white"] {
+    border: 3px solid var(--dm-bg-surface-elevated) !important;
+}
+
+/* تفاصيل مقابلة العمل */
+html[data-theme='dark'] .bg-info.bg-opacity-10 {
+    background-color: rgba(14, 165, 233, 0.15) !important;
+    border-color: rgba(14, 165, 233, 0.3) !important;
+    color: #f1f5f9 !important;
+}
+
+/* =========================================================================
+   12. النوافذ المنبثقة والقوائم المنسدلة (Modals, Dropdowns & Popups)
+   ========================================================================= */
+html[data-theme='dark'] .modal-content {
+    background-color: var(--dm-bg-surface) !important;
+    border: 1px solid var(--dm-border-medium) !important;
+    color: var(--dm-text-secondary) !important;
+    box-shadow: var(--dm-shadow-lg) !important;
+}
+
+html[data-theme='dark'] .modal-header,
+html[data-theme='dark'] .modal-footer {
+    background-color: var(--dm-bg-surface-elevated) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+html[data-theme='dark'] .dropdown-menu {
+    background-color: var(--dm-bg-surface-elevated) !important;
+    border-color: var(--dm-border-medium) !important;
+    color: var(--dm-text-secondary) !important;
+    box-shadow: var(--dm-shadow-md) !important;
+}
+
+html[data-theme='dark'] .dropdown-item {
+    color: var(--dm-text-secondary) !important;
+}
+
+html[data-theme='dark'] .dropdown-item:hover,
+html[data-theme='dark'] .dropdown-item:focus {
+    background-color: var(--dm-bg-surface-hover) !important;
+    color: var(--dm-text-primary) !important;
+}
+
+html[data-theme='dark'] .dropdown-divider {
+    border-color: var(--dm-border) !important;
+}
+
+/* =========================================================================
+   13. أزرار النظام العامة (Buttons in Dark Mode)
+   ========================================================================= */
+html[data-theme='dark'] .btn-outline-primary {
+    color: #60a5fa !important;
+    border-color: #3b82f6 !important;
+}
+html[data-theme='dark'] .btn-outline-primary:hover {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+}
+
+html[data-theme='dark'] .btn-outline-secondary {
+    color: #94a3b8 !important;
+    border-color: #475569 !important;
+}
+html[data-theme='dark'] .btn-outline-secondary:hover {
+    background-color: #334155 !important;
+    color: #ffffff !important;
+}
+
+html[data-theme='dark'] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* =========================================================================
+   14. التنقل السلس والجماليات (Smooth Transition)
+   ========================================================================= */
+html,
+body,
+.card,
+.main-content,
+.sidebar,
+.form-control,
+.form-select,
+.table,
+.list-group-item,
+.modal-content {
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease !important;
+}
+
+/* =========================================================================
+   15. أشرطة النوافذ الجانبية المنزلقة والرسائل (Side Drawers & Chat Widgets)
+   ========================================================================= */
+html[data-theme='dark'] .side-drawer-container,
+html[data-theme='dark'] .drawer-container,
+html[data-theme='dark'] #notifications-drawer,
+html[data-theme='dark'] #messages-drawer,
+html[data-theme='dark'] #sideDrawerNotifications,
+html[data-theme='dark'] #sideDrawerMessages {
+    background-color: #111827 !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #cbd5e1 !important;
+    box-shadow: -10px 0 35px rgba(0, 0, 0, 0.7) !important;
+}
+
+html[data-theme='dark'] .side-drawer-container .drawer-header,
+html[data-theme='dark'] #sideDrawerNotifications .drawer-header,
+html[data-theme='dark'] #sideDrawerMessages .drawer-header {
+    background-color: #162032 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme='dark'] .side-drawer-container .drawer-body,
+html[data-theme='dark'] #sideDrawerNotifications .drawer-body,
+html[data-theme='dark'] #sideDrawerMessages .drawer-body {
+    background-color: #111827 !important;
+}
+
+html[data-theme='dark'] .side-drawer-container .drawer-footer,
+html[data-theme='dark'] #sideDrawerNotifications .drawer-footer,
+html[data-theme='dark'] #sideDrawerMessages .drawer-footer {
+    background-color: #162032 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme='dark'] .side-drawer-container .chat-bubble-received {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme='dark'] .side-drawer-container .chat-bubble-sent {
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%) !important;
+    color: #ffffff !important;
+}
+
+html[data-theme='dark'] .side-drawer-container .conversation-item {
+    background-color: #111827 !important;
+    border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+html[data-theme='dark'] .side-drawer-container .conversation-item:hover,
+html[data-theme='dark'] .side-drawer-container .conversation-item.active {
+    background-color: #162032 !important;
+}
+

@@ -395,7 +395,7 @@
                         </li>
 
                         <li class="nav-item mt-4 pt-3 border-top border-light">
-                            <a class="nav-link text-warning fw-bold" href="#"
+                            <a class="nav-link text-warning fw-bold" href="{{ route('logout') }}"
                                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                 <i class="fas fa-sign-out-alt"></i>
                                 تسجيل الخروج

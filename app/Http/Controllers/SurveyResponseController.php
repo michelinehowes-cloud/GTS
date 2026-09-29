@@ -65,7 +65,7 @@ class SurveyResponseController extends Controller
         SurveyResponse::create([
             'survey_id' => $survey->id,
             'user_id' => Auth::id(),
-            'responses' => $request->responses,
+            'answers' => $request->responses,
             'submitted_at' => now(),
         ]);
 

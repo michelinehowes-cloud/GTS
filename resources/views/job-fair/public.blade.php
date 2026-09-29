@@ -83,15 +83,21 @@
 
         .nav-links { display: flex; align-items: center; gap: 0.5rem; }
         .nav-btn {
-            padding: 8px 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
+            padding: 9px 20px;
             border-radius: 50px;
             font-family: 'Cairo', sans-serif;
-            font-weight: 600;
-            font-size: 0.88rem;
+            font-weight: 700;
+            font-size: 0.92rem;
             cursor: pointer;
             text-decoration: none;
             transition: all 0.25s;
             border: none;
+            line-height: 1.4;
         }
         .nav-btn-outline {
             background: transparent;
@@ -111,6 +117,44 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 22px rgba(245,158,11,0.5);
             color: white;
+        }
+
+        .hero-action-buttons {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 1.5rem;
+        }
+        .hero-action-buttons .nav-btn {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 10px !important;
+            white-space: nowrap !important;
+            padding: 11px 22px !important;
+            font-size: 0.95rem !important;
+            font-weight: 700 !important;
+            line-height: 1.2 !important;
+            flex-shrink: 0 !important;
+            text-align: center !important;
+        }
+        .hero-action-buttons .nav-btn i {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            line-height: 1;
+            margin: 0 !important;
+        }
+        .hero-action-buttons .nav-btn span {
+            display: inline-block;
+            white-space: nowrap;
+            line-height: 1.2;
+        }
+        .hero-action-buttons .nav-btn-gold {
+            font-size: 1.05rem !important;
+            padding: 12px 26px !important;
         }
 
         /* ══════════════════════════════════
@@ -1377,32 +1421,38 @@
                 @endif
 
                 {{-- CTA Buttons --}}
-                <div class="mt-4 d-flex justify-content-lg-start justify-content-center gap-3">
+                <div class="hero-action-buttons justify-content-lg-start justify-content-center">
                     @auth
                         @if(isset($myRegistration) && $myRegistration)
-                            <a href="{{ route('job-fair.my-ticket', $myRegistration->id) }}" class="nav-btn nav-btn-gold px-4 py-2" style="font-size: 1.1rem">
-                                <i class="fas fa-qrcode me-2"></i>عرض بطاقتي الرقمية
+                            <a href="{{ route('job-fair.my-ticket', $myRegistration->id) }}" class="nav-btn nav-btn-gold">
+                                <i class="fas fa-qrcode"></i>
+                                <span>عرض بطاقتي الرقمية</span>
                             </a>
                         @elseif($fair->can_register)
-                            <button class="nav-btn nav-btn-gold px-4 py-2" data-bs-toggle="modal" data-bs-target="#registerModal" style="font-size: 1.1rem">
-                                <i class="fas fa-user-plus me-2"></i>سجّل الآن كخريج
+                            <button class="nav-btn nav-btn-gold" data-bs-toggle="modal" data-bs-target="#registerModal">
+                                <i class="fas fa-user-plus"></i>
+                                <span>سجّل الآن كخريج</span>
                             </button>
                         @endif
                     @else
                         @if($fair->can_register)
-                            <a href="{{ route('login') }}" class="nav-btn nav-btn-gold px-4 py-2" style="font-size: 1.1rem">
-                                <i class="fas fa-user-plus me-2"></i>سجّل الآن كخريج
+                            <a href="{{ route('login') }}" class="nav-btn nav-btn-gold">
+                                <i class="fas fa-user-plus"></i>
+                                <span>سجّل الآن كخريج</span>
                             </a>
                         @endif
                     @endauth
-                    <a href="{{ route('job-fair.public.companies', $fair->id) }}" class="nav-btn nav-btn-outline px-3 py-2" style="font-size: 0.98rem">
-                        <i class="fas fa-building me-1.5" style="color:var(--gold)"></i>دليل الشركات
+                    <a href="{{ route('job-fair.public.companies', $fair->id) }}" class="nav-btn nav-btn-outline">
+                        <i class="fas fa-building" style="color:var(--gold)"></i>
+                        <span>دليل الشركات</span>
                     </a>
-                    <a href="{{ route('job-fair.public.program', $fair->id) }}" class="nav-btn nav-btn-outline px-3 py-2" style="font-size: 0.98rem">
-                        <i class="fas fa-graduation-cap me-1.5" style="color:var(--gold)"></i>البرنامج العلمي
+                    <a href="{{ route('job-fair.public.program', $fair->id) }}" class="nav-btn nav-btn-outline">
+                        <i class="fas fa-graduation-cap" style="color:var(--gold)"></i>
+                        <span>البرنامج العلمي</span>
                     </a>
-                    <a href="{{ route('job-fair.public.projects', $fair->id) }}" class="nav-btn nav-btn-outline px-3 py-2" style="font-size: 0.98rem">
-                        <i class="fas fa-lightbulb me-1.5" style="color:var(--gold)"></i>مشاريع التخرج
+                    <a href="{{ route('job-fair.public.projects', $fair->id) }}" class="nav-btn nav-btn-outline">
+                        <i class="fas fa-lightbulb" style="color:var(--gold)"></i>
+                        <span>مشاريع التخرج</span>
                     </a>
                 </div>
             </div>

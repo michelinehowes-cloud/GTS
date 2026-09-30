@@ -1,5 +1,12 @@
 <?php
 
+// قراءة الإعدادات الديناميكية المحفوظة من لوحة التحكم في حال وجودها
+$storedSecurity = [];
+$settingsPath = storage_path('app/ai_settings.json');
+if (file_exists($settingsPath)) {
+    $storedSecurity = json_decode(@file_get_contents($settingsPath), true) ?: [];
+}
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -7,15 +14,12 @@ return [
     |--------------------------------------------------------------------------
     |
     | Cloudflare Turnstile provides smart, invisible bot protection.
-    | Official test keys:
-    | Sitekey: 1x00000000000000000000AA (Always passes)
-    | Secret:  1x0000000000000000000000000000000AA
     |
     */
     'turnstile' => [
-        'enabled' => env('TURNSTILE_ENABLED', true),
-        'site_key' => env('TURNSTILE_SITE_KEY', '1x00000000000000000000AA'),
-        'secret_key' => env('TURNSTILE_SECRET_KEY', '1x0000000000000000000000000000000AA'),
+        'enabled' => $storedSecurity['TURNSTILE_ENABLED'] ?? env('TURNSTILE_ENABLED', true),
+        'site_key' => $storedSecurity['TURNSTILE_SITE_KEY'] ?? env('TURNSTILE_SITE_KEY', '0x4AAAAAAE90uR_z3hQgBnzU'),
+        'secret_key' => $storedSecurity['TURNSTILE_SECRET_KEY'] ?? env('TURNSTILE_SECRET_KEY', '0x4AAAAAAE90uVPOzkse-syBFQqqEtsWNjo'),
     ],
 
     /*

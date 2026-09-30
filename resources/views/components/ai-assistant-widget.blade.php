@@ -131,6 +131,11 @@
         </div>
 
         <div class="d-flex align-items-center gap-1">
+            @if(auth()->check() && auth()->user()->role === 'admin')
+            <a href="{{ route('admin.settings.ai') }}" class="btn btn-sm text-warning p-1" title="إدارة المساعد الذكي" style="font-size: 0.95rem;">
+                <i class="fas fa-gear"></i>
+            </a>
+            @endif
             <button id="ai-assistant-clear-btn" type="button" class="btn btn-sm text-white-50 p-1" title="مسح المحادثة" style="font-size: 0.85rem;">
                 <i class="fas fa-trash-can"></i>
             </button>

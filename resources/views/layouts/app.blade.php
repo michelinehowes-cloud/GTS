@@ -19,6 +19,19 @@
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
     <link href="{{ asset('css/premium-forms.css') }}" rel="stylesheet">
     <link href="{{ asset('css/bento-dashboard.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/dark-mode.css') }}" rel="stylesheet">
+
+    <!-- كود فوري لمنع وميض الشاشة البيضاء عند تفعيل الوضع الليلي -->
+    <script>
+        (function() {
+            var saved = localStorage.getItem('theme') || 'light';
+            if (saved === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
+                document.documentElement.classList.add('dark-mode');
+            }
+        })();
+    </script>
 
     <style>
         /* Mobile & Desktop Scroll Optimization */
@@ -48,7 +61,13 @@
 
         /* Theme & Layout Customizations */
         body {
-            background-color: #f1f5f9 !important;
+            background-color: #f1f5f9;
+        }
+
+        html[data-theme='dark'] body,
+        body.dark-mode {
+            background-color: #090d16 !important;
+            color: #cbd5e1 !important;
         }
 
         .sidebar {
@@ -1972,86 +1991,7 @@
     </script> <!-- Closing for the main script block -->
 
     <!-- Simple Dark Mode Script -->
-    <!-- Simple Dark Mode Script -->
     <script src="{{ asset('js/simple-dark-mode.js') }}"></script>
-    <script type="text/plain">
-        (function () {
-            // Get theme from localStorage or default to light
-            let currentTheme = localStorage.getItem('theme') || 'light';
-
-            // ==========================================
-            // DARK MODE SCRIPT (Global Scope)
-            // ==========================================
- // 1. Get Theme
-            var currentTheme = localStorage.getItem('theme') || 'light';
-
-            // 2. Apply Theme Function
-            function applyTheme(theme) {
-                const root = document.documentElement;
-
-           // Set Attribute
-                if (theme === 'dark') {
-                    root.setAttribute('data-theme', 'dark');
-                } else {
-                    root.removeAttribute('data-theme');
-                }
-
-                // Update Icons (Any element with these IDs or inside them)
-                const buttons = [
-                    document.getElementById('darkModeToggle'),
-                    document.getElementById('darkModeMenuToggle')
-                ];
-
-                buttons.forEach(btn => {
-                    if (btn) {
-                        const icon = btn.querySelector('i');
-                        if (icon) {
-                            // Remove old classes first to be safe
-                            icon.classList.remove('fa-moon', 'fa-sun');
-
-                            if (theme === 'dark') {
-                                icon.classList.add('fa-sun');
-                            } else {
-                                icon.classList.add('fa-moon');
-                            }
-                        }
-                    }
-                });
-
-                // Save
-                localStorage.setItem('theme', theme);
-                currentTheme = theme;
-            }
-
-            // 3. Toggle Function (Exposed Globally)
-            window.toggleThemeGlobal = function (e) {
-                if (e) {
-                    e.preventDefault();
-                    if (e.stopPropagation) e.stopPropagation();
-                }
-
-                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-                applyTheme(newTheme);
-                console.log('Theme toggled to:', newTheme);
-            };
-
-            // 4. Initialize
-            applyTheme(currentTheme);
-
-            // 5. Re-apply on DOMContentLoaded (to catch buttons not yet rendered)
-            document.addEventListener('DOMContentLoaded', function () {
-                applyTheme(currentTheme);
-            });
-
-            // 6. Keyboard Shortcut
-            document.addEventListener('keydown', function (e) {
-                if ((e.altKey || e.metaKey) && e.key === 'd') {
-                    e.preventDefault();
-                    window.toggleThemeGlobal();
-                }
-            });
-
-    </script>
 
     @auth
     @include('components.ai-assistant-widget')

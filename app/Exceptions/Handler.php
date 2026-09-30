@@ -56,7 +56,26 @@ class Handler extends ExceptionHandler
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
             }
-            return redirect('/')->with('info', 'تم تسجيل الخروج بنجاح نظراً لانتهاء صلاحية الجلسة.');
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'انتهت صلاحية الجلسة، يرجى تحديث الصفحة'], 419);
+            }
+            return redirect('/?open_login=1')->with('status', 'تم تجديد الجلسة بنجاح، يرجى إدخال بيانات الدخول.');
+        });
+
+        $this->renderable(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, $request) {
+            if ($e->getStatusCode() === 419) {
+                if (\Illuminate\Support\Facades\Auth::check()) {
+                    \Illuminate\Support\Facades\Auth::logout();
+                }
+                if ($request->hasSession()) {
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+                }
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => 'انتهت صلاحية الجلسة، يرجى تحديث الصفحة'], 419);
+                }
+                return redirect('/?open_login=1')->with('status', 'تم تجديد الجلسة بنجاح، يرجى إدخال بيانات الدخول.');
+            }
         });
     }
 }

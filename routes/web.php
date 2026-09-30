@@ -827,6 +827,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin/job-fair')->name('job-fair.a
     Route::get('/{fair}/brand-identity/download/{type}', [App\Http\Controllers\JobFairController::class, 'downloadBrandAsset'])->name('brand-identity.download');
 });
 
+// ==================== 🚀 مسار تغذية قاعدة البيانات الحية (Live Seeder Trigger) ====================
+Route::get('/system/run-seeders-now', function () {
+    if (request('key') !== 'gts_seed_2026_uot') {
+        abort(403, 'Unauthorized');
+    }
+    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+    return response()->json([
+        'status' => 'success',
+        'message' => 'تم بنجاح تحميل وتعبئة كافة المستخدمين والبيانات في المنصة!',
+        'output' => \Illuminate\Support\Facades\Artisan::output(),
+    ]);
+});
+
 // ==================== 🛡️ توجيه تلقائي ذكي لمنع أخطاء كتابة مسارات ملفات Blade ====================
 Route::get('{any}', function ($any) {
     if (str_ends_with($any, '/index.blade.php')) {

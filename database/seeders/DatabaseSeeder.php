@@ -18,6 +18,10 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             JobFairEventsSeeder::class,
             JobFairProjectsSeeder::class,
+            MonthNineTrainingsSeeder::class,
+            SurveyTemplateSeeder::class,
+            SurveyWithResponsesSeeder::class,
+            PlatformContentSeeder::class,
         ]);
     }
 }

@@ -10,6 +10,7 @@ cmds = [
     "ln -sfn /app/public/images /app/images || true",
     "ln -sfn /app/public/js /app/js || true",
     "ln -sfn /app/public/build /app/build || true",
+    "php artisan migrate --force || true",
     "php artisan db:seed --force || true"
 ]
 

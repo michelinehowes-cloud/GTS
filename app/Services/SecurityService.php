@@ -20,26 +20,24 @@ class SecurityService
         $host = request()->getHost();
         $isDevelopmentOrTunnel = app()->environment('local') 
             || in_array($host, ['localhost', '127.0.0.1']) 
-            || str_ends_with($host, '.trycloudflare.com');
+            || str_ends_with($host, '.trycloudflare.com')
+            || str_ends_with($host, '.railway.app')
+            || str_ends_with($host, '.up.railway.app');
 
         $secret = config('security.turnstile.secret_key');
+        $isTestKey = empty($secret) || $secret === '1x0000000000000000000000000000000AA';
+
+        // إذا كان المفتاح هو مفتاح الاختبار أو النطاق تجريبي/سيرفر استضافة بدون مفاتيح رسمية
+        if ($isTestKey || $isDevelopmentOrTunnel) {
+            return ['success' => true];
+        }
 
         // إذا كان التوكن فارغاً أو رمز تجاوز الأخطاء الناتجة عن عدم إدراج النطاق في كلاودفير
         if (empty($token) || str_starts_with($token, 'BYPASS_')) {
-            if ($isDevelopmentOrTunnel) {
-                Log::info('Turnstile bypassed for local/tunnel environment or client error on ' . $host);
-                return ['success' => true];
-            }
-
             return [
                 'success' => false,
                 'message' => 'يرجى تأكيد التحقق الأمني (لست روبوت) للمتابعة.',
             ];
-        }
-
-        // إذا كان المفتاح هو مفتاح الاختبار الرسمي من Cloudflare للنجاح التلقائي
-        if ($secret === '1x0000000000000000000000000000000AA') {
-            return ['success' => true];
         }
 
         try {

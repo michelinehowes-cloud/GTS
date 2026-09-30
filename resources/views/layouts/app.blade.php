@@ -1466,8 +1466,101 @@
 
 
 
+    <!-- ============================================================ -->
+    <!-- درج الإشعارات المنزلق (Notifications Drawer) -->
+    <!-- ============================================================ -->
+    @auth
+    <div id="notificationsDrawer" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;pointer-events:none;">
+        <!-- Backdrop -->
+        <div id="notifDrawerBackdrop" onclick="closeNotificationsDrawer()" style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);opacity:0;transition:opacity 0.3s ease;pointer-events:none;"></div>
+        <!-- Panel -->
+        <div id="notifDrawerPanel" style="position:absolute;top:0;right:0;height:100%;width:380px;max-width:95vw;background:#fff;box-shadow:-4px 0 30px rgba(0,0,0,0.15);transform:translateX(100%);transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;pointer-events:all;">
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#0d3882,#1565c0);color:#fff;padding:1.2rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+                <div>
+                    <h5 style="margin:0;font-weight:700;font-size:1.1rem;"><i class="fas fa-bell me-2"></i>الإشعارات</h5>
+                    <p style="margin:0;font-size:0.78rem;opacity:0.8;" id="notifDrawerSubtitle">جاري التحميل...</p>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    <button onclick="markAllNotificationsRead()" class="btn btn-sm btn-light bg-white bg-opacity-20 text-white border-0 rounded-pill px-3 py-1" style="font-size:0.78rem;" id="markAllNotifBtn">
+                        <i class="fas fa-check-double me-1"></i>تحديد الكل مقروء
+                    </button>
+                    <button onclick="closeNotificationsDrawer()" class="btn btn-sm btn-light bg-white bg-opacity-20 text-white border-0 rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Body -->
+            <div id="notifDrawerBody" style="flex:1;overflow-y:auto;padding:0;">
+                <div class="text-center py-5 text-muted">
+                    <div class="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
+                    <p class="small">جاري تحميل الإشعارات...</p>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div style="padding:0.75rem 1rem;border-top:1px solid #e2e8f0;background:#f8fafc;flex-shrink:0;">
+                <a href="{{ route('notifications.index') }}" class="btn btn-outline-primary btn-sm w-100 rounded-3">
+                    <i class="fas fa-list me-1"></i>عرض جميع الإشعارات
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- درج الرسائل المنزلق (Messages Drawer) -->
+    <!-- ============================================================ -->
+    <div id="messagesDrawer" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;pointer-events:none;">
+        <!-- Backdrop -->
+        <div id="msgDrawerBackdrop" onclick="closeMessagesDrawer()" style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);opacity:0;transition:opacity 0.3s ease;pointer-events:none;"></div>
+        <!-- Panel -->
+        <div id="msgDrawerPanel" style="position:absolute;top:0;right:0;height:100%;width:380px;max-width:95vw;background:#fff;box-shadow:-4px 0 30px rgba(0,0,0,0.15);transform:translateX(100%);transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;pointer-events:all;">
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#059669,#047857);color:#fff;padding:1.2rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+                <div>
+                    <h5 style="margin:0;font-weight:700;font-size:1.1rem;"><i class="fas fa-envelope me-2"></i>الرسائل</h5>
+                    <p style="margin:0;font-size:0.78rem;opacity:0.8;" id="msgDrawerSubtitle">جاري التحميل...</p>
+                </div>
+                <button onclick="closeMessagesDrawer()" class="btn btn-sm btn-light bg-white bg-opacity-20 text-white border-0 rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <!-- Body -->
+            <div id="msgDrawerBody" style="flex:1;overflow-y:auto;padding:0;">
+                <div class="text-center py-5 text-muted">
+                    <div class="spinner-border spinner-border-sm text-success mb-2" role="status"></div>
+                    <p class="small">جاري تحميل الرسائل...</p>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div style="padding:0.75rem 1rem;border-top:1px solid #e2e8f0;background:#f8fafc;flex-shrink:0;">
+                <a href="{{ route('messages.index') }}" class="btn btn-outline-success btn-sm w-100 rounded-3">
+                    <i class="fas fa-inbox me-1"></i>فتح صندوق الرسائل الكامل
+                </a>
+            </div>
+        </div>
+    </div>
+    @endauth
+
+    <style>
+        /* Dark mode support for drawers */
+        html[data-theme='dark'] #notifDrawerPanel,
+        body.dark-mode #notifDrawerPanel,
+        html[data-theme='dark'] #msgDrawerPanel,
+        body.dark-mode #msgDrawerPanel {
+            background: #1e293b !important;
+            color: #cbd5e1 !important;
+        }
+        html[data-theme='dark'] #notifDrawerPanel div[style*="background:#f8fafc"],
+        body.dark-mode #notifDrawerPanel div[style*="background:#f8fafc"],
+        html[data-theme='dark'] #msgDrawerPanel div[style*="background:#f8fafc"],
+        body.dark-mode #msgDrawerPanel div[style*="background:#f8fafc"] {
+            background: #0f172a !important;
+        }
+    </style>
+
     <!-- Bootstrap CDN removed to avoid conflict with Vite build -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             console.log('DOM loaded, initializing UI scripts...');
@@ -1999,6 +2092,197 @@
 
     @yield('scripts')
     @stack('scripts')
+
+    <!-- ============================================================ -->
+    <!-- دوال الدرج المنزلق للإشعارات والرسائل -->
+    <!-- ============================================================ -->
+    <script>
+    // ==========================================
+    // Notifications Drawer Functions
+    // ==========================================
+    function openNotificationsDrawer() {
+        const drawer = document.getElementById('notificationsDrawer');
+        const panel = document.getElementById('notifDrawerPanel');
+        const backdrop = document.getElementById('notifDrawerBackdrop');
+        if (!drawer || !panel || !backdrop) return;
+
+        drawer.style.pointerEvents = 'all';
+        backdrop.style.pointerEvents = 'all';
+        backdrop.style.opacity = '1';
+        panel.style.transform = 'translateX(0)';
+        document.body.style.overflow = 'hidden';
+
+        // جلب الإشعارات
+        loadNotificationsInDrawer();
+    }
+
+    function closeNotificationsDrawer() {
+        const drawer = document.getElementById('notificationsDrawer');
+        const panel = document.getElementById('notifDrawerPanel');
+        const backdrop = document.getElementById('notifDrawerBackdrop');
+        if (!drawer || !panel || !backdrop) return;
+
+        panel.style.transform = 'translateX(100%)';
+        backdrop.style.opacity = '0';
+        backdrop.style.pointerEvents = 'none';
+        setTimeout(() => {
+            drawer.style.pointerEvents = 'none';
+        }, 350);
+        document.body.style.overflow = '';
+    }
+
+    function loadNotificationsInDrawer() {
+        const body = document.getElementById('notifDrawerBody');
+        const subtitle = document.getElementById('notifDrawerSubtitle');
+        if (!body) return;
+
+        body.innerHTML = `<div class="text-center py-5 text-muted"><div class="spinner-border spinner-border-sm text-primary mb-2" role="status"></div><p class="small">جاري تحميل الإشعارات...</p></div>`;
+
+        fetch('/notifications/api/notifications', { headers: { 'Accept': 'application/json' } })
+            .then(res => res.json())
+            .then(data => {
+                const notifications = data.notifications || [];
+                const unreadCount = data.unread_count ?? 0;
+                if (subtitle) subtitle.textContent = unreadCount > 0 ? `${unreadCount} غير مقروء` : 'لا توجد إشعارات جديدة';
+
+                if (notifications.length === 0) {
+                    body.innerHTML = `<div class="text-center py-5 text-muted"><i class="fas fa-bell-slash fa-3x mb-3 opacity-25 d-block"></i><p class="small">لا توجد إشعارات حتى الآن</p></div>`;
+                    return;
+                }
+
+                let html = '';
+                notifications.forEach(n => {
+                    const isUnread = !n.is_read;
+                    const iconMap = { success: 'check-circle text-success', danger: 'exclamation-circle text-danger', warning: 'exclamation-triangle text-warning' };
+                    const iconClass = iconMap[n.type] || 'info-circle text-primary';
+                    const timeStr = n.created_at ? new Date(n.created_at).toLocaleDateString('ar-LY', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+                    html += `
+                    <a href="/notifications/${n.id}" class="d-flex align-items-start p-3 text-decoration-none border-bottom ${isUnread ? 'bg-primary bg-opacity-5' : ''}" style="color:inherit;transition:background 0.15s;">
+                        <div class="me-3 mt-1 flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center" style="width:38px;height:38px;background:rgba(15,23,42,0.06);">
+                            <i class="fas fa-${iconClass} fs-6"></i>
+                        </div>
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="d-flex justify-content-between align-items-baseline">
+                                <h6 class="mb-0 fw-bold text-truncate" style="max-width:200px;font-size:0.88rem;">${n.title || 'إشعار جديد'}</h6>
+                                <small class="text-muted text-nowrap ms-2" style="font-size:0.7rem;">${timeStr}</small>
+                            </div>
+                            <p class="mb-0 text-muted text-truncate small" style="max-width:250px;">${n.message || ''}</p>
+                        </div>
+                        ${isUnread ? '<span class="rounded-circle bg-primary ms-2 mt-2 flex-shrink-0" style="width:8px;height:8px;min-width:8px;"></span>' : ''}
+                    </a>`;
+                });
+                body.innerHTML = html;
+            })
+            .catch(() => {
+                body.innerHTML = `<div class="text-center py-5 text-danger"><i class="fas fa-exclamation-triangle fa-2x mb-2 d-block"></i><p class="small">تعذر تحميل الإشعارات</p></div>`;
+            });
+    }
+
+    function markAllNotificationsRead() {
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+        fetch('/notifications/mark-all-read', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' }
+        }).then(() => loadNotificationsInDrawer()).catch(() => {});
+    }
+
+    // ==========================================
+    // Messages Drawer Functions
+    // ==========================================
+    function openMessagesDrawer() {
+        const drawer = document.getElementById('messagesDrawer');
+        const panel = document.getElementById('msgDrawerPanel');
+        const backdrop = document.getElementById('msgDrawerBackdrop');
+        if (!drawer || !panel || !backdrop) return;
+
+        drawer.style.pointerEvents = 'all';
+        backdrop.style.pointerEvents = 'all';
+        backdrop.style.opacity = '1';
+        panel.style.transform = 'translateX(0)';
+        document.body.style.overflow = 'hidden';
+
+        loadMessagesInDrawer();
+    }
+
+    function closeMessagesDrawer() {
+        const drawer = document.getElementById('messagesDrawer');
+        const panel = document.getElementById('msgDrawerPanel');
+        const backdrop = document.getElementById('msgDrawerBackdrop');
+        if (!drawer || !panel || !backdrop) return;
+
+        panel.style.transform = 'translateX(100%)';
+        backdrop.style.opacity = '0';
+        backdrop.style.pointerEvents = 'none';
+        setTimeout(() => {
+            drawer.style.pointerEvents = 'none';
+        }, 350);
+        document.body.style.overflow = '';
+    }
+
+    function loadMessagesInDrawer() {
+        const body = document.getElementById('msgDrawerBody');
+        const subtitle = document.getElementById('msgDrawerSubtitle');
+        if (!body) return;
+
+        body.innerHTML = `<div class="text-center py-5 text-muted"><div class="spinner-border spinner-border-sm text-success mb-2" role="status"></div><p class="small">جاري تحميل الرسائل...</p></div>`;
+
+        fetch('/messages/api/recent', { headers: { 'Accept': 'application/json' } })
+            .then(res => res.ok ? res.json() : Promise.reject(res))
+            .then(data => {
+                // API returns: { status, unread_total, conversations: [{user_id, name, last_message, last_message_time, unread_count, initial, avatar}] }
+                const conversations = data.conversations || [];
+                const unreadTotal = data.unread_total ?? 0;
+                if (subtitle) subtitle.textContent = unreadTotal > 0 ? `${unreadTotal} رسالة غير مقروءة` : 'لا توجد رسائل جديدة';
+
+                if (conversations.length === 0) {
+                    body.innerHTML = `<div class="text-center py-5 text-muted"><i class="fas fa-inbox fa-3x mb-3 opacity-25 d-block"></i><p class="small">لا توجد رسائل حتى الآن</p></div>`;
+                    return;
+                }
+
+                let html = '';
+                conversations.forEach(conv => {
+                    const hasUnread = conv.unread_count > 0;
+                    const initial = conv.initial || (conv.name || 'م').charAt(0);
+                    const avatarHtml = conv.avatar
+                        ? `<img src="${conv.avatar}" alt="${conv.name}" class="rounded-circle" style="width:40px;height:40px;object-fit:cover;">`
+                        : `<div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white" style="width:40px;height:40px;background:linear-gradient(135deg,#059669,#047857);font-size:1rem;">${initial}</div>`;
+                    html += `
+                    <a href="/messages/${conv.user_id}" class="d-flex align-items-start p-3 text-decoration-none border-bottom ${hasUnread ? 'bg-success bg-opacity-5' : ''}" style="color:inherit;transition:background 0.15s;">
+                        <div class="me-3 mt-1 flex-shrink-0">${avatarHtml}</div>
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="d-flex justify-content-between align-items-baseline">
+                                <h6 class="mb-0 fw-bold text-truncate" style="max-width:190px;font-size:0.88rem;">${conv.name || 'مجهول'}</h6>
+                                <small class="text-muted text-nowrap ms-2" style="font-size:0.7rem;">${conv.last_message_time || ''}</small>
+                            </div>
+                            <p class="mb-0 text-muted text-truncate small" style="max-width:240px;">${conv.last_message || '...'}</p>
+                        </div>
+                        ${hasUnread ? `<span class="badge bg-success rounded-pill ms-2 mt-2" style="font-size:0.65rem;">${conv.unread_count}</span>` : ''}
+                    </a>`;
+                });
+                body.innerHTML = html;
+            })
+            .catch(() => {
+                // الرسائل API غير متاحة، إعادة التوجيه لصفحة الرسائل
+                body.innerHTML = `
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-envelope fa-3x mb-3 opacity-25 d-block"></i>
+                    <p class="small mb-3">لعرض الرسائل، انقر على الزر أدناه</p>
+                    <a href="/messages" class="btn btn-sm btn-outline-success rounded-pill px-4">
+                        <i class="fas fa-inbox me-1"></i>فتح صندوق الرسائل
+                    </a>
+                </div>`;
+                if (subtitle) subtitle.textContent = 'صندوق الرسائل';
+            });
+    }
+
+    // إغلاق الدرجين عند الضغط على ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeNotificationsDrawer();
+            closeMessagesDrawer();
+        }
+    });
+    </script>
 
 </body>
 

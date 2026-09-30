@@ -255,7 +255,7 @@ class PermissionSeeder extends Seeder
         $syncRolePerms('partnership_officer', [
             'companies.view', 'companies.create', 'companies.edit', 'companies.delete',
             'partnerships.documents', 'jobs.view', 'jobs.manage', 'nominations.manage',
-            'job_fair.view', 'job_fair.manage', 'job_fair.registrations', 'job_fair.stream',
+            'job_fair.view', 'job_fair.manage', 'job_fair.registrations',
             'reports.view'
         ]);
 

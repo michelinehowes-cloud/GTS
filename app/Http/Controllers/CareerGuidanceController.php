@@ -410,15 +410,32 @@ class CareerGuidanceController extends Controller
 
         $userIdToIgnore = $targetUser ? $targetUser->id : null;
 
+        // بناء قواعد التحقق من البريد الإلكتروني ديناميكياً لتجنب خطأ ignore(null)
+        $emailRules = [
+            'nullable',
+            'email',
+            'max:255',
+            \Illuminate\Validation\Rule::unique('graduates_data', 'email')->ignore($graduate->id),
+        ];
+        // إضافة فحص التفرد في جدول المستخدمين فقط إذا كان لدينا معرّف مستخدم للاستثناء
+        if ($userIdToIgnore) {
+            $emailRules[] = \Illuminate\Validation\Rule::unique('users', 'email')->ignore($userIdToIgnore);
+        } else {
+            // لا يوجد حساب مستخدم مرتبط، لذا تجاهل فحص جدول users تجنباً للخطأ
+            // (البريد قد يكون موجوداً في جدول users لشخص مختلف - نتحقق منه بشكل مخصص)
+            $existingUserWithEmail = User::where('email', $request->email)
+                ->where('role', '!=', 'graduate')
+                ->exists();
+            if (!$existingUserWithEmail) {
+                // التحقق من أنه ليس خريجاً آخر بنفس البريد
+                $emailRules[] = \Illuminate\Validation\Rule::unique('users', 'email')
+                    ->where(fn($q) => $q->where('role', 'graduate'));
+            }
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => [
-                'nullable',
-                'email',
-                'max:255',
-                \Illuminate\Validation\Rule::unique('graduates_data', 'email')->ignore($graduate->id),
-                \Illuminate\Validation\Rule::unique('users', 'email')->ignore($userIdToIgnore),
-            ],
+            'email' => $emailRules,
             'phone' => 'nullable|string|max:255',
             'national_id' => 'nullable|string|max:50',
             'date_of_birth' => 'nullable|date',

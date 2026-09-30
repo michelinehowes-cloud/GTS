@@ -15,6 +15,7 @@ class JobFairEventsSeeder extends Seeder
     {
         $fair = JobFair::first();
         if (!$fair) {
+            $admin = User::where('role', 'admin')->first();
             $fair = JobFair::create([
                 'title'                 => 'معرض التوظيف 2026 - جامعة طرابلس',
                 'subtitle'              => 'من الجامعة إلى سوق العمل... نحو خريج أكثر جاهزية وقدرة على المنافسة',
@@ -28,6 +29,7 @@ class JobFairEventsSeeder extends Seeder
                 'is_program_published'  => true,
                 'is_projects_published' => true,
                 'registration_deadline' => '2026-11-05 23:59:59',
+                'created_by'            => $admin ? $admin->id : 1,
             ]);
         } else {
             // تحديث حالة النشر والموقع والتواريخ لضمان ظهور البرنامج

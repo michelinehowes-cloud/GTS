@@ -27,7 +27,7 @@
         </a>
         <a href="{{ route('admin.settings.ai') }}" class="btn btn-outline-light text-white border-white border-opacity-50 fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
             <i class="fas fa-robot text-warning fs-6"></i>
-            <span>إعدادات الـ API</span>
+            <span>إعدادات المساعد الذكي</span>
         </a>
     </x-page-hero>
 
@@ -246,7 +246,7 @@
             </div>
             <div class="col-12 col-md">
                 <a href="{{ route('admin.settings.ai') }}" class="btn btn-outline-dark w-100 rounded-3 py-2 text-nowrap" style="font-size: 0.8rem;">
-                    <i class="fas fa-robot text-warning me-1"></i> إعدادات الـ API
+                    <i class="fas fa-robot text-warning me-1"></i> إعدادات المساعد الذكي
                 </a>
             </div>
         </div>

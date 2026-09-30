@@ -42,9 +42,10 @@ class AiAssistantService
         $authorizedTools = AiToolRegistry::getAuthorizedTools($user);
 
         // 3. Provider Resolution & Autonomous AI Dispatch (Groq LLaMA / Gemini / Local Engine)
-        $configuredProvider = strtolower(config('ai.provider', 'auto'));
-        $geminiKey = config('ai.gemini_api_key') ?: env('GEMINI_API_KEY', '');
-        $groqKey = config('ai.groq_api_key') ?: env('GROQ_API_KEY', '');
+        $aiSettings = \App\Http\Controllers\AdminAiSettingsController::getAiSettings();
+        $configuredProvider = strtolower($aiSettings['provider'] ?: config('ai.provider', 'auto'));
+        $geminiKey = $aiSettings['gemini_api_key'] ?: config('ai.gemini_api_key', '');
+        $groqKey = $aiSettings['groq_api_key'] ?: config('ai.groq_api_key', '');
         $generalKey = config('ai.api_key') ?: env('AI_API_KEY', '');
 
         // Auto-detect provider if generic AI_API_KEY is supplied

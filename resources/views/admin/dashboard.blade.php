@@ -25,9 +25,12 @@
             <i class="fas fa-building fs-6"></i>
             <span>الشركات</span>
         </a>
-        <a href="{{ route('admin.settings.ai') }}" class="btn btn-outline-light text-white border-white border-opacity-50 fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
-            <i class="fas fa-robot text-warning fs-6"></i>
-            <span>إعدادات المساعد الذكي</span>
+        <a href="{{ route('admin.users.index') }}" class="btn btn-outline-light text-white border-white border-opacity-50 fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+            <i class="fas fa-users fs-6"></i>
+            <span>المستخدمين</span>
+        </a>
+        <a href="{{ route('admin.settings.ai') }}" class="btn btn-outline-light text-warning border-white border-opacity-50 rounded-circle shadow-sm d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px; transition: transform 0.2s ease;" title="إدارة المساعد الذكي" data-bs-toggle="tooltip">
+            <i class="fas fa-robot fs-5"></i>
         </a>
     </x-page-hero>
 

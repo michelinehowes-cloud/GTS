@@ -5,16 +5,38 @@
  * =========================================================================
  */
 (function () {
-    // تطبيق الوضع فوراً قبل اكتمال تحميل الصفحة لمنع الوميض الأبيض (No-Flash Script)
     const savedTheme = localStorage.getItem('theme') || 'light';
     const html = document.documentElement;
 
+    function applyThemeToDOM(theme) {
+        const isDark = theme === 'dark';
+        if (isDark) {
+            html.setAttribute('data-theme', 'dark');
+            html.setAttribute('data-bs-theme', 'dark');
+            html.classList.add('dark-mode');
+            if (document.body) {
+                document.body.classList.add('dark-mode');
+            }
+        } else {
+            html.removeAttribute('data-theme');
+            html.setAttribute('data-bs-theme', 'light');
+            html.classList.remove('dark-mode');
+            if (document.body) {
+                document.body.classList.remove('dark-mode');
+            }
+        }
+        updateIcons(theme);
+    }
+
+    // تطبيق فوري على عنصر html لمنع الوميض
     if (savedTheme === 'dark') {
         html.setAttribute('data-theme', 'dark');
         html.setAttribute('data-bs-theme', 'dark');
+        html.classList.add('dark-mode');
     } else {
         html.removeAttribute('data-theme');
         html.setAttribute('data-bs-theme', 'light');
+        html.classList.remove('dark-mode');
     }
 
     // دالة تبديل الوضع المعرفة عالمياً
@@ -24,21 +46,16 @@
             e.stopPropagation();
         }
 
-        const currentTheme = html.getAttribute('data-theme');
+        const currentTheme = html.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
-        if (newTheme === 'dark') {
-            html.setAttribute('data-theme', 'dark');
-            html.setAttribute('data-bs-theme', 'dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            html.removeAttribute('data-theme');
-            html.setAttribute('data-bs-theme', 'light');
-            localStorage.setItem('theme', 'light');
-        }
+        localStorage.setItem('theme', newTheme);
+        applyThemeToDOM(newTheme);
 
-        updateIcons(newTheme);
         console.log('Theme switched to:', newTheme);
+        try {
+            window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: newTheme } }));
+        } catch (err) {}
     };
 
     // مرادف للدالة القديمة لضمان التوافق التام
@@ -59,14 +76,17 @@
                     icon.classList.add('fa-moon');
                 }
             }
+            if (btn.hasAttribute('title') && (btn.getAttribute('title').includes('الوضع') || btn.getAttribute('title').includes('ليلي'))) {
+                btn.setAttribute('title', isDark ? 'الوضع النهاري' : 'الوضع الليلي');
+            }
         });
     }
 
-    // تهيئة الأيقونات وربط الأحداث عند اكتمال DOM
+    // تهيئة الأيقونات وتطبيق الكلاس على body عند اكتمال DOM
     document.addEventListener('DOMContentLoaded', () => {
-        updateIcons(savedTheme);
+        applyThemeToDOM(savedTheme);
 
-        const buttons = document.querySelectorAll('#darkModeToggle, #darkModeMenuToggle');
+        const buttons = document.querySelectorAll('#darkModeToggle, #darkModeMenuToggle, .dark-mode-trigger');
         buttons.forEach(btn => {
             btn.onclick = window.toggleDarkMode;
         });
@@ -75,6 +95,7 @@
     // اختصار لوحة المفاتيح: Alt + D
     document.addEventListener('keydown', function (e) {
         if ((e.altKey || e.metaKey) && (e.key === 'd' || e.key === 'D')) {
+            if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
             e.preventDefault();
             window.toggleDarkMode();
         }

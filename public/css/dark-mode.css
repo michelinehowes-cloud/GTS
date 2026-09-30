@@ -760,3 +760,104 @@ html[data-theme='dark'] .side-drawer-container .conversation-item.active {
     background-color: #162032 !important;
 }
 
+/* =========================================================================
+   16. المساعد الذكي في الوضع الليلي (AI Assistant Widget - Dark Obsidian)
+   ========================================================================= */
+html[data-theme='dark'] #ai-assistant-panel,
+body.dark-mode #ai-assistant-panel {
+    background-color: #111827 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.75) !important;
+}
+
+html[data-theme='dark'] #ai-assistant-panel .ai-panel-header,
+body.dark-mode #ai-assistant-panel .ai-panel-header {
+    background: linear-gradient(135deg, #070e1b 0%, #0d172a 100%) !important;
+    border-bottom: 2px solid #f59e0b !important;
+}
+
+html[data-theme='dark'] #ai-assistant-panel .ai-quick-prompts,
+body.dark-mode #ai-assistant-panel .ai-quick-prompts {
+    background-color: #162032 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme='dark'] #ai-assistant-panel .ai-prompt-chip,
+body.dark-mode #ai-assistant-panel .ai-prompt-chip {
+    background-color: #1e293b !important;
+    color: #93c5fd !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+html[data-theme='dark'] #ai-assistant-panel .ai-prompt-chip:hover,
+body.dark-mode #ai-assistant-panel .ai-prompt-chip:hover {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+    border-color: #3b82f6 !important;
+}
+
+html[data-theme='dark'] #ai-messages-container,
+body.dark-mode #ai-messages-container {
+    background-color: #0b1120 !important;
+}
+
+html[data-theme='dark'] .ai-msg-assistant .ai-bubble,
+body.dark-mode .ai-msg-assistant .ai-bubble {
+    background-color: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: #f1f5f9 !important;
+}
+
+html[data-theme='dark'] .ai-msg-user .ai-bubble,
+body.dark-mode .ai-msg-user .ai-bubble {
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%) !important;
+    color: #ffffff !important;
+    border-color: #2563eb !important;
+}
+
+html[data-theme='dark'] #ai-typing-indicator,
+body.dark-mode #ai-typing-indicator {
+    background-color: #0b1120 !important;
+    color: #94a3b8 !important;
+}
+
+html[data-theme='dark'] #ai-assistant-panel .ai-panel-footer,
+body.dark-mode #ai-assistant-panel .ai-panel-footer {
+    background-color: #111827 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme='dark'] #ai-chat-input,
+body.dark-mode #ai-chat-input {
+    background-color: #1a2436 !important;
+    border-color: #2e3e56 !important;
+    color: #f8fafc !important;
+}
+
+html[data-theme='dark'] #ai-chat-input::placeholder,
+body.dark-mode #ai-chat-input::placeholder {
+    color: #64748b !important;
+}
+
+html[data-theme='dark'] .ai-action-card,
+body.dark-mode .ai-action-card {
+    background-color: #1c2333 !important;
+    border-color: rgba(245, 158, 11, 0.3) !important;
+    border-right: 4px solid #f59e0b !important;
+    color: #f1f5f9 !important;
+}
+
+html[data-theme='dark'] .ai-tool-badge,
+body.dark-mode .ai-tool-badge {
+    background: rgba(14, 165, 233, 0.2) !important;
+    color: #38bdf8 !important;
+}
+
+html[data-theme='dark'] .ai-inline-prompt-btn,
+body.dark-mode .ai-inline-prompt-btn {
+    background: #1e293b !important;
+    color: #60a5fa !important;
+    border-color: #3b82f6 !important;
+}
+
+

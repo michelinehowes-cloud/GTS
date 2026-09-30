@@ -14,19 +14,45 @@ use App\Services\Ai\AiToolRegistry;
 class AdminAiSettingsController extends Controller
 {
     /**
+     * Get active AI settings from storage/app/ai_settings.json or fallback to env/config
+     */
+    public static function getAiSettings(): array
+    {
+        $file = storage_path('app/ai_settings.json');
+        $stored = [];
+        if (file_exists($file)) {
+            $json = json_decode(@file_get_contents($file), true);
+            if (is_array($json)) {
+                $stored = $json;
+            }
+        }
+
+        return [
+            'gemini_api_key' => $stored['GEMINI_API_KEY'] ?? env('GEMINI_API_KEY', config('ai.gemini_api_key', '')),
+            'groq_api_key'   => $stored['GROQ_API_KEY'] ?? env('GROQ_API_KEY', config('ai.groq_api_key', '')),
+            'provider'       => $stored['AI_PROVIDER'] ?? env('AI_PROVIDER', config('ai.provider', 'auto')),
+            'gemini_model'   => $stored['GEMINI_MODEL'] ?? env('GEMINI_MODEL', config('ai.gemini_model', 'gemini-3.6-flash')),
+            'groq_model'     => $stored['GROQ_MODEL'] ?? env('GROQ_MODEL', config('ai.groq_model', 'llama-3.3-70b-versatile')),
+            'temperature'    => (float) ($stored['AI_TEMPERATURE'] ?? env('AI_TEMPERATURE', config('ai.temperature', 0.3))),
+            'max_tokens'     => (int) ($stored['AI_MAX_TOKENS'] ?? env('AI_MAX_TOKENS', config('ai.max_tokens', 2048))),
+        ];
+    }
+
+    /**
      * Show the AI & API Settings Dashboard
      */
     public function index()
     {
-        $rawGeminiKey = env('GEMINI_API_KEY', config('ai.gemini_api_key', ''));
-        $rawGroqKey = env('GROQ_API_KEY', config('ai.groq_api_key', ''));
-        $provider = env('AI_PROVIDER', config('ai.provider', 'auto'));
+        $settings = self::getAiSettings();
+        $rawGeminiKey = $settings['gemini_api_key'];
+        $rawGroqKey = $settings['groq_api_key'];
+        $provider = $settings['provider'];
 
-        $geminiModel = env('GEMINI_MODEL', config('ai.gemini_model', 'gemini-3.6-flash'));
-        $groqModel = env('GROQ_MODEL', config('ai.groq_model', 'llama-3.3-70b-versatile'));
+        $geminiModel = $settings['gemini_model'];
+        $groqModel = $settings['groq_model'];
 
-        $temperature = env('AI_TEMPERATURE', config('ai.temperature', 0.3));
-        $maxTokens = env('AI_MAX_TOKENS', config('ai.max_tokens', 2048));
+        $temperature = $settings['temperature'];
+        $maxTokens = $settings['max_tokens'];
 
         // Mask keys for security
         $maskedGeminiKey = $this->maskKey($rawGeminiKey);
@@ -320,44 +346,61 @@ class AdminAiSettingsController extends Controller
     }
 
     /**
-     * Safely update .env file keys
+     * Safely update settings persistently (in storage/app/ai_settings.json and optionally .env)
      */
     protected function updateEnvironmentFile(array $data): bool
     {
+        // 1. Always save to storage/app/ai_settings.json (guaranteed writable)
+        try {
+            $storageDir = storage_path('app');
+            if (!is_dir($storageDir)) {
+                @mkdir($storageDir, 0775, true);
+            }
+            $file = $storageDir . '/ai_settings.json';
+            $current = [];
+            if (file_exists($file)) {
+                $current = json_decode(@file_get_contents($file), true) ?: [];
+            }
+            $merged = array_merge($current, $data);
+            @file_put_contents($file, json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        } catch (\Throwable $e) {
+            Log::error('Failed to write ai_settings.json: ' . $e->getMessage());
+        }
+
+        // 2. Best-effort update of .env file if it exists and is writable
         $envPath = base_path('.env');
-        if (!file_exists($envPath)) {
-            return false;
+        if (file_exists($envPath) && is_writable($envPath)) {
+            try {
+                $content = file_get_contents($envPath);
+
+                foreach ($data as $key => $value) {
+                    $value = trim($value);
+                    if ((str_contains($value, ' ') || str_contains($value, '#')) && !str_starts_with($value, '"')) {
+                        $value = '"' . addcslashes($value, '"') . '"';
+                    }
+
+                    $pattern = "/^{$key}=.*$/m";
+
+                    if (preg_match($pattern, $content)) {
+                        $content = preg_replace($pattern, "{$key}={$value}", $content);
+                    } else {
+                        $content = rtrim($content) . "\n{$key}={$value}\n";
+                    }
+                }
+
+                @file_put_contents($envPath, $content);
+            } catch (\Throwable $e) {
+                Log::warning('Failed to update .env: ' . $e->getMessage());
+            }
         }
 
         try {
-            $content = file_get_contents($envPath);
-
-            foreach ($data as $key => $value) {
-                $value = trim($value);
-                // Wrap in quotes if it contains spaces or hash
-                if ((str_contains($value, ' ') || str_contains($value, '#')) && !str_starts_with($value, '"')) {
-                    $value = '"' . addcslashes($value, '"') . '"';
-                }
-
-                $pattern = "/^{$key}=.*$/m";
-
-                if (preg_match($pattern, $content)) {
-                    $content = preg_replace($pattern, "{$key}={$value}", $content);
-                } else {
-                    $content = rtrim($content) . "\n{$key}={$value}\n";
-                }
-            }
-
-            file_put_contents($envPath, $content);
-
-            // Clear configuration cache so changes take effect immediately
             Artisan::call('config:clear');
-
-            return true;
         } catch (\Throwable $e) {
-            Log::error('Failed to update .env: ' . $e->getMessage());
-            return false;
+            // Ignore if config:clear is not permitted
         }
+
+        return true;
     }
 
     /**

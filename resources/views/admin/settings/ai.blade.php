@@ -1,20 +1,20 @@
 @extends('layouts.app')
 
-@section('title', 'إعدادات الذكاء الاصطناعي ومفاتيح الـ API')
-@section('page-title', 'إعدادات الذكاء الاصطناعي والـ API')
+@section('title', 'إعدادات المساعد الذكي والـ API')
+@section('page-title', 'إعدادات المساعد الذكي')
 
 @section('content')
 <div class="container-fluid pb-5">
 
     <!-- الشريط العلوي المعتمد -->
     <x-page-hero
-        title="إعدادات الذكاء الاصطناعي ومفاتيح الـ API"
+        title="إعدادات المساعد الذكي ومفاتيح الـ API"
         subtitle="إدارة وتكوين مفاتيح API لنماذج الذكاء الاصطناعي (Google Gemini و Groq LLaMA) وفحص الاتصال الحي بالنماذج"
         icon="fas fa-robot"
         :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
             ['label' => 'لوحة تحكم المدير', 'url' => route('admin.dashboard')],
-            ['label' => 'إعدادات الـ API والذكاء الاصطناعي']
+            ['label' => 'إعدادات المساعد الذكي']
         ]"
         secondaryBadge="إعدادات المنظومة"
         secondaryBadgeIcon="fas fa-sliders-h"

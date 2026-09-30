@@ -782,7 +782,7 @@
                 <!-- الشعار والهوية -->
                 <a class="navbar-brand navbar-brand-wrap" href="{{ route('home') }}">
                     <div class="navbar-brand-logo-frame">
-                        <img src="{{ asset('storage/logo.jpg') }}" alt="شعار جامعة طرابلس" class="navbar-brand-logo-img" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                        <img src="{{ asset('images/logo.jpg') }}" alt="شعار جامعة طرابلس" class="navbar-brand-logo-img" onerror="this.onerror=null;">
                     </div>
                     <div class="d-flex flex-column text-start text-rtl">
                         <span class="brand-text-title">مكتب تدريب الخريجين</span>
@@ -882,7 +882,7 @@
             </div>
 
             <div class="mb-4" data-aos="zoom-in">
-                <img src="{{ asset('storage/logo.jpg') }}" alt="شعار جامعة طرابلس" class="university-logo-img" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                <img src="{{ asset('images/logo.jpg') }}" alt="شعار جامعة طرابلس" class="university-logo-img" onerror="this.onerror=null;">
             </div>
 
             <h1 class="display-4 fw-bolder mb-3 text-white" data-aos="fade-up" data-aos-delay="150" style="letter-spacing: -0.5px;">
@@ -1042,10 +1042,10 @@
                                         <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" class="img-fluid mb-3" style="max-height: 85px; max-width: 180px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25));" onerror="this.onerror=null;this.src='{{ $fair->logo_url }}';">
                                     @elseif($fair->logo_url)
                                         <div class="d-inline-block bg-white rounded-3 p-2 mb-3 shadow-sm">
-                                            <img src="{{ $fair->logo_url }}" alt="{{ $fair->title }}" class="img-fluid" style="max-height: 70px; max-width: 140px; object-fit: contain;" onerror="this.style.display='none'">
+                                            <img src="{{ $fair->logo_url }}" alt="{{ $fair->title }}" class="img-fluid" style="max-height: 70px; max-width: 140px; object-fit: contain;" onerror="this.onerror=null;this.style.display='none'">
                                         </div>
                                     @elseif($fair->banner_image)
-                                        <img src="{{ asset('storage/' . $fair->banner_image) }}" alt="{{ $fair->title }}" class="img-fluid mb-3 rounded-3" style="max-height: 70px; object-fit: contain;" onerror="this.style.display='none'">
+                                        <img src="{{ asset('storage/' . $fair->banner_image) }}" alt="{{ $fair->title }}" class="img-fluid mb-3 rounded-3" style="max-height: 70px; object-fit: contain;" onerror="this.onerror=null;this.style.display='none'">
                                     @else
                                         <i class="fas fa-id-card fa-4x text-warning mb-3"></i>
                                     @endif
@@ -1080,7 +1080,7 @@
                             <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
                                 <img src="{{ asset('storage/' . $image->file_path) }}" class="d-block w-100 object-fit-cover"
                                     alt="{{ $image->caption ?? 'صورة ترحيبية' }}" style="height: 380px;"
-                                    onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                                    onerror="this.onerror=null;this.src='{{ asset('images/logo.jpg') }}'">
                                 @if($image->caption)
                                     <div class="carousel-caption d-none d-md-block p-3 rounded-3" style="background: rgba(11, 31, 58, 0.65); backdrop-filter: blur(6px); max-width: 600px; margin: 0 auto;">
                                         <h5 class="text-white mb-0 fw-bold">{{ $image->caption }}</h5>
@@ -1373,7 +1373,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="d-flex align-items-center gap-2.5 mb-3">
                         <div class="footer-brand-logo-frame">
-                            <img src="{{ asset('storage/logo.jpg') }}" alt="جامعة طرابلس" class="footer-brand-logo-img" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                            <img src="{{ asset('images/logo.jpg') }}" alt="جامعة طرابلس" class="footer-brand-logo-img" onerror="this.onerror=null;">
                         </div>
                         <div>
                             <h5 class="text-white fw-bold mb-0 fs-6">جامعة طرابلس</h5>
@@ -1463,7 +1463,7 @@
             <div class="modal-content modal-login-content">
                 <div class="modal-login-header">
                     <button type="button" class="btn-close btn-close-white position-absolute top-0 start-0 m-3 shadow-none" data-bs-dismiss="modal" aria-label="إغلاق"></button>
-                    <img src="{{ asset('storage/logo.jpg') }}" alt="شعار الجامعة" class="modal-login-logo d-block" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                    <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" class="modal-login-logo d-block" onerror="this.onerror=null;">
                     <h4 class="fw-bold mb-1" id="loginModalLabel">تسجيل الدخول</h4>
                     <p class="mb-0 text-white-50 small">مكتب تدريب وتأهيل الخريجين — جامعة طرابلس</p>
                 </div>
@@ -1557,7 +1557,7 @@
             <div class="modal-content modal-login-content">
                 <div class="modal-login-header">
                     <button type="button" class="btn-close btn-close-white position-absolute top-0 start-0 m-3 shadow-none" data-bs-dismiss="modal" aria-label="إغلاق"></button>
-                    <img src="{{ asset('storage/logo.jpg') }}" alt="شعار الجامعة" class="modal-login-logo d-block" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                    <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" class="modal-login-logo d-block" onerror="this.onerror=null;">
                     <h4 class="fw-bold mb-1" id="forgotPasswordModalLabel">استعادة كلمة المرور</h4>
                     <p class="mb-0 text-white-50 small">أدخل بريدك الإلكتروني لاستلام رمز التحقق</p>
                 </div>
@@ -1605,7 +1605,7 @@
             <div class="modal-content modal-login-content">
                 <div class="modal-login-header">
                     <button type="button" class="btn-close btn-close-white position-absolute top-0 start-0 m-3 shadow-none" data-bs-dismiss="modal" aria-label="إغلاق"></button>
-                    <img src="{{ asset('storage/logo.jpg') }}" alt="شعار الجامعة" class="modal-login-logo d-block" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                    <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" class="modal-login-logo d-block" onerror="this.onerror=null;">
                     <h4 class="fw-bold mb-1" id="verifyCodeModalLabel">تغيير كلمة المرور</h4>
                     <p class="mb-0 text-white-50 small">أدخل الرمز المرسل إلى بريدك الإلكتروني</p>
                 </div>

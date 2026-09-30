@@ -5,7 +5,11 @@ NIXPACKS_PHP_ROOT_DIR = "/app/public"
 
 [phases.build]
 cmds = [
-    "php artisan storage:link || true"
+    "php artisan storage:link || true",
+    "mkdir -p /app/storage/app/public && cp /app/public/images/logo.jpg /app/storage/app/public/logo.jpg || true",
+    "ln -sfn /app/public/images /app/images || true",
+    "ln -sfn /app/public/js /app/js || true",
+    "ln -sfn /app/public/build /app/build || true"
 ]
 
 

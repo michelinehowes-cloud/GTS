@@ -387,6 +387,84 @@
                     </div>
                 </div>
 
+                <!-- 4. بطاقة كاشف الروبوتات والحماية (Cloudflare Turnstile) -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                    <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                                4
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0 text-dark">كاشف الروبوتات الذكي (Cloudflare Turnstile)</h5>
+                                <small class="text-muted">حماية ذكية بدون كابتشا معقدة لتأمين تسجيل الدخول والنماذج العامة</small>
+                            </div>
+                        </div>
+                        <div class="form-check form-switch m-0">
+                            <input class="form-check-input" type="checkbox" role="switch" id="turnstile_enabled" name="turnstile_enabled" value="1" {{ $turnstileEnabled ? 'checked' : '' }} style="cursor: pointer; width: 2.5em; height: 1.3em;">
+                            <label class="form-check-label fw-bold text-dark small ms-1" for="turnstile_enabled">
+                                {{ $turnstileEnabled ? 'مفعل' : 'معطل' }}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Site Key -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark small mb-1">
+                                <i class="fas fa-globe text-primary me-1"></i> مفتاح الموقع العام (Site Key)
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-key text-muted"></i>
+                                </span>
+                                <input type="text"
+                                       id="turnstile_site_key"
+                                       name="turnstile_site_key"
+                                       class="form-control font-monospace border-start-0"
+                                       placeholder="أدخل مفتاح الموقع (Site Key)"
+                                       value="{{ $turnstileSiteKey }}">
+                            </div>
+                            <small class="text-muted mt-1 d-block">
+                                المفتاح العام للموقع المستخدم في صفحات تسجيل الدخول والتسجيل.
+                            </small>
+                        </div>
+
+                        <!-- Secret Key -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark small mb-1">
+                                <i class="fas fa-user-secret text-danger me-1"></i> المفتاح السري (Secret Key)
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-lock text-muted"></i>
+                                </span>
+                                <input type="password"
+                                       id="turnstile_secret_key"
+                                       name="turnstile_secret_key"
+                                       class="form-control font-monospace border-start-0 border-end-0"
+                                       placeholder="{{ $stats['turnstile_configured'] ? 'المفتاح السري محفوظ حالياً: ' . $maskedTurnstileSecretKey : 'أدخل المفتاح السري هنا' }}"
+                                       value="">
+                                <button type="button" class="btn btn-light border border-start-0" onclick="togglePasswordVisibility('turnstile_secret_key', this)" title="إظهار/إخفاء">
+                                    <i class="fas fa-eye text-muted"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-info px-3 fw-bold" id="btnTestTurnstile" onclick="testConnection('turnstile')">
+                                    <i class="fas fa-shield-alt me-1"></i> فحص المفتاح
+                                </button>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
+                                <small class="text-muted">
+                                    @if($stats['turnstile_configured'])
+                                        <span class="text-success"><i class="fas fa-check-circle me-1"></i>المفتاح السري مسجل ومحمي: <code>{{ $maskedTurnstileSecretKey }}</code></span>
+                                    @else
+                                        <span class="text-muted"><i class="fas fa-info-circle me-1"></i>لم يتم تسجيل المفتاح السري الحقيقي بعد</span>
+                                    @endif
+                                </small>
+                            </div>
+                            <!-- منطقة عرض نتائج فحص Cloudflare -->
+                            <div id="turnstileTestFeedback" class="mt-2 d-none"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- زر الحفظ النهائي -->
                 <div class="d-flex align-items-center justify-content-between p-3 bg-white border-0 rounded-4 shadow-sm">
                     <div class="text-muted small">
@@ -514,13 +592,26 @@
         }
     }
 
-    // فحص الاتصال الحي بنموذج الذكاء الاصطناعي
+    // فحص الاتصال الحي بنموذج الذكاء الاصطناعي أو Cloudflare
     function testConnection(provider) {
-        const isGemini = (provider === 'gemini');
-        const btn = isGemini ? document.getElementById('btnTestGemini') : document.getElementById('btnTestGroq');
-        const feedback = isGemini ? document.getElementById('geminiTestFeedback') : document.getElementById('groqTestFeedback');
-        const keyInput = isGemini ? document.getElementById('gemini_api_key') : document.getElementById('groq_api_key');
-        const modelSelect = isGemini ? document.getElementById('gemini_model') : document.getElementById('groq_model');
+        let btn, feedback, keyInput, modelSelect;
+
+        if (provider === 'gemini') {
+            btn = document.getElementById('btnTestGemini');
+            feedback = document.getElementById('geminiTestFeedback');
+            keyInput = document.getElementById('gemini_api_key');
+            modelSelect = document.getElementById('gemini_model');
+        } else if (provider === 'groq') {
+            btn = document.getElementById('btnTestGroq');
+            feedback = document.getElementById('groqTestFeedback');
+            keyInput = document.getElementById('groq_api_key');
+            modelSelect = document.getElementById('groq_model');
+        } else if (provider === 'turnstile') {
+            btn = document.getElementById('btnTestTurnstile');
+            feedback = document.getElementById('turnstileTestFeedback');
+            keyInput = document.getElementById('turnstile_secret_key');
+            modelSelect = { value: 'turnstile' };
+        }
 
         const originalBtnHtml = btn.innerHTML;
         btn.disabled = true;
@@ -530,7 +621,7 @@
         feedback.innerHTML = `
             <div class="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-0">
                 <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
-                <span>جارِ إرسال طلب تجريبي للتحقق من المفتاح وصلاحية النموذج...</span>
+                <span>جارِ إرسال طلب تجريبي للتحقق من الاتصال والمفتاح...</span>
             </div>
         `;
 

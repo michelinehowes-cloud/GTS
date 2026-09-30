@@ -28,13 +28,16 @@ class AdminAiSettingsController extends Controller
         }
 
         return [
-            'gemini_api_key' => $stored['GEMINI_API_KEY'] ?? env('GEMINI_API_KEY', config('ai.gemini_api_key', '')),
-            'groq_api_key'   => $stored['GROQ_API_KEY'] ?? env('GROQ_API_KEY', config('ai.groq_api_key', '')),
-            'provider'       => $stored['AI_PROVIDER'] ?? env('AI_PROVIDER', config('ai.provider', 'auto')),
-            'gemini_model'   => $stored['GEMINI_MODEL'] ?? env('GEMINI_MODEL', config('ai.gemini_model', 'gemini-3.6-flash')),
-            'groq_model'     => $stored['GROQ_MODEL'] ?? env('GROQ_MODEL', config('ai.groq_model', 'llama-3.3-70b-versatile')),
-            'temperature'    => (float) ($stored['AI_TEMPERATURE'] ?? env('AI_TEMPERATURE', config('ai.temperature', 0.3))),
-            'max_tokens'     => (int) ($stored['AI_MAX_TOKENS'] ?? env('AI_MAX_TOKENS', config('ai.max_tokens', 2048))),
+            'gemini_api_key'       => $stored['GEMINI_API_KEY'] ?? env('GEMINI_API_KEY', config('ai.gemini_api_key', '')),
+            'groq_api_key'         => $stored['GROQ_API_KEY'] ?? env('GROQ_API_KEY', config('ai.groq_api_key', '')),
+            'provider'             => $stored['AI_PROVIDER'] ?? env('AI_PROVIDER', config('ai.provider', 'auto')),
+            'gemini_model'         => $stored['GEMINI_MODEL'] ?? env('GEMINI_MODEL', config('ai.gemini_model', 'gemini-3.6-flash')),
+            'groq_model'           => $stored['GROQ_MODEL'] ?? env('GROQ_MODEL', config('ai.groq_model', 'llama-3.3-70b-versatile')),
+            'temperature'          => (float) ($stored['AI_TEMPERATURE'] ?? env('AI_TEMPERATURE', config('ai.temperature', 0.3))),
+            'max_tokens'           => (int) ($stored['AI_MAX_TOKENS'] ?? env('AI_MAX_TOKENS', config('ai.max_tokens', 2048))),
+            'turnstile_enabled'    => (bool) ($stored['TURNSTILE_ENABLED'] ?? env('TURNSTILE_ENABLED', true)),
+            'turnstile_site_key'   => $stored['TURNSTILE_SITE_KEY'] ?? env('TURNSTILE_SITE_KEY', config('security.turnstile.site_key', '0x4AAAAAAE90uR_z3hQgBnzU')),
+            'turnstile_secret_key' => $stored['TURNSTILE_SECRET_KEY'] ?? env('TURNSTILE_SECRET_KEY', config('security.turnstile.secret_key', '0x4AAAAAAE90uVPOzkse-syBFQqqEtsWNjo')),
         ];
     }
 
@@ -54,6 +57,11 @@ class AdminAiSettingsController extends Controller
         $temperature = $settings['temperature'];
         $maxTokens = $settings['max_tokens'];
 
+        $turnstileEnabled = $settings['turnstile_enabled'];
+        $turnstileSiteKey = $settings['turnstile_site_key'];
+        $turnstileSecretKey = $settings['turnstile_secret_key'];
+        $maskedTurnstileSecretKey = $this->maskKey($turnstileSecretKey);
+
         // Mask keys for security
         $maskedGeminiKey = $this->maskKey($rawGeminiKey);
         $maskedGroqKey = $this->maskKey($rawGroqKey);
@@ -66,6 +74,7 @@ class AdminAiSettingsController extends Controller
             'tools_count' => count(AiToolRegistry::getAuthorizedTools(auth()->user())),
             'gemini_configured' => !empty($rawGeminiKey),
             'groq_configured' => !empty($rawGroqKey),
+            'turnstile_configured' => !empty($turnstileSiteKey) && !empty($turnstileSecretKey) && $turnstileSiteKey !== '1x00000000000000000000AA',
         ];
 
         return view('admin.settings.ai', compact(
@@ -78,6 +87,10 @@ class AdminAiSettingsController extends Controller
             'groqModel',
             'temperature',
             'maxTokens',
+            'turnstileEnabled',
+            'turnstileSiteKey',
+            'turnstileSecretKey',
+            'maskedTurnstileSecretKey',
             'stats'
         ));
     }
@@ -88,24 +101,41 @@ class AdminAiSettingsController extends Controller
     public function update(Request $request)
     {
         $validated = $request->validate([
-            'ai_provider' => 'required|in:auto,gemini,groq,local',
-            'gemini_api_key' => 'nullable|string|max:500',
-            'gemini_model' => 'required|string|max:100',
-            'groq_api_key' => 'nullable|string|max:500',
-            'groq_model' => 'required|string|max:100',
-            'ai_temperature' => 'nullable|numeric|between:0,1',
-            'ai_max_tokens' => 'nullable|integer|between:256,8192',
-            'clear_gemini_key' => 'nullable|boolean',
-            'clear_groq_key' => 'nullable|boolean',
+            'ai_provider'          => 'required|in:auto,gemini,groq,local',
+            'gemini_api_key'       => 'nullable|string|max:500',
+            'gemini_model'         => 'required|string|max:100',
+            'groq_api_key'         => 'nullable|string|max:500',
+            'groq_model'           => 'required|string|max:100',
+            'ai_temperature'       => 'nullable|numeric|between:0,1',
+            'ai_max_tokens'        => 'nullable|integer|between:256,8192',
+            'clear_gemini_key'     => 'nullable|boolean',
+            'clear_groq_key'       => 'nullable|boolean',
+            'turnstile_enabled'    => 'nullable',
+            'turnstile_site_key'   => 'nullable|string|max:200',
+            'turnstile_secret_key' => 'nullable|string|max:200',
         ]);
 
         $envUpdates = [
-            'AI_PROVIDER' => $validated['ai_provider'],
-            'GEMINI_MODEL' => $validated['gemini_model'],
-            'GROQ_MODEL' => $validated['groq_model'],
-            'AI_TEMPERATURE' => (string) ($validated['ai_temperature'] ?? '0.3'),
-            'AI_MAX_TOKENS' => (string) ($validated['ai_max_tokens'] ?? '2048'),
+            'AI_PROVIDER'       => $validated['ai_provider'],
+            'GEMINI_MODEL'      => $validated['gemini_model'],
+            'GROQ_MODEL'        => $validated['groq_model'],
+            'AI_TEMPERATURE'    => (string) ($validated['ai_temperature'] ?? '0.3'),
+            'AI_MAX_TOKENS'     => (string) ($validated['ai_max_tokens'] ?? '2048'),
+            'TURNSTILE_ENABLED' => $request->has('turnstile_enabled') ? 'true' : 'false',
         ];
+
+        // Handle Turnstile Site Key
+        if ($request->filled('turnstile_site_key')) {
+            $envUpdates['TURNSTILE_SITE_KEY'] = trim($request->input('turnstile_site_key'));
+        }
+
+        // Handle Turnstile Secret Key
+        if ($request->filled('turnstile_secret_key')) {
+            $rawTurnstileSecret = trim($request->input('turnstile_secret_key'));
+            if (!str_contains($rawTurnstileSecret, '••••') && !str_contains($rawTurnstileSecret, '****')) {
+                $envUpdates['TURNSTILE_SECRET_KEY'] = $rawTurnstileSecret;
+            }
+        }
 
         // Handle Gemini API Key
         if ($request->boolean('clear_gemini_key')) {
@@ -140,6 +170,7 @@ class AdminAiSettingsController extends Controller
                     'provider' => $validated['ai_provider'],
                     'gemini_model' => $validated['gemini_model'],
                     'groq_model' => $validated['groq_model'],
+                    'turnstile_site_key' => $envUpdates['TURNSTILE_SITE_KEY'] ?? null,
                 ],
                 'ip_address' => $request->ip() ?? '127.0.0.1',
                 'user_agent' => substr($request->userAgent() ?? 'System', 0, 255),
@@ -147,20 +178,20 @@ class AdminAiSettingsController extends Controller
             ]);
 
             return redirect()->route('admin.settings.ai')
-                ->with('success', 'تم حفظ وتحديث إعدادات الـ API ومحرك الذكاء الاصطناعي بنجاح!');
+                ->with('success', 'تم حفظ وتحديث إعدادات الـ API والأمان بنجاح!');
         }
 
         return redirect()->route('admin.settings.ai')
-            ->with('error', 'تعذر تحديث ملف البيئة (.env). يرجى التحقق من أذونات الملف.');
+            ->with('error', 'تعذر تحديث الإعدادات. يرجى التحقق من أذونات التخزين.');
     }
 
     /**
-     * AJAX Endpoint to test live connection with Gemini or Groq API
+     * AJAX Endpoint to test live connection with Gemini, Groq, or Turnstile
      */
     public function testConnection(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'provider' => 'required|in:gemini,groq',
+            'provider' => 'required|in:gemini,groq,turnstile',
             'api_key' => 'nullable|string',
             'model' => 'nullable|string',
         ]);
@@ -168,6 +199,49 @@ class AdminAiSettingsController extends Controller
         $provider = $validated['provider'];
         $model = $validated['model'] ?? null;
         $inputKey = trim($validated['api_key'] ?? '');
+        $startTime = microtime(true);
+
+        // Turnstile testing
+        if ($provider === 'turnstile') {
+            $turnstileSecret = ($inputKey && !str_contains($inputKey, '••••') && !str_contains($inputKey, '****'))
+                ? $inputKey
+                : (self::getAiSettings()['turnstile_secret_key'] ?? '');
+
+            if (empty($turnstileSecret)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'لم يتم إدخال المفتاح السري (Secret Key) لـ Cloudflare.'
+                ], 422);
+            }
+
+            try {
+                $res = Http::asForm()->timeout(10)->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                    'secret' => $turnstileSecret,
+                    'response' => 'test_dummy_token',
+                ]);
+                $duration = round((microtime(true) - $startTime) * 1000);
+                $json = $res->json();
+                $errors = $json['error-codes'] ?? [];
+
+                if (in_array('invalid-input-secret', $errors)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'المفتاح السري (Secret Key) غير صالح أو تم رفضه من سيرفرات Cloudflare.'
+                    ], 400);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => "تم الاتصال بسيرفرات Cloudflare بنجاح! المفتاح السري صحيح وموثّق ({$duration}ms).",
+                    'duration_ms' => $duration,
+                ]);
+            } catch (\Throwable $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'تعذر الاتصال بسيرفرات Cloudflare: ' . $e->getMessage()
+                ], 500);
+            }
+        }
 
         // If key input is masked or empty, read existing from env
         if (empty($inputKey) || str_contains($inputKey, '••••') || str_contains($inputKey, '****')) {

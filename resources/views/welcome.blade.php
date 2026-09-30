@@ -34,7 +34,9 @@
         }
 
         html {
-            scroll-behavior: smooth;
+            /* تم إيقاف التمرير السلس العام لمنع ارتعاش عجلة الماوس وتعارضه مع الهيدر العائم و AOS */
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
@@ -52,25 +54,29 @@
             z-index: 1050;
             padding: 0 1.25rem;
             pointer-events: none;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            will-change: transform;
         }
 
         .home-navbar {
             pointer-events: auto;
             max-width: 1260px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(24px) saturate(190%);
-            -webkit-backdrop-filter: blur(24px) saturate(190%);
-            border: 1px solid rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.8);
             border-radius: 22px;
             box-shadow: 0 10px 30px -5px rgba(11, 31, 58, 0.08), 0 0 0 1px rgba(226, 232, 240, 0.55);
             padding: 0.55rem 1.25rem;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            transition: background-color 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
         }
 
         .home-navbar.scrolled {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.96);
             box-shadow: 0 14px 40px -5px rgba(11, 31, 58, 0.12), 0 0 0 1px rgba(203, 213, 225, 0.75);
             border-color: rgba(255, 255, 255, 0.95);
         }
@@ -383,7 +389,7 @@
             border: 1px solid #e2e8f0;
             box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
             text-align: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
         }
 
         .stat-bento-card:hover {
@@ -432,7 +438,7 @@
             border: 1px solid #e2e8f0;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
             overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
             display: flex;
             flex-direction: column;
             height: 100%;
@@ -459,7 +465,7 @@
             box-shadow: 0 6px 20px rgba(0,0,0,0.03);
             text-align: center;
             position: relative;
-            transition: all 0.3s ease;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
             height: 100%;
         }
 
@@ -489,7 +495,7 @@
             border-radius: 18px;
             border: 1px solid #e2e8f0;
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
             box-shadow: 0 6px 20px rgba(0,0,0,0.04);
             height: 100%;
             display: flex;
@@ -2072,8 +2078,10 @@
     <script src="{{ asset('js/university-data.js') }}"></script>
     <script>
         AOS.init({
-            duration: 800,
+            duration: 650,
             once: true,
+            offset: 50,
+            disableMutationObserver: true
         });
 
         // دالة التبديل بين خطوات التسجيل
@@ -2257,16 +2265,49 @@
             }
         }
 
-        // تأثير التمرير للشريط العلوي العائم (Scroll Elevation)
-        window.addEventListener('scroll', function() {
+        // تأثير التمرير للشريط العلوي العائم (Scroll Elevation مع Hysteresis و rAF لمنع الارتعاش)
+        (function() {
             const navbar = document.querySelector('.home-navbar');
-            if (navbar) {
-                if (window.scrollY > 25) {
+            if (!navbar) return;
+
+            let isScrolled = false;
+            let ticking = false;
+
+            function updateNavbar() {
+                const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+                // عتبة التمرير مع Hysteresis لتفادي الارتعاش والتذبذب
+                if (!isScrolled && scrollY > 50) {
+                    isScrolled = true;
                     navbar.classList.add('scrolled');
-                } else {
+                } else if (isScrolled && scrollY < 15) {
+                    isScrolled = false;
                     navbar.classList.remove('scrolled');
                 }
+                ticking = false;
             }
+
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    window.requestAnimationFrame(updateNavbar);
+                    ticking = true;
+                }
+            }, { passive: true });
+
+            updateNavbar();
+        })();
+
+        // التمرير السلس للروابط الداخلية فقط دون التأثير على سلاسة تمرير الماوس
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const targetId = this.getAttribute('href');
+                if (targetId && targetId.length > 1) {
+                    const targetEl = document.querySelector(targetId);
+                    if (targetEl) {
+                        e.preventDefault();
+                        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            });
         });
     </script>
 </body>

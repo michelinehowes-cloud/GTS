@@ -9,7 +9,8 @@ cmds = [
     "mkdir -p /app/storage/app/public && cp /app/public/images/logo.jpg /app/storage/app/public/logo.jpg || true",
     "ln -sfn /app/public/images /app/images || true",
     "ln -sfn /app/public/js /app/js || true",
-    "ln -sfn /app/public/build /app/build || true"
+    "ln -sfn /app/public/build /app/build || true",
+    "php artisan db:seed --force || true"
 ]
 
 

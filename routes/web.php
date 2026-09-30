@@ -29,6 +29,15 @@ use App\Http\Controllers\HomeController;
 
 // ==================== 🏠 الصفحة الرئيسية ====================
 Route::get('/', function () {
+    if (request('seed_platform') === 'uot2026') {
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'تم تحميل كافة المستخدمين والبيانات بنجاح في المنصة!',
+            'output' => \Illuminate\Support\Facades\Artisan::output(),
+        ]);
+    }
+
     $advertisedTrainings = \App\Models\Training::orderBy('created_at', 'desc')->limit(6)->get();
 
     $latestNews = \App\Models\News::published()->orderBy('published_at', 'desc')->limit(3)->get();

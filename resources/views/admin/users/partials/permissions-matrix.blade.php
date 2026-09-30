@@ -4,7 +4,7 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 p-3 bg-white rounded-4 shadow-sm border mb-4">
         <div>
             <h5 class="fw-bold text-dark mb-1">
-                <i class="fas fa-layer-group text-primary me-2"></i> مصفوفة الصلاحيات المخصصة (33 صلاحية موزعة على 8 أقسام)
+                <i class="fas fa-layer-group text-primary me-2"></i> مصفوفة الصلاحيات المخصصة الشاملة
             </h5>
             <p class="text-muted small mb-0">
                 حدد بدقة الوظائف التي يحق لهذا الموظف الوصول إليها. لن يتمكن الموظف من عرض أو تعديل أي قسم لم يتم اختياره هنا.
@@ -226,8 +226,8 @@ document.addEventListener('DOMContentLoaded', function () {
             'graduates.approve', 'graduates.import_export', 'nominations.manage', 'reports.view'
         ],
         job_fair: [
-            'job_fair.view', 'job_fair.manage', 'job_fair.stream', 
-            'companies.view', 'jobs.view', 'nominations.manage'
+            'job_fair.view', 'job_fair.manage', 'job_fair.registrations',
+            'companies.view', 'jobs.view', 'nominations.manage', 'reports.view'
         ],
         evaluations: [
             'surveys.manage', 'evaluations.manage', 'reports.view'

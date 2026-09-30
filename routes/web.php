@@ -804,6 +804,7 @@ Route::middleware('auth')->group(function () {
     
     // المراسلات (الشركات والخريجين)
     Route::get('/messages', [App\Http\Controllers\MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/api/recent', [App\Http\Controllers\MessageController::class, 'index'])->name('messages.api.recent');
     Route::get('/messages/{id}', [App\Http\Controllers\MessageController::class, 'show'])->name('messages.show');
     Route::post('/messages/{id}', [App\Http\Controllers\MessageController::class, 'store'])->name('messages.store');
 

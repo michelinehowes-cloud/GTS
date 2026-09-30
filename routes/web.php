@@ -30,12 +30,36 @@ use App\Http\Controllers\HomeController;
 // ==================== 🏠 الصفحة الرئيسية ====================
 Route::get('/', function () {
     if (request('seed_platform') === 'uot2026') {
-        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
-        return response()->json([
-            'status' => 'success',
-            'message' => 'تم تحميل كافة المستخدمين والبيانات بنجاح في المنصة!',
-            'output' => \Illuminate\Support\Facades\Artisan::output(),
-        ]);
+        try {
+            // ترحيل الجداول أولاً لضمان وجود أحدث الجداول والحقول
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            $migrateOutput = \Illuminate\Support\Facades\Artisan::output();
+
+            $class = request('class');
+            if ($class) {
+                \Illuminate\Support\Facades\Artisan::call('db:seed', [
+                    '--class' => $class,
+                    '--force' => true,
+                ]);
+            } else {
+                \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+            }
+            $seedOutput = \Illuminate\Support\Facades\Artisan::output();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'تم تطبيق التحديثات وترحيل الجداول وتعبئة كافة البيانات بنجاح!',
+                'migrate_output' => $migrateOutput,
+                'seed_output' => $seedOutput,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ], 200);
+        }
     }
 
     $advertisedTrainings = \App\Models\Training::orderBy('created_at', 'desc')->limit(6)->get();

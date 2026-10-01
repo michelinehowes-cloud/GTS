@@ -31,6 +31,15 @@ class AppServiceProvider extends ServiceProvider
         }
 
         \Illuminate\Pagination\Paginator::useBootstrapFive();
+        
+        // Auto-run migrations in production if visitors table is not yet migrated
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('job_fair_visitors')) {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            }
+        } catch (\Throwable $e) {
+            // Ignore database connection failures during asset/cache commands
+        }
 
         // Share unread notifications & pending graduate registrations count with all layouts
         View::composer(['layouts.app', 'layouts.training-coordinator', 'layouts.*', 'admin.*', 'career-guidance.*'], function ($view) {

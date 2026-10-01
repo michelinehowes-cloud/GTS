@@ -2087,17 +2087,37 @@
 <div class="modal fade" id="visitorRegisterModal" tabindex="-1" aria-labelledby="visitorRegisterModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content" style="background: #0d1e38; border: 1px solid rgba(16,185,129,0.3); border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.85); color: #fff; overflow: hidden;">
-            <div class="modal-header border-0 pb-0 pt-4 px-4 position-relative">
+            <!-- شريط شعارات الشركاء في رأس النموذج -->
+            <div class="px-4 pt-3 pb-2 border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: rgba(2, 44, 94, 0.45);">
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    @if($fair && $fair->white_logo_url)
+                        <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" style="height: 38px; width: auto; max-width: 110px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
+                    @else
+                        <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="معرض التوظيف" style="height: 38px; width: auto; max-width: 110px; object-fit: contain;">
+                    @endif
+                    <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب وتأهيل الخريجين بجامعة طرابلس" style="height: 40px; width: auto;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                    <div class="bg-white px-2 py-1 rounded-2 shadow-sm d-flex align-items-center" style="height: 34px;" title="تنظيم: شركة الواحة للمعارض">
+                        <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 26px; width: auto; max-width: 90px; object-fit: contain;">
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1" onclick="copyVisitorFormLink(this)" style="font-size: 0.78rem;">
+                        <i class="fas fa-qrcode me-1"></i>نسخ رابط الـ QR
+                    </button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div class="modal-header border-0 pb-0 pt-3 px-4 position-relative">
                 <div class="d-flex align-items-center gap-3">
-                    <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff; box-shadow: 0 8px 20px rgba(16,185,129,0.35);">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; color: #fff; box-shadow: 0 8px 20px rgba(16,185,129,0.35);">
                         <i class="fas fa-id-badge"></i>
                     </div>
                     <div>
                         <h4 class="modal-title fw-bold text-white mb-1" id="visitorRegisterModalLabel">تسجيل حضور زائر / ضيف</h4>
-                        <p class="text-white-50 small mb-0">أهلاً بك في ملتقى التوظيف ومعرض المشاريع — جامعة طرابلس. سجّل بياناتك للحصول على بطاقتك وتذكرتك الرقمية فوراً.</p>
+                        <p class="text-white-50 small mb-0">أهلاً بك في {{ $fair ? $fair->title : 'ملتقى ومعرض التوظيف' }} — جامعة طرابلس بالتعاون مع شركة الواحة</p>
                     </div>
                 </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             
             <form id="visitorRegisterForm" action="{{ route('job-fair.visitor.register', $fair->id) }}" method="POST">
@@ -2423,8 +2443,18 @@ window.addEventListener('scroll', function() {
             // Fallback: submit standard form
             vForm.submit();
         });
-    });
 })();
+
+function copyVisitorFormLink(btn) {
+    const url = window.location.origin + window.location.pathname + '#visitor-register';
+    navigator.clipboard.writeText(url).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check text-success me-1"></i>تم نسخ الرابط!';
+        setTimeout(() => { btn.innerHTML = orig; }, 2500);
+    }).catch(() => {
+        prompt('انسخ الرابط:', url);
+    });
+}
 </script>
 </body>
 </html>

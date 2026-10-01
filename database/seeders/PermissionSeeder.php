@@ -136,16 +136,64 @@ class PermissionSeeder extends Seeder
                 'description' => 'الاطلاع على تفاصيل وإحصائيات وشركات معرض التوظيف',
             ],
             [
-                'name' => 'job_fair.manage',
-                'display_name' => 'إدارة فعاليات وأجنحة المعرض',
+                'name' => 'job_fair.create',
+                'display_name' => 'إنشاء معرض توظيف',
                 'module' => 'job_fair',
-                'description' => 'التحكم في إعدادات المعرض، أجنحة الشركات، وجدول الفعاليات',
+                'description' => 'إضافة معارض توظيف جديدة للمنظومة',
+            ],
+            [
+                'name' => 'job_fair.edit',
+                'display_name' => 'تعديل بيانات وإعدادات المعرض',
+                'module' => 'job_fair',
+                'description' => 'تعديل بيانات المعرض والموقع وتاريخ الانطلاق وحالة النشر',
+            ],
+            [
+                'name' => 'job_fair.delete',
+                'display_name' => 'حذف معرض التوظيف',
+                'module' => 'job_fair',
+                'description' => 'إلغاء أو حذف معرض التوظيف من النظام',
+            ],
+            [
+                'name' => 'job_fair.manage',
+                'display_name' => 'إدارة أجنحة وشركات المعرض',
+                'module' => 'job_fair',
+                'description' => 'التحكم في أجنحة الشركات، وتعيين مواقعها بالمعرض',
+            ],
+            [
+                'name' => 'job_fair.events',
+                'display_name' => 'إدارة الفعاليات وورش العمل',
+                'module' => 'job_fair',
+                'description' => 'جدولة المحاضرات وورش العمل والندوات المصاحبة للمعرض',
+            ],
+            [
+                'name' => 'job_fair.projects',
+                'display_name' => 'إدارة مشاريع التخرج بالمعرض',
+                'module' => 'job_fair',
+                'description' => 'مراجعة وتوثيق مشاريع تخرج الطلاب والخريجين المشاركة',
+            ],
+            [
+                'name' => 'job_fair.sponsors',
+                'display_name' => 'إدارة الرعاة والداعمين',
+                'module' => 'job_fair',
+                'description' => 'إضافة وتعديل باقات الرعاية وشعارات الجهات الراعية',
             ],
             [
                 'name' => 'job_fair.registrations',
                 'display_name' => 'إدارة تذاكر وزوار المعرض',
                 'module' => 'job_fair',
-                'description' => 'متابعة تسجيلات الخريجين والزوار وتأكيد الدخول عبر التذاكر',
+                'description' => 'متابعة تسجيلات الخريجين والزوار وتصدير قوائم الحضور',
+            ],
+            [
+                'name' => 'job_fair.attendance',
+                'display_name' => 'مسح التذاكر وتسجيل الدخول (QR)',
+                'module' => 'job_fair',
+                'description' => 'مسح رموز QR وتأكيد حضور الزوار على بوابات المعرض',
+            ],
+            [
+                'name' => 'job_fair.live',
+                'display_name' => 'شاشة المتابعة والبث المباشر',
+                'module' => 'job_fair',
+                'description' => 'الوصول إلى لوحة المتابعة الحية وشاشات العرض المباشر للمعرض',
             ],
 
             // 💼 وحدة فرص العمل والترشيحات
@@ -255,7 +303,9 @@ class PermissionSeeder extends Seeder
         $syncRolePerms('partnership_officer', [
             'companies.view', 'companies.create', 'companies.edit', 'companies.delete',
             'partnerships.documents', 'jobs.view', 'jobs.manage', 'nominations.manage',
-            'job_fair.view', 'job_fair.manage', 'job_fair.registrations',
+            'job_fair.view', 'job_fair.create', 'job_fair.edit', 'job_fair.delete',
+            'job_fair.manage', 'job_fair.events', 'job_fair.projects', 'job_fair.sponsors',
+            'job_fair.registrations', 'job_fair.attendance', 'job_fair.live',
             'reports.view'
         ]);
 

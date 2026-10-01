@@ -853,12 +853,24 @@ class JobFairController extends Controller
     {
         if (!$fair) return [];
 
+        $totalVisitors = 0;
+        $attendedVisitors = 0;
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('job_fair_visitors')) {
+                $totalVisitors = $fair->visitors()->count();
+                $attendedVisitors = $fair->visitors()->where('attended', true)->count();
+            }
+        } catch (\Throwable $e) {
+            $totalVisitors = 0;
+            $attendedVisitors = 0;
+        }
+
         return [
             'total_registered'  => $fair->registrations()->count(),
             'total_attended'    => $fair->registrations()->where('attended', true)->count(),
             'total_companies'   => $fair->companies()->where('status', 'confirmed')->count(),
-            'total_visitors'    => $fair->visitors()->count(),
-            'attended_visitors' => $fair->visitors()->where('attended', true)->count(),
+            'total_visitors'    => $totalVisitors,
+            'attended_visitors' => $attendedVisitors,
             'days_remaining'    => $fair->days_remaining,
         ];
     }

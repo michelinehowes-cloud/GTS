@@ -272,8 +272,8 @@
                                         <i class="fas fa-crown me-1 text-warning"></i> وصول المالك الكامل (كافة الصلاحيات)
                                     </span>
                                 @elseif($user->isAdmin())
-                                    <span class="badge bg-warning text-dark px-2 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
-                                        <i class="fas fa-check-double me-1"></i> وصول كامل (33+)
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-2.5 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
+                                        <i class="fas fa-user-shield me-1"></i> وصول إداري شامل (كافة الصلاحيات)
                                     </span>
                                 @else
                                     @php

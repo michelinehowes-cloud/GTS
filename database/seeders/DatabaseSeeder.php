@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             MonthNineTrainingsSeeder::class,
             SurveyTemplateSeeder::class,
             SurveyWithResponsesSeeder::class,
+            LiveSurveysAndResponsesSeeder::class,
             PlatformContentSeeder::class,
         ]);
     }

@@ -16,7 +16,7 @@
                         </span>
                         <div class="d-flex align-items-center gap-2">
                             <!-- زر الرسائل المنزلق بالموبايل -->
-                            <button type="button" class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none" onclick="openMessagesDrawer()" style="width: 36px; height: 36px;" title="الرسائل">
+                            <button type="button" class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none" onclick="openMessagesDrawer()" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" title="الرسائل">
                                 <i class="fas fa-envelope"></i>
                                 @php
                                     $unreadMsgs = \App\Models\Message::where('receiver_id', auth()->id())->whereNull('read_at')->count();
@@ -26,7 +26,7 @@
                                 @endif
                             </button>
                             <!-- زر الإشعارات المنزلق بالموبايل -->
-                            <button type="button" class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none" onclick="openNotificationsDrawer()" style="width: 36px; height: 36px;" title="الإشعارات">
+                            <button type="button" class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none" onclick="openNotificationsDrawer()" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" title="الإشعارات">
                                 <i class="fas fa-bell"></i>
                                 @php
                                     $unreadNotifs = \App\Models\Notification::forUser(auth()->id())->unread()->count();
@@ -36,7 +36,7 @@
                                 @endif
                             </button>
                             <!-- زر القائمة الجانبية للموبايل -->
-                            <button type="button" class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 36px; height: 36px;" onclick="window.toggleSidebarFunc ? window.toggleSidebarFunc() : null">
+                            <button type="button" class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" onclick="window.toggleSidebarFunc ? window.toggleSidebarFunc() : null">
                                 <i class="fas fa-bars"></i>
                             </button>
                         </div>
@@ -57,7 +57,7 @@
                             <div class="d-flex align-items-center justify-content-end gap-3 flex-wrap">
                                 <!-- Desktop Notifications and Messages -->
                                 <div class="d-none d-md-flex gap-2 align-items-center mb-3 mb-lg-0 me-0 me-lg-3">
-                                    <button class="btn btn-light bg-white bg-opacity-25 text-white border-0 px-3 py-2 rounded-pill fw-bold" onclick="openMessagesDrawer()">
+                                    <button class="btn text-white border-0 px-3 py-2 rounded-pill fw-bold" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" onclick="openMessagesDrawer()">
                                         <i class="fas fa-envelope me-1"></i>الرسائل
                                         @php
                                             $unreadMsgsDesktop = \App\Models\Message::where('receiver_id', auth()->id())->whereNull('read_at')->count();
@@ -66,7 +66,7 @@
                                             <span class="badge bg-danger ms-1 rounded-pill">{{ $unreadMsgsDesktop }}</span>
                                         @endif
                                     </button>
-                                    <button class="btn btn-light bg-white bg-opacity-25 text-white border-0 px-3 py-2 rounded-pill fw-bold" onclick="openNotificationsDrawer()">
+                                    <button class="btn text-white border-0 px-3 py-2 rounded-pill fw-bold" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" onclick="openNotificationsDrawer()">
                                         <i class="fas fa-bell me-1"></i>الإشعارات
                                         @php
                                             $unreadNotifsDesktop = \App\Models\Notification::forUser(auth()->id())->unread()->count();

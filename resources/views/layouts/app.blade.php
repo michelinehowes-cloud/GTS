@@ -213,7 +213,7 @@
             background-color: rgba(0, 0, 0, 0.04);
         }
 
-        /* زر إظهار القائمة الجانبية العائم عند إخفاء الشريط الجانبي */
+        /* زر إظهار القائمة الجانبية العائم عند إخفاء الشريط الجانبي (ديسكتوب فقط) */
         .floating-sidebar-toggle {
             position: fixed;
             top: 18px;
@@ -241,8 +241,31 @@
             box-shadow: 0 6px 22px rgba(21, 101, 192, 0.35) !important;
         }
 
-        body.sidebar-is-collapsed .floating-sidebar-toggle {
-            display: flex !important;
+        @media (min-width: 768.01px) {
+            body.sidebar-is-collapsed .floating-sidebar-toggle {
+                display: flex !important;
+            }
+        }
+
+        /* أزرار رأس درجي الإشعارات والرسائل الزجاجية الأنيقة */
+        .drawer-header-btn {
+            background: rgba(255, 255, 255, 0.2) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.35) !important;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .drawer-header-btn:hover {
+            background: rgba(255, 255, 255, 0.35) !important;
+            color: #ffffff !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .drawer-header-btn:active {
+            transform: scale(0.96) !important;
         }
 
         /* إلغاء جميع الحركات والنبض التلقائي للأزرار والشارات واعتماد حركة هادئة عند تمرير الماوس فقط */
@@ -323,6 +346,39 @@
         }
 
         @media (max-width: 768px) {
+            .floating-sidebar-toggle {
+                display: none !important;
+            }
+
+            #toggleSidebar {
+                display: none !important;
+            }
+
+            .sidebar-mobile-close {
+                position: absolute;
+                top: 14px;
+                left: 14px;
+                width: 36px;
+                height: 36px;
+                background: rgba(255, 255, 255, 0.2) !important;
+                color: #fff !important;
+                border: 1px solid rgba(255, 255, 255, 0.35) !important;
+                border-radius: 50% !important;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                z-index: 1060;
+                cursor: pointer;
+                backdrop-filter: blur(4px);
+                transition: all 0.2s ease;
+            }
+
+            .sidebar-mobile-close:hover {
+                background: rgba(255, 255, 255, 0.35) !important;
+                color: #fff !important;
+                transform: scale(1.08);
+            }
+
             .main-content {
                 padding-top: 10px !important;
                 padding-bottom: 85px !important;
@@ -443,7 +499,13 @@
     <nav class="sidebar" id="sidebar">
         <div class="position-sticky sidebar-content">
             <div class="sidebar-header">
-                <button class="toggle-sidebar" id="toggleSidebar">
+                <!-- زر إغلاق الشريط الجانبي للموبايل -->
+                <button type="button" class="btn btn-sm text-white rounded-circle d-md-none border-0 sidebar-mobile-close" onclick="window.closeMobileSidebar ? window.closeMobileSidebar() : null" title="إغلاق القائمة">
+                    <i class="fas fa-times"></i>
+                </button>
+
+                <!-- زر تصغير الشريط الجانبي للديسكتوب فقط -->
+                <button class="toggle-sidebar d-none d-md-flex" id="toggleSidebar" title="تصغير القائمة الجانبية">
                     <i class="fas fa-chevron-right"></i>
                 </button>
                 <div class="logo-container">
@@ -1482,10 +1544,10 @@
                     <p style="margin:0;font-size:0.78rem;opacity:0.8;" id="notifDrawerSubtitle">جاري التحميل...</p>
                 </div>
                 <div class="d-flex gap-2 align-items-center">
-                    <button onclick="markAllNotificationsRead()" class="btn btn-sm btn-light bg-white bg-opacity-20 text-white border-0 rounded-pill px-3 py-1" style="font-size:0.78rem;" id="markAllNotifBtn">
+                    <button onclick="markAllNotificationsRead()" class="btn btn-sm drawer-header-btn rounded-pill px-3 py-1" style="font-size:0.78rem;" id="markAllNotifBtn">
                         <i class="fas fa-check-double me-1"></i>تحديد الكل مقروء
                     </button>
-                    <button onclick="closeNotificationsDrawer()" class="btn btn-sm btn-light bg-white bg-opacity-20 text-white border-0 rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+                    <button onclick="closeNotificationsDrawer()" class="btn btn-sm drawer-header-btn rounded-circle d-flex align-items-center justify-content-center" style="width:34px;height:34px;">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -1520,7 +1582,7 @@
                     <h5 style="margin:0;font-weight:700;font-size:1.1rem;"><i class="fas fa-envelope me-2"></i>الرسائل</h5>
                     <p style="margin:0;font-size:0.78rem;opacity:0.8;" id="msgDrawerSubtitle">جاري التحميل...</p>
                 </div>
-                <button onclick="closeMessagesDrawer()" class="btn btn-sm btn-light bg-white bg-opacity-20 text-white border-0 rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;">
+                <button onclick="closeMessagesDrawer()" class="btn btn-sm drawer-header-btn rounded-circle d-flex align-items-center justify-content-center" style="width:34px;height:34px;">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -1722,6 +1784,7 @@
             }
 
             function updateToggleIcon() {
+                const isMobile = window.innerWidth < 768;
                 const isCollapsed = sidebar.classList.contains('collapsed');
                 if (toggleSidebar) {
                     const icon = toggleSidebar.querySelector('i');
@@ -1729,14 +1792,21 @@
                 }
                 const floatingBtn = document.getElementById('floatingSidebarToggle');
                 if (floatingBtn) {
-                    floatingBtn.style.display = isCollapsed ? 'flex' : 'none';
+                    floatingBtn.style.display = (!isMobile && isCollapsed) ? 'flex' : 'none';
                 }
-                if (isCollapsed) {
+                if (!isMobile && isCollapsed) {
                     document.body.classList.add('sidebar-is-collapsed');
                 } else {
                     document.body.classList.remove('sidebar-is-collapsed');
                 }
             }
+
+            window.openMobileSidebar = openMobileSidebar;
+            window.closeMobileSidebar = closeMobileSidebar;
+
+            window.addEventListener('resize', function () {
+                updateToggleIcon();
+            });
 
             // ربط الأزرار بالدالة
             if (toggleSidebar) toggleSidebar.addEventListener('click', toggleSidebarFunc);

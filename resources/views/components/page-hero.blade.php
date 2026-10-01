@@ -26,19 +26,19 @@
             <div class="d-flex align-items-center gap-2">
                 @auth
                 <!-- زر تبديل الوضع الليلي للموبايل -->
-                <button type="button" class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none dark-mode-trigger" onclick="toggleDarkMode(event)" style="width: 36px; height: 36px;" title="الوضع الليلي / النهاري">
+                <button type="button" class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none dark-mode-trigger" onclick="toggleDarkMode(event)" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" title="الوضع الليلي / النهاري">
                     <i class="fas fa-moon"></i>
                 </button>
 
                 @if(auth()->user()->role === 'admin')
                 <!-- زر إدارة المساعد الذكي الصغير للموبايل -->
-                <a href="{{ route('admin.settings.ai') }}" class="btn btn-sm btn-light bg-white bg-opacity-25 text-warning rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 36px; height: 36px;" title="إدارة المساعد الذكي">
+                <a href="{{ route('admin.settings.ai') }}" class="btn btn-sm text-warning rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" title="إدارة المساعد الذكي">
                     <i class="fas fa-robot"></i>
                 </a>
                 @endif
 
                 <!-- زر الرسائل المنزلق بالموبايل -->
-                <button type="button" class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none" onclick="openMessagesDrawer()" style="width: 36px; height: 36px;" title="الرسائل">
+                <button type="button" class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none" onclick="openMessagesDrawer()" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" title="الرسائل">
                     <i class="fas fa-envelope"></i>
                     @php
                         $unreadMsgs = \App\Models\Message::where('receiver_id', auth()->id())->whereNull('read_at')->count();
@@ -49,7 +49,7 @@
                 </button>
 
                 <!-- زر الإشعارات المنزلق بالموبايل -->
-                <button type="button" class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none" onclick="openNotificationsDrawer()" style="width: 36px; height: 36px;" title="الإشعارات">
+                <button type="button" class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none" onclick="openNotificationsDrawer()" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" title="الإشعارات">
                     <i class="fas fa-bell"></i>
                     @php
                         $unreadNotifs = auth()->user()->unreadNotifications->count() ?? 0;
@@ -61,7 +61,7 @@
                 @endauth
 
                 <!-- زر القائمة الجانبية للموبايل -->
-                <button type="button" class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 36px; height: 36px;" onclick="window.toggleSidebarFunc ? window.toggleSidebarFunc() : null">
+                <button type="button" class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" onclick="window.toggleSidebarFunc ? window.toggleSidebarFunc() : null">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
@@ -126,7 +126,7 @@
                     @auth
                     <!-- Desktop Notifications, Messages, Dark Mode & Admin AI Management -->
                     <div class="d-none d-md-flex gap-2 align-items-center me-3">
-                        <button class="btn btn-light bg-white bg-opacity-25 text-white border-0 px-3 py-2 rounded-pill fw-bold" onclick="openMessagesDrawer()">
+                        <button class="btn text-white border-0 px-3 py-2 rounded-pill fw-bold" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" onclick="openMessagesDrawer()">
                             <i class="fas fa-envelope me-1"></i>الرسائل
                             @php
                                 $unreadMsgsDesktop = \App\Models\Message::where('receiver_id', auth()->id())->whereNull('read_at')->count();
@@ -135,7 +135,7 @@
                                 <span class="badge bg-danger ms-1 rounded-pill">{{ $unreadMsgsDesktop }}</span>
                             @endif
                         </button>
-                        <button class="btn btn-light bg-white bg-opacity-25 text-white border-0 px-3 py-2 rounded-pill fw-bold" onclick="openNotificationsDrawer()">
+                        <button class="btn text-white border-0 px-3 py-2 rounded-pill fw-bold" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" onclick="openNotificationsDrawer()">
                             <i class="fas fa-bell me-1"></i>الإشعارات
                             @php
                                 $unreadNotifsDesktop = \App\Models\Notification::forUser(auth()->id())->unread()->count();
@@ -146,13 +146,13 @@
                         </button>
 
                         <!-- زر تبديل الوضع الليلي (Dark Mode) الدائري الأنيق -->
-                        <button type="button" class="btn btn-light bg-white bg-opacity-25 text-white rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none dark-mode-trigger" onclick="toggleDarkMode(event)" style="width: 40px; height: 40px; transition: transform 0.2s ease;" title="الوضع الليلي / النهاري" data-bs-toggle="tooltip">
+                        <button type="button" class="btn text-white rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none dark-mode-trigger" onclick="toggleDarkMode(event)" style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); transition: transform 0.2s ease;" title="الوضع الليلي / النهاري" data-bs-toggle="tooltip">
                             <i class="fas fa-moon"></i>
                         </button>
 
                         @if(auth()->user()->role === 'admin')
                         <!-- زر إدارة المساعد الذكي الصغير (Icon Only) -->
-                        <a href="{{ route('admin.settings.ai') }}" class="btn btn-light bg-white bg-opacity-25 text-warning rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 40px; height: 40px; transition: transform 0.2s ease;" title="إدارة المساعد الذكي" data-bs-toggle="tooltip">
+                        <a href="{{ route('admin.settings.ai') }}" class="btn text-warning rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px); transition: transform 0.2s ease;" title="إدارة المساعد الذكي" data-bs-toggle="tooltip">
                             <i class="fas fa-robot"></i>
                         </a>
                         @endif

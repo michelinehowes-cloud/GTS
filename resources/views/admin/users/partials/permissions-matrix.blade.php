@@ -13,7 +13,7 @@
         <div class="d-flex align-items-center gap-2">
             <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-3 py-2 rounded-pill fs-6 fw-bold">
                 <i class="fas fa-check-circle me-1"></i>
-                المحدد: <span id="selected_perms_counter">{{ isset($userPermissionIds) ? count($userPermissionIds) : 0 }}</span> / 33
+                المحدد: <span id="selected_perms_counter">{{ isset($userPermissionIds) ? count($userPermissionIds) : 0 }}</span> / <span id="total_perms_counter">{{ collect($groupedPermissions)->sum(fn($g) => count($g['items'] ?? $g['permissions'] ?? [])) }}</span>
             </span>
         </div>
     </div>
@@ -226,7 +226,9 @@ document.addEventListener('DOMContentLoaded', function () {
             'graduates.approve', 'graduates.import_export', 'nominations.manage', 'reports.view'
         ],
         job_fair: [
-            'job_fair.view', 'job_fair.manage', 'job_fair.registrations',
+            'job_fair.view', 'job_fair.create', 'job_fair.edit', 'job_fair.delete',
+            'job_fair.manage', 'job_fair.events', 'job_fair.projects', 'job_fair.sponsors',
+            'job_fair.registrations', 'job_fair.attendance', 'job_fair.live',
             'companies.view', 'jobs.view', 'nominations.manage', 'reports.view'
         ],
         evaluations: [

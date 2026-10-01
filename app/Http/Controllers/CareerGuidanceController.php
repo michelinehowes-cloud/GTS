@@ -384,6 +384,21 @@ class CareerGuidanceController extends Controller
         if (!$targetUser && $oldEmail) {
             $targetUser = User::where('email', $oldEmail)->first();
         }
+        // إذا لم نجد حساباً بالبريد القديم، هل يوجد حساب خريج بالبريد الجديد المطلوب؟
+        if (!$targetUser && $request->filled('email')) {
+            $potentialUser = User::where('email', $request->email)->first();
+            if ($potentialUser) {
+                // هل هذا الحساب خريج ولا يرتبط بملف خريج آخر؟
+                $isClaimedByOther = GraduateData::where('user_id', $potentialUser->id)
+                    ->where('id', '!=', $graduate->id)
+                    ->exists();
+                if (!$isClaimedByOther && ($potentialUser->role === 'graduate' || empty($potentialUser->role))) {
+                    $targetUser = $potentialUser;
+                    $graduate->user_id = $potentialUser->id;
+                    $graduate->saveQuietly();
+                }
+            }
+        }
 
         // التطبيع بين المسميات المتطابقة (specialization <-> major و qualification <-> degree و experiences <-> work_experience)
         if (!$request->filled('major') && $request->filled('specialization')) {
@@ -410,27 +425,34 @@ class CareerGuidanceController extends Controller
 
         $userIdToIgnore = $targetUser ? $targetUser->id : null;
 
-        // بناء قواعد التحقق من البريد الإلكتروني ديناميكياً لتجنب خطأ ignore(null)
+        // بناء قواعد التحقق من البريد الإلكتروني ديناميكياً لتجنب خطأ ignore(null) أو رفض الحساب التابع لنفس الخريج
         $emailRules = [
             'nullable',
             'email',
             'max:255',
             \Illuminate\Validation\Rule::unique('graduates_data', 'email')->ignore($graduate->id),
         ];
-        // إضافة فحص التفرد في جدول المستخدمين فقط إذا كان لدينا معرّف مستخدم للاستثناء
+
         if ($userIdToIgnore) {
             $emailRules[] = \Illuminate\Validation\Rule::unique('users', 'email')->ignore($userIdToIgnore);
         } else {
-            // لا يوجد حساب مستخدم مرتبط، لذا تجاهل فحص جدول users تجنباً للخطأ
-            // (البريد قد يكون موجوداً في جدول users لشخص مختلف - نتحقق منه بشكل مخصص)
-            $existingUserWithEmail = User::where('email', $request->email)
-                ->where('role', '!=', 'graduate')
-                ->exists();
-            if (!$existingUserWithEmail) {
-                // التحقق من أنه ليس خريجاً آخر بنفس البريد
-                $emailRules[] = \Illuminate\Validation\Rule::unique('users', 'email')
-                    ->where(fn($q) => $q->where('role', 'graduate'));
-            }
+            // لا يوجد حساب مستخدم مرتبط، نمنع فقط إذا كان البريد مستخدماً من حساب غير خريج أو خريج مرتبط بملف آخر
+            $emailRules[] = function ($attribute, $value, $fail) use ($graduate) {
+                if (empty($value)) return;
+                $existingUser = User::where('email', $value)->first();
+                if ($existingUser) {
+                    if ($existingUser->role !== 'graduate') {
+                        $fail('البريد الإلكتروني مسجل مسبقاً لحساب إداري أو شركة من نوع (' . $existingUser->role . ').');
+                        return;
+                    }
+                    $otherGrad = GraduateData::where('user_id', $existingUser->id)
+                        ->where('id', '!=', $graduate->id)
+                        ->first();
+                    if ($otherGrad) {
+                        $fail('البريد الإلكتروني مرتبط بالفعل بملف خريج آخر (' . $otherGrad->name . ').');
+                    }
+                }
+            };
         }
 
         $request->validate([

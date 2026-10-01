@@ -2282,6 +2282,14 @@
             closeMessagesDrawer();
         }
     });
+
+    // ربط الدوال بالكائن العام window لضمان إمكانية استدعائها من أي مكان
+    window.openNotificationsDrawer = openNotificationsDrawer;
+    window.closeNotificationsDrawer = closeNotificationsDrawer;
+    window.openMessagesDrawer = openMessagesDrawer;
+    window.closeMessagesDrawer = closeMessagesDrawer;
+    window.loadNotificationsInDrawer = loadNotificationsInDrawer;
+    window.loadMessagesInDrawer = loadMessagesInDrawer;
     </script>
 
 </body>

@@ -348,7 +348,12 @@ class User extends Authenticatable
     {
         return $this->isAdmin() ||
                in_array($this->role, ['partnership_officer']) ||
-               $this->hasAnyPermission(['partnerships.manage', 'companies.view', 'job_fair.manage', 'job_fair.view']);
+               $this->hasAnyPermission([
+                   'job_fair.view', 'job_fair.create', 'job_fair.edit', 'job_fair.delete',
+                   'job_fair.manage', 'job_fair.events', 'job_fair.projects', 'job_fair.sponsors',
+                   'job_fair.registrations', 'job_fair.attendance', 'job_fair.live',
+                   'partnerships.manage', 'companies.view'
+               ]);
     }
 
     /**

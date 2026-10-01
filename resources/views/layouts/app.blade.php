@@ -787,8 +787,12 @@
                                     تقارير الإرشاد المهني
                                 </a>
                                 <a href="{{ route('evaluation-followup.surveys.index') }}"
-                                    class="submenu-item {{ request()->routeIs('evaluation-followup.surveys*') ? 'active' : '' }}">
+                                    class="submenu-item {{ request()->routeIs('evaluation-followup.surveys.index') ? 'active' : '' }}">
                                     إدارة الاستبيانات
+                                </a>
+                                <a href="{{ route('evaluation-followup.surveys.templates.index') }}"
+                                    class="submenu-item {{ request()->routeIs('evaluation-followup.surveys.templates*') ? 'active' : '' }}">
+                                    مكتبة قوالب ونماذج الاستبيانات
                                 </a>
                                 <a href="{{ route('evaluation-followup.evaluations.index') }}"
                                     class="submenu-item {{ request()->routeIs('evaluation-followup.evaluations*') ? 'active' : '' }}">
@@ -1108,7 +1112,10 @@
                                     class="submenu-item {{ request()->routeIs('evaluation-followup.surveys.index') ? 'active' : '' }}">
                                     عرض الاستبيانات
                                 </a>
-
+                                <a href="{{ route('evaluation-followup.surveys.templates.index') }}"
+                                    class="submenu-item {{ request()->routeIs('evaluation-followup.surveys.templates*') ? 'active' : '' }}">
+                                    مكتبة قوالب ونماذج الاستبيانات
+                                </a>
                             </div>
                         </li>
 

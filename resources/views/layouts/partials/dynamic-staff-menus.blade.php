@@ -217,8 +217,12 @@
                 <div class="submenu {{ request()->routeIs('evaluation-followup.*') ? 'show' : '' }}" id="dyn-evaluations-menu">
                     @if(auth()->user()->hasPermission('surveys.manage'))
                         <a href="{{ route('evaluation-followup.surveys.index') }}"
-                            class="submenu-item {{ request()->routeIs('evaluation-followup.surveys*') ? 'active' : '' }}">
+                            class="submenu-item {{ request()->routeIs('evaluation-followup.surveys.index') ? 'active' : '' }}">
                             إدارة الاستبيانات
+                        </a>
+                        <a href="{{ route('evaluation-followup.surveys.templates.index') }}"
+                            class="submenu-item {{ request()->routeIs('evaluation-followup.surveys.templates*') ? 'active' : '' }}">
+                            مكتبة قوالب ونماذج الاستبيانات
                         </a>
                         <a href="{{ route('evaluation-followup.survey-responses.index') }}"
                             class="submenu-item {{ request()->routeIs('evaluation-followup.survey-responses*') ? 'active' : '' }}">

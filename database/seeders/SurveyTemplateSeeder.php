@@ -769,7 +769,7 @@ class SurveyTemplateSeeder extends Seeder
             [
                 'title' => 'نموذج تقييم الشركاء (قسم التقييم والمتابعة)',
                 'description' => 'نموذج رسمي لتقييم أداء والتزام الشركاء والرعاة والمؤسسات الداعمة لأنشطة وفعاليات مكتب تدريب الخريجين بجامعة طرابلس. (تُجلب بيانات الشريك وتاريخ ونوع المشاركة تلقائياً من المنصة)',
-                'category' => 'partners',
+                'category' => 'employment',
                 'target_audience' => 'all',
                 'type' => 'job_fair',
                 'is_system' => true,
@@ -893,7 +893,7 @@ class SurveyTemplateSeeder extends Seeder
             [
                 'title' => 'نموذج تقييم التنظيم والتنسيق للفريق الداخلي',
                 'description' => 'نموذج تقييم داخلي لقياس وضوح الأدوار والمسؤوليات، التنسيق بين الفرق، فعالية التسويق، والتعامل مع الطوارئ والتواصل مع الإدارة. (يُسجل اسم المسؤول عن التقييم تلقائياً)',
-                'category' => 'internal',
+                'category' => 'events',
                 'target_audience' => 'training_coordinators',
                 'type' => 'job_fair',
                 'is_system' => true,
@@ -955,7 +955,7 @@ class SurveyTemplateSeeder extends Seeder
             [
                 'title' => 'استبيان آراء الزوار للفعاليات ومعرض التوظيف',
                 'description' => 'استطلاع رأي رسمي لقياس انطباعات ورضا زوار فعاليات ومعرض التوظيف بجامعة طرابلس حول الخدمات والتنظيم والتفاعل.',
-                'category' => 'visitors',
+                'category' => 'events',
                 'target_audience' => 'all',
                 'type' => 'job_fair',
                 'is_system' => true,

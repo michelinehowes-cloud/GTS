@@ -26,6 +26,10 @@ class SurveyTemplateController extends Controller
         if ($category && in_array($category, ['training', 'employment', 'events', 'custom'])) {
             if ($category === 'custom') {
                 $query->where('is_system', false);
+            } elseif ($category === 'employment') {
+                $query->whereIn('category', ['employment', 'partners']);
+            } elseif ($category === 'events') {
+                $query->whereIn('category', ['events', 'internal', 'visitors']);
             } else {
                 $query->where('category', $category);
             }
@@ -36,8 +40,8 @@ class SurveyTemplateController extends Controller
         $stats = [
             'total' => SurveyTemplate::count(),
             'training' => SurveyTemplate::where('category', 'training')->count(),
-            'employment' => SurveyTemplate::where('category', 'employment')->count(),
-            'events' => SurveyTemplate::where('category', 'events')->count(),
+            'employment' => SurveyTemplate::whereIn('category', ['employment', 'partners'])->count(),
+            'events' => SurveyTemplate::whereIn('category', ['events', 'internal', 'visitors'])->count(),
             'custom' => SurveyTemplate::where('is_system', false)->count(),
         ];
 
@@ -97,8 +101,8 @@ class SurveyTemplateController extends Controller
 
         $grouped = [
             'training' => $all->where('category', 'training')->values(),
-            'employment' => $all->where('category', 'employment')->values(),
-            'events' => $all->where('category', 'events')->values(),
+            'employment' => $all->filter(fn($t) => in_array($t['category'], ['employment', 'partners']))->values(),
+            'events' => $all->filter(fn($t) => in_array($t['category'], ['events', 'internal', 'visitors']))->values(),
             'custom' => $all->where('is_system', false)->values(),
             'all' => $all->values(),
         ];

@@ -38,12 +38,12 @@ class SurveyTemplate extends Model
 
     public function scopeEmployment($query)
     {
-        return $query->where('category', 'employment');
+        return $query->whereIn('category', ['employment', 'partners']);
     }
 
     public function scopeEvents($query)
     {
-        return $query->where('category', 'events');
+        return $query->whereIn('category', ['events', 'internal', 'visitors']);
     }
 
     public function scopeSystem($query)
@@ -61,7 +61,11 @@ class SurveyTemplate extends Model
         return match ($this->category) {
             'training' => 'التدريب وورش العمل',
             'employment' => 'التوظيف والشراكات',
+            'partners' => 'تقييم الشركاء والرعاة',
             'events' => 'المعارض والفعاليات',
+            'internal' => 'الفريق الداخلي والتنظيم',
+            'visitors' => 'زوار الفعاليات والمعارض',
+            'general' => 'قالب عام',
             default => 'قالب عام',
         };
     }
@@ -70,8 +74,8 @@ class SurveyTemplate extends Model
     {
         return match ($this->category) {
             'training' => 'emerald',
-            'employment' => 'blue',
-            'events' => 'amber',
+            'employment', 'partners' => 'blue',
+            'events', 'internal', 'visitors' => 'amber',
             default => 'purple',
         };
     }

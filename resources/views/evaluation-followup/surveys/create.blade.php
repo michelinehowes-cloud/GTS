@@ -248,8 +248,8 @@
                                 $tabCategories = [
                                     'tab-all' => $templates ?? collect(),
                                     'tab-training' => ($templates ?? collect())->where('category', 'training'),
-                                    'tab-employment' => ($templates ?? collect())->where('category', 'employment'),
-                                    'tab-events' => ($templates ?? collect())->where('category', 'events'),
+                                    'tab-employment' => ($templates ?? collect())->filter(fn($t) => in_array($t->category, ['employment', 'partners'])),
+                                    'tab-events' => ($templates ?? collect())->filter(fn($t) => in_array($t->category, ['events', 'internal', 'visitors'])),
                                     'tab-custom' => ($templates ?? collect())->where('is_system', false),
                                 ];
                             @endphp
@@ -262,7 +262,15 @@
                                         <div class="card h-100 border rounded-3 p-3 shadow-sm hover-shadow d-flex flex-column justify-content-between">
                                             <div>
                                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <span class="badge bg-{{ $t->category === 'training' ? 'success' : ($t->category === 'employment' ? 'primary' : 'warning') }}-subtle text-dark border">
+                                                    @php
+                                                        $badgeColor = match($t->category) {
+                                                            'training' => 'success',
+                                                            'employment', 'partners' => 'primary',
+                                                            'events', 'internal', 'visitors' => 'warning',
+                                                            default => 'secondary'
+                                                        };
+                                                    @endphp
+                                                    <span class="badge bg-{{ $badgeColor }}-subtle text-dark border">
                                                         {{ $t->category_label }}
                                                     </span>
                                                     <span class="badge bg-light text-muted border">

@@ -1,551 +1,530 @@
 @extends('layouts.app')
 
-@section('title', 'إضافة تقييم شامل')
+@section('title', 'نموذج تقييم التدريبات - قسم التقييم والمتابعة')
 
 @section('content')
-    <div class="container-fluid">
-        <div class="card shadow-lg border-0">
-            <div class="card-header bg-gradient text-white"
-                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i> نموذج التقييم الشامل</h5>
-            </div>
-
-            <div class="card-body p-4">
-                @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <ul class="mb-0">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+<div class="container-fluid py-4">
+    <!-- Header Card with Tripoli University Branding -->
+    <div class="card shadow-sm border-0 mb-4 overflow-hidden">
+        <div class="card-header text-white p-4" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-white p-2 d-flex align-items-center justify-content-center shadow-sm" style="width: 60px; height: 60px;">
+                        <i class="fas fa-university text-primary fs-3"></i>
                     </div>
-                @endif
+                    <div>
+                        <div class="badge bg-warning text-dark mb-1 fw-bold">جامعة طرابلس - مكتب تدريب الخريجين</div>
+                        <h4 class="mb-0 fw-bold text-white">قسم التقييم والمتابعة | نموذج تقييم التدريبات</h4>
+                    </div>
+                </div>
+                <div>
+                    <a href="{{ route('evaluation-followup.evaluations.index') }}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-arrow-right me-1"></i> العودة لسجل التقييمات
+                    </a>
+                </div>
+            </div>
+        </div>
 
-                <form action="{{ route('evaluation-followup.evaluations.store') }}" method="POST">
-                    @csrf
+        <div class="card-body p-4 bg-light">
+            @if ($errors->any())
+                <div class="alert alert-danger shadow-sm border-0 mb-4">
+                    <div class="fw-bold mb-2"><i class="fas fa-exclamation-triangle me-1"></i> يرجى تصحيح الأخطاء التالية:</div>
+                    <ul class="mb-0 ps-3">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-                    <!-- المعلومات الأساسية -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-secondary text-white">
-                            <i class="fas fa-info-circle"></i> المعلومات الأساسية
+            <form action="{{ route('evaluation-followup.evaluations.store') }}" method="POST" id="evaluation-form">
+                @csrf
+
+                <!-- الخطوة 1: اختيار التدريب والنوع -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3 border-bottom">
+                        <h6 class="mb-0 fw-bold text-primary">
+                            <i class="fas fa-sliders-h me-2"></i> تحديد البرنامج التدريبي ونوع التقييم
+                        </h6>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">نوع التقييم <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-lg border-2" id="type" name="type" required>
+                                    <option value="training" selected>📚 تقييم تدريب (النموذج الرسمي المعتمد)</option>
+                                    <option value="employment">💼 تقييم بيئة التوظيف والعمل</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-5" id="training-select-wrapper">
+                                <label class="form-label fw-bold">البرنامج التدريبي المستهدف <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-lg border-2" name="training_id" id="training_id" required>
+                                    <option value="">-- اختر البرنامج التدريبي للتقييم --</option>
+                                    @foreach($trainings as $training)
+                                        @php
+                                            $trainerName = $training->trainer ? $training->trainer->name : ($training->instructor_name ?? 'غير محدد');
+                                            $dept = $training->category ?? ($training->coordinator ? $training->coordinator->name : 'مكتب تدريب الخريجين');
+                                            $startStr = $training->start_date ? $training->start_date->format('Y-m-d') : '';
+                                            $endStr = $training->end_date ? $training->end_date->format('Y-m-d') : $startStr;
+                                            $beneficiaries = $training->applications_count > 0 ? $training->applications_count : ($training->seats ?? 25);
+                                            $location = $training->location ?? 'جامعة طرابلس - القاعة المركزية';
+                                        @endphp
+                                        <option value="{{ $training->id }}"
+                                            data-title="{{ $training->title }}"
+                                            data-trainer="{{ $trainerName }}"
+                                            data-trainer-id="{{ $training->trainer_id ?? '' }}"
+                                            data-dept="{{ $dept }}"
+                                            data-start="{{ $startStr }}"
+                                            data-end="{{ $endStr }}"
+                                            data-beneficiaries="{{ $beneficiaries }}"
+                                            data-location="{{ $location }}"
+                                            {{ old('training_id') == $training->id ? 'selected' : '' }}>
+                                            {{ $training->title }} ({{ $trainerName }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">تاريخ التقييم <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control form-control-lg border-2" name="evaluation_date"
+                                    value="{{ old('evaluation_date', date('Y-m-d')) }}" required>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">نوع التقييم <span class="text-danger">*</span></label>
-                                    <select class="form-select form-select-lg" id="type" name="type" required>
-                                        <option value="">-- اختر --</option>
-                                        <option value="training">📚 تقييم تدريب</option>
-                                        <option value="employment">💼 تقييم توظيف</option>
-                                    </select>
+                    </div>
+                </div>
+
+                <!-- بطاقة البيانات المسترجعة تلقائياً للتدريب (وفق المتطلبات الرسمية) -->
+                <div id="training-auto-data-card" class="card border-0 shadow-sm mb-4" style="display: none; background: #ffffff;">
+                    <div class="card-header bg-primary bg-opacity-10 text-primary py-3 d-flex justify-content-between align-items-center">
+                        <div class="fw-bold fs-6">
+                            <i class="fas fa-check-circle me-1 text-success"></i> بيانات البرنامج المسترجعة تلقائياً من المنصة
+                        </div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1">
+                            مسترجعة آلياً دون الحاجة لإعادة إدخالها
+                        </span>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-6 col-lg-4">
+                                <div class="p-3 bg-light rounded border">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-graduation-cap me-1"></i> اسم البرنامج التدريبي</small>
+                                    <span class="fw-bold text-dark fs-6" id="meta-training-title">-</span>
                                 </div>
-                                <div class="col-md-6 mb-3" id="training-wrapper">
-                                    <label class="form-label fw-bold">التدريب <span class="text-danger">*</span></label>
-                                    <select class="form-select form-select-lg" name="training_id" id="training_id" required>
-                                        <option value="">-- اختر --</option>
-                                        @foreach($trainings as $training)
-                                            <option value="{{ $training->id }}" data-start="{{ $training->start_date }}"
-                                                data-end="{{ $training->end_date }}">{{ $training->title }}</option>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="p-3 bg-light rounded border">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-chalkboard-teacher me-1"></i> المدرب / المحاضر</small>
+                                    <span class="fw-bold text-dark fs-6" id="meta-trainer-name">-</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="p-3 bg-light rounded border">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-building me-1"></i> القسم المنفذ</small>
+                                    <span class="fw-bold text-dark fs-6" id="meta-department">-</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="p-3 bg-light rounded border">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-calendar-alt me-1"></i> الفترة الزمنية</small>
+                                    <span class="fw-bold text-dark fs-6" id="meta-period">-</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="p-3 bg-light rounded border">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-users me-1"></i> عدد المستفيدين</small>
+                                    <span class="fw-bold text-primary fs-6" id="meta-beneficiaries">-</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="p-3 bg-light rounded border">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-map-marker-alt me-1"></i> مكان التنفيذ</small>
+                                    <span class="fw-bold text-dark fs-6" id="meta-location">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- نموذج جامعة طرابلس الرسمي: أولاً: تقييم محتوى وتنفيذ الجلسة التدريبية -->
+                <div id="official-training-evaluation-section">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header text-white py-3 d-flex justify-content-between align-items-center"
+                            style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
+                            <h5 class="mb-0 fw-bold">
+                                <i class="fas fa-tasks me-2"></i> أولاً: تقييم محتوى وتنفيذ الجلسة التدريبية (التقدير من 5)
+                            </h5>
+                            <span class="badge bg-white text-primary fw-bold px-3 py-2 fs-6 shadow-sm" id="session-score-badge">
+                                نسبة إجمالي الجلسة: 100% (5.0 / 5)
+                            </span>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 60px;" class="text-center">#</th>
+                                            <th>معيار التقييم</th>
+                                            <th style="width: 320px;" class="text-center">التقدير (من 5)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @php
+                                            $sessionCriteria = [
+                                                'clarity_of_goals' => '1. وضوح أهداف البرنامج التدريبي',
+                                                'session_sequence' => '2. تنظيم وتتابع محاور الجلسة',
+                                                'presentation_attractiveness' => '3. جاذبية العرض وأساليب التقديم',
+                                                'trainee_interaction' => '4. تفاعل المتدربين أثناء النشاط',
+                                                'diversity_of_tools' => '5. تنوع الوسائل التدريبية المستخدمة',
+                                                'achieving_outcomes' => '6. مدى تحقيق مخرجات التدريب المستهدفة',
+                                                'time_commitment' => '7. مدى التزام التدريب بالوقت المحدد',
+                                                'pre_post_assessment' => '8. وجود قياس قبلي/ بعدي للجلسة (إن وُجد)',
+                                                'general_training_rating' => '9. التقييم العام للتدريب',
+                                            ];
+                                            $index = 1;
+                                        @endphp
+
+                                        @foreach($sessionCriteria as $key => $label)
+                                            <tr>
+                                                <td class="text-center fw-bold text-muted">{{ $index++ }}</td>
+                                                <td class="fw-semibold text-dark">{{ $label }}</td>
+                                                <td>
+                                                    <select name="session_criteria[{{ $key }}]" class="form-select border-primary-subtle session-criterion-select" required>
+                                                        <option value="5" selected>⭐⭐⭐⭐⭐ ممتاز (5/5)</option>
+                                                        <option value="4">⭐⭐⭐⭐ جيد جداً (4/5)</option>
+                                                        <option value="3">⭐⭐⭐ جيد (3/5)</option>
+                                                        <option value="2">⭐⭐ مقبول (2/5)</option>
+                                                        <option value="1">⭐ ضعيف (1/5)</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
                                         @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">تاريخ التقييم <span
-                                            class="text-danger">*</span></label>
-                                    <input type="date" class="form-control form-control-lg" name="evaluation_date"
-                                        value="{{ date('Y-m-d') }}" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">الحالة</label>
-                                    <select class="form-select form-select-lg" name="status">
-                                        <option value="draft">مسودة</option>
-                                        <option value="completed" selected>مكتمل</option>
-                                        <option value="reviewed">تم المراجعة</option>
-                                    </select>
-                                </div>
+
+                                        <!-- بند رقم 10: نسبة إجمالي تقييم التدريب -->
+                                        <tr class="table-primary bg-opacity-25 fw-bold">
+                                            <td class="text-center text-primary fs-5">10</td>
+                                            <td class="text-primary fs-6">نسبة إجمالي تقييم التدريب (المحسوبة آلياً)</td>
+                                            <td class="text-center">
+                                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                                    <div class="progress flex-grow-1" style="height: 12px;">
+                                                        <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" id="session-progress" style="width: 100%"></div>
+                                                    </div>
+                                                    <span class="badge bg-primary text-white fs-6" id="session-percentage">100%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
 
-                    <!-- تقييمات الأيام (للتدريبات متعددة الأيام) -->
-                    <div id="day-evaluations-section" style="display: none;">
-                        <div class="card mb-4">
-                            <div class="card-header bg-primary text-white">
-                                <i class="fas fa-calendar-day"></i> تقييمات الأيام
-                            </div>
-                            <div class="card-body">
-                                <div id="day-evaluations-container">
-                                    <!-- سيتم إضافة تقييمات الأيام هنا ديناميكياً -->
-                                </div>
+                    <!-- نموذج جامعة طرابلس الرسمي: ثانياً: تقييم أداء المدرب -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header text-white py-3 d-flex justify-content-between align-items-center"
+                            style="background: linear-gradient(135deg, #198754 0%, #157347 100%);">
+                            <h5 class="mb-0 fw-bold">
+                                <i class="fas fa-chalkboard-teacher me-2"></i> ثانياً: تقييم أداء المدرب (التقدير من 5)
+                            </h5>
+                            <span class="badge bg-white text-success fw-bold px-3 py-2 fs-6 shadow-sm" id="trainer-score-badge">
+                                نسبة إجمالي المدرب: 100% (5.0 / 5)
+                            </span>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 60px;" class="text-center">#</th>
+                                            <th>معيار تقييم المدرب</th>
+                                            <th style="width: 320px;" class="text-center">التقدير (من 5)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @php
+                                            $trainerCriteria = [
+                                                'trainer_punctuality' => '1. الحضور والانضباط في الوقت',
+                                                'trainer_clarity' => '2. وضوح الشرح والأسلوب',
+                                                'trainer_management' => '3. القدرة على إدارة المتدربين وتحفيزهم',
+                                                'trainer_interaction' => '4. التفاعل مع الأسئلة والمداخلات',
+                                                'trainer_content_adherence' => '5. الالتزام بالمحتوى المتفق عليه',
+                                                'trainer_professionalism' => '6. المهنية في التعامل',
+                                                'trainer_methods' => '7. توظيف أساليب تدريب مناسبة',
+                                            ];
+                                            $tIndex = 1;
+                                        @endphp
+
+                                        @foreach($trainerCriteria as $tKey => $tLabel)
+                                            <tr>
+                                                <td class="text-center fw-bold text-muted">{{ $tIndex++ }}</td>
+                                                <td class="fw-semibold text-dark">{{ $tLabel }}</td>
+                                                <td>
+                                                    <select name="trainer_criteria[{{ $tKey }}]" class="form-select border-success-subtle trainer-criterion-select" required>
+                                                        <option value="5" selected>⭐⭐⭐⭐⭐ ممتاز (5/5)</option>
+                                                        <option value="4">⭐⭐⭐⭐ جيد جداً (4/5)</option>
+                                                        <option value="3">⭐⭐⭐ جيد (3/5)</option>
+                                                        <option value="2">⭐⭐ مقبول (2/5)</option>
+                                                        <option value="1">⭐ ضعيف (1/5)</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+
+                                        <!-- بند رقم 8: نسبة إجمالي تقييم المدرب -->
+                                        <tr class="table-success bg-opacity-25 fw-bold">
+                                            <td class="text-center text-success fs-5">8</td>
+                                            <td class="text-success fs-6">نسبة إجمالي تقييم المدرب (المحسوبة آلياً)</td>
+                                            <td class="text-center">
+                                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                                    <div class="progress flex-grow-1" style="height: 12px;">
+                                                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" id="trainer-progress" style="width: 100%"></div>
+                                                    </div>
+                                                    <span class="badge bg-success text-white fs-6" id="trainer-percentage">100%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
 
-                    <!-- تقييمات المدربين -->
-                    <div id="trainer-evaluations-section" style="display: none;">
-                        <div class="card mb-4">
-                            <div class="card-header bg-warning text-dark">
-                                <i class="fas fa-chalkboard-teacher"></i> تقييمات المدربين
+                    <!-- نموذج جامعة طرابلس الرسمي: ثالثاً: ملاحظات قسم التقييم والمتابعة واعتماد المقيم -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-dark text-white py-3">
+                            <h5 class="mb-0 fw-bold">
+                                <i class="fas fa-clipboard-check me-2"></i> ثالثاً: ملاحظات قسم التقييم والمتابعة وبيانات الاعتماد
+                            </h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-dark">
+                                    <i class="fas fa-comment-dots text-primary me-1"></i> ملاحظات قسم التقييم والمتابعة:
+                                </label>
+                                <textarea name="comments" class="form-control border-2" rows="4"
+                                    placeholder="أدخل أي ملاحظات أو توصيات خاصة بالجلسة التدريبية أو أداء المدرب أو بيئة التدريب..."></textarea>
                             </div>
-                            <div class="card-body">
-                                <div id="trainer-evaluations-container">
-                                    <!-- سيتم إضافة تقييمات المدربين هنا ديناميكياً -->
+
+                            <div class="row g-3 p-3 bg-light rounded border">
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-user-check me-1"></i> اسم مقيم التدريب</small>
+                                    <span class="fw-bold text-dark fs-6">{{ auth()->user()->name }}</span>
+                                    <small class="text-primary d-block font-monospace">({{ auth()->user()->email }})</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-calendar-day me-1"></i> تاريخ الاعتماد والتقييم</small>
+                                    <span class="fw-bold text-dark fs-6">{{ date('Y / m / d') }}</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-muted d-block mb-1"><i class="fas fa-signature me-1"></i> حالة التوقيع والاعتماد</small>
+                                    <span class="badge bg-success px-3 py-2">
+                                        <i class="fas fa-shield-alt me-1"></i> معتمد إلكترونياً باسم المقيم
+                                    </span>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- تقييم التدريب -->
-                    <div id="training-section" style="display: none;">
-
-                        <!-- التجهيزات -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-info text-white"><i class="fas fa-building"></i> تقييم التجهيزات
-                                والمرافق</div>
-                            <div class="card-body">
-                                <div class="row">
-                                    @php
-                                        $facilities = [
-                                            'room_quality' => 'جودة القاعة التدريبية',
-                                            'equipment' => 'التجهيزات والأدوات',
-                                            'comfort' => 'الراحة والإضاءة',
-                                            'cleanliness' => 'النظافة والترتيب'
-                                        ];
-                                    @endphp
-                                    @foreach($facilities as $key => $label)
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ $label }}</label>
-                                            <select name="facilities[{{ $key }}]" class="form-select">
-                                                <option value="">-- اختر --</option>
-                                                <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
-                                                <option value="4">⭐⭐⭐⭐ جيد جداً</option>
-                                                <option value="3">⭐⭐⭐ جيد</option>
-                                                <option value="2">⭐⭐ مقبول</option>
-                                                <option value="1">⭐ ضعيف</option>
-                                            </select>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
+                <!-- قسم التوظيف (يظهر فقط في حال اختيار تقييم توظيف) -->
+                <div id="employment-section" style="display: none;">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-info text-white py-3">
+                            <h5 class="mb-0 fw-bold"><i class="fas fa-briefcase me-2"></i> تقييم بيئة التوظيف والفرص</h5>
                         </div>
-
-                        <!-- المحتوى -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-success text-white"><i class="fas fa-book-open"></i> تقييم المحتوى
-                                التدريبي</div>
-                            <div class="card-body">
-                                <div class="row">
-                                    @php
-                                        $content = [
-                                            'relevance' => 'ملاءمة المحتوى للأهداف',
-                                            'quality' => 'جودة المواد التدريبية',
-                                            'organization' => 'تنظيم المحتوى',
-                                            'practical' => 'التطبيقات العملية',
-                                            'updated' => 'حداثة المعلومات'
-                                        ];
-                                    @endphp
-                                    @foreach($content as $key => $label)
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ $label }}</label>
-                                            <select name="content[{{ $key }}]" class="form-select">
-                                                <option value="">-- اختر --</option>
-                                                <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
-                                                <option value="4">⭐⭐⭐⭐ جيد جداً</option>
-                                                <option value="3">⭐⭐⭐ جيد</option>
-                                                <option value="2">⭐⭐ مقبول</option>
-                                                <option value="1">⭐ ضعيف</option>
-                                            </select>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- تقييمات المدربين -->
-                        <div id="trainer-evaluations-section" style="display: none;">
-                            <div class="card mb-4">
-                                <div class="card-header bg-warning text-dark">
-                                    <i class="fas fa-chalkboard-teacher"></i> تقييمات المدربين
-                                </div>
-                                <div class="card-body">
-                                    <button type="button" id="add-trainer-btn"
-                                        class="btn btn-sm btn-outline-primary mb-3"><i class="fas fa-plus"></i> إضافة مدرب
-                                        للتقييم</button>
-                                    <div id="trainer-evaluations-container">
-                                        <!-- Dynamic trainer rows will be added here -->
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                @php
+                                    $employment = [
+                                        'workplace_quality' => 'جودة بيئة العمل وملاءمتها',
+                                        'tools_equipment' => 'توفر الأدوات والتقنيات اللازمة',
+                                        'safety' => 'معايير السلامة والأمان المهني',
+                                        'work_culture' => 'ثقافة بيئة العمل والتعاون',
+                                        'supervisor_support' => 'مستوى الدعم والإشراف المباشر',
+                                        'guidance' => 'التوجيه والإرشاد والتطوير'
+                                    ];
+                                @endphp
+                                @foreach($employment as $key => $label)
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">{{ $label }}</label>
+                                        <select name="employment[{{ $key }}]" class="form-select border-2">
+                                            <option value="5" selected>⭐⭐⭐⭐⭐ ممتاز (5/5)</option>
+                                            <option value="4">⭐⭐⭐⭐ جيد جداً (4/5)</option>
+                                            <option value="3">⭐⭐⭐ جيد (3/5)</option>
+                                            <option value="2">⭐⭐ مقبول (2/5)</option>
+                                            <option value="1">⭐ ضعيف (1/5)</option>
+                                        </select>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- التنظيم -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-secondary text-white"><i class="fas fa-tasks"></i> تقييم التنظيم
-                                والإدارة</div>
-                            <div class="card-body">
-                                <div class="row">
-                                    @php
-                                        $organization = [
-                                            'scheduling' => 'الجدول الزمني',
-                                            'coordination' => 'التنسيق والتنظيم',
-                                            'support' => 'الدعم الإداري',
-                                            'communication_admin' => 'التواصل الإداري'
-                                        ];
-                                    @endphp
-                                    @foreach($organization as $key => $label)
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ $label }}</label>
-                                            <select name="organization[{{ $key }}]" class="form-select">
-                                                <option value="">-- اختر --</option>
-                                                <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
-                                                <option value="4">⭐⭐⭐⭐ جيد جداً</option>
-                                                <option value="3">⭐⭐⭐ جيد</option>
-                                                <option value="2">⭐⭐ مقبول</option>
-                                                <option value="1">⭐ ضعيف</option>
-                                            </select>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- الأثر -->
-                        <div class="card mb-4">
-                            <div class="card-header bg-primary text-white"><i class="fas fa-chart-line"></i> تقييم الأثر
-                                والاستفادة</div>
-                            <div class="card-body">
-                                <div class="row">
-                                    @php
-                                        $impact = [
-                                            'skills_gained' => 'المهارات المكتسبة',
-                                            'knowledge_gained' => 'المعرفة المكتسبة',
-                                            'practical_application' => 'إمكانية التطبيق',
-                                            'career_impact' => 'الأثر المهني',
-                                            'overall_satisfaction' => 'الرضا العام'
-                                        ];
-                                    @endphp
-                                    @foreach($impact as $key => $label)
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ $label }}</label>
-                                            <select name="impact[{{ $key }}]" class="form-select">
-                                                <option value="">-- اختر --</option>
-                                                <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
-                                                <option value="4">⭐⭐⭐⭐ جيد جداً</option>
-                                                <option value="3">⭐⭐⭐ جيد</option>
-                                                <option value="2">⭐⭐ مقبول</option>
-                                                <option value="1">⭐ ضعيف</option>
-                                            </select>
-                                        </div>
-                                    @endforeach
-                                </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- تقييم التوظيف -->
-                    <div id="employment-section" style="display: none;">
-                        <div class="card mb-4">
-                            <div class="card-header bg-info text-white"><i class="fas fa-building"></i> تقييم بيئة العمل
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    @php
-                                        $employment = [
-                                            'workplace_quality' => 'جودة مكان العمل',
-                                            'tools_equipment' => 'الأدوات والمعدات',
-                                            'safety' => 'الأمان والسلامة',
-                                            'work_culture' => 'ثقافة العمل',
-                                            'supervisor_support' => 'دعم المشرف',
-                                            'guidance' => 'التوجيه والإرشاد'
-                                        ];
-                                    @endphp
-                                    @foreach($employment as $key => $label)
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ $label }}</label>
-                                            <select name="employment[{{ $key }}]" class="form-select">
-                                                <option value="">-- اختر --</option>
-                                                <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
-                                                <option value="4">⭐⭐⭐⭐ جيد جداً</option>
-                                                <option value="3">⭐⭐⭐ جيد</option>
-                                                <option value="2">⭐⭐ مقبول</option>
-                                                <option value="1">⭐ ضعيف</option>
-                                            </select>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <input type="hidden" name="status" value="completed">
 
-                    <!-- التعليقات -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-dark text-white"><i class="fas fa-comment"></i> التعليقات والتوصيات</div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">نقاط القوة</label>
-                                    <textarea class="form-control" name="strengths" rows="3"
-                                        placeholder="ما هي نقاط القوة؟"></textarea>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">نقاط الضعف</label>
-                                    <textarea class="form-control" name="weaknesses" rows="3"
-                                        placeholder="ما هي نقاط الضعف؟"></textarea>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">التعليقات</label>
-                                    <textarea class="form-control" name="comments" rows="3"
-                                        placeholder="تعليقات إضافية"></textarea>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label fw-bold">التوصيات</label>
-                                    <textarea class="form-control" name="recommendations" rows="3"
-                                        placeholder="توصياتك للتحسين"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <input type="hidden" name="status" value="completed">
-
-                    <!-- الأزرار -->
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ route('evaluation-followup.evaluations.index') }}" class="btn btn-secondary btn-lg">
-                            <i class="fas fa-arrow-right"></i> العودة
+                <!-- أزرار الإرسال والاعتماد -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
+                        <a href="{{ route('evaluation-followup.evaluations.index') }}" class="btn btn-outline-secondary px-4">
+                            <i class="fas fa-times me-1"></i> إلغاء
                         </a>
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="fas fa-check-circle"></i> حفظ التقييم
-                        </button>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="submit" class="btn btn-success btn-lg px-4 shadow">
+                                <i class="fas fa-check-circle me-1"></i> حفظ واعتماد التقييم
+                            </button>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+
+            </form>
         </div>
     </div>
+</div>
 
-    <!-- Template for Day Evaluation -->
-    <template id="day-evaluation-template">
-        <div class="card mb-3 border-light day-evaluation-instance">
-            <div class="card-header bg-light">
-                <div class="row align-items-center">
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold">اختر تاريخ اليوم</label>
-                        <input type="date" name="daily_evaluations[__INDEX__][date]" class="form-control form-control-sm"
-                            required>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <h6 class="card-subtitle mb-2 text-muted">تقييم محاور اليوم</h6>
-                <div class="row">
-                    @php
-                        $dayContent = [
-                            'clarity' => 'وضوح المحتوى',
-                            'relevance' => 'الارتباط بالأهداف',
-                            'engagement' => 'التفاعل والمشاركة'
-                        ];
-                    @endphp
-                    @foreach($dayContent as $key => $label)
-                        <div class="col-md-4 mb-2">
-                            <label class="form-label small">{{ $label }}</label>
-                            <select name="daily_evaluations[__INDEX__][content][{{ $key }}]" class="form-select form-select-sm">
-                                <option value="">-- اختر --</option>
-                                <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
-                                <option value="4">⭐⭐⭐⭐ جيد جداً</option>
-                                <option value="3">⭐⭐⭐ جيد</option>
-                                <option value="2">⭐⭐ مقبول</option>
-                                <option value="1">⭐ ضعيف</option>
-                            </select>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </template>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const typeSelect = document.getElementById('type');
+    const trainingSelect = document.getElementById('training_id');
+    const trainingWrapper = document.getElementById('training-select-wrapper');
+    const autoDataCard = document.getElementById('training-auto-data-card');
+    const officialSection = document.getElementById('official-training-evaluation-section');
+    const employmentSection = document.getElementById('employment-section');
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const typeSelect = document.getElementById('type');
-            const trainingSelect = document.getElementById('training_id');
-            const trainingWrapper = document.getElementById('training-wrapper');
-            const trainingSection = document.getElementById('training-section');
-            const employmentSection = document.getElementById('employment-section');
-            const trainerSection = document.getElementById('trainer-evaluations-section');
-            const daySection = document.getElementById('day-evaluations-section');
+    // Metadata elements
+    const metaTitle = document.getElementById('meta-training-title');
+    const metaTrainer = document.getElementById('meta-trainer-name');
+    const metaDept = document.getElementById('meta-department');
+    const metaPeriod = document.getElementById('meta-period');
+    const metaBeneficiaries = document.getElementById('meta-beneficiaries');
+    const metaLocation = document.getElementById('meta-location');
 
-            // Toggle sections based on Type
-            function toggleSections() {
-                if (!typeSelect) return;
-                const type = typeSelect.value;
+    function updateTrainingMetadata() {
+        if (!trainingSelect || !trainingSelect.value) {
+            if (autoDataCard) autoDataCard.style.display = 'none';
+            return;
+        }
 
-                // Reset all
-                if (trainingSection) trainingSection.style.display = 'none';
-                if (employmentSection) employmentSection.style.display = 'none';
-                if (daySection) daySection.style.display = 'none';
-                if (trainerSection) trainerSection.style.display = 'none';
+        const selected = trainingSelect.options[trainingSelect.selectedIndex];
+        if (!selected) return;
 
-                if (trainingWrapper) trainingWrapper.style.display = 'none';
-                if (trainingSelect) trainingSelect.required = false;
+        const title = selected.getAttribute('data-title') || selected.text;
+        const trainer = selected.getAttribute('data-trainer') || 'غير محدد';
+        const dept = selected.getAttribute('data-dept') || 'مكتب تدريب الخريجين';
+        const start = selected.getAttribute('data-start') || '';
+        const end = selected.getAttribute('data-end') || start;
+        const beneficiaries = selected.getAttribute('data-beneficiaries') || '25';
+        const location = selected.getAttribute('data-location') || 'جامعة طرابلس';
 
-                if (type === 'training') {
-                    if (trainingWrapper) trainingWrapper.style.display = 'block';
-                    if (trainingSelect) trainingSelect.required = true;
+        let periodText = start;
+        if (end && end !== start) {
+            periodText = `من ${start} إلى ${end}`;
+        }
 
-                    if (trainingSection) trainingSection.style.display = 'block';
-                    // Trainer and Day sections depend on specific training selection
-                    if (trainingSelect && trainingSelect.value) {
-                        // Trigger change to re-show if training is already selected
-                        trainingSelect.dispatchEvent(new Event('change'));
-                    }
-                } else if (type === 'employment') {
-                    if (employmentSection) employmentSection.style.display = 'block';
-                }
-            }
+        if (metaTitle) metaTitle.textContent = title;
+        if (metaTrainer) metaTrainer.textContent = trainer;
+        if (metaDept) metaDept.textContent = dept;
+        if (metaPeriod) metaPeriod.textContent = periodText;
+        if (metaBeneficiaries) metaBeneficiaries.textContent = beneficiaries + ' مستفيد';
+        if (metaLocation) metaLocation.textContent = location;
 
-            if (typeSelect) {
-                typeSelect.addEventListener('change', toggleSections);
-                toggleSections(); // Init on load
-            }
+        if (autoDataCard) {
+            autoDataCard.style.display = 'block';
+        }
+    }
 
-            if (trainingSelect) {
-                trainingSelect.addEventListener('change', function () {
-                    const selectedOption = this.options[this.selectedIndex];
-                    const type = typeSelect ? typeSelect.value : '';
+    function toggleFormSections() {
+        const val = typeSelect ? typeSelect.value : 'training';
+        if (val === 'training') {
+            if (trainingWrapper) trainingWrapper.style.display = 'block';
+            if (officialSection) officialSection.style.display = 'block';
+            if (employmentSection) employmentSection.style.display = 'none';
+            if (trainingSelect) trainingSelect.required = true;
+            updateTrainingMetadata();
+        } else {
+            if (trainingWrapper) trainingWrapper.style.display = 'none';
+            if (officialSection) officialSection.style.display = 'none';
+            if (employmentSection) employmentSection.style.display = 'block';
+            if (autoDataCard) autoDataCard.style.display = 'none';
+            if (trainingSelect) trainingSelect.required = false;
+        }
+    }
 
-                    if (!selectedOption.value || type !== 'training') {
-                        if (daySection) daySection.style.display = 'none';
-                        if (trainerSection) trainerSection.style.display = 'none';
-                        return;
-                    }
+    if (typeSelect) {
+        typeSelect.addEventListener('change', toggleFormSections);
+    }
 
-                    const startDateStr = selectedOption.getAttribute('data-start');
-                    const endDateStr = selectedOption.getAttribute('data-end');
+    if (trainingSelect) {
+        trainingSelect.addEventListener('change', updateTrainingMetadata);
+    }
 
-                    // Show Trainer Section (Always visible for training)
-                    if (trainerSection) {
-                        trainerSection.style.display = 'block';
-                        // Initialize first trainer row if empty
-                        const container = document.getElementById('trainer-evaluations-container');
-                        if (container && container.children.length === 0 && typeof renderTrainerRow === 'function') {
-                            renderTrainerRow();
-                        }
-                    }
+    // Live calculation for Session Criteria (1-9) -> #10 Percentage
+    const sessionSelects = document.querySelectorAll('.session-criterion-select');
+    const sessionProgress = document.getElementById('session-progress');
+    const sessionPercentage = document.getElementById('session-percentage');
+    const sessionBadge = document.getElementById('session-score-badge');
 
-                    // Handle Days Evaluation
-                    const dayContainer = document.getElementById('day-evaluations-container');
-                    const dayTemplate = document.getElementById('day-evaluation-template');
-
-                    if (dayContainer) dayContainer.innerHTML = ''; // Clear previous
-
-                    if (startDateStr && endDateStr && daySection) {
-                        const start = new Date(startDateStr);
-                        const end = new Date(endDateStr);
-                        const diffTime = Math.abs(end - start);
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                        if (diffDays > 0) { // Show if there is at least one day
-                            daySection.style.display = 'block';
-                            addDayEvaluation(0, start, end); // Add initial day
-
-                            // Add button logic
-                            if (!document.getElementById('add-day-btn')) {
-                                const addDayBtn = document.createElement('button');
-                                addDayBtn.id = 'add-day-btn';
-                                addDayBtn.type = 'button';
-                                addDayBtn.className = 'btn btn-sm btn-outline-secondary mt-2';
-                                addDayBtn.innerHTML = '<i class="fas fa-plus"></i> إضافة يوم آخر للتقييم';
-                                addDayBtn.onclick = function () {
-                                    const newIndex = dayContainer.children.length;
-                                    addDayEvaluation(newIndex, start, end);
-                                };
-                                dayContainer.parentNode.appendChild(addDayBtn);
-                            }
-
-                        } else {
-                            daySection.style.display = 'none';
-                            const addBtn = document.getElementById('add-day-btn');
-                            if (addBtn) addBtn.remove();
-                        }
-                    } else if (daySection) {
-                        daySection.style.display = 'none';
-                    }
-                });
-            }
-
-            // Helper to add day evaluation
-            function addDayEvaluation(index, minDate, maxDate) {
-                const dayTemplate = document.getElementById('day-evaluation-template');
-                const dayContainer = document.getElementById('day-evaluations-container');
-                if (!dayTemplate || !dayContainer) return;
-
-                const templateContent = dayTemplate.innerHTML.replace(/__INDEX__/g, index);
-                const newDayEl = document.createElement('div');
-                newDayEl.innerHTML = templateContent;
-
-                const dateInput = newDayEl.querySelector('input[type="date"]');
-                if (dateInput) {
-                    dateInput.min = minDate.toISOString().split('T')[0];
-                    dateInput.max = maxDate.toISOString().split('T')[0];
-                }
-
-                dayContainer.appendChild(newDayEl);
-            }
-
-            // Trainer Evaluation Logic
-            const trainerContainer = document.getElementById('trainer-evaluations-container');
-            const addTrainerBtn = document.getElementById('add-trainer-btn');
-
-            window.renderTrainerRow = function () {
-                if (!trainerContainer) return;
-
-                const index = Date.now();
-                // Note: We use the blade directive inside JS string, which works because it's in a blade file
-                const trainersOptions = `
-                            <option value="">-- اختر المدرب --</option>
-                            @foreach($trainers as $trainer)
-                                <option value="{{ $trainer->id }}">{{ $trainer->name }}</option>
-                            @endforeach
-                        `;
-
-                const rowHtml = `
-                            <div class="row mb-3 border-bottom pb-3" id="trainer-row-${index}">
-                                <div class="col-md-4">
-                                    <label class="form-label">المدرب</label>
-                                    <select name="instructors[${index}][id]" class="form-select" required>
-                                        ${trainersOptions}
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">التقييم العام</label>
-                                        <select name="instructors[${index}][rating]" class="form-select" required>
-                                        <option value="5">⭐⭐⭐⭐⭐ ممتاز</option>
-                                        <option value="4">⭐⭐⭐⭐ جيد جداً</option>
-                                        <option value="3">⭐⭐⭐ جيد</option>
-                                        <option value="2">⭐⭐ مقبول</option>
-                                        <option value="1">⭐ ضعيف</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                        <label class="form-label">ملاحظات</label>
-                                        <input type="text" name="instructors[${index}][comments]" class="form-control" placeholder="ملاحظات حول المدرب">
-                                </div>
-                                <div class="col-md-1 d-flex align-items-end">
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeTrainerRow('${index}')"><i class="fas fa-trash"></i></button>
-                                </div>
-                            </div>
-                        `;
-                trainerContainer.insertAdjacentHTML('beforeend', rowHtml);
-            }
-
-            window.removeTrainerRow = function (index) {
-                const row = document.getElementById(`trainer-row-${index}`);
-                if (row) row.remove();
-            }
-
-            if (addTrainerBtn) {
-                addTrainerBtn.addEventListener('click', function () {
-                    renderTrainerRow();
-                });
+    function calculateSessionStats() {
+        let total = 0;
+        let count = 0;
+        sessionSelects.forEach(sel => {
+            const val = parseFloat(sel.value);
+            if (!isNaN(val) && val > 0) {
+                total += val;
+                count++;
             }
         });
-    </script>
+
+        if (count > 0) {
+            const avg = total / count;
+            const pct = Math.round((avg / 5) * 100);
+            if (sessionProgress) sessionProgress.style.width = pct + '%';
+            if (sessionPercentage) sessionPercentage.textContent = pct + '%';
+            if (sessionBadge) sessionBadge.textContent = `نسبة إجمالي الجلسة: ${pct}% (${avg.toFixed(2)} / 5)`;
+        }
+    }
+
+    sessionSelects.forEach(sel => sel.addEventListener('change', calculateSessionStats));
+
+    // Live calculation for Trainer Criteria (1-7) -> #8 Percentage
+    const trainerSelects = document.querySelectorAll('.trainer-criterion-select');
+    const trainerProgress = document.getElementById('trainer-progress');
+    const trainerPercentage = document.getElementById('trainer-percentage');
+    const trainerBadge = document.getElementById('trainer-score-badge');
+
+    function calculateTrainerStats() {
+        let total = 0;
+        let count = 0;
+        trainerSelects.forEach(sel => {
+            const val = parseFloat(sel.value);
+            if (!isNaN(val) && val > 0) {
+                total += val;
+                count++;
+            }
+        });
+
+        if (count > 0) {
+            const avg = total / count;
+            const pct = Math.round((avg / 5) * 100);
+            if (trainerProgress) trainerProgress.style.width = pct + '%';
+            if (trainerPercentage) trainerPercentage.textContent = pct + '%';
+            if (trainerBadge) trainerBadge.textContent = `نسبة إجمالي المدرب: ${pct}% (${avg.toFixed(2)} / 5)`;
+        }
+    }
+
+    trainerSelects.forEach(sel => sel.addEventListener('change', calculateTrainerStats));
+
+    // Initialize on load
+    toggleFormSections();
+    calculateSessionStats();
+    calculateTrainerStats();
+
+    // Auto-select first training if none selected
+    if (trainingSelect && !trainingSelect.value && trainingSelect.options.length > 1) {
+        trainingSelect.selectedIndex = 1;
+        updateTrainingMetadata();
+    }
+});
+</script>
 @endsection

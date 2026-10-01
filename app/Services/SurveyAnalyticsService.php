@@ -137,6 +137,41 @@ class SurveyAnalyticsService
                 $itemAnalytics['top_choice'] = $topChoice;
                 $itemAnalytics['top_choice_percentage'] = ($totalAnswered > 0 && $topCount > 0) ? round(($topCount / $totalAnswered) * 100, 1) : 0;
 
+                // دعم قياس مؤشر الرضا من أسئلة الاختيار من متعدد ذات المقياس الرتبي
+                $scaleMapping = [
+                    'راضي جداً' => 5.0,
+                    'راضي جدا' => 5.0,
+                    'راضي' => 4.0,
+                    'إلى حد ما راضي' => 3.0,
+                    'الى حد ما راضي' => 3.0,
+                    'غير راضي' => 1.5,
+                    'غير راضٍ' => 1.5,
+                    'غير راضي على الإطلاق' => 1.0,
+                    'ممتاز' => 5.0,
+                    'جيد جداً' => 4.0,
+                    'جيد' => 3.0,
+                    'مقبول' => 2.0,
+                    'ضعيف' => 1.0,
+                    'متوافقة تماماً 90_100%' => 5.0,
+                    'متوافقة بشكل كبير 70_80%' => 4.0,
+                    'متوافقة الى حد ما 50_60%' => 3.0,
+                    'غير متوافقة على الاطلاق اقل من 50%' => 1.5,
+                ];
+
+                $scaleHits = [];
+                foreach ($answersList as $item) {
+                    $cleanVal = trim((string)$item['value']);
+                    if (isset($scaleMapping[$cleanVal])) {
+                        $scaleHits[] = $scaleMapping[$cleanVal];
+                    }
+                }
+                if (count($scaleHits) >= max(1, count($answersList) * 0.5)) {
+                    $avgScale = round(array_sum($scaleHits) / count($scaleHits), 2);
+                    $allRatingScores[] = $avgScale;
+                    $itemAnalytics['average_score'] = $avgScale;
+                    $itemAnalytics['percentage_score'] = round(($avgScale / 5) * 100, 1);
+                }
+
             } elseif ($qType === 'checkbox') {
                 $optCounts = [];
                 foreach ($options as $opt) {

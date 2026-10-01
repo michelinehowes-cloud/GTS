@@ -128,10 +128,11 @@ class PublicSurveyController extends Controller
         // حفظ الرد
         SurveyResponse::create([
             'survey_id' => $survey->id,
+            'user_id' => auth()->id(),
             'answers' => $responses,
             'participant_name' => $request->participant_name,
             'participant_email' => $request->participant_email,
-            'is_external' => true,
+            'is_external' => !auth()->check(),
             'submitted_at' => now(),
         ]);
 

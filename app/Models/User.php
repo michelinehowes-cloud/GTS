@@ -151,12 +151,12 @@ class User extends Authenticatable
             return true;
         }
 
-        // فحص الصلاحيات المحملة في الذاكرة لتجنب استعلامات N+1
-        if ($this->relationLoaded('permissions')) {
-            return $this->permissions->contains('name', $permission);
+        // تحميل الصلاحيات في الذاكرة مرة واحدة لتسريع الفحص وتجنب استعلامات N+1
+        if (!$this->relationLoaded('permissions')) {
+            $this->load('permissions');
         }
 
-        return $this->permissions()->where('name', $permission)->exists();
+        return $this->permissions->contains('name', $permission);
     }
 
     /**

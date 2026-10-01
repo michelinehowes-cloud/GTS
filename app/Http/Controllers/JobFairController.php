@@ -857,6 +857,8 @@ class JobFairController extends Controller
             'total_registered'  => $fair->registrations()->count(),
             'total_attended'    => $fair->registrations()->where('attended', true)->count(),
             'total_companies'   => $fair->companies()->where('status', 'confirmed')->count(),
+            'total_visitors'    => $fair->visitors()->count(),
+            'attended_visitors' => $fair->visitors()->where('attended', true)->count(),
             'days_remaining'    => $fair->days_remaining,
         ];
     }

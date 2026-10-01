@@ -215,6 +215,12 @@
                     <span>الهوية البصرية</span>
                 </a>
 
+                <!-- إدارة زوار المعرض -->
+                <a href="{{ route('job-fair.admin.visitors.index', $fair->id) }}" class="fair-btn-action btn btn-success text-white shadow-sm fw-bold">
+                    <i class="fas fa-id-badge"></i>
+                    <span>إدارة الزوار ({{ $stats['total_visitors'] ?? $fair->visitors->count() }})</span>
+                </a>
+
                 <!-- قائمة تغيير الحالة منسدلة أنيقة -->
                 <div class="dropdown d-inline-block position-relative">
                     <button class="fair-btn-action fair-btn-glass dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -268,31 +274,40 @@
     </div>
     @endif
 
-    <!-- بطاقات الإحصائيات (2x2 على الموبايل و4 على الديسكتوب) -->
+    <!-- بطاقات الإحصائيات -->
     <div class="row g-2 g-md-3 mb-4">
         @include('components.stat-card', [
-            'col' => 'col-6 col-md-3',
+            'col' => 'col-6 col-md-4 col-xl',
             'title' => 'خريج مسجل',
             'value' => $stats['total_registered'] ?? 0,
             'icon' => 'fas fa-user-graduate',
             'color' => 'primary'
         ])
         @include('components.stat-card', [
-            'col' => 'col-6 col-md-3',
+            'col' => 'col-6 col-md-4 col-xl',
+            'title' => 'زائر ومستضاف',
+            'value' => $stats['total_visitors'] ?? $fair->visitors->count(),
+            'icon' => 'fas fa-id-badge',
+            'color' => 'success',
+            'link' => route('job-fair.admin.visitors.index', $fair->id),
+            'description' => 'انقر لإدارة الزوار'
+        ])
+        @include('components.stat-card', [
+            'col' => 'col-6 col-md-4 col-xl',
             'title' => 'حضروا المعرض',
             'value' => $stats['total_attended'] ?? 0,
             'icon' => 'fas fa-user-check',
             'color' => 'success'
         ])
         @include('components.stat-card', [
-            'col' => 'col-6 col-md-3',
+            'col' => 'col-6 col-md-4 col-xl',
             'title' => 'شركة مشاركة',
             'value' => $stats['total_companies'] ?? 0,
             'icon' => 'fas fa-building',
             'color' => 'warning'
         ])
         @include('components.stat-card', [
-            'col' => 'col-6 col-md-3',
+            'col' => 'col-6 col-md-4 col-xl',
             'title' => 'يوم متبقي',
             'value' => $stats['days_remaining'] ?? 0,
             'icon' => 'fas fa-clock',

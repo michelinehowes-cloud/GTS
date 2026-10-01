@@ -798,6 +798,12 @@ Route::get('/job-fair/projects/{project}', [App\Http\Controllers\JobFairProjectC
     ->name('job-fair.public.projects.show');
 
 
+// تسجيل الزوار والتذكرة الرقمية للمعرض (متاح للجميع بدون تسجيل مسبق)
+Route::post('/job-fair/{fair}/visitor-register', [App\Http\Controllers\JobFairVisitorController::class, 'store'])
+    ->name('job-fair.visitor.register');
+Route::get('/job-fair/visitor-ticket/{ticket}', [App\Http\Controllers\JobFairVisitorController::class, 'showTicket'])
+    ->name('job-fair.visitor.ticket');
+
 // تسجيل الخريج في المعرض (يتطلب تسجيل دخول)
 Route::middleware('auth')->group(function () {
     Route::post('/job-fair/{fair}/register', [App\Http\Controllers\JobFairController::class, 'register'])->name('job-fair.register');
@@ -861,6 +867,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin/job-fair')->name('job-fair.a
     Route::post('/{fair}/brand-identity', [App\Http\Controllers\JobFairController::class, 'updateBrandIdentity'])->name('brand-identity.update');
     Route::delete('/{fair}/brand-identity/{asset}', [App\Http\Controllers\JobFairController::class, 'deleteBrandAsset'])->name('brand-identity.delete');
     Route::get('/{fair}/brand-identity/download/{type}', [App\Http\Controllers\JobFairController::class, 'downloadBrandAsset'])->name('brand-identity.download');
+
+    // إدارة زوار المعرض
+    Route::get('/{fair}/visitors', [App\Http\Controllers\JobFairVisitorController::class, 'adminIndex'])->name('visitors.index');
+    Route::post('/visitors/{visitor}/check-in', [App\Http\Controllers\JobFairVisitorController::class, 'toggleCheckIn'])->name('visitors.check-in');
+    Route::get('/{fair}/visitors/export', [App\Http\Controllers\JobFairVisitorController::class, 'export'])->name('visitors.export');
+    Route::delete('/visitors/{visitor}', [App\Http\Controllers\JobFairVisitorController::class, 'destroy'])->name('visitors.destroy');
 });
 
 // ==================== 📋 نموذج تنظيم ومتابعة المهام (مشروع سنة 2026) ====================

@@ -664,8 +664,12 @@
                                     اتفاقيات ووثائق الشراكة
                                 </a>
                                 <a href="{{ route('job-fair.admin.index') }}"
-                                    class="submenu-item {{ request()->routeIs('job-fair.admin*') ? 'active' : '' }}">
+                                    class="submenu-item {{ (request()->routeIs('job-fair.admin*') && !request()->routeIs('job-fair.admin.visitors*')) ? 'active' : '' }}">
                                     إدارة المعارض والفعاليات
+                                </a>
+                                <a href="{{ route('job-fair.admin.visitors.index', 1) }}"
+                                    class="submenu-item {{ request()->routeIs('job-fair.admin.visitors*') ? 'active' : '' }}">
+                                    إدارة زوار وتذاكر المعرض
                                 </a>
                                 <a href="{{ route('partnership.reports') }}"
                                     class="submenu-item {{ request()->routeIs('partnership.reports*') ? 'active' : '' }}">

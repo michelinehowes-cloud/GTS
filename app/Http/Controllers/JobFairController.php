@@ -25,48 +25,97 @@ class JobFairController extends Controller
      */
     public function publicShow(Request $request, $fair = null)
     {
-        // 1. إذا تم تحديد الفعالية عبر الرابط أو المعامل ?fair=ID
-        if ($fair) {
-            if (!($fair instanceof JobFair)) {
-                $fair = JobFair::find($fair);
+        try {
+            // 1. إذا تم تحديد الفعالية عبر الرابط أو المعامل ?fair=ID
+            if ($fair) {
+                if (!($fair instanceof JobFair)) {
+                    $fair = JobFair::find($fair);
+                }
+            } elseif ($request->has('fair')) {
+                $fair = JobFair::find($request->query('fair'));
             }
-        } elseif ($request->has('fair')) {
-            $fair = JobFair::find($request->query('fair'));
-        }
 
-        // 2. إذا لم تُحدد، نجلب الفعالية المنشورة الأحدث أو القادمة افتراضياً
-        if (!$fair) {
-            $fair = JobFair::where('status', 'published')
-                           ->orderBy('event_date', 'asc')
-                           ->first();
-
+            // 2. إذا لم تُحدد، نجلب الفعالية المنشورة الأحدث أو القادمة افتراضياً
             if (!$fair) {
-                $fair = JobFair::where('status', 'ongoing')->first();
+                try {
+                    $fair = JobFair::where('status', 'published')
+                                   ->orderBy('event_date', 'asc')
+                                   ->first();
+
+                    if (!$fair) {
+                        $fair = JobFair::where('status', 'ongoing')->first();
+                    }
+                    if (!$fair) {
+                        $fair = JobFair::first();
+                    }
+                } catch (\Throwable $e) {
+                    $fair = null;
+                }
             }
-        }
 
-        $myRegistration = null;
-        $favoriteCompanyIds = [];
-        if (Auth::check() && $fair) {
-            $myRegistration = JobFairRegistration::where('job_fair_id', $fair->id)
-                ->where('user_id', Auth::id())
-                ->first();
-                
-            if (Auth::user()->role === 'graduate') {
-                $favoriteCompanyIds = \App\Models\Favorite::where('graduate_id', Auth::id())
-                    ->pluck('company_id')
-                    ->toArray();
+            $myRegistration = null;
+            $favoriteCompanyIds = [];
+            if (Auth::check() && $fair) {
+                try {
+                    $myRegistration = JobFairRegistration::where('job_fair_id', $fair->id)
+                        ->where('user_id', Auth::id())
+                        ->first();
+                } catch (\Throwable $e) {}
+                    
+                if (Auth::user()->role === 'graduate') {
+                    try {
+                        $favoriteCompanyIds = \App\Models\Favorite::where('graduate_id', Auth::id())
+                            ->pluck('company_id')
+                            ->toArray();
+                    } catch (\Throwable $e) {}
+                }
             }
+
+            $companies = collect();
+            $sponsors = collect();
+            $events = collect();
+            $projects = collect();
+            $recentJobs = collect();
+
+            if ($fair) {
+                try {
+                    $companies = $fair->companies()->with('company')->where('status', 'confirmed')->get();
+                } catch (\Throwable $e) {}
+
+                try {
+                    $sponsors = $fair->sponsors()->where('is_active', true)->orderBy('display_order')->get();
+                } catch (\Throwable $e) {}
+
+                try {
+                    $events = $fair->events()->withCount('attendees')->orderBy('start_time', 'asc')->get();
+                } catch (\Throwable $e) {}
+
+                try {
+                    $projects = $fair->projects()->where('status', '!=', 'draft')->orderBy('is_featured', 'desc')->latest()->get();
+                } catch (\Throwable $e) {}
+            }
+
+            try {
+                $recentJobs = \App\Models\JobOpportunity::where('status', 'open')->with('company')->latest()->take(6)->get();
+            } catch (\Throwable $e) {}
+
+            $stats = $this->getFairStats($fair);
+
+            return view('job-fair.public', compact('fair', 'myRegistration', 'companies', 'sponsors', 'events', 'projects', 'recentJobs', 'stats', 'favoriteCompanyIds'));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('JobFair publicShow error: ' . $e->getMessage());
+            return view('job-fair.public', [
+                'fair' => $fair ?? JobFair::first(),
+                'myRegistration' => null,
+                'companies' => collect(),
+                'sponsors' => collect(),
+                'events' => collect(),
+                'projects' => collect(),
+                'recentJobs' => collect(),
+                'stats' => [],
+                'favoriteCompanyIds' => []
+            ]);
         }
-
-        $companies = $fair ? $fair->companies()->with('company')->where('status', 'confirmed')->get() : collect();
-        $sponsors = $fair ? $fair->sponsors()->where('is_active', true)->orderBy('display_order')->get() : collect();
-        $events = $fair ? $fair->events()->withCount('attendees')->orderBy('start_time', 'asc')->get() : collect();
-        $projects = $fair ? $fair->projects()->where('status', '!=', 'draft')->orderBy('is_featured', 'desc')->latest()->get() : collect();
-        $recentJobs = \App\Models\JobOpportunity::where('status', 'open')->with('company')->latest()->take(6)->get();
-        $stats = $this->getFairStats($fair);
-
-        return view('job-fair.public', compact('fair', 'myRegistration', 'companies', 'sponsors', 'events', 'projects', 'recentJobs', 'stats', 'favoriteCompanyIds'));
     }
 
     /**
@@ -853,25 +902,31 @@ class JobFairController extends Controller
     {
         if (!$fair) return [];
 
+        $totalRegistered = 0;
+        $totalAttended = 0;
+        $totalCompanies = 0;
         $totalVisitors = 0;
         $attendedVisitors = 0;
+        $daysRemaining = 0;
+
+        try { $totalRegistered = $fair->registrations()->count(); } catch (\Throwable $e) {}
+        try { $totalAttended = $fair->registrations()->where('attended', true)->count(); } catch (\Throwable $e) {}
+        try { $totalCompanies = $fair->companies()->where('status', 'confirmed')->count(); } catch (\Throwable $e) {}
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('job_fair_visitors')) {
                 $totalVisitors = $fair->visitors()->count();
                 $attendedVisitors = $fair->visitors()->where('attended', true)->count();
             }
-        } catch (\Throwable $e) {
-            $totalVisitors = 0;
-            $attendedVisitors = 0;
-        }
+        } catch (\Throwable $e) {}
+        try { $daysRemaining = $fair->days_remaining; } catch (\Throwable $e) {}
 
         return [
-            'total_registered'  => $fair->registrations()->count(),
-            'total_attended'    => $fair->registrations()->where('attended', true)->count(),
-            'total_companies'   => $fair->companies()->where('status', 'confirmed')->count(),
+            'total_registered'  => $totalRegistered,
+            'total_attended'    => $totalAttended,
+            'total_companies'   => $totalCompanies,
             'total_visitors'    => $totalVisitors,
             'attended_visitors' => $attendedVisitors,
-            'days_remaining'    => $fair->days_remaining,
+            'days_remaining'    => $daysRemaining,
         ];
     }
 }

@@ -512,14 +512,14 @@
             <div class="px-4 py-3 bg-light border-bottom d-flex justify-content-between align-items-center gap-2">
                 <div class="d-flex align-items-center gap-3">
                     @if($fair && $fair->logo_url)
-                        <img src="{{ $fair->logo_url }}" alt="{{ $fair->title }}" style="height: 38px; max-width: 110px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo.png') }}';">
+                        <img src="{{ $fair->logo_url }}" alt="{{ $fair->title }}" style="height: 44px; max-width: 130px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo.png') }}';">
                     @else
-                        <img src="{{ asset('images/job_fair_logo.png') }}" alt="معرض التوظيف" style="height: 38px; max-width: 110px; object-fit: contain;">
+                        <img src="{{ asset('images/job_fair_logo.png') }}" alt="معرض التوظيف" style="height: 44px; max-width: 130px; object-fit: contain;">
                     @endif
-                    <div style="width: 1px; height: 28px; background: #cbd5e1;"></div>
-                    <img src="{{ asset('images/gto_logo.jpg') }}" alt="مكتب تدريب الخريجين" style="height: 38px; width: auto;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
-                    <div style="width: 1px; height: 28px; background: #cbd5e1;"></div>
-                    <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة للمعارض" style="height: 32px; width: auto; max-width: 95px; object-fit: contain;">
+                    <div style="width: 1px; height: 32px; background: #cbd5e1;"></div>
+                    <img src="{{ asset('images/gto_logo.jpg') }}" alt="مكتب تدريب الخريجين" style="height: 44px; max-width: 130px; object-fit: contain;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                    <div style="width: 1px; height: 32px; background: #cbd5e1;"></div>
+                    <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة للمعارض" style="height: 44px; max-width: 130px; object-fit: contain;">
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -627,9 +627,11 @@
             <!-- شريط الشعارات الرسمية الثلاثة -->
             <div class="px-4 py-3 bg-light border-bottom d-flex justify-content-between align-items-center gap-2">
                 <div class="d-flex align-items-center gap-3">
-                    <img src="{{ $fair->logo_url ?? asset('images/job_fair_logo.png') }}" alt="{{ $fair->title }}" style="height: 36px; max-width: 100px; object-fit: contain;" onerror="this.src='{{ asset('images/job_fair_logo.png') }}'">
-                    <img src="{{ asset('images/gto_logo.jpg') }}" alt="مكتب التدريب" style="height: 36px; width: auto;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
-                    <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة" style="height: 30px; width: auto; max-width: 90px; object-fit: contain;">
+                    <img src="{{ $fair->logo_url ?? asset('images/job_fair_logo.png') }}" alt="{{ $fair->title }}" style="height: 44px; max-width: 130px; object-fit: contain;" onerror="this.src='{{ asset('images/job_fair_logo.png') }}'">
+                    <div style="width: 1px; height: 32px; background: #cbd5e1;"></div>
+                    <img src="{{ asset('images/gto_logo.jpg') }}" alt="مكتب التدريب" style="height: 44px; max-width: 130px; object-fit: contain;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                    <div style="width: 1px; height: 32px; background: #cbd5e1;"></div>
+                    <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة" style="height: 44px; max-width: 130px; object-fit: contain;">
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -675,9 +677,9 @@
 <div id="gatePosterPrintArea" style="display: none;">
     <div style="text-align: center; border: 3px double #045db0; padding: 30px; border-radius: 16px; font-family: 'Cairo', sans-serif;">
         <div style="display: flex; justify-content: center; align-items: center; gap: 30px; margin-bottom: 25px;">
-            <img src="{{ $fair->logo_url ?? asset('images/job_fair_logo.png') }}" style="height: 65px; max-width: 170px; object-fit: contain;">
+            <img src="{{ $fair->logo_url ?? asset('images/job_fair_logo.png') }}" style="height: 70px; max-width: 170px; object-fit: contain;">
             <img src="{{ asset('images/gto_logo.jpg') }}" style="height: 70px; max-width: 170px; object-fit: contain;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
-            <img src="{{ asset('images/wahaexpo_logo.png') }}" style="height: 55px; max-width: 150px; object-fit: contain;">
+            <img src="{{ asset('images/wahaexpo_logo.png') }}" style="height: 70px; max-width: 170px; object-fit: contain;">
         </div>
 
         <h2 style="font-size: 26pt; color: #045db0; font-weight: 800; margin-bottom: 10px;">{{ $fair->title }}</h2>

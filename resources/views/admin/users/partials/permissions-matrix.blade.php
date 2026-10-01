@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
         job_fair: [
             'job_fair.view', 'job_fair.create', 'job_fair.edit', 'job_fair.delete',
             'job_fair.manage', 'job_fair.events', 'job_fair.projects', 'job_fair.sponsors',
-            'job_fair.registrations', 'job_fair.attendance', 'job_fair.live',
+            'job_fair.registrations', 'job_fair.attendance', 'job_fair.live', 'job_fair.visitors',
             'companies.view', 'jobs.view', 'nominations.manage', 'reports.view'
         ],
         evaluations: [

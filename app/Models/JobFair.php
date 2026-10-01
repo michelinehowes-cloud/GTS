@@ -90,6 +90,11 @@ class JobFair extends Model
         return $this->hasMany(JobFairProject::class);
     }
 
+    public function tasks()
+    {
+        return $this->hasMany(JobFairTask::class);
+    }
+
     // ========== Accessors ==========
 
     /**

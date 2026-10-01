@@ -526,6 +526,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/evaluation-reports', [EvaluationFollowupController::class, 'evaluationReports'])->name('evaluation-followup.evaluation-reports');
         Route::get('/survey-reports', [EvaluationFollowupController::class, 'surveyReports'])->name('evaluation-followup.survey-reports');
         Route::get('/performance-reports', [EvaluationFollowupController::class, 'performanceReports'])->name('evaluation-followup.performance-reports');
+        Route::get('/monthly-training-report', [EvaluationFollowupController::class, 'monthlyTrainingReport'])->name('evaluation-followup.monthly-training-report');
     });
 
     // ==================== 📹 مسارات مسؤول الميديا ====================
@@ -860,6 +861,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin/job-fair')->name('job-fair.a
     Route::post('/{fair}/brand-identity', [App\Http\Controllers\JobFairController::class, 'updateBrandIdentity'])->name('brand-identity.update');
     Route::delete('/{fair}/brand-identity/{asset}', [App\Http\Controllers\JobFairController::class, 'deleteBrandAsset'])->name('brand-identity.delete');
     Route::get('/{fair}/brand-identity/download/{type}', [App\Http\Controllers\JobFairController::class, 'downloadBrandAsset'])->name('brand-identity.download');
+});
+
+// ==================== 📋 نموذج تنظيم ومتابعة المهام (مشروع سنة 2026) ====================
+Route::middleware('auth')->group(function () {
+    Route::get('/job-fair/tasks', [App\Http\Controllers\JobFairTaskController::class, 'index'])->name('job-fair.tasks.index');
+    Route::post('/job-fair/tasks', [App\Http\Controllers\JobFairTaskController::class, 'store'])->name('job-fair.tasks.store');
+    Route::put('/job-fair/tasks/{task}', [App\Http\Controllers\JobFairTaskController::class, 'update'])->name('job-fair.tasks.update');
+    Route::delete('/job-fair/tasks/{task}', [App\Http\Controllers\JobFairTaskController::class, 'destroy'])->name('job-fair.tasks.destroy');
+    Route::get('/job-fair/tasks/print', [App\Http\Controllers\JobFairTaskController::class, 'print'])->name('job-fair.tasks.print');
+    Route::get('/evaluation-followup/tasks', [App\Http\Controllers\JobFairTaskController::class, 'index'])->name('evaluation-followup.tasks.index');
 });
 
 // ==================== 🚀 مسار تغذية قاعدة البيانات الحية (Live Seeder Trigger) ====================

@@ -87,6 +87,17 @@ class Permission extends Model
     public static function getGrouped()
     {
         $all = self::all();
+        
+        // ضمان وجود كافة صلاحيات معرض التوظيف (11 صلاحية) تلقائياً في أي بيئة تشغيل
+        if ($all->where('module', 'job_fair')->count() < 11) {
+            try {
+                (new \Database\Seeders\PermissionSeeder())->run();
+                $all = self::all();
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Auto-seeding permissions in getGrouped: ' . $e->getMessage());
+            }
+        }
+
         $meta = self::getModuleMeta();
         $grouped = [];
 

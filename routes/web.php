@@ -873,16 +873,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/evaluation-followup/tasks', [App\Http\Controllers\JobFairTaskController::class, 'index'])->name('evaluation-followup.tasks.index');
 });
 
-// ==================== 🚀 مسار تغذية قاعدة البيانات الحية (Live Seeder Trigger) ====================
+// ==================== 🚀 مسار تغذية قاعدة البيانات الحية (Live Seeder & Migration Trigger) ====================
 Route::get('/system/run-seeders-now', function () {
     if (request('key') !== 'gts_seed_2026_uot') {
         abort(403, 'Unauthorized');
     }
+    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+    $migrateOutput = \Illuminate\Support\Facades\Artisan::output();
     \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+    $seedOutput = \Illuminate\Support\Facades\Artisan::output();
     return response()->json([
         'status' => 'success',
-        'message' => 'تم بنجاح تحميل وتعبئة كافة المستخدمين والبيانات في المنصة!',
-        'output' => \Illuminate\Support\Facades\Artisan::output(),
+        'message' => 'تم بنجاح تشغيل كافة الترحيلات وتغذية قاعدة البيانات وتحديث الصلاحيات بالكامل!',
+        'migrations' => $migrateOutput,
+        'seeders' => $seedOutput,
     ]);
 });
 

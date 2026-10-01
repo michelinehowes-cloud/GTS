@@ -206,7 +206,7 @@
                                         <div class="fw-bold text-dark text-truncate d-flex align-items-center gap-1" style="font-size: 0.84rem;" title="{{ $user->name }}">
                                             <span class="text-truncate">{{ $user->name }}</span>
                                             @if($user->isProtectedSuperAdmin())
-                                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-1.5 py-0 rounded-pill" style="font-size: 0.65rem;" title="حساب أساسي محمي">محمي</span>
+                                                <span class="badge bg-warning bg-opacity-15 text-warning border border-warning px-2 py-0.5 rounded-pill fw-bold" style="font-size: 0.68rem;" title="مالك النظام - حساب محمي"><i class="fas fa-crown text-warning me-1"></i>المالك (محمي)</span>
                                             @endif
                                         </div>
                                         <div class="text-muted text-truncate" style="font-size: 0.74rem;" title="{{ $user->email }}">
@@ -220,9 +220,15 @@
                             <td class="px-2 py-2 text-nowrap">
                                 @switch($user->role)
                                     @case('admin')
-                                        <span class="badge bg-warning bg-opacity-10 text-dark border border-warning px-2 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
-                                            <i class="fas fa-crown text-warning me-1"></i> مدير النظام
-                                        </span>
+                                        @if($user->isProtectedSuperAdmin())
+                                            <span class="badge bg-warning bg-opacity-15 text-dark border border-warning px-2.5 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
+                                                <i class="fas fa-crown text-warning me-1"></i> مدير النظام (المالك)
+                                            </span>
+                                        @else
+                                            <span class="badge bg-warning bg-opacity-10 text-dark border border-warning px-2 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
+                                                <i class="fas fa-user-shield text-warning me-1"></i> مدير النظام
+                                            </span>
+                                        @endif
                                         @break
                                     @case('staff')
                                         <span class="badge bg-info bg-opacity-10 text-primary border border-info px-2 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
@@ -261,7 +267,11 @@
 
                             <!-- الصلاحيات الممنوحة -->
                             <td class="px-2 py-2 text-nowrap">
-                                @if($user->isAdmin())
+                                @if($user->isProtectedSuperAdmin())
+                                    <span class="badge bg-warning text-dark px-2.5 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
+                                        <i class="fas fa-crown me-1 text-warning"></i> وصول المالك الكامل (كافة الصلاحيات)
+                                    </span>
+                                @elseif($user->isAdmin())
                                     <span class="badge bg-warning text-dark px-2 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
                                         <i class="fas fa-check-double me-1"></i> وصول كامل (33+)
                                     </span>
@@ -308,38 +318,55 @@
                             <!-- الإجراءات -->
                             <td class="px-3 py-2 text-end text-nowrap">
                                 <div class="d-flex align-items-center justify-content-end gap-1 flex-nowrap">
-                                    <!-- تعديل البيانات والصلاحيات -->
-                                    <a href="{{ route('admin.users.edit', $user->id) }}" class="action-circle-btn text-primary" title="تعديل البيانات وتخصيص الصلاحيات">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-
-                                    <!-- تغيير كلمة المرور -->
-                                    <button type="button" class="action-circle-btn text-warning" data-bs-toggle="modal" data-bs-target="#changePasswordModal{{ $user->id }}" title="إعادة تعيين كلمة المرور">
-                                        <i class="fas fa-key"></i>
-                                    </button>
-
-                                    <!-- تجميد / تنشيط الحساب -->
-                                    @if(!$user->isProtectedSuperAdmin() && $user->id !== auth()->id())
-                                        <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST" class="d-inline m-0">
-                                            @csrf
-                                            <button type="submit" class="action-circle-btn {{ $user->is_active ? 'text-secondary' : 'text-success' }}" 
-                                                    title="{{ $user->is_active ? 'تجميد الحساب' : 'تنشيط الحساب' }}"
-                                                    onclick="return confirm('هل أنت متأكد من {{ $user->is_active ? 'تجميد' : 'تنشيط' }} حساب الموظف {{ $user->name }}؟')">
-                                                <i class="fas fa-{{ $user->is_active ? 'ban' : 'check-circle' }}"></i>
+                                    @if($user->isProtectedSuperAdmin())
+                                        @if(auth()->id() === $user->id)
+                                            <!-- تعديل المالك لبياناته بنفسه فقط -->
+                                            <a href="{{ route('admin.users.edit', $user->id) }}" class="action-circle-btn text-primary" title="تعديل بيانات حسابك (المالك)">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="action-circle-btn text-warning" data-bs-toggle="modal" data-bs-target="#changePasswordModal{{ $user->id }}" title="تغيير كلمة المرور">
+                                                <i class="fas fa-key"></i>
                                             </button>
-                                        </form>
+                                        @else
+                                            <!-- عند مشاهدة المدير الآخر أو أي موظف لحساب المالك المحمي -->
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;" title="حساب المالك محمي بالكامل ولا يستطيع أحد تعديل بياناته">
+                                                <i class="fas fa-lock text-warning me-1"></i> محمي بالكامل
+                                            </span>
+                                        @endif
+                                    @else
+                                        <!-- تعديل البيانات والصلاحيات لباقي المستخدمين والمدير غير المحمي -->
+                                        <a href="{{ route('admin.users.edit', $user->id) }}" class="action-circle-btn text-primary" title="تعديل البيانات وتخصيص الصلاحيات">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
 
-                                        <!-- حذف الحساب -->
-                                        @if(auth()->user()->isAdmin())
-                                        <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline m-0">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="action-circle-btn text-danger" 
-                                                    onclick="return confirm('تحذير أمني: هل أنت متأكد من حذف حساب الموظف ({{ $user->name }}) نهائياً من النظام؟ لا يمكن التراجع عن هذه الخطوة.')" 
-                                                    title="حذف الموظف نهائياً">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        </form>
+                                        <!-- تغيير كلمة المرور -->
+                                        <button type="button" class="action-circle-btn text-warning" data-bs-toggle="modal" data-bs-target="#changePasswordModal{{ $user->id }}" title="إعادة تعيين كلمة المرور">
+                                            <i class="fas fa-key"></i>
+                                        </button>
+
+                                        <!-- تجميد / تنشيط الحساب -->
+                                        @if($user->id !== auth()->id())
+                                            <form action="{{ route('admin.users.toggle-status', $user->id) }}" method="POST" class="d-inline m-0">
+                                                @csrf
+                                                <button type="submit" class="action-circle-btn {{ $user->is_active ? 'text-secondary' : 'text-success' }}" 
+                                                        title="{{ $user->is_active ? 'تجميد الحساب' : 'تنشيط الحساب' }}"
+                                                        onclick="return confirm('هل أنت متأكد من {{ $user->is_active ? 'تجميد' : 'تنشيط' }} حساب الموظف {{ $user->name }}؟')">
+                                                    <i class="fas fa-{{ $user->is_active ? 'ban' : 'check-circle' }}"></i>
+                                                </button>
+                                            </form>
+
+                                            <!-- حذف الحساب -->
+                                            @if(auth()->user()->isAdmin())
+                                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-inline m-0">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="action-circle-btn text-danger" 
+                                                        onclick="return confirm('تحذير أمني: هل أنت متأكد من حذف حساب الموظف ({{ $user->name }}) نهائياً من النظام؟ لا يمكن التراجع عن هذه الخطوة.')" 
+                                                        title="حذف الموظف نهائياً">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                            @endif
                                         @endif
                                     @endif
                                 </div>
@@ -453,9 +480,11 @@
                     </div>
                 </div>
                 <div class="modal-footer bg-white border-0 py-3 d-flex justify-content-between">
+                    @if(!$user->isProtectedSuperAdmin() || auth()->id() === $user->id)
                     <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-primary rounded-pill px-4">
                         <i class="fas fa-edit me-1"></i> تعديل هذه الصلاحيات
                     </a>
+                    @endif
                     <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">إغلاق</button>
                 </div>
             </div>
@@ -463,6 +492,7 @@
     </div>
 
     <!-- Modal تغيير كلمة المرور -->
+    @if(!$user->isProtectedSuperAdmin() || auth()->id() === $user->id)
     <div class="modal fade" id="changePasswordModal{{ $user->id }}" tabindex="-1" aria-labelledby="changePasswordModalLabel{{ $user->id }}" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
@@ -492,5 +522,6 @@
             </div>
         </div>
     </div>
+    @endif
 @endforeach
 @endsection

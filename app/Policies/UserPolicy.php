@@ -44,8 +44,13 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        // المدراء يمكنهم تحديث جميع المستخدمين
-        if ($user->role === 'admin') {
+        // حماية حساب مدير النظام المحمي (المالك): لا يمكن لأحد تعديله إلا المالك نفسه
+        if ($model->isProtectedSuperAdmin()) {
+            return $user->id === $model->id;
+        }
+
+        // المدراء ومن يملكون صلاحية إدارة المستخدمين يمكنهم تحديث باقي الحسابات
+        if ($user->role === 'admin' || $user->hasPermission('users.manage')) {
             return true;
         }
 
@@ -58,8 +63,13 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        // المدراء يمكنهم حذف المستخدمين (ما عدا المدراء الآخرين)
-        if ($user->role === 'admin' && $model->role !== 'admin') {
+        // حساب المالك محمي من الحذف نهائياً
+        if ($model->isProtectedSuperAdmin()) {
+            return false;
+        }
+
+        // المدراء يمكنهم حذف المستخدمين (ما عدا المدراء الآخرين وحساباتهم الشخصية)
+        if ($user->role === 'admin' && $model->role !== 'admin' && $user->id !== $model->id) {
             return true;
         }
 

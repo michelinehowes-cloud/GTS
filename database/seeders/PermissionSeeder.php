@@ -195,6 +195,12 @@ class PermissionSeeder extends Seeder
                 'module' => 'job_fair',
                 'description' => 'الوصول إلى لوحة المتابعة الحية وشاشات العرض المباشر للمعرض',
             ],
+            [
+                'name' => 'job_fair.visitors',
+                'display_name' => 'إدارة زوار المعرض (Visitor Register)',
+                'module' => 'job_fair',
+                'description' => 'متابعة تسجيلات الزوار، إصدار وتصدير التذاكر الرقمية، وإدارة نموذج ورابط التسجيل (QR)',
+            ],
 
             // 💼 وحدة فرص العمل والترشيحات
             [
@@ -305,7 +311,7 @@ class PermissionSeeder extends Seeder
             'partnerships.documents', 'jobs.view', 'jobs.manage', 'nominations.manage',
             'job_fair.view', 'job_fair.create', 'job_fair.edit', 'job_fair.delete',
             'job_fair.manage', 'job_fair.events', 'job_fair.projects', 'job_fair.sponsors',
-            'job_fair.registrations', 'job_fair.attendance', 'job_fair.live',
+            'job_fair.registrations', 'job_fair.attendance', 'job_fair.live', 'job_fair.visitors',
             'reports.view'
         ]);
 

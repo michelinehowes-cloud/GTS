@@ -88,8 +88,8 @@ class Permission extends Model
     {
         $all = self::all();
         
-        // ضمان وجود كافة صلاحيات معرض التوظيف (11 صلاحية) تلقائياً في أي بيئة تشغيل
-        if ($all->where('module', 'job_fair')->count() < 11) {
+        // ضمان وجود كافة صلاحيات معرض التوظيف (12 صلاحية) تلقائياً في أي بيئة تشغيل
+        if ($all->where('module', 'job_fair')->count() < 12) {
             try {
                 (new \Database\Seeders\PermissionSeeder())->run();
                 $all = self::all();

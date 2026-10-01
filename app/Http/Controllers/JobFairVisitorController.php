@@ -102,6 +102,13 @@ class JobFairVisitorController extends Controller
      */
     public function adminIndex(Request $request, JobFair $fair)
     {
+        if (auth()->check()) {
+            $u = auth()->user();
+            if (!$u->isAdmin() && !$u->hasAnyPermission(['job_fair.visitors', 'job_fair.registrations', 'job_fair.manage', 'job_fair.view']) && !in_array($u->role, ['partnership_officer'])) {
+                abort(403, 'غير مصرح لك باستعراض وإدارة زوار المعرض.');
+            }
+        }
+
         $query = JobFairVisitor::where('job_fair_id', $fair->id)->latest();
 
         // بحث بالاسم أو الهاتف أو البريد أو رقم التذكرة أو التخصص
@@ -174,6 +181,13 @@ class JobFairVisitorController extends Controller
      */
     public function toggleCheckIn(Request $request, JobFairVisitor $visitor)
     {
+        if (auth()->check()) {
+            $u = auth()->user();
+            if (!$u->isAdmin() && !$u->hasAnyPermission(['job_fair.visitors', 'job_fair.attendance', 'job_fair.manage']) && !in_array($u->role, ['partnership_officer'])) {
+                return response()->json(['error' => 'غير مصرح لك بتسجيل حضور الزوار.'], 403);
+            }
+        }
+
         $newAttended = !$visitor->attended;
         $visitor->update([
             'attended' => $newAttended,
@@ -197,6 +211,13 @@ class JobFairVisitorController extends Controller
      */
     public function export(JobFair $fair)
     {
+        if (auth()->check()) {
+            $u = auth()->user();
+            if (!$u->isAdmin() && !$u->hasAnyPermission(['job_fair.visitors', 'job_fair.registrations', 'job_fair.view']) && !in_array($u->role, ['partnership_officer'])) {
+                abort(403, 'غير مصرح لك بتصدير بيانات الزوار.');
+            }
+        }
+
         $visitors = JobFairVisitor::where('job_fair_id', $fair->id)->latest()->get();
         $fileName = 'visitors_' . Str::slug($fair->title) . '_' . date('Y-m-d') . '.csv';
 
@@ -257,6 +278,13 @@ class JobFairVisitorController extends Controller
      */
     public function destroy(JobFairVisitor $visitor)
     {
+        if (auth()->check()) {
+            $u = auth()->user();
+            if (!$u->isAdmin() && !$u->hasAnyPermission(['job_fair.visitors', 'job_fair.delete']) && !in_array($u->role, ['partnership_officer'])) {
+                abort(403, 'غير مصرح لك بحذف سجلات الزوار.');
+            }
+        }
+
         $name = $visitor->name;
         $visitor->delete();
 

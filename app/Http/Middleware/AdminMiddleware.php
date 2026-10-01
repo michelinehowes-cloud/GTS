@@ -48,7 +48,7 @@ class AdminMiddleware
         if ($request->is('admin/job-fair*') && ($user->canManageJobFair() || $user->hasAnyPermission([
             'job_fair.view', 'job_fair.create', 'job_fair.edit', 'job_fair.delete',
             'job_fair.manage', 'job_fair.events', 'job_fair.projects', 'job_fair.sponsors',
-            'job_fair.registrations', 'job_fair.attendance', 'job_fair.live',
+            'job_fair.registrations', 'job_fair.attendance', 'job_fair.live', 'job_fair.visitors',
             'partnerships.manage', 'companies.view'
         ]) || in_array($user->role, ['partnership_officer']))) {
             return $next($request);

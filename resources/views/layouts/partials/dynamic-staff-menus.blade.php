@@ -13,7 +13,7 @@
         @if(auth()->user()->canManageJobFair() || auth()->user()->hasAnyPermission([
             'job_fair.view', 'job_fair.create', 'job_fair.edit', 'job_fair.delete',
             'job_fair.manage', 'job_fair.events', 'job_fair.projects', 'job_fair.sponsors',
-            'job_fair.registrations', 'job_fair.attendance', 'job_fair.live'
+            'job_fair.registrations', 'job_fair.attendance', 'job_fair.live', 'job_fair.visitors'
         ]))
             <li class="nav-item menu-group">
                 <a class="nav-link {{ request()->routeIs('job-fair.*') ? 'active' : '' }}"
@@ -31,6 +31,12 @@
                         class="submenu-item {{ request()->routeIs('job-fair.tasks.*') ? 'active' : '' }}">
                         <i class="fas fa-tasks me-1 opacity-75"></i> مهام المعرض 2026
                     </a>
+                    @if(auth()->user()->isAdmin() || auth()->user()->hasAnyPermission(['job_fair.visitors', 'job_fair.registrations', 'job_fair.manage']))
+                        <a href="{{ route('job-fair.admin.visitors.index', 1) }}"
+                            class="submenu-item {{ request()->routeIs('job-fair.admin.visitors*') ? 'active' : '' }}">
+                            <i class="fas fa-id-badge me-1 opacity-75"></i> إدارة زوار وتذاكر المعرض
+                        </a>
+                    @endif
                     @if(auth()->user()->isAdmin() || auth()->user()->hasAnyPermission(['job_fair.attendance', 'job_fair.manage']))
                         <a href="{{ route('job-fair.admin.attendance', 1) }}"
                             class="submenu-item {{ request()->routeIs('job-fair.admin.attendance') ? 'active' : '' }}">

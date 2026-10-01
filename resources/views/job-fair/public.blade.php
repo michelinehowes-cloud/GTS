@@ -1386,7 +1386,14 @@
                 <div class="event-pills justify-content-lg-start justify-content-center">
                     <span class="event-pill">
                         <i class="fas fa-calendar-alt"></i>
-                        {{ \Carbon\Carbon::parse($fair->event_date)->locale('ar')->translatedFormat('j F Y') }}
+                        @php
+                            try {
+                                $eventDateText = \Carbon\Carbon::parse($fair->event_date)->locale('ar')->translatedFormat('j F Y');
+                            } catch (\Throwable $e) {
+                                $eventDateText = \Carbon\Carbon::parse($fair->event_date)->format('Y-m-d');
+                            }
+                        @endphp
+                        {{ $eventDateText }}
                     </span>
                     @if($fair->start_time)
                     <span class="event-pill">
@@ -1403,29 +1410,67 @@
 
                 {{-- Countdown --}}
                 @if($fair->is_upcoming)
+                @php
+                    $fairTime = $fair->start_time ?: '09:00:00';
+                    $eventTargetCarbon = \Carbon\Carbon::parse($fair->event_date->format('Y-m-d') . ' ' . substr($fairTime, 0, 5) . ':00');
+                    $diffSecs = max(0, \Carbon\Carbon::now()->diffInSeconds($eventTargetCarbon, false));
+                    $initD = floor($diffSecs / 86400);
+                    $initH = floor(($diffSecs % 86400) / 3600);
+                    $initM = floor(($diffSecs % 3600) / 60);
+                    $initS = $diffSecs % 60;
+                    $targetEpochMs = $eventTargetCarbon->timestamp * 1000;
+                @endphp
                 <div class="d-flex justify-content-lg-start justify-content-center">
                     <div dir="ltr" class="countdown-row justify-content-center m-0" id="countdown">
                         <div class="cd-box">
-                            <div class="cd-num" id="cd-d">--</div>
+                            <div class="cd-num" id="cd-d">{{ sprintf('%02d', $initD) }}</div>
                             <div class="cd-lbl">Days</div>
                         </div>
                         <div class="cd-sep">:</div>
                         <div class="cd-box">
-                            <div class="cd-num" id="cd-h">--</div>
+                            <div class="cd-num" id="cd-h">{{ sprintf('%02d', $initH) }}</div>
                             <div class="cd-lbl">Hours</div>
                         </div>
                         <div class="cd-sep">:</div>
                         <div class="cd-box">
-                            <div class="cd-num" id="cd-m">--</div>
+                            <div class="cd-num" id="cd-m">{{ sprintf('%02d', $initM) }}</div>
                             <div class="cd-lbl">Min</div>
                         </div>
                         <div class="cd-sep">:</div>
                         <div class="cd-box">
-                            <div class="cd-num" id="cd-s">--</div>
+                            <div class="cd-num" id="cd-s">{{ sprintf('%02d', $initS) }}</div>
                             <div class="cd-lbl">Sec</div>
                         </div>
                     </div>
                 </div>
+                <script>
+                (function() {
+                    var targetMs = {{ $targetEpochMs }};
+                    function pad(n) { return String(Math.max(0, n)).padStart(2, '0'); }
+                    function tick() {
+                        var diff = targetMs - Date.now();
+                        if (diff <= 0) {
+                            var el = document.getElementById('countdown');
+                            if (el) el.innerHTML = '<span class="badge bg-success p-2 fs-6">الحدث جارٍ الآن!</span>';
+                            return;
+                        }
+                        var d = Math.floor(diff / 86400000);
+                        var h = Math.floor((diff % 86400000) / 3600000);
+                        var m = Math.floor((diff % 3600000) / 60000);
+                        var s = Math.floor((diff % 60000) / 1000);
+                        var elD = document.getElementById('cd-d');
+                        var elH = document.getElementById('cd-h');
+                        var elM = document.getElementById('cd-m');
+                        var elS = document.getElementById('cd-s');
+                        if (elD) elD.textContent = pad(d);
+                        if (elH) elH.textContent = pad(h);
+                        if (elM) elM.textContent = pad(m);
+                        if (elS) elS.textContent = pad(s);
+                    }
+                    tick();
+                    setInterval(tick, 1000);
+                })();
+                </script>
                 @else
                 <div class="d-flex justify-content-lg-start justify-content-center mb-4">
                     <span style="background: rgba(16,185,129,0.2); border: 1.5px solid rgba(16,185,129,0.5); color: #6EE7B7; padding: 10px 28px; border-radius: 50px; font-weight: 700; font-size: 1rem">
@@ -2091,13 +2136,15 @@
             <div class="px-4 pt-3 pb-2 border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: rgba(2, 44, 94, 0.45);">
                 <div class="d-flex align-items-center gap-3 flex-wrap">
                     @if($fair && $fair->white_logo_url)
-                        <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" style="height: 38px; width: auto; max-width: 110px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
+                        <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" style="height: 44px; width: auto; max-width: 130px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
                     @else
-                        <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="معرض التوظيف" style="height: 38px; width: auto; max-width: 110px; object-fit: contain;">
+                        <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="معرض التوظيف" style="height: 44px; width: auto; max-width: 130px; object-fit: contain;">
                     @endif
-                    <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب وتأهيل الخريجين بجامعة طرابلس" style="height: 40px; width: auto;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
-                    <div class="bg-white px-2 py-1 rounded-2 shadow-sm d-flex align-items-center" style="height: 34px;" title="تنظيم: شركة الواحة للمعارض">
-                        <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 26px; width: auto; max-width: 90px; object-fit: contain;">
+                    <div style="width: 1px; height: 32px; background: rgba(255,255,255,0.2);"></div>
+                    <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب وتأهيل الخريجين بجامعة طرابلس" style="height: 44px; width: auto; max-width: 130px; object-fit: contain;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                    <div style="width: 1px; height: 32px; background: rgba(255,255,255,0.2);"></div>
+                    <div class="bg-white px-2 py-1 rounded-2 shadow-sm d-flex align-items-center" style="height: 44px;" title="تنظيم: شركة الواحة للمعارض">
+                        <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 36px; width: auto; max-width: 110px; object-fit: contain;">
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
@@ -2455,6 +2502,30 @@ function copyVisitorFormLink(btn) {
         prompt('انسخ الرابط:', url);
     });
 }
+
+// فتح نموذج تسجيل الزائر تلقائياً عند الدخول بالرابط الحامل لـ #visitor-register
+function checkVisitorModalHash() {
+    if (window.location.hash === '#visitor-register' || window.location.hash === '#register-visitor') {
+        const modalEl = document.getElementById('visitorRegisterModal');
+        if (modalEl) {
+            const openModal = function() {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.show();
+                }
+            };
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', openModal);
+            } else {
+                openModal();
+            }
+            setTimeout(openModal, 400);
+        }
+    }
+}
+window.addEventListener('DOMContentLoaded', checkVisitorModalHash);
+window.addEventListener('hashchange', checkVisitorModalHash);
+setTimeout(checkVisitorModalHash, 300);
 </script>
 </body>
 </html>

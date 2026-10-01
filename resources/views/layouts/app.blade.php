@@ -622,16 +622,6 @@
                         </li>
                     @endif
 
-                    <!-- إعدادات المساعد الذكي -->
-                    @if(auth()->user()->role == 'admin')
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.settings.ai*') ? 'active' : '' }}"
-                                href="{{ route('admin.settings.ai') }}">
-                                <i class="fas fa-robot"></i>
-                                إعدادات المساعد الذكي
-                            </a>
-                        </li>
-                    @endif
 
                     <!-- الأقسام الإدارية (للمسؤول فقط) -->
                     @if(auth()->user()->role == 'admin')

@@ -118,6 +118,16 @@
             box-shadow: 0 6px 22px rgba(245,158,11,0.5);
             color: white;
         }
+        .nav-btn-emerald {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16,185,129,0.35);
+        }
+        .nav-btn-emerald:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(16,185,129,0.5);
+            color: white;
+        }
 
         .hero-action-buttons {
             display: flex;
@@ -1323,6 +1333,11 @@
             <a href="{{ route('graduate.register') }}" class="nav-btn nav-btn-gold">
                 <i class="fas fa-user-plus me-1"></i>سجّل كخريج
             </a>
+            @if(isset($fair) && $fair && $fair->can_register)
+            <button type="button" class="nav-btn nav-btn-emerald" data-bs-toggle="modal" data-bs-target="#visitorRegisterModal">
+                <i class="fas fa-id-badge me-1"></i>تسجيل زائر
+            </button>
+            @endif
         @endauth
     </div>
 </nav>
@@ -1442,6 +1457,13 @@
                             </a>
                         @endif
                     @endauth
+
+                    @if($fair->can_register)
+                    <button type="button" class="nav-btn nav-btn-emerald" data-bs-toggle="modal" data-bs-target="#visitorRegisterModal">
+                        <i class="fas fa-id-badge"></i>
+                        <span>تسجيل زائر / ضيف</span>
+                    </button>
+                    @endif
                     <a href="{{ route('job-fair.public.companies', $fair->id) }}" class="nav-btn nav-btn-outline">
                         <i class="fas fa-building" style="color:var(--gold)"></i>
                         <span>دليل الشركات</span>
@@ -1484,6 +1506,11 @@
                     <div class="hero-stat">
                         <div class="hero-stat-num">{{ $stats['total_registered'] ?? 0 }}</div>
                         <div class="hero-stat-lbl">خريج مسجّل</div>
+                    </div>
+                    <div class="hero-stat-divider"></div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-num">{{ $stats['total_visitors'] ?? 0 }}</div>
+                        <div class="hero-stat-lbl">زائر مسجّل</div>
                     </div>
                     <div class="hero-stat-divider"></div>
                     <div class="hero-stat">
@@ -2054,6 +2081,128 @@
     </div>
 </div>
 
+{{-- ══════════════════════════════════
+     نافذة تسجيل زائر / ضيف بالمعرض
+══════════════════════════════════ --}}
+<div class="modal fade" id="visitorRegisterModal" tabindex="-1" aria-labelledby="visitorRegisterModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background: #0d1e38; border: 1px solid rgba(16,185,129,0.3); border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.85); color: #fff; overflow: hidden;">
+            <div class="modal-header border-0 pb-0 pt-4 px-4 position-relative">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff; box-shadow: 0 8px 20px rgba(16,185,129,0.35);">
+                        <i class="fas fa-id-badge"></i>
+                    </div>
+                    <div>
+                        <h4 class="modal-title fw-bold text-white mb-1" id="visitorRegisterModalLabel">تسجيل حضور زائر / ضيف</h4>
+                        <p class="text-white-50 small mb-0">أهلاً بك في ملتقى التوظيف ومعرض المشاريع — جامعة طرابلس. سجّل بياناتك للحصول على بطاقتك وتذكرتك الرقمية فوراً.</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <form id="visitorRegisterForm" action="{{ route('job-fair.visitor.register', $fair->id) }}" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    <div id="visitorFormAlert" class="alert d-none mb-3" role="alert"></div>
+
+                    <div class="row g-3">
+                        {{-- الاسم الكامل --}}
+                        <div class="col-md-6">
+                            <label class="form-label text-light small fw-bold"><i class="fas fa-user text-warning me-1"></i>الاسم الرباعي <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control text-white border-secondary rounded-3 py-2" style="background:#162b4c;" placeholder="الاسم الثلاثي أو الرباعي" required>
+                        </div>
+
+                        {{-- رقم الهاتف / واتساب --}}
+                        <div class="col-md-6">
+                            <label class="form-label text-light small fw-bold"><i class="fas fa-phone-alt text-warning me-1"></i>رقم الهاتف المحمول / الواتساب <span class="text-danger">*</span></label>
+                            <input type="tel" name="phone" class="form-control text-white border-secondary rounded-3 py-2" style="background:#162b4c;" placeholder="مثال: 0912345678" required dir="ltr">
+                        </div>
+
+                        {{-- البريد الإلكتروني --}}
+                        <div class="col-md-6">
+                            <label class="form-label text-light small fw-bold"><i class="fas fa-envelope text-warning me-1"></i>البريد الإلكتروني <span class="text-white-50 fw-normal">(اختياري)</span></label>
+                            <input type="email" name="email" class="form-control text-white border-secondary rounded-3 py-2" style="background:#162b4c;" placeholder="name@example.com" dir="ltr">
+                        </div>
+
+                        {{-- صفة الزائر --}}
+                        <div class="col-md-6">
+                            <label class="form-label text-light small fw-bold"><i class="fas fa-user-tag text-warning me-1"></i>صفة الزائر / الفئة <span class="text-danger">*</span></label>
+                            <select name="visitor_type" class="form-select text-white border-secondary rounded-3 py-2" style="background:#162b4c;" required>
+                                <option value="" disabled selected>-- اختر صفتك بالمعرض --</option>
+                                <option value="job_seeker">💼 خريج باحث عن عمل</option>
+                                <option value="student">🎓 طالب جامعي / ثانوي</option>
+                                <option value="company_rep">🏢 ممثل شركة / صاحب عمل</option>
+                                <option value="academic">👨‍🏫 عضو هيئة تدريس / أكاديمي</option>
+                                <option value="parent">👨‍👩‍👧 ولي أمر / عائلة خريج</option>
+                                <option value="general">✨ مهتم / زائر عام</option>
+                            </select>
+                        </div>
+
+                        {{-- المستوى التعليمي --}}
+                        <div class="col-md-6">
+                            <label class="form-label text-light small fw-bold"><i class="fas fa-graduation-cap text-warning me-1"></i>المستوى التعليمي</label>
+                            <select name="education_level" class="form-select text-white border-secondary rounded-3 py-2" style="background:#162b4c;">
+                                <option value="" selected>-- غير محدد --</option>
+                                <option value="ثانوي">ثانوي أو ما يعادله</option>
+                                <option value="دبلوم">دبلوم متوسط / عالي</option>
+                                <option value="بكالوريوس">بكالوريوس / ليسانس</option>
+                                <option value="ماجستير">ماجستير</option>
+                                <option value="دكتوراه">دكتوراه</option>
+                                <option value="أخرى">أخرى</option>
+                            </select>
+                        </div>
+
+                        {{-- التخصص --}}
+                        <div class="col-md-6">
+                            <label class="form-label text-light small fw-bold"><i class="fas fa-laptop-code text-warning me-1"></i>التخصص الأكاديمي أو المهني</label>
+                            <input type="text" name="specialization" class="form-control text-white border-secondary rounded-3 py-2" style="background:#162b4c;" placeholder="مثال: هندسة تقنية، إدارة، محاسبة...">
+                        </div>
+
+                        {{-- جهة العمل أو الكلية --}}
+                        <div class="col-md-6">
+                            <label class="form-label text-light small fw-bold"><i class="fas fa-university text-warning me-1"></i>الكلية أو جهة العمل الحالية</label>
+                            <input type="text" name="organization" class="form-control text-white border-secondary rounded-3 py-2" style="background:#162b4c;" placeholder="مثال: جامعة طرابلس، شركة...">
+                        </div>
+
+                        {{-- المدينة --}}
+                        <div class="col-md-6">
+                            <label class="form-label text-light small fw-bold"><i class="fas fa-map-marker-alt text-warning me-1"></i>المدينة / المنطقة</label>
+                            <input type="text" name="city" class="form-control text-white border-secondary rounded-3 py-2" style="background:#162b4c;" placeholder="مثال: طرابلس، جنزور، مصراتة...">
+                        </div>
+
+                        {{-- الهدف من الزيارة --}}
+                        <div class="col-12">
+                            <label class="form-label text-light small fw-bold"><i class="fas fa-bullseye text-warning me-1"></i>الهدف الأساسي من زيارة المعرض</label>
+                            <select name="visit_purpose" class="form-select text-white border-secondary rounded-3 py-2" style="background:#162b4c;">
+                                <option value="explore_jobs">البحث عن فرص عمل وتدريب بأجنحة الشركات</option>
+                                <option value="view_projects">الاطلاع على مشاريع تخرج الطلاب والابتكارات</option>
+                                <option value="networking">بناء علاقات وشراكات مهنية مع الشركات</option>
+                                <option value="attend_workshops">حضور ورش العمل والجلسات الحوارية</option>
+                                <option value="support_graduates">تشجيع ومساندة الخريجين</option>
+                                <option value="general_visit">زيارة استكشافية عامة للفعاليات</option>
+                            </select>
+                        </div>
+
+                        {{-- ملاحظات --}}
+                        <div class="col-12">
+                            <label class="form-label text-light small fw-bold"><i class="fas fa-comment-dots text-warning me-1"></i>ملاحظات أو استفسارات إضافية</label>
+                            <textarea name="notes" rows="2" class="form-control text-white border-secondary rounded-3 py-2" style="background:#162b4c;" placeholder="أي معلومات أو اهتمامات إضافية تود مشاركتها مع المنظمين..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 pt-0 px-4 pb-4 gap-2">
+                    <button type="button" class="btn btn-outline-secondary px-4 rounded-pill" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" id="btnSubmitVisitor" class="nav-btn nav-btn-emerald px-4 py-2 rounded-pill fw-bold border-0">
+                        <i class="fas fa-check-circle me-1"></i>
+                        <span>تأكيد التسجيل وإصدار التذكرة الرقمية</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @else
 
 {{-- NO FAIR STATE --}}
@@ -2212,6 +2361,68 @@ window.addEventListener('scroll', function() {
         } else {
             phoneChip.style.display = 'none';
         }
+    });
+})();
+
+// ── Visitor Registration Form Handling
+(function() {
+    const vForm = document.getElementById('visitorRegisterForm');
+    if (!vForm) return;
+
+    vForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const submitBtn = document.getElementById('btnSubmitVisitor');
+        const alertBox = document.getElementById('visitorFormAlert');
+        const originalBtnHtml = submitBtn.innerHTML;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> جاري إصدار بطاقة الدخول...';
+
+        alertBox.className = 'alert d-none mb-3';
+        alertBox.innerHTML = '';
+
+        const formData = new FormData(vForm);
+
+        fetch(vForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            return response.json().then(data => ({
+                status: response.status,
+                ok: response.ok,
+                data: data
+            }));
+        })
+        .then(res => {
+            if (res.ok && res.data.success) {
+                alertBox.className = 'alert alert-success d-block mb-3 fw-bold';
+                alertBox.innerHTML = '<i class="fas fa-check-circle me-1"></i> ' + (res.data.message || 'تم تسجيلك بنجاح! جاري توجيهك لبطاقتك الرقمية...');
+                setTimeout(() => {
+                    window.location.href = res.data.ticket_url;
+                }, 1000);
+            } else {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
+                alertBox.className = 'alert alert-danger d-block mb-3';
+                let errorMsg = res.data.message || 'حدث خطأ أثناء التسجيل، يرجى مراجعة البيانات المدخلة.';
+                if (res.data.errors) {
+                    const list = Object.values(res.data.errors).map(err => `<li>${err[0]}</li>`).join('');
+                    errorMsg += `<ul class="mb-0 mt-2 text-start">${list}</ul>`;
+                }
+                alertBox.innerHTML = errorMsg;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            // Fallback: submit standard form
+            vForm.submit();
+        });
     });
 })();
 </script>

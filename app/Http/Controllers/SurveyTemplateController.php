@@ -19,6 +19,18 @@ class SurveyTemplateController extends Controller
      */
     public function index(Request $request)
     {
+        // تأكد من وجود كافة القوالب الرسمية الـ 14 في أي بيئة تشغيل (بما فيها السيرفر الحي Railway)
+        if (SurveyTemplate::count() < 14) {
+            try {
+                (new \Database\Seeders\SurveyTemplateSeeder())->run();
+                SurveyTemplate::where('title', 'نموذج تقييم الشركاء (قسم التقييم والمتابعة)')->update(['category' => 'employment']);
+                SurveyTemplate::where('title', 'نموذج تقييم التنظيم والتنسيق للفريق الداخلي')->update(['category' => 'events']);
+                SurveyTemplate::where('title', 'استبيان آراء الزوار للفعاليات ومعرض التوظيف')->update(['category' => 'events']);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Auto-seeding SurveyTemplateSeeder: ' . $e->getMessage());
+            }
+        }
+
         $category = $request->query('category');
 
         $query = SurveyTemplate::with('creator')->latest();

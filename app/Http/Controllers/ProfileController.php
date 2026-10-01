@@ -79,6 +79,10 @@ class ProfileController extends Controller
 
         $user = Auth::user();
         
+        if ($user->isProtectedSuperAdmin()) {
+            return redirect()->back()->with('error', 'محاولة محظورة: لا يمكن حذف حساب مالك النظام الأساسي.');
+        }
+
         Auth::logout();
         $user->delete();
 

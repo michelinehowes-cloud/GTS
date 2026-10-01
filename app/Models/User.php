@@ -126,11 +126,19 @@ class User extends Authenticatable
     }
 
     /**
-     * هل هذا المستخدم هو مدير النظام الأساسي المحمي؟
+     * هل هذا المستخدم هو مدير النظام الأساسي المحمي (المالك)؟
      */
     public function isProtectedSuperAdmin(): bool
     {
-        return $this->id === 1 || ($this->role === 'admin' && $this->email === 'admin@tripoliuniversity.edu.ly');
+        return $this->role === 'admin' && ($this->id === 1 || $this->id === 2 || $this->email === 'admin@tripoliuniversity.edu.ly');
+    }
+
+    /**
+     * هل هذا المستخدم هو المالك الأساسي للنظام؟
+     */
+    public function isOwner(): bool
+    {
+        return $this->isProtectedSuperAdmin();
     }
 
     /**

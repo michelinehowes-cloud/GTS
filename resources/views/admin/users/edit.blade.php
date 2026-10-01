@@ -14,8 +14,8 @@
             ['label' => 'إدارة الموظفين والصلاحيات', 'url' => route('admin.users')],
             ['label' => 'تعديل: ' . $user->name]
         ]"
-        badge="الدور: {{ $user->role_name }}"
-        badgeIcon="fas fa-id-badge"
+        badge="{{ $user->isProtectedSuperAdmin() ? 'مالك النظام (المدير المحمي)' : 'الدور: ' . $user->role_name }}"
+        badgeIcon="{{ $user->isProtectedSuperAdmin() ? 'fas fa-crown text-warning' : 'fas fa-id-badge' }}"
     >
         <a href="{{ route('admin.users') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-4 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2">
             <i class="fas fa-arrow-right fs-6"></i>
@@ -135,10 +135,15 @@
                     </div>
                 </div>
 
-                @if($user->isAdmin())
+                @if($user->isProtectedSuperAdmin())
                 <div class="alert alert-warning border-0 rounded-3 mt-3">
                     <i class="fas fa-crown text-warning me-2"></i>
-                    <strong>ملاحظة للمدير العام:</strong> يتمتع هذا الحساب بصلاحيات غير مقيدة عبر كامل أجزاء المنظومة (Super Admin Bypass).
+                    <strong>حساب المالك الأساسي المحمي:</strong> يتمتع هذا الحساب بأعلى مستويات الحماية في المنظومة، ولا يمكن لأي مدير نظام آخر أو موظف تعديل أي من بياناتك أو سحب صلاحياتك الإدارية.
+                </div>
+                @elseif($user->isAdmin())
+                <div class="alert alert-info border-0 rounded-3 mt-3">
+                    <i class="fas fa-user-shield text-info me-2"></i>
+                    <strong>ملاحظة لمدير النظام:</strong> يتمتع هذا الحساب بصلاحيات إدارية كاملة عبر النظام.
                 </div>
                 @endif
             </div>

@@ -160,6 +160,12 @@ class UserController extends Controller
 
         $user = User::with('permissions')->findOrFail($id);
 
+        // حماية مشددة لمدير النظام المحمي (المالك):
+        // لا يستطيع مدير النظام الآخر أو أي شخص لديه صلاحية إدارة الموظفين والصلاحيات الدخول لصفحة تعديله، باستثناء المالك نفسه
+        if ($user->isProtectedSuperAdmin() && $currentUser->id !== $user->id) {
+            abort(403, 'غير مصرح: حساب مدير النظام المحمي (المالك) محمي بالكامل، ولا يمكن تعديل بياناته إلا من قبل المالك نفسه.');
+        }
+
         $availableRoles = User::getAvailableRoles();
         unset($availableRoles['graduate'], $availableRoles['company']);
 
@@ -181,6 +187,12 @@ class UserController extends Controller
 
         $user = User::with('permissions')->findOrFail($id);
 
+        // حماية مشددة لمدير النظام المحمي (المالك):
+        // لا يستطيع مدير النظام الآخر أو أي أحد تعديل أي من بيانات المالك المحمي، باستثناء المالك نفسه
+        if ($user->isProtectedSuperAdmin() && $currentUser->id !== $user->id) {
+            abort(403, 'غير مصرح: بيانات مدير النظام المحمي (المالك) محمية بشكل مشدد ولا يستطيع أي مستخدم آخر أو مدير نظام تعديلها باستثناء المالك نفسه.');
+        }
+
         $validRoles = ['admin', 'staff', 'training_coordinator', 'partnership_officer', 'career_guidance_officer', 'evaluation_followup', 'media_officer'];
 
         $request->validate([
@@ -198,9 +210,9 @@ class UserController extends Controller
             'role.required' => 'الدور الوظيفي مطلوب.',
         ]);
 
-        // حماية فائقة: منع تغيير دور أو تجميد مدير النظام الأساسي المحمي
-        if ($user->isProtectedSuperAdmin() && $request->role !== 'admin') {
-            return back()->with('error', 'إجراء محظور: لا يمكن تجريد حساب مدير النظام الأساسي من رتبة المدير العام (حماية أمنية مشددة).');
+        // حماية فائقة: تثبيت رتبة مدير النظام للمالك دون تغيير
+        if ($user->isProtectedSuperAdmin()) {
+            $request->merge(['role' => 'admin']);
         }
 
         // حماية فائقة: لا يمكن لغير المدير العام ترقية أحد لرتبة مدير عام
@@ -344,8 +356,9 @@ class UserController extends Controller
 
         $user = User::findOrFail($id);
 
-        if ($user->isProtectedSuperAdmin() && !$currentUser->isAdmin()) {
-            abort(403, 'لا يمكن تعديل كلمة مرور مدير النظام الأساسي إلا من قبل مدير النظام نفسه.');
+        // حماية مشددة: لا يمكن تغيير أو إعادة تعيين كلمة مرور مدير النظام المحمي (المالك) إلا من قبل المالك نفسه
+        if ($user->isProtectedSuperAdmin() && $currentUser->id !== $user->id) {
+            abort(403, 'غير مصرح: لا يمكن إعادة تعيين كلمة مرور مدير النظام المحمي (المالك) إلا من قبل المالك نفسه.');
         }
 
         $request->validate([

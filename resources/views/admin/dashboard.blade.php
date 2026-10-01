@@ -25,7 +25,7 @@
             <i class="fas fa-building fs-6"></i>
             <span>الشركات</span>
         </a>
-        <a href="{{ route('admin.users.index') }}" class="btn btn-outline-light text-white border-white border-opacity-50 fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+        <a href="{{ route('admin.users') }}" class="btn btn-outline-light text-white border-white border-opacity-50 fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
             <i class="fas fa-users fs-6"></i>
             <span>المستخدمين</span>
         </a>

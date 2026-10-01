@@ -24,9 +24,9 @@
                 <div class="d-flex align-items-center gap-2">
                     <!-- زر الرسائل المنزلق بالموبايل -->
                     <button type="button"
-                            class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none"
+                            class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none"
                             onclick="openMessagesDrawer()"
-                            style="width: 38px; height: 38px;"
+                            style="width: 38px; height: 38px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);"
                             title="صندوق الرسائل">
                         <i class="fas fa-envelope"></i>
                         @if($dashUnreadMessagesCount > 0)
@@ -36,9 +36,9 @@
 
                     <!-- زر الإشعارات المنزلق بالموبايل -->
                     <button type="button"
-                            class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none"
+                            class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none"
                             onclick="openNotificationsDrawer()"
-                            style="width: 38px; height: 38px;"
+                            style="width: 38px; height: 38px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);"
                             title="مركز الإشعارات">
                         <i class="fas fa-bell"></i>
                         @if($dashUnreadNotifsCount > 0)
@@ -47,7 +47,7 @@
                     </button>
 
                     <!-- زر القائمة الجانبية -->
-                    <button type="button" class="btn btn-sm btn-light bg-white bg-opacity-25 text-white rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 38px; height: 38px;" onclick="window.toggleSidebarFunc ? window.toggleSidebarFunc() : null">
+                    <button type="button" class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 38px; height: 38px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" onclick="window.toggleSidebarFunc ? window.toggleSidebarFunc() : null">
                         <i class="fas fa-bars"></i>
                     </button>
                 </div>

@@ -182,14 +182,14 @@
                     @php
                         $catClass = match($template->category) {
                             'training' => 'cat-training',
-                            'employment' => 'cat-employment',
-                            'events' => 'cat-events',
+                            'employment', 'partners' => 'cat-employment',
+                            'events', 'internal', 'visitors' => 'cat-events',
                             default => 'cat-general'
                         };
                         $catIcon = match($template->category) {
                             'training' => 'fa-graduation-cap',
-                            'employment' => 'fa-briefcase',
-                            'events' => 'fa-calendar-alt',
+                            'employment', 'partners' => 'fa-briefcase',
+                            'events', 'internal', 'visitors' => 'fa-calendar-alt',
                             default => 'fa-poll'
                         };
                     @endphp

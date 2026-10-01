@@ -1,151 +1,108 @@
 @extends('layouts.app')
 
-@section('title', 'إدارة وسجل زوار المعرض — ' . $fair->title)
+@section('title', 'سجل وإدارة زوار المعرض - ' . $fair->title)
 
 @push('styles')
 <style>
-    .visitors-page-wrapper {
-        background-color: #f8f9fa;
-        min-height: calc(100vh - 100px);
+    .job-fair-detail-hero {
+        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%) !important;
+        color: #ffffff !important;
+        border-radius: 18px;
+        padding: 1.5rem 1.75rem;
+        box-shadow: 0 8px 24px rgba(30, 58, 138, 0.18);
+        position: relative;
+        overflow: visible !important;
+        border-bottom: 3px solid #f59e0b;
     }
-    
-    /* شريط الشعارات الرسمية المتناسق */
-    .partner-logos-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
+
+    .fair-logo-badge {
+        width: 80px;
+        height: 80px;
         border-radius: 14px;
-        padding: 0.85rem 1.5rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
+        background: #ffffff;
+        padding: 5px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+        object-fit: contain;
+        flex-shrink: 0;
+        border: 2px solid rgba(255, 255, 255, 0.95);
     }
-    .partner-logos-group {
-        display: flex;
+
+    .partner-mini-badge {
+        height: 44px;
+        padding: 4px 10px;
+        border-radius: 10px;
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        display: inline-flex;
         align-items: center;
-        gap: 1.5rem;
-        flex-wrap: wrap;
     }
-    .partner-logos-group img {
-        height: 42px;
-        width: auto;
-        max-width: 130px;
+    .partner-mini-badge img {
+        height: 34px;
+        max-width: 105px;
         object-fit: contain;
     }
-    .partner-logo-divider {
-        width: 1px;
-        height: 32px;
-        background: #e2e8f0;
+
+    .fair-actions-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+        align-items: center;
     }
 
-    /* بطاقات الإحصائيات المتناسقة كلياً مع لوحة الحضور */
-    .stat-kpi-card {
-        background: #ffffff;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        padding: 1.25rem 1.4rem;
-        height: 100%;
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    .fair-btn-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.55rem 0.95rem;
+        font-size: 0.84rem;
+        font-weight: 600;
+        border-radius: 50rem;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
     }
-    .stat-kpi-card:hover {
+    .fair-btn-action:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-    .stat-border-primary { border-right: 4px solid #2563eb; }
-    .stat-border-success { border-right: 4px solid #10b981; }
-    .stat-border-info    { border-right: 4px solid #06b6d4; }
-    .stat-border-warning { border-right: 4px solid #f59e0b; }
-
-    .stat-kpi-num {
-        font-size: 2rem;
-        font-weight: 800;
-        color: #1e293b;
-        line-height: 1.2;
-    }
-    .stat-kpi-lbl {
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: #64748b;
-        margin-bottom: 0.35rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
     }
 
-    /* صندوق البحث والفلاتر النظيف */
-    .filter-white-box {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 1.25rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    .fair-btn-glass {
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(4px);
+    }
+    .fair-btn-glass:hover {
+        background: rgba(255, 255, 255, 0.28);
+        color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.5);
     }
 
-    .pill-filter-item {
+    .pill-filter {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 0.35rem 0.85rem;
+        padding: 0.35rem 0.9rem;
         border-radius: 50px;
         font-size: 0.82rem;
         font-weight: 600;
         color: #475569;
-        background: #f1f5f9;
+        background: #f8fafc;
         border: 1px solid #e2e8f0;
         text-decoration: none;
         transition: all 0.15s;
     }
-    .pill-filter-item:hover {
-        background: #e2e8f0;
+    .pill-filter:hover {
+        background: #f1f5f9;
         color: #1e293b;
     }
-    .pill-filter-item.active {
+    .pill-filter.active {
         background: #2563eb;
-        color: #ffffff;
+        color: #ffffff !important;
         border-color: #2563eb;
     }
 
-    /* جدول الزوار النظيف والمريح للعين */
-    .visitors-table-card {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 14px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        overflow: hidden;
-    }
-    .visitors-table thead th {
-        background: #f8fafc;
-        color: #475569;
-        font-weight: 700;
-        font-size: 0.82rem;
-        border-bottom: 1px solid #e2e8f0;
-        padding: 0.9rem 1rem;
-        white-space: nowrap;
-    }
-    .visitors-table tbody td {
-        padding: 0.85rem 1rem;
-        border-bottom: 1px solid #f1f5f9;
-        color: #334155;
-        font-size: 0.88rem;
-    }
-    .visitors-table tbody tr:hover td {
-        background: #f8fafc;
-    }
-
-    .ticket-code-badge {
-        font-family: monospace;
-        font-weight: 700;
-        background: #eff6ff;
-        color: #1d4ed8;
-        border: 1px solid #bfdbfe;
-        padding: 3px 8px;
-        border-radius: 6px;
-        font-size: 0.82rem;
-    }
-
-    .btn-checkin-toggle {
+    .checkin-btn {
         border-radius: 50px;
         padding: 4px 12px;
         font-size: 0.78rem;
@@ -154,23 +111,22 @@
         cursor: pointer;
         transition: all 0.2s;
     }
-    .btn-checkin-toggle.attended {
+    .checkin-btn.attended {
         background: #dcfce7;
         color: #15803d;
         border-color: #bbf7d0;
     }
-    .btn-checkin-toggle.absent {
+    .checkin-btn.absent {
         background: #f1f5f9;
         color: #64748b;
         border-color: #cbd5e1;
     }
-    .btn-checkin-toggle.absent:hover {
+    .checkin-btn.absent:hover {
         background: #dcfce7;
         color: #15803d;
         border-color: #86efac;
     }
 
-    /* Print layout */
     @media print {
         body * { visibility: hidden; }
         #gatePosterPrintArea, #gatePosterPrintArea * { visibility: visible; }
@@ -188,164 +144,155 @@
 @endpush
 
 @section('content')
-<div class="visitors-page-wrapper py-4" dir="rtl">
-    <div class="container-fluid px-4">
+<div class="container-fluid py-4" dir="rtl">
 
-        {{-- 1. شريط الشعارات الرسمية الثلاثة (المعرض + المكتب والجامعة + شركة الواحة) --}}
-        <div class="partner-logos-card">
-            <div class="partner-logos-group">
-                <!-- شعار المعرض -->
-                <div title="المعرض الرسمي">
-                    @if($fair && $fair->logo_url)
-                        <img src="{{ $fair->logo_url }}" alt="{{ $fair->title }}" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo.png') }}';">
-                    @else
-                        <img src="{{ asset('images/job_fair_logo.png') }}" alt="معرض التوظيف">
-                    @endif
-                </div>
-
-                <div class="partner-logo-divider d-none d-sm-block"></div>
-
-                <!-- شعار مكتب تدريب وتأهيل الخريجين بجامعة طرابلس -->
-                <div title="مكتب تدريب وتأهيل الخريجين — جامعة طرابلس">
-                    <img src="{{ asset('images/gto_logo.jpg') }}" alt="مكتب تدريب وتأهيل الخريجين" onerror="this.src='{{ asset('images/logo.jpg') }}'">
-                </div>
-
-                <div class="partner-logo-divider d-none d-sm-block"></div>
-
-                <!-- شعار شركة الواحة لتنظيم المعارض والمؤتمرات -->
-                <div title="تنظيم: شركة الواحة لتنظيم المعارض والمؤتمرات">
-                    <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات">
-                </div>
-            </div>
-
-            <!-- معلومات الفعالية السريعة -->
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <span class="badge bg-light text-dark border">
-                    <i class="fas fa-calendar-alt text-primary me-1"></i>{{ $fair->event_date ? $fair->event_date->format('Y-m-d') : '2026' }}
-                </span>
-                <span class="badge bg-light text-dark border">
-                    <i class="fas fa-map-marker-alt text-danger me-1"></i>{{ $fair->location ?? 'جامعة طرابلس' }}
-                </span>
-                <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-arrow-right me-1"></i> العودة لتفاصيل المعرض
+    {{-- ══════════════════════════════════
+         HERO HEADER (مطابق تماماً لصفحة المعرض)
+    ══════════════════════════════════ --}}
+    <div class="job-fair-detail-hero mb-4">
+        <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
+            
+            <div class="d-flex align-items-center gap-3">
+                <!-- زر العودة -->
+                <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="btn btn-outline-light rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px; background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.3);" title="العودة لتفاصيل المعرض">
+                    <i class="fas fa-arrow-right"></i>
                 </a>
-            </div>
-        </div>
 
-        {{-- 2. رأس الصفحة وشريط الإجراءات --}}
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-            <div>
-                <h1 class="h3 fw-bold text-gray-800 mb-1">
-                    <i class="fas fa-id-badge text-primary me-2"></i>
-                    سجل وإحصائيات زوار وضيوف المعرض
-                </h1>
-                <p class="text-muted small mb-0">
-                    {{ $fair->title }} — تسجيل الزوار ومتابعة الحضور عند البوابات بالتعاون مع شركة الواحة
-                </p>
+                <!-- شعار المعرض البارز -->
+                <img src="{{ $fair->logo_url }}" alt="{{ $fair->title }}" class="fair-logo-badge" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo.png') }}';">
+
+                <div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <h2 class="fw-bold mb-0 fs-4 text-white">
+                            سجل وإدارة زوار المعرض
+                        </h2>
+                        @php
+                            $statusColors = [
+                                'draft' => ['bg' => 'bg-secondary', 'label' => 'مسودة'],
+                                'published' => ['bg' => 'bg-success', 'label' => 'منشور ومتاح'],
+                                'ongoing' => ['bg' => 'bg-warning text-dark', 'label' => 'جارٍ الآن 🟢'],
+                                'completed' => ['bg' => 'bg-info text-dark', 'label' => 'منتهي']
+                            ];
+                            $st = $statusColors[$fair->status] ?? ['bg' => 'bg-light text-dark', 'label' => $fair->status];
+                        @endphp
+                        <span class="badge {{ $st['bg'] }} rounded-pill px-2.5 py-1 small fw-bold">
+                            {{ $st['label'] }}
+                        </span>
+                    </div>
+
+                    <p class="text-white-50 small mb-1 mt-0.5">
+                        {{ $fair->title }} — متابعة الحضور عند البوابات، تسجيل الزوار وإصدار التذاكر الرقمية
+                    </p>
+
+                    <!-- شعارات الشركاء في الهيدر -->
+                    <div class="d-flex align-items-center flex-wrap gap-2 mt-2">
+                        <div class="partner-mini-badge" title="مكتب تدريب وتأهيل الخريجين — جامعة طرابلس">
+                            <img src="{{ asset('images/gto_logo.jpg') }}" alt="مكتب تدريب الخريجين" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                        </div>
+                        <div class="partner-mini-badge" title="تنظيم: شركة الواحة لتنظيم المعارض والمؤتمرات">
+                            <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة للمعارض">
+                        </div>
+                        <span class="text-white-50 small ms-2"><i class="fas fa-calendar-alt me-1 text-warning"></i>{{ $fair->event_date->format('Y-m-d') }}</span>
+                        @if($fair->location)
+                        <span class="text-white-50 small"><i class="fas fa-map-marker-alt me-1 text-danger"></i>{{ $fair->location }}</span>
+                        @endif
+                    </div>
+                </div>
             </div>
 
-            <div class="d-flex align-items-center gap-2 flex-wrap">
+            <!-- أزرار الإجراءات الموحدة -->
+            <div class="fair-actions-toolbar">
                 <!-- زر تسجيل زائر جديد -->
-                <button type="button" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#adminVisitorRegisterModal">
-                    <i class="fas fa-user-plus me-1"></i> تسجيل زائر جديد
+                <button type="button" class="fair-btn-action btn btn-warning text-dark shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#adminVisitorRegisterModal">
+                    <i class="fas fa-user-plus"></i>
+                    <span>تسجيل زائر</span>
                 </button>
 
                 <!-- زر QR كود التسجيل -->
-                <button type="button" class="btn btn-outline-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#registrationQrModal">
-                    <i class="fas fa-qrcode me-1"></i> رمز الـ QR للتسجيل
+                <button type="button" class="fair-btn-action btn btn-info text-white shadow-sm" style="background: linear-gradient(135deg, #0284c7, #0369a1); border: none;" data-bs-toggle="modal" data-bs-target="#registrationQrModal">
+                    <i class="fas fa-qrcode"></i>
+                    <span>رمز الـ QR</span>
                 </button>
 
-                <!-- زر تصدير إكسيل -->
-                <a href="{{ route('job-fair.admin.visitors.export', $fair->id) }}" class="btn btn-outline-success shadow-sm">
-                    <i class="fas fa-file-excel me-1"></i> تصدير (CSV)
+                <!-- تصدير Excel -->
+                <a href="{{ route('job-fair.admin.visitors.export', $fair->id) }}" class="fair-btn-action fair-btn-glass">
+                    <i class="fas fa-file-excel text-success"></i>
+                    <span>تصدير CSV</span>
                 </a>
 
-                <!-- زر معاينة المعرض -->
-                <a href="{{ route('job-fair.public', $fair->id) }}" target="_blank" class="btn btn-outline-secondary shadow-sm">
-                    <i class="fas fa-external-link-alt me-1"></i> معاينة المعرض
+                <!-- صفحة المعرض العامة -->
+                <a href="{{ route('job-fair.public', $fair->id) }}" class="fair-btn-action fair-btn-glass" target="_blank" title="الصفحة العامة للفعالية">
+                    <i class="fas fa-globe text-info"></i>
+                    <span>صفحة المعرض</span>
+                </a>
+
+                <!-- العودة لصفحة تفاصيل المعرض -->
+                <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="fair-btn-action fair-btn-glass">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>تفاصيل المعرض</span>
                 </a>
             </div>
+
         </div>
+    </div>
 
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
-                <i class="fas fa-check-circle me-1"></i> {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
+    @if(session('success'))
+    <div class="alert alert-success rounded-3 border-0 shadow-sm mb-4">
+        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+    </div>
+    @endif
 
-        {{-- 3. بطاقات الإحصائيات (بنفس أسلوب لوحة المتابعة اللحظية الهادئة) --}}
-        <div class="row g-3 mb-4">
-            <!-- إجمالي الزوار -->
-            <div class="col-xl-3 col-sm-6">
-                <div class="stat-kpi-card stat-border-primary">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="stat-kpi-lbl">إجمالي الزوار المسجلين</div>
-                            <div class="stat-kpi-num">{{ number_format($stats['total'] ?? 0) }}</div>
-                        </div>
-                        <div class="text-primary opacity-25 fs-1">
-                            <i class="fas fa-users"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    {{-- ══════════════════════════════════
+         بطاقات الإحصائيات (باستخدام stat-card الموحد)
+    ══════════════════════════════════ --}}
+    <div class="row g-2 g-md-3 mb-4">
+        @include('components.stat-card', [
+            'col' => 'col-6 col-md-4 col-xl',
+            'title' => 'إجمالي الزوار',
+            'value' => $stats['total'] ?? 0,
+            'icon' => 'fas fa-id-badge',
+            'color' => 'primary',
+            'description' => 'المسجلين في قاعدة البيانات'
+        ])
+        @include('components.stat-card', [
+            'col' => 'col-6 col-md-4 col-xl',
+            'title' => 'حضروا المعرض',
+            'value' => $stats['attended'] ?? 0,
+            'icon' => 'fas fa-user-check',
+            'color' => 'success',
+            'description' => ($stats['attendance_rate'] ?? 0) . '% نسبة الحضور'
+        ])
+        @include('components.stat-card', [
+            'col' => 'col-6 col-md-4 col-xl',
+            'title' => 'باحثون عن عمل وطلاب',
+            'value' => ($stats['job_seekers'] ?? 0) + ($stats['students'] ?? 0),
+            'icon' => 'fas fa-user-graduate',
+            'color' => 'info',
+            'description' => 'الخريجون والطلبة'
+        ])
+        @include('components.stat-card', [
+            'col' => 'col-6 col-md-4 col-xl',
+            'title' => 'ممثلو شركات وأعمال',
+            'value' => $stats['company_reps'] ?? 0,
+            'icon' => 'fas fa-building',
+            'color' => 'warning',
+            'description' => 'أصحاب العمل والمؤسسات'
+        ])
+        @include('components.stat-card', [
+            'col' => 'col-6 col-md-4 col-xl',
+            'title' => 'أكاديميون وأولياء أمور',
+            'value' => ($stats['academics'] ?? 0) + ($stats['parents'] ?? 0) + ($stats['general'] ?? 0),
+            'icon' => 'fas fa-users',
+            'color' => 'secondary',
+            'description' => 'الضيوف والزوار العامين'
+        ])
+    </div>
 
-            <!-- الحضور الفعلي عند البوابات -->
-            <div class="col-xl-3 col-sm-6">
-                <div class="stat-kpi-card stat-border-success">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="stat-kpi-lbl">الحضور الفعلي (Check-ins)</div>
-                            <div class="stat-kpi-num text-success">
-                                {{ number_format($stats['attended'] ?? 0) }}
-                                <span class="fs-6 text-muted fw-normal">({{ $stats['attendance_rate'] ?? 0 }}%)</span>
-                            </div>
-                        </div>
-                        <div class="text-success opacity-25 fs-1">
-                            <i class="fas fa-user-check"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- الطلاب والخريجون -->
-            <div class="col-xl-3 col-sm-6">
-                <div class="stat-kpi-card stat-border-info">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="stat-kpi-lbl">باحثون عن عمل وطلاب</div>
-                            <div class="stat-kpi-num text-info">
-                                {{ number_format(($stats['job_seekers'] ?? 0) + ($stats['students'] ?? 0)) }}
-                            </div>
-                        </div>
-                        <div class="text-info opacity-25 fs-1">
-                            <i class="fas fa-user-graduate"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ممثلو الشركات وأصحاب الأعمال -->
-            <div class="col-xl-3 col-sm-6">
-                <div class="stat-kpi-card stat-border-warning">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="stat-kpi-lbl">ممثلو شركات وأصحاب أعمال</div>
-                            <div class="stat-kpi-num text-warning">
-                                {{ number_format($stats['company_reps'] ?? 0) }}
-                            </div>
-                        </div>
-                        <div class="text-warning opacity-25 fs-1">
-                            <i class="fas fa-building"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- 4. صندوق البحث والفلاتر النظيف --}}
-        <div class="filter-white-box">
+    {{-- ══════════════════════════════════
+         صندوق البحث والفلاتر
+    ══════════════════════════════════ --}}
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-3 p-md-4">
             <form method="GET" action="{{ route('job-fair.admin.visitors.index', $fair->id) }}" id="visitorsFilterForm">
                 <div class="row g-2 align-items-center">
                     <!-- حقل البحث -->
@@ -391,165 +338,166 @@
                 <!-- أزرار الفئات السريعة -->
                 <div class="d-flex align-items-center gap-2 flex-wrap mt-3 pt-3 border-top">
                     <span class="text-muted small fw-bold">الفئات:</span>
-                    <a href="{{ route('job-fair.admin.visitors.index', ['fair' => $fair->id] + request()->except('type', 'page')) }}" class="pill-filter-item {{ !request('type') ? 'active' : '' }}">
+                    <a href="{{ route('job-fair.admin.visitors.index', ['fair' => $fair->id] + request()->except('type', 'page')) }}" class="pill-filter {{ !request('type') ? 'active' : '' }}">
                         الكل ({{ $stats['total'] ?? 0 }})
                     </a>
-                    <a href="{{ route('job-fair.admin.visitors.index', ['fair' => $fair->id, 'type' => 'job_seeker'] + request()->except('page', 'type')) }}" class="pill-filter-item {{ request('type') === 'job_seeker' ? 'active' : '' }}">
+                    <a href="{{ route('job-fair.admin.visitors.index', ['fair' => $fair->id, 'type' => 'job_seeker'] + request()->except('page', 'type')) }}" class="pill-filter {{ request('type') === 'job_seeker' ? 'active' : '' }}">
                         💼 باحث عن عمل ({{ $stats['job_seekers'] ?? 0 }})
                     </a>
-                    <a href="{{ route('job-fair.admin.visitors.index', ['fair' => $fair->id, 'type' => 'student'] + request()->except('page', 'type')) }}" class="pill-filter-item {{ request('type') === 'student' ? 'active' : '' }}">
+                    <a href="{{ route('job-fair.admin.visitors.index', ['fair' => $fair->id, 'type' => 'student'] + request()->except('page', 'type')) }}" class="pill-filter {{ request('type') === 'student' ? 'active' : '' }}">
                         🎓 طالب ({{ $stats['students'] ?? 0 }})
                     </a>
-                    <a href="{{ route('job-fair.admin.visitors.index', ['fair' => $fair->id, 'type' => 'company_rep'] + request()->except('page', 'type')) }}" class="pill-filter-item {{ request('type') === 'company_rep' ? 'active' : '' }}">
+                    <a href="{{ route('job-fair.admin.visitors.index', ['fair' => $fair->id, 'type' => 'company_rep'] + request()->except('page', 'type')) }}" class="pill-filter {{ request('type') === 'company_rep' ? 'active' : '' }}">
                         🏢 ممثل شركة ({{ $stats['company_reps'] ?? 0 }})
                     </a>
-                    <a href="{{ route('job-fair.admin.visitors.index', ['fair' => $fair->id, 'type' => 'academic'] + request()->except('page', 'type')) }}" class="pill-filter-item {{ request('type') === 'academic' ? 'active' : '' }}">
+                    <a href="{{ route('job-fair.admin.visitors.index', ['fair' => $fair->id, 'type' => 'academic'] + request()->except('page', 'type')) }}" class="pill-filter {{ request('type') === 'academic' ? 'active' : '' }}">
                         👨‍🏫 أكاديمي ({{ $stats['academics'] ?? 0 }})
                     </a>
-                    <a href="{{ route('job-fair.admin.visitors.index', ['fair' => $fair->id, 'type' => 'parent'] + request()->except('page', 'type')) }}" class="pill-filter-item {{ request('type') === 'parent' ? 'active' : '' }}">
+                    <a href="{{ route('job-fair.admin.visitors.index', ['fair' => $fair->id, 'type' => 'parent'] + request()->except('page', 'type')) }}" class="pill-filter {{ request('type') === 'parent' ? 'active' : '' }}">
                         👨‍👩‍👧 ولي أمر ({{ $stats['parents'] ?? 0 }})
                     </a>
-                    <a href="{{ route('job-fair.admin.visitors.index', ['fair' => $fair->id, 'type' => 'general'] + request()->except('page', 'type')) }}" class="pill-filter-item {{ request('type') === 'general' ? 'active' : '' }}">
+                    <a href="{{ route('job-fair.admin.visitors.index', ['fair' => $fair->id, 'type' => 'general'] + request()->except('page', 'type')) }}" class="pill-filter {{ request('type') === 'general' ? 'active' : '' }}">
                         ✨ زائر عام ({{ $stats['general'] ?? 0 }})
                     </a>
                 </div>
             </form>
         </div>
+    </div>
 
-        {{-- 5. جدول الزوار النظيف --}}
-        <div class="visitors-table-card">
-            <div class="table-responsive">
-                <table class="table visitors-table align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th class="text-center" style="width: 50px;">#</th>
-                            <th>رقم التذكرة</th>
-                            <th>اسم الزائر</th>
-                            <th>الصفة / الفئة</th>
-                            <th>الهاتف والبريد</th>
-                            <th>التخصص أو الجهة</th>
-                            <th>المدينة</th>
-                            <th class="text-center">تسجيل الدخول (Check-in)</th>
-                            <th class="text-center" style="width: 140px;">الإجراءات والـ QR</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($visitors as $index => $visitor)
-                            <tr id="visitor-row-{{ $visitor->id }}">
-                                <td class="text-center text-muted small">{{ $visitors->firstItem() + $index }}</td>
-                                
-                                {{-- رقم التذكرة --}}
-                                <td>
-                                    <span class="ticket-code-badge" onclick="copyText('{{ $visitor->ticket_number }}', 'تم نسخ رقم التذكرة!')" style="cursor: pointer;" title="انقر للنسخ">
-                                        {{ $visitor->ticket_number }}
-                                    </span>
-                                </td>
+    {{-- ══════════════════════════════════
+         جدول سجل الزوار
+    ══════════════════════════════════ --}}
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="text-center" style="width: 50px;">#</th>
+                        <th>رقم التذكرة</th>
+                        <th>اسم الزائر</th>
+                        <th>الصفة / الفئة</th>
+                        <th>الهاتف والبريد</th>
+                        <th>التخصص أو الجهة</th>
+                        <th>المدينة</th>
+                        <th class="text-center">تسجيل الدخول (Check-in)</th>
+                        <th class="text-center" style="width: 140px;">الإجراءات والـ QR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($visitors as $index => $visitor)
+                        <tr id="visitor-row-{{ $visitor->id }}">
+                            <td class="text-center text-muted small">{{ $visitors->firstItem() + $index }}</td>
+                            
+                            {{-- رقم التذكرة --}}
+                            <td>
+                                <span class="badge bg-light text-primary border" onclick="copyText('{{ $visitor->ticket_number }}', 'تم نسخ رقم التذكرة!')" style="cursor: pointer; font-family: monospace;" title="انقر للنسخ">
+                                    {{ $visitor->ticket_number }}
+                                </span>
+                            </td>
 
-                                {{-- اسم الزائر --}}
-                                <td>
-                                    <div class="fw-bold text-dark">{{ $visitor->name }}</div>
-                                    <small class="text-muted"><i class="fas fa-clock me-1"></i>{{ $visitor->created_at->diffForHumans() }}</small>
-                                </td>
+                            {{-- اسم الزائر --}}
+                            <td>
+                                <div class="fw-bold text-dark">{{ $visitor->name }}</div>
+                                <small class="text-muted"><i class="fas fa-clock me-1"></i>{{ $visitor->created_at->diffForHumans() }}</small>
+                            </td>
 
-                                {{-- الفئة --}}
-                                <td>
-                                    <span class="badge bg-light text-dark border">
-                                        {{ $visitor->visitor_type_label }}
-                                    </span>
-                                </td>
+                            {{-- الفئة --}}
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    {{ $visitor->visitor_type_label }}
+                                </span>
+                            </td>
 
-                                {{-- الهاتف والبريد --}}
-                                <td>
-                                    <div dir="ltr" style="text-align: right;">
-                                        <a href="tel:{{ $visitor->phone }}" class="text-decoration-none fw-semibold text-primary small">
-                                            {{ $visitor->phone }}
-                                        </a>
+                            {{-- الهاتف والبريد --}}
+                            <td>
+                                <div dir="ltr" style="text-align: right;">
+                                    <a href="tel:{{ $visitor->phone }}" class="text-decoration-none fw-semibold text-primary small">
+                                        {{ $visitor->phone }}
+                                    </a>
+                                </div>
+                                @if($visitor->email)
+                                    <div class="text-muted small text-truncate" style="max-width: 160px;" dir="ltr">
+                                        {{ $visitor->email }}
                                     </div>
-                                    @if($visitor->email)
-                                        <div class="text-muted small text-truncate" style="max-width: 160px;" dir="ltr">
-                                            {{ $visitor->email }}
-                                        </div>
-                                    @endif
-                                </td>
+                                @endif
+                            </td>
 
-                                {{-- التخصص والجهة --}}
-                                <td>
-                                    <div class="small fw-semibold text-dark">{{ $visitor->specialization ?: ($visitor->education_level_label ?: '—') }}</div>
-                                    @if($visitor->organization)
-                                        <small class="text-muted">{{ $visitor->organization }}</small>
-                                    @endif
-                                </td>
+                            {{-- التخصص والجهة --}}
+                            <td>
+                                <div class="small fw-semibold text-dark">{{ $visitor->specialization ?: ($visitor->education_level_label ?: '—') }}</div>
+                                @if($visitor->organization)
+                                    <small class="text-muted">{{ $visitor->organization }}</small>
+                                @endif
+                            </td>
 
-                                {{-- المدينة --}}
-                                <td>
-                                    <span class="text-muted small">{{ $visitor->city ?: '—' }}</span>
-                                </td>
+                            {{-- المدينة --}}
+                            <td>
+                                <span class="text-muted small">{{ $visitor->city ?: '—' }}</span>
+                            </td>
 
-                                {{-- الحضور عند البوابات --}}
-                                <td class="text-center">
-                                    <button type="button" 
-                                            class="btn-checkin-toggle {{ $visitor->attended ? 'attended' : 'absent' }}"
-                                            onclick="toggleVisitorCheckIn({{ $visitor->id }}, this)">
-                                        <i class="fas {{ $visitor->attended ? 'fa-check-circle' : 'fa-circle' }} me-1"></i>
-                                        <span>{{ $visitor->attended ? 'حاضر' : 'تسجيل حضور' }}</span>
+                            {{-- الحضور عند البوابات --}}
+                            <td class="text-center">
+                                <button type="button" 
+                                        class="checkin-btn {{ $visitor->attended ? 'attended' : 'absent' }}"
+                                        onclick="toggleVisitorCheckIn({{ $visitor->id }}, this)">
+                                    <i class="fas {{ $visitor->attended ? 'fa-check-circle' : 'fa-circle' }} me-1"></i>
+                                    <span>{{ $visitor->attended ? 'حاضر' : 'تسجيل حضور' }}</span>
+                                </button>
+                                @if($visitor->check_in_at)
+                                    <div class="text-muted mt-1" style="font-size: 0.72rem;">
+                                        {{ $visitor->check_in_at->format('h:i A') }}
+                                    </div>
+                                @endif
+                            </td>
+
+                            {{-- الإجراءات والـ QR --}}
+                            <td class="text-center">
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <!-- عرض التذكرة الرقمية -->
+                                    <a href="{{ route('job-fair.visitor.ticket', $visitor->ticket_number) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="عرض التذكرة">
+                                        <i class="fas fa-id-badge"></i>
+                                    </a>
+
+                                    <!-- نسخ رابط التذكرة والـ QR -->
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyVisitorTicketLink('{{ route('job-fair.visitor.ticket', $visitor->ticket_number) }}', this)" title="نسخ رابط التذكرة والـ QR">
+                                        <i class="fas fa-qrcode"></i>
                                     </button>
-                                    @if($visitor->check_in_at)
-                                        <div class="text-muted mt-1" style="font-size: 0.72rem;">
-                                            {{ $visitor->check_in_at->format('h:i A') }}
-                                        </div>
-                                    @endif
-                                </td>
 
-                                {{-- الإجراءات والـ QR --}}
-                                <td class="text-center">
-                                    <div class="d-inline-flex align-items-center gap-1">
-                                        <!-- عرض التذكرة الرقمية -->
-                                        <a href="{{ route('job-fair.visitor.ticket', $visitor->ticket_number) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="عرض التذكرة">
-                                            <i class="fas fa-id-badge"></i>
-                                        </a>
-
-                                        <!-- نسخ رابط التذكرة والـ QR -->
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyVisitorTicketLink('{{ route('job-fair.visitor.ticket', $visitor->ticket_number) }}', this)" title="نسخ رابط التذكرة والـ QR">
-                                            <i class="fas fa-qrcode"></i>
+                                    <!-- حذف السجل -->
+                                    <form action="{{ route('job-fair.admin.visitors.destroy', $visitor->id) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف سجل الزائر «{{ $visitor->name }}»؟');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="حذف">
+                                            <i class="fas fa-trash-alt"></i>
                                         </button>
-
-                                        <!-- حذف السجل -->
-                                        <form action="{{ route('job-fair.admin.visitors.destroy', $visitor->id) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف سجل الزائر «{{ $visitor->name }}»؟');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="حذف">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="9" class="text-center py-5 text-muted">
-                                    <i class="fas fa-user-friends fa-3x mb-3 text-secondary opacity-50"></i>
-                                    <h5>لا توجد تسجيلات زوار مطابقة</h5>
-                                    <p class="small text-muted mb-3">يمكنك تسجيل زائر جديد يدوياً أو نشر رمز الـ QR للبوابة.</p>
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#adminVisitorRegisterModal">
-                                        <i class="fas fa-user-plus me-1"></i> تسجيل زائر جديد الآن
-                                    </button>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- الترقيم -->
-            @if($visitors->hasPages())
-                <div class="p-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <span class="text-muted small">عرض {{ $visitors->firstItem() }} إلى {{ $visitors->lastItem() }} من إجمالي {{ $visitors->total() }} زائر</span>
-                    <div>{{ $visitors->links() }}</div>
-                </div>
-            @endif
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="9" class="text-center py-5 text-muted">
+                                <i class="fas fa-user-friends fa-3x mb-3 text-secondary opacity-50"></i>
+                                <h5>لا توجد تسجيلات زوار مطابقة</h5>
+                                <p class="small text-muted mb-3">يمكنك تسجيل زائر جديد يدوياً أو نشر رمز الـ QR للبوابة.</p>
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#adminVisitorRegisterModal">
+                                    <i class="fas fa-user-plus me-1"></i> تسجيل زائر جديد الآن
+                                </button>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
 
+        @if($visitors->hasPages())
+            <div class="p-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <span class="text-muted small">عرض {{ $visitors->firstItem() }} إلى {{ $visitors->lastItem() }} من إجمالي {{ $visitors->total() }} زائر</span>
+                <div>{{ $visitors->links() }}</div>
+            </div>
+        @endif
     </div>
+
 </div>
 
 {{-- ══════════════════════════════════
@@ -865,10 +813,10 @@ function toggleVisitorCheckIn(visitorId, btn) {
         btn.disabled = false;
         if (data.success) {
             if (data.attended) {
-                btn.className = 'btn-checkin-toggle attended';
+                btn.className = 'checkin-btn attended';
                 btn.innerHTML = '<i class="fas fa-check-circle me-1"></i> <span>حاضر</span>';
             } else {
-                btn.className = 'btn-checkin-toggle absent';
+                btn.className = 'checkin-btn absent';
                 btn.innerHTML = '<i class="fas fa-circle me-1"></i> <span>تسجيل حضور</span>';
             }
             showToast(data.message);

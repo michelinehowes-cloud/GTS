@@ -47,10 +47,28 @@
                                             {{ $evaluation->type == 'training' ? 'تدريب' : ($evaluation->type == 'employment' ? 'توظيف' : 'أداء') }}
                                         </span>
                                     </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span class="fw-bold">التدريب</span>
-                                        <span>{{ $evaluation->training->title ?? '-' }}</span>
-                                    </li>
+                                    @if($evaluation->training)
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="fw-bold">البرنامج التدريبي</span>
+                                            <span class="text-primary fw-semibold">{{ $evaluation->training->title }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="fw-bold">المدرب / المحاضر</span>
+                                            <span>{{ $evaluation->training->trainer ? $evaluation->training->trainer->name : ($evaluation->training->instructor_name ?? 'غير محدد') }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="fw-bold">القسم المنفذ</span>
+                                            <span>{{ $evaluation->training->category ?? ($evaluation->training->coordinator ? $evaluation->training->coordinator->name : 'مكتب تدريب الخريجين') }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="fw-bold">مكان التنفيذ</span>
+                                            <span>{{ $evaluation->training->location ?? 'جامعة طرابلس' }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="fw-bold">تاريخ التنفيذ</span>
+                                            <span class="small">{{ $evaluation->training->start_date ? $evaluation->training->start_date->format('Y/m/d') : '-' }}</span>
+                                        </li>
+                                    @endif
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span class="fw-bold">المقيم</span>
                                         <span>{{ $evaluation->evaluator->name ?? '-' }}</span>
@@ -79,13 +97,36 @@
                             <div class="row">
                                 @php
                                     $sections = [
-                                        'facilities_evaluation' => ['title' => 'التجهيزات والمرافق', 'icon' => 'building', 'color' => 'success'],
-                                        'content_evaluation' => ['title' => 'المحتوى التدريبي', 'icon' => 'book', 'color' => 'primary'],
-                                        'organization_evaluation' => ['title' => 'التنظيم والإدارة', 'icon' => 'cogs', 'color' => 'info'],
+                                        'content_evaluation' => ['title' => 'تقييم محتوى وتنفيذ الجلسة التدريبية', 'icon' => 'tasks', 'color' => 'primary'],
+                                        'trainer_evaluation' => ['title' => 'تقييم أداء المدرب والمحاضر', 'icon' => 'chalkboard-teacher', 'color' => 'success'],
+                                        'facilities_evaluation' => ['title' => 'التجهيزات والمرافق', 'icon' => 'building', 'color' => 'info'],
+                                        'organization_evaluation' => ['title' => 'التنظيم والإدارة', 'icon' => 'cogs', 'color' => 'warning'],
                                         'impact_evaluation' => ['title' => 'الأثر والاستفادة', 'icon' => 'chart-line', 'color' => 'secondary'],
                                     ];
 
                                     $labels = [
+                                        // Official Tripoli University Session Criteria
+                                        'clarity_of_goals' => '1. وضوح أهداف البرنامج التدريبي',
+                                        'session_sequence' => '2. تنظيم وتتابع محاور الجلسة',
+                                        'presentation_attractiveness' => '3. جاذبية العرض وأساليب التقديم',
+                                        'trainee_interaction' => '4. تفاعل المتدربين أثناء النشاط',
+                                        'diversity_of_tools' => '5. تنوع الوسائل التدريبية المستخدمة',
+                                        'achieving_outcomes' => '6. مدى تحقيق مخرجات التدريب المستهدفة',
+                                        'time_commitment' => '7. مدى التزام التدريب بالوقت المحدد',
+                                        'pre_post_assessment' => '8. وجود قياس قبلي/ بعدي للجلسة',
+                                        'general_training_rating' => '9. التقييم العام للتدريب',
+                                        'training_total_ratio' => '10. نسبة اجمالي تقييم التدريب',
+
+                                        // Official Tripoli University Trainer Criteria
+                                        'trainer_punctuality' => '1. الحضور والانضباط في الوقت',
+                                        'trainer_clarity' => '2. وضوح الشرح والأسلوب',
+                                        'trainer_management' => '3. القدرة على إدارة المتدربين وتحفيزهم',
+                                        'trainer_interaction' => '4. التفاعل مع الأسئلة والمداخلات',
+                                        'trainer_content_adherence' => '5. الالتزام بالمحتوى المتفق عليه',
+                                        'trainer_professionalism' => '6. المهنية في التعامل',
+                                        'trainer_methods' => '7. توظيف أساليب تدريب مناسبة',
+                                        'trainer_total_ratio' => '8. نسبة اجمالي تقييم المدرب',
+
                                         // Facilities
                                         'room_quality' => 'جودة القاعة التدريبية',
                                         'equipment' => 'التجهيزات والأدوات',

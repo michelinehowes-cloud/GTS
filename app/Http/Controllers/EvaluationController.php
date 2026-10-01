@@ -28,10 +28,11 @@ class EvaluationController extends Controller
 
     public function create()
     {
-        // $users = User::whereIn('role', ['graduate', 'training_coordinator', 'company'])->get(); // Removed as per requirement
-        $trainings = Training::where('status', 'active')->with('trainer')->get();
+        $trainings = Training::where('status', 'active')
+            ->with(['trainer', 'coordinator'])
+            ->withCount('applications')
+            ->get();
         $trainers = Trainer::all();
-        // $evaluators = User::whereIn('role', ['admin', 'training_coordinator', 'evaluation_followup'])->get(); // Usually auth user is evaluator
 
         return view('evaluation-followup.evaluations.create', compact('trainings', 'trainers'));
     }
@@ -48,15 +49,22 @@ class EvaluationController extends Controller
             'facilities' => 'nullable|array',
             'organization' => 'nullable|array',
             'impact' => 'nullable|array',
-            'employment' => 'nullable|array', // For employment type
+            'employment' => 'nullable|array',
 
-            // Daily Content Evaluations (Dynamic Keys e.g. content_day_1, content_day_2)
+            // Official Tripoli University Criteria
+            'session_criteria' => 'nullable|array',
+            'trainer_criteria' => 'nullable|array',
+            'session_criteria.*' => 'nullable|numeric|min:1|max:5',
+            'trainer_criteria.*' => 'nullable|numeric|min:1|max:5',
+
+            // Daily Content Evaluations
             'daily_content' => 'nullable|array',
+            'content' => 'nullable|array',
 
             // Multiple Instructors Evaluation
             'instructors' => 'nullable|array',
-            'instructors.*.id' => 'required|exists:trainers,id',
-            'instructors.*.rating' => 'required|numeric|min:1|max:5',
+            'instructors.*.id' => 'nullable|exists:trainers,id',
+            'instructors.*.rating' => 'nullable|numeric|min:1|max:5',
 
             'strengths' => 'nullable|string',
             'weaknesses' => 'nullable|string',
@@ -71,19 +79,42 @@ class EvaluationController extends Controller
         }
 
         // Calculate simplified overall score (average of provided scores)
-        // detailed scoring logic can be complex, sticking to simple average for now
-        $score = 0;
+        $scoresToAverage = [];
+        if ($request->has('session_criteria') && is_array($request->session_criteria)) {
+            foreach ($request->session_criteria as $sc) {
+                if (is_numeric($sc) && (float)$sc > 0) $scoresToAverage[] = (float)$sc;
+            }
+        }
+        if ($request->has('trainer_criteria') && is_array($request->trainer_criteria)) {
+            foreach ($request->trainer_criteria as $tc) {
+                if (is_numeric($tc) && (float)$tc > 0) $scoresToAverage[] = (float)$tc;
+            }
+        }
+        foreach (['facilities', 'content', 'daily_content', 'organization', 'impact', 'employment'] as $groupKey) {
+            if ($request->has($groupKey) && is_array($request->input($groupKey))) {
+                foreach ($request->input($groupKey) as $val) {
+                    if (is_numeric($val) && (float)$val > 0) $scoresToAverage[] = (float)$val;
+                }
+            }
+        }
+
+        $overallScore = count($scoresToAverage) > 0 ? round(array_sum($scoresToAverage) / count($scoresToAverage), 2) : 5.0;
+
+        $contentEval = $request->session_criteria ?? $request->content ?? $request->daily_content ?? [];
+        $trainerEval = $request->trainer_criteria ?? [];
 
         $evaluation = Evaluation::create([
             'training_id' => $request->training_id,
-            'user_id' => null, // Requirement to remove user field
+            'user_id' => null,
             'evaluator_id' => auth()->id(),
             'evaluatable_type' => $request->training_id ? 'App\Models\Training' : null,
             'evaluatable_id' => $request->training_id,
             'evaluation_type' => $request->type,
             'type' => $request->type,
             'facilities_evaluation' => $request->facilities ?? [],
-            'content_evaluation' => $request->daily_content ?? [], // Storing daily axes here
+            'content_evaluation' => $contentEval,
+            'trainer_evaluation' => $trainerEval,
+            'criteria_scores' => array_merge(is_array($contentEval) ? $contentEval : [], is_array($trainerEval) ? $trainerEval : []),
             'organization_evaluation' => $request->organization ?? [],
             'impact_evaluation' => $request->impact ?? [],
             'employment_evaluation' => $request->employment ?? [],
@@ -93,20 +124,43 @@ class EvaluationController extends Controller
             'recommendations' => $request->recommendations,
             'evaluation_date' => $request->evaluation_date,
             'status' => $request->status,
-            'score' => 0, // Will update if needed
+            'score' => $overallScore,
+            'overall_rating' => $overallScore,
         ]);
 
-        // Handle Instructors Evaluations
-        if ($request->has('instructors')) {
+        // Auto link trainer evaluation if training has trainer and trainer_criteria submitted
+        if ($request->training_id && !empty($trainerEval)) {
+            $training = Training::find($request->training_id);
+            $trainerId = $training ? $training->trainer_id : null;
+            if ($trainerId) {
+                $trainerScores = [];
+                foreach ($trainerEval as $val) {
+                    if (is_numeric($val) && (float)$val > 0) $trainerScores[] = (float)$val;
+                }
+                $trainerRating = count($trainerScores) > 0 ? round(array_sum($trainerScores) / count($trainerScores), 2) : 5.0;
+
+                \App\Models\TrainerEvaluation::create([
+                    'evaluation_id' => $evaluation->id,
+                    'training_id' => $request->training_id,
+                    'evaluator_id' => auth()->id(),
+                    'trainer_id' => $trainerId,
+                    'scores' => $trainerEval,
+                    'rating' => $trainerRating,
+                    'notes' => $request->comments ?? null,
+                ]);
+            }
+        }
+
+        // Handle Instructors Evaluations (Manual multiple instructors)
+        if ($request->has('instructors') && is_array($request->instructors)) {
             foreach ($request->instructors as $instructorData) {
-                if (isset($instructorData['id'])) {
-                    // Create TrainerEvaluation linked to this Evaluation
+                if (isset($instructorData['id']) && !empty($instructorData['id'])) {
                     \App\Models\TrainerEvaluation::create([
                         'evaluation_id' => $evaluation->id,
                         'training_id' => $request->training_id,
                         'evaluator_id' => auth()->id(),
                         'trainer_id' => $instructorData['id'],
-                        'scores' => $instructorData['scores'] ?? [], // Store detailed sub-scores if any
+                        'scores' => $instructorData['scores'] ?? [],
                         'rating' => $instructorData['rating'] ?? 0,
                         'notes' => $instructorData['comments'] ?? null,
                     ]);
@@ -147,14 +201,21 @@ class EvaluationController extends Controller
             'status' => 'required|in:draft,completed,reviewed',
 
             'facilities' => 'nullable|array',
-            'daily_content' => 'nullable|array', // Updated name to match store
+            'daily_content' => 'nullable|array',
+            'content' => 'nullable|array',
             'organization' => 'nullable|array',
             'impact' => 'nullable|array',
             'employment' => 'nullable|array',
 
+            // Official Tripoli University Criteria
+            'session_criteria' => 'nullable|array',
+            'trainer_criteria' => 'nullable|array',
+            'session_criteria.*' => 'nullable|numeric|min:1|max:5',
+            'trainer_criteria.*' => 'nullable|numeric|min:1|max:5',
+
             'instructors' => 'nullable|array',
-            'instructors.*.id' => 'required|exists:trainers,id',
-            'instructors.*.rating' => 'required|numeric|min:1|max:5',
+            'instructors.*.id' => 'nullable|exists:trainers,id',
+            'instructors.*.rating' => 'nullable|numeric|min:1|max:5',
 
             'strengths' => 'nullable|string',
             'weaknesses' => 'nullable|string',
@@ -168,21 +229,48 @@ class EvaluationController extends Controller
                 ->withInput();
         }
 
+        $scoresToAverage = [];
+        if ($request->has('session_criteria') && is_array($request->session_criteria)) {
+            foreach ($request->session_criteria as $sc) {
+                if (is_numeric($sc) && (float)$sc > 0) $scoresToAverage[] = (float)$sc;
+            }
+        }
+        if ($request->has('trainer_criteria') && is_array($request->trainer_criteria)) {
+            foreach ($request->trainer_criteria as $tc) {
+                if (is_numeric($tc) && (float)$tc > 0) $scoresToAverage[] = (float)$tc;
+            }
+        }
+        foreach (['facilities', 'content', 'daily_content', 'organization', 'impact', 'employment'] as $groupKey) {
+            if ($request->has($groupKey) && is_array($request->input($groupKey))) {
+                foreach ($request->input($groupKey) as $val) {
+                    if (is_numeric($val) && (float)$val > 0) $scoresToAverage[] = (float)$val;
+                }
+            }
+        }
+
+        $overallScore = count($scoresToAverage) > 0 ? round(array_sum($scoresToAverage) / count($scoresToAverage), 2) : ($evaluation->score ?? 5.0);
+
+        $contentEval = $request->session_criteria ?? $request->content ?? $request->daily_content ?? $evaluation->content_evaluation;
+        $trainerEval = $request->trainer_criteria ?? $evaluation->trainer_evaluation;
+
         $evaluation->update([
             'training_id' => $request->training_id,
-            // 'user_id' => $request->user_id, // Removed as per requirement
             'type' => $request->type,
-            'facilities_evaluation' => $request->facilities ?? [],
-            'content_evaluation' => $request->daily_content ?? [], // Using daily_content
-            'organization_evaluation' => $request->organization ?? [],
-            'impact_evaluation' => $request->impact ?? [],
-            'employment_evaluation' => $request->employment ?? [],
+            'facilities_evaluation' => $request->facilities ?? $evaluation->facilities_evaluation,
+            'content_evaluation' => $contentEval,
+            'trainer_evaluation' => $trainerEval,
+            'criteria_scores' => array_merge(is_array($contentEval) ? $contentEval : [], is_array($trainerEval) ? $trainerEval : []),
+            'organization_evaluation' => $request->organization ?? $evaluation->organization_evaluation,
+            'impact_evaluation' => $request->impact ?? $evaluation->impact_evaluation,
+            'employment_evaluation' => $request->employment ?? $evaluation->employment_evaluation,
             'strengths' => $request->strengths,
             'weaknesses' => $request->weaknesses,
             'comments' => $request->comments,
             'recommendations' => $request->recommendations,
             'evaluation_date' => $request->evaluation_date,
             'status' => $request->status,
+            'score' => $overallScore,
+            'overall_rating' => $overallScore,
         ]);
 
         // Handle Instructors Evaluations Sync

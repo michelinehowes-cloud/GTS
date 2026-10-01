@@ -72,4 +72,36 @@ class Evaluation extends Model
     {
         return $this->hasMany(TrainerEvaluation::class);
     }
+
+    /**
+     * حساب متوسط الدرجة التقييمية لضمان عمل الإحصائيات بدقة
+     */
+    public function getAverageScoreAttribute(): float
+    {
+        if (!empty($this->score) && (float)$this->score > 0) {
+            return (float)$this->score;
+        }
+
+        $allRatings = [];
+        $sources = [
+            $this->content_evaluation,
+            $this->trainer_evaluation,
+            $this->facilities_evaluation,
+            $this->organization_evaluation,
+            $this->impact_evaluation,
+            $this->criteria_scores,
+        ];
+
+        foreach ($sources as $source) {
+            if (is_array($source)) {
+                foreach ($source as $val) {
+                    if (is_numeric($val) && (float)$val > 0) {
+                        $allRatings[] = (float)$val;
+                    }
+                }
+            }
+        }
+
+        return count($allRatings) > 0 ? round(array_sum($allRatings) / count($allRatings), 2) : 0.0;
+    }
 }

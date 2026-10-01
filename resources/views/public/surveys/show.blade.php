@@ -42,7 +42,7 @@
                                         </label>
                                         <input type="text" class="form-control @error('participant_name') is-invalid @enderror"
                                                id="participant_name" name="participant_name"
-                                               value="{{ old('participant_name') }}" required>
+                                               value="{{ old('participant_name', auth()->check() ? auth()->user()->name : '') }}" required>
                                         @error('participant_name')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -55,7 +55,7 @@
                                         </label>
                                         <input type="email" class="form-control @error('participant_email') is-invalid @enderror"
                                                id="participant_email" name="participant_email"
-                                               value="{{ old('participant_email') }}" required>
+                                               value="{{ old('participant_email', auth()->check() ? auth()->user()->email : '') }}" required>
                                         @error('participant_email')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -79,12 +79,18 @@
                                     <div class="question-input">
                                         @switch($question['type'])
                                             @case('text')
+                                                <input type="text" class="form-control @error('responses.question_' . $index) is-invalid @enderror"
+                                                       name="responses[question_{{ $index }}]"
+                                                       placeholder="اكتب إجابتك هنا..."
+                                                       value="{{ old('responses.question_' . $index) }}"
+                                                       {{ ($question['required'] ?? false) ? 'required' : '' }}>
+                                                @break
+
+                                            @case('textarea')
                                                 <textarea class="form-control @error('responses.question_' . $index) is-invalid @enderror"
                                                           name="responses[question_{{ $index }}]" rows="3"
                                                           placeholder="اكتب إجابتك هنا..."
-                                                          {{ ($question['required'] ?? false) ? 'required' : '' }}>
-                                                    {{ old('responses.question_' . $index) }}
-                                                </textarea>
+                                                          {{ ($question['required'] ?? false) ? 'required' : '' }}>{{ old('responses.question_' . $index) }}</textarea>
                                                 @break
 
                                             @case('radio')

@@ -17,6 +17,14 @@ class SecurityService
             return ['success' => true];
         }
 
+        // 1. التوكن إلزامي في جميع الحالات - لا يمكن تسجيل الدخول بدون إكمال كاشف الروبوتات
+        if (empty($token) || trim($token) === '' || str_starts_with($token, 'BYPASS_')) {
+            return [
+                'success' => false,
+                'message' => 'يرجى إكمال التحقق الأمني (كاشف الروبوتات Cloudflare) قبل المتابعة.',
+            ];
+        }
+
         $host = request()->getHost();
         $isDevelopmentOrTunnel = app()->environment('local') 
             || in_array($host, ['localhost', '127.0.0.1']) 
@@ -27,17 +35,9 @@ class SecurityService
         $secret = config('security.turnstile.secret_key');
         $isTestKey = empty($secret) || $secret === '1x0000000000000000000000000000000AA';
 
-        // إذا كان المفتاح هو مفتاح الاختبار أو النطاق تجريبي/سيرفر استضافة بدون مفاتيح رسمية
-        if ($isTestKey || $isDevelopmentOrTunnel) {
+        // إذا كان المفتاح هو مفتاح الاختبار وتم إرسال توكن صالح
+        if ($isTestKey) {
             return ['success' => true];
-        }
-
-        // إذا كان التوكن فارغاً أو رمز تجاوز الأخطاء الناتجة عن عدم إدراج النطاق في كلاودفير
-        if (empty($token) || str_starts_with($token, 'BYPASS_')) {
-            return [
-                'success' => false,
-                'message' => 'يرجى تأكيد التحقق الأمني (لست روبوت) للمتابعة.',
-            ];
         }
 
         try {
@@ -53,9 +53,11 @@ class SecurityService
                     return ['success' => true];
                 }
 
-                // إذا كنا على نفق تجريبي trycloudflare وحدث خطأ نطاق غير مصرح به
-                if ($isDevelopmentOrTunnel) {
-                    Log::warning('Turnstile verification failed on dev/tunnel host, allowing bypass', ['host' => $host, 'data' => $data]);
+                // في بيئة التطوير المحلي، إذا كان الخطأ بسبب عدم إضافة localhost في لوحة كلاودفير
+                // نسمح بالمرور فقط لأن المستخدم أكمل التحقق وحصل على التوكن
+                $errorCodes = $data['error-codes'] ?? [];
+                if ($isDevelopmentOrTunnel && (in_array('invalid-input-secret', $errorCodes) || in_array('bad-request', $errorCodes) || in_array('invalid-widget-id', $errorCodes))) {
+                    Log::warning('Turnstile allowed for local development with provided token', ['host' => $host, 'data' => $data]);
                     return ['success' => true];
                 }
 
@@ -67,7 +69,7 @@ class SecurityService
             }
         } catch (\Throwable $e) {
             Log::error('Turnstile connection error: ' . $e->getMessage());
-            // في حال حدوث انقطاع مؤقت في الاتصال مع سيرفرات كلاودفير، نسمح بالمرور لتفادي حظر المستخدمين
+            // في حال انقطاع الاتصال بالسيرفر، إذا تم إرسال توكن نسمح بالمرور
             return ['success' => true];
         }
 

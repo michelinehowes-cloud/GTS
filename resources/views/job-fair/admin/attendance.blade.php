@@ -463,19 +463,28 @@
                 </div>
 
                 {{-- منطقة الكاميرا والمسح البصري --}}
-                <div id="camera-scan-container" class="scanner-viewport-box mb-3">
+                <div id="camera-scan-container" class="scanner-viewport-box mb-3 position-relative">
                     
                     {{-- شاشة الكاميرا المغلقة (الحالة الافتراضية) --}}
                     <div id="camera-idle-view">
                         <div style="font-size: 3.5rem; margin-bottom: 0.75rem;">📷</div>
                         <h6 class="text-white fw-bold mb-2">وجّه كاميرا الجهاز نحو رمز الـ QR الخاص بالخريج</h6>
-                        <p class="text-white-50 small mb-4 mx-auto" style="max-width: 440px;">
+                        <p class="text-white-50 small mb-3 mx-auto" style="max-width: 440px;">
                             يقوم النظام بالتعرف التلقائي الفوري على بطاقة الزائر وتسجيل الحضور دون الحاجة لأي نقرة إضافية.
                         </p>
-                        <button id="start-camera-btn" class="btn px-4 py-2" style="background-color: var(--terminal-accent); color: #06182e; font-weight: bold; border-radius: 50px; box-shadow: 0 4px 20px rgba(238,202,62,0.4); transition: transform 0.2s;">
-                            <i class="fas fa-video me-2"></i> تشغيل الكاميرا الآن
-                        </button>
+                        <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
+                            <button type="button" id="start-camera-btn" class="btn px-4 py-2" style="background-color: var(--terminal-accent); color: #06182e; font-weight: bold; border-radius: 50px; box-shadow: 0 4px 20px rgba(238,202,62,0.4); transition: transform 0.2s;">
+                                <i class="fas fa-video me-2"></i> تشغيل الكاميرا الآن
+                            </button>
+                            <button type="button" id="upload-qr-file-btn" class="btn btn-outline-light px-3 py-2 rounded-pill small" title="رفع صورة أو لقطة شاشة لرمز QR">
+                                <i class="fas fa-image me-1 text-warning"></i> مسح صورة QR
+                            </button>
+                            <input type="file" id="qr-file-input" accept="image/*" style="display: none;">
+                        </div>
                     </div>
+
+                    {{-- شاشة تنبيه / خطأ الكاميرا مع التوجيه السهل للمستخدم --}}
+                    <div id="camera-error-view" style="display: none;"></div>
 
                     {{-- شاشة الكاميرا النشطة --}}
                     <div id="camera-active-view" style="display: none;">
@@ -487,12 +496,17 @@
                             <div id="reader"></div>
                         </div>
 
-                        <div class="d-flex justify-content-center gap-2">
-                            <button id="stop-camera-btn" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                        <div class="d-flex flex-wrap justify-content-center align-items-center gap-2">
+                            <select id="camera-select" class="form-select form-select-sm bg-dark text-white border-secondary rounded-pill px-3 py-1" style="max-width: 200px; font-size: 0.8rem; display: none;">
+                            </select>
+                            <button type="button" id="flip-camera-btn" class="btn btn-sm btn-outline-light rounded-pill px-3" style="display: none;">
+                                <i class="fas fa-sync-alt me-1"></i> تبديل الكاميرا
+                            </button>
+                            <button type="button" id="stop-camera-btn" class="btn btn-sm btn-outline-danger rounded-pill px-3">
                                 <i class="fas fa-stop me-1"></i> إيقاف الكاميرا
                             </button>
-                            <button id="flip-camera-btn" class="btn btn-sm btn-outline-light rounded-pill px-3">
-                                <i class="fas fa-sync-alt me-1"></i> تبديل الكاميرا
+                            <button type="button" id="active-upload-qr-btn" class="btn btn-sm btn-outline-warning rounded-pill px-3">
+                                <i class="fas fa-file-image me-1"></i> رفع صورة
                             </button>
                         </div>
                     </div>
@@ -767,9 +781,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const cameraScanContainer = document.getElementById('camera-scan-container');
     const cameraIdleView = document.getElementById('camera-idle-view');
     const cameraActiveView = document.getElementById('camera-active-view');
+    const cameraErrorView = document.getElementById('camera-error-view');
     const startCameraBtn = document.getElementById('start-camera-btn');
     const stopCameraBtn = document.getElementById('stop-camera-btn');
     const flipCameraBtn = document.getElementById('flip-camera-btn');
+    const cameraSelect = document.getElementById('camera-select');
+    const uploadQrFileBtn = document.getElementById('upload-qr-file-btn');
+    const activeUploadQrBtn = document.getElementById('active-upload-qr-btn');
+    const qrFileInput = document.getElementById('qr-file-input');
 
     // Internal State
     let attendedCount = {{ $stats['total_attended'] ?? 0 }};
@@ -778,6 +797,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let html5QrcodeScanner = null;
     let isCameraRunning = false;
     let isProcessing = false;
+    let availableCameras = [];
+    let currentCameraId = null;
     let currentFacingMode = "environment";
     let autoHideTimeout = null;
 
@@ -836,62 +857,311 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Camera Start / Stop
-    startCameraBtn.addEventListener('click', startCamera);
-    stopCameraBtn.addEventListener('click', stopCamera);
-    flipCameraBtn.addEventListener('click', function() {
-        currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
-        stopCamera().then(startCamera);
-    });
+    // Camera Start / Stop / Switch Listeners
+    startCameraBtn.addEventListener('click', () => startCamera());
+    stopCameraBtn.addEventListener('click', () => stopCamera());
 
-    function startCamera() {
-        cameraIdleView.style.display = 'none';
-        cameraActiveView.style.display = 'block';
-
-        if (!html5QrcodeScanner) {
-            html5QrcodeScanner = new Html5Qrcode("reader");
-        }
-
-        const config = {
-            fps: 12,
-            qrbox: { width: 250, height: 250 },
-            aspectRatio: 1.0,
-            disableFlip: false
-        };
-
-        return html5QrcodeScanner.start(
-            { facingMode: currentFacingMode },
-            config,
-            (decodedText) => {
-                if (!isProcessing) {
-                    processCode(decodedText);
-                }
+    if (flipCameraBtn) {
+        flipCameraBtn.addEventListener('click', async function() {
+            if (availableCameras.length > 1) {
+                const currentIndex = availableCameras.findIndex(c => c.id === currentCameraId);
+                const nextIndex = (currentIndex + 1) % availableCameras.length;
+                currentCameraId = availableCameras[nextIndex].id;
+                if (cameraSelect) cameraSelect.value = currentCameraId;
+                await stopCamera(true);
+                await startCamera();
+            } else {
+                currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
+                await stopCamera(true);
+                await startCamera();
             }
-        ).then(() => {
-            isCameraRunning = true;
-        }).catch((err) => {
-            console.error("Camera error:", err);
-            alert("تعذر تشغيل الكاميرا. يرجى التأكد من منح الإذن لاستخدام الكاميرا أو استخدام قارئ الباركود اليدوي.");
-            stopCamera();
         });
     }
 
-    function stopCamera() {
+    if (cameraSelect) {
+        cameraSelect.addEventListener('change', async function() {
+            currentCameraId = this.value;
+            if (isCameraRunning) {
+                await stopCamera(true);
+                await startCamera();
+            }
+        });
+    }
+
+    // QR Image File Upload Fallback
+    const triggerFileInput = () => { if (qrFileInput) qrFileInput.click(); };
+    if (uploadQrFileBtn) uploadQrFileBtn.addEventListener('click', triggerFileInput);
+    if (activeUploadQrBtn) activeUploadQrBtn.addEventListener('click', triggerFileInput);
+
+    if (qrFileInput) {
+        qrFileInput.addEventListener('change', function(e) {
+            if (!e.target.files || e.target.files.length === 0) return;
+            const file = e.target.files[0];
+
+            if (!html5QrcodeScanner) {
+                html5QrcodeScanner = new Html5Qrcode("reader");
+            }
+
+            scanIndicator.style.display = 'inline-block';
+            html5QrcodeScanner.scanFile(file, true)
+                .then(decodedText => {
+                    scanIndicator.style.display = 'none';
+                    processCode(decodedText);
+                })
+                .catch(err => {
+                    scanIndicator.style.display = 'none';
+                    console.error("Scan file error:", err);
+                    showResult('error', {
+                        title: 'تعذر قراءة الرمز من الصورة',
+                        msg: 'تأكد من وضوح رمز الـ QR داخل الصورة أو ابحث عن الخريج في دليل المسجلين بالأسفل.'
+                    });
+                    playBeep('error');
+                })
+                .finally(() => {
+                    qrFileInput.value = '';
+                });
+        });
+    }
+
+    async function startCamera() {
+        hideCameraError();
+
+        // Check if mediaDevices is supported
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showCameraError({
+                name: 'NotSupportedError',
+                message: 'متصفحك أو هذا الرابط لا يدعم ميزة فتح الكاميرا مباشرة. يتطلب ذلك اتصالاً آمناً (HTTPS) أو النطاق المحلي (localhost).'
+            });
+            return;
+        }
+
+        const origBtnHtml = startCameraBtn.innerHTML;
+        startCameraBtn.disabled = true;
+        startCameraBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> جاري فتح الكاميرا...';
+
+        try {
+            // First: query available cameras
+            try {
+                const devices = await Html5Qrcode.getCameras();
+                availableCameras = devices || [];
+            } catch (enumErr) {
+                console.warn("Could not enumerate cameras prior to start:", enumErr);
+                availableCameras = [];
+            }
+
+            // Populate camera select dropdown
+            if (availableCameras.length > 1 && cameraSelect) {
+                cameraSelect.innerHTML = '';
+                availableCameras.forEach((dev, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = dev.id;
+                    opt.textContent = dev.label || `كاميرا ${idx + 1}`;
+                    cameraSelect.appendChild(opt);
+                });
+                cameraSelect.style.display = 'inline-block';
+                if (flipCameraBtn) flipCameraBtn.style.display = 'inline-block';
+            } else {
+                if (cameraSelect) cameraSelect.style.display = 'none';
+                if (flipCameraBtn) flipCameraBtn.style.display = availableCameras.length > 1 ? 'inline-block' : 'none';
+            }
+
+            // Determine target camera
+            let cameraTarget = null;
+            if (currentCameraId && availableCameras.some(c => c.id === currentCameraId)) {
+                cameraTarget = currentCameraId;
+            } else if (availableCameras.length > 0) {
+                // Prefer rear camera on mobile, or first camera on desktop
+                const rearCam = availableCameras.find(c => /back|rear|environment|خلفية/i.test(c.label));
+                cameraTarget = rearCam ? rearCam.id : availableCameras[0].id;
+                currentCameraId = cameraTarget;
+                if (cameraSelect) cameraSelect.value = cameraTarget;
+            }
+
+            cameraIdleView.style.display = 'none';
+            cameraActiveView.style.display = 'block';
+
+            if (!html5QrcodeScanner) {
+                html5QrcodeScanner = new Html5Qrcode("reader");
+            }
+
+            const config = {
+                fps: 15,
+                qrbox: (viewfinderWidth, viewfinderHeight) => {
+                    const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+                    const edgeSize = Math.max(160, Math.floor(minEdge * 0.72));
+                    return { width: edgeSize, height: edgeSize };
+                },
+                aspectRatio: 1.0,
+                disableFlip: false
+            };
+
+            const onScanSuccess = (decodedText) => {
+                if (!isProcessing) {
+                    processCode(decodedText);
+                }
+            };
+
+            if (cameraTarget) {
+                await html5QrcodeScanner.start(cameraTarget, config, onScanSuccess);
+            } else {
+                // If devices couldn't be enumerated directly, try facingMode with progressive fallbacks
+                try {
+                    await html5QrcodeScanner.start({ facingMode: currentFacingMode }, config, onScanSuccess);
+                } catch (facingErr) {
+                    console.warn("FacingMode environment failed, trying user camera...", facingErr);
+                    try {
+                        await html5QrcodeScanner.start({ facingMode: "user" }, config, onScanSuccess);
+                    } catch (userErr) {
+                        // Last resort: basic constraints
+                        await html5QrcodeScanner.start(true, config, onScanSuccess);
+                    }
+                }
+            }
+
+            isCameraRunning = true;
+        } catch (err) {
+            console.error("Camera start failed:", err);
+            isCameraRunning = false;
+            await stopCamera(true);
+            showCameraError(err);
+        } finally {
+            startCameraBtn.disabled = false;
+            startCameraBtn.innerHTML = origBtnHtml;
+        }
+    }
+
+    function stopCamera(keepActiveView = false) {
         if (html5QrcodeScanner && isCameraRunning) {
             return html5QrcodeScanner.stop().then(() => {
                 isCameraRunning = false;
-                cameraActiveView.style.display = 'none';
-                cameraIdleView.style.display = 'block';
-            }).catch(() => {
+                if (!keepActiveView) {
+                    cameraActiveView.style.display = 'none';
+                    cameraIdleView.style.display = 'block';
+                }
+            }).catch((err) => {
+                console.warn("Error while stopping scanner:", err);
                 isCameraRunning = false;
-                cameraActiveView.style.display = 'none';
-                cameraIdleView.style.display = 'block';
+                if (!keepActiveView) {
+                    cameraActiveView.style.display = 'none';
+                    cameraIdleView.style.display = 'block';
+                }
             });
         } else {
-            cameraActiveView.style.display = 'none';
-            cameraIdleView.style.display = 'block';
+            isCameraRunning = false;
+            if (!keepActiveView) {
+                cameraActiveView.style.display = 'none';
+                cameraIdleView.style.display = 'block';
+            }
             return Promise.resolve();
         }
+    }
+
+    function showCameraError(err) {
+        cameraIdleView.style.display = 'none';
+        cameraActiveView.style.display = 'none';
+        if (!cameraErrorView) return;
+
+        const errName = err ? (err.name || '') : '';
+        const errMsg = err ? (err.message || String(err)) : '';
+        const isPermissionDenied = /NotAllowedError|PermissionDeniedError|denied/i.test(errName + ' ' + errMsg);
+        const isNotFound = /NotFoundError|DevicesNotFoundError|OverconstrainedError/i.test(errName + ' ' + errMsg);
+
+        let html = '';
+        if (isPermissionDenied) {
+            html = `
+                <div class="text-center p-4">
+                    <div class="text-warning mb-3" style="font-size: 3.2rem;">
+                        <i class="fas fa-video-slash"></i>
+                    </div>
+                    <h5 class="text-white fw-bold mb-2">تم رفض إذن الوصول إلى الكاميرا</h5>
+                    <p class="text-white-50 small mb-3 mx-auto" style="max-width: 440px; line-height: 1.6;">
+                        حظر المتصفح استخدام الكاميرا. لتفعيلها: انقر على أيقونة القفل أو الكاميرا (<i class="fas fa-lock text-warning"></i>) في شريط عنوان المتصفح بالأعلى، ثم اختر <strong>"السماح دائماً للكاميرا"</strong> وأعد المحاولة.
+                    </p>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <button type="button" id="btn-retry-camera" class="btn btn-warning btn-sm rounded-pill px-4 fw-bold text-dark">
+                            <i class="fas fa-redo me-1"></i> إعادة المحاولة
+                        </button>
+                        <button type="button" id="btn-error-upload-qr" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-file-image me-1 text-warning"></i> مسح صورة QR بديلة
+                        </button>
+                        <button type="button" id="btn-close-camera-error" class="btn btn-link text-white-50 btn-sm text-decoration-none">
+                            إلغاء
+                        </button>
+                    </div>
+                </div>
+            `;
+        } else if (isNotFound) {
+            html = `
+                <div class="text-center p-4">
+                    <div class="text-white-50 mb-3" style="font-size: 3.2rem;">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h5 class="text-white fw-bold mb-2">لم يتم العثور على كاميرا متصلة</h5>
+                    <p class="text-white-50 small mb-3 mx-auto" style="max-width: 440px; line-height: 1.6;">
+                        لا توجد كاميرا ويب متصلة أو أن الكاميرا قيد الاستخدام من تطبيق آخر. يمكنك استخدام قارئ الباركود اللاسلكي أو رفع صورة الـ QR مباشرة.
+                    </p>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <button type="button" id="btn-focus-barcode" class="btn btn-warning btn-sm rounded-pill px-3 fw-bold text-dark">
+                            <i class="fas fa-barcode me-1"></i> استخدام قارئ الباركود
+                        </button>
+                        <button type="button" id="btn-error-upload-qr" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-file-image me-1 text-warning"></i> رفع صورة QR
+                        </button>
+                        <button type="button" id="btn-close-camera-error" class="btn btn-link text-white-50 btn-sm text-decoration-none">
+                            إلغاء
+                        </button>
+                    </div>
+                </div>
+            `;
+        } else {
+            html = `
+                <div class="text-center p-4">
+                    <div class="text-danger mb-3" style="font-size: 3.2rem;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h5 class="text-white fw-bold mb-2">تعذر تشغيل الكاميرا</h5>
+                    <p class="text-white-50 small mb-3 mx-auto" style="max-width: 440px; line-height: 1.6;">
+                        ${errMsg || 'حدث خطأ غير متوقع أثناء محاولة تشغيل الكاميرا.'}
+                    </p>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                        <button type="button" id="btn-retry-camera" class="btn btn-warning btn-sm rounded-pill px-4 fw-bold text-dark">
+                            <i class="fas fa-redo me-1"></i> إعادة المحاولة
+                        </button>
+                        <button type="button" id="btn-error-upload-qr" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-file-image me-1 text-warning"></i> رفع صورة QR
+                        </button>
+                        <button type="button" id="btn-close-camera-error" class="btn btn-link text-white-50 btn-sm text-decoration-none">
+                            إلغاء
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        cameraErrorView.innerHTML = html;
+        cameraErrorView.style.display = 'block';
+
+        // Bind error action buttons
+        const retryBtn = document.getElementById('btn-retry-camera');
+        if (retryBtn) retryBtn.addEventListener('click', () => startCamera());
+
+        const uploadBtn = document.getElementById('btn-error-upload-qr');
+        if (uploadBtn) uploadBtn.addEventListener('click', triggerFileInput);
+
+        const closeBtn = document.getElementById('btn-close-camera-error');
+        if (closeBtn) closeBtn.addEventListener('click', hideCameraError);
+
+        const focusBarcodeBtn = document.getElementById('btn-focus-barcode');
+        if (focusBarcodeBtn) focusBarcodeBtn.addEventListener('click', () => {
+            hideCameraError();
+            qrInput.focus();
+        });
+    }
+
+    function hideCameraError() {
+        if (cameraErrorView) cameraErrorView.style.display = 'none';
+        cameraIdleView.style.display = 'block';
+        cameraActiveView.style.display = 'none';
     }
 
     // Core Check-In Processor

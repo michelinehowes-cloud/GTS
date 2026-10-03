@@ -422,8 +422,8 @@
                         </a>
                     @endif
 
-                    <!-- زر مراسلة الخريج للشركات -->
-                    @if(auth()->check() && auth()->user()->role === 'company')
+                    <!-- زر مراسلة الخريج للشركات والإدارة -->
+                    @if(auth()->check() && auth()->id() !== $graduate->id && in_array(auth()->user()->role, ['company', 'admin', 'career_guidance_officer', 'training_coordinator', 'partnership_officer', 'staff']))
                         <a href="{{ route('messages.show', $graduate->id) }}" class="btn btn-success action-btn-system shadow-sm text-white">
                             <i class="fa-solid fa-comment-dots"></i>
                             <span>مراسلة الخريج</span>

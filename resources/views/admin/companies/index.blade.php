@@ -200,6 +200,13 @@
                                                 <i class="fas fa-eye"></i>
                                             </a>
 
+                                            {{-- زر مراسلة الشركة --}}
+                                            @if($company->user_id)
+                                                <a href="{{ route('messages.show', $company->user_id) }}" class="btn btn-sm btn-outline-success action-circle-btn" data-bs-toggle="tooltip" title="مراسلة مسؤولي الشركة">
+                                                    <i class="fas fa-comment-dots"></i>
+                                                </a>
+                                            @endif
+
                                             {{-- زر الاعتماد / التعليق --}}
                                             <form action="{{ route('admin.companies.toggle-approval', $company->id) }}" method="POST" class="m-0">
                                                 @csrf
@@ -293,6 +300,11 @@
                             </form>
 
                             <div class="d-flex gap-1">
+                                @if($company->user_id)
+                                    <a href="{{ route('messages.show', $company->user_id) }}" class="btn btn-sm btn-outline-success rounded-pill px-2.5" style="font-size: 0.75rem;" title="مراسلة مسؤولي الشركة">
+                                        <i class="fas fa-comment-dots"></i>
+                                    </a>
+                                @endif
                                 <a href="{{ route('admin.companies.show', $company->id) }}" class="btn btn-sm btn-outline-info rounded-pill px-3" style="font-size: 0.75rem;">
                                     <i class="fas fa-eye me-1"></i>عرض
                                 </a>

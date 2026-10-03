@@ -83,7 +83,23 @@ class MessageController extends Controller
             ]);
         }
 
-        return view('messages.index', compact('conversations'));
+        // جلب جهات الاتصال المؤهلة لبدء محادثة جديدة
+        $currentUser = auth()->user();
+        $contactsQuery = User::where('id', '!=', $userId)
+            ->with(['company', 'graduateData']);
+
+        if ($currentUser->role === 'company') {
+            // الشركة تراسل الخريجين، ومسؤولي الشراكات، والإدارة
+            $contactsQuery->whereIn('role', ['graduate', 'admin', 'partnership_officer', 'career_guidance_officer']);
+        } elseif ($currentUser->role === 'graduate') {
+            // الخريج يراسل ممثلي الشركات، منسقي التدريب، والإدارة
+            $contactsQuery->whereIn('role', ['company', 'admin', 'training_coordinator', 'career_guidance_officer']);
+        }
+        // مسؤولو النظام يمكنهم مراسلة جميع الفئات
+
+        $availableContacts = $contactsQuery->orderBy('name')->get();
+
+        return view('messages.index', compact('conversations', 'availableContacts'));
     }
 
     public function show(Request $request, $id)

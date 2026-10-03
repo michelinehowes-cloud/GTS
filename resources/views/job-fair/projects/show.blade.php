@@ -1077,6 +1077,13 @@
                                 <i class="fas fa-briefcase"></i>
                                 <span>تواصل مع الفريق / طلب توظيف</span>
                             </button>
+
+                            @if($project->user_id && auth()->check() && auth()->id() !== $project->user_id)
+                            <a href="{{ route('messages.show', $project->user_id) }}" class="btn btn-outline-warning w-100 rounded-pill py-2 mt-2 fw-bold d-flex align-items-center justify-content-center gap-2" style="font-size: 0.88rem; border-width: 1.5px; text-decoration: none;">
+                                <i class="fas fa-comments"></i>
+                                <span>محادثة فورية مع صاحب المشروع</span>
+                            </a>
+                            @endif
                         </div>
 
                         <!-- Dynamic QR Code Card -->

@@ -178,7 +178,7 @@
                             <img src="{{ asset('images/gto_logo.jpg') }}" alt="مكتب تدريب الخريجين" onerror="this.src='{{ asset('images/logo.jpg') }}'">
                         </div>
                         <div class="partner-mini-badge" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات">
-                            <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة للمعارض">
+                            <img src="{{ asset('images/wahaexpo_horizontal_dark.png') }}" alt="شركة الواحة للمعارض" onerror="this.src='{{ asset('images/wahaexpo_logo.png') }}'">
                         </div>
                         <span class="d-inline-flex align-items-center gap-1 text-warning small fw-bold ms-1" style="font-size: 0.76rem;">
                             <i class="fas fa-crown"></i> الراعي الاستراتيجي

@@ -81,6 +81,52 @@
         .nav-brand-text .main { color: white; font-weight: 700; font-size: 0.95rem; }
         .nav-brand-text .sub  { color: var(--gold); font-size: 0.72rem; }
 
+        /* ── Strategic Sponsor Nav Badge ── */
+        .nav-brand-divider {
+            width: 1px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.22);
+            margin: 0 10px;
+            flex-shrink: 0;
+        }
+        .nav-sponsor-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            backdrop-filter: blur(8px);
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .nav-sponsor-badge:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(245, 158, 11, 0.6);
+        }
+        .nav-sponsor-badge .sponsor-badge-label {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+        .nav-sponsor-badge .sponsor-tag {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #FDE68A;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .nav-sponsor-badge .sponsor-badge-logo {
+            height: 32px;
+            width: auto;
+            max-width: 140px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
         .nav-links { display: flex; align-items: center; gap: 0.5rem; }
         .nav-btn {
             display: inline-flex;
@@ -1306,11 +1352,16 @@
         @else
             <img src="{{ asset('images/job_fair_logo_white.png') }}" class="jf-logo" alt="شعار الفعالية" onerror="this.style.display='none'">
         @endif
-        <div class="d-none d-sm-flex align-items-center gap-1.5 ps-2 ms-2 border-start border-white border-opacity-25" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض">
-            <div class="bg-white p-1 rounded-2 shadow-sm d-flex align-items-center" style="height: 38px;">
-                <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة للمعارض" style="height: 30px; width: auto; object-fit: contain;">
+
+        {{-- فاصل رأسي --}}
+        <div class="nav-brand-divider d-none d-sm-block"></div>
+
+        {{-- هوية الراعي الاستراتيجي الأنيقة والمتناسقة --}}
+        <div class="nav-sponsor-badge d-none d-sm-flex align-items-center" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات">
+            <div class="sponsor-badge-label">
+                <span class="sponsor-tag"><i class="fas fa-crown text-warning"></i> الراعي الاستراتيجي</span>
             </div>
-            <span class="d-none d-md-inline text-white-50" style="font-size: 0.72rem; line-height: 1.1;">الراعي<br><strong class="text-warning">الاستراتيجي</strong></span>
+            <img src="{{ asset('images/wahaexpo_horizontal_gold.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" class="sponsor-badge-logo" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}'">
         </div>
     </a>
     <div class="d-none d-lg-flex align-items-center gap-2 mx-3">
@@ -1339,7 +1390,7 @@
             <a href="{{ route('graduate.register') }}" class="nav-btn nav-btn-gold">
                 <i class="fas fa-user-plus me-1"></i>سجّل كخريج
             </a>
-            @if(isset($fair) && $fair && $fair->can_register)
+            @if(isset($fair) && $fair)
             <button type="button" class="nav-btn nav-btn-emerald" data-bs-toggle="modal" data-bs-target="#visitorRegisterModal">
                 <i class="fas fa-id-badge me-1"></i>تسجيل زائر
             </button>
@@ -1509,7 +1560,7 @@
                         @endif
                     @endauth
 
-                    @if($fair->can_register)
+                    @if(isset($fair) && $fair)
                     <button type="button" class="nav-btn nav-btn-emerald" data-bs-toggle="modal" data-bs-target="#visitorRegisterModal">
                         <i class="fas fa-id-badge"></i>
                         <span>تسجيل زائر / ضيف</span>

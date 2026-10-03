@@ -189,8 +189,8 @@
                         <div class="partner-mini-badge" title="مكتب تدريب وتأهيل الخريجين — جامعة طرابلس">
                             <img src="{{ asset('images/gto_logo.jpg') }}" alt="مكتب تدريب الخريجين" onerror="this.src='{{ asset('images/logo.jpg') }}'">
                         </div>
-                        <div class="partner-mini-badge" title="تنظيم: شركة الواحة لتنظيم المعارض والمؤتمرات">
-                            <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة للمعارض">
+                        <div class="partner-mini-badge" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات">
+                            <img src="{{ asset('images/wahaexpo_horizontal_dark.png') }}" alt="شركة الواحة للمعارض" onerror="this.src='{{ asset('images/wahaexpo_logo.png') }}'">
                         </div>
                         <span class="text-white-50 small ms-2"><i class="fas fa-calendar-alt me-1 text-warning"></i>{{ $fair->event_date->format('Y-m-d') }}</span>
                         @if($fair->location)

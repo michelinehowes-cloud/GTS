@@ -325,8 +325,8 @@
             <div class="d-flex justify-content-center align-items-center gap-3 mb-2 ticket-logo flex-wrap">
                 <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" style="height: 48px; width: auto; max-width: 130px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
                 <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب وتأهيل الخريجين بجامعة طرابلس" style="height: 52px; width: auto;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
-                <div class="bg-white p-1 rounded-3 shadow-sm d-flex align-items-center" style="height: 46px;" title="تنظيم: شركة الواحة للمعارض">
-                    <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 38px; width: auto; max-width: 120px; object-fit: contain;">
+                <div class="px-2 py-1 rounded-3 d-flex align-items-center" style="height: 46px; background: rgba(255,255,255,0.12); border: 1px solid rgba(245,158,11,0.4);" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات">
+                    <img src="{{ asset('images/wahaexpo_horizontal_gold.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 38px; width: auto; max-width: 130px; object-fit: contain;" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}'">
                 </div>
             </div>
 

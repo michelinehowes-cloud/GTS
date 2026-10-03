@@ -864,8 +864,9 @@
                                 <small>{{ $fair ? $fair->title : 'معرض التوظيف 2026 — جامعة طرابلس' }}</small>
                             </div>
                         </a>
-                        <div class="d-none d-md-flex align-items-center bg-white p-1 rounded-2 shadow-sm border border-warning" style="height: 38px;" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض">
-                            <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة للمعارض" style="height: 30px; width: auto; object-fit: contain;">
+                        <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 rounded-pill" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(245,158,11,0.35);" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات">
+                            <span style="font-size: 0.72rem; font-weight: 700; color: #FDE68A; white-space: nowrap;"><i class="fas fa-crown text-warning"></i> الراعي الاستراتيجي</span>
+                            <img src="{{ asset('images/wahaexpo_horizontal_gold.png') }}" alt="شركة الواحة للمعارض" style="height: 32px; width: auto; object-fit: contain;" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}'">
                         </div>
                     </div>
 

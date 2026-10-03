@@ -271,8 +271,8 @@
             <div class="d-flex justify-content-center align-items-center gap-2 mb-2 ticket-logo flex-wrap">
                 <img src="{{ $registration->jobFair->white_logo_url }}" alt="{{ $registration->jobFair->title }}" style="height: 46px; width: auto; max-width: 130px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
                 <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب الخريجين بجامعة طرابلس" style="height: 50px; width: auto;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
-                <div class="bg-white p-1 rounded-3 shadow-sm d-flex align-items-center" style="height: 44px;" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض">
-                    <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 36px; width: auto; max-width: 110px; object-fit: contain;">
+                <div class="px-2 py-1 rounded-3 d-flex align-items-center" style="height: 44px; background: rgba(255,255,255,0.12); border: 1px solid rgba(245,158,11,0.4);" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات">
+                    <img src="{{ asset('images/wahaexpo_horizontal_gold.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 36px; width: auto; max-width: 125px; object-fit: contain;" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}'">
                 </div>
             </div>
             <div class="ticket-event-name">{{ $registration->jobFair->title }}</div>

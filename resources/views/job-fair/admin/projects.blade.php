@@ -493,7 +493,7 @@
                                     @endif
 
                                     <div>
-                                        <a href="javascript:void(0)" onclick="showModalSafe('reviewModal{{ $proj->id }}')" class="fw-bold text-dark text-decoration-none d-block mb-1 hover-primary fs-6" title="انقر لمعاينة ملف المشروع الكامل">
+                                        <a href="javascript:void(0)" onclick="showModalSafe('reviewModal{{ $proj->id }}')" data-bs-toggle="modal" data-bs-target="#reviewModal{{ $proj->id }}" class="fw-bold text-dark text-decoration-none d-block mb-1 hover-primary fs-6" title="انقر لمعاينة ملف المشروع الكامل">
                                             {{ $proj->title }}
                                         </a>
                                         <div class="d-flex align-items-center gap-1.5 flex-wrap">
@@ -581,7 +581,7 @@
                             <td class="text-center">
                                 <div class="d-flex align-items-center justify-content-center gap-1">
                                     <!-- ملف المراجعة الكامل -->
-                                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 shadow-sm" title="معاينة ملف المشروع الكامل وحقول المراجعة" onclick="showModalSafe('reviewModal{{ $proj->id }}')">
+                                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 shadow-sm" title="معاينة ملف المشروع الكامل وحقول المراجعة" onclick="showModalSafe('reviewModal{{ $proj->id }}')" data-bs-toggle="modal" data-bs-target="#reviewModal{{ $proj->id }}">
                                         <i class="fas fa-file-invoice"></i>
                                         <span class="small fw-bold">مراجعة</span>
                                     </button>
@@ -592,7 +592,7 @@
                                     </a>
 
                                     <!-- تعديل -->
-                                    <button type="button" class="action-circle-btn text-primary" title="تعديل بيانات المشروع" onclick="editProjectById({{ $proj->id }})">
+                                    <button type="button" class="action-circle-btn text-primary" title="تعديل بيانات المشروع" onclick="editProjectById({{ $proj->id }})" data-bs-toggle="modal" data-bs-target="#editProjectModal">
                                         <i class="fas fa-edit"></i>
                                     </button>
 
@@ -618,7 +618,7 @@
                                             </button>
                                         </form>
 
-                                        <button type="button" class="btn btn-xs btn-outline-danger py-1 px-2 rounded-pill fw-bold" style="font-size: 0.72rem;" onclick="showModalSafe('rejectModal{{ $proj->id }}')" title="رفض المشروع">
+                                        <button type="button" class="btn btn-xs btn-outline-danger py-1 px-2 rounded-pill fw-bold" style="font-size: 0.72rem;" onclick="showModalSafe('rejectModal{{ $proj->id }}')" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $proj->id }}" title="رفض المشروع">
                                             <i class="fas fa-times me-1"></i> رفض
                                         </button>
                                     </div>
@@ -1366,67 +1366,140 @@
 
 @push('scripts')
 <script>
-    const fairProjects = @json($allProjects->keyBy('id'));
+    window.fairProjects = @json($allProjects->keyBy('id'));
 
-    function showModalSafe(modalId) {
+    window.showModalSafe = function(modalId) {
         const el = document.getElementById(modalId);
-        if (el) {
-            const modal = bootstrap.Modal.getInstance(el) || new bootstrap.Modal(el);
-            modal.show();
+        if (!el) {
+            console.error('Modal element not found with ID:', modalId);
+            return;
         }
-    }
 
-    function editProjectById(id) {
-        const proj = fairProjects[id];
+        // 1. استخدام مكتبة Bootstrap 5 الرسمية إن وُجدت
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            try {
+                const modal = bootstrap.Modal.getInstance(el) || new bootstrap.Modal(el);
+                modal.show();
+                return;
+            } catch (err) {
+                console.warn('Bootstrap modal show failed, falling back:', err);
+            }
+        }
+
+        // 2. المحاولة عبر jQuery
+        if (typeof window.jQuery !== 'undefined' && typeof window.jQuery(el).modal === 'function') {
+            try {
+                window.jQuery(el).modal('show');
+                return;
+            } catch (err) {}
+        }
+
+        // 3. الحل البديل المباشر (Native DOM Fallback)
+        el.classList.add('show');
+        el.style.display = 'block';
+        el.removeAttribute('aria-hidden');
+        el.setAttribute('aria-modal', 'true');
+        document.body.classList.add('modal-open');
+
+        let backdrop = document.getElementById('custom-modal-backdrop');
+        if (!backdrop) {
+            backdrop = document.createElement('div');
+            backdrop.id = 'custom-modal-backdrop';
+            backdrop.className = 'modal-backdrop fade show';
+            document.body.appendChild(backdrop);
+        }
+    };
+
+    // معالج إغلاق النوافذ المنبثقة للطوارئ
+    document.addEventListener('click', function(e) {
+        const dismissBtn = e.target.closest('[data-bs-dismiss="modal"]');
+        if (dismissBtn) {
+            const modal = dismissBtn.closest('.modal');
+            if (modal) {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    const inst = bootstrap.Modal.getInstance(modal);
+                    if (inst) {
+                        try {
+                            inst.hide();
+                            return;
+                        } catch(err) {}
+                    }
+                }
+                modal.classList.remove('show');
+                modal.style.display = 'none';
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('modal-open');
+                const backdrop = document.getElementById('custom-modal-backdrop') || document.querySelector('.modal-backdrop');
+                if (backdrop) backdrop.remove();
+            }
+        }
+    });
+
+    window.editProjectById = function(id) {
+        const proj = (window.fairProjects || {})[id];
         if (!proj) {
             console.error('Project not found with ID:', id);
             return;
         }
 
-        document.getElementById('editProjectForm').action = "/admin/job-fair/projects/" + proj.id;
-        document.getElementById('edit_title').value = proj.title || '';
-        document.getElementById('edit_faculty').value = proj.faculty || '';
-        document.getElementById('edit_department').value = proj.department || '';
-        document.getElementById('edit_graduation_year').value = proj.graduation_year || 2026;
-        document.getElementById('edit_project_type').value = proj.project_type || '';
-        document.getElementById('edit_main_category').value = proj.main_category || '';
-        document.getElementById('edit_supervisor_name').value = proj.supervisor_name || '';
-        document.getElementById('edit_supervisor_title').value = proj.supervisor_title || '';
-        document.getElementById('edit_contact_email').value = proj.contact_email || '';
-        document.getElementById('edit_booth_number').value = proj.booth_number || '';
-        document.getElementById('edit_status').value = proj.status || 'published';
-        document.getElementById('edit_summary').value = proj.summary || '';
-        document.getElementById('edit_problem_statement').value = proj.problem_statement || '';
-        document.getElementById('edit_solution_statement').value = proj.solution_statement || '';
-        document.getElementById('edit_objectives').value = proj.objectives || '';
-        document.getElementById('edit_technical_specifications').value = proj.technical_specifications || '';
-        document.getElementById('edit_description').value = proj.description || '';
-        document.getElementById('edit_key_outcomes').value = proj.key_outcomes || '';
-        document.getElementById('edit_market_viability').value = proj.market_viability || '';
-        document.getElementById('edit_project_url').value = proj.project_url || '';
-        document.getElementById('edit_video_url').value = proj.video_url || '';
+        const setVal = (fieldId, val) => {
+            const el = document.getElementById(fieldId);
+            if (el) el.value = (val !== null && val !== undefined) ? val : '';
+        };
+
+        const setChecked = (fieldId, val) => {
+            const el = document.getElementById(fieldId);
+            if (el) el.checked = Boolean(val);
+        };
+
+        const editForm = document.getElementById('editProjectForm');
+        if (editForm) {
+            editForm.action = "/admin/job-fair/projects/" + proj.id;
+        }
+
+        setVal('edit_title', proj.title);
+        setVal('edit_faculty', proj.faculty);
+        setVal('edit_department', proj.department);
+        setVal('edit_graduation_year', proj.graduation_year || 2026);
+        setVal('edit_project_type', proj.project_type);
+        setVal('edit_main_category', proj.main_category);
+        setVal('edit_supervisor_name', proj.supervisor_name);
+        setVal('edit_supervisor_title', proj.supervisor_title);
+        setVal('edit_contact_email', proj.contact_email);
+        setVal('edit_booth_number', proj.booth_number);
+        setVal('edit_status', proj.status || 'published');
+        setVal('edit_summary', proj.summary);
+        setVal('edit_problem_statement', proj.problem_statement);
+        setVal('edit_solution_statement', proj.solution_statement);
+        setVal('edit_objectives', proj.objectives);
+        setVal('edit_technical_specifications', proj.technical_specifications);
+        setVal('edit_description', proj.description);
+        setVal('edit_key_outcomes', proj.key_outcomes);
+        setVal('edit_market_viability', proj.market_viability);
+        setVal('edit_project_url', proj.project_url);
+        setVal('edit_video_url', proj.video_url);
 
         // الحقول الخاصة بالمسؤول فقط
-        document.getElementById('edit_student_university_id').value = proj.student_university_id || '';
-        document.getElementById('edit_whatsapp_phone').value = proj.whatsapp_phone || '';
-        document.getElementById('edit_prototype_status').value = proj.prototype_status || '';
-        document.getElementById('edit_project_requirements').value = proj.project_requirements || '';
-        document.getElementById('edit_needs_special_equipment').checked = Boolean(proj.needs_special_equipment);
-        document.getElementById('edit_special_equipment_details').value = proj.special_equipment_details || '';
-        document.getElementById('edit_executive_summary').value = proj.executive_summary || '';
-        document.getElementById('edit_admin_notes').value = proj.admin_notes || '';
-        document.getElementById('edit_rejection_reason').value = proj.rejection_reason || '';
-        document.getElementById('editProjFeatured').checked = Boolean(proj.is_featured);
+        setVal('edit_student_university_id', proj.student_university_id);
+        setVal('edit_whatsapp_phone', proj.whatsapp_phone);
+        setVal('edit_prototype_status', proj.prototype_status);
+        setVal('edit_project_requirements', proj.project_requirements);
+        setChecked('edit_needs_special_equipment', proj.needs_special_equipment);
+        setVal('edit_special_equipment_details', proj.special_equipment_details);
+        setVal('edit_executive_summary', proj.executive_summary);
+        setVal('edit_admin_notes', proj.admin_notes);
+        setVal('edit_rejection_reason', proj.rejection_reason);
+        setChecked('editProjFeatured', proj.is_featured);
 
         // أعضاء الفريق
         let teamLines = '';
         if (Array.isArray(proj.team_members)) {
-            teamLines = proj.team_members.map(m => m.name || m).filter(Boolean).join('\n');
+            teamLines = proj.team_members.map(m => (m && (m.name || m)) || '').filter(Boolean).join('\n');
         } else if (typeof proj.team_members === 'string') {
             try {
                 const parsed = JSON.parse(proj.team_members);
                 if (Array.isArray(parsed)) {
-                    teamLines = parsed.map(m => m.name || m).filter(Boolean).join('\n');
+                    teamLines = parsed.map(m => (m && (m.name || m)) || '').filter(Boolean).join('\n');
                 } else {
                     teamLines = proj.team_members;
                 }
@@ -1434,10 +1507,10 @@
                 teamLines = proj.team_members;
             }
         }
-        document.getElementById('edit_team_members_raw').value = teamLines;
+        setVal('edit_team_members_raw', teamLines);
 
-        showModalSafe('editProjectModal');
-    }
+        window.showModalSafe('editProjectModal');
+    };
 </script>
 @endpush
 @endsection

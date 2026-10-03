@@ -999,28 +999,35 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             };
 
-            // Strategy: if we already have an explicit device ID picked by the user, use it.
-            // Otherwise, start directly with facingMode — this triggers the permission prompt.
-            // getCameras() is called AFTER start() succeeds (permission already granted at that point).
+            // Strategy:
+            // 1. If user already picked a specific device ID, use it directly.
+            // 2. Otherwise use { video: true } — the most basic constraint that works
+            //    with ANY camera including built-in webcams (HP TrueVision, etc.) that
+            //    don't expose facingMode. This avoids OverconstrainedError.
+            // 3. Fall back to facingMode variants only if the basic constraint fails.
             if (currentCameraId) {
                 try {
                     await html5QrcodeScanner.start(currentCameraId, config, onScanSuccess);
                 } catch (idErr) {
-                    console.warn('Stored camera ID failed, falling back to facingMode:', idErr);
+                    console.warn('Stored camera ID failed, resetting and retrying:', idErr);
                     currentCameraId = null;
-                    await html5QrcodeScanner.start({ facingMode: 'user' }, config, onScanSuccess);
+                    await html5QrcodeScanner.start({ video: true }, config, onScanSuccess);
                 }
             } else {
-                // Direct start — browser will show permission prompt if needed
-                // On desktop: 'user' = webcam. On mobile: 'environment' = rear camera.
-                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                const preferredFacing = isMobile ? 'environment' : 'user';
+                // { video: true } works universally — triggers permission prompt if needed
                 try {
-                    await html5QrcodeScanner.start({ facingMode: preferredFacing }, config, onScanSuccess);
-                } catch (facingErr) {
-                    console.warn(`facingMode '${preferredFacing}' failed, trying other:`, facingErr);
-                    const fallbackFacing = isMobile ? 'user' : 'environment';
-                    await html5QrcodeScanner.start({ facingMode: fallbackFacing }, config, onScanSuccess);
+                    await html5QrcodeScanner.start({ video: true }, config, onScanSuccess);
+                } catch (basicErr) {
+                    console.warn('Basic video:true constraint failed, trying facingMode:', basicErr);
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    try {
+                        const facing = isMobile ? 'environment' : 'user';
+                        await html5QrcodeScanner.start({ facingMode: facing }, config, onScanSuccess);
+                    } catch (facingErr) {
+                        console.warn('facingMode also failed, last resort:', facingErr);
+                        const fallback = isMobile ? 'user' : 'environment';
+                        await html5QrcodeScanner.start({ facingMode: fallback }, config, onScanSuccess);
+                    }
                 }
             }
 
@@ -1086,8 +1093,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const errName = err ? (err.name || '') : '';
         const errMsg = err ? (err.message || String(err)) : '';
-        const isPermissionDenied = /NotAllowedError|PermissionDeniedError|denied/i.test(errName + ' ' + errMsg);
-        const isNotFound = /NotFoundError|DevicesNotFoundError|OverconstrainedError/i.test(errName + ' ' + errMsg);
+        // Check OverconstrainedError BEFORE permission check — it can contain the word "denied"
+        const isOverconstrained = /OverconstrainedError|Overconstrained|AbortError/i.test(errName);
+        const isPermissionDenied = !isOverconstrained && /NotAllowedError|PermissionDeniedError/i.test(errName);
+        const isNotFound = isOverconstrained || /NotFoundError|DevicesNotFoundError/i.test(errName);
 
         let html = '';
         if (isPermissionDenied) {

@@ -571,6 +571,8 @@ Route::middleware('auth')->group(function () {
 
         // تقارير التغطية
         Route::get('/reports/coverage', [App\Http\Controllers\MediaController::class, 'reportsIndex'])->name('media.reports.coverage');
+        Route::get('/reports/coverage/create', [App\Http\Controllers\MediaController::class, 'createCoverageReportForm'])->name('media.reports.coverage.create');
+        Route::post('/reports/coverage', [App\Http\Controllers\MediaController::class, 'storeCoverageReport'])->name('media.reports.coverage.store');
         Route::get('/reports/coverage/{training}', [App\Http\Controllers\MediaController::class, 'createCoverageReport'])->name('media.reports.coverage.show');
         Route::get('/reports/coverage/{training}/edit', [App\Http\Controllers\MediaController::class, 'editCoverageReport'])->name('media.reports.coverage.edit');
         Route::put('/reports/coverage/{training}', [App\Http\Controllers\MediaController::class, 'updateCoverageReport'])->name('media.reports.coverage.update');

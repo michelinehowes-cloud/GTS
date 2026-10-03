@@ -8,36 +8,140 @@ use Illuminate\Http\Request;
 
 class MessageController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * التحقق مما إذا كان المستخدم يملك صلاحية مراسلة الطرف الآخر
+     */
+    public function canMessageUser(User $sender, User $receiver): bool
     {
-        $userId = auth()->id();
-        
-        // جلب الرسائل الأخيرة لكل محادثة (مجمعة حسب الشخص الآخر)
+        // لا يمكن للمستخدم مراسلة نفسه
+        if ($sender->id === $receiver->id) {
+            return false;
+        }
+
+        // قاعدة الخريج:
+        // الخريج لا يستطيع مراسلة أي أحد باستثناء من لديه صلاحية إدارة الخريجين (career_guidance_officer أو من لديه صلاحية graduates.view)
+        // ومدير النظام لا يمكن للخريج الوصول إليه نهائياً
+        if ($sender->role === 'graduate') {
+            if ($receiver->isAdmin()) {
+                return false;
+            }
+
+            return $receiver->role === 'career_guidance_officer'
+                || $receiver->hasPermission('graduates.view')
+                || $receiver->hasPermission('graduates.edit')
+                || $receiver->canManageGraduates();
+        }
+
+        // قاعدة مدير النظام:
+        // مدير النظام لا يراسل الخريجين مباشرة (التواصل مع الخريجين مخصص حصراً لإدارة الخريجين)
+        if ($sender->isAdmin() && $receiver->role === 'graduate') {
+            return false;
+        }
+
+        // قاعدة الشركات:
+        // الشركات تراسل الخريجين، مسؤولي الشراكات، الإرشاد المهني، منسقي التدريب، والإدارة
+        if ($sender->role === 'company') {
+            return in_array($receiver->role, [
+                'graduate',
+                'admin',
+                'partnership_officer',
+                'career_guidance_officer',
+                'training_coordinator',
+                'staff'
+            ]);
+        }
+
+        return true;
+    }
+
+    /**
+     * تجميع المحادثات الخاصة بالمستخدم الحالي
+     */
+    protected function getConversationsData($userId): array
+    {
         $messages = Message::where('sender_id', $userId)
             ->orWhere('receiver_id', $userId)
             ->with(['sender.company', 'sender.graduateData', 'receiver.company', 'receiver.graduateData'])
             ->latest()
             ->get();
 
-        // تجميع المحادثات
         $conversations = [];
         $totalUnreadCount = 0;
         foreach ($messages as $msg) {
             $otherUserId = $msg->sender_id == $userId ? $msg->receiver_id : $msg->sender_id;
-            
+
             if (!isset($conversations[$otherUserId])) {
+                $other = $msg->sender_id == $userId ? $msg->receiver : $msg->sender;
+                if (!$other) continue;
+
                 $conversations[$otherUserId] = [
-                    'user' => $msg->sender_id == $userId ? $msg->receiver : $msg->sender,
+                    'user' => $other,
                     'last_message' => $msg,
                     'unread_count' => 0
                 ];
             }
-            
+
             if ($msg->receiver_id == $userId && is_null($msg->read_at)) {
                 $conversations[$otherUserId]['unread_count']++;
                 $totalUnreadCount++;
             }
         }
+
+        return [$conversations, $totalUnreadCount];
+    }
+
+    /**
+     * جلب جهات الاتصال المسموح بمراسلتها للمستخدم الحالي
+     */
+    protected function getAvailableContacts(User $currentUser)
+    {
+        $userId = $currentUser->id;
+        $contactsQuery = User::where('id', '!=', $userId)
+            ->where('is_active', true)
+            ->with(['company', 'graduateData']);
+
+        if ($currentUser->role === 'graduate') {
+            // الخريج يراسل حصراً من يملك صلاحية إدارة الخريجين (ويستثنى مدير النظام وأي دور آخر)
+            $eligibleUserIds = User::where('role', '!=', 'admin')
+                ->where('role', '!=', 'graduate')
+                ->where('is_active', true)
+                ->get()
+                ->filter(function ($u) {
+                    return $u->role === 'career_guidance_officer'
+                        || $u->hasPermission('graduates.view')
+                        || $u->hasPermission('graduates.edit')
+                        || $u->canManageGraduates();
+                })
+                ->pluck('id');
+
+            $contactsQuery->whereIn('id', $eligibleUserIds);
+        } elseif ($currentUser->isAdmin()) {
+            // مدير النظام لا يراسل الخريجين مباشرة
+            $contactsQuery->where('role', '!=', 'graduate');
+        } elseif ($currentUser->role === 'company') {
+            // الشركة تراسل الخريجين ومسؤولي الشراكات والإرشاد
+            $contactsQuery->whereIn('role', [
+                'graduate',
+                'admin',
+                'partnership_officer',
+                'career_guidance_officer',
+                'training_coordinator',
+                'staff'
+            ]);
+        }
+
+        return $contactsQuery->orderBy('name')->get();
+    }
+
+    /**
+     * صفحة صندوق الرسائل الرئيسية
+     */
+    public function index(Request $request)
+    {
+        $currentUser = auth()->user();
+        $userId = $currentUser->id;
+
+        list($conversations, $totalUnreadCount) = $this->getConversationsData($userId);
 
         // استجابة JSON للطلبات من الشريط الجانبي (AJAX / Drawer)
         if ($request->ajax() || $request->wantsJson()) {
@@ -83,28 +187,19 @@ class MessageController extends Controller
             ]);
         }
 
-        // جلب جهات الاتصال المؤهلة لبدء محادثة جديدة
-        $currentUser = auth()->user();
-        $contactsQuery = User::where('id', '!=', $userId)
-            ->with(['company', 'graduateData']);
+        $availableContacts = $this->getAvailableContacts($currentUser);
 
-        if ($currentUser->role === 'company') {
-            // الشركة تراسل الخريجين، ومسؤولي الشراكات، والإدارة
-            $contactsQuery->whereIn('role', ['graduate', 'admin', 'partnership_officer', 'career_guidance_officer']);
-        } elseif ($currentUser->role === 'graduate') {
-            // الخريج يراسل ممثلي الشركات، منسقي التدريب، والإدارة
-            $contactsQuery->whereIn('role', ['company', 'admin', 'training_coordinator', 'career_guidance_officer']);
-        }
-        // مسؤولو النظام يمكنهم مراسلة جميع الفئات
-
-        $availableContacts = $contactsQuery->orderBy('name')->get();
-
-        return view('messages.index', compact('conversations', 'availableContacts'));
+        return view('messages.index', compact('conversations', 'availableContacts', 'totalUnreadCount'));
     }
 
+    /**
+     * صفحة محادثة محددة
+     */
     public function show(Request $request, $id)
     {
-        $userId = auth()->id();
+        $currentUser = auth()->user();
+        $userId = $currentUser->id;
+
         $otherUser = User::with(['company', 'graduateData'])->find($id);
 
         // Fallback: If $id is a company_id rather than a user_id
@@ -122,12 +217,27 @@ class MessageController extends Controller
             abort(404, 'المستخدم غير موجود.');
         }
 
+        // فحص صلاحية المراسلة
+        if (!$this->canMessageUser($currentUser, $otherUser)) {
+            $errorMsg = 'غير مصرح لك ببدء محادثة مع هذا المستخدم.';
+            if ($currentUser->role === 'graduate') {
+                $errorMsg = 'غير مصرح للخريج بمراسلة هذا المستخدم. التواصل متاح فقط وحصرياً مع مسؤولي إدارة شؤون الخريجين.';
+            } elseif ($currentUser->isAdmin() && $otherUser->role === 'graduate') {
+                $errorMsg = 'لا يمكن لمدير النظام مراسلة الخريجين مباشرة؛ التواصل مع الخريجين محصور بإدارة الخريجين.';
+            }
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMsg], 403);
+            }
+            return redirect()->route('messages.index')->with('error', $errorMsg);
+        }
+
         $id = $otherUser->id; // Normalize to user id
 
-        $messages = Message::where(function($query) use ($userId, $id) {
+        $messages = Message::where(function ($query) use ($userId, $id) {
                 $query->where('sender_id', $userId)->where('receiver_id', $id);
             })
-            ->orWhere(function($query) use ($userId, $id) {
+            ->orWhere(function ($query) use ($userId, $id) {
                 $query->where('sender_id', $id)->where('receiver_id', $userId);
             })
             ->orderBy('created_at', 'asc')
@@ -182,16 +292,24 @@ class MessageController extends Controller
             ]);
         }
 
-        return view('messages.show', compact('otherUser', 'messages'));
+        list($conversations, $totalUnreadCount) = $this->getConversationsData($userId);
+        $availableContacts = $this->getAvailableContacts($currentUser);
+
+        return view('messages.show', compact('otherUser', 'messages', 'conversations', 'availableContacts', 'totalUnreadCount'));
     }
 
+    /**
+     * إرسال رسالة جديدة
+     */
     public function store(Request $request, $id)
     {
         $request->validate([
-            'content' => 'required|string|max:1000'
+            'content' => 'required|string|max:2000'
         ]);
 
+        $sender = auth()->user();
         $receiver = User::find($id);
+
         if (!$receiver) {
             $company = \App\Models\Company::find($id);
             if ($company && $company->user_id) {
@@ -206,17 +324,31 @@ class MessageController extends Controller
             return back()->with('error', 'المستلم غير موجود.');
         }
 
+        // فحص صلاحية المراسلة
+        if (!$this->canMessageUser($sender, $receiver)) {
+            $errorMsg = 'غير مصرح لك بإرسال رسائل لهذا المستخدم.';
+            if ($sender->role === 'graduate') {
+                $errorMsg = 'غير مصرح للخريج بمراسلة هذا المستخدم. التواصل متاح فقط وحصرياً مع مسؤولي إدارة شؤون الخريجين.';
+            } elseif ($sender->isAdmin() && $receiver->role === 'graduate') {
+                $errorMsg = 'لا يمكن لمدير النظام مراسلة الخريجين مباشرة؛ التواصل مع الخريجين محصور بإدارة الخريجين.';
+            }
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => $errorMsg], 403);
+            }
+            return back()->with('error', $errorMsg);
+        }
+
         $id = $receiver->id; // Normalize
 
         $message = Message::create([
-            'sender_id' => auth()->id(),
+            'sender_id' => $sender->id,
             'receiver_id' => $id,
             'content' => $request->input('content')
         ]);
 
         // إشعار المستلم
         try {
-            $sender = auth()->user();
             $senderDisplayName = ($sender->role === 'company' && $sender->company)
                 ? $sender->company->name
                 : $sender->name;

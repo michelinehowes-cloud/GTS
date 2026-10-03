@@ -329,39 +329,87 @@ class JobFairController extends Controller
     {
         $graduateId = $request->graduate_id;
         $jobFairId = $request->job_fair_id;
+        $code = trim($request->code ?? '');
 
-        $registration = JobFairRegistration::where('user_id', $graduateId)
-            ->where('job_fair_id', $jobFairId)
-            ->with(['graduate', 'jobFair'])
-            ->first();
+        $registration = null;
 
-        if (!$registration) {
-            return response()->json(['success' => false, 'message' => 'رمز QR غير صالح.'], 404);
+        if ($graduateId) {
+            $registration = JobFairRegistration::where('user_id', $graduateId)
+                ->where('job_fair_id', $jobFairId)
+                ->with(['graduate', 'jobFair'])
+                ->first();
         }
 
-        if ($registration->attended) {
+        if (!$registration && !empty($code)) {
+            // Check direct QR or registration number
+            $registration = JobFairRegistration::where('job_fair_id', $jobFairId)
+                ->where(function($q) use ($code) {
+                    $q->where('qr_code', $code)
+                      ->orWhere('registration_number', $code);
+                })
+                ->with(['graduate', 'jobFair'])
+                ->first();
+
+            // If not found, check if code matches graduate user_id, national_id, or email
+            if (!$registration) {
+                $registration = JobFairRegistration::where('job_fair_id', $jobFairId)
+                    ->whereHas('graduate', function($g) use ($code) {
+                        $g->where('id', $code)
+                          ->orWhere('national_id', $code)
+                          ->orWhere('email', $code);
+                    })
+                    ->with(['graduate', 'jobFair'])
+                    ->first();
+            }
+        }
+
+        if (!$registration) {
             return response()->json([
-                'success'      => true,
-                'already_in'   => true,
-                'graduate'     => $registration->graduate->name,
-                'check_in_at'  => $registration->check_in_at->format('H:i'),
-                'message'      => 'تم تسجيل الحضور مسبقاً',
+                'success' => false,
+                'message' => 'لم يتم العثور على تسجيل مطابق لهذا الرمز في هذا المعرض.',
+            ], 404);
+        }
+
+        $graduateName = $registration->graduate?->name ?? 'زائر مسجل';
+        $major = $registration->graduate?->major ?? 'تخصص عام';
+        $faculty = $registration->graduate?->faculty ?? '';
+        $regNumber = $registration->registration_number ?? ('JF-' . $registration->id);
+
+        if ($registration->attended) {
+            $formattedTime = $registration->check_in_at 
+                ? $registration->check_in_at->format('H:i') 
+                : ($registration->updated_at ? $registration->updated_at->format('H:i') : '--:--');
+
+            return response()->json([
+                'success'             => true,
+                'already_in'          => true,
+                'graduate'            => $graduateName,
+                'major'               => $major,
+                'faculty'             => $faculty,
+                'registration_number' => $regNumber,
+                'check_in_at'         => $formattedTime,
+                'message'             => 'تم تسجيل الحضور مسبقاً',
             ]);
         }
 
+        $now = Carbon::now();
         $registration->update([
             'attended'    => true,
-            'check_in_at' => Carbon::now(),
+            'check_in_at' => $now,
             'status'      => 'attended',
         ]);
 
         return response()->json([
-            'success'    => true,
-            'already_in' => false,
-            'graduate'   => $registration->graduate->name,
-            'major'      => $registration->graduate->major,
-            'faculty'    => $registration->graduate->faculty,
-            'message'    => 'تم تسجيل الحضور بنجاح ✓',
+            'success'             => true,
+            'already_in'          => false,
+            'graduate'            => $graduateName,
+            'major'               => $major,
+            'faculty'             => $faculty,
+            'registration_number' => $regNumber,
+            'check_in_at'         => $now->format('H:i'),
+            'registration_id'     => $registration->id,
+            'user_id'             => $registration->user_id,
+            'message'             => 'تم تسجيل الحضور بنجاح ✓',
         ]);
     }
 
@@ -656,12 +704,48 @@ class JobFairController extends Controller
     }
 
     /**
-     * صفحة تسجيل الحضور (QR Scanner)
+     * صفحة تسجيل الحضور (محطة التحقق الذكي والـ QR Scanner)
      */
-    public function attendancePage(JobFair $fair)
+    public function attendancePage(Request $request, JobFair $fair)
     {
         $stats = $this->getFairStats($fair);
-        return view('job-fair.admin.attendance', compact('fair', 'stats'));
+        $stats['remaining'] = max(0, ($stats['total_registered'] ?? 0) - ($stats['total_attended'] ?? 0));
+        $stats['pct'] = ($stats['total_registered'] ?? 0) > 0 
+            ? round((($stats['total_attended'] ?? 0) / $stats['total_registered']) * 100) 
+            : 0;
+
+        // سجل الحضور الفعلي في المعرض
+        $recentCheckins = JobFairRegistration::where('job_fair_id', $fair->id)
+            ->where(function($q) {
+                $q->where('attended', true)->orWhere('status', 'attended');
+            })
+            ->with(['graduate'])
+            ->orderByDesc('check_in_at')
+            ->orderByDesc('updated_at')
+            ->take(20)
+            ->get();
+
+        // دليل المسجلين للبحث والتسجيل السريع
+        $search = trim($request->get('q', ''));
+        $directoryQuery = JobFairRegistration::where('job_fair_id', $fair->id)
+            ->with(['graduate']);
+
+        if (!empty($search)) {
+            $directoryQuery->where(function($sub) use ($search) {
+                $sub->where('registration_number', 'like', "%{$search}%")
+                    ->orWhere('qr_code', 'like', "%{$search}%")
+                    ->orWhereHas('graduate', function($g) use ($search) {
+                        $g->where('name', 'like', "%{$search}%")
+                          ->orWhere('email', 'like', "%{$search}%")
+                          ->orWhere('national_id', 'like', "%{$search}%")
+                          ->orWhere('major', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $registeredAttendees = $directoryQuery->orderBy('attended', 'asc')->latest()->take(50)->get();
+
+        return view('job-fair.admin.attendance', compact('fair', 'stats', 'recentCheckins', 'registeredAttendees', 'search'));
     }
 
     // ==================== إدارة الجهات الراعية ====================

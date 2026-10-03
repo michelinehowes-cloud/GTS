@@ -81,50 +81,67 @@
         .nav-brand-text .main { color: white; font-weight: 700; font-size: 0.95rem; }
         .nav-brand-text .sub  { color: var(--gold); font-size: 0.72rem; }
 
-        /* ── Strategic Sponsor Nav Badge ── */
+        /* ── Strategic Sponsor Nav Logo ── */
         .nav-brand-divider {
             width: 1px;
-            height: 32px;
+            height: 30px;
             background: rgba(255, 255, 255, 0.22);
             margin: 0 10px;
             flex-shrink: 0;
         }
-        .nav-sponsor-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 4px 12px;
-            border-radius: 50px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(245, 158, 11, 0.35);
-            backdrop-filter: blur(8px);
-            transition: all 0.25s ease;
-            text-decoration: none;
-        }
-        .nav-sponsor-badge:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(245, 158, 11, 0.6);
-        }
-        .nav-sponsor-badge .sponsor-badge-label {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.1;
-        }
-        .nav-sponsor-badge .sponsor-tag {
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: #FDE68A;
-            white-space: nowrap;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .nav-sponsor-badge .sponsor-badge-logo {
-            height: 32px;
+        .waha-nav-logo {
+            height: 36px;
             width: auto;
-            max-width: 140px;
+            max-width: 120px;
             object-fit: contain;
             filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            transition: transform 0.2s ease;
+        }
+        .waha-nav-logo:hover {
+            transform: scale(1.05);
+        }
+
+        /* ── Hero Strip Logos (Bottom of Blue Screen) ── */
+        .hero-strip-logo {
+            height: 48px;
+            width: auto;
+            max-width: 170px;
+            object-fit: contain;
+            opacity: 0.92;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+            transition: all 0.25s ease;
+        }
+        .hero-strip-logo-office {
+            border-radius: 50%;
+            height: 48px;
+            width: 48px;
+            border: 2px solid var(--gold);
+        }
+        .hero-strip-logo:hover {
+            opacity: 1;
+            transform: translateY(-2px) scale(1.04);
+        }
+        .hero-strip-divider {
+            width: 1px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* ── Strategic Sponsor Tier Badge in Sponsors Grid ── */
+        .tier-strategic {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.35));
+            color: #FDE68A;
+            border: 1px solid rgba(245, 158, 11, 0.6);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+        }
+        .sponsor-card-strategic {
+            border: 1.5px solid rgba(245, 158, 11, 0.45) !important;
+            background: linear-gradient(145deg, rgba(245, 158, 11, 0.05) 0%, rgba(15, 23, 42, 0.75) 100%) !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+        .sponsor-card-strategic:hover {
+            border-color: rgba(245, 158, 11, 0.85) !important;
+            box-shadow: 0 20px 45px rgba(245, 158, 11, 0.25) !important;
         }
 
         .nav-links { display: flex; align-items: center; gap: 0.5rem; }
@@ -1356,13 +1373,8 @@
         {{-- فاصل رأسي --}}
         <div class="nav-brand-divider d-none d-sm-block"></div>
 
-        {{-- هوية الراعي الاستراتيجي الأنيقة والمتناسقة --}}
-        <div class="nav-sponsor-badge d-none d-sm-flex align-items-center" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات">
-            <div class="sponsor-badge-label">
-                <span class="sponsor-tag"><i class="fas fa-crown text-warning"></i> الراعي الاستراتيجي</span>
-            </div>
-            <img src="{{ asset('images/wahaexpo_horizontal_gold.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" class="sponsor-badge-logo" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}'">
-        </div>
+        {{-- شعار شركة الواحة للمعارض المباشر --}}
+        <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" class="waha-nav-logo d-none d-sm-block" title="شركة الواحة لتنظيم المعارض والمؤتمرات — الراعي الاستراتيجي" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
     </a>
     <div class="d-none d-lg-flex align-items-center gap-2 mx-3">
         <a href="{{ route('job-fair.public.companies', $fair->id ?? 1) }}" class="text-white text-decoration-none px-3 py-1.5 rounded-pill" style="font-size: 0.85rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); transition: all 0.2s;">
@@ -1391,8 +1403,9 @@
                 <i class="fas fa-user-plus me-1"></i>سجّل كخريج
             </a>
             @if(isset($fair) && $fair)
-            <button type="button" class="nav-btn nav-btn-emerald" data-bs-toggle="modal" data-bs-target="#visitorRegisterModal">
-                <i class="fas fa-id-badge me-1"></i>تسجيل زائر
+            <button type="button" class="nav-btn nav-btn-outline" data-bs-toggle="modal" data-bs-target="#visitorRegisterModal">
+                <i class="fas fa-id-badge" style="color:var(--gold)"></i>
+                <span>تسجيل زائر</span>
             </button>
             @endif
         @endauth
@@ -1561,8 +1574,8 @@
                     @endauth
 
                     @if(isset($fair) && $fair)
-                    <button type="button" class="nav-btn nav-btn-emerald" data-bs-toggle="modal" data-bs-target="#visitorRegisterModal">
-                        <i class="fas fa-id-badge"></i>
+                    <button type="button" class="nav-btn nav-btn-outline" data-bs-toggle="modal" data-bs-target="#visitorRegisterModal">
+                        <i class="fas fa-id-badge" style="color:var(--gold)"></i>
                         <span>تسجيل زائر / ضيف</span>
                     </button>
                     @endif
@@ -1637,36 +1650,20 @@
             </div>
         </div>
         {{-- Partners Strip & Strategic Sponsor --}}
+        {{-- شعار المكتب وشعار الواحة فقط أسفل الشاشة الزرقاء --}}
         <div class="row pb-4">
             <div class="col-12 text-center">
-                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.35);">
-                    <i class="fas fa-crown text-warning"></i>
-                    <span style="color: #FDE68A; font-size: 0.85rem; font-weight: 700;">الراعي الاستراتيجي للمعرض: شركة الواحة لتنظيم المعارض والمؤتمرات</span>
-                </div>
                 <div class="d-flex justify-content-center align-items-center flex-wrap gap-4 gap-md-5 mt-2">
-                    {{-- شعار شركة الواحة للمعارض كراعي استراتيجي بارز --}}
-                    <div class="d-flex align-items-center gap-2 bg-white px-3 py-1.5 rounded-3 shadow-sm border border-warning" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات">
-                        <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 48px; width: auto; object-fit: contain;">
-                    </div>
-                    <img src="{{ asset('images/logo.jpg') }}" alt="مكتب تدريب الخريجين" class="partner-logo partner-logo-jpg" title="مكتب تدريب الخريجين">
-                    
-                    @if(isset($companies) && $companies->count() > 0)
-                        @foreach($companies->take(5) as $fairCompany)
-                            @if($fairCompany->company->logo)
-                                <img src="{{ Storage::url($fairCompany->company->logo) }}" alt="{{ $fairCompany->company->name }}" class="partner-logo" title="{{ $fairCompany->company->name }}">
-                            @else
-                                <span class="partner-text" title="{{ $fairCompany->company->name }}">{{ $fairCompany->company->name }}</span>
-                            @endif
-                        @endforeach
-                    @endif
+                    <img src="{{ asset('images/logo.jpg') }}" alt="مكتب تدريب وتأهيل الخريجين — جامعة طرابلس" class="hero-strip-logo hero-strip-logo-office" title="مكتب تدريب وتأهيل الخريجين — جامعة طرابلس" onerror="this.src='{{ asset('images/uni_logo_white.png') }}'">
+                    <div class="hero-strip-divider"></div>
+                    <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" class="hero-strip-logo" title="شركة الواحة لتنظيم المعارض والمؤتمرات — الراعي الاستراتيجي" onerror="this.src='{{ asset('images/wahaexpo_horizontal_gold.png') }}'">
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-{{-- SPONSORS SECTION (الجهات الراعية) --}}
-@if(isset($sponsors) && $sponsors->count() > 0)
+{{-- SPONSORS SECTION (الجهات الراعية والشريك الاستراتيجي) --}}
 <section class="sponsors-section" id="sponsors">
     <div class="container">
         <div class="text-center mb-5">
@@ -1677,50 +1674,71 @@
         </div>
 
         <div class="sponsors-grid">
-            @foreach($sponsors as $sponsor)
-            <div class="sponsor-card">
-                @php
-                    $tierClass = match($sponsor->tier) {
-                        'diamond' => 'tier-diamond',
-                        'platinum' => 'tier-platinum',
-                        'silver' => 'tier-silver',
-                        default => 'tier-gold',
-                    };
-                    $tierIcon = match($sponsor->tier) {
-                        'diamond' => '💎',
-                        'platinum' => '⭐',
-                        'silver' => '🥈',
-                        default => '🏆',
-                    };
-                @endphp
-                <div class="sponsor-tier-badge {{ $tierClass }}">
-                    <span>{{ $tierIcon }}</span>
-                    <span>{{ $sponsor->tier_label }}</span>
+            {{-- الشريك والراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات --}}
+            <div class="sponsor-card sponsor-card-strategic">
+                <div class="sponsor-tier-badge tier-strategic">
+                    <span>👑</span>
+                    <span>الراعي الاستراتيجي</span>
                 </div>
 
-                <div class="sponsor-logo-box">
-                    @if($sponsor->logo_path)
-                        <img src="{{ Storage::url($sponsor->logo_path) }}" alt="{{ $sponsor->name }}">
-                    @else
-                        <i class="fas fa-award fa-2x text-warning"></i>
+                <div class="sponsor-logo-box bg-white p-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center" style="min-height: 90px;">
+                    <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="max-height: 75px; max-width: 170px; object-fit: contain;">
+                </div>
+
+                <h3 class="sponsor-name">شركة الواحة لتنظيم المعارض والمؤتمرات</h3>
+                <p class="sponsor-desc">الشريك والراعي الاستراتيجي لمعرض التوظيف السنوي بجامعة طرابلس، الرائد في صناعة وتنظيم كبرى الفعاليات والمعارض والمؤتمرات المهنية في ليبيا.</p>
+
+                <a href="https://ly.linkedin.com/company/wahaexpo" target="_blank" rel="noopener noreferrer" class="sponsor-link">
+                    <span>زيارة صفحة الشركة</span>
+                    <i class="fas fa-external-link-alt" style="font-size: 0.75rem;"></i>
+                </a>
+            </div>
+
+            @if(isset($sponsors) && $sponsors->count() > 0)
+                @foreach($sponsors as $sponsor)
+                <div class="sponsor-card">
+                    @php
+                        $tierClass = match($sponsor->tier) {
+                            'diamond' => 'tier-diamond',
+                            'platinum' => 'tier-platinum',
+                            'silver' => 'tier-silver',
+                            default => 'tier-gold',
+                        };
+                        $tierIcon = match($sponsor->tier) {
+                            'diamond' => '💎',
+                            'platinum' => '⭐',
+                            'silver' => '🥈',
+                            default => '🏆',
+                        };
+                    @endphp
+                    <div class="sponsor-tier-badge {{ $tierClass }}">
+                        <span>{{ $tierIcon }}</span>
+                        <span>{{ $sponsor->tier_label }}</span>
+                    </div>
+
+                    <div class="sponsor-logo-box">
+                        @if($sponsor->logo_path)
+                            <img src="{{ Storage::url($sponsor->logo_path) }}" alt="{{ $sponsor->name }}">
+                        @else
+                            <i class="fas fa-award fa-2x text-warning"></i>
+                        @endif
+                    </div>
+
+                    <h3 class="sponsor-name">{{ $sponsor->name }}</h3>
+                    <p class="sponsor-desc">{{ $sponsor->description }}</p>
+
+                    @if($sponsor->website)
+                        <a href="{{ $sponsor->website }}" target="_blank" rel="noopener noreferrer" class="sponsor-link">
+                            <span>زيارة الموقع الإلكتروني</span>
+                            <i class="fas fa-external-link-alt" style="font-size: 0.75rem;"></i>
+                        </a>
                     @endif
                 </div>
-
-                <h3 class="sponsor-name">{{ $sponsor->name }}</h3>
-                <p class="sponsor-desc">{{ $sponsor->description }}</p>
-
-                @if($sponsor->website)
-                    <a href="{{ $sponsor->website }}" target="_blank" rel="noopener noreferrer" class="sponsor-link">
-                        <span>زيارة الموقع الإلكتروني</span>
-                        <i class="fas fa-external-link-alt" style="font-size: 0.75rem;"></i>
-                    </a>
-                @endif
-            </div>
-            @endforeach
+                @endforeach
+            @endif
         </div>
     </div>
 </section>
-@endif
 
 {{-- COMPANIES SECTION (Interactive Popup Cards) --}}
 @if($companies->count() > 0)
@@ -2324,7 +2342,7 @@
 
                 <div class="modal-footer border-0 pt-0 px-4 pb-4 gap-2">
                     <button type="button" class="btn btn-outline-secondary px-4 rounded-pill" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="submit" id="btnSubmitVisitor" class="nav-btn nav-btn-emerald px-4 py-2 rounded-pill fw-bold border-0">
+                    <button type="submit" id="btnSubmitVisitor" class="nav-btn nav-btn-gold px-4 py-2 rounded-pill fw-bold border-0">
                         <i class="fas fa-check-circle me-1"></i>
                         <span>تأكيد التسجيل وإصدار التذكرة الرقمية</span>
                     </button>

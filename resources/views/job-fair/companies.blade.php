@@ -301,50 +301,24 @@
             color: white !important;
         }
 
-        /* ── Strategic Sponsor Nav Badge ── */
+        /* ── Strategic Sponsor Nav Logo ── */
         .nav-brand-divider {
             width: 1px;
-            height: 32px;
+            height: 30px;
             background: rgba(255, 255, 255, 0.22);
             margin: 0 10px;
             flex-shrink: 0;
         }
-        .nav-sponsor-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 4px 12px;
-            border-radius: 50px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(245, 158, 11, 0.35);
-            backdrop-filter: blur(8px);
-            transition: all 0.25s ease;
-            text-decoration: none;
-        }
-        .nav-sponsor-badge:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(245, 158, 11, 0.6);
-        }
-        .nav-sponsor-badge .sponsor-badge-label {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.1;
-        }
-        .nav-sponsor-badge .sponsor-tag {
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: #FDE68A;
-            white-space: nowrap;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .nav-sponsor-badge .sponsor-badge-logo {
-            height: 32px;
+        .waha-nav-logo {
+            height: 36px;
             width: auto;
-            max-width: 140px;
+            max-width: 120px;
             object-fit: contain;
             filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            transition: transform 0.2s ease;
+        }
+        .waha-nav-logo:hover {
+            transform: scale(1.05);
         }
 
         /* ══════════════════════════════════
@@ -1036,13 +1010,8 @@
             {{-- فاصل رأسي --}}
             <div class="nav-brand-divider d-none d-sm-block"></div>
 
-            {{-- هوية الراعي الاستراتيجي الأنيقة والمتناسقة --}}
-            <div class="nav-sponsor-badge d-none d-sm-flex align-items-center" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات">
-                <div class="sponsor-badge-label">
-                    <span class="sponsor-tag"><i class="fas fa-crown text-warning"></i> الراعي الاستراتيجي</span>
-                </div>
-                <img src="{{ asset('images/wahaexpo_horizontal_gold.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" class="sponsor-badge-logo" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}'">
-            </div>
+            {{-- شعار شركة الواحة للمعارض المباشر --}}
+            <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" class="waha-nav-logo d-none d-sm-block" title="شركة الواحة لتنظيم المعارض والمؤتمرات — الراعي الاستراتيجي" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
         </a>
 
         <div class="nav-links">
@@ -1067,8 +1036,8 @@
                     <i class="fas fa-user-plus"></i>سجّل كخريج
                 </a>
                 @if($fair)
-                    <a href="{{ route('job-fair.public', $fair->id) }}#visitor-register" class="nav-btn nav-btn-emerald">
-                        <i class="fas fa-id-badge"></i>سجّل كزائر
+                    <a href="{{ route('job-fair.public', $fair->id) }}#visitor-register" class="nav-btn nav-btn-outline">
+                        <i class="fas fa-id-badge" style="color:var(--gold)"></i>سجّل كزائر
                     </a>
                 @endif
             @endauth

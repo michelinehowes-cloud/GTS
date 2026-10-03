@@ -205,7 +205,6 @@
             font-size: 0.78rem;
             color: #94a3b8;
             font-weight: 700;
-            letter-spacing: 0.5px;
             margin-bottom: 0.8rem;
         }
         #qr-code canvas, #qr-code img {
@@ -321,28 +320,20 @@
 
         <!-- Header -->
         <div class="ticket-header">
-            <!-- شعارات الشركاء: المعرض، الجامعة، وشركة الواحة لتنظيم المعارض -->
             <div class="d-flex justify-content-center align-items-center gap-3 mb-2 ticket-logo flex-wrap">
-                <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" style="height: 48px; width: auto; max-width: 130px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
-                <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب وتأهيل الخريجين بجامعة طرابلس" style="height: 52px; width: auto;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
-                <div class="px-2 py-1 rounded-3 d-flex align-items-center" style="height: 46px; background: rgba(255,255,255,0.12); border: 1px solid rgba(245,158,11,0.4);" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات">
-                    <img src="{{ asset('images/wahaexpo_horizontal_gold.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 38px; width: auto; max-width: 130px; object-fit: contain;" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}'">
-                </div>
+                <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" style="height: 48px; width: auto; max-width: 140px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
+                <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب وتأهيل الخريجين بجامعة طرابلس" style="height: 48px; width: auto;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
             </div>
 
             <div class="ticket-event-name">{{ $fair->title ?? 'ملتقى ومعرض التوظيف السنوي' }}</div>
-            <div class="ticket-university">مكتب تدريب وتأهيل الخريجين — جامعة طرابلس</div>
-            <div class="ticket-organizer-badge">
-                <i class="fas fa-crown text-warning"></i>
-                <span>الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات</span>
-            </div>
+            <div class="ticket-university">مكتب تدريب وتأهيل الخريجين</div>
 
-            <div class="mt-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.85)">
+            <div class="mt-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.9)">
                 @if($fair->event_date)
                     <i class="fas fa-calendar ms-1 text-warning"></i>{{ $fair->event_date->format('d/m/Y') }}
                     &nbsp;&bull;&nbsp;
                 @endif
-                <i class="fas fa-map-marker-alt ms-1 text-danger"></i>{{ $fair->location ?? 'جامعة طرابلس' }}
+                <i class="fas fa-map-marker-alt ms-1 text-danger"></i>جامعة طرابلس
             </div>
         </div>
 

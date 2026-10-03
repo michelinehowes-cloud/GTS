@@ -56,25 +56,13 @@
 @section('content')
 <div class="container py-4" style="max-width: 800px">
 
-    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 mb-4">
-        <div class="d-flex align-items-center gap-3">
-            <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="btn btn-light rounded-circle shadow-sm" style="width:45px;height:45px;display:flex;align-items:center;justify-content:center; color: #045db0;">
-                <i class="fas fa-arrow-right"></i>
-            </a>
-            <div>
-                <h2 class="fw-bold mb-0" style="color: #03488a">
-                    <i class="fas fa-qrcode me-2" style="color: #eeca3e"></i>
-                    تسجيل الحضور
-                </h2>
-                <small class="text-muted fw-bold">{{ $fair->title }}</small>
-            </div>
-        </div>
-        <div class="d-flex align-items-center gap-3 bg-white p-2 rounded-4 shadow-sm">
-            <img src="{{ asset('images/logo.jpg') }}" alt="مكتب الخريجين" style="height: 40px; border-radius: 8px;">
-            <div style="width: 1px; height: 30px; background: #e2e8f0;"></div>
-            <img src="{{ $fair->logo_url }}" alt="{{ $fair->title }}" style="height: 45px; max-width: 120px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo.png') }}';">
-        </div>
-    </div>
+    {{-- الشريط العلوي الموحد مع الشعارات الرسمية المتطابقة مع صفحة المعرض العامة --}}
+    @include('job-fair.admin.partials.header', [
+        'fair' => $fair,
+        'page' => 'attendance',
+        'title' => 'تسجيل حضور الزوار (ماسح QR السريع)',
+        'subtitle' => $fair->title . ' — مسح التذاكر الرقمية وبطاقات الحضور الذكية'
+    ])
 
     <!-- Scanner Section -->
     <div class="scanner-section mb-4">

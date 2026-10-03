@@ -113,25 +113,53 @@
         ]
     ])
 
-    <!-- Hero Header -->
-    <div class="job-fair-hero mb-4">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <div>
-                    <h2 class="mb-1 fs-4">
-                        <i class="fas fa-calendar-check me-2" style="color: #fef08a;"></i>
-                        إدارة المعارض والفعاليات
-                    </h2>
-                    <p class="mb-0 text-white-50 small">إدارة وتنظيم المعارض والملتقيات والفعاليات ومتابعة حضور الخريجين والشركات</p>
+    <!-- Hero Header مع الشعارات الرسمية المتطابقة مع صفحة المعرض الرئيسية -->
+    <div class="job-fair-hero mb-4" style="background: linear-gradient(135deg, #091f3c 0%, #03488a 55%, #045db0 100%) !important; border-bottom: 3.5px solid #eeca3e; border-radius: 20px; padding: 1.25rem 1.6rem; box-shadow: 0 10px 30px rgba(3, 72, 138, 0.22);">
+        <!-- Top Strip: Brand Logos Bar (Identical to public fair page) -->
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 pb-3 mb-3" style="border-bottom: 1px solid rgba(255, 255, 255, 0.14);">
+            <div class="d-flex align-items-center flex-wrap gap-3">
+                <a href="{{ route('home') }}" class="d-flex align-items-center gap-2 text-decoration-none" title="الصفحة الرئيسية للنظام">
+                    <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" style="width: 44px; height: 44px; border-radius: 50%; border: 2px solid #eeca3e; object-fit: cover; box-shadow: 0 3px 10px rgba(0,0,0,0.28);" onerror="this.src='{{ asset('images/gto_logo.jpg') }}'">
+                    <div class="d-none d-sm-block text-end" style="line-height: 1.25;">
+                        <div class="text-white fw-bold" style="font-size: 0.92rem;">مكتب تدريب الخريجين</div>
+                        <div style="color: #eeca3e; font-size: 0.74rem; font-weight: 700;">جامعة طرابلس</div>
+                    </div>
+                </a>
+
+                <div style="width: 1px; height: 32px; background: rgba(255, 255, 255, 0.25); margin: 0 4px;"></div>
+
+                <a href="{{ route('job-fair.public') }}" target="_blank" title="شعار المعرض — الصفحة العامة">
+                    <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="معرض التوظيف" style="height: 38px; width: auto; max-width: 140px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));">
+                </a>
+
+                <div style="width: 1px; height: 32px; background: rgba(255, 255, 255, 0.25); margin: 0 4px;" class="d-none d-sm-block"></div>
+
+                <div class="d-none d-sm-flex align-items-center gap-2">
+                    <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 34px; width: auto; max-width: 130px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));" title="شركة الواحة لتنظيم المعارض والمؤتمرات — الراعي الاستراتيجي" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
+                    <span style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3)); border: 1px solid rgba(245, 158, 11, 0.55); color: #fef08a; padding: 4px 10px; border-radius: 50px; font-size: 0.72rem; font-weight: 700;" class="d-none d-md-inline-flex align-items-center gap-1" title="الشريك والراعي الاستراتيجي لمعرض التوظيف السنوي">
+                        <i class="fas fa-crown text-warning"></i> الراعي الاستراتيجي
+                    </span>
                 </div>
             </div>
-            <div class="d-flex gap-2 flex-wrap w-100 w-md-auto">
-                <a href="{{ route('job-fair.public') }}" class="btn btn-sm btn-outline-light rounded-pill flex-grow-1 flex-md-grow-0" target="_blank">
-                    <i class="fas fa-external-link-alt me-1"></i> الصفحة العامة
+
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ route('job-fair.public') }}" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.22); font-size: 0.8rem; font-weight: 600;" target="_blank">
+                    <i class="fas fa-external-link-alt text-warning me-1"></i> الصفحة العامة
                 </a>
-                <a href="{{ route('job-fair.admin.create') }}" class="btn btn-sm btn-warning rounded-pill fw-bold text-dark flex-grow-1 flex-md-grow-0" style="background: #fef08a; border: none;">
+                <a href="{{ route('job-fair.admin.create') }}" class="btn btn-sm btn-warning rounded-pill fw-bold text-dark px-3 py-1" style="background: #eeca3e; border: none; font-size: 0.8rem;">
                     <i class="fas fa-plus me-1"></i> إنشاء فعالية جديدة
                 </a>
+            </div>
+        </div>
+
+        <!-- Title & Subtitle Row -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="mb-1 fs-4 fw-bold text-white">
+                    <i class="fas fa-calendar-check me-2" style="color: #eeca3e;"></i>
+                    إدارة المعارض والفعاليات
+                </h2>
+                <p class="mb-0 text-white-50 small">إدارة وتنظيم المعارض والملتقيات والفعاليات ومتابعة حضور الخريجين والشركات</p>
             </div>
         </div>
     </div>

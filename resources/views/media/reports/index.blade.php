@@ -18,7 +18,11 @@
         secondaryBadge="{{ $stats['rate'] ?? 0 }}% نسبة التغطية"
         secondaryBadgeIcon="fas fa-chart-pie"
     >
-        <button onclick="window.print()" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem;">
+        <button type="button" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" data-bs-toggle="modal" data-bs-target="#newCoverageReportModal" style="font-size: 0.88rem;">
+            <i class="fas fa-plus-circle fs-6"></i>
+            <span>إضافة تقرير تغطية جديد</span>
+        </button>
+        <button onclick="window.print()" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem;">
             <i class="fas fa-print fs-6"></i>
             <span>طباعة الملخص</span>
         </button>
@@ -27,6 +31,16 @@
             <span>لوحة الميديا</span>
         </a>
     </x-page-hero>
+
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm mb-4 border-0 d-print-none" role="alert">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-check-circle fs-5"></i>
+                <span class="fw-bold">{{ session('success') }}</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
     <!-- صف بطاقات إحصائيات Bento المعتمدة للمنصة -->
     <div class="row g-3 mb-4">
@@ -303,13 +317,23 @@
                                         <i class="fas fa-eye"></i>
                                         <span>عرض</span>
                                     </a>
-                                    <a href="{{ route('media.reports.coverage.edit', $training) }}"
-                                       class="btn btn-sm btn-warning text-dark fw-bold py-1.5 px-3 rounded-pill text-nowrap d-inline-flex align-items-center gap-1.5 shadow-sm text-decoration-none"
-                                       style="font-size: 0.78rem;"
-                                       title="كتابة وصياغة التقرير والبيان الصحفي">
-                                        <i class="fas fa-feather-alt"></i>
-                                        <span>كتابة التقرير</span>
-                                    </a>
+                                    @if($hasWritten)
+                                        <a href="{{ route('media.reports.coverage.edit', $training) }}"
+                                           class="btn btn-sm btn-outline-warning text-dark fw-bold py-1.5 px-3 rounded-pill text-nowrap d-inline-flex align-items-center gap-1.5 shadow-sm text-decoration-none"
+                                           style="font-size: 0.78rem;"
+                                           title="تعديل وصياغة التقرير والبيان الصحفي">
+                                            <i class="fas fa-edit"></i>
+                                            <span>تعديل التقرير</span>
+                                        </a>
+                                    @else
+                                        <a href="{{ route('media.reports.coverage.edit', $training) }}"
+                                           class="btn btn-sm btn-warning text-dark fw-bold py-1.5 px-3 rounded-pill text-nowrap d-inline-flex align-items-center gap-1.5 shadow-sm text-decoration-none"
+                                           style="font-size: 0.78rem;"
+                                           title="إضافة وصياغة التقرير والبيان الصحفي">
+                                            <i class="fas fa-plus-circle"></i>
+                                            <span>إضافة تقرير</span>
+                                        </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -335,5 +359,181 @@
         @endif
     </div>
 
+    <!-- نافذة إضافة تقرير تغطية جديد (Modal) -->
+    <div class="modal fade" id="newCoverageReportModal" tabindex="-1" aria-labelledby="newCoverageReportModalLabel" aria-hidden="true" dir="rtl">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0 px-4 pt-4 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle bg-warning bg-opacity-20 text-warning p-2.5 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.25rem;">
+                            <i class="fas fa-plus-circle text-dark"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold text-dark mb-0" id="newCoverageReportModalLabel">إضافة تقرير تغطية إعلامية جديد</h5>
+                            <small class="text-muted">اختر البرنامج التدريبي للبدء في كتابة وتوثيق تقرير التغطية والبيان الصحفي</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                </div>
+
+                <div class="modal-body p-4">
+                    <!-- حقل التصفية السريعة -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark mb-1.5">
+                            <i class="fas fa-search text-primary me-1"></i> تصفية سريعة للبرامج
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                            <input type="text" id="reportModalSearch" class="form-control bg-light border-start-0 ps-0" placeholder="اكتب للبحث باسم البرنامج، الشركة، أو القاعة...">
+                        </div>
+                    </div>
+
+                    <!-- قائمة اختيار البرنامج -->
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dark mb-1.5">
+                            <i class="fas fa-graduation-cap text-primary me-1"></i> اختيار البرنامج التدريبي المستهدف <span class="text-danger">*</span>
+                        </label>
+                        <select id="selectedTrainingId" class="form-select bg-light rounded-3 p-2.5" size="7" style="height: 190px;">
+                            @php
+                                $pendingTrainings = ($allTrainings ?? collect())->filter(function($t) {
+                                    return $t->media_coverage_status === 'pending' || is_null($t->media_coverage_status);
+                                });
+                                $otherTrainings = ($allTrainings ?? collect())->filter(function($t) {
+                                    return $t->media_coverage_status !== 'pending' && !is_null($t->media_coverage_status);
+                                });
+                            @endphp
+
+                            @if($pendingTrainings->isNotEmpty())
+                                <optgroup label="⭐ برامج بانتظار التغطية الإعلامية (أولوية التوثيق)">
+                                    @foreach($pendingTrainings as $t)
+                                        <option value="{{ $t->id }}"
+                                                data-url="{{ route('media.reports.coverage.edit', $t) }}"
+                                                data-title="{{ $t->title }}"
+                                                data-location="{{ $t->location ?: 'جامعة طرابلس' }}"
+                                                data-date="{{ $t->start_date ? $t->start_date->format('Y/m/d') : 'غير محدد' }}"
+                                                data-company="{{ $t->company ? $t->company->name : ($t->coordinator ? $t->coordinator->name : 'مكتب تدريب الخريجين') }}"
+                                                data-type="{{ $t->type_arabic ?? 'تدريب' }}"
+                                                data-status="⏳ بانتظار التغطية">
+                                            {{ $t->title }} — ({{ $t->company ? $t->company->name : 'جامعة طرابلس' }} | {{ $t->start_date ? $t->start_date->format('Y-m-d') : '--' }})
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+
+                            @if($otherTrainings->isNotEmpty())
+                                <optgroup label="📌 باقي البرامج والفعاليات المسجلة">
+                                    @foreach($otherTrainings as $t)
+                                        <option value="{{ $t->id }}"
+                                                data-url="{{ route('media.reports.coverage.edit', $t) }}"
+                                                data-title="{{ $t->title }}"
+                                                data-location="{{ $t->location ?: 'جامعة طرابلس' }}"
+                                                data-date="{{ $t->start_date ? $t->start_date->format('Y/m/d') : 'غير محدد' }}"
+                                                data-company="{{ $t->company ? $t->company->name : ($t->coordinator ? $t->coordinator->name : 'مكتب تدريب الخريجين') }}"
+                                                data-type="{{ $t->type_arabic ?? 'تدريب' }}"
+                                                data-status="{{ $t->getMediaCoverageStatusText() }}">
+                                            {{ $t->title }} — ({{ $t->company ? $t->company->name : 'جامعة طرابلس' }} | {{ $t->start_date ? $t->start_date->format('Y-m-d') : '--' }})
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+                        </select>
+                    </div>
+
+                    <!-- بطاقة معاينة تفاصيل البرنامج المختار -->
+                    <div id="trainingPreviewCard" class="card border rounded-3 p-3 bg-light d-none">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span id="previewTypeBadge" class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-2.5 py-1 fw-bold"></span>
+                            <span id="previewStatusBadge" class="badge rounded-pill bg-warning bg-opacity-15 text-dark border border-warning border-opacity-25 px-2.5 py-1 fw-bold"></span>
+                        </div>
+                        <h6 id="previewTitle" class="fw-bold text-dark mb-1"></h6>
+                        <div class="d-flex align-items-center gap-3 text-muted small flex-wrap mt-2">
+                            <span><i class="fas fa-building text-primary me-1"></i><span id="previewCompany"></span></span>
+                            <span><i class="fas fa-map-marker-alt text-danger me-1"></i><span id="previewLocation"></span></span>
+                            <span><i class="far fa-calendar-alt text-primary me-1"></i><span id="previewDate"></span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 px-4 pb-4 pt-0 d-flex justify-content-between align-items-center">
+                    <a href="{{ route('media.reports.coverage.create') }}" class="btn btn-outline-secondary btn-sm rounded-3">
+                        <i class="fas fa-expand me-1"></i>فتح صفحة الإضافة الكاملة
+                    </a>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-light px-3 py-2 rounded-3 text-muted" data-bs-dismiss="modal">إلغاء</button>
+                        <button type="button" id="proceedToReportBtn" class="btn btn-warning text-dark fw-bold px-4 py-2 rounded-3 shadow-sm d-flex align-items-center gap-2" disabled>
+                            <i class="fas fa-feather-alt"></i>
+                            <span>المتابعة لكتابة التقرير</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('reportModalSearch');
+    const select = document.getElementById('selectedTrainingId');
+    const previewCard = document.getElementById('trainingPreviewCard');
+    const previewTitle = document.getElementById('previewTitle');
+    const previewCompany = document.getElementById('previewCompany');
+    const previewLocation = document.getElementById('previewLocation');
+    const previewDate = document.getElementById('previewDate');
+    const previewTypeBadge = document.getElementById('previewTypeBadge');
+    const previewStatusBadge = document.getElementById('previewStatusBadge');
+    const proceedBtn = document.getElementById('proceedToReportBtn');
+
+    if (!select) return;
+
+    // تصفية خيارات الـ select
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            const query = this.value.toLowerCase().trim();
+            const options = select.querySelectorAll('option');
+            let hasVisible = false;
+
+            options.forEach(opt => {
+                const text = (opt.textContent + ' ' + (opt.dataset.company || '') + ' ' + (opt.dataset.location || '')).toLowerCase();
+                if (text.includes(query)) {
+                    opt.style.display = '';
+                    hasVisible = true;
+                } else {
+                    opt.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // تحديث المعاينة وتفعيل زر المتابعة
+    select.addEventListener('change', function () {
+        const selected = select.options[select.selectedIndex];
+        if (selected && selected.value) {
+            previewTitle.textContent = selected.dataset.title || '';
+            previewCompany.textContent = selected.dataset.company || 'غير محدد';
+            previewLocation.textContent = selected.dataset.location || 'جامعة طرابلس';
+            previewDate.textContent = selected.dataset.date || '—';
+            previewTypeBadge.textContent = selected.dataset.type || 'تدريب';
+            previewStatusBadge.textContent = selected.dataset.status || '';
+
+            previewCard.classList.remove('d-none');
+            proceedBtn.disabled = false;
+        } else {
+            previewCard.classList.add('d-none');
+            proceedBtn.disabled = true;
+        }
+    });
+
+    // التوجيه لصفحة كتابة التقرير
+    proceedBtn.addEventListener('click', function () {
+        const selected = select.options[select.selectedIndex];
+        if (selected && selected.dataset.url) {
+            window.location.href = selected.dataset.url;
+        }
+    });
+});
+</script>
+@endpush
 @endsection

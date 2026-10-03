@@ -255,13 +255,24 @@
                         <i class="fas fa-chevron-left text-muted opacity-50"></i>
                     </a>
 
+                    <a href="{{ route('media.reports.coverage.create') }}" class="quick-action-item">
+                        <div class="rounded-3 bg-warning bg-opacity-20 text-dark p-2 flex-shrink-0" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-plus-circle text-warning-emphasis"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">إضافة تقرير تغطية وبيان صحفي جديد</div>
+                            <small class="text-muted">توثيق برنامج تدريبي وصياغة بيانه الصحفي المعتمد</small>
+                        </div>
+                        <i class="fas fa-chevron-left text-muted opacity-50"></i>
+                    </a>
+
                     <a href="{{ route('media.reports.coverage') }}" class="quick-action-item">
-                        <div class="rounded-3 bg-warning bg-opacity-15 text-dark p-2 flex-shrink-0" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-feather-alt text-warning-emphasis"></i>
+                        <div class="rounded-3 bg-primary bg-opacity-10 text-primary p-2 flex-shrink-0" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-file-invoice"></i>
                         </div>
                         <div class="flex-grow-1">
                             <div class="fw-bold">تقارير التغطية والبيانات الصحفية</div>
-                            <small class="text-muted">صياغة البيانات الرسمية واستخراج تقارير التوثيق الميداني</small>
+                            <small class="text-muted">متابعة نسب الإنجاز واستخراج تقارير التوثيق الميداني</small>
                         </div>
                         <i class="fas fa-chevron-left text-muted opacity-50"></i>
                     </a>

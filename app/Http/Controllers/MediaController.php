@@ -169,7 +169,63 @@ class MediaController extends Controller
             'rate' => $coverageRate,
         ];
 
-        return view('media.reports.index', compact('trainings', 'stats'));
+        $allTrainings = Training::with(['company', 'coordinator'])
+            ->orderBy('start_date', 'desc')
+            ->get();
+
+        return view('media.reports.index', compact('trainings', 'stats', 'allTrainings'));
+    }
+
+    /**
+     * نموذج إضافة تقرير تغطية إعلامية جديد
+     */
+    public function createCoverageReportForm(Request $request)
+    {
+        if ($request->filled('training_id')) {
+            $training = Training::findOrFail($request->training_id);
+            return redirect()->route('media.reports.coverage.edit', $training);
+        }
+
+        $allTrainings = Training::with(['company', 'coordinator'])
+            ->orderBy('start_date', 'desc')
+            ->get();
+
+        $pendingTrainings = $allTrainings->filter(function ($t) {
+            return $t->media_coverage_status === 'pending' || is_null($t->media_coverage_status);
+        });
+
+        return view('media.reports.create', compact('allTrainings', 'pendingTrainings'));
+    }
+
+    /**
+     * إنشاء وحفظ تقرير تغطية إعلامية جديد
+     */
+    public function storeCoverageReport(Request $request)
+    {
+        $validated = $request->validate([
+            'training_id' => 'required|exists:trainings,id',
+            'media_coverage_status' => 'required|in:pending,covered,not_required',
+            'media_coverage_summary' => 'nullable|string',
+            'media_press_release' => 'nullable|string',
+            'media_coverage_notes' => 'nullable|string',
+            'media_team_members' => 'nullable|string|max:255',
+            'media_coverage_links' => 'nullable|string',
+            'media_coverage_date' => 'nullable|date',
+        ]);
+
+        $training = Training::findOrFail($request->training_id);
+        $training->update([
+            'media_coverage_status' => $validated['media_coverage_status'],
+            'media_coverage_summary' => $validated['media_coverage_summary'] ?? null,
+            'media_press_release' => $validated['media_press_release'] ?? null,
+            'media_coverage_notes' => $validated['media_coverage_notes'] ?? null,
+            'media_team_members' => $validated['media_team_members'] ?? null,
+            'media_coverage_links' => $validated['media_coverage_links'] ?? null,
+            'media_coverage_date' => $validated['media_coverage_date'] ?? null,
+        ]);
+
+        return redirect()->route('media.reports.coverage.show', $training)
+            ->with('success', 'تم إنشاء وحفظ تقرير التغطية الإعلامية والبيان الصحفي بنجاح.');
     }
 
     /**

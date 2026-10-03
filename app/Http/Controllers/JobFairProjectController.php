@@ -319,12 +319,14 @@ class JobFairProjectController extends Controller
             'pending'   => $allProjects->where('status', 'pending')->count(),
             'published' => $allProjects->where('status', 'published')->count(),
             'rejected'  => $allProjects->where('status', 'rejected')->count(),
-            'faculties' => $allProjects->pluck('faculty')->unique()->count(),
+            'draft'     => $allProjects->where('status', 'draft')->count(),
+            'faculties' => $allProjects->pluck('faculty')->unique()->filter()->count(),
             'featured'  => $allProjects->where('is_featured', true)->count(),
             'views'     => $allProjects->sum('views_count'),
         ];
 
-        $projects = match($statusFilter) {
+        // الفلترة حسب الحالة
+        $filtered = match($statusFilter) {
             'pending'   => $allProjects->where('status', 'pending'),
             'published' => $allProjects->where('status', 'published'),
             'rejected'  => $allProjects->where('status', 'rejected'),
@@ -332,7 +334,32 @@ class JobFairProjectController extends Controller
             default     => $allProjects,
         };
 
-        return view('job-fair.admin.projects', compact('fair', 'projects', 'stats', 'statusFilter', 'allProjects'));
+        // الفلترة الإضافية (بحث، كلية، قسم)
+        if ($request->filled('faculty')) {
+            $filtered = $filtered->where('faculty', $request->faculty);
+        }
+
+        if ($request->filled('department')) {
+            $filtered = $filtered->where('department', $request->department);
+        }
+
+        if ($request->filled('search')) {
+            $s = mb_strtolower(trim($request->search));
+            $filtered = $filtered->filter(function($p) use ($s) {
+                return str_contains(mb_strtolower($p->title ?? ''), $s)
+                    || str_contains(mb_strtolower($p->summary ?? ''), $s)
+                    || str_contains(mb_strtolower($p->supervisor_name ?? ''), $s)
+                    || str_contains(mb_strtolower($p->student_university_id ?? ''), $s)
+                    || str_contains(mb_strtolower($p->whatsapp_phone ?? ''), $s)
+                    || str_contains(mb_strtolower(json_encode($p->team_members) ?? ''), $s);
+            });
+        }
+
+        $projects = $filtered;
+        $faculties = $allProjects->pluck('faculty')->unique()->filter()->values();
+        $departments = $allProjects->pluck('department')->unique()->filter()->values();
+
+        return view('job-fair.admin.projects', compact('fair', 'projects', 'stats', 'statusFilter', 'allProjects', 'faculties', 'departments'));
     }
 
     /**

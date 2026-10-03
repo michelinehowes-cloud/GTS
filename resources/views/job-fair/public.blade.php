@@ -1306,6 +1306,12 @@
         @else
             <img src="{{ asset('images/job_fair_logo_white.png') }}" class="jf-logo" alt="شعار الفعالية" onerror="this.style.display='none'">
         @endif
+        <div class="d-none d-sm-flex align-items-center gap-1.5 ps-2 ms-2 border-start border-white border-opacity-25" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض">
+            <div class="bg-white p-1 rounded-2 shadow-sm d-flex align-items-center" style="height: 38px;">
+                <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة للمعارض" style="height: 30px; width: auto; object-fit: contain;">
+            </div>
+            <span class="d-none d-md-inline text-white-50" style="font-size: 0.72rem; line-height: 1.1;">الراعي<br><strong class="text-warning">الاستراتيجي</strong></span>
+        </div>
     </a>
     <div class="d-none d-lg-flex align-items-center gap-2 mx-3">
         <a href="{{ route('job-fair.public.companies', $fair->id ?? 1) }}" class="text-white text-decoration-none px-3 py-1.5 rounded-pill" style="font-size: 0.85rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); transition: all 0.2s;">
@@ -1579,11 +1585,18 @@
                 </div>
             </div>
         </div>
-        {{-- Partners Strip --}}
+        {{-- Partners Strip & Strategic Sponsor --}}
         <div class="row pb-4">
             <div class="col-12 text-center">
-                <p class="mb-4" style="color: rgba(255,255,255,0.3); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px;">شركاء النجاح</p>
-                <div class="d-flex justify-content-center align-items-center flex-wrap gap-4 gap-md-5">
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.35);">
+                    <i class="fas fa-crown text-warning"></i>
+                    <span style="color: #FDE68A; font-size: 0.85rem; font-weight: 700;">الراعي الاستراتيجي للمعرض: شركة الواحة لتنظيم المعارض والمؤتمرات</span>
+                </div>
+                <div class="d-flex justify-content-center align-items-center flex-wrap gap-4 gap-md-5 mt-2">
+                    {{-- شعار شركة الواحة للمعارض كراعي استراتيجي بارز --}}
+                    <div class="d-flex align-items-center gap-2 bg-white px-3 py-1.5 rounded-3 shadow-sm border border-warning" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات">
+                        <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 48px; width: auto; object-fit: contain;">
+                    </div>
                     <img src="{{ asset('images/logo.jpg') }}" alt="مكتب تدريب الخريجين" class="partner-logo partner-logo-jpg" title="مكتب تدريب الخريجين">
                     
                     @if(isset($companies) && $companies->count() > 0)
@@ -2293,6 +2306,8 @@
     مكتب تدريب وتوظيف الخريجين — <a href="{{ route('home') }}">جامعة طرابلس</a>
     &nbsp;|&nbsp;
     {{ $fair ? $fair->title : 'المعارض والفعاليات' }}
+    &nbsp;|&nbsp;
+    <span class="text-white-50">الراعي الاستراتيجي: <strong class="text-warning">شركة الواحة لتنظيم المعارض والمؤتمرات</strong></span>
 </footer>
 
 {{-- ══════════════════════════════════

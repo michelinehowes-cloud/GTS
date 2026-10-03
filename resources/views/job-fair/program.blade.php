@@ -1030,6 +1030,12 @@
         @else
             <img src="{{ asset('images/job_fair_logo_white.png') }}" class="jf-logo" alt="شعار الفعالية" onerror="this.style.display='none'">
         @endif
+        <div class="d-none d-sm-flex align-items-center gap-1.5 ps-2 ms-2 border-start border-white border-opacity-25" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض">
+            <div class="bg-white p-1 rounded-2 shadow-sm d-flex align-items-center" style="height: 38px;">
+                <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة للمعارض" style="height: 30px; width: auto; object-fit: contain;">
+            </div>
+            <span class="d-none d-md-inline text-white-50" style="font-size: 0.72rem; line-height: 1.1;">الراعي<br><strong class="text-warning">الاستراتيجي</strong></span>
+        </div>
     </a>
 
     <div class="nav-links">
@@ -1415,6 +1421,8 @@
     مكتب تدريب وتوظيف الخريجين — <a href="{{ route('home') }}">جامعة طرابلس</a>
     &nbsp;|&nbsp;
     {{ $fair ? $fair->title : 'معرض التوظيف 2026' }} — رحلة الجاهزية المهنية
+    &nbsp;|&nbsp;
+    <span class="text-white-50">الراعي الاستراتيجي: <strong class="text-warning">شركة الواحة لتنظيم المعارض والمؤتمرات</strong></span>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

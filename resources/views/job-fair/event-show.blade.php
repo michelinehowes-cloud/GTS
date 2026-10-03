@@ -854,15 +854,20 @@
         <nav class="glass-navbar">
             <div class="container py-2">
                 <div class="d-flex align-items-center justify-content-between">
-                    <a href="{{ $fair ? route('job-fair.public.program', $fair->id) : route('job-fair.public.program.index') }}" class="nav-brand-group">
-                        <div class="nav-logo-box">
-                            <img src="{{ asset('images/logo.jpg') }}" alt="مكتب تدريب الخريجين" onerror="this.src='{{ asset('images/uni_logo_white.png') }}'">
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="{{ $fair ? route('job-fair.public.program', $fair->id) : route('job-fair.public.program.index') }}" class="nav-brand-group">
+                            <div class="nav-logo-box">
+                                <img src="{{ asset('images/logo.jpg') }}" alt="مكتب تدريب الخريجين" onerror="this.src='{{ asset('images/uni_logo_white.png') }}'">
+                            </div>
+                            <div class="nav-brand-text">
+                                <h1>البرنامج العلمي والتدريبي</h1>
+                                <small>{{ $fair ? $fair->title : 'معرض التوظيف 2026 — جامعة طرابلس' }}</small>
+                            </div>
+                        </a>
+                        <div class="d-none d-md-flex align-items-center bg-white p-1 rounded-2 shadow-sm border border-warning" style="height: 38px;" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض">
+                            <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة للمعارض" style="height: 30px; width: auto; object-fit: contain;">
                         </div>
-                        <div class="nav-brand-text">
-                            <h1>البرنامج العلمي والتدريبي</h1>
-                            <small>{{ $fair ? $fair->title : 'معرض التوظيف 2026 — جامعة طرابلس' }}</small>
-                        </div>
-                    </a>
+                    </div>
 
                     <div class="nav-actions">
                         <a href="{{ $fair ? route('job-fair.public.program', $fair->id) : route('job-fair.public.program.index') }}" class="btn-nav-outline">
@@ -1266,7 +1271,7 @@
         <footer class="event-footer">
             <div class="container text-center">
                 <p class="mb-1" style="font-weight: 700; color: #ffffff;">
-                    مكتب تدريب الخريجين — جامعة طرابلس
+                    مكتب تدريب الخريجين — جامعة طرابلس &bull; الراعي الاستراتيجي: <span class="text-warning">شركة الواحة لتنظيم المعارض والمؤتمرات</span>
                 </p>
                 <p class="mb-0">
                     معرض التوظيف 2026: من الجامعة إلى سوق العمل... نحو خريج أكثر جاهزية وقدرة على المنافسة.

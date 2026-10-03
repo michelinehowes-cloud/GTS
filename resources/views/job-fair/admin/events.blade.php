@@ -4,37 +4,13 @@
 
 @section('content')
 <div class="container-fluid py-4" dir="rtl">
-    <!-- Header Row -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-        <div>
-            <h1 class="h3 mb-1 text-gray-800 font-weight-bold">
-                <i class="fas fa-graduation-cap text-primary me-2"></i>
-                إدارة البرنامج العلمي والفعاليات
-            </h1>
-            <p class="text-muted mb-0">
-                {{ $fair->title }} — جدول الماستر كلاس، ورش العمل والجلسات الحوارية
-            </p>
-        </div>
-        <div class="d-flex align-items-center gap-2 flex-wrap">
-            <form action="{{ route('job-fair.admin.toggle-feature', $fair->id) }}" method="POST" class="d-inline m-0">
-                @csrf
-                <input type="hidden" name="feature" value="program">
-                <button type="submit" class="btn {{ $fair->is_program_published ? 'btn-success' : 'btn-warning text-dark' }} shadow-sm fw-bold d-inline-flex align-items-center gap-1.5" title="انقر للتبديل بين إظهار الفعاليات للجمهور أو إخفائها كـ Coming Soon">
-                    <i class="fas {{ $fair->is_program_published ? 'fa-eye' : 'fa-clock' }}"></i>
-                    <span>{{ $fair->is_program_published ? 'البرنامج منشور ومتاح للجمهور' : 'البرنامج قيد التحضير (Coming Soon)' }}</span>
-                </button>
-            </form>
-            <a href="{{ route('job-fair.public.program', $fair->id) }}" target="_blank" class="btn btn-outline-primary shadow-sm">
-                <i class="fas fa-external-link-alt"></i> معاينة البرنامج العلمي للجمهور
-            </a>
-            <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="btn btn-outline-secondary shadow-sm">
-                <i class="fas fa-arrow-right"></i> العودة لتفاصيل المعرض
-            </a>
-            <button class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#addEventModal" data-toggle="modal" data-target="#addEventModal">
-                <i class="fas fa-plus-circle"></i> إضافة فعالية علمية جديدة
-            </button>
-        </div>
-    </div>
+    {{-- الشريط العلوي الموحد مع الشعارات الرسمية المتطابقة مع صفحة المعرض العامة --}}
+    @include('job-fair.admin.partials.header', [
+        'fair' => $fair,
+        'page' => 'events',
+        'title' => 'إدارة البرنامج العلمي والفعاليات',
+        'subtitle' => $fair->title . ' — جدول الماستر كلاس، ورش العمل والجلسات الحوارية'
+    ])
 
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">

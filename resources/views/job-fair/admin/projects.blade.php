@@ -4,43 +4,6 @@
 
 @push('styles')
 <style>
-    .job-fair-detail-hero {
-        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%) !important;
-        color: #ffffff !important;
-        border-radius: 18px;
-        padding: 1.5rem 1.75rem;
-        box-shadow: 0 8px 24px rgba(30, 58, 138, 0.18);
-        position: relative;
-        overflow: visible !important;
-        border-bottom: 3px solid #f59e0b;
-    }
-
-    .fair-logo-badge {
-        width: 80px;
-        height: 80px;
-        border-radius: 14px;
-        background: #ffffff;
-        padding: 5px;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
-        object-fit: contain;
-        flex-shrink: 0;
-        border: 2px solid rgba(255, 255, 255, 0.95);
-    }
-
-    .partner-mini-badge {
-        height: 44px;
-        padding: 4px 10px;
-        border-radius: 10px;
-        background: #ffffff;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-        display: inline-flex;
-        align-items: center;
-    }
-    .partner-mini-badge img {
-        height: 34px;
-        max-width: 105px;
-        object-fit: contain;
-    }
 
     .fair-actions-toolbar {
         display: flex;
@@ -192,105 +155,13 @@
 @section('content')
 <div class="container-fluid py-4" dir="rtl">
 
-    {{-- ══════════════════════════════════
-         HERO HEADER (المظهر الموحد للمعرض)
-    ══════════════════════════════════ --}}
-    <div class="job-fair-detail-hero mb-4">
-        <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
-            
-            <div class="d-flex align-items-center gap-3">
-                <!-- زر العودة -->
-                <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="btn btn-outline-light rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px; background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.3);" title="العودة لتفاصيل المعرض">
-                    <i class="fas fa-arrow-right"></i>
-                </a>
-
-                <!-- شعار المعرض البارز -->
-                <img src="{{ $fair->logo_url }}" alt="{{ $fair->title }}" class="fair-logo-badge" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo.png') }}';">
-
-                <div>
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <h2 class="fw-bold mb-0 fs-4 text-white">
-                            إدارة مشاريع التخرج والأرشيف السنوي
-                        </h2>
-                        @php
-                            $statusColors = [
-                                'draft' => ['bg' => 'bg-secondary', 'label' => 'مسودة'],
-                                'published' => ['bg' => 'bg-success', 'label' => 'منشور ومتاح'],
-                                'ongoing' => ['bg' => 'bg-warning text-dark', 'label' => 'جارٍ الآن 🟢'],
-                                'completed' => ['bg' => 'bg-info text-dark', 'label' => 'منتهي']
-                            ];
-                            $st = $statusColors[$fair->status] ?? ['bg' => 'bg-light text-dark', 'label' => $fair->status];
-                        @endphp
-                        <span class="badge {{ $st['bg'] }} rounded-pill px-2.5 py-1 small fw-bold">
-                            {{ $st['label'] }}
-                        </span>
-                    </div>
-
-                    <p class="text-white-50 small mb-1 mt-0.5">
-                        {{ $fair->title }} — مراجعة واعتماد مشاريع الطلبة المتميزة، تنظيم الأجنحة، ونشر الابتكارات في المعرض الرقمي
-                    </p>
-
-                    <!-- شعارات الشركاء في الهيدر -->
-                    <div class="d-flex align-items-center flex-wrap gap-2 mt-2">
-                        <div class="partner-mini-badge" title="مكتب تدريب وتأهيل الخريجين — جامعة طرابلس">
-                            <img src="{{ asset('images/gto_logo.jpg') }}" alt="مكتب تدريب الخريجين" onerror="this.src='{{ asset('images/logo.jpg') }}'">
-                        </div>
-                        <div class="partner-mini-badge" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات">
-                            <img src="{{ asset('images/wahaexpo_horizontal_dark.png') }}" alt="شركة الواحة للمعارض" onerror="this.src='{{ asset('images/wahaexpo_logo.png') }}'">
-                        </div>
-                        <span class="text-white-50 small ms-2"><i class="fas fa-calendar-alt me-1 text-warning"></i>{{ $fair->event_date->format('Y-m-d') }}</span>
-                        @if($fair->location)
-                        <span class="text-white-50 small"><i class="fas fa-map-marker-alt me-1 text-danger"></i>{{ $fair->location }}</span>
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            <!-- أزرار الإجراءات الموحدة في الهيدر -->
-            <div class="fair-actions-toolbar">
-                <!-- زر إضافة مشروع جديد -->
-                <button type="button" class="fair-btn-action btn btn-warning text-dark shadow-sm fw-bold" onclick="showModalSafe('addProjectModal')" data-bs-toggle="modal" data-bs-target="#addProjectModal">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>إضافة مشروع</span>
-                </button>
-
-                <!-- زر نموذج تقديم الخريجين المباشر -->
-                <a href="{{ route('job-fair.public.projects.submit-fair', $fair->id) }}" target="_blank" class="fair-btn-action fair-btn-glass" title="فتح نموذج تعبئة المشاريع المخصص للطلبة">
-                    <i class="fas fa-file-upload text-warning"></i>
-                    <span>نموذج التقديم</span>
-                </a>
-
-                <!-- زر التبديل بين النشر و Coming Soon -->
-                <form action="{{ route('job-fair.admin.toggle-feature', $fair->id) }}" method="POST" class="d-inline m-0">
-                    @csrf
-                    <input type="hidden" name="feature" value="projects">
-                    <button type="submit" class="fair-btn-action fair-btn-glass" title="التبديل بين إظهار المشاريع للجمهور أو إخفائها كـ Coming Soon">
-                        <i class="fas {{ $fair->is_projects_published ? 'fa-eye text-success' : 'fa-clock text-warning' }}"></i>
-                        <span>{{ $fair->is_projects_published ? 'منشور للجمهور' : 'قيد التحضير' }}</span>
-                    </button>
-                </form>
-
-                <!-- المعرض الرقمي للجمهور -->
-                <a href="{{ route('job-fair.public.projects', $fair->id) }}" target="_blank" class="fair-btn-action fair-btn-glass" title="معاينة صفحة المشاريع العامة">
-                    <i class="fas fa-desktop text-info"></i>
-                    <span>المعرض الرقمي</span>
-                </a>
-
-                <!-- تصدير CSV -->
-                <a href="{{ route('job-fair.admin.projects.export', $fair->id) }}" class="fair-btn-action fair-btn-glass" title="تصدير كود المشاريع إلى ملف CSV">
-                    <i class="fas fa-file-excel text-success"></i>
-                    <span>تصدير CSV</span>
-                </a>
-
-                <!-- العودة لصفحة تفاصيل المعرض -->
-                <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="fair-btn-action fair-btn-glass" title="لوحة المعرض الرئيسية">
-                    <i class="fas fa-arrow-right"></i>
-                    <span>لوحة المعرض</span>
-                </a>
-            </div>
-
-        </div>
-    </div>
+    {{-- الشريط العلوي الموحد مع الشعارات الرسمية المتطابقة مع صفحة المعرض العامة --}}
+    @include('job-fair.admin.partials.header', [
+        'fair' => $fair,
+        'page' => 'projects',
+        'title' => 'إدارة مشاريع التخرج والأرشيف السنوي',
+        'subtitle' => $fair->title . ' — مراجعة واعتماد مشاريع الطلبة المتميزة، تنظيم الأجنحة، ونشر الابتكارات في المعرض الرقمي'
+    ])
 
     @if(session('success'))
         <div class="alert alert-success rounded-3 border-0 shadow-sm mb-4">

@@ -969,8 +969,15 @@ document.addEventListener('DOMContentLoaded', function () {
             // Always destroy any existing instance first
             await destroyScanner();
 
+            // CRITICAL: Show the active view BEFORE creating Html5Qrcode instance.
+            // The library computes #reader's dimensions on instantiation — if the
+            // element is inside a display:none parent it gets zero size and the
+            // video stream never renders.
             cameraIdleView.style.display = 'none';
             cameraActiveView.style.display = 'block';
+
+            // Give the browser one animation frame to lay out the newly-visible div
+            await new Promise(resolve => requestAnimationFrame(resolve));
 
             // Create a fresh instance every time
             html5QrcodeScanner = new Html5Qrcode('reader');

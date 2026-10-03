@@ -61,7 +61,6 @@ class User extends Authenticatable
         'date_of_birth' => 'date',
         'must_change_password' => 'boolean',
         'password_changed_at' => 'datetime',
-        'password' => 'hashed',
     ];
 
     /**

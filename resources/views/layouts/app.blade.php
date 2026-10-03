@@ -346,11 +346,11 @@
         }
 
         @media (max-width: 768px) {
-            .floating-sidebar-toggle {
+            #toggleSidebar {
                 display: none !important;
             }
 
-            #toggleSidebar {
+            .floating-sidebar-toggle {
                 display: none !important;
             }
 
@@ -358,29 +358,30 @@
                 position: absolute;
                 top: 14px;
                 left: 14px;
-                width: 36px;
-                height: 36px;
-                background: rgba(255, 255, 255, 0.2) !important;
+                width: 38px;
+                height: 38px;
+                background: rgba(255, 255, 255, 0.25) !important;
                 color: #fff !important;
-                border: 1px solid rgba(255, 255, 255, 0.35) !important;
+                border: 1px solid rgba(255, 255, 255, 0.4) !important;
                 border-radius: 50% !important;
                 display: flex !important;
                 align-items: center;
                 justify-content: center;
-                z-index: 1060;
+                z-index: 1070;
                 cursor: pointer;
-                backdrop-filter: blur(4px);
+                backdrop-filter: blur(6px);
                 transition: all 0.2s ease;
+                font-size: 1.1rem;
             }
 
             .sidebar-mobile-close:hover {
-                background: rgba(255, 255, 255, 0.35) !important;
+                background: rgba(255, 255, 255, 0.4) !important;
                 color: #fff !important;
                 transform: scale(1.08);
             }
 
             .main-content {
-                padding-top: 10px !important;
+                padding-top: 0 !important;
                 padding-bottom: 85px !important;
                 margin-right: 0 !important;
                 width: 100% !important;
@@ -389,19 +390,124 @@
 
             .sidebar {
                 transform: translateX(100%) !important;
-                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
                 position: fixed !important;
                 top: 0 !important;
                 right: 0 !important;
                 height: 100vh !important;
-                z-index: 1050 !important;
-                width: 280px !important;
-                box-shadow: -5px 0 25px rgba(0, 0, 0, 0.2) !important;
+                z-index: 1060 !important;
+                width: 290px !important;
+                max-width: 85vw !important;
+                box-shadow: -6px 0 35px rgba(0, 0, 0, 0.35) !important;
+                display: block !important;
             }
 
             .sidebar.active-mobile {
                 transform: translateX(0) !important;
             }
+        }
+
+        /* ── شريط الموبايل العلوي الموحد (Universal Mobile App Header) ── */
+        .app-mobile-topbar {
+            position: sticky;
+            top: 0;
+            z-index: 1040;
+            background: linear-gradient(135deg, #0d3882 0%, #1565c0 50%, #1e88e5 100%) !important;
+            color: #ffffff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            min-height: 54px;
+            box-shadow: 0 4px 20px rgba(13, 56, 130, 0.15);
+            margin: 0;
+        }
+
+        html[data-theme='dark'] .app-mobile-topbar,
+        body.dark-mode .app-mobile-topbar {
+            background: #0f172a !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .mobile-topbar-btn {
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.18) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .mobile-topbar-btn:active {
+            transform: scale(0.92);
+            background: rgba(255, 255, 255, 0.3) !important;
+        }
+
+        .mobile-topbar-btn.mobile-menu-toggle {
+            background: #eeca3e !important;
+            color: #0d3882 !important;
+            border-color: #eeca3e !important;
+            font-size: 1.15rem;
+            box-shadow: 0 2px 10px rgba(238, 202, 62, 0.4);
+        }
+
+        .mobile-topbar-btn.mobile-menu-toggle:hover {
+            background: #f5d76e !important;
+            color: #0d3882 !important;
+        }
+
+        .mobile-topbar-logo {
+            width: 34px;
+            height: 34px;
+            object-fit: contain;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-topbar-brand {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.15;
+            text-align: right;
+        }
+
+        .mobile-topbar-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .mobile-topbar-sub {
+            font-size: 0.68rem;
+            color: #eeca3e;
+            font-weight: 600;
+        }
+
+        .mobile-topbar-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ef4444;
+            color: #ffffff;
+            font-size: 0.62rem;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 4px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ffffff;
+            line-height: 1;
         }
 
         /* شاشة الترحيب البسيطة */
@@ -1277,6 +1383,53 @@
 
     <!-- المحتوى الرئيسي -->
     <div class="main-content" id="mainContent">
+
+        @auth
+        <!-- شريط الموبايل العلوي الموحد مع زر فتح القائمة الجانبية -->
+        <header class="app-mobile-topbar d-flex d-md-none align-items-center justify-content-between px-3 py-2 shadow-sm">
+            <div class="d-flex align-items-center gap-2">
+                <!-- زر فتح القائمة الجانبية للموبايل -->
+                <button type="button" class="btn mobile-topbar-btn mobile-menu-toggle shadow-sm" onclick="window.openMobileSidebar ? window.openMobileSidebar() : (window.toggleSidebarFunc ? window.toggleSidebarFunc() : null)" aria-label="فتح القائمة الرئيسية" title="القائمة الرئيسية">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-2 text-decoration-none">
+                    <img src="{{ asset('images/office_logo_white.png') }}" alt="الشعار" class="mobile-topbar-logo" onerror="this.src='{{ asset('images/logo.jpg') }}';">
+                    <div class="mobile-topbar-brand">
+                        <span class="mobile-topbar-title">مكتب تدريب الخريجين</span>
+                        <span class="mobile-topbar-sub">جامعة طرابلس</span>
+                    </div>
+                </a>
+            </div>
+            <div class="d-flex align-items-center gap-1.5">
+                <!-- زر الرسائل -->
+                <button type="button" class="btn mobile-topbar-btn position-relative" onclick="openMessagesDrawer()" title="الرسائل">
+                    <i class="fas fa-envelope"></i>
+                    @php
+                        $unreadMsgsMobile = \App\Models\Message::where('receiver_id', auth()->id())->whereNull('read_at')->count();
+                    @endphp
+                    @if($unreadMsgsMobile > 0)
+                        <span class="mobile-topbar-badge">{{ $unreadMsgsMobile > 9 ? '9+' : $unreadMsgsMobile }}</span>
+                    @endif
+                </button>
+
+                <!-- زر الإشعارات -->
+                <button type="button" class="btn mobile-topbar-btn position-relative" onclick="openNotificationsDrawer()" title="الإشعارات">
+                    <i class="fas fa-bell"></i>
+                    @php
+                        $unreadNotifsMobile = auth()->user()->unreadNotifications->count() ?? 0;
+                    @endphp
+                    @if($unreadNotifsMobile > 0)
+                        <span class="mobile-topbar-badge">{{ $unreadNotifsMobile > 9 ? '9+' : $unreadNotifsMobile }}</span>
+                    @endif
+                </button>
+
+                <!-- زر الوضع الليلي -->
+                <button type="button" class="btn mobile-topbar-btn dark-mode-trigger" onclick="toggleDarkMode(event)" title="الوضع الليلي">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
+        @endauth
 
 
         <!-- محتوى الصفحة -->

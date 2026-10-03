@@ -93,8 +93,61 @@
     $roleLabel = $roleLabels[$userRole] ?? 'عضو المنظومة';
 @endphp
 
+<style>
+    #ai-assistant-fab-container {
+        position: fixed;
+        bottom: 24px;
+        left: 24px;
+        z-index: 10000;
+        direction: rtl;
+        transition: bottom 0.3s ease, left 0.3s ease;
+    }
+    #ai-assistant-panel {
+        position: fixed;
+        bottom: 92px;
+        left: 24px;
+        width: 420px;
+        max-width: calc(100vw - 32px);
+        height: 600px;
+        max-height: calc(100vh - 120px);
+        z-index: 10001;
+        direction: rtl;
+        border-radius: 20px;
+        overflow: hidden;
+        background: #ffffff;
+        border: 1px solid rgba(13, 56, 130, 0.15);
+        box-shadow: 0 20px 45px rgba(13, 56, 130, 0.25);
+        display: flex;
+        flex-direction: column;
+    }
+
+    @media (max-width: 768px) {
+        #ai-assistant-fab-container {
+            bottom: 82px !important;
+            left: 16px !important;
+        }
+        #ai-assistant-fab {
+            width: 48px !important;
+            height: 48px !important;
+        }
+        #ai-assistant-fab i {
+            font-size: 1.15rem !important;
+        }
+        #ai-assistant-panel {
+            bottom: 138px !important;
+            left: 10px !important;
+            right: 10px !important;
+            width: calc(100vw - 20px) !important;
+            max-width: calc(100vw - 20px) !important;
+            height: calc(100dvh - 155px) !important;
+            max-height: 520px !important;
+            border-radius: 16px !important;
+        }
+    }
+</style>
+
 <!-- AI Assistant Floating Trigger Button -->
-<div id="ai-assistant-fab-container" class="position-fixed" style="bottom: 24px; left: 24px; z-index: 10000; direction: rtl;">
+<div id="ai-assistant-fab-container">
     <button id="ai-assistant-fab" type="button" class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center"
             style="width: 58px; height: 58px; background: linear-gradient(135deg, #0d3882 0%, #1e5ab8 100%); border: 2px solid #eeca3e; box-shadow: 0 8px 25px rgba(13, 56, 130, 0.45); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
             title="المساعد الذكي (AI Copilot)">
@@ -106,8 +159,7 @@
 </div>
 
 <!-- AI Assistant Floating Chat Panel -->
-<div id="ai-assistant-panel" class="position-fixed d-none shadow-lg"
-     style="bottom: 92px; left: 24px; width: 420px; max-width: calc(100vw - 32px); height: 600px; max-height: calc(100vh - 120px); z-index: 10001; direction: rtl; border-radius: 20px; overflow: hidden; background: #ffffff; border: 1px solid rgba(13, 56, 130, 0.15); box-shadow: 0 20px 45px rgba(13, 56, 130, 0.25); display: flex; flex-direction: column;">
+<div id="ai-assistant-panel" class="d-none shadow-lg">
 
     <!-- Panel Header -->
     <div class="ai-panel-header px-3 py-2 text-white d-flex align-items-center justify-content-between"

@@ -29,7 +29,7 @@ function createBottomNav() {
     bottomNav.innerHTML = `
         <div class="bottom-nav-items">
             ${navItems.map(item => `
-                <a href="${item.url}" class="bottom-nav-item ${isCurrentPage(item.url) ? 'active' : ''}">
+                <a href="${item.url}" class="bottom-nav-item ${!item.isSidebarToggle && isCurrentPage(item.url) ? 'active' : ''} ${item.isSidebarToggle ? 'bottom-nav-sidebar-toggle' : ''}" ${item.isSidebarToggle ? 'onclick="if(window.openMobileSidebar){window.openMobileSidebar();}else if(window.toggleSidebarFunc){window.toggleSidebarFunc();}return false;"' : ''}>
                     <i class="${item.icon}"></i>
                     <span>${item.label}</span>
                     ${item.badge ? `<span class="bottom-nav-badge">${item.badge}</span>` : ''}
@@ -42,62 +42,54 @@ function createBottomNav() {
 }
 
 function getNavItemsByRole(role) {
-    const commonItems = [
-        { url: getDashboardUrl(role), icon: 'fas fa-home', label: 'الرئيسية' },
-    ];
+    const homeItem = { url: getDashboardUrl(role), icon: 'fas fa-home', label: 'الرئيسية' };
+    const menuToggleItem = { url: 'javascript:void(0)', icon: 'fas fa-bars', label: 'القائمة', isSidebarToggle: true };
 
     const roleSpecificItems = {
         'graduate': [
             { url: '/graduate/trainings', icon: 'fas fa-graduation-cap', label: 'التدريبات' },
             { url: '/graduate/job-opportunities', icon: 'fas fa-briefcase', label: 'الوظائف' },
-            { url: '/notifications', icon: 'fas fa-bell', label: 'الإشعارات', badge: getUnreadCount() },
             { url: '/graduate/profile', icon: 'fas fa-user', label: 'الملف' },
         ],
         'training_coordinator': [
             { url: '/coordinator/trainings', icon: 'fas fa-graduation-cap', label: 'التدريب' },
             { url: '/coordinator/applications', icon: 'fas fa-users', label: 'الطلبات' },
             { url: '/coordinator/calendar', icon: 'fas fa-calendar-alt', label: 'التقويم' },
-            { url: '/coordinator/reports', icon: 'fas fa-chart-bar', label: 'التقارير' },
         ],
         'admin': [
             { url: '/admin/users', icon: 'fas fa-users-cog', label: 'المستخدمين' },
             { url: '/admin/trainings', icon: 'fas fa-graduation-cap', label: 'التدريب' },
             { url: '/admin/companies', icon: 'fas fa-building', label: 'الشركات' },
-            { url: '/admin/applications', icon: 'fas fa-clipboard-list', label: 'الطلبات' },
         ],
         'company': [
-            { url: '/company/profile', icon: 'fas fa-building', label: 'الملف' },
             { url: '/job-opportunities', icon: 'fas fa-briefcase', label: 'الفرص' },
             { url: '/company/job-fairs', icon: 'fas fa-store', label: 'المعارض' },
-            { url: '/messages', icon: 'fas fa-envelope', label: 'الرسائل' },
+            { url: '/company/profile', icon: 'fas fa-building', label: 'الملف' },
         ],
         'career_guidance_officer': [
             { url: '/career-guidance/graduates', icon: 'fas fa-users', label: 'الخريجين' },
             { url: '/career-guidance/nominations', icon: 'fas fa-user-check', label: 'الترشيحات' },
-            { url: '/notifications', icon: 'fas fa-bell', label: 'الإشعارات', badge: getUnreadCount() },
             { url: '/career-guidance/reports', icon: 'fas fa-chart-line', label: 'التقارير' },
         ],
         'partnership_officer': [
             { url: '/partnership/companies', icon: 'fas fa-building', label: 'الشركات' },
             { url: '/partnership/nominations', icon: 'fas fa-handshake', label: 'الترشيحات' },
             { url: '/job-opportunities', icon: 'fas fa-briefcase', label: 'الفرص' },
-            { url: '/partnership/reports', icon: 'fas fa-chart-line', label: 'التقارير' },
         ],
         'evaluation_followup': [
             { url: '/evaluation-followup/surveys', icon: 'fas fa-poll-h', label: 'الاستبيانات' },
             { url: '/evaluation-followup/evaluations', icon: 'fas fa-star', label: 'التقييمات' },
-            { url: '/evaluation-followup/training-calendar', icon: 'fas fa-calendar-alt', label: 'التقويم' },
             { url: '/evaluation-followup/evaluation-reports', icon: 'fas fa-chart-pie', label: 'التقارير' },
         ],
         'media_officer': [
-            { url: '/media/gallery', icon: 'fas fa-photo-video', label: 'الوسائط' },
             { url: '/media/news', icon: 'fas fa-newspaper', label: 'الأخبار' },
             { url: '/media/announcements', icon: 'fas fa-bullhorn', label: 'الإعلانات' },
-            { url: '/media/reports', icon: 'fas fa-chart-bar', label: 'التقارير' },
+            { url: '/media/gallery', icon: 'fas fa-photo-video', label: 'المعرض' },
         ],
     };
 
-    return [...commonItems, ...(roleSpecificItems[role] || [])];
+    const specific = roleSpecificItems[role] || [];
+    return [homeItem, ...specific, menuToggleItem];
 }
 
 function getDashboardUrl(role) {

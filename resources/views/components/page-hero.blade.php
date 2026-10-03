@@ -18,54 +18,7 @@
     <div class="p-4 p-lg-5 position-relative" style="z-index: 2;">
 
 
-        <!-- Mobile Header Top Bar (Brand + Menu Trigger) -->
-        <div class="d-flex justify-content-between align-items-center w-100 mb-3 d-md-none">
-            <span class="badge rounded-pill px-3 py-1.5 small" style="background: rgba(255, 255, 255, 0.22) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.3) !important; font-size: 0.75rem; backdrop-filter: blur(6px);">
-                <i class="fas fa-graduation-cap me-1 text-warning"></i>{{ config('app.name', 'منصة الخريجين') }}
-            </span>
-            <div class="d-flex align-items-center gap-2">
-                @auth
-                <!-- زر تبديل الوضع الليلي للموبايل -->
-                <button type="button" class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none dark-mode-trigger" onclick="toggleDarkMode(event)" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" title="الوضع الليلي / النهاري">
-                    <i class="fas fa-moon"></i>
-                </button>
 
-                @if(auth()->user()->role === 'admin')
-                <!-- زر إدارة المساعد الذكي الصغير للموبايل -->
-                <a href="{{ route('admin.settings.ai') }}" class="btn btn-sm text-warning rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" title="إدارة المساعد الذكي">
-                    <i class="fas fa-robot"></i>
-                </a>
-                @endif
-
-                <!-- زر الرسائل المنزلق بالموبايل -->
-                <button type="button" class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none" onclick="openMessagesDrawer()" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" title="الرسائل">
-                    <i class="fas fa-envelope"></i>
-                    @php
-                        $unreadMsgs = \App\Models\Message::where('receiver_id', auth()->id())->whereNull('read_at')->count();
-                    @endphp
-                    @if($unreadMsgs > 0)
-                        <span class="position-absolute bg-danger rounded-circle border border-2 border-white" style="width: 10px; height: 10px; top: 0px; right: 0px;"></span>
-                    @endif
-                </button>
-
-                <!-- زر الإشعارات المنزلق بالموبايل -->
-                <button type="button" class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none" onclick="openNotificationsDrawer()" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" title="الإشعارات">
-                    <i class="fas fa-bell"></i>
-                    @php
-                        $unreadNotifs = auth()->user()->unreadNotifications->count() ?? 0;
-                    @endphp
-                    @if($unreadNotifs > 0)
-                        <span class="position-absolute bg-danger rounded-circle border border-2 border-white" style="width: 10px; height: 10px; top: 0px; right: 0px;"></span>
-                    @endif
-                </button>
-                @endauth
-
-                <!-- زر القائمة الجانبية للموبايل -->
-                <button type="button" class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" onclick="window.toggleSidebarFunc ? window.toggleSidebarFunc() : null">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-        </div>
 
         <div class="row align-items-center g-4">
             <!-- User / Page Info -->

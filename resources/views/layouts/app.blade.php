@@ -71,7 +71,7 @@
         }
 
         .sidebar {
-            background: linear-gradient(180deg, #0d47a1 0%, #1976d2 50%, #2563eb 100%) !important;
+            background: linear-gradient(180deg, #2374c9 0%, #287ed4 50%, #2b82d8 100%) !important;
             overflow-y: auto !important;
             overflow-x: hidden !important;
             scrollbar-width: thin;

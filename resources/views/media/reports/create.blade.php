@@ -8,7 +8,7 @@
     <!-- Hero Header -->
     <x-page-hero
         title="إضافة وتوثيق تقرير تغطية إعلامية"
-        description="صياغة البيان الصحفي الرسمي وتوثيق وقائع البرامج التدريبية وروابط التغطية الرقمية"
+        description="صياغة البيان الصحفي الرسمي وتوثيق وقائع البرامج والفعاليات الجامعية ونشر التغطيات"
         icon="fas fa-file-invoice"
         :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
@@ -57,98 +57,159 @@
     <form action="{{ route('media.reports.coverage.store') }}" method="POST" id="createCoverageReportForm">
         @csrf
 
+        @php
+            $hasExistingTrainings = isset($allTrainings) && $allTrainings->isNotEmpty();
+            $currentMode = old('training_selection_mode', $hasExistingTrainings ? 'existing' : 'new');
+        @endphp
+
+        <!-- اختيار طريقة التوثيق -->
+        @if($hasExistingTrainings)
+            <div class="card border-0 rounded-4 shadow-sm mb-4 p-2" style="background: #ffffff;">
+                <div class="d-flex align-items-center gap-2 p-2">
+                    <div class="form-check form-check-inline m-0 flex-fill">
+                        <input class="btn-check" type="radio" name="training_selection_mode" id="mode_new" value="new" {{ $currentMode === 'new' ? 'checked' : '' }} onchange="switchMode('new')">
+                        <label class="btn btn-outline-primary w-100 py-2.5 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2" for="mode_new">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>توثيق وتغطية برنامج / فعالية جديدة مباشرة</span>
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline m-0 flex-fill">
+                        <input class="btn-check" type="radio" name="training_selection_mode" id="mode_existing" value="existing" {{ $currentMode === 'existing' ? 'checked' : '' }} onchange="switchMode('existing')">
+                        <label class="btn btn-outline-primary w-100 py-2.5 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2" for="mode_existing">
+                            <i class="fas fa-list-check"></i>
+                            <span>ربط التقرير ببرنامج تدريبي مسجل مسبقاً ({{ $allTrainings->count() }})</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        @else
+            <input type="hidden" name="training_selection_mode" value="new">
+        @endif
+
         <div class="row g-4">
-            <!-- العمود الرئيسي: اختيار البرنامج ومحتوى التقرير (8 أعمدة) -->
+            <!-- العمود الرئيسي: بيانات البرنامج ومحتوى التقرير (8 أعمدة) -->
             <div class="col-lg-8">
 
-                <!-- بطاقة اختيار البرنامج التدريبي المستهدف -->
-                <div class="card border-0 rounded-4 shadow-sm mb-4" style="background: #ffffff;">
+                <!-- قسم بيانات البرنامج الجديد (يظهر في الوضع new) -->
+                <div class="card border-0 rounded-4 shadow-sm mb-4" id="section_new_training" style="background: #ffffff; display: {{ $currentMode === 'new' ? 'block' : 'none' }};">
                     <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
                         <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
                             <span class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 32px; height: 32px; background: #0d3882;">
                                 <i class="fas fa-graduation-cap" style="font-size: 0.85rem;"></i>
                             </span>
-                            <span>البرنامج التدريبي المستهدف <span class="text-danger">*</span></span>
+                            <span>بيانات البرنامج التدريبي أو الفعالية</span>
                         </h5>
                     </div>
                     <div class="card-body p-4">
-                        <p class="text-muted small mb-3">
-                            اختر البرنامج التدريبي المراد صياغة تقرير التغطية الإعلامية والبيان الصحفي الخاص به:
-                        </p>
-
-                        <!-- حقل البحث والتصفية للبرامج -->
-                        <div class="mb-3">
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
-                                <input type="text" id="trainingFilterInput" class="form-control bg-light border-start-0 ps-0" placeholder="اكتب للبحث باسم البرنامج أو الشركة أو القاعة...">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-dark mb-1.5">
+                                    عنوان البرنامج التدريبي أو الفعالية <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="new_training_title" id="new_training_title" class="form-control rounded-3 p-2.5 @error('new_training_title') is-invalid @enderror"
+                                       placeholder="مثال: ورشة عمل تطبيقات الذكاء الاصطناعي في سوق العمل"
+                                       value="{{ old('new_training_title') }}">
+                                @error('new_training_title')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
-                        </div>
 
-                        <div class="mb-3">
-                            <select name="training_id" id="targetTrainingSelect" class="form-select bg-light rounded-3 p-3 @error('training_id') is-invalid @enderror" size="6" style="height: 190px;" required>
-                                @php
-                                    $pendingGroup = $allTrainings->filter(function($t) {
-                                        return $t->media_coverage_status === 'pending' || is_null($t->media_coverage_status);
-                                    });
-                                    $otherGroup = $allTrainings->filter(function($t) {
-                                        return $t->media_coverage_status !== 'pending' && !is_null($t->media_coverage_status);
-                                    });
-                                @endphp
-
-                                @if($pendingGroup->isNotEmpty())
-                                    <optgroup label="⭐ برامج بانتظار التغطية الإعلامية (أولوية التوثيق)">
-                                        @foreach($pendingGroup as $t)
-                                            <option value="{{ $t->id }}"
-                                                    {{ (old('training_id') == $t->id || request('training_id') == $t->id) ? 'selected' : '' }}
-                                                    data-title="{{ $t->title }}"
-                                                    data-location="{{ $t->location ?: 'جامعة طرابلس' }}"
-                                                    data-date="{{ $t->start_date ? $t->start_date->format('Y-m-d') : 'غير محدد' }}"
-                                                    data-company="{{ $t->company ? $t->company->name : ($t->coordinator ? $t->coordinator->name : 'مكتب تدريب الخريجين') }}"
-                                                    data-type="{{ $t->type_arabic ?? 'تدريب' }}"
-                                                    data-status="⏳ بانتظار التغطية">
-                                                {{ $t->title }} — ({{ $t->company ? $t->company->name : 'جامعة طرابلس' }} | {{ $t->start_date ? $t->start_date->format('Y-m-d') : '--' }})
-                                            </option>
-                                        @endforeach
-                                    </optgroup>
-                                @endif
-
-                                @if($otherGroup->isNotEmpty())
-                                    <optgroup label="📌 باقي البرامج والفعاليات المسجلة">
-                                        @foreach($otherGroup as $t)
-                                            <option value="{{ $t->id }}"
-                                                    {{ (old('training_id') == $t->id || request('training_id') == $t->id) ? 'selected' : '' }}
-                                                    data-title="{{ $t->title }}"
-                                                    data-location="{{ $t->location ?: 'جامعة طرابلس' }}"
-                                                    data-date="{{ $t->start_date ? $t->start_date->format('Y-m-d') : 'غير محدد' }}"
-                                                    data-company="{{ $t->company ? $t->company->name : ($t->coordinator ? $t->coordinator->name : 'مكتب تدريب الخريجين') }}"
-                                                    data-type="{{ $t->type_arabic ?? 'تدريب' }}"
-                                                    data-status="{{ $t->getMediaCoverageStatusText() }}">
-                                                {{ $t->title }} — ({{ $t->company ? $t->company->name : 'جامعة طرابلس' }} | {{ $t->start_date ? $t->start_date->format('Y-m-d') : '--' }})
-                                            </option>
-                                        @endforeach
-                                    </optgroup>
-                                @endif
-                            </select>
-                            @error('training_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <!-- بطاقة معاينة البرنامج التدريبي المختار -->
-                        <div id="selectedTrainingCard" class="card border rounded-3 p-3 bg-light d-none">
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <span id="cardTypeBadge" class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-2.5 py-1 fw-bold"></span>
-                                <span id="cardStatusBadge" class="badge rounded-pill bg-warning bg-opacity-15 text-dark border border-warning border-opacity-25 px-2.5 py-1 fw-bold"></span>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small fw-bold text-dark mb-1.5">
+                                    نوع الفعالية
+                                </label>
+                                <select name="new_training_type" id="new_training_type" class="form-select rounded-3 p-2.5">
+                                    <option value="workshop" {{ old('new_training_type') === 'workshop' ? 'selected' : '' }}>ورشة عمل</option>
+                                    <option value="course" {{ old('new_training_type') === 'course' ? 'selected' : '' }}>دورة تدريبية</option>
+                                    <option value="seminar" {{ old('new_training_type') === 'seminar' ? 'selected' : '' }}>ندوة علمية</option>
+                                    <option value="internship" {{ old('new_training_type') === 'internship' ? 'selected' : '' }}>تدريب عملي ميداني</option>
+                                    <option value="other" {{ old('new_training_type') === 'other' ? 'selected' : '' }}>فعالية وتغطية عامة</option>
+                                </select>
                             </div>
-                            <h6 id="cardTitle" class="fw-bold text-dark mb-1"></h6>
-                            <div class="d-flex align-items-center gap-3 text-muted small flex-wrap mt-2">
-                                <span><i class="fas fa-building text-primary me-1"></i><span id="cardCompany"></span></span>
-                                <span><i class="fas fa-map-marker-alt text-danger me-1"></i><span id="cardLocation"></span></span>
-                                <span><i class="far fa-calendar-alt text-primary me-1"></i><span id="cardDate"></span></span>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small fw-bold text-dark mb-1.5">
+                                    تاريخ الانعقاد
+                                </label>
+                                <input type="date" name="new_training_date" id="new_training_date" class="form-control rounded-3 p-2.5"
+                                       value="{{ old('new_training_date', now()->format('Y-m-d')) }}">
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label small fw-bold text-dark mb-1.5">
+                                    مكان الانعقاد / القاعة
+                                </label>
+                                <input type="text" name="new_training_location" id="new_training_location" class="form-control rounded-3 p-2.5"
+                                       placeholder="جامعة طرابلس / مدرج رشيد كعبار"
+                                       value="{{ old('new_training_location', 'جامعة طرابلس') }}">
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-dark mb-1.5">
+                                    الجهة المنظمة أو الشركة الشريكة (اختياري)
+                                </label>
+                                <input type="text" name="new_company_name" id="new_company_name" class="form-control rounded-3 p-2.5"
+                                       placeholder="مثال: شركة الواحة للمعارض / مكتب تدريب الخريجين"
+                                       value="{{ old('new_company_name') }}">
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- قسم اختيار تدريب قائم (يظهر في الوضع existing) -->
+                @if($hasExistingTrainings)
+                    <div class="card border-0 rounded-4 shadow-sm mb-4" id="section_existing_training" style="background: #ffffff; display: {{ $currentMode === 'existing' ? 'block' : 'none' }};">
+                        <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                            <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                                <span class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 32px; height: 32px; background: #0d3882;">
+                                    <i class="fas fa-list-check" style="font-size: 0.85rem;"></i>
+                                </span>
+                                <span>اختيار البرنامج التدريبي المسجل مسبقاً</span>
+                            </h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <!-- بحث سريع -->
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                                    <input type="text" id="existingFilterInput" class="form-control bg-light border-start-0 ps-0" placeholder="بحث بالاسم أو الشركة أو المكان...">
+                                </div>
+                            </div>
+
+                            <select name="training_id" id="existingTrainingSelect" class="form-select bg-light rounded-3 p-2.5 @error('training_id') is-invalid @enderror" size="6" style="height: 180px;">
+                                @foreach($allTrainings as $t)
+                                    <option value="{{ $t->id }}"
+                                            {{ (old('training_id') == $t->id || request('training_id') == $t->id) ? 'selected' : '' }}
+                                            data-title="{{ $t->title }}"
+                                            data-location="{{ $t->location ?: 'جامعة طرابلس' }}"
+                                            data-date="{{ $t->start_date ? $t->start_date->format('Y-m-d') : '' }}"
+                                            data-company="{{ $t->company ? $t->company->name : ($t->coordinator ? $t->coordinator->name : 'مكتب تدريب الخريجين') }}"
+                                            data-type="{{ $t->type_arabic ?? 'تدريب' }}"
+                                            data-status="{{ $t->getMediaCoverageStatusText() }}">
+                                        {{ $t->title }} — ({{ $t->company ? $t->company->name : 'جامعة طرابلس' }} | {{ $t->start_date ? $t->start_date->format('Y-m-d') : '--' }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('training_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+
+                            <!-- بطاقة معاينة التدريب القائم المختار -->
+                            <div id="existingTrainingCard" class="card border rounded-3 p-3 bg-light mt-3 d-none">
+                                <div class="d-flex align-items-center justify-content-between mb-1.5">
+                                    <span id="exTypeBadge" class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-2.5 py-1 fw-bold"></span>
+                                    <span id="exStatusBadge" class="badge rounded-pill bg-warning bg-opacity-15 text-dark border border-warning border-opacity-25 px-2.5 py-1 fw-bold"></span>
+                                </div>
+                                <h6 id="exTitle" class="fw-bold text-dark mb-1"></h6>
+                                <div class="d-flex align-items-center gap-3 text-muted small flex-wrap mt-1">
+                                    <span><i class="fas fa-building text-primary me-1"></i><span id="exCompany"></span></span>
+                                    <span><i class="fas fa-map-marker-alt text-danger me-1"></i><span id="exLocation"></span></span>
+                                    <span><i class="far fa-calendar-alt text-primary me-1"></i><span id="exDate"></span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 <!-- بطاقة البيان الصحفي الرسمي -->
                 <div class="card border-0 rounded-4 shadow-sm mb-4" style="background: #ffffff;">
@@ -159,8 +220,8 @@
                             </span>
                             <span>البيان الصحفي الرسمي المعتمد</span>
                         </h5>
-                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="generatePressTemplate()">
-                            <i class="fas fa-magic me-1"></i>توليد مسودة رسمية
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onclick="generatePressTemplate()">
+                            <i class="fas fa-magic me-1"></i>توليد مسودة رسمية تلقائياً
                         </button>
                     </div>
                     <div class="card-body p-4">
@@ -174,7 +235,7 @@
                                 rows="8"
                                 class="form-control rounded-3 p-3 @error('media_press_release') is-invalid @enderror"
                                 style="font-size: 0.95rem; line-height: 1.7; border-color: #cbd5e1;"
-                                placeholder="اكتب هنا نص البيان الصحفي الرسمي... أو اضغط 'توليد مسودة رسمية' أعلاه لصياغة مسودة تلقائية مستندة لبيانات البرنامج التدريبي."
+                                placeholder="اكتب هنا نص البيان الصحفي الرسمي... أو اضغط 'توليد مسودة رسمية تلقائياً' لصياغة مسودة صحفية فورية مستندة لبيانات البرنامج."
                             >{{ old('media_press_release') }}</textarea>
                             @error('media_press_release')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -322,14 +383,14 @@
                             type="text"
                             name="media_team_members"
                             class="form-control rounded-3 p-2.5 @error('media_team_members') is-invalid @enderror"
-                            placeholder="مثال: أ. محمد سالم (محرر)، م. أحمد كمال (تصوير فوتوغرافي)"
+                            placeholder="مثال: أ. محمد سالم (محرر)، م. أحمد كمال (تصوير)"
                             value="{{ old('media_team_members') }}"
                         >
                         @error('media_team_members')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                         <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">
-                            يتم إدراج هذه الأسماء رسمياً في ترويسة التقرير المطبوع.
+                            تدرج هذه الأسماء رسمياً في ترويسة التقرير المطبوع.
                         </small>
                     </div>
                 </div>
@@ -344,14 +405,14 @@
                     </div>
                     <div class="card-body p-4">
                         <p class="text-muted small mb-2">
-                            أضف روابط المنشورات الخارجية (فيسبوك، لينكدإن، يوتيوب، مجلد صور Google Drive أو Dropbox).
+                            أضف روابط المنشورات الخارجية (فيسبوك، لينكدإن، يوتيوب، مجلد صور Drive أو Dropbox).
                         </p>
                         <textarea
                             name="media_coverage_links"
                             rows="4"
                             class="form-control rounded-3 p-2.5 font-monospace @error('media_coverage_links') is-invalid @enderror"
                             style="font-size: 0.85rem; direction: ltr;"
-                            placeholder="https://facebook.com/post/...&#10;https://drive.google.com/drive/folders/...&#10;https://youtube.com/watch?v=..."
+                            placeholder="https://facebook.com/post/...&#10;https://drive.google.com/drive/folders/..."
                         >{{ old('media_coverage_links') }}</textarea>
                         @error('media_coverage_links')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -370,12 +431,12 @@
                             <h6 class="fw-bold text-dark mb-0" style="font-size: 0.9rem;">سياسة التوثيق السحابي</h6>
                         </div>
                         <p class="text-muted small mb-2" style="font-size: 0.8rem; line-height: 1.5;">
-                            يتم حفظ ومشاركة ألبومات الصور عالية الدقة والفيديوهات عبر الخدمات السحابية الخارجية لضمان الجودة العالية دون استهلاك مساحة السيرفر:
+                            يتم حفظ ألبومات الصور عالية الدقة والفيديوهات عبر الخدمات السحابية لضمان أعلى جودة دون استهلاك مساحة الخادم.
                         </p>
                         <ul class="text-muted small ps-3 mb-0" style="font-size: 0.78rem; line-height: 1.6;">
                             <li>Google Drive أو OneDrive للصور الأصلية</li>
-                            <li>YouTube أو Vimeo للتسجيلات المرئية</li>
-                            <li>منشورات المنصات الرسمية لجامعة طرابلس</li>
+                            <li>YouTube للتسجيلات المرئية</li>
+                            <li>صفحات التواصل الرسمية لجامعة طرابلس</li>
                         </ul>
                     </div>
                 </div>
@@ -388,38 +449,40 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const filterInput = document.getElementById('trainingFilterInput');
-    const select = document.getElementById('targetTrainingSelect');
-    const card = document.getElementById('selectedTrainingCard');
-    const cardTitle = document.getElementById('cardTitle');
-    const cardCompany = document.getElementById('cardCompany');
-    const cardLocation = document.getElementById('cardLocation');
-    const cardDate = document.getElementById('cardDate');
-    const cardTypeBadge = document.getElementById('cardTypeBadge');
-    const cardStatusBadge = document.getElementById('cardStatusBadge');
+function switchMode(mode) {
+    const secNew = document.getElementById('section_new_training');
+    const secExisting = document.getElementById('section_existing_training');
+    const existingSelect = document.getElementById('existingTrainingSelect');
+    const newTitleInput = document.getElementById('new_training_title');
 
-    function updateCard() {
-        if (!select) return;
-        const selected = select.options[select.selectedIndex];
-        if (selected && selected.value) {
-            cardTitle.textContent = selected.dataset.title || '';
-            cardCompany.textContent = selected.dataset.company || 'غير محدد';
-            cardLocation.textContent = selected.dataset.location || 'جامعة طرابلس';
-            cardDate.textContent = selected.dataset.date || '—';
-            cardTypeBadge.textContent = selected.dataset.type || 'تدريب';
-            cardStatusBadge.textContent = selected.dataset.status || '';
-
-            card.classList.remove('d-none');
-        } else {
-            card.classList.add('d-none');
-        }
+    if (mode === 'new') {
+        if (secNew) secNew.style.display = 'block';
+        if (secExisting) secExisting.style.display = 'none';
+        if (existingSelect) existingSelect.removeAttribute('required');
+        if (newTitleInput) newTitleInput.setAttribute('required', 'required');
+    } else {
+        if (secNew) secNew.style.display = 'none';
+        if (secExisting) secExisting.style.display = 'block';
+        if (newTitleInput) newTitleInput.removeAttribute('required');
+        if (existingSelect) existingSelect.setAttribute('required', 'required');
     }
+}
 
-    if (filterInput && select) {
-        filterInput.addEventListener('input', function () {
+document.addEventListener('DOMContentLoaded', function () {
+    const existingFilter = document.getElementById('existingFilterInput');
+    const existingSelect = document.getElementById('existingTrainingSelect');
+    const exCard = document.getElementById('existingTrainingCard');
+    const exTitle = document.getElementById('exTitle');
+    const exCompany = document.getElementById('exCompany');
+    const exLocation = document.getElementById('exLocation');
+    const exDate = document.getElementById('exDate');
+    const exTypeBadge = document.getElementById('exTypeBadge');
+    const exStatusBadge = document.getElementById('exStatusBadge');
+
+    if (existingFilter && existingSelect) {
+        existingFilter.addEventListener('input', function () {
             const query = this.value.toLowerCase().trim();
-            const options = select.querySelectorAll('option');
+            const options = existingSelect.querySelectorAll('option');
             options.forEach(opt => {
                 const text = (opt.textContent + ' ' + (opt.dataset.company || '') + ' ' + (opt.dataset.location || '')).toLowerCase();
                 opt.style.display = text.includes(query) ? '' : 'none';
@@ -427,19 +490,63 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    if (select) {
-        select.addEventListener('change', updateCard);
-        updateCard();
+    if (existingSelect) {
+        function updateExistingCard() {
+            const selected = existingSelect.options[existingSelect.selectedIndex];
+            if (selected && selected.value) {
+                if (exTitle) exTitle.textContent = selected.dataset.title || '';
+                if (exCompany) exCompany.textContent = selected.dataset.company || 'غير محدد';
+                if (exLocation) exLocation.textContent = selected.dataset.location || 'جامعة طرابلس';
+                if (exDate) exDate.textContent = selected.dataset.date || '—';
+                if (exTypeBadge) exTypeBadge.textContent = selected.dataset.type || 'تدريب';
+                if (exStatusBadge) exStatusBadge.textContent = selected.dataset.status || '';
+
+                if (exCard) exCard.classList.remove('d-none');
+            } else {
+                if (exCard) exCard.classList.add('d-none');
+            }
+        }
+
+        existingSelect.addEventListener('change', updateExistingCard);
+        updateExistingCard();
     }
 });
 
 function generatePressTemplate() {
-    const select = document.getElementById('targetTrainingSelect');
+    const isNew = document.getElementById('mode_new') ? document.getElementById('mode_new').checked : true;
     const textarea = document.getElementById('media_press_release');
 
-    if (!select || !select.value) {
-        alert('يرجى أولاً اختيار البرنامج التدريبي المستهدف لتوليد البيان الصحفي المخصص له.');
-        select.focus();
+    let title = '';
+    let location = 'قاعات جامعة طرابلس';
+    let org = 'مكتب تدريب الخريجين بجامعة طرابلس';
+    let date = new Date().toISOString().slice(0, 10);
+
+    if (isNew) {
+        title = document.getElementById('new_training_title') ? document.getElementById('new_training_title').value.trim() : '';
+        const locVal = document.getElementById('new_training_location') ? document.getElementById('new_training_location').value.trim() : '';
+        if (locVal) location = locVal;
+        const orgVal = document.getElementById('new_company_name') ? document.getElementById('new_company_name').value.trim() : '';
+        if (orgVal) org = orgVal;
+        const dateVal = document.getElementById('new_training_date') ? document.getElementById('new_training_date').value : '';
+        if (dateVal) date = dateVal;
+    } else {
+        const select = document.getElementById('existingTrainingSelect');
+        if (select && select.value) {
+            const selected = select.options[select.selectedIndex];
+            title = selected.dataset.title || '';
+            location = selected.dataset.location || location;
+            org = selected.dataset.company || org;
+            date = selected.dataset.date || date;
+        }
+    }
+
+    if (!title) {
+        alert('يرجى أولاً كتابة أو اختيار عنوان البرنامج التدريبي لتوليد البيان الصحفي.');
+        if (isNew) {
+            document.getElementById('new_training_title').focus();
+        } else {
+            document.getElementById('existingTrainingSelect').focus();
+        }
         return;
     }
 
@@ -448,12 +555,6 @@ function generatePressTemplate() {
             return;
         }
     }
-
-    const selected = select.options[select.selectedIndex];
-    const title = selected.dataset.title || 'البرنامج التدريبي';
-    const location = selected.dataset.location || 'قاعات جامعة طرابلس';
-    const org = selected.dataset.company || 'مكتب تدريب الخريجين بجامعة طرابلس';
-    const date = selected.dataset.date || new Date().toISOString().slice(0, 10);
 
     const template = `بيان صحفي: اختتام فعاليات البرنامج التدريبي "${title}" بجامعة طرابلس
 

@@ -14,8 +14,8 @@
             ['label' => 'إدارة الموظفين والصلاحيات', 'url' => route('admin.users')],
             ['label' => 'تعديل: ' . $user->name]
         ]"
-        badge="{{ $user->isProtectedSuperAdmin() ? 'مالك النظام (المدير المحمي)' : 'الدور: ' . $user->role_name }}"
-        badgeIcon="{{ $user->isProtectedSuperAdmin() ? 'fas fa-crown text-warning' : 'fas fa-id-badge' }}"
+        badge="الدور: {{ $user->role_name }}"
+        badgeIcon="fas fa-id-badge"
     >
         <a href="{{ route('admin.users') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-4 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2">
             <i class="fas fa-arrow-right fs-6"></i>
@@ -137,8 +137,8 @@
 
                 @if($user->isProtectedSuperAdmin())
                 <div class="alert alert-warning border-0 rounded-3 mt-3">
-                    <i class="fas fa-crown text-warning me-2"></i>
-                    <strong>حساب المالك الأساسي المحمي:</strong> يتمتع هذا الحساب بأعلى مستويات الحماية في المنظومة، ولا يمكن لأي مدير نظام آخر أو موظف تعديل أي من بياناتك أو سحب صلاحياتك الإدارية.
+                    <i class="fas fa-shield-alt text-warning me-2"></i>
+                    <strong>حساب مدير النظام المحمي:</strong> يتمتع هذا الحساب بالحماية في المنظومة، ولا يمكن لأي موظف تعديل أي من بياناتك أو سحب صلاحياتك الإدارية.
                 </div>
                 @elseif($user->isAdmin())
                 <div class="alert alert-info border-0 rounded-3 mt-3">

@@ -440,11 +440,8 @@
 
                 <div style="width: 1px; height: 32px; background: rgba(255, 255, 255, 0.25); margin: 0 4px;" class="d-none d-sm-block"></div>
 
-                <div class="d-none d-sm-flex align-items-center gap-2">
-                    <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 34px; width: auto; max-width: 130px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));" title="شركة الواحة لتنظيم المعارض والمؤتمرات — الراعي الاستراتيجي" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
-                    <span style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3)); border: 1px solid rgba(245, 158, 11, 0.55); color: #fef08a; padding: 4px 10px; border-radius: 50px; font-size: 0.72rem; font-weight: 700;" class="d-none d-md-inline-flex align-items-center gap-1" title="الشريك والراعي الاستراتيجي لمعرض التوظيف السنوي">
-                        <i class="fas fa-crown text-warning"></i> الراعي الاستراتيجي
-                    </span>
+                <div class="d-none d-sm-flex align-items-center">
+                    <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 34px; width: auto; max-width: 130px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));" title="شركة الواحة لتنظيم المعارض والمؤتمرات" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
                 </div>
             </div>
 

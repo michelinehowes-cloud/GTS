@@ -32,7 +32,7 @@
         padding: 1.25rem 1.6rem;
         box-shadow: 0 10px 30px rgba(3, 72, 138, 0.22);
         position: relative;
-        overflow: hidden;
+        overflow: visible !important;
         border-bottom: 3.5px solid #eeca3e;
         margin-bottom: 1.5rem;
     }
@@ -41,22 +41,24 @@
     .job-fair-detail-hero::before {
         content: '';
         position: absolute;
-        top: -60px;
-        right: -60px;
+        top: 0;
+        right: 0;
         width: 220px;
-        height: 220px;
-        background: radial-gradient(circle, rgba(238, 202, 62, 0.16) 0%, transparent 70%);
+        height: 100%;
+        background: radial-gradient(circle at top right, rgba(238, 202, 62, 0.16) 0%, transparent 70%);
         pointer-events: none;
+        border-radius: 20px;
     }
     .job-fair-detail-hero::after {
         content: '';
         position: absolute;
-        bottom: -50px;
-        left: -50px;
+        bottom: 0;
+        left: 0;
         width: 180px;
-        height: 180px;
-        background: radial-gradient(circle, rgba(14, 165, 233, 0.14) 0%, transparent 70%);
+        height: 100%;
+        background: radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.14) 0%, transparent 70%);
         pointer-events: none;
+        border-radius: 20px;
     }
 
     /* ── شريط الشعارات العلوي (Brand Logos Strip) مطابق لصفحة المعرض العامة ── */
@@ -222,6 +224,19 @@
         border-color: rgba(255, 255, 255, 0.5);
     }
 
+    /* إصلاح القوائم المنسدلة في الشريط العلوي لمنع حسابات Popper الخاطئة في RTL */
+    .fair-actions-toolbar .dropdown-menu {
+        z-index: 1075 !important;
+        position: absolute !important;
+        top: 100% !important;
+        margin-top: 8px !important;
+        right: 0 !important;
+        left: auto !important;
+        transform: none !important;
+        border-radius: 14px !important;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22) !important;
+    }
+
     @media (max-width: 991.98px) {
         .job-fair-detail-hero {
             padding: 1.15rem 1rem;
@@ -260,13 +275,9 @@
             <!-- فاصل رأسي -->
             <div class="jf-brand-divider d-none d-sm-block"></div>
 
-            <!-- 3. شعار الراعي الاستراتيجي (شركة الواحة لتنظيم المعارض) -->
-            <div class="d-none d-sm-flex align-items-center gap-2">
-                <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" class="jf-brand-waha-logo" title="شركة الواحة لتنظيم المعارض والمؤتمرات — الشريك والراعي الاستراتيجي" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
-                <span class="jf-strategic-badge d-none d-md-inline-flex" title="الشريك والراعي الاستراتيجي لمعرض التوظيف السنوي">
-                    <i class="fas fa-crown text-warning"></i>
-                    <span>الراعي الاستراتيجي</span>
-                </span>
+            <!-- 3. شعار شركة الواحة لتنظيم المعارض والمؤتمرات -->
+            <div class="d-none d-sm-flex align-items-center">
+                <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" class="jf-brand-waha-logo" title="شركة الواحة لتنظيم المعارض والمؤتمرات" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
             </div>
         </div>
 
@@ -464,11 +475,11 @@
 
                 <!-- قائمة الخيارات والإعدادات الموحدة -->
                 <div class="dropdown d-inline-block position-relative">
-                    <button class="fair-btn-action fair-btn-glass dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="تعديل وتصدير وضبط إعدادات المعرض">
+                    <button class="fair-btn-action fair-btn-glass dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" title="تعديل وتصدير وضبط إعدادات المعرض">
                         <i class="fas fa-sliders-h"></i>
                         <span>خيارات وإعدادات</span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 p-2" style="min-width: 230px; z-index: 1060;">
+                    <ul class="dropdown-menu shadow-lg border-0 rounded-3 p-2" style="min-width: 230px; z-index: 1075; right: 0; left: auto; top: 100%; margin-top: 6px;">
                         <li>
                             <a class="dropdown-item rounded-2 py-2 px-3 small d-flex align-items-center gap-2" href="{{ route('job-fair.admin.edit', $fair->id) }}">
                                 <i class="fas fa-edit text-primary"></i>

@@ -316,11 +316,19 @@
                                             </button>
                                         @else
                                             <!-- عند مشاهدة المستخدمين الآخرين للحساب المحمي -->
+                                            <a href="{{ route('messages.show', $user->id) }}" class="action-circle-btn text-success" title="إرسال رسالة مباشرة لمدير النظام">
+                                                <i class="fas fa-comment-dots"></i>
+                                            </a>
                                             <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;" title="حساب إداري محمي">
                                                 <i class="fas fa-lock text-warning me-1"></i> محمي
                                             </span>
                                         @endif
                                     @else
+                                        @if($user->id !== auth()->id())
+                                            <a href="{{ route('messages.show', $user->id) }}" class="action-circle-btn text-success" title="إرسال رسالة مباشرة">
+                                                <i class="fas fa-comment-dots"></i>
+                                            </a>
+                                        @endif
                                         <!-- تعديل البيانات والصلاحيات لباقي المستخدمين والمدير غير المحمي -->
                                         <a href="{{ route('admin.users.edit', $user->id) }}" class="action-circle-btn text-primary" title="تعديل البيانات وتخصيص الصلاحيات">
                                             <i class="fas fa-edit"></i>

@@ -7,16 +7,44 @@
 @endphp
 
 @section('content')
-<div class="container-fluid py-3">
-    <!-- Breadcrumbs -->
-    @include('components.breadcrumbs', [
-        'items' => [
+<div class="container-fluid">
+    <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
+    <x-page-hero
+        title="{{ $graduate->name }}"
+        subtitle="{{ $graduate->major }} • {{ $graduate->faculty ?? ($graduate->university ?? 'جامعة طرابلس') }} • دفعة {{ $graduate->graduation_year ?? 'غير محدد' }}{{ $graduate->city ? ' • ' . $graduate->city : '' }}"
+        icon="fas fa-user-graduate"
+        :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
             ['label' => 'لوحة الإرشاد المهني', 'url' => route($prefix . '.dashboard')],
             ['label' => 'بيانات الخريجين', 'url' => route($prefix . '.graduates')],
             ['label' => $graduate->name, 'active' => true],
-        ]
-    ])
+        ]"
+        :badge="$graduate->employment_status == 'employed' ? 'موظف حالياً' : ($graduate->employment_status == 'seeking_opportunities' ? 'باحث عن فرصة عمل' : ($graduate->employment_status == 'unemployed' ? 'عاطل عن العمل' : 'مستكمل للدراسة'))"
+        :badgeIcon="$graduate->employment_status == 'employed' ? 'fas fa-check-circle' : ($graduate->employment_status == 'seeking_opportunities' ? 'fas fa-search' : ($graduate->employment_status == 'unemployed' ? 'fas fa-times-circle' : 'fas fa-graduation-cap'))"
+        secondaryBadge="رقم القيد: {{ $graduate->national_id ?? 'غير مسجل' }}"
+        secondaryBadgeIcon="fas fa-id-card"
+    >
+        <button type="button" class="btn btn-warning fw-bold text-dark px-3 py-2 shadow-sm rounded-pill d-flex align-items-center gap-1.5" data-bs-toggle="modal" data-bs-target="#quickNominateModal">
+            <i class="fas fa-paper-plane"></i>
+            <span>ترشيح فوري</span>
+        </button>
+        <a href="{{ route($prefix . '.nominations.create', ['graduate_id' => $graduate->id]) }}" class="btn btn-outline-light px-3 py-2 rounded-pill d-flex align-items-center gap-1.5">
+            <i class="fas fa-external-link-alt"></i>
+            <span>ترشيح متقدم</span>
+        </a>
+        <a href="{{ route($prefix . '.graduates.edit', $graduate->id) }}" class="btn btn-light bg-white text-primary fw-bold px-3 py-2 rounded-pill d-flex align-items-center gap-1.5">
+            <i class="fas fa-user-edit"></i>
+            <span>تعديل الملف</span>
+        </a>
+        <button type="button" class="btn btn-outline-light px-3 py-2 rounded-pill d-flex align-items-center gap-1.5" data-bs-toggle="modal" data-bs-target="#resetPasswordModal" title="إعادة تعيين كلمة مرور الحساب">
+            <i class="fas fa-key"></i>
+            <span>كلمة المرور</span>
+        </button>
+        <a href="{{ route($prefix . '.graduates') }}" class="btn btn-outline-light px-3 py-2 rounded-pill d-flex align-items-center gap-1.5">
+            <i class="fas fa-arrow-right"></i>
+            <span>رجوع</span>
+        </a>
+    </x-page-hero>
 
     <!-- Alerts -->
     @if(session('success') || session('password_success'))
@@ -59,77 +87,6 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
-
-    <!-- Page Header Hero Card -->
-    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);">
-        <div class="card-body p-4 text-white">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="avatar-lg bg-white text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold fs-2 shadow" style="width: 72px; height: 72px; min-width: 72px;">
-                        {{ mb_substr($graduate->name, 0, 1) }}
-                    </div>
-                    <div>
-                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                            <h2 class="h3 fw-bold mb-0 text-white">{{ $graduate->name }}</h2>
-                            @if($graduate->employment_status == 'employed')
-                                <span class="badge bg-success text-white rounded-pill px-3 py-1 shadow-sm">
-                                    <i class="fas fa-check-circle me-1"></i> موظف حالياً
-                                </span>
-                            @elseif($graduate->employment_status == 'seeking_opportunities')
-                                <span class="badge bg-warning text-dark rounded-pill px-3 py-1 shadow-sm fw-bold">
-                                    <i class="fas fa-search me-1"></i> باحث عن فرصة عمل
-                                </span>
-                            @elseif($graduate->employment_status == 'unemployed')
-                                <span class="badge bg-danger text-white rounded-pill px-3 py-1 shadow-sm">
-                                    <i class="fas fa-times-circle me-1"></i> عاطل عن العمل
-                                </span>
-                            @else
-                                <span class="badge bg-info text-white rounded-pill px-3 py-1 shadow-sm">
-                                    <i class="fas fa-graduation-cap me-1"></i> مستكمل للدراسة
-                                </span>
-                            @endif
-
-                            @if($graduate->national_id)
-                                <span class="badge bg-white bg-opacity-25 text-white rounded-pill px-3 py-1">
-                                    <i class="fas fa-id-card me-1"></i> {{ $graduate->national_id }}
-                                </span>
-                            @endif
-                        </div>
-                        <div class="text-white-50 small d-flex align-items-center gap-2 flex-wrap">
-                            <span><i class="fas fa-graduation-cap me-1"></i> {{ $graduate->major }}</span>
-                            <span>&bull;</span>
-                            <span><i class="fas fa-university me-1"></i> {{ $graduate->faculty ?? ($graduate->university ?? 'جامعة طرابلس') }}</span>
-                            <span>&bull;</span>
-                            <span><i class="fas fa-calendar-alt me-1"></i> دفعة {{ $graduate->graduation_year ?? 'غير محدد' }}</span>
-                            @if($graduate->city)
-                                <span>&bull;</span>
-                                <span><i class="fas fa-map-marker-alt me-1"></i> {{ $graduate->city }}</span>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Action Controls -->
-                <div class="d-flex gap-2 flex-wrap">
-                    <button type="button" class="btn btn-warning fw-bold text-dark px-3 py-2 shadow-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#quickNominateModal">
-                        <i class="fas fa-paper-plane me-1"></i> ترشيح فوري لفرصة
-                    </button>
-                    <a href="{{ route($prefix . '.nominations.create', ['graduate_id' => $graduate->id]) }}" class="btn btn-outline-light px-3 py-2 rounded-pill">
-                        <i class="fas fa-external-link-alt me-1"></i> نموذج الترشيح المتقدم
-                    </a>
-                    <a href="{{ route($prefix . '.graduates.edit', $graduate->id) }}" class="btn btn-light px-3 py-2 text-primary fw-bold rounded-pill">
-                        <i class="fas fa-user-edit me-1"></i> تعديل الملف
-                    </a>
-                    <button type="button" class="btn btn-outline-light px-3 py-2 rounded-pill" data-bs-toggle="modal" data-bs-target="#resetPasswordModal" title="إعادة تعيين كلمة مرور الحساب">
-                        <i class="fas fa-key me-1"></i> كلمة المرور
-                    </button>
-                    <a href="{{ route($prefix . '.graduates') }}" class="btn btn-outline-light px-3 py-2 rounded-pill">
-                        <i class="fas fa-arrow-right me-1"></i> رجوع
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Quick Bento Summary Metrics Bar -->
     <div class="row g-3 mb-4">
@@ -214,7 +171,7 @@
                         </div>
                         <div class="col-sm-6">
                             <div class="p-3 bg-light rounded-3 h-100">
-                                <small class="text-muted d-block mb-1"><i class="fas fa-id-card text-secondary me-1"></i> الرقم القومي / الهوية</small>
+                                <small class="text-muted d-block mb-1"><i class="fas fa-id-card text-secondary me-1"></i> رقم القيد</small>
                                 <span class="fw-bold text-dark">{{ $graduate->national_id ?? 'غير مسجل' }}</span>
                             </div>
                         </div>

@@ -898,20 +898,18 @@ document.addEventListener('DOMContentLoaded', function () {
         qrFileInput.addEventListener('change', function(e) {
             if (!e.target.files || e.target.files.length === 0) return;
             const file = e.target.files[0];
-
-            if (!html5QrcodeScanner) {
-                html5QrcodeScanner = new Html5Qrcode("reader");
-            }
-
+            // Need a temporary scanner just for file scanning (not the camera instance)
+            const fileScannerEl = document.getElementById('reader');
+            const tempScanner = new Html5Qrcode('reader');
             scanIndicator.style.display = 'inline-block';
-            html5QrcodeScanner.scanFile(file, true)
+            tempScanner.scanFile(file, true)
                 .then(decodedText => {
                     scanIndicator.style.display = 'none';
                     processCode(decodedText);
                 })
                 .catch(err => {
                     scanIndicator.style.display = 'none';
-                    console.error("Scan file error:", err);
+                    console.error('Scan file error:', err);
                     showResult('error', {
                         title: 'تعذر قراءة الرمز من الصورة',
                         msg: 'تأكد من وضوح رمز الـ QR داخل الصورة أو ابحث عن الخريج في دليل المسجلين بالأسفل.'
@@ -920,6 +918,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .finally(() => {
                     qrFileInput.value = '';
+                    try { tempScanner.clear(); } catch (_) {}
                 });
         });
     }
@@ -952,7 +951,7 @@ document.addEventListener('DOMContentLoaded', function () {
         isTransitioning = true;
         hideCameraError();
 
-        // Check if mediaDevices is supported
+        // Check if mediaDevices is supported (requires HTTPS or localhost)
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             isTransitioning = false;
             showCameraError({
@@ -967,44 +966,8 @@ document.addEventListener('DOMContentLoaded', function () {
         startCameraBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> جاري فتح الكاميرا...';
 
         try {
-            // Always destroy the old instance first to avoid "already under transition" errors
+            // Always destroy any existing instance first
             await destroyScanner();
-
-            // Query available cameras
-            try {
-                const devices = await Html5Qrcode.getCameras();
-                availableCameras = devices || [];
-            } catch (enumErr) {
-                console.warn('Could not enumerate cameras prior to start:', enumErr);
-                availableCameras = [];
-            }
-
-            // Populate camera select dropdown
-            if (availableCameras.length > 1 && cameraSelect) {
-                cameraSelect.innerHTML = '';
-                availableCameras.forEach((dev, idx) => {
-                    const opt = document.createElement('option');
-                    opt.value = dev.id;
-                    opt.textContent = dev.label || `كاميرا ${idx + 1}`;
-                    cameraSelect.appendChild(opt);
-                });
-                cameraSelect.style.display = 'inline-block';
-                if (flipCameraBtn) flipCameraBtn.style.display = 'inline-block';
-            } else {
-                if (cameraSelect) cameraSelect.style.display = 'none';
-                if (flipCameraBtn) flipCameraBtn.style.display = 'none';
-            }
-
-            // Determine target camera
-            let cameraTarget = null;
-            if (currentCameraId && availableCameras.some(c => c.id === currentCameraId)) {
-                cameraTarget = currentCameraId;
-            } else if (availableCameras.length > 0) {
-                const rearCam = availableCameras.find(c => /back|rear|environment|خلفية/i.test(c.label || ''));
-                cameraTarget = rearCam ? rearCam.id : availableCameras[0].id;
-                currentCameraId = cameraTarget;
-                if (cameraSelect) cameraSelect.value = cameraTarget;
-            }
 
             cameraIdleView.style.display = 'none';
             cameraActiveView.style.display = 'block';
@@ -1029,31 +992,58 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             };
 
-            if (cameraTarget) {
-                await html5QrcodeScanner.start(cameraTarget, config, onScanSuccess);
-            } else {
-                // No device ID found — try facingMode constraints (valid in all modern browsers)
-                // Note: 'environment' (rear) causes OverconstrainedError on desktops, so use 'user' first
+            // Strategy: if we already have an explicit device ID picked by the user, use it.
+            // Otherwise, start directly with facingMode — this triggers the permission prompt.
+            // getCameras() is called AFTER start() succeeds (permission already granted at that point).
+            if (currentCameraId) {
                 try {
+                    await html5QrcodeScanner.start(currentCameraId, config, onScanSuccess);
+                } catch (idErr) {
+                    console.warn('Stored camera ID failed, falling back to facingMode:', idErr);
+                    currentCameraId = null;
                     await html5QrcodeScanner.start({ facingMode: 'user' }, config, onScanSuccess);
+                }
+            } else {
+                // Direct start — browser will show permission prompt if needed
+                // On desktop: 'user' = webcam. On mobile: 'environment' = rear camera.
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                const preferredFacing = isMobile ? 'environment' : 'user';
+                try {
+                    await html5QrcodeScanner.start({ facingMode: preferredFacing }, config, onScanSuccess);
                 } catch (facingErr) {
-                    console.warn('facingMode user failed, trying environment:', facingErr);
-                    try {
-                        await html5QrcodeScanner.start({ facingMode: 'environment' }, config, onScanSuccess);
-                    } catch (envErr) {
-                        console.warn('facingMode environment also failed:', envErr);
-                        // Throw a clear user-friendly error instead of passing boolean
-                        throw new Error('لم يتم العثور على كاميرا متاحة. يرجى التحقق من توصيل الكاميرا وإذن الوصول.');
-                    }
+                    console.warn(`facingMode '${preferredFacing}' failed, trying other:`, facingErr);
+                    const fallbackFacing = isMobile ? 'user' : 'environment';
+                    await html5QrcodeScanner.start({ facingMode: fallbackFacing }, config, onScanSuccess);
                 }
             }
 
             isCameraRunning = true;
+
+            // After successful start: enumerate cameras to populate the switcher
+            // (enumerating now works because permission was just granted)
+            try {
+                const devices = await Html5Qrcode.getCameras();
+                availableCameras = devices || [];
+                if (availableCameras.length > 1 && cameraSelect) {
+                    cameraSelect.innerHTML = '';
+                    availableCameras.forEach((dev, idx) => {
+                        const opt = document.createElement('option');
+                        opt.value = dev.id;
+                        opt.textContent = dev.label || `كاميرا ${idx + 1}`;
+                        cameraSelect.appendChild(opt);
+                    });
+                    if (currentCameraId) cameraSelect.value = currentCameraId;
+                    cameraSelect.style.display = 'inline-block';
+                    if (flipCameraBtn) flipCameraBtn.style.display = 'inline-block';
+                }
+            } catch (enumErr) {
+                console.warn('Post-start camera enumeration failed (non-critical):', enumErr);
+            }
+
         } catch (err) {
             console.error('Camera start failed:', err);
             isCameraRunning = false;
-            // Destroy stuck instance so next attempt starts clean
-            try { await html5QrcodeScanner?.clear(); } catch (_) {}
+            try { if (html5QrcodeScanner) await html5QrcodeScanner.clear(); } catch (_) {}
             html5QrcodeScanner = null;
             cameraActiveView.style.display = 'none';
             cameraIdleView.style.display = 'none';

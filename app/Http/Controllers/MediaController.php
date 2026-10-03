@@ -182,8 +182,10 @@ class MediaController extends Controller
     public function createCoverageReportForm(Request $request)
     {
         if ($request->filled('training_id')) {
-            $training = Training::findOrFail($request->training_id);
-            return redirect()->route('media.reports.coverage.edit', $training);
+            $training = Training::find($request->training_id);
+            if ($training) {
+                return redirect()->route('media.reports.coverage.edit', $training);
+            }
         }
 
         $allTrainings = Training::with(['company', 'coordinator'])
@@ -202,27 +204,75 @@ class MediaController extends Controller
      */
     public function storeCoverageReport(Request $request)
     {
-        $validated = $request->validate([
-            'training_id' => 'required|exists:trainings,id',
-            'media_coverage_status' => 'required|in:pending,covered,not_required',
-            'media_coverage_summary' => 'nullable|string',
-            'media_press_release' => 'nullable|string',
-            'media_coverage_notes' => 'nullable|string',
-            'media_team_members' => 'nullable|string|max:255',
-            'media_coverage_links' => 'nullable|string',
-            'media_coverage_date' => 'nullable|date',
-        ]);
+        $mode = $request->input('training_selection_mode', 'new');
 
-        $training = Training::findOrFail($request->training_id);
-        $training->update([
-            'media_coverage_status' => $validated['media_coverage_status'],
-            'media_coverage_summary' => $validated['media_coverage_summary'] ?? null,
-            'media_press_release' => $validated['media_press_release'] ?? null,
-            'media_coverage_notes' => $validated['media_coverage_notes'] ?? null,
-            'media_team_members' => $validated['media_team_members'] ?? null,
-            'media_coverage_links' => $validated['media_coverage_links'] ?? null,
-            'media_coverage_date' => $validated['media_coverage_date'] ?? null,
-        ]);
+        if ($mode === 'existing' && $request->filled('training_id')) {
+            $validated = $request->validate([
+                'training_id'            => 'required|exists:trainings,id',
+                'media_coverage_status'  => 'required|in:pending,covered,not_required',
+                'media_coverage_summary' => 'nullable|string',
+                'media_press_release'    => 'nullable|string',
+                'media_coverage_notes'   => 'nullable|string',
+                'media_team_members'     => 'nullable|string|max:255',
+                'media_coverage_links'   => 'nullable|string',
+                'media_coverage_date'    => 'nullable|date',
+            ]);
+
+            $training = Training::findOrFail($request->training_id);
+            $training->update([
+                'media_coverage_status'  => $validated['media_coverage_status'],
+                'media_coverage_summary' => $validated['media_coverage_summary'] ?? null,
+                'media_press_release'    => $validated['media_press_release'] ?? null,
+                'media_coverage_notes'   => $validated['media_coverage_notes'] ?? null,
+                'media_team_members'     => $validated['media_team_members'] ?? null,
+                'media_coverage_links'   => $validated['media_coverage_links'] ?? null,
+                'media_coverage_date'    => $validated['media_coverage_date'] ?? null,
+            ]);
+        } else {
+            $validated = $request->validate([
+                'new_training_title'     => 'required|string|max:255',
+                'new_training_type'      => 'nullable|string|max:50',
+                'new_training_location'  => 'nullable|string|max:255',
+                'new_training_date'      => 'nullable|date',
+                'new_company_name'       => 'nullable|string|max:255',
+                'media_coverage_status'  => 'required|in:pending,covered,not_required',
+                'media_coverage_summary' => 'nullable|string',
+                'media_press_release'    => 'nullable|string',
+                'media_coverage_notes'   => 'nullable|string',
+                'media_team_members'     => 'nullable|string|max:255',
+                'media_coverage_links'   => 'nullable|string',
+                'media_coverage_date'    => 'nullable|date',
+            ]);
+
+            $trainingDate = $request->new_training_date ? \Carbon\Carbon::parse($request->new_training_date) : now();
+
+            $companyId = null;
+            if ($request->filled('new_company_name')) {
+                $comp = Company::firstOrCreate(['name' => trim($request->new_company_name)]);
+                $companyId = $comp->id;
+            }
+
+            $training = Training::create([
+                'title'                  => $request->new_training_title,
+                'description'            => $request->media_coverage_summary ?: $request->new_training_title,
+                'type'                   => $request->new_training_type ?: 'workshop',
+                'duration'               => 'يوم واحد',
+                'start_date'             => $trainingDate,
+                'end_date'               => $trainingDate,
+                'location'               => $request->new_training_location ?: 'جامعة طرابلس',
+                'seats'                  => 0,
+                'status'                 => 'completed',
+                'company_id'             => $companyId,
+                'coordinator_id'         => Auth::id(),
+                'media_coverage_status'  => $validated['media_coverage_status'],
+                'media_coverage_summary' => $validated['media_coverage_summary'] ?? null,
+                'media_press_release'    => $validated['media_press_release'] ?? null,
+                'media_coverage_notes'   => $validated['media_coverage_notes'] ?? null,
+                'media_team_members'     => $validated['media_team_members'] ?? null,
+                'media_coverage_links'   => $validated['media_coverage_links'] ?? null,
+                'media_coverage_date'    => $validated['media_coverage_date'] ?? $trainingDate,
+            ]);
+        }
 
         return redirect()->route('media.reports.coverage.show', $training)
             ->with('success', 'تم إنشاء وحفظ تقرير التغطية الإعلامية والبيان الصحفي بنجاح.');

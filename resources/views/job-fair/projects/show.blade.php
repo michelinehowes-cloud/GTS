@@ -96,57 +96,106 @@
         /* ══════════════════════════════════
            NAVBAR
         ══════════════════════════════════ */
-        .glass-navbar {
-            background: rgba(9, 35, 71, 0.78);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        .top-nav {
             position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .nav-brand-group {
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(3, 40, 80, 0.85);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 0.85rem 2rem;
             display: flex;
             align-items: center;
-            gap: 14px;
+            justify-content: space-between;
+            transition: all 0.3s;
+        }
+        .top-nav.scrolled {
+            padding: 0.6rem 2rem;
+            background: rgba(2, 32, 66, 0.95);
+            border-bottom: 1px solid rgba(238, 202, 62, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
             text-decoration: none;
-            color: #fff;
+        }
+        .nav-brand img.main-logo {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            object-fit: cover;
+        }
+        .nav-brand img.jf-logo {
+            width: auto; height: 38px;
+            border: none;
+            border-radius: 0;
+            margin-right: 15px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+        }
+        .nav-brand-text { line-height: 1.2; }
+        .nav-brand-text .main { color: white; font-weight: 700; font-size: 0.95rem; }
+        .nav-brand-text .sub  { color: var(--gold); font-size: 0.72rem; }
+
+        .nav-brand-divider {
+            width: 1px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.22);
+            margin: 0 10px;
+            flex-shrink: 0;
+        }
+        .waha-nav-logo {
+            height: 36px;
+            width: auto;
+            max-width: 120px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            transition: transform 0.2s ease;
+        }
+        .waha-nav-logo:hover {
+            transform: scale(1.05);
         }
 
-        .nav-logo-box {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            padding: 4px;
-        }
-        .nav-logo-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
-
-        .btn-nav-outline {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff;
-            border-radius: 10px;
-            padding: 8px 16px;
-            font-size: 0.85rem;
+        .nav-links { display: flex; align-items: center; gap: 0.65rem; }
+        .nav-btn {
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-family: 'Cairo', sans-serif;
             font-weight: 600;
+            font-size: 0.86rem;
+            cursor: pointer;
             text-decoration: none;
-            transition: all 0.25s ease;
+            transition: all 0.25s;
+            border: none;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            line-height: 1.4;
         }
-        .btn-nav-outline:hover {
-            background: rgba(255,255,255,0.18);
-            color: var(--gold-lt);
-            border-color: rgba(238,202,62,0.4);
-            transform: translateY(-1px);
+        .nav-btn-outline {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1.5px solid rgba(255, 255, 255, 0.28);
+            color: white;
+            backdrop-filter: blur(8px);
+        }
+        .nav-btn-outline:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        .nav-btn-gold {
+            background: linear-gradient(135deg, var(--gold), #F97316);
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+        }
+        .nav-btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(245, 158, 11, 0.55);
+            color: white;
         }
 
         /* ══════════════════════════════════
@@ -557,38 +606,53 @@
     <div class="page-content-wrapper">
 
         <!-- Top Navigation -->
-        <nav class="glass-navbar">
-            <div class="container py-2">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center gap-2">
-                        <a href="{{ $fair ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" class="nav-brand-group">
-                            <div class="nav-logo-box">
-                                <img src="{{ asset('images/logo.jpg') }}" alt="مكتب تدريب الخريجين" onerror="this.src='{{ asset('images/uni_logo_white.png') }}'">
-                            </div>
-                            <div class="nav-brand-text">
-                                <h1>معرض مشاريع التخرج</h1>
-                                <small>{{ $fair ? $fair->title : 'جامعة طرابلس' }}</small>
-                            </div>
-                        </a>
-                        <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 rounded-pill" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(245,158,11,0.35);" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات">
-                            <span style="font-size: 0.72rem; font-weight: 700; color: #FDE68A; white-space: nowrap;"><i class="fas fa-crown text-warning"></i> الراعي الاستراتيجي</span>
-                            <img src="{{ asset('images/wahaexpo_horizontal_gold.png') }}" alt="شركة الواحة للمعارض" style="height: 32px; width: auto; object-fit: contain;" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}'">
-                        </div>
-                    </div>
-
-                    <div class="nav-actions">
-                        <a href="{{ $fair ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" class="btn-nav-outline">
-                            <i class="fas fa-arrow-right"></i>
-                            <span class="d-none d-sm-inline">كافة المشاريع</span>
-                        </a>
-                        @if($fair)
-                        <a href="{{ route('job-fair.public', $fair->id) }}" class="btn-nav-outline d-none d-md-inline-flex">
-                            <i class="fas fa-home"></i>
-                            <span>الرئيسية للمعرض</span>
-                        </a>
-                        @endif
-                    </div>
+        <nav class="top-nav" id="topNav">
+            <a href="{{ $fair ? route('job-fair.public', $fair->id) : route('home') }}" class="nav-brand">
+                <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" class="main-logo" onerror="this.style.display='none'">
+                <div class="nav-brand-text">
+                    <div class="main">مكتب تدريب الخريجين</div>
+                    <div class="sub">جامعة طرابلس</div>
                 </div>
+                @if($fair)
+                    <img src="{{ $fair->white_logo_url }}" class="jf-logo" alt="{{ $fair->title }}" onerror="this.onerror=null;this.src='{{ $fair->horizontal_logo_url }}';">
+                @else
+                    <img src="{{ asset('images/job_fair_logo_white.png') }}" class="jf-logo" alt="شعار الفعالية" onerror="this.style.display='none'">
+                @endif
+
+                {{-- فاصل رأسي --}}
+                <div class="nav-brand-divider d-none d-sm-block"></div>
+
+                {{-- شعار شركة الواحة للمعارض المباشر --}}
+                <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" class="waha-nav-logo d-none d-sm-block" title="شركة الواحة لتنظيم المعارض والمؤتمرات — الراعي الاستراتيجي" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
+            </a>
+
+            <div class="nav-links">
+                <a href="{{ $fair ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" class="nav-btn nav-btn-outline">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>كافة المشاريع</span>
+                </a>
+                @if($fair)
+                    <a href="{{ route('job-fair.public', $fair->id) }}" class="nav-btn nav-btn-outline">
+                        <i class="fas fa-home"></i>
+                        <span>الرئيسية للمعرض</span>
+                    </a>
+                @endif
+
+                @auth
+                    <a href="{{ route('dashboard') }}" class="nav-btn nav-btn-outline">
+                        <i class="fas fa-th-large"></i>لوحة التحكم
+                    </a>
+                @else
+                    <a href="{{ route('login') }}" class="nav-btn nav-btn-outline">تسجيل الدخول</a>
+                    <a href="{{ route('graduate.register') }}" class="nav-btn nav-btn-gold">
+                        <i class="fas fa-user-plus"></i>سجّل كخريج
+                    </a>
+                    @if($fair)
+                        <a href="{{ route('job-fair.public', $fair->id) }}#visitor-register" class="nav-btn nav-btn-outline">
+                            <i class="fas fa-id-badge" style="color:var(--gold)"></i>سجّل كزائر
+                        </a>
+                    @endif
+                @endauth
             </div>
         </nav>
 

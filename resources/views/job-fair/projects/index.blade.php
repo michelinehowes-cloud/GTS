@@ -811,6 +811,10 @@
                     </a>
                 @endif
 
+                <a href="{{ $fair ? route('job-fair.public.projects.submit-fair', $fair->id) : route('job-fair.public.projects.submit') }}" class="nav-btn nav-btn-gold">
+                    <i class="fas fa-file-upload"></i>قدّم مشروعك
+                </a>
+
                 @auth
                     <a href="{{ route('dashboard') }}" class="nav-btn nav-btn-outline">
                         <i class="fas fa-th-large"></i>لوحة التحكم
@@ -841,6 +845,13 @@
                 <p class="hero-subtitle">
                     نستعرض هنا نخبة من ابتكارات وبحوث تخرج طلبتنا في مختلف التخصصات، لربط أصحاب الأفكار الإبداعية برجال الأعمال والمؤسسات الوطنية والدولية لدعمها وتمويلها وتوظيف كوادرها.
                 </p>
+
+                <div class="mb-4 d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{{ $fair ? route('job-fair.public.projects.submit-fair', $fair->id) : route('job-fair.public.projects.submit') }}" class="btn btn-warning btn-lg rounded-pill px-4 py-2 fw-bold shadow-lg d-inline-flex align-items-center gap-2" style="background: linear-gradient(135deg, #eeca3e 0%, #f59e0b 100%); color: #061c38; border: none; font-size: 1rem;">
+                        <i class="fas fa-file-upload"></i>
+                        <span>هل أنت خريج؟ قدّم مشروع تخرجك الآن للمشاركة بالمعرض</span>
+                    </a>
+                </div>
 
                 <!-- Stats Bar -->
                 <div class="stats-bar-card">

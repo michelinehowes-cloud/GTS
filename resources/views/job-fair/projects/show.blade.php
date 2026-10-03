@@ -693,6 +693,20 @@
                         <span>دفعة تخرج: {{ $project->graduation_year }}</span>
                     </span>
 
+                    @if($project->project_type)
+                    <span class="badge-hero-pill" style="border-color: rgba(14, 165, 233, 0.5); color: #38bdf8;">
+                        <i class="fas fa-cube text-info"></i>
+                        <span>{{ $project->project_type }}</span>
+                    </span>
+                    @endif
+
+                    @if($project->main_category)
+                    <span class="badge-hero-pill" style="border-color: rgba(16, 185, 129, 0.5); color: #34d399;">
+                        <i class="fas fa-compass text-success"></i>
+                        <span>{{ $project->main_category }}</span>
+                    </span>
+                    @endif
+
                     @if($project->booth_number)
                     <span class="badge-hero-pill badge-hero-booth">
                         <i class="fas fa-store-alt me-1"></i>جناح رقم: {{ $project->booth_number }}
@@ -732,6 +746,43 @@
                         </div>
                     </div>
 
+                    <!-- Problem & Solution Statements -->
+                    @if($project->problem_statement || $project->solution_statement)
+                    <div class="row g-3 mb-4">
+                        @if($project->problem_statement)
+                        <div class="{{ $project->solution_statement ? 'col-md-6' : 'col-md-12' }}">
+                            <div class="glass-box h-100 mb-0" style="border-right: 4px solid #ef4444;">
+                                <div class="box-title-row mb-2">
+                                    <div class="box-icon-wrap" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.35);">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                    </div>
+                                    <h4 style="font-size: 1.05rem; font-weight: 800; margin: 0; color: #fff;">المشكلة التي يعالجها المشروع</h4>
+                                </div>
+                                <div style="font-size: 0.95rem; line-height: 1.8; color: rgba(255,255,255,0.9);">
+                                    {!! nl2br(e($project->problem_statement)) !!}
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        @if($project->solution_statement)
+                        <div class="{{ $project->problem_statement ? 'col-md-6' : 'col-md-12' }}">
+                            <div class="glass-box h-100 mb-0" style="border-right: 4px solid #10b981;">
+                                <div class="box-title-row mb-2">
+                                    <div class="box-icon-wrap" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.35);">
+                                        <i class="fas fa-lightbulb"></i>
+                                    </div>
+                                    <h4 style="font-size: 1.05rem; font-weight: 800; margin: 0; color: #fff;">الحل الذي يقدمه المشروع</h4>
+                                </div>
+                                <div style="font-size: 0.95rem; line-height: 1.8; color: rgba(255,255,255,0.9);">
+                                    {!! nl2br(e($project->solution_statement)) !!}
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                    @endif
+
                     <!-- Objectives -->
                     @if($project->objectives)
                     <div class="glass-box">
@@ -739,7 +790,7 @@
                             <div class="box-icon-wrap">
                                 <i class="fas fa-bullseye"></i>
                             </div>
-                            <h3>فكرة وأهداف المشروع (Objectives)</h3>
+                            <h3>أهداف المشروع (Objectives)</h3>
                         </div>
                         <div style="font-size: 1rem; line-height: 1.8; color: rgba(255,255,255,0.9);">
                             {!! nl2br(e($project->objectives)) !!}
@@ -747,18 +798,70 @@
                     </div>
                     @endif
 
-                    <!-- Details & Specifications -->
-                    @if($project->description && $project->summary)
+                    <!-- Project Full Description -->
+                    @if($project->description && $project->description !== $project->summary)
+                    <div class="glass-box">
+                        <div class="box-title-row">
+                            <div class="box-icon-wrap">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <h3>وصف المشروع والتفاصيل العامة</h3>
+                        </div>
+                        <div style="font-size: 1rem; line-height: 1.8; color: rgba(255,255,255,0.9);">
+                            {!! nl2br(e($project->description)) !!}
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Technical Specifications -->
+                    @if($project->technical_specifications)
                     <div class="glass-box">
                         <div class="box-title-row">
                             <div class="box-icon-wrap">
                                 <i class="fas fa-cogs"></i>
                             </div>
-                            <h3>التفاصيل الفنية والمخرجات التطبيقية</h3>
+                            <h3>التفاصيل الفنية والمخرجات والمواصفات</h3>
                         </div>
                         <div style="font-size: 1rem; line-height: 1.8; color: rgba(255,255,255,0.9);">
-                            {!! nl2br(e($project->description)) !!}
+                            {!! nl2br(e($project->technical_specifications)) !!}
                         </div>
+                    </div>
+                    @endif
+
+                    <!-- Key Outcomes & Market Viability -->
+                    @if($project->key_outcomes || $project->market_viability)
+                    <div class="row g-3 mb-4">
+                        @if($project->key_outcomes)
+                        <div class="{{ $project->market_viability ? 'col-md-6' : 'col-md-12' }}">
+                            <div class="glass-box h-100 mb-0">
+                                <div class="box-title-row mb-2">
+                                    <div class="box-icon-wrap" style="background: rgba(238, 202, 62, 0.15); color: var(--gold); border-color: rgba(238, 202, 62, 0.35);">
+                                        <i class="fas fa-trophy"></i>
+                                    </div>
+                                    <h4 style="font-size: 1.05rem; font-weight: 800; margin: 0; color: #fff;">أبرز النتائج والمميزات</h4>
+                                </div>
+                                <div style="font-size: 0.95rem; line-height: 1.8; color: rgba(255,255,255,0.9);">
+                                    {!! nl2br(e($project->key_outcomes)) !!}
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        @if($project->market_viability)
+                        <div class="{{ $project->key_outcomes ? 'col-md-6' : 'col-md-12' }}">
+                            <div class="glass-box h-100 mb-0">
+                                <div class="box-title-row mb-2">
+                                    <div class="box-icon-wrap" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.35);">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <h4 style="font-size: 1.05rem; font-weight: 800; margin: 0; color: #fff;">قابلية التطوير والتسويق التجاري</h4>
+                                </div>
+                                <div style="font-size: 0.95rem; line-height: 1.8; color: rgba(255,255,255,0.9);">
+                                    {!! nl2br(e($project->market_viability)) !!}
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                     @endif
 
@@ -904,6 +1007,30 @@
                                     </div>
                                 </div>
 
+                                @if($project->project_type)
+                                <div class="meta-row">
+                                    <div class="meta-icon-bubble">
+                                        <i class="fas fa-cube text-info"></i>
+                                    </div>
+                                    <div>
+                                        <span class="meta-label">نوع المشروع</span>
+                                        <span class="meta-value">{{ $project->project_type }}</span>
+                                    </div>
+                                </div>
+                                @endif
+
+                                @if($project->main_category)
+                                <div class="meta-row">
+                                    <div class="meta-icon-bubble">
+                                        <i class="fas fa-compass text-success"></i>
+                                    </div>
+                                    <div>
+                                        <span class="meta-label">المجال الرئيسي</span>
+                                        <span class="meta-value">{{ $project->main_category }}</span>
+                                    </div>
+                                </div>
+                                @endif
+
                                 @if($project->booth_number)
                                 <div class="meta-row">
                                     <div class="meta-icon-bubble">
@@ -925,6 +1052,20 @@
                                         <span class="meta-label">رابط المشروع البرمجي</span>
                                         <span class="meta-value">
                                             <a href="{{ $project->project_url }}" target="_blank" class="text-warning text-decoration-underline">GitHub / Live Demo</a>
+                                        </span>
+                                    </div>
+                                </div>
+                                @endif
+
+                                @if($project->contact_email)
+                                <div class="meta-row">
+                                    <div class="meta-icon-bubble">
+                                        <i class="fas fa-envelope text-warning"></i>
+                                    </div>
+                                    <div>
+                                        <span class="meta-label">البريد الإلكتروني للتواصل</span>
+                                        <span class="meta-value">
+                                            <a href="mailto:{{ $project->contact_email }}" class="text-warning text-decoration-underline">{{ $project->contact_email }}</a>
                                         </span>
                                     </div>
                                 </div>

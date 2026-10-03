@@ -13,6 +13,7 @@ class JobFairProjectController extends Controller
 {
     /**
      * المعرض العام لمشاريع التخرج والبحث والفلترة
+     * تظهر المشاريع المعتمدة والمنشورة فقط للجمهور
      */
     public function publicIndex(Request $request, $fair = null)
     {
@@ -34,7 +35,8 @@ class JobFairProjectController extends Controller
             }
         }
 
-        $query = JobFairProject::query();
+        // عرض المشاريع المنشورة فقط للعامة
+        $query = JobFairProject::where('status', 'published');
 
         // ربط بالمعرض المحدد أو أرشيف سنة معينة
         if ($request->filled('archive_fair')) {
@@ -56,12 +58,22 @@ class JobFairProjectController extends Controller
             $query->where('graduation_year', $request->year);
         }
 
+        if ($request->filled('project_type')) {
+            $query->where('project_type', $request->project_type);
+        }
+
+        if ($request->filled('main_category')) {
+            $query->where('main_category', $request->main_category);
+        }
+
         if ($request->filled('search')) {
             $s = trim($request->search);
             $query->where(function($q) use ($s) {
                 $q->where('title', 'like', "%{$s}%")
                   ->orWhere('summary', 'like', "%{$s}%")
                   ->orWhere('description', 'like', "%{$s}%")
+                  ->orWhere('problem_statement', 'like', "%{$s}%")
+                  ->orWhere('solution_statement', 'like', "%{$s}%")
                   ->orWhere('supervisor_name', 'like', "%{$s}%")
                   ->orWhere('faculty', 'like', "%{$s}%")
                   ->orWhere('department', 'like', "%{$s}%")
@@ -73,11 +85,16 @@ class JobFairProjectController extends Controller
                           ->orderByDesc('created_at')
                           ->get();
 
-        // استخراج خيارات الفلترة المتاحة
-        $baseQuery = $fair ? JobFairProject::where('job_fair_id', $fair->id) : JobFairProject::query();
+        // استخراج خيارات الفلترة المتاحة للمشاريع المنشورة
+        $baseQuery = $fair 
+            ? JobFairProject::where('job_fair_id', $fair->id)->where('status', 'published') 
+            : JobFairProject::where('status', 'published');
+
         $faculties = (clone $baseQuery)->distinct()->pluck('faculty')->filter()->values();
         $departments = (clone $baseQuery)->distinct()->pluck('department')->filter()->values();
-        $years = JobFairProject::distinct()->orderByDesc('graduation_year')->pluck('graduation_year')->filter()->values();
+        $years = (clone $baseQuery)->distinct()->orderByDesc('graduation_year')->pluck('graduation_year')->filter()->values();
+        $projectTypes = (clone $baseQuery)->distinct()->pluck('project_type')->filter()->values();
+        $categories = (clone $baseQuery)->distinct()->pluck('main_category')->filter()->values();
         $allFairs = JobFair::orderByDesc('event_date')->select('id', 'title', 'event_date')->get();
 
         // إحصائيات المعرض
@@ -94,6 +111,8 @@ class JobFairProjectController extends Controller
             'faculties',
             'departments',
             'years',
+            'projectTypes',
+            'categories',
             'allFairs',
             'totalProjects',
             'totalFaculties',
@@ -104,6 +123,7 @@ class JobFairProjectController extends Controller
 
     /**
      * الصفحة المستقلة للمشروع مع البوستر ورمز QR وتفاصيل الفريق
+     * (تظهر فقط الـ 22 حقلاً العامة ولا تُظهر أياً من الحقول السرية للمسؤول)
      */
     public function publicShow(Request $request, $project)
     {
@@ -113,6 +133,21 @@ class JobFairProjectController extends Controller
             $project->load('jobFair');
         }
 
+        // إذا كان المشروع غير منشور، يُسمح بالمعاينة فقط للمسؤولين أو صاحب المشروع
+        if ($project->status !== 'published') {
+            $canPreview = auth()->check() && (
+                auth()->user()->role === 'admin' ||
+                auth()->user()->role === 'super_admin' ||
+                (method_exists(auth()->user(), 'canManageJobFair') && auth()->user()->canManageJobFair()) ||
+                $project->user_id === auth()->id()
+            );
+
+            if (!$canPreview) {
+                return redirect()->route('job-fair.public.projects.index')
+                    ->with('info', 'المشروع قيد المراجعة الإدارية والاعتماد أو غير متاح للعرض العام حالياً.');
+            }
+        }
+
         // زيادة عداد المشاهدات بدون تحديث timestamps
         $project->timestamps = false;
         $project->increment('views_count');
@@ -120,8 +155,9 @@ class JobFairProjectController extends Controller
 
         $fair = $project->jobFair;
 
-        // مشاريع مقترحة ذات صلة
+        // مشاريع مقترحة ذات صلة من المشاريع المنشورة فقط
         $relatedProjects = JobFairProject::where('id', '!=', $project->id)
+            ->where('status', 'published')
             ->where(function($q) use ($project) {
                 $q->where('faculty', $project->faculty)
                   ->orWhere('job_fair_id', $project->job_fair_id);
@@ -134,47 +170,254 @@ class JobFairProjectController extends Controller
     }
 
     /**
+     * نموذج تقديم مشروع تخرج من قبل الخريجين بأنفسهم
+     */
+    public function createSubmission(Request $request, $fair = null)
+    {
+        if ($fair) {
+            if (!($fair instanceof JobFair)) {
+                $fair = JobFair::find($fair);
+            }
+        } elseif ($request->has('fair')) {
+            $fair = JobFair::find($request->query('fair'));
+        }
+
+        if (!$fair) {
+            $fair = JobFair::where('status', 'published')->orderBy('event_date', 'asc')->first()
+                 ?? JobFair::where('status', 'ongoing')->first()
+                 ?? JobFair::first();
+        }
+
+        $allFairs = JobFair::whereIn('status', ['published', 'ongoing'])
+                           ->orderByDesc('event_date')
+                           ->get();
+
+        // التعبئة التلقائية إذا كان الخريج مسجلاً دخوله
+        $prefill = [];
+        if (auth()->check()) {
+            $user = auth()->user();
+            $graduate = $user->graduateProfile ?? null;
+            $prefill = [
+                'name'                  => $user->name,
+                'contact_email'         => $user->email,
+                'whatsapp_phone'        => $user->phone ?? ($graduate?->phone ?? ''),
+                'student_university_id' => $user->university_id ?? ($graduate?->student_id ?? ($graduate?->national_id ?? '')),
+                'faculty'               => $user->faculty ?? ($graduate?->faculty ?? ''),
+                'department'            => $user->department ?? ($graduate?->specialization ?? ''),
+                'graduation_year'       => $graduate?->graduation_year ?? date('Y'),
+            ];
+        }
+
+        return view('job-fair.projects.submit', compact('fair', 'allFairs', 'prefill'));
+    }
+
+    /**
+     * حفظ طلب تقديم مشروع التخرج المرسل من الخريج
+     */
+    public function storeSubmission(Request $request)
+    {
+        $validated = $request->validate([
+            'job_fair_id'              => 'required|exists:job_fairs,id',
+            'title'                    => 'required|string|max:255',
+            'faculty'                  => 'required|string|max:255',
+            'department'               => 'required|string|max:255',
+            'graduation_year'          => 'required|integer|min:2000|max:2035',
+            'academic_year'            => 'nullable|string|max:50',
+            'project_type'             => 'required|string|max:100',
+            'main_category'            => 'required|string|max:100',
+            'supervisor_name'          => 'nullable|string|max:255',
+            'supervisor_title'         => 'nullable|string|max:255',
+            'description'              => 'required|string',
+            'summary'                  => 'required|string',
+            'problem_statement'        => 'nullable|string',
+            'solution_statement'       => 'nullable|string',
+            'objectives'               => 'nullable|string',
+            'technical_specifications' => 'nullable|string',
+            'key_outcomes'             => 'nullable|string',
+            'market_viability'         => 'nullable|string',
+            'project_url'              => 'nullable|url|max:255',
+            'video_url'                => 'nullable|url|max:255',
+            'contact_email'            => 'required|email|max:255',
+            'poster_image'             => 'nullable|image|max:10240',
+            'cover_image'              => 'nullable|image|max:10240',
+            // الحقول الخاصة بالمسؤول فقط
+            'student_university_id'    => 'required|string|max:100',
+            'whatsapp_phone'           => 'required|string|max:50',
+            'project_requirements'     => 'nullable|string',
+            'needs_special_equipment'  => 'nullable|boolean',
+            'special_equipment_details'=> 'nullable|string',
+            'additional_requirements'  => 'nullable|string',
+            'executive_summary'        => 'nullable|string',
+            'prototype_status'         => 'nullable|string|max:100',
+        ]);
+
+        // معالجة أعضاء الفريق
+        $teamMembers = [];
+        if ($request->filled('team_members_raw')) {
+            $lines = array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $request->team_members_raw)));
+            foreach ($lines as $line) {
+                $teamMembers[] = ['name' => $line];
+            }
+        } elseif ($request->has('team_names') && is_array($request->team_names)) {
+            foreach ($request->team_names as $i => $name) {
+                if (!empty(trim($name))) {
+                    $teamMembers[] = [
+                        'name'  => trim($name),
+                        'role'  => $request->team_roles[$i] ?? null,
+                        'email' => $request->team_emails[$i] ?? null,
+                        'phone' => $request->team_phones[$i] ?? null,
+                    ];
+                }
+            }
+        }
+        $validated['team_members'] = $teamMembers;
+
+        if ($request->hasFile('poster_image')) {
+            $validated['poster_image'] = $request->file('poster_image')->store('projects/posters', 'public');
+        }
+
+        if ($request->hasFile('cover_image')) {
+            $validated['cover_image'] = $request->file('cover_image')->store('projects/covers', 'public');
+        }
+
+        $validated['status'] = 'pending'; // يبدأ دائمًا بحالة قيد المراجعة الإدارية
+        $validated['is_featured'] = false;
+        $validated['user_id'] = auth()->id();
+        $validated['needs_special_equipment'] = $request->boolean('needs_special_equipment');
+
+        $project = JobFairProject::create($validated);
+
+        return redirect()->route('job-fair.public.projects.submitted', $project->id)
+            ->with('success', 'تم استلام بيانات مشروع التخرج بنجاح وهو الآن قيد المراجعة والاعتماد من قبل إدارة المعرض.');
+    }
+
+    /**
+     * صفحة إشعار نجاح تقديم المشروع للخريج
+     */
+    public function submissionSuccess($id)
+    {
+        $project = JobFairProject::with('jobFair')->findOrFail($id);
+        $fair = $project->jobFair;
+
+        return view('job-fair.projects.submitted', compact('project', 'fair'));
+    }
+
+    /**
      * لوحة تحكم المشرفين لإدارة مشاريع المعرض
      */
-    public function adminIndex(JobFair $fair)
+    public function adminIndex(Request $request, JobFair $fair)
     {
-        $projects = $fair->projects()
+        $statusFilter = $request->query('status', 'all');
+
+        $allProjects = $fair->projects()
             ->orderByDesc('is_featured')
             ->orderByDesc('created_at')
             ->get();
 
         $stats = [
-            'total'     => $projects->count(),
-            'faculties' => $projects->pluck('faculty')->unique()->count(),
-            'featured'  => $projects->where('is_featured', true)->count(),
-            'views'     => $projects->sum('views_count'),
+            'total'     => $allProjects->count(),
+            'pending'   => $allProjects->where('status', 'pending')->count(),
+            'published' => $allProjects->where('status', 'published')->count(),
+            'rejected'  => $allProjects->where('status', 'rejected')->count(),
+            'faculties' => $allProjects->pluck('faculty')->unique()->count(),
+            'featured'  => $allProjects->where('is_featured', true)->count(),
+            'views'     => $allProjects->sum('views_count'),
         ];
 
-        return view('job-fair.admin.projects', compact('fair', 'projects', 'stats'));
+        $projects = match($statusFilter) {
+            'pending'   => $allProjects->where('status', 'pending'),
+            'published' => $allProjects->where('status', 'published'),
+            'rejected'  => $allProjects->where('status', 'rejected'),
+            'draft'     => $allProjects->where('status', 'draft'),
+            default     => $allProjects,
+        };
+
+        return view('job-fair.admin.projects', compact('fair', 'projects', 'stats', 'statusFilter', 'allProjects'));
     }
 
     /**
-     * حفظ مشروع تخرج جديد
+     * اعتماد / قبول أو رفض سريع للمشروع من لوحة الإدارة
+     */
+    public function updateStatus(Request $request, JobFairProject $project)
+    {
+        $validated = $request->validate([
+            'status'           => 'required|string|in:published,pending,rejected,draft,archived',
+            'booth_number'     => 'nullable|string|max:50',
+            'is_featured'      => 'nullable|boolean',
+            'admin_notes'      => 'nullable|string',
+            'rejection_reason' => 'nullable|string',
+        ]);
+
+        $updateData = [
+            'status' => $validated['status'],
+        ];
+
+        if ($request->has('booth_number')) {
+            $updateData['booth_number'] = $validated['booth_number'];
+        }
+        if ($request->has('is_featured')) {
+            $updateData['is_featured'] = $request->boolean('is_featured');
+        }
+        if ($request->has('admin_notes')) {
+            $updateData['admin_notes'] = $validated['admin_notes'];
+        }
+        if ($request->has('rejection_reason')) {
+            $updateData['rejection_reason'] = $validated['rejection_reason'];
+        }
+
+        $project->update($updateData);
+
+        $msg = match($validated['status']) {
+            'published' => 'تمت الموافقة على المشروع بنجاح وإدراجه رسمياً في المعرض الرقمي للجمهور.',
+            'rejected'  => 'تم رفض المشروع وتسجيل سبب الرفض.',
+            'pending'   => 'تمت إعادة المشروع إلى قائمة الانتظار والمراجعة.',
+            default     => 'تم تحديث حالة المشروع بنجاح.',
+        };
+
+        return back()->with('success', $msg);
+    }
+
+    /**
+     * حفظ مشروع تخرج جديد من لوحة الإدارة
      */
     public function store(Request $request, JobFair $fair)
     {
         $validated = $request->validate([
-            'title'            => 'required|string|max:255',
-            'faculty'          => 'required|string|max:255',
-            'department'       => 'required|string|max:255',
-            'graduation_year'  => 'required|integer|min:2000|max:2035',
-            'academic_year'    => 'nullable|string|max:50',
-            'supervisor_name'  => 'nullable|string|max:255',
-            'supervisor_title' => 'nullable|string|max:255',
-            'summary'          => 'nullable|string',
-            'objectives'       => 'nullable|string',
-            'description'      => 'nullable|string',
-            'booth_number'     => 'nullable|string|max:50',
-            'project_url'      => 'nullable|url|max:255',
-            'video_url'        => 'nullable|url|max:255',
-            'status'           => 'required|string|in:published,draft,archived',
-            'poster_image'     => 'nullable|image|max:5120',
-            'cover_image'      => 'nullable|image|max:4096',
+            'title'                    => 'required|string|max:255',
+            'faculty'                  => 'required|string|max:255',
+            'department'               => 'required|string|max:255',
+            'graduation_year'          => 'required|integer|min:2000|max:2035',
+            'academic_year'            => 'nullable|string|max:50',
+            'project_type'             => 'nullable|string|max:100',
+            'main_category'            => 'nullable|string|max:100',
+            'supervisor_name'          => 'nullable|string|max:255',
+            'supervisor_title'         => 'nullable|string|max:255',
+            'summary'                  => 'nullable|string',
+            'problem_statement'        => 'nullable|string',
+            'solution_statement'       => 'nullable|string',
+            'objectives'               => 'nullable|string',
+            'description'              => 'nullable|string',
+            'technical_specifications' => 'nullable|string',
+            'key_outcomes'             => 'nullable|string',
+            'market_viability'         => 'nullable|string',
+            'booth_number'             => 'nullable|string|max:50',
+            'project_url'              => 'nullable|url|max:255',
+            'video_url'                => 'nullable|url|max:255',
+            'contact_email'            => 'nullable|email|max:255',
+            'status'                   => 'required|string|in:published,pending,rejected,draft,archived',
+            'poster_image'             => 'nullable|image|max:10240',
+            'cover_image'              => 'nullable|image|max:10240',
+            // حقول الإدارة
+            'student_university_id'    => 'nullable|string|max:100',
+            'whatsapp_phone'           => 'nullable|string|max:50',
+            'project_requirements'     => 'nullable|string',
+            'needs_special_equipment'  => 'nullable|boolean',
+            'special_equipment_details'=> 'nullable|string',
+            'additional_requirements'  => 'nullable|string',
+            'executive_summary'        => 'nullable|string',
+            'prototype_status'         => 'nullable|string|max:100',
+            'admin_notes'              => 'nullable|string',
+            'rejection_reason'         => 'nullable|string',
         ]);
 
         // معالجة أعضاء الفريق من النموذج
@@ -208,6 +451,7 @@ class JobFairProjectController extends Controller
         }
 
         $validated['is_featured'] = $request->has('is_featured');
+        $validated['needs_special_equipment'] = $request->boolean('needs_special_equipment');
 
         $fair->projects()->create($validated);
 
@@ -215,27 +459,46 @@ class JobFairProjectController extends Controller
     }
 
     /**
-     * تحديث بيانات مشروع تخرج
+     * تحديث بيانات مشروع تخرج من لوحة الإدارة
      */
     public function update(Request $request, JobFairProject $project)
     {
         $validated = $request->validate([
-            'title'            => 'required|string|max:255',
-            'faculty'          => 'required|string|max:255',
-            'department'       => 'required|string|max:255',
-            'graduation_year'  => 'required|integer|min:2000|max:2035',
-            'academic_year'    => 'nullable|string|max:50',
-            'supervisor_name'  => 'nullable|string|max:255',
-            'supervisor_title' => 'nullable|string|max:255',
-            'summary'          => 'nullable|string',
-            'objectives'       => 'nullable|string',
-            'description'      => 'nullable|string',
-            'booth_number'     => 'nullable|string|max:50',
-            'project_url'      => 'nullable|url|max:255',
-            'video_url'        => 'nullable|url|max:255',
-            'status'           => 'required|string|in:published,draft,archived',
-            'poster_image'     => 'nullable|image|max:5120',
-            'cover_image'      => 'nullable|image|max:4096',
+            'title'                    => 'required|string|max:255',
+            'faculty'                  => 'required|string|max:255',
+            'department'               => 'required|string|max:255',
+            'graduation_year'          => 'required|integer|min:2000|max:2035',
+            'academic_year'            => 'nullable|string|max:50',
+            'project_type'             => 'nullable|string|max:100',
+            'main_category'            => 'nullable|string|max:100',
+            'supervisor_name'          => 'nullable|string|max:255',
+            'supervisor_title'         => 'nullable|string|max:255',
+            'summary'                  => 'nullable|string',
+            'problem_statement'        => 'nullable|string',
+            'solution_statement'       => 'nullable|string',
+            'objectives'               => 'nullable|string',
+            'description'              => 'nullable|string',
+            'technical_specifications' => 'nullable|string',
+            'key_outcomes'             => 'nullable|string',
+            'market_viability'         => 'nullable|string',
+            'booth_number'             => 'nullable|string|max:50',
+            'project_url'              => 'nullable|url|max:255',
+            'video_url'                => 'nullable|url|max:255',
+            'contact_email'            => 'nullable|email|max:255',
+            'status'                   => 'required|string|in:published,pending,rejected,draft,archived',
+            'poster_image'             => 'nullable|image|max:10240',
+            'cover_image'              => 'nullable|image|max:10240',
+            // حقول الإدارة
+            'student_university_id'    => 'nullable|string|max:100',
+            'whatsapp_phone'           => 'nullable|string|max:50',
+            'project_requirements'     => 'nullable|string',
+            'needs_special_equipment'  => 'nullable|boolean',
+            'special_equipment_details'=> 'nullable|string',
+            'additional_requirements'  => 'nullable|string',
+            'executive_summary'        => 'nullable|string',
+            'prototype_status'         => 'nullable|string|max:100',
+            'admin_notes'              => 'nullable|string',
+            'rejection_reason'         => 'nullable|string',
         ]);
 
         if ($request->filled('team_members_raw')) {
@@ -262,6 +525,7 @@ class JobFairProjectController extends Controller
         }
 
         $validated['is_featured'] = $request->has('is_featured');
+        $validated['needs_special_equipment'] = $request->boolean('needs_special_equipment');
 
         $project->update($validated);
 
@@ -304,13 +568,19 @@ class JobFairProjectController extends Controller
                 'الكلية',
                 'القسم / التخصص',
                 'سنة التخرج',
+                'نوع المشروع',
+                'المجال الرئيسي',
                 'المشرف الأكاديمي',
                 'اللقب العلمي',
                 'أسماء أعضاء الفريق',
+                'البريد الإلكتروني للتواصل',
+                'الرقم الجامعي للممثل',
+                'رقم الواتساب',
                 'رقم الجناح',
-                'رابط المشروع',
+                'حالة النموذج الأولي',
+                'معدات خاصة',
+                'الحالة',
                 'المشاهدات',
-                'الحالة'
             ]);
 
             foreach ($projects as $index => $proj) {
@@ -321,13 +591,19 @@ class JobFairProjectController extends Controller
                     $proj->faculty,
                     $proj->department,
                     $proj->graduation_year,
+                    $proj->project_type ?? '-',
+                    $proj->main_category ?? '-',
                     $proj->supervisor_name ?? '-',
                     $proj->supervisor_title ?? '-',
                     $teamNames,
+                    $proj->contact_email ?? '-',
+                    $proj->student_university_id ?? '-',
+                    $proj->whatsapp_phone ?? '-',
                     $proj->booth_number ?? '-',
-                    $proj->project_url ?? '-',
+                    $proj->prototype_status ?? '-',
+                    $proj->needs_special_equipment ? 'نعم (' . ($proj->special_equipment_details ?: 'بدون تفاصيل') . ')' : 'لا',
+                    $proj->status_label,
                     $proj->views_count,
-                    $proj->status === 'published' ? 'منشور' : ($proj->status === 'draft' ? 'مسودة' : 'مؤرشف')
                 ]);
             }
 

@@ -1032,12 +1032,19 @@ document.addEventListener('DOMContentLoaded', function () {
             if (cameraTarget) {
                 await html5QrcodeScanner.start(cameraTarget, config, onScanSuccess);
             } else {
-                // Progressive fallbacks when no device ID available
+                // No device ID found — try facingMode constraints (valid in all modern browsers)
+                // Note: 'environment' (rear) causes OverconstrainedError on desktops, so use 'user' first
                 try {
                     await html5QrcodeScanner.start({ facingMode: 'user' }, config, onScanSuccess);
                 } catch (facingErr) {
-                    console.warn('facingMode user failed, trying basic video:', facingErr);
-                    await html5QrcodeScanner.start(true, config, onScanSuccess);
+                    console.warn('facingMode user failed, trying environment:', facingErr);
+                    try {
+                        await html5QrcodeScanner.start({ facingMode: 'environment' }, config, onScanSuccess);
+                    } catch (envErr) {
+                        console.warn('facingMode environment also failed:', envErr);
+                        // Throw a clear user-friendly error instead of passing boolean
+                        throw new Error('لم يتم العثور على كاميرا متاحة. يرجى التحقق من توصيل الكاميرا وإذن الوصول.');
+                    }
                 }
             }
 

@@ -999,60 +999,54 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             };
 
-            // Strategy:
-            // 1. If user already picked a specific device ID, use it directly.
-            // 2. Otherwise use { video: true } — the most basic constraint that works
-            //    with ANY camera including built-in webcams (HP TrueVision, etc.) that
-            //    don't expose facingMode. This avoids OverconstrainedError.
-            // 3. Fall back to facingMode variants only if the basic constraint fails.
-            if (currentCameraId) {
+            // ── STEP 1: Get camera permission via raw getUserMedia ──
+            // Triggers Chrome's permission prompt. Stream is stopped immediately;
+            // we only need the permission grant so getCameras() returns real IDs.
+            if (!currentCameraId) {
+                let permStream = null;
                 try {
-                    await html5QrcodeScanner.start(currentCameraId, config, onScanSuccess);
-                } catch (idErr) {
-                    console.warn('Stored camera ID failed, resetting and retrying:', idErr);
-                    currentCameraId = null;
-                    await html5QrcodeScanner.start({ video: true }, config, onScanSuccess);
+                    permStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                } finally {
+                    if (permStream) permStream.getTracks().forEach(t => t.stop());
                 }
-            } else {
-                // { video: true } works universally — triggers permission prompt if needed
+
+                // ── STEP 2: Enumerate cameras now that permission is granted ──
                 try {
-                    await html5QrcodeScanner.start({ video: true }, config, onScanSuccess);
-                } catch (basicErr) {
-                    console.warn('Basic video:true constraint failed, trying facingMode:', basicErr);
+                    const devices = await Html5Qrcode.getCameras();
+                    availableCameras = devices || [];
+                } catch (_) { availableCameras = []; }
+
+                if (availableCameras.length > 0) {
                     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                    try {
-                        const facing = isMobile ? 'environment' : 'user';
-                        await html5QrcodeScanner.start({ facingMode: facing }, config, onScanSuccess);
-                    } catch (facingErr) {
-                        console.warn('facingMode also failed, last resort:', facingErr);
-                        const fallback = isMobile ? 'user' : 'environment';
-                        await html5QrcodeScanner.start({ facingMode: fallback }, config, onScanSuccess);
+                    const rearCam = availableCameras.find(c => /back|rear|environment|خلفية/i.test(c.label || ''));
+                    currentCameraId = (isMobile && rearCam) ? rearCam.id : availableCameras[0].id;
+
+                    if (availableCameras.length > 1 && cameraSelect) {
+                        cameraSelect.innerHTML = '';
+                        availableCameras.forEach((dev, idx) => {
+                            const opt = document.createElement('option');
+                            opt.value = dev.id;
+                            opt.textContent = dev.label || `كاميرا ${idx + 1}`;
+                            cameraSelect.appendChild(opt);
+                        });
+                        cameraSelect.value = currentCameraId;
+                        cameraSelect.style.display = 'inline-block';
+                        if (flipCameraBtn) flipCameraBtn.style.display = 'inline-block';
                     }
                 }
             }
 
-            isCameraRunning = true;
-
-            // After successful start: enumerate cameras to populate the switcher
-            // (enumerating now works because permission was just granted)
-            try {
-                const devices = await Html5Qrcode.getCameras();
-                availableCameras = devices || [];
-                if (availableCameras.length > 1 && cameraSelect) {
-                    cameraSelect.innerHTML = '';
-                    availableCameras.forEach((dev, idx) => {
-                        const opt = document.createElement('option');
-                        opt.value = dev.id;
-                        opt.textContent = dev.label || `كاميرا ${idx + 1}`;
-                        cameraSelect.appendChild(opt);
-                    });
-                    if (currentCameraId) cameraSelect.value = currentCameraId;
-                    cameraSelect.style.display = 'inline-block';
-                    if (flipCameraBtn) flipCameraBtn.style.display = 'inline-block';
-                }
-            } catch (enumErr) {
-                console.warn('Post-start camera enumeration failed (non-critical):', enumErr);
+            // ── STEP 3: Start scanner with device ID ──
+            // Using device ID avoids facingMode OverconstrainedError on built-in
+            // webcams (HP TrueVision etc.) that don't expose a facingMode capability.
+            if (currentCameraId) {
+                await html5QrcodeScanner.start(currentCameraId, config, onScanSuccess);
+            } else {
+                // Absolute fallback when no device ID could be obtained
+                await html5QrcodeScanner.start({ facingMode: 'user' }, config, onScanSuccess);
             }
+
+            isCameraRunning = true;
 
         } catch (err) {
             console.error('Camera start failed:', err);

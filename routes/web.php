@@ -794,6 +794,22 @@ Route::get('/job-fair/{fair}/projects', [App\Http\Controllers\JobFairProjectCont
     ->where('fair', '[0-9]+')
     ->name('job-fair.public.projects');
 
+// نموذج تقديم مشروع تخرج من قبل الخريجين بأنفسهم
+Route::get('/job-fair/projects/submit', [App\Http\Controllers\JobFairProjectController::class, 'createSubmission'])
+    ->name('job-fair.public.projects.submit');
+
+Route::get('/job-fair/{fair}/projects/submit', [App\Http\Controllers\JobFairProjectController::class, 'createSubmission'])
+    ->where('fair', '[0-9]+')
+    ->name('job-fair.public.projects.submit-fair');
+
+Route::post('/job-fair/projects/submit', [App\Http\Controllers\JobFairProjectController::class, 'storeSubmission'])
+    ->name('job-fair.public.projects.store-submission');
+
+// صفحة إشعار استلام مشروع التخرج
+Route::get('/job-fair/projects/submitted/{project}', [App\Http\Controllers\JobFairProjectController::class, 'submissionSuccess'])
+    ->where('project', '[0-9]+')
+    ->name('job-fair.public.projects.submitted');
+
 // الصفحة المستقلة لمشروع التخرج مع رمز QR وتفاصيل الفريق
 Route::get('/job-fair/projects/{project}', [App\Http\Controllers\JobFairProjectController::class, 'publicShow'])
     ->where('project', '[0-9]+')
@@ -857,6 +873,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin/job-fair')->name('job-fair.a
     Route::get('/{fair}/projects', [App\Http\Controllers\JobFairProjectController::class, 'adminIndex'])->name('projects.index');
     Route::post('/{fair}/projects', [App\Http\Controllers\JobFairProjectController::class, 'store'])->name('projects.store');
     Route::put('/projects/{project}', [App\Http\Controllers\JobFairProjectController::class, 'update'])->name('projects.update');
+    Route::patch('/projects/{project}/status', [App\Http\Controllers\JobFairProjectController::class, 'updateStatus'])->name('projects.update-status');
     Route::delete('/projects/{project}', [App\Http\Controllers\JobFairProjectController::class, 'destroy'])->name('projects.destroy');
     Route::get('/{fair}/export-projects', [App\Http\Controllers\JobFairProjectController::class, 'export'])->name('projects.export');
 

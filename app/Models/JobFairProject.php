@@ -12,41 +12,66 @@ class JobFairProject extends Model
 
     protected $fillable = [
         'job_fair_id',
+        'user_id',
         'title',
         'faculty',
         'department',
         'graduation_year',
         'academic_year',
+        'project_type',
+        'main_category',
         'supervisor_name',
         'supervisor_title',
         'team_members',
         'summary',
+        'problem_statement',
+        'solution_statement',
         'objectives',
         'description',
+        'technical_specifications',
+        'key_outcomes',
+        'market_viability',
         'poster_image',
         'cover_image',
         'gallery_images',
         'video_url',
         'project_url',
+        'contact_email',
         'attachments',
+        'student_university_id',
+        'whatsapp_phone',
+        'project_requirements',
+        'needs_special_equipment',
+        'special_equipment_details',
+        'additional_requirements',
+        'executive_summary',
+        'prototype_status',
         'booth_number',
         'status',
         'is_featured',
+        'admin_notes',
+        'rejection_reason',
         'views_count',
     ];
 
     protected $casts = [
-        'graduation_year' => 'integer',
-        'team_members'    => 'array',
-        'gallery_images'  => 'array',
-        'attachments'     => 'array',
-        'is_featured'     => 'boolean',
-        'views_count'     => 'integer',
+        'graduation_year'         => 'integer',
+        'team_members'            => 'array',
+        'gallery_images'          => 'array',
+        'attachments'             => 'array',
+        'needs_special_equipment' => 'boolean',
+        'is_featured'             => 'boolean',
+        'views_count'             => 'integer',
     ];
 
     public function jobFair()
     {
         return $this->belongsTo(JobFair::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     // ========== Accessors & Helpers ==========
@@ -123,15 +148,39 @@ class JobFairProject extends Model
         return [];
     }
 
+    public function getStatusLabelAttribute(): string
+    {
+        return match($this->status) {
+            'published' => 'معتمد ومنشور',
+            'pending'   => 'بانتظار المراجعة والاعتماد',
+            'rejected'  => 'مرفوض',
+            'draft'     => 'مسودة',
+            'archived'  => 'مؤرشف',
+            default     => $this->status ?: 'غير محدد',
+        };
+    }
+
+    public function getStatusBadgeClassAttribute(): string
+    {
+        return match($this->status) {
+            'published' => 'badge-success',
+            'pending'   => 'badge-warning text-dark',
+            'rejected'  => 'badge-danger',
+            'draft'     => 'badge-secondary',
+            'archived'  => 'badge-dark',
+            default     => 'badge-info',
+        };
+    }
+
     public function getFacultyIconAttribute(): string
     {
         return match(true) {
-            str_contains($this->faculty, 'تقنية') || str_contains($this->faculty, 'معلومات') || str_contains($this->department, 'برمجيات') || str_contains($this->department, 'حاسوب') => 'fas fa-laptop-code',
-            str_contains($this->faculty, 'هندسة') => 'fas fa-cogs',
-            str_contains($this->faculty, 'صيدلة') || str_contains($this->faculty, 'طب') => 'fas fa-pills',
-            str_contains($this->faculty, 'علوم') => 'fas fa-flask',
-            str_contains($this->faculty, 'اقتصاد') || str_contains($this->faculty, 'تجارة') => 'fas fa-chart-line',
-            str_contains($this->faculty, 'فنون') || str_contains($this->faculty, 'إعلام') => 'fas fa-paint-brush',
+            str_contains($this->faculty ?? '', 'تقنية') || str_contains($this->faculty ?? '', 'معلومات') || str_contains($this->department ?? '', 'برمجيات') || str_contains($this->department ?? '', 'حاسوب') => 'fas fa-laptop-code',
+            str_contains($this->faculty ?? '', 'هندسة') => 'fas fa-cogs',
+            str_contains($this->faculty ?? '', 'صيدلة') || str_contains($this->faculty ?? '', 'طب') => 'fas fa-pills',
+            str_contains($this->faculty ?? '', 'علوم') => 'fas fa-flask',
+            str_contains($this->faculty ?? '', 'اقتصاد') || str_contains($this->faculty ?? '', 'تجارة') => 'fas fa-chart-line',
+            str_contains($this->faculty ?? '', 'فنون') || str_contains($this->faculty ?? '', 'إعلام') => 'fas fa-paint-brush',
             default => 'fas fa-graduation-cap',
         };
     }
@@ -139,11 +188,11 @@ class JobFairProject extends Model
     public function getFacultyColorClassAttribute(): string
     {
         return match(true) {
-            str_contains($this->faculty, 'تقنية') => 'badge-it',
-            str_contains($this->faculty, 'هندسة') => 'badge-engineering',
-            str_contains($this->faculty, 'صيدلة') => 'badge-pharmacy',
-            str_contains($this->faculty, 'علوم') => 'badge-science',
-            str_contains($this->faculty, 'اقتصاد') => 'badge-economics',
+            str_contains($this->faculty ?? '', 'تقنية') => 'badge-it',
+            str_contains($this->faculty ?? '', 'هندسة') => 'badge-engineering',
+            str_contains($this->faculty ?? '', 'صيدلة') => 'badge-pharmacy',
+            str_contains($this->faculty ?? '', 'علوم') => 'badge-science',
+            str_contains($this->faculty ?? '', 'اقتصاد') => 'badge-economics',
             default => 'badge-default',
         };
     }

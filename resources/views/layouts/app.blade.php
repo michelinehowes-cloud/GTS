@@ -1395,8 +1395,8 @@
         }
     </style>
 
-    <!-- Bootstrap CDN removed to avoid conflict with Vite build -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
+    <!-- Bootstrap 5 Bundle JS (enables modals, dropdowns, tooltips globally) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

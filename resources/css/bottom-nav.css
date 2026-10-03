@@ -63,6 +63,20 @@
     transform: scale(0.92);
 }
 
+.bottom-nav-sidebar-toggle {
+    color: #b45309;
+}
+
+.bottom-nav-sidebar-toggle i {
+    color: #d97706;
+}
+
+.bottom-nav-sidebar-toggle:hover i,
+.bottom-nav-sidebar-toggle:active i {
+    color: #b45309;
+    transform: scale(1.15);
+}
+
 .bottom-nav-badge {
     position: absolute;
     top: 2px;

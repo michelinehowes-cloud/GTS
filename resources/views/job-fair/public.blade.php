@@ -1343,12 +1343,175 @@
            RESPONSIVE
         ══════════════════════════════════ */
         @media (max-width: 768px) {
-            .top-nav { padding: 0.75rem 1rem; }
-            .nav-brand-text .main { font-size: 0.8rem; }
-            .hero-stats { gap: 1.5rem; padding: 1rem; }
-            .hero-stat-divider { display: none; }
-            .cd-num { font-size: 2rem; }
-            .cd-box { min-width: 70px; padding: 0.8rem 1rem; }
+            .top-nav {
+                padding: 0.5rem 0.85rem !important;
+                background: rgba(10, 22, 40, 0.92) !important;
+                backdrop-filter: blur(12px) !important;
+                -webkit-backdrop-filter: blur(12px) !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+            }
+            .nav-brand {
+                gap: 0.5rem !important;
+            }
+            .nav-brand img.main-logo {
+                width: 34px !important;
+                height: 34px !important;
+            }
+            .nav-brand img.jf-logo {
+                height: 30px !important;
+                margin-right: 4px !important;
+            }
+            .nav-brand-text {
+                display: none !important;
+            }
+            .nav-brand-divider {
+                display: none !important;
+            }
+            .waha-nav-logo {
+                display: none !important;
+            }
+            .nav-btn {
+                padding: 7px 14px !important;
+                font-size: 0.82rem !important;
+            }
+
+            /* Hero Layout on Mobile */
+            .hero {
+                min-height: auto !important;
+                padding-bottom: 2.5rem !important;
+            }
+            #hero .container {
+                padding-top: 68px !important;
+            }
+            .hero-text-col {
+                text-align: center !important;
+                margin-top: 1rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            .hero-eyebrow {
+                font-size: 0.72rem !important;
+                padding: 4px 12px !important;
+                margin-bottom: 0.85rem !important;
+                letter-spacing: 0.5px !important;
+                line-height: 1.4 !important;
+            }
+            .hero-title {
+                font-size: clamp(1.8rem, 6.5vw, 2.6rem) !important;
+                line-height: 1.25 !important;
+                margin-bottom: 0.75rem !important;
+            }
+            .hero-subtitle {
+                font-size: 0.9rem !important;
+                line-height: 1.5 !important;
+                margin-bottom: 1.25rem !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
+            .event-pills {
+                gap: 0.4rem !important;
+                margin-bottom: 1.25rem !important;
+            }
+            .event-pill {
+                padding: 5px 12px !important;
+                font-size: 0.78rem !important;
+            }
+
+            /* Countdown */
+            .countdown-row {
+                gap: 0.4rem !important;
+                margin-bottom: 1.25rem !important;
+            }
+            .cd-box {
+                min-width: 58px !important;
+                padding: 0.45rem 0.55rem !important;
+                border-radius: 12px !important;
+            }
+            .cd-num {
+                font-size: 1.35rem !important;
+            }
+            .cd-lbl {
+                font-size: 0.62rem !important;
+            }
+            .cd-sep {
+                font-size: 1.1rem !important;
+            }
+
+            /* Action Buttons: 2-column balanced grid */
+            .hero-action-buttons {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px !important;
+                margin-top: 1rem !important;
+                width: 100% !important;
+            }
+            .hero-action-buttons .nav-btn-gold {
+                grid-column: 1 / -1 !important;
+                width: 100% !important;
+                font-size: 0.98rem !important;
+                padding: 11px 16px !important;
+            }
+            .hero-action-buttons .nav-btn {
+                width: 100% !important;
+                padding: 9px 10px !important;
+                font-size: 0.8rem !important;
+                white-space: normal !important;
+                text-align: center !important;
+            }
+
+            /* 3D Visual Card on Mobile */
+            .premium-3d-composition {
+                padding: 0.75rem 0 !important;
+                margin: 0 auto !important;
+            }
+            .premium-glass-card {
+                width: 180px !important;
+                height: 180px !important;
+                padding: 16px !important;
+                border-radius: 26px !important;
+                margin: 0 auto !important;
+            }
+            .premium-glow {
+                width: 200px !important;
+                height: 200px !important;
+            }
+            .float-element.shape-1,
+            .float-element.shape-2,
+            .float-element.shape-3 {
+                display: none !important;
+            }
+
+            /* Stats on Mobile */
+            .hero-stats {
+                gap: 0.8rem !important;
+                padding: 0.85rem !important;
+                flex-wrap: wrap !important;
+                justify-content: center !important;
+            }
+            .hero-stat {
+                min-width: 70px !important;
+            }
+            .hero-stat-num {
+                font-size: 1.5rem !important;
+            }
+            .hero-stat-lbl {
+                font-size: 0.72rem !important;
+            }
+            .hero-stat-divider {
+                display: none !important;
+            }
+
+            /* Hero Strip Logos */
+            .hero-strip-logo {
+                height: 38px !important;
+                max-width: 130px !important;
+            }
+            .hero-strip-logo-office {
+                width: 38px !important;
+                height: 38px !important;
+            }
+            .hero-strip-divider {
+                height: 24px !important;
+            }
         }
     </style>
 </head>
@@ -1399,11 +1562,11 @@
             @endif
         @else
             <a href="{{ route('login') }}" class="nav-btn nav-btn-outline">تسجيل الدخول</a>
-            <a href="{{ route('graduate.register') }}" class="nav-btn nav-btn-gold">
+            <a href="{{ route('graduate.register') }}" class="nav-btn nav-btn-gold d-none d-sm-inline-flex">
                 <i class="fas fa-user-plus me-1"></i>سجّل كخريج
             </a>
             @if(isset($fair) && $fair)
-            <button type="button" class="nav-btn nav-btn-outline" data-bs-toggle="modal" data-bs-target="#visitorRegisterModal">
+            <button type="button" class="nav-btn nav-btn-outline d-none d-md-inline-flex" data-bs-toggle="modal" data-bs-target="#visitorRegisterModal">
                 <i class="fas fa-id-badge" style="color:var(--gold)"></i>
                 <span>تسجيل زائر</span>
             </button>
@@ -1434,7 +1597,7 @@
     <div class="container position-relative z-10" style="padding-top: 80px;">
         <div class="row align-items-center mb-4">
             {{-- Text Side --}}
-            <div class="col-lg-6 hero-text-col text-lg-end text-center mt-5 mt-lg-0 order-2 order-lg-1">
+            <div class="col-lg-6 hero-text-col text-lg-end text-center mt-4 mt-lg-0 order-1 order-lg-1">
 
                 {{-- Eyebrow --}}
                 <div class="hero-eyebrow">
@@ -1595,7 +1758,7 @@
             </div>
 
             {{-- Visual Side (Premium 3D Logo) --}}
-            <div class="col-lg-6 position-relative order-1 order-lg-2 mb-5 mb-lg-0">
+            <div class="col-lg-6 position-relative order-2 order-lg-2 mb-4 mb-lg-0">
                 <div class="premium-3d-composition">
                     <div class="premium-glow"></div>
                     <div class="premium-glass-card">

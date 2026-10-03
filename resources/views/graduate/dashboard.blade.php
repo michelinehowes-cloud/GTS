@@ -16,42 +16,7 @@
         <div class="position-absolute end-0 top-0 w-100 h-100 opacity-25 pointer-events-none" style="background: radial-gradient(circle at 90% 10%, rgba(255,255,255,0.3) 0%, transparent 60%); border-radius: inherit; overflow: hidden;"></div>
 
         <div class="p-4 p-lg-5 position-relative" style="z-index: 2;">
-            <!-- Mobile Header Top Bar (Brand + Menu Trigger + Quick Icons) -->
-            <div class="d-flex justify-content-between align-items-center w-100 mb-3 d-md-none">
-                <span class="badge rounded-pill px-3 py-1.5 small" style="background: rgba(255, 255, 255, 0.22) !important; color: #ffffff !important; border: 1px solid rgba(255, 255, 255, 0.3) !important; font-size: 0.75rem; backdrop-filter: blur(6px);">
-                    <i class="fas fa-graduation-cap me-1 text-warning"></i>منصة الخريجين
-                </span>
-                <div class="d-flex align-items-center gap-2">
-                    <!-- زر الرسائل المنزلق بالموبايل -->
-                    <button type="button"
-                            class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none"
-                            onclick="openMessagesDrawer()"
-                            style="width: 38px; height: 38px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);"
-                            title="صندوق الرسائل">
-                        <i class="fas fa-envelope"></i>
-                        @if($dashUnreadMessagesCount > 0)
-                            <span class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-danger" style="font-size: 0.62rem; min-width: 17px; height: 17px; padding: 2px 4px;">{{ $dashUnreadMessagesCount }}</span>
-                        @endif
-                    </button>
 
-                    <!-- زر الإشعارات المنزلق بالموبايل -->
-                    <button type="button"
-                            class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 position-relative shadow-none"
-                            onclick="openNotificationsDrawer()"
-                            style="width: 38px; height: 38px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);"
-                            title="مركز الإشعارات">
-                        <i class="fas fa-bell"></i>
-                        @if($dashUnreadNotifsCount > 0)
-                            <span class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-danger" style="font-size: 0.62rem; min-width: 17px; height: 17px; padding: 2px 4px;">{{ $dashUnreadNotifsCount }}</span>
-                        @endif
-                    </button>
-
-                    <!-- زر القائمة الجانبية -->
-                    <button type="button" class="btn btn-sm text-white rounded-circle d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 38px; height: 38px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(4px);" onclick="window.toggleSidebarFunc ? window.toggleSidebarFunc() : null">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                </div>
-            </div>
 
             <div class="row align-items-center g-4">
                 <!-- Graduate User Info -->

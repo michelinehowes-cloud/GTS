@@ -205,9 +205,6 @@
                                     <div class="overflow-hidden" style="max-width: 170px;">
                                         <div class="fw-bold text-dark text-truncate d-flex align-items-center gap-1" style="font-size: 0.84rem;" title="{{ $user->name }}">
                                             <span class="text-truncate">{{ $user->name }}</span>
-                                            @if($user->isProtectedSuperAdmin())
-                                                <span class="badge bg-warning bg-opacity-15 text-warning border border-warning px-2 py-0.5 rounded-pill fw-bold" style="font-size: 0.68rem;" title="مالك النظام - حساب محمي"><i class="fas fa-crown text-warning me-1"></i>المالك (محمي)</span>
-                                            @endif
                                         </div>
                                         <div class="text-muted text-truncate" style="font-size: 0.74rem;" title="{{ $user->email }}">
                                             <i class="fas fa-envelope me-1 opacity-75"></i>{{ $user->email }}
@@ -220,15 +217,9 @@
                             <td class="px-2 py-2 text-nowrap">
                                 @switch($user->role)
                                     @case('admin')
-                                        @if($user->isProtectedSuperAdmin())
-                                            <span class="badge bg-warning bg-opacity-15 text-dark border border-warning px-2.5 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
-                                                <i class="fas fa-crown text-warning me-1"></i> مدير النظام (المالك)
-                                            </span>
-                                        @else
-                                            <span class="badge bg-warning bg-opacity-10 text-dark border border-warning px-2 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
-                                                <i class="fas fa-user-shield text-warning me-1"></i> مدير النظام
-                                            </span>
-                                        @endif
+                                        <span class="badge bg-warning bg-opacity-10 text-dark border border-warning px-2 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
+                                            <i class="fas fa-user-shield text-warning me-1"></i> مدير النظام
+                                        </span>
                                         @break
                                     @case('staff')
                                         <span class="badge bg-info bg-opacity-10 text-primary border border-info px-2 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
@@ -267,11 +258,7 @@
 
                             <!-- الصلاحيات الممنوحة -->
                             <td class="px-2 py-2 text-nowrap">
-                                @if($user->isProtectedSuperAdmin())
-                                    <span class="badge bg-warning text-dark px-2.5 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
-                                        <i class="fas fa-crown me-1 text-warning"></i> وصول المالك الكامل (كافة الصلاحيات)
-                                    </span>
-                                @elseif($user->isAdmin())
+                                @if($user->isAdmin())
                                     <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-2.5 py-1 rounded-pill fw-bold text-nowrap" style="font-size: 0.75rem;">
                                         <i class="fas fa-user-shield me-1"></i> وصول إداري شامل (كافة الصلاحيات)
                                     </span>
@@ -320,17 +307,17 @@
                                 <div class="d-flex align-items-center justify-content-end gap-1 flex-nowrap">
                                     @if($user->isProtectedSuperAdmin())
                                         @if(auth()->id() === $user->id)
-                                            <!-- تعديل المالك لبياناته بنفسه فقط -->
-                                            <a href="{{ route('admin.users.edit', $user->id) }}" class="action-circle-btn text-primary" title="تعديل بيانات حسابك (المالك)">
+                                            <!-- تعديل المدير لبياناته بنفسه -->
+                                            <a href="{{ route('admin.users.edit', $user->id) }}" class="action-circle-btn text-primary" title="تعديل بيانات حسابك">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <button type="button" class="action-circle-btn text-warning" data-bs-toggle="modal" data-bs-target="#changePasswordModal{{ $user->id }}" title="تغيير كلمة المرور">
                                                 <i class="fas fa-key"></i>
                                             </button>
                                         @else
-                                            <!-- عند مشاهدة المدير الآخر أو أي موظف لحساب المالك المحمي -->
-                                            <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;" title="حساب المالك محمي بالكامل ولا يستطيع أحد تعديل بياناته">
-                                                <i class="fas fa-lock text-warning me-1"></i> محمي بالكامل
+                                            <!-- عند مشاهدة المستخدمين الآخرين للحساب المحمي -->
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;" title="حساب إداري محمي">
+                                                <i class="fas fa-lock text-warning me-1"></i> محمي
                                             </span>
                                         @endif
                                     @else

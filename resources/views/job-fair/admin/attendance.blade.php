@@ -6,19 +6,20 @@
 <style>
     /* Global Page Variables */
     :root {
-        --terminal-bg: linear-gradient(145deg, #06182e 0%, #0a274c 50%, #0e3666 100%);
+        --terminal-bg: linear-gradient(135deg, #091f3c 0%, #03488a 50%, #045db0 100%);
         --terminal-accent: #eeca3e;
         --terminal-cyan: #38bdf8;
     }
 
     /* Scanner Terminal Card */
     .scanner-terminal-card {
-        background: var(--terminal-bg);
+        background: linear-gradient(135deg, #091f3c 0%, #03488a 50%, #045db0 100%) !important;
         border-radius: 24px;
         padding: 2rem;
         color: white;
-        box-shadow: 0 20px 45px rgba(6, 24, 46, 0.35);
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 15px 35px rgba(3, 72, 138, 0.28);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-bottom: 3.5px solid #eeca3e;
         position: relative;
         overflow: hidden;
     }
@@ -30,14 +31,14 @@
         left: -50%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(circle at 80% 20%, rgba(43, 130, 216, 0.15) 0%, transparent 60%);
+        background: radial-gradient(circle at 80% 20%, rgba(238, 202, 62, 0.15) 0%, transparent 60%);
         pointer-events: none;
     }
 
     /* Terminal Viewport / Camera Box */
     .scanner-viewport-box {
-        background: rgba(3, 16, 32, 0.7);
-        border: 2px dashed rgba(238, 202, 62, 0.5);
+        background: rgba(255, 255, 255, 0.08);
+        border: 2px dashed rgba(238, 202, 62, 0.6);
         border-radius: 20px;
         padding: 2rem;
         text-align: center;
@@ -47,8 +48,9 @@
     }
 
     .scanner-viewport-box:hover {
-        border-color: rgba(238, 202, 62, 0.85);
-        box-shadow: 0 0 25px rgba(238, 202, 62, 0.15);
+        border-color: rgba(238, 202, 62, 0.95);
+        box-shadow: 0 0 25px rgba(238, 202, 62, 0.25);
+        background: rgba(255, 255, 255, 0.12);
     }
 
     /* High-tech Viewfinder Brackets */
@@ -136,8 +138,8 @@
 
     /* Fast Barcode Input */
     .barcode-input-group {
-        background: rgba(255, 255, 255, 0.08);
-        border: 2px solid rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.12);
+        border: 2px solid rgba(255, 255, 255, 0.25);
         border-radius: 16px;
         padding: 4px 6px;
         transition: all 0.3s;
@@ -145,8 +147,8 @@
 
     .barcode-input-group:focus-within {
         border-color: var(--terminal-accent);
-        box-shadow: 0 0 0 4px rgba(238, 202, 62, 0.2);
-        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 0 0 4px rgba(238, 202, 62, 0.25);
+        background: rgba(255, 255, 255, 0.18);
     }
 
     .barcode-input-group input {
@@ -289,9 +291,9 @@
 
     /* Mode Pill Switches */
     .mode-tab-btn {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: rgba(255, 255, 255, 0.85);
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        color: rgba(255, 255, 255, 0.95);
         border-radius: 50px;
         padding: 0.45rem 1.15rem;
         font-weight: 600;
@@ -302,7 +304,7 @@
     .mode-tab-btn.active, .mode-tab-btn:hover {
         background: var(--terminal-accent);
         border-color: var(--terminal-accent);
-        color: #06182e;
+        color: #03488a;
     }
 
     #reader {
@@ -325,8 +327,7 @@
     @include('job-fair.admin.partials.header', [
         'fair' => $fair,
         'page' => 'attendance',
-        'title' => 'محطة تسجيل الحضور والتحقق الذكي',
-        'subtitle' => $fair->title . ' — مسح بطاقات QR وبث الحضور اللحظي في بوابة الدخول'
+        'title' => 'محطة تسجيل الحضور والتحقق الذكي'
     ])
 
     {{-- شريط الإجراءات السريعة وحالة المحطة --}}

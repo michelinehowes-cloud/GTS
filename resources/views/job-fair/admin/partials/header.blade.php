@@ -320,22 +320,6 @@
                         {{ $st['label'] }}
                     </span>
                 </div>
-
-                @if(!empty($subtitle))
-                    <p class="text-white-50 small mb-1 mt-0.5">{{ $subtitle }}</p>
-                @elseif($fair->subtitle)
-                    <p class="text-white-50 small mb-1 mt-0.5">{{ $fair->subtitle }}</p>
-                @endif
-
-                <div class="d-flex align-items-center flex-wrap gap-3 text-white-50 small mt-1">
-                    <span><i class="fas fa-calendar-alt me-1 text-warning"></i>{{ $fair->event_date->format('Y-m-d') }}</span>
-                    @if($fair->location)
-                    <span><i class="fas fa-map-marker-alt me-1 text-danger"></i>{{ $fair->location }}</span>
-                    @endif
-                    @if($fair->start_time)
-                    <span><i class="fas fa-clock me-1 text-info"></i>{{ substr($fair->start_time, 0, 5) }} @if($fair->end_time) - {{ substr($fair->end_time, 0, 5) }} @endif</span>
-                    @endif
-                </div>
             </div>
         </div>
 

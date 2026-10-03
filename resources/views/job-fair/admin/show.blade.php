@@ -27,6 +27,21 @@
         border: 2px solid rgba(255, 255, 255, 0.95);
     }
 
+    .partner-mini-badge {
+        height: 44px;
+        padding: 4px 10px;
+        border-radius: 10px;
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        display: inline-flex;
+        align-items: center;
+    }
+    .partner-mini-badge img {
+        height: 34px;
+        max-width: 105px;
+        object-fit: contain;
+    }
+
     .fair-actions-toolbar {
         display: flex;
         flex-wrap: wrap;
@@ -155,6 +170,19 @@
                         @if($fair->start_time)
                         <span><i class="fas fa-clock me-1 text-info"></i>{{ substr($fair->start_time, 0, 5) }} @if($fair->end_time) - {{ substr($fair->end_time, 0, 5) }} @endif</span>
                         @endif
+                    </div>
+
+                    <!-- شعارات الشركاء في الهيدر -->
+                    <div class="d-flex align-items-center flex-wrap gap-2 mt-2">
+                        <div class="partner-mini-badge" title="مكتب تدريب وتأهيل الخريجين — جامعة طرابلس">
+                            <img src="{{ asset('images/gto_logo.jpg') }}" alt="مكتب تدريب الخريجين" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                        </div>
+                        <div class="partner-mini-badge" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات">
+                            <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة للمعارض">
+                        </div>
+                        <span class="d-inline-flex align-items-center gap-1 text-warning small fw-bold ms-1" style="font-size: 0.76rem;">
+                            <i class="fas fa-crown"></i> الراعي الاستراتيجي
+                        </span>
                     </div>
                 </div>
             </div>

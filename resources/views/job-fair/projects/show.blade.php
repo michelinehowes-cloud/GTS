@@ -560,15 +560,20 @@
         <nav class="glass-navbar">
             <div class="container py-2">
                 <div class="d-flex align-items-center justify-content-between">
-                    <a href="{{ $fair ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" class="nav-brand-group">
-                        <div class="nav-logo-box">
-                            <img src="{{ asset('images/logo.jpg') }}" alt="مكتب تدريب الخريجين" onerror="this.src='{{ asset('images/uni_logo_white.png') }}'">
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="{{ $fair ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" class="nav-brand-group">
+                            <div class="nav-logo-box">
+                                <img src="{{ asset('images/logo.jpg') }}" alt="مكتب تدريب الخريجين" onerror="this.src='{{ asset('images/uni_logo_white.png') }}'">
+                            </div>
+                            <div class="nav-brand-text">
+                                <h1>معرض مشاريع التخرج</h1>
+                                <small>{{ $fair ? $fair->title : 'جامعة طرابلس' }}</small>
+                            </div>
+                        </a>
+                        <div class="d-none d-md-flex align-items-center bg-white p-1 rounded-2 shadow-sm border border-warning" style="height: 38px;" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض">
+                            <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة للمعارض" style="height: 30px; width: auto; object-fit: contain;">
                         </div>
-                        <div class="nav-brand-text">
-                            <h1>معرض مشاريع التخرج</h1>
-                            <small>{{ $fair ? $fair->title : 'جامعة طرابلس' }}</small>
-                        </div>
-                    </a>
+                    </div>
 
                     <div class="nav-actions">
                         <a href="{{ $fair ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" class="btn-nav-outline">
@@ -944,7 +949,7 @@
         <!-- Footer -->
         <footer class="projects-footer">
             <div class="container text-center">
-                <p class="mb-1 fw-bold text-white">مكتب تدريب الخريجين — جامعة طرابلس</p>
+                <p class="mb-1 fw-bold text-white">مكتب تدريب الخريجين — جامعة طرابلس &bull; الراعي الاستراتيجي: <span class="text-warning">شركة الواحة لتنظيم المعارض والمؤتمرات</span></p>
                 <p class="mb-0">من الجامعة إلى سوق العمل... منصة مشاريع التخرج والابتكار الطلابي.</p>
             </div>
         </footer>

@@ -267,18 +267,25 @@
 
         <!-- Header -->
         <div class="ticket-header">
-            <div class="d-flex justify-content-center align-items-center gap-3 mb-2 ticket-logo">
-                <img src="{{ asset('storage/logo.jpg') }}" alt="شعار مكتب الخريجين" onerror="this.src='{{ asset('images/logo.jpg') }}'">
-                <img src="{{ $registration->jobFair->white_logo_url }}" alt="{{ $registration->jobFair->title }}" style="height: 48px; width: auto; max-width: 140px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
+            <div class="d-flex justify-content-center align-items-center gap-2 mb-2 ticket-logo flex-wrap">
+                <img src="{{ $registration->jobFair->white_logo_url }}" alt="{{ $registration->jobFair->title }}" style="height: 46px; width: auto; max-width: 130px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
+                <img src="{{ asset('storage/logo.jpg') }}" alt="شعار مكتب الخريجين" style="height: 48px; width: auto;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                <div class="bg-white p-1 rounded-3 shadow-sm d-flex align-items-center" style="height: 44px;" title="الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض">
+                    <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 36px; width: auto; max-width: 110px; object-fit: contain;">
+                </div>
             </div>
             <div class="ticket-event-name">{{ $registration->jobFair->title }}</div>
             <div class="ticket-university">مكتب تدريب وتأهيل الخريجين — جامعة طرابلس</div>
-            <div class="mt-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.8)">
+            <div class="mt-1 d-inline-flex align-items-center gap-1.5 px-3 py-0.5 rounded-pill" style="background: rgba(255,255,255,0.15); font-size: 0.76rem; color: #ffffff;">
+                <i class="fas fa-crown text-warning"></i>
+                <span>الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات</span>
+            </div>
+            <div class="mt-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.85)">
                 @if($registration->jobFair->event_date)
-                    <i class="fas fa-calendar ms-2"></i>{{ $registration->jobFair->event_date->format('d/m/Y') }}
+                    <i class="fas fa-calendar ms-2 text-warning"></i>{{ $registration->jobFair->event_date->format('d/m/Y') }}
                     &nbsp;&nbsp;
                 @endif
-                <i class="fas fa-map-marker-alt ms-2"></i>{{ $registration->jobFair->location ?? 'جامعة طرابلس' }}
+                <i class="fas fa-map-marker-alt ms-2 text-danger"></i>{{ $registration->jobFair->location ?? 'جامعة طرابلس' }}
             </div>
         </div>
 

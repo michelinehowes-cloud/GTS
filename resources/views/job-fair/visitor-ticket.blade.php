@@ -333,8 +333,8 @@
             <div class="ticket-event-name">{{ $fair->title ?? 'ملتقى ومعرض التوظيف السنوي' }}</div>
             <div class="ticket-university">مكتب تدريب وتأهيل الخريجين — جامعة طرابلس</div>
             <div class="ticket-organizer-badge">
-                <i class="fas fa-award text-warning"></i>
-                <span>بالتعاون مع شركة الواحة لتنظيم المعارض والمؤتمرات</span>
+                <i class="fas fa-crown text-warning"></i>
+                <span>الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات</span>
             </div>
 
             <div class="mt-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.85)">

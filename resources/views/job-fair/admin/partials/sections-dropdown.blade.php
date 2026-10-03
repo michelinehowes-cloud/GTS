@@ -1,10 +1,10 @@
 {{-- قائمة أقسام المعرض الموحدة لكافة الصفحات الإدارية --}}
 <div class="dropdown d-inline-block position-relative">
-    <button class="fair-btn-action fair-btn-glass dropdown-toggle fw-bold" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" title="الوصول السريع لكافة أقسام وإدارات المعرض">
+    <button class="fair-btn-action fair-btn-glass dropdown-toggle fw-bold" type="button" id="sectionsDropdownBtn-{{ $fair->id }}" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" title="الوصول السريع لكافة أقسام وإدارات المعرض">
         <i class="fas fa-th-large text-warning"></i>
         <span>أقسام المعرض</span>
     </button>
-    <ul class="dropdown-menu shadow-lg border-0 rounded-3 p-2" style="min-width: 235px; z-index: 1075; right: 0; left: auto; top: 100%; margin-top: 6px;">
+    <ul class="dropdown-menu shadow-lg border-0 rounded-3 p-2" aria-labelledby="sectionsDropdownBtn-{{ $fair->id }}" style="min-width: 235px; z-index: 1075; right: 0; left: auto; top: 100%; margin-top: 6px;">
         <li>
             <a class="dropdown-item rounded-2 py-2 px-3 small d-flex align-items-center justify-content-between {{ Route::currentRouteName() === 'job-fair.admin.projects.index' ? 'active fw-bold' : '' }}" href="{{ route('job-fair.admin.projects.index', $fair->id) }}">
                 <span class="d-flex align-items-center gap-2">

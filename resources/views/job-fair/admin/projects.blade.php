@@ -158,6 +158,24 @@
         position: relative;
     }
 
+    .projects-table th {
+        background-color: #f8fafc;
+        color: #475569;
+        font-weight: 700;
+        font-size: 0.83rem;
+        border-bottom: 2px solid #e2e8f0;
+        padding: 0.9rem 1rem;
+        white-space: nowrap;
+    }
+    .projects-table td {
+        padding: 0.95rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .projects-table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
     @media (max-width: 991.98px) {
         .job-fair-detail-hero {
             padding: 1.25rem 1rem;
@@ -430,40 +448,52 @@
     {{-- ══════════════════════════════════
          جدول مشاريع التخرج
     ══════════════════════════════════ --}}
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="card-header bg-white py-3 px-4 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-layer-group text-primary fs-5"></i>
+                <h5 class="fw-bold mb-0 text-dark">مشاريع التخرج والأرشيف</h5>
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2.5 py-1 rounded-pill small">
+                    {{ $projects->count() }} مشروع
+                </span>
+            </div>
+            <div class="text-muted small">
+                انقر على اسم المشروع أو زر <strong class="text-primary">«مراجعة»</strong> لاستعراض التدقيق الكامل والبيانات السرية للمشروع
+            </div>
+        </div>
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
+            <table class="table table-hover align-middle mb-0 projects-table">
+                <thead>
                     <tr>
                         <th class="text-center" style="width: 50px;">#</th>
                         <th style="min-width: 280px;">المشروع</th>
                         <th style="min-width: 200px;">الكلية والتخصص</th>
-                        <th style="min-width: 180px;">فريق العمل</th>
+                        <th style="min-width: 190px;">فريق العمل</th>
                         <th style="min-width: 170px;">المشرف الأكاديمي</th>
                         <th class="text-center" style="width: 100px;">الجناح</th>
-                        <th class="text-center" style="width: 130px;">الحالة</th>
-                        <th class="text-center" style="width: 90px;">المشاهدات</th>
+                        <th class="text-center" style="width: 120px;">الحالة</th>
+                        <th class="text-center" style="width: 80px;">المشاهدات</th>
                         <th class="text-center" style="width: 180px;">الإجراءات</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($projects as $index => $proj)
                         <tr class="{{ $proj->status === 'pending' ? 'table-warning bg-opacity-25' : '' }}">
-                            <td class="text-center text-muted small">{{ $loop->iteration }}</td>
+                            <td class="text-center text-muted small fw-bold">{{ $loop->iteration }}</td>
 
                             <!-- المشروع والصورة -->
                             <td>
                                 <div class="d-flex align-items-center gap-3">
                                     @if($proj->cover_url)
-                                        <img src="{{ $proj->cover_url }}" alt="{{ $proj->title }}" class="project-avatar">
+                                        <img src="{{ $proj->cover_url }}" alt="{{ $proj->title }}" class="project-avatar shadow-sm">
                                     @else
-                                        <div class="project-avatar">
+                                        <div class="project-avatar shadow-sm">
                                             <i class="{{ $proj->faculty_icon }}"></i>
                                         </div>
                                     @endif
 
                                     <div>
-                                        <a href="javascript:void(0)" onclick="showModalSafe('reviewModal{{ $proj->id }}')" class="fw-bold text-dark text-decoration-none d-block mb-1 hover-primary" title="انقر لمعاينة ملف المشروع الكامل">
+                                        <a href="javascript:void(0)" onclick="showModalSafe('reviewModal{{ $proj->id }}')" class="fw-bold text-dark text-decoration-none d-block mb-1 hover-primary fs-6" title="انقر لمعاينة ملف المشروع الكامل">
                                             {{ $proj->title }}
                                         </a>
                                         <div class="d-flex align-items-center gap-1.5 flex-wrap">
@@ -474,7 +504,7 @@
                                                 <span class="badge bg-light text-success border" style="font-size: 0.72rem;">{{ $proj->main_category }}</span>
                                             @endif
                                             @if($proj->is_featured)
-                                                <span class="badge bg-warning text-dark" style="font-size: 0.72rem;"><i class="fas fa-star text-warning"></i> مميز</span>
+                                                <span class="badge bg-warning text-dark fw-bold" style="font-size: 0.72rem;"><i class="fas fa-star text-warning"></i> مميز</span>
                                             @endif
                                         </div>
                                     </div>
@@ -486,7 +516,7 @@
                                 <div class="fw-semibold text-primary">
                                     <i class="{{ $proj->faculty_icon }} me-1"></i> {{ $proj->faculty }}
                                 </div>
-                                <div class="text-muted small">
+                                <div class="text-muted small mt-0.5">
                                     {{ $proj->department }} &bull; <span class="badge bg-light text-dark border">{{ $proj->graduation_year }}</span>
                                 </div>
                             </td>
@@ -496,7 +526,7 @@
                                 @php
                                     $names = collect($proj->team_list)->pluck('name')->filter()->implode(' • ');
                                 @endphp
-                                <div class="text-dark small fw-semibold text-truncate" style="max-width: 220px;" title="{{ $names }}">
+                                <div class="text-dark small fw-semibold text-truncate" style="max-width: 200px;" title="{{ $names }}">
                                     {{ $names ?: 'غير محدد' }}
                                 </div>
                                 <div class="d-flex align-items-center gap-2 mt-1">
@@ -518,7 +548,7 @@
                             <td>
                                 <div class="small fw-bold text-dark">{{ $proj->supervisor_name ?: '—' }}</div>
                                 @if($proj->supervisor_title)
-                                    <small class="text-muted">{{ $proj->supervisor_title }}</small>
+                                    <small class="text-muted d-block">{{ $proj->supervisor_title }}</small>
                                 @endif
                             </td>
 
@@ -535,15 +565,15 @@
 
                             <!-- الحالة -->
                             <td class="text-center">
-                                <span class="badge {{ $proj->status_badge_class }} rounded-pill px-2.5 py-1">
+                                <span class="badge {{ $proj->status_badge_class }} rounded-pill px-3 py-1.5 fw-semibold" style="font-size: 0.78rem;">
                                     {{ $proj->status_label }}
                                 </span>
                             </td>
 
                             <!-- المشاهدات -->
                             <td class="text-center">
-                                <span class="badge bg-light text-muted border">
-                                    <i class="fas fa-eye me-1"></i>{{ $proj->views_count }}
+                                <span class="badge bg-light text-muted border px-2 py-1">
+                                    <i class="fas fa-eye me-1 text-primary"></i>{{ $proj->views_count }}
                                 </span>
                             </td>
 
@@ -551,8 +581,9 @@
                             <td class="text-center">
                                 <div class="d-flex align-items-center justify-content-center gap-1">
                                     <!-- ملف المراجعة الكامل -->
-                                    <button type="button" class="action-circle-btn text-info" title="معاينة ملف المشروع الكامل وحقول المراجعة" onclick="showModalSafe('reviewModal{{ $proj->id }}')">
+                                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1 shadow-sm" title="معاينة ملف المشروع الكامل وحقول المراجعة" onclick="showModalSafe('reviewModal{{ $proj->id }}')">
                                         <i class="fas fa-file-invoice"></i>
+                                        <span class="small fw-bold">مراجعة</span>
                                     </button>
 
                                     <!-- المعاينة العامة -->
@@ -577,323 +608,23 @@
 
                                 <!-- أزرار القرار السريع للمشاريع المعلقة -->
                                 @if($proj->status === 'pending')
-                                    <div class="d-flex align-items-center justify-content-center gap-1 mt-1.5">
+                                    <div class="d-flex align-items-center justify-content-center gap-1 mt-2">
                                         <form action="{{ route('job-fair.admin.projects.update-status', $proj->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('PATCH')
                                             <input type="hidden" name="status" value="published">
-                                            <button type="submit" class="btn btn-xs btn-success py-0.5 px-2 rounded-pill fw-bold" style="font-size: 0.72rem;" title="موافقة ونشر فوري">
-                                                <i class="fas fa-check me-1"></i> موافقة
+                                            <button type="submit" class="btn btn-xs btn-success py-1 px-2.5 rounded-pill fw-bold shadow-sm" style="font-size: 0.72rem;" title="موافقة ونشر فوري">
+                                                <i class="fas fa-check me-1"></i> اعتماد ونشر
                                             </button>
                                         </form>
 
-                                        <button type="button" class="btn btn-xs btn-outline-danger py-0.5 px-2 rounded-pill fw-bold" style="font-size: 0.72rem;" onclick="showModalSafe('rejectModal{{ $proj->id }}')" title="رفض المشروع">
+                                        <button type="button" class="btn btn-xs btn-outline-danger py-1 px-2 rounded-pill fw-bold" style="font-size: 0.72rem;" onclick="showModalSafe('rejectModal{{ $proj->id }}')" title="رفض المشروع">
                                             <i class="fas fa-times me-1"></i> رفض
                                         </button>
                                     </div>
                                 @endif
                             </td>
                         </tr>
-
-                        <!-- Modal: Review Project Details -->
-                        <div class="modal fade text-start" id="reviewModal{{ $proj->id }}" tabindex="-1" aria-labelledby="reviewModalLabel{{ $proj->id }}" aria-hidden="true" dir="rtl">
-                            <div class="modal-dialog modal-xl modal-dialog-scrollable">
-                                <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
-                                    <div class="modal-header bg-primary text-white py-3">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="fas fa-microscope text-warning fs-5"></i>
-                                            <div>
-                                                <h5 class="modal-title font-weight-bold mb-0" id="reviewModalLabel{{ $proj->id }}">
-                                                    ملف مراجعة واعتماد المشروع: {{ $proj->title }}
-                                                </h5>
-                                                <small class="text-white-50">{{ $proj->faculty }} &bull; {{ $proj->department }} &bull; دفعة {{ $proj->graduation_year }}</small>
-                                            </div>
-                                        </div>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body p-4">
-                                        <!-- شريط القرار الإداري السريع -->
-                                        <div class="card bg-light border-0 p-3 mb-4 rounded-3">
-                                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                                <div class="d-flex align-items-center gap-2">
-                                                    <span class="text-muted small fw-bold">الحالة:</span>
-                                                    <span class="badge {{ $proj->status_badge_class }} fs-6">{{ $proj->status_label }}</span>
-                                                    @if($proj->booth_number)
-                                                        <span class="badge bg-success ms-1">جناح رقم: {{ $proj->booth_number }}</span>
-                                                    @endif
-                                                </div>
-
-                                                <!-- نموذج اعتماد المشروع وتخصيص الجناح -->
-                                                <form action="{{ route('job-fair.admin.projects.update-status', $proj->id) }}" method="POST" class="d-flex align-items-center gap-2">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <input type="hidden" name="status" value="published">
-                                                    <input type="text" name="booth_number" value="{{ $proj->booth_number }}" class="form-control form-control-sm" placeholder="رقم الجناح" style="width: 100px;">
-                                                    <div class="form-check form-check-inline m-0">
-                                                        <input class="form-check-input" type="checkbox" name="is_featured" value="1" id="featCheckModal{{ $proj->id }}" {{ $proj->is_featured ? 'checked' : '' }}>
-                                                        <label class="form-check-label small fw-bold" for="featCheckModal{{ $proj->id }}">مميز</label>
-                                                    </div>
-                                                    <button type="submit" class="btn btn-sm btn-success fw-bold px-3">
-                                                        <i class="fas fa-check-circle me-1"></i> اعتماد ونشر
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-
-                                        <div class="row g-4">
-                                            <!-- العمود الأيمن: البيانات العامة (Public Fields) -->
-                                            <div class="col-lg-7">
-                                                <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
-                                                    <i class="fas fa-globe text-info me-1"></i> البيانات المتاحة للجمهور (22 حقلاً)
-                                                </h6>
-
-                                                <table class="table table-bordered table-sm mb-3">
-                                                    <tbody>
-                                                        <tr>
-                                                            <th style="width: 32%;" class="bg-light">1. عنوان المشروع</th>
-                                                            <td><strong>{{ $proj->title }}</strong></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">2. الكلية</th>
-                                                            <td>{{ $proj->faculty }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">3. القسم / التخصص</th>
-                                                            <td>{{ $proj->department }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">4. سنة التخرج</th>
-                                                            <td>{{ $proj->graduation_year }}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">5. نوع المشروع</th>
-                                                            <td><span class="badge bg-light text-primary border">{{ $proj->project_type ?? 'غير محدد' }}</span></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">6. المجال الرئيسي</th>
-                                                            <td><span class="badge bg-light text-success border">{{ $proj->main_category ?? 'غير محدد' }}</span></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">7. فريق العمل</th>
-                                                            <td>
-                                                                <ul class="mb-0 ps-3">
-                                                                    @foreach($proj->team_list as $m)
-                                                                        <li>{{ $m['name'] ?? $m }} @if(!empty($m['role'])) <span class="text-muted">({{ $m['role'] }})</span> @endif</li>
-                                                                    @endforeach
-                                                                </ul>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">8-9. المشرف الأكاديمي</th>
-                                                            <td>{{ $proj->supervisor_name ?? '-' }} ({{ $proj->supervisor_title ?? 'مشرف' }})</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">10. وصف المشروع</th>
-                                                            <td><div class="small">{!! nl2br(e($proj->description)) !!}</div></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">11. نبذة مختصرة (Abstract)</th>
-                                                            <td><div class="small text-muted">{!! nl2br(e($proj->summary)) !!}</div></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">12. المشكلة المعالجة</th>
-                                                            <td><div class="small">{!! nl2br(e($proj->problem_statement ?? '-')) !!}</div></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">13. الحل المقدم</th>
-                                                            <td><div class="small">{!! nl2br(e($proj->solution_statement ?? '-')) !!}</div></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">14. أهداف المشروع</th>
-                                                            <td><div class="small">{!! nl2br(e($proj->objectives ?? '-')) !!}</div></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">15. المواصفات الفنية</th>
-                                                            <td><div class="small">{!! nl2br(e($proj->technical_specifications ?? '-')) !!}</div></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">16. أبرز النتائج</th>
-                                                            <td><div class="small">{!! nl2br(e($proj->key_outcomes ?? '-')) !!}</div></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">17. قابلية التسويق</th>
-                                                            <td><div class="small">{!! nl2br(e($proj->market_viability ?? '-')) !!}</div></td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">18-19. البوستر والغلاف</th>
-                                                            <td>
-                                                                <div class="d-flex gap-2">
-                                                                    @if($proj->poster_url)
-                                                                        <a href="{{ $proj->poster_url }}" target="_blank" class="btn btn-xs btn-outline-primary"><i class="fas fa-image"></i> البوستر</a>
-                                                                    @endif
-                                                                    @if($proj->cover_image)
-                                                                        <a href="{{ Storage::url($proj->cover_image) }}" target="_blank" class="btn btn-xs btn-outline-secondary"><i class="fas fa-camera"></i> الغلاف</a>
-                                                                    @endif
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">20. رابط البرمجي/GitHub</th>
-                                                            <td>
-                                                                @if($proj->project_url)
-                                                                    <a href="{{ $proj->project_url }}" target="_blank">{{ $proj->project_url }}</a>
-                                                                @else
-                                                                    <span class="text-muted">-</span>
-                                                                @endif
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">21. رابط الفيديو</th>
-                                                            <td>
-                                                                @if($proj->video_url)
-                                                                    <a href="{{ $proj->video_url }}" target="_blank">{{ $proj->video_url }}</a>
-                                                                @else
-                                                                    <span class="text-muted">-</span>
-                                                                @endif
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th class="bg-light">22. بريد التواصل العام</th>
-                                                            <td><a href="mailto:{{ $proj->contact_email }}">{{ $proj->contact_email ?? '-' }}</a></td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-
-                                            <!-- العمود الأيسر: الحقول الخاصة بالمسؤول فقط (Admin Only) -->
-                                            <div class="col-lg-5">
-                                                <div class="admin-confidential-box h-100 shadow-sm">
-                                                    <div class="d-flex align-items-center gap-2 mb-3 text-danger fw-bold fs-6">
-                                                        <i class="fas fa-user-shield fs-5"></i>
-                                                        <span>معلومات خاصة بالمسؤول فقط (لا تظهر للعامة)</span>
-                                                    </div>
-
-                                                    <table class="table table-sm table-borderless mb-0">
-                                                        <tbody>
-                                                            <tr class="border-bottom">
-                                                                <th class="text-danger small" style="width: 45%;">1. الرقم الجامعي (رقم القيد):</th>
-                                                                <td><strong class="fs-6 text-dark">{{ $proj->student_university_id ?? 'غير مسجل' }}</strong></td>
-                                                            </tr>
-                                                            <tr class="border-bottom">
-                                                                <th class="text-danger small">2. هاتف الواتساب:</th>
-                                                                <td>
-                                                                    @if($proj->whatsapp_phone)
-                                                                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $proj->whatsapp_phone) }}" target="_blank" class="fw-bold text-success text-decoration-none">
-                                                                            <i class="fab fa-whatsapp me-1"></i>{{ $proj->whatsapp_phone }}
-                                                                        </a>
-                                                                    @else
-                                                                        <span class="text-muted">-</span>
-                                                                    @endif
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="border-bottom">
-                                                                <th class="text-danger small">3. متطلبات المشروع:</th>
-                                                                <td>{{ $proj->project_requirements ?: 'لا توجد متطلبات خاصة' }}</td>
-                                                            </tr>
-                                                            <tr class="border-bottom">
-                                                                <th class="text-danger small">4. معدات خاصة بالعرض:</th>
-                                                                <td>
-                                                                    @if($proj->needs_special_equipment)
-                                                                        <span class="badge bg-danger text-white">نعم يحتاج معدات</span>
-                                                                        <div class="small mt-1 text-danger fw-bold">{{ $proj->special_equipment_details }}</div>
-                                                                    @else
-                                                                        <span class="badge bg-success text-white">لا يحتاج</span>
-                                                                    @endif
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="border-bottom">
-                                                                <th class="text-danger small">5. المتطلبات الإضافية:</th>
-                                                                <td>{{ $proj->additional_requirements ?: 'لا توجد' }}</td>
-                                                            </tr>
-                                                            <tr class="border-bottom">
-                                                                <th class="text-danger small">6. الملخص التنفيذي الداخلي:</th>
-                                                                <td><div class="small bg-white p-2 rounded border">{!! nl2br(e($proj->executive_summary ?: 'لم يدرج ملخص تنفيذي')) !!}</div></td>
-                                                            </tr>
-                                                            <tr class="border-bottom">
-                                                                <th class="text-danger small">7. حالة النموذج الأولي:</th>
-                                                                <td><span class="badge bg-primary">{{ $proj->prototype_status ?: 'غير محدد' }}</span></td>
-                                                            </tr>
-                                                            <tr class="border-bottom">
-                                                                <th class="text-danger small">8. حالة النشر والمراجعة:</th>
-                                                                <td><span class="badge {{ $proj->status_badge_class }}">{{ $proj->status_label }}</span></td>
-                                                            </tr>
-                                                            <tr class="border-bottom">
-                                                                <th class="text-danger small">9. رقم الجناح:</th>
-                                                                <td><strong>{{ $proj->booth_number ?: 'لم يُحدد بعد' }}</strong></td>
-                                                            </tr>
-                                                            <tr class="border-bottom">
-                                                                <th class="text-danger small">10. تمييز بالرئيسية:</th>
-                                                                <td>{{ $proj->is_featured ? 'نعم (مميز)' : 'لا' }}</td>
-                                                            </tr>
-                                                            <tr class="border-bottom">
-                                                                <th class="text-danger small">11. ملاحظات إدارية:</th>
-                                                                <td>{{ $proj->admin_notes ?: 'لا توجد ملاحظات' }}</td>
-                                                            </tr>
-                                                            @if($proj->rejection_reason)
-                                                            <tr class="table-danger">
-                                                                <th class="text-danger small">سبب الرفض:</th>
-                                                                <td class="text-danger fw-bold">{{ $proj->rejection_reason }}</td>
-                                                            </tr>
-                                                            @endif
-                                                        </tbody>
-                                                    </table>
-
-                                                    <!-- نموذج تحديث الملاحظات الإدارية السريع -->
-                                                    <form action="{{ route('job-fair.admin.projects.update-status', $proj->id) }}" method="POST" class="mt-3 border-top pt-3">
-                                                        @csrf
-                                                        @method('PATCH')
-                                                        <input type="hidden" name="status" value="{{ $proj->status }}">
-                                                        <label class="small font-weight-bold text-dark">ملاحظات الإدارة الداخلية:</label>
-                                                        <textarea name="admin_notes" class="form-control form-control-sm mb-2" rows="2" placeholder="أدخل أي ملاحظات خاصة باللجنة المنظمة...">{{ $proj->admin_notes }}</textarea>
-                                                        <button type="submit" class="btn btn-sm btn-outline-dark w-100">
-                                                            <i class="fas fa-save me-1"></i> حفظ الملاحظات
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer bg-light">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
-                                        <button type="button" class="btn btn-primary" onclick="editProjectById({{ $proj->id }})" data-bs-dismiss="modal">
-                                            <i class="fas fa-edit me-1"></i> تعديل بيانات المشروع
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Modal: Reject Project -->
-                        <div class="modal fade" id="rejectModal{{ $proj->id }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ $proj->id }}" aria-hidden="true" dir="rtl">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <form action="{{ route('job-fair.admin.projects.update-status', $proj->id) }}" method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status" value="rejected">
-                                    <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
-                                        <div class="modal-header bg-danger text-white py-3">
-                                            <h5 class="modal-title font-weight-bold" id="rejectModalLabel{{ $proj->id }}">
-                                                <i class="fas fa-times-circle me-1"></i> رفض مشروع التخرج
-                                            </h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body p-4">
-                                            <p class="mb-3">أنت على وشك رفض مشروع: <strong>«{{ $proj->title }}»</strong>.</p>
-                                            <div class="form-group mb-2">
-                                                <label class="font-weight-bold small mb-1">سبب الرفض (إجراء إداري رسمي) <span class="text-danger">*</span></label>
-                                                <textarea name="rejection_reason" class="form-control" rows="3" required placeholder="وضح سبب رفض المشروع (عدم استيفاء الشروط، تكرار الفكرة، نقص التجهيزات...)..."></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer bg-light">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                                            <button type="submit" class="btn btn-danger fw-bold">
-                                                <i class="fas fa-ban me-1"></i> تأكيد الرفض
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
                     @empty
                         <tr>
                             <td colspan="9" class="text-center py-5 text-muted">
@@ -907,6 +638,312 @@
         </div>
     </div>
 </div>
+
+    {{-- ══════════════════════════════════
+         نوافذ المراجعة والاعتماد (Modals)
+    ══════════════════════════════════ --}}
+    @foreach($projects as $proj)
+        <!-- Modal: Review Project Details -->
+        <div class="modal fade text-start" id="reviewModal{{ $proj->id }}" tabindex="-1" aria-labelledby="reviewModalLabel{{ $proj->id }}" aria-hidden="true" dir="rtl">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+                    <div class="modal-header bg-primary text-white py-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-microscope text-warning fs-5"></i>
+                            <div>
+                                <h5 class="modal-title font-weight-bold mb-0" id="reviewModalLabel{{ $proj->id }}">
+                                    ملف مراجعة واعتماد المشروع: {{ $proj->title }}
+                                </h5>
+                                <small class="text-white-50">{{ $proj->faculty }} &bull; {{ $proj->department }} &bull; دفعة {{ $proj->graduation_year }}</small>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <!-- شريط القرار الإداري السريع -->
+                        <div class="card bg-light border-0 p-3 mb-4 rounded-3">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="text-muted small fw-bold">الحالة:</span>
+                                    <span class="badge {{ $proj->status_badge_class }} fs-6">{{ $proj->status_label }}</span>
+                                    @if($proj->booth_number)
+                                        <span class="badge bg-success ms-1">جناح رقم: {{ $proj->booth_number }}</span>
+                                    @endif
+                                </div>
+
+                                <!-- نموذج اعتماد المشروع وتخصيص الجناح -->
+                                <form action="{{ route('job-fair.admin.projects.update-status', $proj->id) }}" method="POST" class="d-flex align-items-center gap-2">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="published">
+                                    <input type="text" name="booth_number" value="{{ $proj->booth_number }}" class="form-control form-control-sm" placeholder="رقم الجناح" style="width: 100px;">
+                                    <div class="form-check form-check-inline m-0">
+                                        <input class="form-check-input" type="checkbox" name="is_featured" value="1" id="featCheckModal{{ $proj->id }}" {{ $proj->is_featured ? 'checked' : '' }}>
+                                        <label class="form-check-label small fw-bold" for="featCheckModal{{ $proj->id }}">مميز</label>
+                                    </div>
+                                    <button type="submit" class="btn btn-sm btn-success fw-bold px-3">
+                                        <i class="fas fa-check-circle me-1"></i> اعتماد ونشر
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+                            <!-- العمود الأيمن: البيانات العامة (Public Fields) -->
+                            <div class="col-lg-7">
+                                <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">
+                                    <i class="fas fa-globe text-info me-1"></i> البيانات المتاحة للجمهور (22 حقلاً)
+                                </h6>
+
+                                <table class="table table-bordered table-sm mb-3">
+                                    <tbody>
+                                        <tr>
+                                            <th style="width: 32%;" class="bg-light">1. عنوان المشروع</th>
+                                            <td><strong>{{ $proj->title }}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">2. الكلية</th>
+                                            <td>{{ $proj->faculty }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">3. القسم / التخصص</th>
+                                            <td>{{ $proj->department }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">4. سنة التخرج</th>
+                                            <td>{{ $proj->graduation_year }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">5. نوع المشروع</th>
+                                            <td><span class="badge bg-light text-primary border">{{ $proj->project_type ?? 'غير محدد' }}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">6. المجال الرئيسي</th>
+                                            <td><span class="badge bg-light text-success border">{{ $proj->main_category ?? 'غير محدد' }}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">7. فريق العمل</th>
+                                            <td>
+                                                <ul class="mb-0 ps-3">
+                                                    @foreach($proj->team_list as $m)
+                                                        <li>{{ $m['name'] ?? $m }} @if(!empty($m['role'])) <span class="text-muted">({{ $m['role'] }})</span> @endif</li>
+                                                    @endforeach
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">8-9. المشرف الأكاديمي</th>
+                                            <td>{{ $proj->supervisor_name ?? '-' }} ({{ $proj->supervisor_title ?? 'مشرف' }})</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">10. وصف المشروع</th>
+                                            <td><div class="small">{!! nl2br(e($proj->description)) !!}</div></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">11. نبذة مختصرة (Abstract)</th>
+                                            <td><div class="small text-muted">{!! nl2br(e($proj->summary)) !!}</div></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">12. المشكلة المعالجة</th>
+                                            <td><div class="small">{!! nl2br(e($proj->problem_statement ?? '-')) !!}</div></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">13. الحل المقدم</th>
+                                            <td><div class="small">{!! nl2br(e($proj->solution_statement ?? '-')) !!}</div></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">14. أهداف المشروع</th>
+                                            <td><div class="small">{!! nl2br(e($proj->objectives ?? '-')) !!}</div></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">15. المواصفات الفنية</th>
+                                            <td><div class="small">{!! nl2br(e($proj->technical_specifications ?? '-')) !!}</div></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">16. أبرز النتائج</th>
+                                            <td><div class="small">{!! nl2br(e($proj->key_outcomes ?? '-')) !!}</div></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">17. قابلية التسويق</th>
+                                            <td><div class="small">{!! nl2br(e($proj->market_viability ?? '-')) !!}</div></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">18-19. البوستر والغلاف</th>
+                                            <td>
+                                                <div class="d-flex gap-2">
+                                                    @if($proj->poster_url)
+                                                        <a href="{{ $proj->poster_url }}" target="_blank" class="btn btn-xs btn-outline-primary"><i class="fas fa-image"></i> البوستر</a>
+                                                    @endif
+                                                    @if($proj->cover_image)
+                                                        <a href="{{ Storage::url($proj->cover_image) }}" target="_blank" class="btn btn-xs btn-outline-secondary"><i class="fas fa-camera"></i> الغلاف</a>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">20. رابط البرمجي/GitHub</th>
+                                            <td>
+                                                @if($proj->project_url)
+                                                    <a href="{{ $proj->project_url }}" target="_blank">{{ $proj->project_url }}</a>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">21. رابط الفيديو</th>
+                                            <td>
+                                                @if($proj->video_url)
+                                                    <a href="{{ $proj->video_url }}" target="_blank">{{ $proj->video_url }}</a>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">22. بريد التواصل العام</th>
+                                            <td><a href="mailto:{{ $proj->contact_email }}">{{ $proj->contact_email ?? '-' }}</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- العمود الأيسر: الحقول الخاصة بالمسؤول فقط (Admin Only) -->
+                            <div class="col-lg-5">
+                                <div class="admin-confidential-box h-100 shadow-sm">
+                                    <div class="d-flex align-items-center gap-2 mb-3 text-danger fw-bold fs-6">
+                                        <i class="fas fa-user-shield fs-5"></i>
+                                        <span>معلومات خاصة بالمسؤول فقط (لا تظهر للعامة)</span>
+                                    </div>
+
+                                    <table class="table table-sm table-borderless mb-0">
+                                        <tbody>
+                                            <tr class="border-bottom">
+                                                <th class="text-danger small" style="width: 45%;">1. الرقم الجامعي (رقم القيد):</th>
+                                                <td><strong class="fs-6 text-dark">{{ $proj->student_university_id ?? 'غير مسجل' }}</strong></td>
+                                            </tr>
+                                            <tr class="border-bottom">
+                                                <th class="text-danger small">2. هاتف الواتساب:</th>
+                                                <td>
+                                                    @if($proj->whatsapp_phone)
+                                                        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $proj->whatsapp_phone) }}" target="_blank" class="fw-bold text-success text-decoration-none">
+                                                            <i class="fab fa-whatsapp me-1"></i>{{ $proj->whatsapp_phone }}
+                                                        </a>
+                                                    @else
+                                                        <span class="text-muted">-</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr class="border-bottom">
+                                                <th class="text-danger small">3. متطلبات المشروع:</th>
+                                                <td>{{ $proj->project_requirements ?: 'لا توجد متطلبات خاصة' }}</td>
+                                            </tr>
+                                            <tr class="border-bottom">
+                                                <th class="text-danger small">4. معدات خاصة بالعرض:</th>
+                                                <td>
+                                                    @if($proj->needs_special_equipment)
+                                                        <span class="badge bg-danger text-white">نعم يحتاج معدات</span>
+                                                        <div class="small mt-1 text-danger fw-bold">{{ $proj->special_equipment_details }}</div>
+                                                    @else
+                                                        <span class="badge bg-success text-white">لا يحتاج</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr class="border-bottom">
+                                                <th class="text-danger small">5. المتطلبات الإضافية:</th>
+                                                <td>{{ $proj->additional_requirements ?: 'لا توجد' }}</td>
+                                            </tr>
+                                            <tr class="border-bottom">
+                                                <th class="text-danger small">6. الملخص التنفيذي الداخلي:</th>
+                                                <td><div class="small bg-white p-2 rounded border">{!! nl2br(e($proj->executive_summary ?: 'لم يدرج ملخص تنفيذي')) !!}</div></td>
+                                            </tr>
+                                            <tr class="border-bottom">
+                                                <th class="text-danger small">7. حالة النموذج الأولي:</th>
+                                                <td><span class="badge bg-primary">{{ $proj->prototype_status ?: 'غير محدد' }}</span></td>
+                                            </tr>
+                                            <tr class="border-bottom">
+                                                <th class="text-danger small">8. حالة النشر والمراجعة:</th>
+                                                <td><span class="badge {{ $proj->status_badge_class }}">{{ $proj->status_label }}</span></td>
+                                            </tr>
+                                            <tr class="border-bottom">
+                                                <th class="text-danger small">9. رقم الجناح:</th>
+                                                <td><strong>{{ $proj->booth_number ?: 'لم يُحدد بعد' }}</strong></td>
+                                            </tr>
+                                            <tr class="border-bottom">
+                                                <th class="text-danger small">10. تمييز بالرئيسية:</th>
+                                                <td>{{ $proj->is_featured ? 'نعم (مميز)' : 'لا' }}</td>
+                                            </tr>
+                                            <tr class="border-bottom">
+                                                <th class="text-danger small">11. ملاحظات إدارية:</th>
+                                                <td>{{ $proj->admin_notes ?: 'لا توجد ملاحظات' }}</td>
+                                            </tr>
+                                            @if($proj->rejection_reason)
+                                            <tr class="table-danger">
+                                                <th class="text-danger small">سبب الرفض:</th>
+                                                <td class="text-danger fw-bold">{{ $proj->rejection_reason }}</td>
+                                            </tr>
+                                            @endif
+                                        </tbody>
+                                    </table>
+
+                                    <!-- نموذج تحديث الملاحظات الإدارية السريع -->
+                                    <form action="{{ route('job-fair.admin.projects.update-status', $proj->id) }}" method="POST" class="mt-3 border-top pt-3">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="status" value="{{ $proj->status }}">
+                                        <label class="small font-weight-bold text-dark">ملاحظات الإدارة الداخلية:</label>
+                                        <textarea name="admin_notes" class="form-control form-control-sm mb-2" rows="2" placeholder="أدخل أي ملاحظات خاصة باللجنة المنظمة...">{{ $proj->admin_notes }}</textarea>
+                                        <button type="submit" class="btn btn-sm btn-outline-dark w-100">
+                                            <i class="fas fa-save me-1"></i> حفظ الملاحظات
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                        <button type="button" class="btn btn-primary" onclick="editProjectById({{ $proj->id }})" data-bs-dismiss="modal">
+                            <i class="fas fa-edit me-1"></i> تعديل بيانات المشروع
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Reject Project -->
+        <div class="modal fade" id="rejectModal{{ $proj->id }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ $proj->id }}" aria-hidden="true" dir="rtl">
+            <div class="modal-dialog modal-dialog-centered">
+                <form action="{{ route('job-fair.admin.projects.update-status', $proj->id) }}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <input type="hidden" name="status" value="rejected">
+                    <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+                        <div class="modal-header bg-danger text-white py-3">
+                            <h5 class="modal-title font-weight-bold" id="rejectModalLabel{{ $proj->id }}">
+                                <i class="fas fa-times-circle me-1"></i> رفض مشروع التخرج
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <p class="mb-3">أنت على وشك رفض مشروع: <strong>«{{ $proj->title }}»</strong>.</p>
+                            <div class="form-group mb-2">
+                                <label class="font-weight-bold small mb-1">سبب الرفض (إجراء إداري رسمي) <span class="text-danger">*</span></label>
+                                <textarea name="rejection_reason" class="form-control" rows="3" required placeholder="وضح سبب رفض المشروع (عدم استيفاء الشروط، تكرار الفكرة، نقص التجهيزات...)..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                            <button type="submit" class="btn btn-danger fw-bold">
+                                <i class="fas fa-ban me-1"></i> تأكيد الرفض
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endforeach
+
 
 <!-- Modal: Add Project -->
 <div class="modal fade" id="addProjectModal" tabindex="-1" role="dialog" aria-labelledby="addProjectModalLabel" aria-hidden="true" dir="rtl">

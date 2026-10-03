@@ -187,10 +187,10 @@
                 </div>
             </div>
 
-            <!-- أزرار الإجراءات الموحدة والأنيقة -->
+            <!-- أزرار الإجراءات الموحدة والمنظمة (تصميم نظيف وغير مزدحم) -->
             <div class="fair-actions-toolbar">
                 <!-- ماسح QR (ذهبي بارز) -->
-                <a href="{{ route('job-fair.admin.attendance', $fair->id) }}" class="fair-btn-action btn btn-warning text-dark shadow-sm">
+                <a href="{{ route('job-fair.admin.attendance', $fair->id) }}" class="fair-btn-action btn btn-warning text-dark fw-bold shadow-sm" title="فتح ماسح الباركود السريع لتسجيل حضور الزوار">
                     <i class="fas fa-qrcode"></i>
                     <span>ماسح QR</span>
                 </a>
@@ -201,61 +201,90 @@
                     <span>المتابعة اللحظية</span>
                 </a>
 
-                <!-- تعديل بيانات المعرض -->
-                <a href="{{ route('job-fair.admin.edit', $fair->id) }}" class="fair-btn-action btn btn-light bg-white text-primary shadow-sm">
-                    <i class="fas fa-edit"></i>
-                    <span>تعديل</span>
-                </a>
-
-                <!-- تصدير Excel -->
-                <a href="{{ route('job-fair.admin.export', $fair->id) }}" class="fair-btn-action fair-btn-glass">
-                    <i class="fas fa-file-excel text-success"></i>
-                    <span>تصدير</span>
-                </a>
+                <!-- قائمة أقسام المعرض الموحدة -->
+                <div class="dropdown d-inline-block position-relative">
+                    <button class="fair-btn-action fair-btn-glass dropdown-toggle fw-bold" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="الوصول السريع لكافة أقسام وإدارات المعرض">
+                        <i class="fas fa-th-large text-warning"></i>
+                        <span>أقسام المعرض</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 p-2" style="min-width: 230px; z-index: 1060;">
+                        <li>
+                            <a class="dropdown-item rounded-2 py-2 px-3 small d-flex align-items-center justify-content-between" href="{{ route('job-fair.admin.projects.index', $fair->id) }}">
+                                <span class="d-flex align-items-center gap-2">
+                                    <i class="fas fa-lightbulb text-warning"></i>
+                                    <span class="fw-semibold">مشاريع التخرج</span>
+                                </span>
+                                <span class="badge bg-light text-dark border">{{ $fair->projects->count() }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item rounded-2 py-2 px-3 small d-flex align-items-center justify-content-between" href="{{ route('job-fair.admin.events.index', $fair->id) }}">
+                                <span class="d-flex align-items-center gap-2">
+                                    <i class="fas fa-graduation-cap text-primary"></i>
+                                    <span class="fw-semibold">البرنامج العلمي</span>
+                                </span>
+                                <span class="badge bg-light text-dark border">{{ $fair->events->count() }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item rounded-2 py-2 px-3 small d-flex align-items-center justify-content-between" href="{{ route('job-fair.admin.visitors.index', $fair->id) }}">
+                                <span class="d-flex align-items-center gap-2">
+                                    <i class="fas fa-id-badge text-success"></i>
+                                    <span class="fw-semibold">إدارة الزوار</span>
+                                </span>
+                                <span class="badge bg-light text-dark border">{{ $stats['total_visitors'] ?? $fair->visitors->count() }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item rounded-2 py-2 px-3 small d-flex align-items-center justify-content-between" href="#sponsorsSection">
+                                <span class="d-flex align-items-center gap-2">
+                                    <i class="fas fa-crown text-warning"></i>
+                                    <span class="fw-semibold">الرعاة والداعمون</span>
+                                </span>
+                                <span class="badge bg-light text-dark border">{{ $fair->sponsors->count() }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item rounded-2 py-2 px-3 small d-flex align-items-center gap-2" href="#brandIdentitySection">
+                                <i class="fas fa-palette text-info"></i>
+                                <span class="fw-semibold">الهوية البصرية</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
 
                 <!-- صفحة المعرض العامة -->
-                <a href="{{ route('job-fair.public', $fair->id) }}" class="fair-btn-action fair-btn-glass" target="_blank" title="الصفحة العامة للفعالية">
-                    <i class="fas fa-globe text-info"></i>
+                <a href="{{ route('job-fair.public', $fair->id) }}" class="fair-btn-action fair-btn-glass" target="_blank" title="معاينة الصفحة العامة للمعرض">
+                    <i class="fas fa-external-link-alt text-info"></i>
                     <span>صفحة عامة</span>
                 </a>
 
-                <!-- الرعاة -->
-                <a href="#sponsorsSection" class="fair-btn-action fair-btn-glass">
-                    <i class="fas fa-crown text-warning"></i>
-                    <span>الرعاة ({{ $fair->sponsors->count() }})</span>
-                </a>
-
-                <!-- البرنامج العلمي والفعاليات -->
-                <a href="{{ route('job-fair.admin.events.index', $fair->id) }}" class="fair-btn-action btn btn-warning text-dark shadow-sm fw-bold">
-                    <i class="fas fa-graduation-cap"></i>
-                    <span>البرنامج العلمي ({{ $fair->events->count() }})</span>
-                </a>
-
-                <!-- مشاريع التخرج -->
-                <a href="{{ route('job-fair.admin.projects.index', $fair->id) }}" class="fair-btn-action btn btn-light bg-white text-dark shadow-sm fw-bold">
-                    <i class="fas fa-lightbulb text-warning"></i>
-                    <span>مشاريع التخرج ({{ $fair->projects->count() }})</span>
-                </a>
-
-                <!-- الهوية البصرية -->
-                <a href="#brandIdentitySection" class="fair-btn-action fair-btn-glass">
-                    <i class="fas fa-palette text-warning"></i>
-                    <span>الهوية البصرية</span>
-                </a>
-
-                <!-- إدارة زوار المعرض -->
-                <a href="{{ route('job-fair.admin.visitors.index', $fair->id) }}" class="fair-btn-action btn btn-success text-white shadow-sm fw-bold">
-                    <i class="fas fa-id-badge"></i>
-                    <span>إدارة الزوار ({{ $stats['total_visitors'] ?? $fair->visitors->count() }})</span>
-                </a>
-
-                <!-- قائمة تغيير الحالة منسدلة أنيقة -->
+                <!-- قائمة الخيارات والإعدادات الموحدة -->
                 <div class="dropdown d-inline-block position-relative">
-                    <button class="fair-btn-action fair-btn-glass dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="fair-btn-action fair-btn-glass dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="تعديل وتصدير وضبط إعدادات المعرض">
                         <i class="fas fa-sliders-h"></i>
-                        <span>الحالة</span>
+                        <span>خيارات وإعدادات</span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 p-1.5" style="min-width: 190px; z-index: 1060;">
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 p-2" style="min-width: 220px; z-index: 1060;">
+                        <!-- تعديل -->
+                        <li>
+                            <a class="dropdown-item rounded-2 py-2 px-3 small d-flex align-items-center gap-2" href="{{ route('job-fair.admin.edit', $fair->id) }}">
+                                <i class="fas fa-edit text-primary"></i>
+                                <span>تعديل بيانات المعرض</span>
+                            </a>
+                        </li>
+
+                        <!-- تصدير Excel -->
+                        <li>
+                            <a class="dropdown-item rounded-2 py-2 px-3 small d-flex align-items-center gap-2" href="{{ route('job-fair.admin.export', $fair->id) }}">
+                                <i class="fas fa-file-excel text-success"></i>
+                                <span>تصدير بيانات (Excel)</span>
+                            </a>
+                        </li>
+
+                        <li class="dropdown-divider my-1"></li>
+                        <li class="dropdown-header small text-muted fw-bold pb-1 pt-1"><i class="fas fa-flag me-1"></i>تغيير حالة المعرض:</li>
+
                         @php
                             $statusIcons = [
                                 'draft' => ['color' => 'text-secondary', 'icon' => 'fas fa-file-alt'],
@@ -269,7 +298,7 @@
                             <form action="{{ route('job-fair.admin.status', $fair->id) }}" method="POST" class="m-0">
                                 @csrf
                                 <input type="hidden" name="status" value="{{ $val }}">
-                                <button type="submit" class="dropdown-item rounded-2 py-2 px-3 small d-flex align-items-center justify-content-between {{ $fair->status == $val ? 'active fw-bold' : '' }}">
+                                <button type="submit" class="dropdown-item rounded-2 py-1.5 px-3 small d-flex align-items-center justify-content-between {{ $fair->status == $val ? 'active fw-bold' : '' }}">
                                     <span class="d-flex align-items-center gap-2">
                                         <i class="{{ $statusIcons[$val]['icon'] ?? 'fas fa-circle' }} {{ $fair->status == $val ? 'text-white' : ($statusIcons[$val]['color'] ?? '') }}"></i>
                                         <span>{{ $label }}</span>
@@ -281,17 +310,21 @@
                             </form>
                         </li>
                         @endforeach
+
+                        <li class="dropdown-divider my-1"></li>
+
+                        <!-- تصفير الحضور -->
+                        <li>
+                            <form action="{{ route('job-fair.admin.reset-attendance', $fair->id) }}" method="POST" class="m-0">
+                                @csrf
+                                <button type="submit" class="dropdown-item rounded-2 py-1.5 px-3 small text-danger d-flex align-items-center gap-2" onclick="return confirm('تحذير: هل أنت متأكد من رغبتك في إعادة تهيئة سجلات الحضور بالكامل؟')" title="إعادة تعيين حضور المعرض">
+                                    <i class="fas fa-undo"></i>
+                                    <span>تصفير سجلات الحضور</span>
+                                </button>
+                            </form>
+                        </li>
                     </ul>
                 </div>
-
-                <!-- تصفير الحضور -->
-                <form action="{{ route('job-fair.admin.reset-attendance', $fair->id) }}" method="POST" class="d-inline m-0">
-                    @csrf
-                    <button type="submit" class="fair-btn-action fair-btn-glass text-white-50" onclick="return confirm('تحذير: هل أنت متأكد من رغبتك في إعادة تهيئة سجلات الحضور بالكامل؟')" title="إعادة تعيين حضور المعرض">
-                        <i class="fas fa-undo"></i>
-                        <span>تصفير</span>
-                    </button>
-                </form>
             </div>
         </div>
     </div>

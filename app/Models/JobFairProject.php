@@ -163,12 +163,12 @@ class JobFairProject extends Model
     public function getStatusBadgeClassAttribute(): string
     {
         return match($this->status) {
-            'published' => 'badge-success',
-            'pending'   => 'badge-warning text-dark',
-            'rejected'  => 'badge-danger',
-            'draft'     => 'badge-secondary',
-            'archived'  => 'badge-dark',
-            default     => 'badge-info',
+            'published' => 'bg-success text-white',
+            'pending'   => 'bg-warning text-dark',
+            'rejected'  => 'bg-danger text-white',
+            'draft'     => 'bg-secondary text-white',
+            'archived'  => 'bg-dark text-white',
+            default     => 'bg-info text-white',
         };
     }
 

@@ -40,7 +40,7 @@ class AiAssistantController extends Controller
 
             return response()->json([
                 'status' => 'error',
-                'content' => 'عذراً، حدث خطأ أثناء معالجة طلبك: ' . $e->getMessage(),
+                'content' => 'عذراً، حدث خطأ أثناء معالجة طلبك، يرجى المحاولة مرة أخرى لاحقاً.',
             ], 500);
         }
     }
@@ -69,11 +69,13 @@ class AiAssistantController extends Controller
 
             return response()->json($response);
         } catch (\Throwable $e) {
-            \Log::error('AI Assistant Confirm Action Error: ' . $e->getMessage());
+            \Log::error('AI Assistant Confirm Action Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'تعذر إتمام الإجراء المطلوب: ' . $e->getMessage(),
+                'message' => 'تعذر إتمام الإجراء المطلوب في الوقت الحالي. يرجى المحاولة لاحقاً.',
             ], 500);
         }
     }

@@ -22,5 +22,8 @@
         "@capacitor/ios": "^6.0.0",
         "chart.js": "^4.5.1",
         "sortablejs": "^1.15.6"
+    },
+    "overrides": {
+        "tar": "^7.5.22"
     }
 }

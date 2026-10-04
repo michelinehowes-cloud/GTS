@@ -302,10 +302,10 @@ class GraduateRegistrationController extends Controller
                 'message' => 'تمت الموافقة على الحساب بنجاح وتمت إضافة الخريج إلى قاعدة بيانات الإرشاد والتوظيف.'
             ];
         } catch (\Exception $e) {
-            \Log::error('GraduateData creation error: ' . $e->getMessage());
+            \Log::error('GraduateData creation error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return [
                 'status' => 'warning',
-                'message' => 'تم تفعيل حساب الخريج بنجاح، مع تنبيه: ' . $e->getMessage()
+                'message' => 'تم تفعيل حساب الخريج بنجاح، مع تعذر استكمال بيانات الإرشاد تلقائياً. يرجى مراجعة سجلات النظام.'
             ];
         }
     }

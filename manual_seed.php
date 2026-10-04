@@ -11,54 +11,56 @@ use Illuminate\Support\Facades\Hash;
 
 echo "بدء إضافة المستخدمين التجريبيين...\n";
 
+$seedPassword = env('SEED_USER_PASSWORD', 'UoT@' . date('Y') . '!Secure');
+
 // قائمة المستخدمين للإضافة
 $users = [
     [
         'name' => 'مدير النظام',
         'email' => 'admin@tripoliuniversity.edu.ly',
-        'password' => 'password123',
+        'password' => $seedPassword,
         'role' => 'admin'
     ],
     [
         'name' => 'منسق التدريب',
         'email' => 'training@tripoliuniversity.edu.ly',
-        'password' => 'password123',
+        'password' => $seedPassword,
         'role' => 'training_coordinator'
     ],
     [
         'name' => 'مسؤول الشراكات',
         'email' => 'partnership@tripoliuniversity.edu.ly',
-        'password' => 'password123',
+        'password' => $seedPassword,
         'role' => 'partnership_officer'
     ],
     [
         'name' => 'مسؤول الإرشاد المهني',
         'email' => 'guidance@tripoliuniversity.edu.ly',
-        'password' => 'password123',
+        'password' => $seedPassword,
         'role' => 'career_guidance_officer'
     ],
     [
         'name' => 'مسؤول التقييم والمتابعة',
         'email' => 'evaluation@tripoliuniversity.edu.ly',
-        'password' => 'password123',
+        'password' => $seedPassword,
         'role' => 'evaluation_followup'
     ],
     [
         'name' => 'خريج تجريبي',
         'email' => 'graduate@tripoliuniversity.edu.ly',
-        'password' => 'password123',
+        'password' => $seedPassword,
         'role' => 'graduate'
     ],
     [
         'name' => 'ممثل شركة تجريبية',
         'email' => 'company@tripoliuniversity.edu.ly',
-        'password' => 'password123',
+        'password' => $seedPassword,
         'role' => 'company'
     ],
     [
         'name' => 'مسؤول الميديا',
         'email' => 'media@tripoliuniversity.edu.ly',
-        'password' => 'password123',
+        'password' => $seedPassword,
         'role' => 'media_officer'
     ]
 ];

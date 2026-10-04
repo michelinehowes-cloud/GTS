@@ -125,8 +125,8 @@ class UserController extends Controller
             'is_active' => true,
         ]);
 
-        // تعيين الصلاحيات المختارة
-        if ($request->has('permissions') && is_array($request->permissions)) {
+        // تعيين الصلاحيات المختارة (مقتصرة على مدير النظام العام لمنع تصعيد الصلاحيات)
+        if ($currentUser->isAdmin() && $request->has('permissions') && is_array($request->permissions)) {
             $user->permissions()->sync($request->permissions);
         }
 
@@ -215,6 +215,11 @@ class UserController extends Controller
             $request->merge(['role' => 'admin']);
         }
 
+        // حماية فائقة: لا يمكن لغير المدير العام تعديل بيانات أي مدير نظام عام
+        if ($user->isAdmin() && !$currentUser->isAdmin()) {
+            abort(403, 'لا تملك الصلاحية لتعديل بيانات حساب مدير نظام.');
+        }
+
         // حماية فائقة: لا يمكن لغير المدير العام ترقية أحد لرتبة مدير عام
         if ($request->role === 'admin' && !$currentUser->isAdmin()) {
             abort(403, 'لا يمكنك ترقية مستخدم لرتبة مدير نظام عام.');
@@ -240,9 +245,12 @@ class UserController extends Controller
 
         $user->update($updateData);
 
-        // تحديث الصلاحيات المخصصة
-        $newPermissions = $request->permissions ?? [];
-        $user->permissions()->sync($newPermissions);
+        // تحديث الصلاحيات المخصصة: مقتصرة حصراً على مدير النظام العام لمنع تصعيد الصلاحيات
+        $newPermissions = $oldValues['permissions'];
+        if ($currentUser->isAdmin()) {
+            $newPermissions = $request->permissions ?? [];
+            $user->permissions()->sync($newPermissions);
+        }
 
         // توثيق أمني للعملية
         AuditLog::logAction(
@@ -355,6 +363,11 @@ class UserController extends Controller
         }
 
         $user = User::findOrFail($id);
+
+        // حماية مشددة: لا يمكن لغير المدير العام تغيير كلمة مرور أي مدير نظام
+        if ($user->isAdmin() && !$currentUser->isAdmin()) {
+            abort(403, 'غير مصرح: لا يمكن لغير مدير النظام العام تغيير كلمة مرور حسابات الإدارة.');
+        }
 
         // حماية مشددة: لا يمكن تغيير أو إعادة تعيين كلمة مرور مدير النظام المحمي (المالك) إلا من قبل المالك نفسه
         if ($user->isProtectedSuperAdmin() && $currentUser->id !== $user->id) {

@@ -376,8 +376,10 @@ class AiAssistantService
                         'email_verified_at' => now(),
                     ]);
                 } else {
+                    if ($companyUser->role !== 'company' || (method_exists($companyUser, 'isProtectedSuperAdmin') && $companyUser->isProtectedSuperAdmin())) {
+                        return ['status' => 'forbidden', 'message' => 'هذا البريد الإلكتروني مسجل مسبقاً لمستخدم برتبة أخرى ولا يمكن ربطه أو تحويله إلى حساب شركة.'];
+                    }
                     $companyUser->update([
-                        'role' => 'company',
                         'is_approved' => true,
                         'is_active' => true,
                     ]);
@@ -592,6 +594,10 @@ class AiAssistantService
                 return ['status' => 'error', 'message' => 'المستخدم المستهدف غير موجود في النظام.'];
             }
 
+            if ($targetUser->id !== $user->id && method_exists($targetUser, 'isProtectedSuperAdmin') && $targetUser->isProtectedSuperAdmin()) {
+                return ['status' => 'forbidden', 'message' => 'لا يمكن تغيير كلمة مرور الحساب السيادي الأساسي للنظام إلا من خلال الحساب نفسه.'];
+            }
+
             $newPassword = $actionData['new_password'] ?? '';
             if (empty($newPassword) || strlen($newPassword) < 8) {
                 return ['status' => 'error', 'message' => 'كلمة المرور الجديدة يجب ألا تقل عن 8 خانات لأسباب أمنية.'];
@@ -625,6 +631,14 @@ class AiAssistantService
             $targetUser = $targetUserId ? User::find($targetUserId) : null;
             if (!$targetUser) {
                 return ['status' => 'error', 'message' => 'تعذر العثور على حساب الخريج المستهدف.'];
+            }
+
+            if ($targetUser->role !== 'graduate') {
+                return ['status' => 'forbidden', 'message' => 'هذا الإجراء مخصص لحسابات الخريجين فقط ولا يمكن تطبيقه على حسابات الموظفين أو الإداريين.'];
+            }
+
+            if (method_exists($targetUser, 'isProtectedSuperAdmin') && $targetUser->isProtectedSuperAdmin()) {
+                return ['status' => 'forbidden', 'message' => 'لا يمكن تعديل حالة الحساب السيادي للنظام.'];
             }
 
             $newStatus = (bool) ($actionData['new_status'] ?? false);
@@ -665,6 +679,14 @@ class AiAssistantService
 
             if (!$targetUser && !$gradData) {
                 return ['status' => 'error', 'message' => 'تعذر العثور على سجلات الخريج المطلوب حذفها.'];
+            }
+
+            if ($targetUser && $targetUser->role !== 'graduate') {
+                return ['status' => 'forbidden', 'message' => 'لا يمكن حذف حساب مستخدم لا يحمل رتبة خريج عبر واجهة الخريجين.'];
+            }
+
+            if ($targetUser && method_exists($targetUser, 'isProtectedSuperAdmin') && $targetUser->isProtectedSuperAdmin()) {
+                return ['status' => 'forbidden', 'message' => 'لا يمكن حذف الحساب السيادي للنظام.'];
             }
 
             \Illuminate\Support\Facades\DB::transaction(function() use ($targetUser, $gradData, $targetUserId) {
@@ -768,7 +790,14 @@ class AiAssistantService
                 return ['status' => 'error', 'message' => 'لا توجد طلبات محددة لتنفيذ الإجراء عليها.'];
             }
 
-            TrainingApplication::whereIn('id', $appIds)->update(['status' => $targetStatus]);
+            $query = TrainingApplication::whereIn('id', $appIds);
+            if ($user->role === 'training_coordinator') {
+                $query->whereHas('training', function($q) use ($user) {
+                    $q->where('coordinator_id', $user->id);
+                });
+            }
+
+            $updatedCount = $query->update(['status' => $targetStatus]);
 
             AuditLog::create([
                 'user_id' => $user->id,
@@ -777,7 +806,7 @@ class AiAssistantService
                 'entity_id' => 0,
                 'new_values' => [
                     'target_status' => $targetStatus,
-                    'count' => count($appIds),
+                    'count' => $updatedCount,
                     'scope' => $actionData['scope_description'] ?? 'عام',
                 ],
                 'ip_address' => request()->ip() ?? '127.0.0.1',

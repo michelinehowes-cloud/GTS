@@ -168,7 +168,7 @@ class GraduateEditUpdateTest extends TestCase
         }
 
         $newEmail = 'khaled.new@tripoli.edu.ly';
-        $newPassword = 'NewSecretPassword123';
+        $newPassword = 'Pass_' . \Illuminate\Support\Str::random(10) . '1!';
 
         // Update graduate with NEW email and NEW password
         $payload = [

@@ -90,10 +90,16 @@ class TrainingController extends Controller
             'seats.required' => 'عدد المقاعد المتاحة مطلوب.',
         ]);
 
-        $data = $request->all();
+        // حماية الإسناد الجماعي الصارمة (Strict Whitelisting)
+        $data = $request->only([
+            'title', 'description', 'type', 'duration', 'start_date', 'end_date',
+            'location', 'seats', 'status', 'company_id', 'trainer_id', 'category', 'instructor_name'
+        ]);
 
         if ($user->role == 'training_coordinator') {
             $data['coordinator_id'] = $user->id;
+        } elseif ($user->isAdmin() && $request->filled('coordinator_id')) {
+            $data['coordinator_id'] = $request->coordinator_id;
         }
 
         // استخراج أيام التدريب المحددة في الأسبوع أو افتراض أيام العمل (الأحد - الخميس)
@@ -169,6 +175,7 @@ class TrainingController extends Controller
         }
 
         $training = Training::findOrFail($id);
+        $this->authorize('update', $training);
         $companies = Company::all();
         $trainers = \App\Models\Trainer::all();
         $categories = Training::getCategories();
@@ -182,12 +189,10 @@ class TrainingController extends Controller
 
     public function update(Request $request, $id)
     {
-        $user = auth()->user();
-        if (!$user->isAdmin() && !$user->hasPermission('trainings.edit') && $user->role !== 'training_coordinator') {
-            abort(403, 'غير مصرح لك بتعديل هذا البرنامج التدريبي');
-        }
-
         $training = Training::findOrFail($id);
+        $this->authorize('update', $training);
+
+        $user = auth()->user();
         $oldData = $training->only(['title', 'status', 'seats', 'type']);
 
         $request->validate([
@@ -215,7 +220,14 @@ class TrainingController extends Controller
             'seats.required' => 'عدد المقاعد المتاحة مطلوب.',
         ]);
 
-        $data = $request->all();
+        // حماية الإسناد الجماعي الصارمة (Strict Whitelisting)
+        $data = $request->only([
+            'title', 'description', 'type', 'duration', 'start_date', 'end_date',
+            'location', 'seats', 'status', 'company_id', 'trainer_id', 'category', 'instructor_name'
+        ]);
+        if ($user->isAdmin() && $request->filled('coordinator_id')) {
+            $data['coordinator_id'] = $request->coordinator_id;
+        }
 
         // تحديث أيام التدريب المعتمدة
         if ($request->has('training_days_of_week') && is_array($request->input('training_days_of_week')) && count($request->input('training_days_of_week')) > 0) {
@@ -267,12 +279,10 @@ class TrainingController extends Controller
 
     public function destroy($id)
     {
-        $user = auth()->user();
-        if (!$user->isAdmin() && !$user->hasPermission('trainings.delete') && $user->role !== 'training_coordinator') {
-            abort(403, 'غير مصرح لك بحذف هذا البرنامج التدريبي');
-        }
-
         $training = Training::findOrFail($id);
+        $this->authorize('delete', $training);
+
+        $user = auth()->user();
         $snapshot = ['title' => $training->title];
         $training->delete();
 
@@ -359,7 +369,16 @@ class TrainingController extends Controller
 
     public function approveApplication(Request $request, $id)
     {
+        $user = auth()->user();
+        if (!$user || (!$user->isAdmin() && !$user->hasPermission('trainings.applications') && $user->role !== 'training_coordinator')) {
+            abort(403, 'غير مصرح لك بإدارة طلبات التدريب.');
+        }
+
         $application = TrainingApplication::with(['training.company', 'user'])->findOrFail($id);
+        if ($user->role === 'training_coordinator' && (!$application->training || $application->training->coordinator_id !== $user->id)) {
+            abort(403, 'غير مصرح لك بقبول طلبات لبرنامج تدريبي لا تشرف عليه.');
+        }
+
         $application->update(['status' => 'approved']);
 
         // Send notification to the graduate with email and details
@@ -394,6 +413,11 @@ class TrainingController extends Controller
      */
     public function bulkApproveApplications(Request $request)
     {
+        $user = auth()->user();
+        if (!$user || (!$user->isAdmin() && !$user->hasPermission('trainings.applications') && $user->role !== 'training_coordinator')) {
+            abort(403, 'غير مصرح لك بإدارة طلبات التدريب.');
+        }
+
         $request->validate([
             'application_ids' => 'required|array',
             'application_ids.*' => 'exists:training_applications,id'
@@ -401,10 +425,17 @@ class TrainingController extends Controller
 
         $ids = $request->application_ids;
 
-        $applications = TrainingApplication::with(['user', 'training.company'])
+        $query = TrainingApplication::with(['user', 'training.company'])
             ->whereIn('id', $ids)
-            ->where('status', 'pending')
-            ->get();
+            ->where('status', 'pending');
+
+        if ($user->role === 'training_coordinator') {
+            $query->whereHas('training', function ($q) use ($user) {
+                $q->where('coordinator_id', $user->id);
+            });
+        }
+
+        $applications = $query->get();
 
         foreach ($applications as $application) {
             $application->update(['status' => 'approved']);
@@ -432,11 +463,16 @@ class TrainingController extends Controller
             } catch (\Exception $e) {}
         }
 
-        return redirect()->back()->with('success', 'تم الموافقة على ' . count($ids) . ' طلب(ات) بنجاح');
+        return redirect()->back()->with('success', 'تم الموافقة على ' . $applications->count() . ' طلب(ات) بنجاح');
     }
 
     public function bulkRejectApplications(Request $request)
     {
+        $user = auth()->user();
+        if (!$user || (!$user->isAdmin() && !$user->hasPermission('trainings.applications') && $user->role !== 'training_coordinator')) {
+            abort(403, 'غير مصرح لك بإدارة طلبات التدريب.');
+        }
+
         $request->validate([
             'application_ids' => 'required|array',
             'application_ids.*' => 'exists:training_applications,id'
@@ -444,9 +480,16 @@ class TrainingController extends Controller
 
         $ids = $request->application_ids;
 
-        $applications = TrainingApplication::with(['user', 'training'])
-            ->whereIn('id', $ids)
-            ->get();
+        $query = TrainingApplication::with(['user', 'training'])
+            ->whereIn('id', $ids);
+
+        if ($user->role === 'training_coordinator') {
+            $query->whereHas('training', function ($q) use ($user) {
+                $q->where('coordinator_id', $user->id);
+            });
+        }
+
+        $applications = $query->get();
 
         foreach ($applications as $application) {
             $application->update(['status' => 'rejected']);
@@ -465,25 +508,48 @@ class TrainingController extends Controller
             } catch (\Exception $e) {}
         }
 
-        return redirect()->back()->with('success', 'تم رفض ' . count($ids) . ' طلب(ات) بنجاح');
+        return redirect()->back()->with('success', 'تم رفض ' . $applications->count() . ' طلب(ات) بنجاح');
     }
 
     public function bulkDeleteApplications(Request $request)
     {
+        $user = auth()->user();
+        if (!$user || (!$user->isAdmin() && !$user->hasPermission('trainings.applications') && $user->role !== 'training_coordinator')) {
+            abort(403, 'غير مصرح لك بإدارة طلبات التدريب.');
+        }
+
         $request->validate([
             'application_ids' => 'required|array',
             'application_ids.*' => 'exists:training_applications,id'
         ]);
 
         $ids = $request->application_ids;
-        TrainingApplication::whereIn('id', $ids)->delete();
 
-        return redirect()->back()->with('success', 'تم إلغاء وحذف ' . count($ids) . ' طلب(ات) بنجاح');
+        $query = TrainingApplication::whereIn('id', $ids);
+
+        if ($user->role === 'training_coordinator') {
+            $query->whereHas('training', function ($q) use ($user) {
+                $q->where('coordinator_id', $user->id);
+            });
+        }
+
+        $deletedCount = $query->delete();
+
+        return redirect()->back()->with('success', 'تم إلغاء وحذف ' . $deletedCount . ' طلب(ات) بنجاح');
     }
 
     public function rejectApplication(Request $request, $id)
     {
+        $user = auth()->user();
+        if (!$user || (!$user->isAdmin() && !$user->hasPermission('trainings.applications') && $user->role !== 'training_coordinator')) {
+            abort(403, 'غير مصرح لك بإدارة طلبات التدريب.');
+        }
+
         $application = TrainingApplication::with(['training', 'user'])->findOrFail($id);
+        if ($user->role === 'training_coordinator' && (!$application->training || $application->training->coordinator_id !== $user->id)) {
+            abort(403, 'غير مصرح لك برفض طلبات لبرنامج تدريبي لا تشرف عليه.');
+        }
+
         $application->update(['status' => 'rejected']);
 
         // Send notification to the graduate with email
@@ -506,7 +572,16 @@ class TrainingController extends Controller
 
     public function pendingApplication(Request $request, $id)
     {
+        $user = auth()->user();
+        if (!$user || (!$user->isAdmin() && !$user->hasPermission('trainings.applications') && $user->role !== 'training_coordinator')) {
+            abort(403, 'غير مصرح لك بإدارة طلبات التدريب.');
+        }
+
         $application = TrainingApplication::with('training')->findOrFail($id);
+        if ($user->role === 'training_coordinator' && (!$application->training || $application->training->coordinator_id !== $user->id)) {
+            abort(403, 'غير مصرح لك بتعديل حالة طلبات لبرنامج تدريبي لا تشرف عليه.');
+        }
+
         $application->update(['status' => 'pending']);
 
         return redirect()->back()->with('success', 'تم إعادة الطلب إلى قيد المراجعة');
@@ -514,7 +589,16 @@ class TrainingController extends Controller
 
     public function destroyApplication($id)
     {
-        $application = TrainingApplication::findOrFail($id);
+        $user = auth()->user();
+        if (!$user || (!$user->isAdmin() && !$user->hasPermission('trainings.applications') && $user->role !== 'training_coordinator')) {
+            abort(403, 'غير مصرح لك بإدارة طلبات التدريب.');
+        }
+
+        $application = TrainingApplication::with('training')->findOrFail($id);
+        if ($user->role === 'training_coordinator' && (!$application->training || $application->training->coordinator_id !== $user->id)) {
+            abort(403, 'غير مصرح لك بحذف طلب تدريب لبرنامج لا تشرف عليه.');
+        }
+
         $application->delete();
 
         return redirect()->back()->with('success', 'تم حذف طلب التدريب بنجاح');
@@ -740,8 +824,9 @@ class TrainingController extends Controller
             ));
 
         } catch (\Exception $e) {
+            \Log::error('Training Coordinator Calendar Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return redirect()->route('training-coordinator.dashboard')
-                ->with('error', 'حدث خطأ في تحميل التقويم: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ في تحميل بيانات التقويم، يرجى المحاولة مرة أخرى لاحقاً.');
         }
     }
 
@@ -859,7 +944,8 @@ class TrainingController extends Controller
             return redirect()->back()->with('success', 'تم تقديم طلب التدريب بنجاح، جاري المراجعة');
 
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'حدث خطأ: ' . $e->getMessage());
+            \Log::error('Submit Application Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return redirect()->back()->with('error', 'حدث خطأ أثناء تقديم طلب التدريب، يرجى المحاولة لاحقاً.');
         }
     }
 
@@ -1179,7 +1265,8 @@ class TrainingController extends Controller
             return redirect()->back()->with('success', 'تم رفع التقرير بنجاح');
 
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'حدث خطأ أثناء رفع التقرير: ' . $e->getMessage());
+            \Log::error('Training Report Upload Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return redirect()->back()->with('error', 'حدث خطأ أثناء رفع التقرير. يرجى المحاولة مرة أخرى لاحقاً.');
         }
     }
 
@@ -1248,6 +1335,10 @@ class TrainingController extends Controller
             abort(403, 'غير مصرح لك باستخدام ماسح الحضور');
         }
 
+        if ($user->role === 'training_coordinator' && $training->coordinator_id !== $user->id) {
+            abort(403, 'غير مصرح لك باستخدام ماسح الحضور لبرنامج تدريبي تابع لمنسق آخر.');
+        }
+
         $todayDate = now()->format('Y-m-d');
         $trainingDays = $training->training_days;
         $totalDays = $training->total_days_count;
@@ -1282,6 +1373,10 @@ class TrainingController extends Controller
         $user = auth()->user();
         if (!$user->isAdmin() && !$user->hasPermission('trainings.attendance') && $user->role !== 'training_coordinator') {
             return response()->json(['success' => false, 'message' => 'غير مصرح لك بتسجيل الحضور'], 403);
+        }
+
+        if ($user->role === 'training_coordinator' && $training->coordinator_id !== $user->id) {
+            return response()->json(['success' => false, 'message' => 'غير مصرح لك بتسجيل الحضور لبرنامج تدريبي تابع لمنسق آخر.'], 403);
         }
 
         $request->validate([
@@ -1389,6 +1484,10 @@ class TrainingController extends Controller
             abort(403, 'غير مصرح لك بإدارة حضور وغياب التدريب');
         }
 
+        if ($user->role === 'training_coordinator' && $training->coordinator_id !== $user->id) {
+            abort(403, 'غير مصرح لك بعرض كشف حضور برنامج تدريبي تابع لمنسق آخر.');
+        }
+
         $training->load(['company', 'coordinator', 'trainer']);
         
         $applications = TrainingApplication::with(['user.graduateData'])
@@ -1446,6 +1545,10 @@ class TrainingController extends Controller
         $user = auth()->user();
         if (!$user->isAdmin() && !$user->hasPermission('trainings.attendance') && $user->role !== 'training_coordinator') {
             return response()->json(['success' => false, 'message' => 'غير مصرح لك بتعديل الحضور'], 403);
+        }
+
+        if ($user->role === 'training_coordinator' && $training->coordinator_id !== $user->id) {
+            return response()->json(['success' => false, 'message' => 'غير مصرح لك بتعديل حضور برنامج تدريبي تابع لمنسق آخر.'], 403);
         }
 
         $request->validate([
@@ -1569,6 +1672,10 @@ class TrainingController extends Controller
         $user = auth()->user();
         if (!$user->isAdmin() && !$user->hasPermission('trainings.attendance') && $user->role !== 'training_coordinator') {
             abort(403, 'غير مصرح لك بتصدير كشف الحضور');
+        }
+
+        if ($user->role === 'training_coordinator' && $training->coordinator_id !== $user->id) {
+            abort(403, 'غير مصرح لك بتصدير كشف حضور برنامج تدريبي تابع لمنسق آخر.');
         }
 
         $attendedOnly = $request->boolean('attended_only') || $request->get('filter') === 'attended';
@@ -1751,6 +1858,10 @@ class TrainingController extends Controller
             abort(403, 'غير مصرح لك بالبت في طلبات التدريب');
         }
 
+        if ($user->role === 'training_coordinator' && $training->coordinator_id !== $user->id) {
+            abort(403, 'غير مصرح لك بإدارة طلبات برنامج تدريبي تابع لمنسق آخر.');
+        }
+
         $request->validate([
             'application_ids' => 'required|array',
             'application_ids.*' => 'exists:training_applications,id'
@@ -1786,11 +1897,12 @@ class TrainingController extends Controller
     public function issueCertificates(Request $request, Training $training)
     {
         $user = auth()->user();
-        if (!$user->isAdmin() && !$user->hasPermission('trainings.attendance') && $user->role !== 'training_coordinator') {
+        $isAuthorized = $user->isAdmin() || $user->hasPermission('trainings.attendance') || ($user->role === 'training_coordinator' && ($training->coordinator_id === $user->id || $training->coordinator_id === null));
+        if (!$isAuthorized) {
             if ($request->ajax() || $request->wantsJson()) {
-                return response()->json(['success' => false, 'message' => 'غير مصرح لك باعتماد وإصدار الشهادات.'], 403);
+                return response()->json(['success' => false, 'message' => 'غير مصرح لك باعتماد وإصدار الشهادات لهذا البرنامج التدريبي.'], 403);
             }
-            abort(403, 'غير مصرح لك باعتماد وإصدار الشهادات.');
+            abort(403, 'غير مصرح لك باعتماد وإصدار الشهادات لهذا البرنامج التدريبي.');
         }
 
         $minPercentage = (int) $request->input('min_percentage', 75);

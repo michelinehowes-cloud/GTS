@@ -172,10 +172,12 @@ class CompanyRegistrationController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('خطأ أثناء تسجيل الشركة: ' . $e->getMessage());
+            Log::error('خطأ أثناء تسجيل الشركة: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
 
             return redirect()->back()
-                ->withErrors(['error' => 'حدث خطأ غير متوقع أثناء معالجة الطلب: ' . $e->getMessage()])
+                ->withErrors(['error' => 'حدث خطأ غير متوقع أثناء معالجة الطلب، يرجى المحاولة مرة أخرى أو التواصل مع الدعم الفني.'])
                 ->withInput();
         }
     }

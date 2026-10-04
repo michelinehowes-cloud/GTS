@@ -36,8 +36,8 @@ class AdminAiSettingsController extends Controller
             'temperature'          => (float) ($stored['AI_TEMPERATURE'] ?? env('AI_TEMPERATURE', config('ai.temperature', 0.3))),
             'max_tokens'           => (int) ($stored['AI_MAX_TOKENS'] ?? env('AI_MAX_TOKENS', config('ai.max_tokens', 2048))),
             'turnstile_enabled'    => (bool) ($stored['TURNSTILE_ENABLED'] ?? env('TURNSTILE_ENABLED', true)),
-            'turnstile_site_key'   => $stored['TURNSTILE_SITE_KEY'] ?? env('TURNSTILE_SITE_KEY', config('security.turnstile.site_key', '0x4AAAAAAE90uR_z3hQgBnzU')),
-            'turnstile_secret_key' => $stored['TURNSTILE_SECRET_KEY'] ?? env('TURNSTILE_SECRET_KEY', config('security.turnstile.secret_key', '0x4AAAAAAE90uVPOzkse-syBFQqqEtsWNjo')),
+            'turnstile_site_key'   => $stored['TURNSTILE_SITE_KEY'] ?? env('TURNSTILE_SITE_KEY', config('security.turnstile.site_key', '')),
+            'turnstile_secret_key' => $stored['TURNSTILE_SECRET_KEY'] ?? env('TURNSTILE_SECRET_KEY', config('security.turnstile.secret_key', '')),
         ];
     }
 

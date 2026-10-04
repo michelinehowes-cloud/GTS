@@ -13,16 +13,11 @@ class SecurityService
      */
     public function verifyTurnstile(?string $token, ?string $ip = null): array
     {
-        if (app()->environment('testing') || !config('security.turnstile.enabled', true)) {
+        if (app()->environment('testing') 
+            || !config('security.turnstile.enabled', false)
+            || empty(config('security.turnstile.site_key'))
+            || empty(config('security.turnstile.secret_key'))) {
             return ['success' => true];
-        }
-
-        // 1. التوكن إلزامي في جميع الحالات - لا يمكن تسجيل الدخول بدون إكمال كاشف الروبوتات
-        if (empty($token) || trim($token) === '' || str_starts_with($token, 'BYPASS_')) {
-            return [
-                'success' => false,
-                'message' => 'يرجى إكمال التحقق الأمني (كاشف الروبوتات Cloudflare) قبل المتابعة.',
-            ];
         }
 
         $host = request()->getHost();
@@ -31,6 +26,19 @@ class SecurityService
             || str_ends_with($host, '.trycloudflare.com')
             || str_ends_with($host, '.railway.app')
             || str_ends_with($host, '.up.railway.app');
+
+        // إذا لم يتم استلام التوكن أو تم التجاوز عند انقضاء المهلة
+        if (empty($token) || trim($token) === '' || str_starts_with($token, 'BYPASS_')) {
+            if ($isDevelopmentOrTunnel && ($token === 'BYPASS_TIMEOUT' || empty(config('security.turnstile.site_key')))) {
+                Log::warning('Turnstile bypassed on development/tunnel host due to timeout or missing keys', ['host' => $host]);
+                return ['success' => true];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'يرجى إكمال التحقق الأمني (كاشف الروبوتات Cloudflare) قبل المتابعة.',
+            ];
+        }
 
         $secret = config('security.turnstile.secret_key');
         $isTestKey = empty($secret) || $secret === '1x0000000000000000000000000000000AA';

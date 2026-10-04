@@ -245,9 +245,14 @@
                     <i class="fas fa-chart-bar me-1"></i> تقارير النظام
                 </a>
             </div>
-            <div class="col-12 col-md">
+            <div class="col-6 col-md">
                 <a href="{{ route('admin.settings.ai') }}" class="btn btn-outline-dark w-100 rounded-3 py-2 text-nowrap" style="font-size: 0.8rem;">
-                    <i class="fas fa-robot text-warning me-1"></i> إعدادات المساعد الذكي
+                    <i class="fas fa-robot text-warning me-1"></i> المساعد الذكي
+                </a>
+            </div>
+            <div class="col-6 col-md">
+                <a href="{{ route('admin.backup.index') }}" class="btn btn-outline-danger w-100 rounded-3 py-2 text-nowrap" style="font-size: 0.8rem;">
+                    <i class="fas fa-shield-alt me-1"></i> النسخ الاحتياطي
                 </a>
             </div>
         </div>

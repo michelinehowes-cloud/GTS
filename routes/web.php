@@ -186,6 +186,16 @@ Route::middleware('auth')->group(function () {
             Route::post('/ai/test', [App\Http\Controllers\AdminAiSettingsController::class, 'testConnection'])->name('ai.test');
         });
 
+        // 🛡️ منظومة النسخ الاحتياطي واستعادة الطوارئ (Disaster Recovery)
+        Route::prefix('backup')->name('admin.backup.')->group(function () {
+            Route::get('/', [App\Http\Controllers\AdminBackupController::class, 'index'])->name('index');
+            Route::post('/create', [App\Http\Controllers\AdminBackupController::class, 'create'])->name('create');
+            Route::get('/download/{filename}', [App\Http\Controllers\AdminBackupController::class, 'download'])->name('download');
+            Route::post('/restore/{filename}', [App\Http\Controllers\AdminBackupController::class, 'restore'])->name('restore');
+            Route::delete('/delete/{filename}', [App\Http\Controllers\AdminBackupController::class, 'destroy'])->name('destroy');
+            Route::post('/upload-cloud/{filename}', [App\Http\Controllers\AdminBackupController::class, 'uploadCloud'])->name('upload-cloud');
+        });
+
         // 📈 التقارير والإحصائيات
         Route::get('/reports', [AdminReportController::class, 'index'])->name('admin.reports');
         Route::prefix('reports')->group(function () {

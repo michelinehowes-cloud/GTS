@@ -58,7 +58,7 @@ class RestoreDatabase extends Command
         $this->warn("⚠️ تحذير شديد الأهمية:");
         $this->warn("هذه العملية ستقوم باستبدال كافة البيانات الحالية بقاعدة البيانات واسترجاع النسخة: {$file}");
         
-        if (!$this->confirm('هل أنت متأكد من رغبتك في استعادة هذه النسخة الآن؟', false)) {
+        if (!$this->option('no-interaction') && !$this->confirm('هل أنت متأكد من رغبتك في استعادة هذه النسخة الآن؟', false)) {
             $this->info('تم إلغاء عملية الاستعادة.');
             return 0;
         }

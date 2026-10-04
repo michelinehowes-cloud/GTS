@@ -1627,13 +1627,16 @@
                     <form method="POST" action="{{ route('password.code.update') }}" id="modalVerifyCodeForm">
                         @csrf
                         <input type="hidden" name="verify_form" value="1">
-                        <input type="hidden" name="email" id="verifyModalEmailInput" value="{{ request('email') ?? old('email') }}">
+                        @php
+                            $safeVerifyEmail = filter_var(request('email'), FILTER_VALIDATE_EMAIL) ? e(request('email')) : (filter_var(old('email'), FILTER_VALIDATE_EMAIL) ? e(old('email')) : '');
+                        @endphp
+                        <input type="hidden" name="email" id="verifyModalEmailInput" value="{{ $safeVerifyEmail }}">
 
                         <div class="p-2.5 rounded-3 bg-light border mb-3 d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center gap-1.5 overflow-hidden">
                                 <i class="fas fa-envelope text-primary small"></i>
                                 <span class="text-muted small">البريد:</span>
-                                <strong class="text-dark small text-truncate" id="verifyModalEmailDisplay">{{ request('email') ?? old('email') }}</strong>
+                                <strong class="text-dark small text-truncate" id="verifyModalEmailDisplay">{{ $safeVerifyEmail }}</strong>
                             </div>
                             <a href="javascript:void(0)" id="btnChangeEmailInVerify" class="small fw-bold text-decoration-none flex-shrink-0" style="color: #1565c0; font-size: 0.78rem; cursor: pointer;">
                                 تغيير

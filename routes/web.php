@@ -1,8 +1,13 @@
 <?php
-// إظهار جميع الأخطاء للتشخيص
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// ضبط إظهار الأخطاء بحسب البيئة لمنع تسريب أي معلومات برمجية في الإنتاج
+if (app()->environment('local')) {
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', 0);
+    ini_set('display_startup_errors', 0);
+}
 use App\Http\Controllers\GraduateController;
 use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\ProfileController;

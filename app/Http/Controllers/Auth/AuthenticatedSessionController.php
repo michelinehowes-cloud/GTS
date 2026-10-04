@@ -50,6 +50,14 @@ class AuthenticatedSessionController extends Controller
         $maxAttempts = config('security.rate_limits.login_max_attempts', 5);
         if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($throttleKey, $maxAttempts)) {
             $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($throttleKey);
+            \App\Models\AuditLog::logAction(
+                'security_rate_limit_blocked',
+                'تم حظر محاولة تخمين بسبب تجاوز الحد الأقصى للمعرف: (' . $request->input('email') . ')',
+                'Security',
+                null,
+                null,
+                ['identifier' => $request->input('email'), 'available_in_seconds' => $seconds]
+            );
             return back()->withInput($request->only('email'))->withErrors([
                 'email' => "تم تجاوز عدد محاولات الدخول المسموحة. يرجى الانتظار {$seconds} ثانية قبل إعادة المحاولة.",
             ]);

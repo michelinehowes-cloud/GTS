@@ -54,6 +54,15 @@ class AdminMiddleware
             return $next($request);
         }
 
+        \App\Models\AuditLog::logAction(
+            'security_unauthorized_admin_access',
+            "محاولة وصول غير مصرح بها للمستخدم ({$user->name}) بدور [{$user->role}] إلى مسار إداري: " . $request->path(),
+            'Security',
+            $user->id,
+            null,
+            ['role' => $user->role, 'path' => $request->path(), 'method' => $request->method()]
+        );
+
         return redirect('/dashboard')->with('error', 'ليس لديك صلاحية للوصول إلى هذا القسم في لوحة الإدارة');
     }
 }

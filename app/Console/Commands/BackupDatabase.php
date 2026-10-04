@@ -82,6 +82,15 @@ class BackupDatabase extends Command
             $this->info("📁 مسار الحفظ: {$filepath}");
             $this->info("📊 الحجم: {$sizeKb} KB");
 
+            \App\Models\AuditLog::logAction(
+                'backup_cli_create',
+                'تم إنشاء نسخة احتياطية لقاعدة البيانات عبر النظام المجدول/الطرفية',
+                'DatabaseBackup',
+                null,
+                null,
+                ['file' => $filename, 'size_kb' => $sizeKb]
+            );
+
             // تنظيف النسخ القديمة بناءً على سياسة الاحتفاظ
             $this->applyRetentionPolicy($backupDir, (int) $this->option('keep'));
             return 0;

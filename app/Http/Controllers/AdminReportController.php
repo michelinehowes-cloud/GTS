@@ -51,6 +51,7 @@ class AdminReportController extends Controller
                 $q->where('action', 'like', "%{$search}%")
                   ->orWhere('entity', 'like', "%{$search}%")
                   ->orWhere('ip_address', 'like', "%{$search}%")
+                  ->orWhere('new_values', 'like', "%{$search}%")
                   ->orWhereHas('user', function ($uq) use ($search) {
                       $uq->where('name', 'like', "%{$search}%")
                          ->orWhere('email', 'like', "%{$search}%");
@@ -59,17 +60,54 @@ class AdminReportController extends Controller
         }
 
         if ($request->filled('action')) {
-            $query->where('action', $request->action);
+            $action = $request->action;
+            if ($action === 'create') {
+                $query->where(function($q) {
+                    $q->where('action', 'like', '%create%')->orWhere('action', 'like', '%store%');
+                });
+            } elseif ($action === 'update') {
+                $query->where(function($q) {
+                    $q->where('action', 'like', '%update%')->orWhere('action', 'like', '%edit%')->orWhere('action', 'like', '%status%');
+                });
+            } elseif ($action === 'delete') {
+                $query->where(function($q) {
+                    $q->where('action', 'like', '%delete%')->orWhere('action', 'like', '%destroy%');
+                });
+            } elseif ($action === 'login' || $action === 'auth') {
+                $query->where(function($q) {
+                    $q->where('action', 'like', '%auth%')->orWhere('action', 'like', '%login%')->orWhere('action', 'like', '%logout%');
+                });
+            } elseif ($action === 'security') {
+                $query->where(function($q) {
+                    $q->where('action', 'like', '%security%')->orWhere('action', 'like', '%blocked%')->orWhere('action', 'like', '%denied%');
+                });
+            } elseif ($action === 'backup') {
+                $query->where('action', 'like', '%backup%');
+            } else {
+                $query->where('action', $action);
+            }
         }
 
         if ($request->filled('entity')) {
             $query->where('entity', $request->entity);
         }
 
+        // إحصائيات سريعة لمراقبة الأمان والأنشطة
+        $stats = [
+            'total' => AuditLog::count(),
+            'security_alerts' => AuditLog::where('action', 'like', 'security_%')->count(),
+            'auth_events' => AuditLog::where('action', 'like', 'auth_%')->count(),
+            'mutations' => AuditLog::where(function($q) {
+                $q->where('action', 'like', '%create%')
+                  ->orWhere('action', 'like', '%update%')
+                  ->orWhere('action', 'like', '%delete%');
+            })->count(),
+        ];
+
         /** @var \Illuminate\Pagination\LengthAwarePaginator $auditLogs */
         $auditLogs = $query->orderByDesc('timestamp')->paginate(20);
         $auditLogs->withQueryString();
 
-        return view('admin.reports.audit-logs', compact('auditLogs'));
+        return view('admin.reports.audit-logs', compact('auditLogs', 'stats'));
     }
 }

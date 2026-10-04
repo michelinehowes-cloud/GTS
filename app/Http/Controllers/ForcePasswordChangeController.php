@@ -53,6 +53,15 @@ class ForcePasswordChangeController extends Controller
             'password_changed_at' => now(),
         ]);
 
+        \App\Models\AuditLog::logAction(
+            'auth_force_password_change',
+            'تم تحديث كلمة المرور الإلزامية للمستخدم (' . ($user->name ?? $user->email) . ')',
+            'User',
+            $user->id,
+            null,
+            ['user_id' => $user->id, 'email' => $user->email, 'role' => $user->role]
+        );
+
         return redirect()->route(match ($user->role) {
             'admin' => 'admin.dashboard',
             'graduate' => 'graduate.dashboard',

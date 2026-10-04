@@ -7,6 +7,15 @@ if (file_exists($settingsPath)) {
     $storedSecurity = json_decode(@file_get_contents($settingsPath), true) ?: [];
 }
 
+$siteKey = $storedSecurity['TURNSTILE_SITE_KEY'] ?? env('TURNSTILE_SITE_KEY', '');
+$secretKey = $storedSecurity['TURNSTILE_SECRET_KEY'] ?? env('TURNSTILE_SECRET_KEY', '');
+
+// يتم تفعيل كاشف الروبوتات فقط في حال توفر المفاتيح صراحة
+$turnstileExplicitlyEnabled = $storedSecurity['TURNSTILE_ENABLED'] ?? env('TURNSTILE_ENABLED', null);
+$turnstileEnabled = ($turnstileExplicitlyEnabled === null) 
+    ? (!empty($siteKey) && !empty($secretKey)) 
+    : (bool) ($turnstileExplicitlyEnabled && !empty($siteKey) && !empty($secretKey));
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -17,9 +26,9 @@ return [
     |
     */
     'turnstile' => [
-        'enabled' => $storedSecurity['TURNSTILE_ENABLED'] ?? env('TURNSTILE_ENABLED', true),
-        'site_key' => $storedSecurity['TURNSTILE_SITE_KEY'] ?? env('TURNSTILE_SITE_KEY', ''),
-        'secret_key' => $storedSecurity['TURNSTILE_SECRET_KEY'] ?? env('TURNSTILE_SECRET_KEY', ''),
+        'enabled' => $turnstileEnabled,
+        'site_key' => $siteKey,
+        'secret_key' => $secretKey,
     ],
 
     /*

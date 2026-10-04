@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Training extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Traits\Auditable;
 
     protected $fillable = [
         'title',

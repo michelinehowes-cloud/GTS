@@ -12,7 +12,7 @@ use Carbon\Carbon;
  */
 class JobFair extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Traits\Auditable;
 
     protected $fillable = [
         'title',

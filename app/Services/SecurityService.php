@@ -13,27 +13,16 @@ class SecurityService
      */
     public function verifyTurnstile(?string $token, ?string $ip = null): array
     {
-        if (app()->environment('testing') 
+        // 1. التجاوز في بيئة الاختبارات الآلية (إلا إذا تم طلب اختبارها عمداً) أو إذا لم يتم ضبط المفاتيح
+        if ((app()->environment('testing') && !config('security.turnstile.force_testing', false))
             || !config('security.turnstile.enabled', false)
             || empty(config('security.turnstile.site_key'))
             || empty(config('security.turnstile.secret_key'))) {
             return ['success' => true];
         }
 
-        $host = request()->getHost();
-        $isDevelopmentOrTunnel = app()->environment('local') 
-            || in_array($host, ['localhost', '127.0.0.1']) 
-            || str_ends_with($host, '.trycloudflare.com')
-            || str_ends_with($host, '.railway.app')
-            || str_ends_with($host, '.up.railway.app');
-
-        // إذا لم يتم استلام التوكن أو تم التجاوز عند انقضاء المهلة
+        // 2. إذا لم يتم إرسال التوكن إطلاقاً أو كان فارغاً أو رمز تجاوز
         if (empty($token) || trim($token) === '' || str_starts_with($token, 'BYPASS_')) {
-            if ($isDevelopmentOrTunnel && ($token === 'BYPASS_TIMEOUT' || empty(config('security.turnstile.site_key')))) {
-                Log::warning('Turnstile bypassed on development/tunnel host due to timeout or missing keys', ['host' => $host]);
-                return ['success' => true];
-            }
-
             return [
                 'success' => false,
                 'message' => 'يرجى إكمال التحقق الأمني (كاشف الروبوتات Cloudflare) قبل المتابعة.',
@@ -41,15 +30,15 @@ class SecurityService
         }
 
         $secret = config('security.turnstile.secret_key');
-        $isTestKey = empty($secret) || $secret === '1x0000000000000000000000000000000AA';
+        $isTestKey = ($secret === '1x0000000000000000000000000000000AA');
 
-        // إذا كان المفتاح هو مفتاح الاختبار وتم إرسال توكن صالح
+        // إذا كان المفتاح هو مفتاح الاختبار المعتمد من كلاودفير
         if ($isTestKey) {
             return ['success' => true];
         }
 
         try {
-            $response = Http::asForm()->timeout(5)->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+            $response = Http::asForm()->timeout(6)->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
                 'secret' => $secret,
                 'response' => $token,
                 'remoteip' => $ip,
@@ -61,28 +50,38 @@ class SecurityService
                     return ['success' => true];
                 }
 
-                // في بيئة التطوير المحلي، إذا كان الخطأ بسبب عدم إضافة localhost في لوحة كلاودفير
-                // نسمح بالمرور فقط لأن المستخدم أكمل التحقق وحصل على التوكن
                 $errorCodes = $data['error-codes'] ?? [];
-                if ($isDevelopmentOrTunnel && (in_array('invalid-input-secret', $errorCodes) || in_array('bad-request', $errorCodes) || in_array('invalid-widget-id', $errorCodes))) {
-                    Log::warning('Turnstile allowed for local development with provided token', ['host' => $host, 'data' => $data]);
-                    return ['success' => true];
+                Log::warning('Turnstile verification failed by Cloudflare API', [
+                    'ip' => $ip,
+                    'error_codes' => $errorCodes,
+                    'data' => $data,
+                ]);
+
+                if (in_array('timeout-or-duplicate', $errorCodes)) {
+                    return [
+                        'success' => false,
+                        'message' => 'انتهت صلاحية رمز التحقق الأمني، يرجى النقر على الكاشف مجدداً.',
+                    ];
                 }
 
-                Log::warning('Turnstile verification failed', ['data' => $data, 'ip' => $ip]);
+                if (in_array('invalid-input-secret', $errorCodes)) {
+                    return [
+                        'success' => false,
+                        'message' => 'مفتاح التحقق السري غير صحيح (Invalid Secret Key) في إعدادات المنظومة.',
+                    ];
+                }
+
                 return [
                     'success' => false,
                     'message' => 'فشل التحقق الأمني من كاشف الروبوتات. يرجى إعادة المحاولة.',
                 ];
             }
         } catch (\Throwable $e) {
-            Log::error('Turnstile connection error: ' . $e->getMessage());
-            // في حال انقطاع الاتصال بالسيرفر، إذا تم إرسال توكن نسمح بالمرور
-            return ['success' => true];
-        }
-
-        if ($isDevelopmentOrTunnel) {
-            return ['success' => true];
+            Log::error('Turnstile connection error to Cloudflare: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'تعذر الاتصال بخادم التحقق الأمني (Cloudflare). يرجى التحقق من اتصال الإنترنت وإعادة المحاولة.',
+            ];
         }
 
         return [

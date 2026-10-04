@@ -90,14 +90,20 @@
         };
 
         // دالة حدوث خطأ في الاتصال بكلاودفير
-        window["onTurnstileError_{{ $funcSuffix }}"] = function() {
+        window["onTurnstileError_{{ $funcSuffix }}"] = function(errorCode) {
             isVerified = false;
             const wrapper = document.getElementById(wrapId);
             const form = wrapper ? wrapper.closest('form') : null;
-            restoreSubmitBtn(form, '<div class="text-danger small mt-1 fw-bold text-center"><i class="fas fa-exclamation-circle me-1"></i> تعذر الاتصال بكاشف الروبوتات، انقر مجدداً للدخول.</div>');
+            let errorText = 'تعذر الاتصال بكاشف الروبوتات.';
+            if (errorCode == '110200' || errorCode == '110600' || String(errorCode).includes('domain')) {
+                errorText = 'تنبيه: يجب إضافة هذا النطاق (' + window.location.hostname + ') في لوحة تحكم Cloudflare Turnstile ضمن قائمة Domains المسموح بها.';
+            } else {
+                errorText = 'فشل التحقق من كاشف الروبوتات (Cloudflare). يرجى التأكد من اتصال الإنترنت أو النقر على الكاشف لإعادة المحاولة.';
+            }
+            restoreSubmitBtn(form, `<div class="text-danger small mt-2 p-2 rounded bg-danger bg-opacity-10 fw-bold text-center"><i class="fas fa-exclamation-triangle me-1"></i> ${errorText}</div>`);
         };
 
-        // منع إرسال النموذج قبل اكتمال التحقق من كلاودفير مع مهلة أمان قصوى
+        // منع إرسال النموذج نهائياً قبل اكتمال التحقق من كلاودفير
         function bindFormValidation() {
             const wrapper = document.getElementById(wrapId);
             const form = wrapper ? wrapper.closest('form') : null;
@@ -109,44 +115,12 @@
                 }
 
                 const tokenInput = form.querySelector('[name="cf-turnstile-response"]');
-                const hasToken = isVerified || (tokenInput && tokenInput.value && tokenInput.value.trim().length > 10);
+                const hasToken = isVerified || (tokenInput && tokenInput.value && tokenInput.value.trim().length > 10 && !tokenInput.value.startsWith('BYPASS_'));
 
                 if (!hasToken) {
                     e.preventDefault();
                     e.stopPropagation();
-                    pendingSubmit = true;
-
-                    const msgBox = document.getElementById(msgId);
-                    if (msgBox) {
-                        msgBox.innerHTML = '<div class="text-warning small mt-1 fw-bold text-center p-1 rounded bg-warning bg-opacity-10"><i class="fas fa-spinner fa-spin me-1"></i> يرجى الانتظار حتى يكتمل التحقق الأمني (Cloudflare)...</div>';
-                    }
-
-                    const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
-                    if (submitBtn) {
-                        if (!submitBtn.dataset.originalHtml) {
-                            submitBtn.dataset.originalHtml = submitBtn.innerHTML;
-                        }
-                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> جاري التحقق...';
-                        submitBtn.disabled = true;
-                    }
-
-                    // مهلة أمان قصوى (3.5 ثانية فقط): لمنع تجميد النموذج للمدير
-                    if (timeoutTimer) clearTimeout(timeoutTimer);
-                    timeoutTimer = setTimeout(function() {
-                        if (pendingSubmit && !isVerified) {
-                            let bypassInput = form.querySelector('[name="cf-turnstile-response"]');
-                            if (!bypassInput) {
-                                bypassInput = document.createElement('input');
-                                bypassInput.type = 'hidden';
-                                bypassInput.name = 'cf-turnstile-response';
-                                form.appendChild(bypassInput);
-                            }
-                            bypassInput.value = 'BYPASS_TIMEOUT';
-                            restoreSubmitBtn(form, '');
-                            form.submit();
-                        }
-                    }, 3500);
-
+                    restoreSubmitBtn(form, '<div class="text-danger small mt-2 p-2 rounded bg-danger bg-opacity-10 fw-bold text-center"><i class="fas fa-shield-alt me-1"></i> يرجى النقر على كاشف الروبوتات (Cloudflare) وإكمال التحقق الأمني أولاً.</div>');
                     wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     return false;
                 }

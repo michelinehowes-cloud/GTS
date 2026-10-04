@@ -39,6 +39,15 @@ class AuthenticatedSessionController extends Controller
         // 2. التحقق من كاشف الروبوتات (Cloudflare Turnstile)
         $turnstile = $securityService->verifyTurnstile($request->input('cf-turnstile-response'), $request->ip());
         if (!$turnstile['success']) {
+            \App\Models\AuditLog::logAction(
+                'security_turnstile_failed',
+                'فشل التحقق من كاشف الروبوتات لمحاولة تسجيل دخول المعرف: (' . $request->input('email') . ')',
+                'Security',
+                null,
+                null,
+                ['identifier' => $request->input('email'), 'ip' => $request->ip(), 'reason' => $turnstile['message']]
+            );
+
             return back()->withInput($request->only('email'))->withErrors([
                 'cf-turnstile-response' => $turnstile['message'],
                 'email' => $turnstile['message'],

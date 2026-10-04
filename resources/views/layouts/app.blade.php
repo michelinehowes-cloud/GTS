@@ -956,15 +956,6 @@
                                 </a>
                             </div>
                         </li>
-
-                        <!-- إعدادات النظام والنسخ الاحتياطي للطوارئ (للمدير العام فقط) -->
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('admin.backup*') ? 'active' : '' }}"
-                                href="{{ route('admin.backup.index') }}">
-                                <i class="fas fa-shield-alt text-danger"></i>
-                                النسخ الاحتياطي للطوارئ
-                            </a>
-                        </li>
                     @endif
 
                     <!-- أقسام الموظف مخصص الصلاحيات (Staff RBAC) -->

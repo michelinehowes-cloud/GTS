@@ -21,10 +21,12 @@
             <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill fw-bold">
                 <i class="fas fa-check-circle me-1"></i> حماية السجلات 100% نشطة
             </span>
-            <a href="{{ route('admin.backup.index') }}" class="btn btn-light bg-white text-primary fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-2">
-                <i class="fas fa-database text-primary"></i>
-                <span>النسخ الاحتياطي</span>
+            @if(auth()->user()->isAdmin())
+            <a href="{{ route('admin.backup.index') }}" class="btn btn-danger text-white fw-bold py-2 px-3.5 rounded-3 shadow-sm d-flex align-items-center gap-2" style="font-size: 0.88rem;">
+                <i class="fas fa-shield-alt"></i>
+                <span>النسخ الاحتياطي للطوارئ</span>
             </a>
+            @endif
             <a href="{{ route('admin.users') }}" class="btn btn-light bg-white text-secondary fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center gap-2">
                 <i class="fas fa-users-cog"></i>
                 <span>المستخدمين</span>
@@ -187,6 +189,12 @@
                 <h6 class="fw-bold mb-0 text-dark">سجلات الأنشطة المحفوظة (Append-Only Immutable Records)</h6>
             </div>
             <div class="d-flex align-items-center gap-2">
+                @if(auth()->user()->isAdmin())
+                <a href="{{ route('admin.backup.index') }}" class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3 py-1.5 d-flex align-items-center gap-1.5 shadow-none" title="النسخ الاحتياطي للطوارئ">
+                    <i class="fas fa-shield-alt text-danger"></i>
+                    <span>النسخ الاحتياطي للطوارئ</span>
+                </a>
+                @endif
                 <span class="badge bg-light text-secondary border px-3 py-1.5 rounded-pill">
                     <i class="fas fa-lock me-1 text-success"></i> سجل غير قابل للتعديل
                 </span>

@@ -398,3 +398,60 @@
    - أيقونة الموقع الإلكتروني الرسمي للشركة برابط خارجي مباشر.
 6. **النافذة المنبثقة لتفاصيل الشركة (`#companyDetailModal`):**
    - متطابقة مع هوية المعرض الداكنة الفاخرة، تعرض شعار الشركة، الاسم، الجناح، الشواغر، النبذة الكاملة، الموقع، البريد، والهاتف، وزر تصفح الفرص للخريجين.
+
+---
+
+## 🛡️ تحديثات التحصين الأمني، اختبارات الاختراق (Red Teaming)، ومنظومة الحضور الذكي
+
+### 1. التحصين الأمني المتقدم ضد سيناريوهات الاختراق (Red Teaming Security Hardening)
+تم إجراء تدقيق أمني واختراق أخلاقي متقدم (Lead Penetration Testing / Red Teaming) على مستوى المنظومة وتطبيق الإصلاحات الجذرية التالية:
+
+1. **إحباط الالتفاف على رتبة الخريج واستيلاء الحسابات (Role Bypass & Account Takeover Prevention):**
+   - في [`CareerGuidanceController.php`](file:///c:/Users/Sohib/graduate_training_system/app/Http/Controllers/CareerGuidanceController.php):
+     - فحص قيد الدور الصارم (`$user->role === 'graduate'`) في دوال تغيير كلمة المرور (`resetPassword`)، وتحديث بيانات الخريج (`update`)، وإنشاء الخريجين (`store`).
+     - إبطال ومنع سرقة أي حساب إداري أو موظف عبر واجهات الإرشاد المهني.
+     - فك أي ارتباط تالف أو خبيث (`$graduate->user_id = null`) إذا كان الحساب المرتبط لا يحمل رتبة `graduate`.
+
+2. **منع حقن الحقول غير المصرح بها والإسناد الجماعي (Mass Assignment & Privilege Escalation):**
+   - في [`TrainingController.php`](file:///c:/Users/Sohib/graduate_training_system/app/Http/Controllers/TrainingController.php):
+     - استخدام القوائم البيضاء الحصرية (`$request->only(...)`) ومنع تمرير حقول محظورة مثل `coordinator_id` أو `media_coverage_status` في دوال `store` و `update`.
+   - في [`UserController.php`](file:///c:/Users/Sohib/graduate_training_system/app/Http/Controllers/UserController.php):
+     - حظر إسناد مصفوفة الصلاحيات (`permissions`) على أي مستخدم إلا من قِبل المدير العام (`Super Admin`) حصراً.
+
+3. **حماية التلاعب بمعرفات الكائنات والتفويض (BOLA / IDOR Scoping):**
+   - عزل صلاحيات منسق التدريب بالكامل عبر سياسات التفويض وفحص الملكية (`$training->coordinator_id === auth()->id()`).
+   - شملت الحماية: شاشة الماسح الضوئي (`scanner`)، ومعالجة المسح (`processScan`)، وكشف الحضور (`attendance`)، وتعديل الحضور (`toggleAttendance`)، وتصدير الكشوفات (`exportAttendance`)، وعمليات القبول والرفض والحذف الجماعي للطلبات (`bulkAcceptApplications`, `bulkApproveApplications`, `bulkRejectApplications`, `bulkDeleteApplications`).
+
+4. **إحباط التخمين الموزع للرموز وهجمات إعادة الاستخدام (Distributed Brute Force & Replay Attacks):**
+   - في [`CodePasswordResetController.php`](file:///c:/Users/Sohib/graduate_training_system/app/Http/Controllers/Auth/CodePasswordResetController.php):
+     - تطبيق تقييد مزدوج بالمعدل (`verify-otp-email` مربوطاً ببريد الضحية عالمياً + `verify-otp-ip` مربوطاً بـ IP الطلب).
+     - أي 5 محاولات تخمين خاطئة من أي مكان في العالم تُبطل وتتلف الرمز فورياً وتمنع التخمين عبر شبكات البروكسي الموزعة.
+     - تنفيذ فحص وإتلاف الرمز داخل معاملة ذرية مع القفل التشاؤمي (`lockForUpdate()`) لمنع سباق الطلبات (Race Conditions).
+
+5. **حماية الحساب السيادي للنظام وحجب أخطاء النظام:**
+   - حماية الحساب السيادي الأول (`id === 1`) في [`User.php`](file:///c:/Users/Sohib/graduate_training_system/app/Models/User.php) من الحذف أو التجميد.
+   - حجب نصوص استثناءات النظام الحساسة (`$e->getMessage()`) في متحكمات التسجيل والوظائف والتقييم واستبدالها برسائل آمنة وموحدة.
+
+---
+
+### 2. مصفوفة الاختبارات الآلية المؤتمتة (Feature Security Tests)
+تم إنشاء وتوسيع حزمة اختبارات الأمان الشاملة داخل [`tests/Feature/SecurityPatchesTest.php`](file:///c:/Users/Sohib/graduate_training_system/tests/Feature/SecurityPatchesTest.php) و [`tests/Feature/RbacSecurityTest.php`](file:///c:/Users/Sohib/graduate_training_system/tests/Feature/RbacSecurityTest.php) واجتياز كافة الاختبارات بنجاح 100%:
+- 13 اختباراً أمنياً شاملاً في `SecurityPatchesTest.php`.
+- 6 اختبارات للأدوار والصلاحيات في `RbacSecurityTest.php`.
+- المجموع الكلي: **19 اختبار نجاح مؤكد (19 Passed)** بنسبة نجاح 100%.
+
+---
+
+### 3. منظومة الحضور والغياب الذكية متعددة الأيام (Multi-Day QR Attendance)
+- ماسح ضوئي ذكي متجاوب مع كاميرات الهواتف واللابتوب.
+- مصفوفة متابعة الحضور والغياب لجميع أيام التدريب مع احتساب نسبة الالتزام الإجمالية آلياً.
+- تبديل وتعديل الحضور الفوري بنقرة واحدة عبر AJAX دون إعادة تحميل الصفحة.
+- تصدير كشوفات الحضور بصيغة CSV تدعم اللغة العربية في برنامج Excel.
+
+---
+
+### 4. تدقيق DevSecOps ومحرك الذكاء الاصطناعي (AI Copilot HITL)
+- **منع التدخل المتبادل بين القطاعات**: تحصين مسارات قبول وحذف طلبات التدريب في [`TrainingController.php`](file:///c:/Users/Sohib/graduate_training_system/app/Http/Controllers/TrainingController.php) و [`routes/web.php`](file:///c:/Users/Sohib/graduate_training_system/routes/web.php).
+- **تحصين محرك الذكاء الاصطناعي**: منع الاستيلاء على الحسابات أو خفض رتبة المدراء عبر أداة `create_company` وحظر تجميد أو حذف الحساب السيادي عبر `toggle_graduate_status` و `delete_graduate_account` داخل [`AiAssistantService.php`](file:///c:/Users/Sohib/graduate_training_system/app/Services/Ai/AiAssistantService.php).
+- **عزل منسقي التدريب في المساعد الذكي**: عزل قرارات `manage_training_applications` لتقتصر حصراً على برامج المنسق المنفذ.
+- **عزل مسارات الترحيل وقاعدة البيانات الحية**: عزل مسار `/system/run-seeders-now` ليقتصر على البيئة المحلية (`local`) فقط لمنع العبث بالبيانات في الإنتاج.

@@ -440,8 +440,9 @@ class EvaluationFollowupController extends Controller
             ));
 
         } catch (\Exception $e) {
+            \Log::error('Evaluation Calendar Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return redirect()->route('evaluation-followup.dashboard')
-                ->with('error', 'حدث خطأ في تحميل التقويم: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ في تحميل التقويم. يرجى المحاولة مرة أخرى لاحقاً.');
         }
     }
 

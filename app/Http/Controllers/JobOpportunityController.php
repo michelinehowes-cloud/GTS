@@ -579,9 +579,9 @@ class JobOpportunityController extends Controller
             }
 
         } catch (\Exception $e) {
-            \Log::error('Import Error: ' . $e->getMessage());
+            \Log::error('Import Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return redirect()->back()
-                ->with('error', 'حدث خطأ أثناء الاستيراد: ' . $e->getMessage())
+                ->with('error', 'حدث خطأ أثناء استيراد البيانات. يرجى التحقق من صحة تنسيق الملف والمحاولة مجدداً.')
                 ->withInput();
         }
     }

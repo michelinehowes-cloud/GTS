@@ -18,8 +18,8 @@ return [
     */
     'turnstile' => [
         'enabled' => $storedSecurity['TURNSTILE_ENABLED'] ?? env('TURNSTILE_ENABLED', true),
-        'site_key' => $storedSecurity['TURNSTILE_SITE_KEY'] ?? env('TURNSTILE_SITE_KEY', '0x4AAAAAAE90uR_z3hQgBnzU'),
-        'secret_key' => $storedSecurity['TURNSTILE_SECRET_KEY'] ?? env('TURNSTILE_SECRET_KEY', '0x4AAAAAAE90uVPOzkse-syBFQqqEtsWNjo'),
+        'site_key' => $storedSecurity['TURNSTILE_SITE_KEY'] ?? env('TURNSTILE_SITE_KEY', ''),
+        'secret_key' => $storedSecurity['TURNSTILE_SECRET_KEY'] ?? env('TURNSTILE_SECRET_KEY', ''),
     ],
 
     /*

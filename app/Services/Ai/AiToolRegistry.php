@@ -2063,7 +2063,7 @@ class AiToolRegistry
                     $email = $args['email'] ?? (strtolower(str_replace(' ', '', $name)) . '@partner.uot.edu.ly');
                     $address = $args['address'] ?? 'طرابلس، ليبيا';
 
-                    $defaultPassword = $args['password'] ?? 'Company@2026!';
+                    $defaultPassword = $args['password'] ?? ('Comp@' . \Illuminate\Support\Str::random(10) . '!');
 
                     return [
                         'status' => 'proposal',

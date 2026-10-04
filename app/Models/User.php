@@ -130,7 +130,7 @@ class User extends Authenticatable
      */
     public function isProtectedSuperAdmin(): bool
     {
-        return $this->role === 'admin' && ($this->email === 'admin@tripoliuniversity.edu.ly');
+        return $this->role === 'admin' && ($this->email === 'admin@tripoliuniversity.edu.ly' || $this->id === 1);
     }
 
     /**

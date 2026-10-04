@@ -376,23 +376,33 @@ class CareerGuidanceController extends Controller
         $oldEmail = $graduate->email;
         $oldUserId = $graduate->user_id;
 
-        // العثور على حساب المستخدم المرتبط قبل إجراء التعديلات
+        // العثور على حساب المستخدم المرتبط قبل إجراء التعديلات (مع حماية حصرية لرتبة خريج)
         $targetUser = null;
         if ($graduate->user_id) {
-            $targetUser = User::find($graduate->user_id);
+            $foundUser = User::find($graduate->user_id);
+            if ($foundUser && $foundUser->role === 'graduate') {
+                $targetUser = $foundUser;
+            } elseif ($foundUser && $foundUser->role !== 'graduate') {
+                // حماية أمنية مشددة: فك أي ارتباط خاطئ بحساب إداري أو شركة
+                $graduate->user_id = null;
+                $graduate->saveQuietly();
+            }
         }
         if (!$targetUser && $oldEmail) {
-            $targetUser = User::where('email', $oldEmail)->first();
+            $foundUser = User::where('email', $oldEmail)->first();
+            if ($foundUser && $foundUser->role === 'graduate') {
+                $targetUser = $foundUser;
+            }
         }
         // إذا لم نجد حساباً بالبريد القديم، هل يوجد حساب خريج بالبريد الجديد المطلوب؟
         if (!$targetUser && $request->filled('email')) {
             $potentialUser = User::where('email', $request->email)->first();
             if ($potentialUser) {
-                // هل هذا الحساب خريج ولا يرتبط بملف خريج آخر؟
+                // هل هذا الحساب خريج حصراً ولا يرتبط بملف خريج آخر؟
                 $isClaimedByOther = GraduateData::where('user_id', $potentialUser->id)
                     ->where('id', '!=', $graduate->id)
                     ->exists();
-                if (!$isClaimedByOther && ($potentialUser->role === 'graduate' || empty($potentialUser->role))) {
+                if (!$isClaimedByOther && $potentialUser->role === 'graduate') {
                     $targetUser = $potentialUser;
                     $graduate->user_id = $potentialUser->id;
                     $graduate->saveQuietly();
@@ -536,8 +546,8 @@ class CareerGuidanceController extends Controller
         // تحديث سجل الخريج في جدول graduates_data
         $graduate->update($data);
 
-        // إذا كان هناك حساب مستخدم مرتبط أو تم العثور عليه
-        if ($targetUser) {
+        // إذا كان هناك حساب مستخدم مرتبط أو تم العثور عليه (حصراً لرتبة خريج)
+        if ($targetUser && $targetUser->role === 'graduate') {
             // ربط معرف المستخدم في سجل الخريج إذا لم يكن مرتبطاً
             if ($graduate->user_id !== $targetUser->id) {
                 $graduate->updateQuietly(['user_id' => $targetUser->id]);
@@ -689,6 +699,11 @@ class CareerGuidanceController extends Controller
             $user = User::where('email', $graduate->email)->first();
         }
 
+        // حماية أمنية مشددة: التأكد من أن الحساب المستهدف هو خريج فقط وليس مديراً أو موظفاً إدارياً
+        if ($user && $user->role !== 'graduate') {
+            return redirect()->back()->withErrors(['password_error' => 'محاولة محظورة: لا يمكن تغيير كلمة مرور هذا الحساب لأنه حساب إداري أو شركة وليس خريجاً.']);
+        }
+
         if (!$user) {
             if (!$graduate->email) {
                 return redirect()->back()->withErrors(['password_error' => 'لا يمكن تعيين كلمة مرور لخريج لا يمتلك بريداً إلكترونياً. يرجى إضافة بريد إلكتروني للخريج أولاً.']);
@@ -744,6 +759,13 @@ class CareerGuidanceController extends Controller
 
         $existingUser = User::where('email', $graduate->email)->first();
         if ($existingUser) {
+            // حماية أمنية مشددة: التأكد من أن الحساب المستهدف هو خريج فقط وليس مديراً أو موظفاً
+            if ($existingUser->role !== 'graduate') {
+                return redirect()->back()->withErrors([
+                    'error' => 'محاولة محظورة: هذا البريد الإلكتروني مسجل لحساب إداري أو شركة، ولا يمكن ربطه أو تغيير كلمة مروره من خلال إدارة الخريجين.'
+                ]);
+            }
+
             $existingUser->update([
                 'password' => Hash::make($request->new_password),
             ]);
@@ -1221,7 +1243,13 @@ class CareerGuidanceController extends Controller
 
         // التحقق من التكرار (البريد الإلكتروني اختياري الآن)
         if (!empty($email) && GraduateData::where('email', $email)->exists()) {
-            throw new \Exception("البريد الإلكتروني مسجل مسبقاً");
+            throw new \Exception("البريد الإلكتروني مسجل مسبقاً في بيانات الخريجين");
+        }
+        if (!empty($email)) {
+            $userWithEmail = User::where('email', $email)->first();
+            if ($userWithEmail && $userWithEmail->role !== 'graduate') {
+                throw new \Exception("البريد الإلكتروني مسجل مسبقاً لحساب إداري أو شركة ولا يمكن استخدامه لخريج");
+            }
         }
 
         // إنشاء الخريج
@@ -1290,7 +1318,7 @@ class CareerGuidanceController extends Controller
             $years = [];
 
             return view('career-guidance.advanced-reports', compact('stats', 'chartData', 'insights', 'majors', 'years'))
-                ->with('error', 'حدث خطأ أثناء تحميل بعض بيانات التقارير: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ أثناء تحميل بعض بيانات التقارير، يرجى المحاولة مرة أخرى لاحقاً.');
         }
     }
 
@@ -1345,7 +1373,7 @@ class CareerGuidanceController extends Controller
             ]);
 
             return redirect()->back()
-                ->with('error', 'حدث خطأ أثناء تصدير التقرير: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ أثناء تصدير التقرير، يرجى المحاولة مرة أخرى لاحقاً.');
         }
     }
 
@@ -1381,9 +1409,11 @@ class CareerGuidanceController extends Controller
             */
 
         } catch (\Exception $e) {
-            Log::error('Excel Export Error: ' . $e->getMessage());
+            Log::error('Excel Export Error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
             return redirect()->back()
-                ->with('error', 'حدث خطأ أثناء تصدير التقرير: ' . $e->getMessage());
+                ->with('error', 'حدث خطأ أثناء تصدير التقرير، يرجى المحاولة لاحقاً.');
         }
     }
 

@@ -110,7 +110,7 @@ class Certificate extends Model
     {
         $year = date('Y');
         do {
-            $random = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
+            $random = strtoupper(bin2hex(random_bytes(3)));
             $code = "UOT-CERT-{$year}-{$random}";
         } while (self::where('certificate_code', $code)->exists());
 

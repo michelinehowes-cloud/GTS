@@ -27,26 +27,58 @@ document.addEventListener('DOMContentLoaded', function () {
                         list.innerHTML = '<li class="dropdown-item text-center text-muted py-3">لا توجد إشعارات جديدة</li>';
                     } else {
                         unreadNotifications.forEach(notification => {
-                            const item = `
-                                <li>
-                                    <a class="dropdown-item d-flex align-items-start py-2 border-bottom bg-light notification-item" 
-                                       href="/notifications/${notification.id}" 
-                                       data-notification-id="${notification.id}"
-                                       style="cursor: pointer;">
-                                        <div class="me-3 mt-1">
-                                            <div class="icon-circle bg-${notification.type || 'primary'} rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
-                                                <i class="fas fa-${notification.icon || 'bell'} text-white small"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <div class="small text-muted float-end" style="font-size: 0.7rem;">${new Date(notification.created_at).toLocaleDateString('ar-EG')}</div>
-                                            <span class="fw-bold d-block text-dark" style="font-size: 0.9rem;">${notification.title}</span>
-                                            <div class="small text-muted text-truncate" style="max-width: 200px;">${notification.message}</div>
-                                        </div>
-                                    </a>
-                                </li>
-                            `;
-                            list.innerHTML += item;
+                            const li = document.createElement('li');
+
+                            const a = document.createElement('a');
+                            a.className = 'dropdown-item d-flex align-items-start py-2 border-bottom bg-light notification-item';
+                            const safeId = encodeURIComponent(notification.id || '');
+                            a.href = `/notifications/${safeId}`;
+                            a.dataset.notificationId = String(notification.id || '');
+                            a.style.cursor = 'pointer';
+
+                            const iconWrapper = document.createElement('div');
+                            iconWrapper.className = 'me-3 mt-1';
+
+                            const allowedTypes = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'];
+                            const safeType = allowedTypes.includes(notification.type) ? notification.type : 'primary';
+                            const circle = document.createElement('div');
+                            circle.className = `icon-circle bg-${safeType} rounded-circle d-flex align-items-center justify-content-center`;
+                            circle.style.width = '35px';
+                            circle.style.height = '35px';
+
+                            const safeIconClass = /^[a-zA-Z0-9_\-]+$/.test(notification.icon) ? notification.icon : 'bell';
+                            const icon = document.createElement('i');
+                            icon.className = `fas fa-${safeIconClass} text-white small`;
+                            circle.appendChild(icon);
+                            iconWrapper.appendChild(circle);
+
+                            const contentDiv = document.createElement('div');
+                            contentDiv.className = 'flex-grow-1';
+
+                            const timeDiv = document.createElement('div');
+                            timeDiv.className = 'small text-muted float-end';
+                            timeDiv.style.fontSize = '0.7rem';
+                            timeDiv.textContent = notification.created_at ? new Date(notification.created_at).toLocaleDateString('ar-EG') : '';
+
+                            const titleSpan = document.createElement('span');
+                            titleSpan.className = 'fw-bold d-block text-dark';
+                            titleSpan.style.fontSize = '0.9rem';
+                            titleSpan.textContent = notification.title || '';
+
+                            const messageDiv = document.createElement('div');
+                            messageDiv.className = 'small text-muted text-truncate';
+                            messageDiv.style.maxWidth = '200px';
+                            messageDiv.textContent = notification.message || '';
+
+                            contentDiv.appendChild(timeDiv);
+                            contentDiv.appendChild(titleSpan);
+                            contentDiv.appendChild(messageDiv);
+
+                            a.appendChild(iconWrapper);
+                            a.appendChild(contentDiv);
+                            li.appendChild(a);
+
+                            list.appendChild(li);
                         });
 
                         // إضافة مستمع للنقر على الإشعارات لتحديدها كمقروءة

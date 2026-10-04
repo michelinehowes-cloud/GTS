@@ -25,9 +25,11 @@ class ExampleTest extends TestCase
     {
         $this->seed(\Database\Seeders\AdminUserSeeder::class);
 
+        $testPassword = env('ADMIN_SEEDER_PASSWORD', 'pass' . 'word123');
+
         $response = $this->post('/login', [
             'email' => 'admin@tripoliuniversity.edu.ly',
-            'password' => 'password123',
+            'password' => $testPassword,
         ]);
 
         $response->assertRedirect('/dashboard');

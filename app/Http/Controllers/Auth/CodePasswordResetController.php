@@ -60,8 +60,8 @@ class CodePasswordResetController extends Controller
         // حذف الرموز القديمة لهذا الإيميل
         DB::table('password_reset_codes')->where('email', $request->email)->delete();
 
-        // إنشاء رمز جديد (6 أرقام)
-        $code = rand(100000, 999999);
+        // إنشاء رمز جديد (6 أرقام) باستخدام دالة تشفيرية آمنة
+        $code = random_int(100000, 999999);
 
         DB::table('password_reset_codes')->insert([
             'email' => $request->email,
@@ -89,9 +89,28 @@ class CodePasswordResetController extends Controller
         return redirect('/?open_verify=1&email=' . urlencode($request->email));
     }
 
-    // تغيير كلمة المرور عبر النافذة المنبثقة
+    // تغيير كلمة المرور عبر النافذة المنبثقة مع حماية ضد الهجمات التخمينية (Brute Force)
     public function update(Request $request)
     {
+        $normalizedEmail = strtolower(trim($request->input('email', '')));
+        // مفتاح مخصص للبريد الإلكتروني عالمياً (يحمي من التخمين الموزع عبر Proxy/VPN)
+        $emailThrottleKey = 'verify-otp-email|' . $normalizedEmail;
+        // مفتاح مخصص لعنوان الـ IP (يحمي من إغراق الحسابات المختلفة من نفس المصدر)
+        $ipThrottleKey = 'verify-otp-ip|' . $request->ip();
+
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts($emailThrottleKey, 5) ||
+            \Illuminate\Support\Facades\RateLimiter::tooManyAttempts($ipThrottleKey, 20)) {
+            $seconds = max(
+                \Illuminate\Support\Facades\RateLimiter::availableIn($emailThrottleKey),
+                \Illuminate\Support\Facades\RateLimiter::availableIn($ipThrottleKey)
+            );
+            // إتلاف الرمز فورياً عند الاشتباه بمحاولة هجوم تخميني لحماية الحساب
+            DB::table('password_reset_codes')->where('email', $normalizedEmail)->delete();
+            return redirect('/?open_forgot=1')->withErrors([
+                'email' => "تم استنفاد عدد المحاولات المسموح بها لهذا الرمز لحماية أمان الحساب. تم إلغاء صلاحية الرمز، يرجى الانتظار {$seconds} ثانية ثم طلب رمز جديد.",
+            ]);
+        }
+
         $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'email' => 'required|email|exists:users,email',
             'code' => 'required|numeric',
@@ -110,29 +129,51 @@ class CodePasswordResetController extends Controller
             return redirect('/?open_verify=1&email=' . urlencode($request->email))->withErrors($validator)->withInput();
         }
 
-        // التحقق من الرمز
-        $record = DB::table('password_reset_codes')
-            ->where('email', $request->email)
-            ->where('code', $request->code)
-            ->first();
+        // التحقق الذري من الرمز وحمايته من هجمات السباق والتكرار (Race Condition / Replay Attack)
+        return DB::transaction(function () use ($request, $normalizedEmail, $emailThrottleKey, $ipThrottleKey) {
+            // جلب وقفل سجل الرمز لمنع هجمات التكرار المتزامنة
+            $record = DB::table('password_reset_codes')
+                ->where('email', $normalizedEmail)
+                ->where('code', $request->code)
+                ->lockForUpdate()
+                ->first();
 
-        if (!$record) {
-            return redirect('/?open_verify=1&email=' . urlencode($request->email))->withErrors(['code' => 'رمز التحقق غير صحيح. يرجى التحقق من بريدك.'])->withInput();
-        }
+            if (!$record) {
+                \Illuminate\Support\Facades\RateLimiter::hit($emailThrottleKey, 900); // 15 دقيقة
+                \Illuminate\Support\Facades\RateLimiter::hit($ipThrottleKey, 900);
+                $attempts = \Illuminate\Support\Facades\RateLimiter::attempts($emailThrottleKey);
+                if ($attempts >= 5) {
+                    DB::table('password_reset_codes')->where('email', $normalizedEmail)->delete();
+                    $seconds = \Illuminate\Support\Facades\RateLimiter::availableIn($emailThrottleKey);
+                    return redirect('/?open_forgot=1')->withErrors([
+                        'code' => "تم استنفاد عدد المحاولات المسموح بها لهذا الرمز لحماية أمان الحساب. تم إلغاء صلاحية الرمز، يرجى الانتظار {$seconds} ثانية ثم طلب رمز جديد.",
+                    ]);
+                }
+                $remaining = 5 - $attempts;
+                $errMsg = 'رمز التحقق غير صحيح. يرجى التحقق من بريدك.';
+                if ($remaining > 0) {
+                    $errMsg .= " (المحاولات المتبقية: {$remaining})";
+                }
+                return redirect('/?open_verify=1&email=' . urlencode($request->email))->withErrors(['code' => $errMsg])->withInput();
+            }
 
-        // التحقق من صلاحية الرمز (15 دقيقة)
-        if (Carbon::parse($record->created_at)->addMinutes(15)->isPast()) {
-            return redirect('/?open_verify=1&email=' . urlencode($request->email))->withErrors(['code' => 'انتهت صلاحية الرمز. يرجى طلب رمز جديد.'])->withInput();
-        }
+            // التحقق من صلاحية الرمز (15 دقيقة)
+            if (Carbon::parse($record->created_at)->addMinutes(15)->isPast()) {
+                DB::table('password_reset_codes')->where('email', $normalizedEmail)->delete();
+                return redirect('/?open_forgot=1')->withErrors(['email' => 'انتهت صلاحية الرمز (15 دقيقة). يرجى طلب رمز جديد.'])->withInput();
+            }
 
-        // تغيير كلمة المرور
-        $user = User::where('email', $request->email)->first();
-        $user->password = Hash::make($request->password);
-        $user->save();
+            // تغيير كلمة المرور للمستخدم المقفول لمنع Race Conditions
+            $user = User::where('email', $normalizedEmail)->lockForUpdate()->first();
+            $user->password = Hash::make($request->password);
+            $user->save();
 
-        // حذف الرمز المستخدم
-        DB::table('password_reset_codes')->where('email', $request->email)->delete();
+            // إتلاف الرمز فوراً ومسح العدادات في نفس المعاملة (منع إعادة الاستخدام نهائياً)
+            DB::table('password_reset_codes')->where('email', $normalizedEmail)->delete();
+            \Illuminate\Support\Facades\RateLimiter::clear($emailThrottleKey);
+            \Illuminate\Support\Facades\RateLimiter::clear($ipThrottleKey);
 
-        return redirect('/?open_login=1')->with('status', 'تم تغيير كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول.');
+            return redirect('/?open_login=1')->with('status', 'تم تغيير كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول.');
+        });
     }
 }

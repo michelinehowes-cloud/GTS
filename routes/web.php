@@ -651,9 +651,11 @@ Route::middleware('auth')->group(function () {
     // ==================== 📝 مسارات طلبات التدريب العامة ====================
     Route::prefix('applications')->group(function () {
         Route::post('/store', [TrainingController::class, 'apply'])->name('applications.store');
-        Route::patch('/{id}/approve', [TrainingController::class, 'approveApplication'])->name('applications.approve');
-        Route::patch('/{id}/reject', [TrainingController::class, 'rejectApplication'])->name('applications.reject');
-        Route::delete('/{id}', [TrainingController::class, 'destroyApplication'])->name('applications.destroy');
+        Route::middleware(['permission:trainings.applications'])->group(function () {
+            Route::patch('/{id}/approve', [TrainingController::class, 'approveApplication'])->name('applications.approve');
+            Route::patch('/{id}/reject', [TrainingController::class, 'rejectApplication'])->name('applications.reject');
+            Route::delete('/{id}', [TrainingController::class, 'destroyApplication'])->name('applications.destroy');
+        });
     });
 
     // ==================== 🔔 نظام الإشعارات ====================
@@ -713,15 +715,15 @@ if (app()->environment('local')) {
     Route::get('/test', function () {
         return view('test');
     });
+
+    // Routes للاختبار في البيئة المحلية فقط
+    Route::get('/test-graduate-create', [CareerGuidanceController::class, 'createGraduate']);
+
+    // صفحة اختبار جديدة
+    Route::get('/new_test', function () {
+        return view('new_test');
+    });
 }
-
-// ✅ Routes للاختبار - احتفظ بها خارج مجموعة auth
-Route::get('/test-graduate-create', [CareerGuidanceController::class, 'createGraduate']);
-
-// صفحة اختبار جديدة
-Route::get('/new_test', function () {
-    return view('new_test');
-});
 
 // ==================== 🎓 مسارات الخريجين - فرص العمل ====================
 Route::middleware(['auth'])->prefix('graduate')->name('graduate.')->group(function () {
@@ -906,6 +908,9 @@ Route::middleware('auth')->group(function () {
 
 // ==================== 🚀 مسار تغذية قاعدة البيانات الحية (Live Seeder & Migration Trigger) ====================
 Route::get('/system/run-seeders-now', function () {
+    if (!app()->environment('local')) {
+        abort(404);
+    }
     if (request('key') !== 'gts_seed_2026_uot') {
         abort(403, 'Unauthorized');
     }
@@ -923,14 +928,25 @@ Route::get('/system/run-seeders-now', function () {
 
 // ==================== 🛡️ توجيه تلقائي ذكي لمنع أخطاء كتابة مسارات ملفات Blade ====================
 Route::get('{any}', function ($any) {
+    $clean = null;
     if (str_ends_with($any, '/index.blade.php')) {
         $clean = substr($any, 0, -strlen('/index.blade.php'));
-        return redirect('/' . $clean);
-    }
-    if (str_ends_with($any, '.blade.php')) {
+    } elseif (str_ends_with($any, '.blade.php')) {
         $clean = substr($any, 0, -strlen('.blade.php'));
-        return redirect('/' . $clean);
     }
+
+    if ($clean !== null) {
+        $clean = trim($clean, "/\\ \t\n\r\0\x0B");
+        if ($clean === '') {
+            return redirect('/', 301);
+        }
+        // Strict whitelist for internal application relative paths only (no protocol, no domain, no double slashes)
+        if (preg_match('/^[a-zA-Z0-9_\-]+(\/[a-zA-Z0-9_\-]+)*$/', $clean)) {
+            return redirect('/' . $clean, 301);
+        }
+    }
+
     abort(404);
 })->where('any', '.*\.blade\.php$');
+
 

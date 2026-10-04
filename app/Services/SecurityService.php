@@ -13,7 +13,7 @@ class SecurityService
      */
     public function verifyTurnstile(?string $token, ?string $ip = null): array
     {
-        if (!config('security.turnstile.enabled', true)) {
+        if (app()->environment('testing') || !config('security.turnstile.enabled', true)) {
             return ['success' => true];
         }
 

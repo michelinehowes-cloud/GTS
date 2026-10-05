@@ -674,6 +674,12 @@
                                 <span>النموذج النشط: <strong class="badge bg-success bg-opacity-10 text-success border border-success">${result.body.model}</strong></span> | 
                                 <span>زمن الاستجابة: <strong>${result.body.latency_ms} ms</strong></span>
                             </div>
+                            ${keyInput.value ? `
+                                <div class="mt-2 p-2 bg-light rounded border border-warning border-opacity-50 text-dark small">
+                                    <i class="fas fa-hand-point-down text-warning me-1"></i>
+                                    <strong>تنبيه هام:</strong> تم اختبار المفتاح بنجاح! لحفظه بشكل دائم في المنظومة، يرجى النزول لأسفل والضغط على زر <strong>"حفظ الإعدادات وتطبيق التغييرات"</strong>.
+                                </div>
+                            ` : ''}
                         </div>
                     </div>
                 `;

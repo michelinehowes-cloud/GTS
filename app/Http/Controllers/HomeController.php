@@ -15,7 +15,7 @@ class HomeController extends Controller
             case 'admin':
                 return redirect()->route('admin.dashboard');
             case 'training_coordinator':
-                return redirect()->route('training.dashboard');
+                return redirect()->route('training-coordinator.dashboard');
             case 'placement_coordinator':
                 return redirect()->route('placement.dashboard');
             case 'graduate':
@@ -35,10 +35,7 @@ class HomeController extends Controller
 
     public function trainingDashboard()
     {
-        if (auth()->user()->role !== 'training_coordinator') {
-            abort(403);
-        }
-        return view('training.dashboard', ['user' => auth()->user()]);
+        return redirect()->route('training-coordinator.dashboard');
     }
 
     public function placementDashboard()

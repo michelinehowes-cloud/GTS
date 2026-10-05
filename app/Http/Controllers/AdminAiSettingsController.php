@@ -243,11 +243,14 @@ class AdminAiSettingsController extends Controller
             }
         }
 
-        // If key input is masked or empty, read existing from env
-        if (empty($inputKey) || str_contains($inputKey, '••••') || str_contains($inputKey, '****')) {
+        // If key input is masked or empty, read existing from dynamic settings
+        $savedSettings = self::getAiSettings();
+        $isExistingKey = (empty($inputKey) || str_contains($inputKey, '••••') || str_contains($inputKey, '****'));
+
+        if ($isExistingKey) {
             $apiKey = ($provider === 'gemini')
-                ? env('GEMINI_API_KEY', config('ai.gemini_api_key', ''))
-                : env('GROQ_API_KEY', config('ai.groq_api_key', ''));
+                ? ($savedSettings['gemini_api_key'] ?: config('ai.gemini_api_key', ''))
+                : ($savedSettings['groq_api_key'] ?: config('ai.groq_api_key', ''));
         } else {
             $apiKey = $inputKey;
         }
@@ -255,7 +258,7 @@ class AdminAiSettingsController extends Controller
         if (empty($apiKey)) {
             return response()->json([
                 'success' => false,
-                'message' => 'لم يتم إدخال مفتاح API. يرجى إدخال المفتاح أولاً ثم إعادة الاختبار.'
+                'message' => 'لم يتم إدخال مفتاح API أو لا يوجد مفتاح محفوظ مسبقاً. يرجى إدخال المفتاح أولاً ثم إعادة الاختبار.'
             ], 422);
         }
 
@@ -301,13 +304,16 @@ class AdminAiSettingsController extends Controller
                 if ($response->successful()) {
                     $json = $response->json();
                     $reply = $json['candidates'][0]['content']['parts'][0]['text'] ?? 'جاهز';
+                    $keyNote = $isExistingKey
+                        ? ' ✅ (تم التحقق باستخدام المفتاح المحفوظ مسبقاً في المنظومة)'
+                        : ' ⚠️ (تم التحقق من المفتاح بنجاح! لا تنسَ الضغط على زر "حفظ الإعدادات" بالأسفل لتثبيته)';
                     return response()->json([
                         'success' => true,
                         'provider' => 'Google Gemini',
                         'model' => $targetModel,
                         'latency_ms' => $duration,
                         'reply' => trim($reply),
-                        'message' => "تم الاتصال بنجاح بنموذج ({$targetModel}) خلال {$duration}ms! رد النموذج: '{$reply}'"
+                        'message' => "تم الاتصال بنجاح بنموذج ({$targetModel}) خلال {$duration}ms! رد النموذج: '{$reply}'" . $keyNote
                     ]);
                 }
 
@@ -377,7 +383,10 @@ class AdminAiSettingsController extends Controller
                 if ($response->successful()) {
                     $json = $response->json();
                     $reply = $json['choices'][0]['message']['content'] ?? 'جاهز';
-                    $msg = "تم الاتصال بنجاح بنموذج ({$targetModel}) خلال {$duration}ms! رد النموذج: '{$reply}'";
+                    $keyNote = $isExistingKey
+                        ? ' ✅ (تم التحقق باستخدام المفتاح المحفوظ مسبقاً في المنظومة)'
+                        : ' ⚠️ (تم التحقق من المفتاح بنجاح! لا تنسَ الضغط على زر "حفظ الإعدادات" بالأسفل لتثبيته)';
+                    $msg = "تم الاتصال بنجاح بنموذج ({$targetModel}) خلال {$duration}ms! رد النموذج: '{$reply}'" . $keyNote;
                     if ($targetModel !== $requestedModel) {
                         $msg .= " (ملاحظة: النموذج المطلوب {$requestedModel} غير متاح في حسابك، وتم الاعتماد تلقائياً على {$targetModel}).";
                     }

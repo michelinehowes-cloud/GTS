@@ -1629,7 +1629,9 @@
                              title="{{ $sp->name }}">
                             <div class="sponsor-glass-logo">
                                 @if(isset($sp->logo_path) && $sp->logo_path)
-                                    <img src="{{ Storage::url($sp->logo_path) }}" alt="{{ $sp->name }}" loading="lazy">
+                                    <img src="{{ Storage::url($sp->logo_path) }}" alt="{{ $sp->name }}" loading="lazy"
+                                         onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';">
+                                    <i class="fas fa-building sponsor-icon-fb" style="display:none;"></i>
                                 @else
                                     <i class="fas fa-building sponsor-icon-fb"></i>
                                 @endif

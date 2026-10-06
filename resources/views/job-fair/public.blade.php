@@ -1314,11 +1314,50 @@
         /* ══════════════════════════════════
            FOOTER
         ══════════════════════════════════ */
+        /* ══════════════════════════════════
+           SLIM FOOTER & SPONSORS STRIP (الشريط السفلي المدمج للرعاة)
+        ══════════════════════════════════ */
+        .footer-sponsors-strip {
+            background: rgba(3, 22, 48, 0.95);
+            border-top: 1px solid rgba(238, 202, 62, 0.35);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 0.85rem 0;
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(14px);
+        }
+        .sponsor-mini-pill {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: rgba(255, 255, 255, 0.88);
+            border-radius: 50px;
+            padding: 5px 14px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .sponsor-mini-pill:hover {
+            background: rgba(238, 202, 62, 0.16);
+            border-color: var(--gold);
+            color: var(--gold);
+            transform: translateY(-1px);
+        }
+        .sponsor-mini-pill img {
+            height: 18px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
         .page-footer {
             background: var(--navy);
             color: rgba(255,255,255,0.5);
             text-align: center;
-            padding: 2rem;
+            padding: 1.5rem 1rem;
             font-size: 0.85rem;
         }
         .page-footer a { color: var(--gold); text-decoration: none; }
@@ -2505,6 +2544,41 @@
     </a>
 </div>
 
+@endif
+
+{{-- SLIM FOOTER SPONSORS STRIP --}}
+@if($fair)
+<div class="footer-sponsors-strip">
+    <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+            <span class="badge rounded-pill bg-warning text-dark px-2.5 py-1 fw-bold" style="font-size: 0.72rem;">
+                <i class="fas fa-crown me-1"></i>الراعي الاستراتيجي
+            </span>
+            <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 28px; width: auto; object-fit: contain;" title="شركة الواحة لتنظيم المعارض والمؤتمرات" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap justify-content-center justify-content-md-end">
+            <span class="text-white-50 small d-none d-lg-inline me-1" style="font-size: 0.76rem;">رعاة وشركاء المعرض:</span>
+            <a href="{{ route('job-fair.public.companies', $fair->id) }}" class="sponsor-mini-pill" title="شركة المدار الجديد">
+                <i class="fas fa-broadcast-tower text-warning me-1"></i><span>المدار الجديد</span>
+            </a>
+            <a href="{{ route('job-fair.public.companies', $fair->id) }}" class="sponsor-mini-pill" title="شركة ليبيانا للهاتف المحمول">
+                <i class="fas fa-signal text-info me-1"></i><span>ليبيانا</span>
+            </a>
+            <a href="{{ route('job-fair.public.companies', $fair->id) }}" class="sponsor-mini-pill" title="ليبيا للاتصالات والتقنية">
+                <i class="fas fa-network-wired text-success me-1"></i><span>LTT</span>
+            </a>
+            <a href="{{ route('job-fair.public.companies', $fair->id) }}" class="sponsor-mini-pill" title="مصرف التجارة والتنمية">
+                <i class="fas fa-university text-warning me-1"></i><span>مصرف التجارة والتنمية</span>
+            </a>
+            <a href="{{ route('job-fair.public.companies', $fair->id) }}" class="sponsor-mini-pill" title="شركة الواحة للنفط">
+                <i class="fas fa-oil-can text-danger me-1"></i><span>شركة الواحة للنفط</span>
+            </a>
+            <a href="{{ route('job-fair.public.companies', $fair->id) }}" class="sponsor-mini-pill" title="دليل كافة الشركات والأجنحة">
+                <i class="fas fa-building text-primary me-1"></i><span>دليل الشركات &larr;</span>
+            </a>
+        </div>
+    </div>
+</div>
 @endif
 
 {{-- FOOTER --}}

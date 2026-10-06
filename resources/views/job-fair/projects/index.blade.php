@@ -92,161 +92,97 @@
            TOP NAVBAR
         ══════════════════════════════════ */
         /* ══════════════════════════════════
-           TOP NAVBAR (Luxury & Clean Redesign)
+           TOP NAVBAR (التصميم الأصلي)
         ══════════════════════════════════ */
         .top-nav {
             position: sticky;
             top: 0; left: 0; right: 0;
             z-index: 1000;
-            background: rgba(3, 22, 48, 0.92);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 0.75rem 2rem;
+            background: rgba(3, 40, 80, 0.85);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 0.85rem 2rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
             transition: all 0.3s;
         }
         .top-nav.scrolled {
-            padding: 0.55rem 2rem;
-            background: rgba(2, 16, 36, 0.98);
+            padding: 0.6rem 2rem;
+            background: rgba(2, 32, 66, 0.95);
             border-bottom: 1px solid rgba(238, 202, 62, 0.3);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
         .nav-brand {
             display: flex;
             align-items: center;
             gap: 0.75rem;
             text-decoration: none;
-            flex-shrink: 0;
         }
         .nav-brand img.main-logo {
-            width: 40px; height: 40px;
+            width: 42px; height: 42px;
             border-radius: 50%;
             border: 2px solid var(--gold);
             object-fit: cover;
         }
         .nav-brand img.jf-logo {
-            height: 36px;
-            width: auto;
+            width: auto; height: 38px;
             border: none;
+            border-radius: 0;
+            margin-right: 15px;
             object-fit: contain;
             filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
         }
-        .nav-brand-text { line-height: 1.25; }
-        .nav-brand-text .main { color: white; font-weight: 800; font-size: 0.92rem; }
-        .nav-brand-text .sub  { color: var(--gold); font-size: 0.72rem; font-weight: 600; }
+        .nav-brand-text { line-height: 1.2; }
+        .nav-brand-text .main { color: white; font-weight: 700; font-size: 0.95rem; }
+        .nav-brand-text .sub  { color: var(--gold); font-size: 0.72rem; }
 
         .nav-brand-divider {
             width: 1px;
-            height: 28px;
-            background: rgba(255, 255, 255, 0.2);
-            margin: 0 8px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.22);
+            margin: 0 10px;
             flex-shrink: 0;
         }
-        .nav-sponsor-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(238, 202, 62, 0.25);
-            padding: 4px 10px;
-            border-radius: 20px;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-        .nav-sponsor-badge:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--gold);
-        }
-        .nav-sponsor-badge img {
-            height: 22px;
+        .waha-nav-logo {
+            height: 36px;
             width: auto;
+            max-width: 120px;
             object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            transition: transform 0.2s ease;
         }
-        .nav-sponsor-badge span {
-            font-size: 0.68rem;
-            color: var(--gold-lt);
-            font-weight: 700;
+        .waha-nav-logo:hover {
+            transform: scale(1.05);
         }
 
-        /* Center Nav Links - Modern and clean */
-        .nav-menu-links {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-        .nav-menu-link {
-            color: rgba(255, 255, 255, 0.82);
-            text-decoration: none;
+        .nav-links { display: flex; align-items: center; gap: 0.65rem; }
+        .nav-btn {
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-family: 'Cairo', sans-serif;
             font-weight: 600;
             font-size: 0.86rem;
-            padding: 8px 14px;
-            border-radius: 10px;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .nav-menu-link:hover {
-            color: #ffffff;
-            background: rgba(255, 255, 255, 0.08);
-        }
-        .nav-menu-link.active {
-            color: var(--gold);
-            background: rgba(238, 202, 62, 0.12);
-            border: 1px solid rgba(238, 202, 62, 0.25);
-            font-weight: 700;
-        }
-
-        /* Nav Actions (Left side) */
-        .nav-actions {
-            display: flex;
-            align-items: center;
-            gap: 0.65rem;
-        }
-        .btn-nav-cta {
-            background: linear-gradient(135deg, #eeca3e 0%, #f59e0b 100%);
-            color: #061c38 !important;
-            font-weight: 800;
-            font-size: 0.86rem;
-            padding: 7px 16px;
-            border-radius: 50px;
+            cursor: pointer;
             text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-            transition: all 0.25s ease;
+            transition: all 0.25s;
             border: none;
-        }
-        .btn-nav-cta:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
-            color: #04244d !important;
-        }
-        .btn-nav-login {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff !important;
-            font-weight: 600;
-            font-size: 0.84rem;
-            padding: 7px 15px;
-            border-radius: 50px;
-            text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            transition: all 0.2s ease;
+            line-height: 1.4;
         }
-        .btn-nav-login:hover {
-            background: rgba(255, 255, 255, 0.16);
+        .nav-btn-outline {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1.5px solid rgba(255, 255, 255, 0.28);
+            color: white;
+            backdrop-filter: blur(8px);
+        }
+        .nav-btn-outline:hover {
+            background: rgba(255, 255, 255, 0.18);
             border-color: var(--gold);
-            color: var(--gold) !important;
+            color: var(--gold);
         }
 
         /* ══════════════════════════════════
@@ -617,250 +553,48 @@
         }
 
         /* ══════════════════════════════════
-           PREMIUM FOOTER & SPONSORS SHOWCASE
+           SLIM FOOTER & SPONSORS STRIP (الشريط السفلي المدمج للرعاة)
         ══════════════════════════════════ */
-        .footer-showcase-section {
-            background: linear-gradient(180deg, rgba(3, 22, 48, 0.98) 0%, rgba(1, 12, 28, 1) 100%);
-            border-top: 1px solid rgba(238, 202, 62, 0.3);
-            box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.4);
-            padding: 3.5rem 0 2rem;
+        .footer-sponsors-strip {
+            background: rgba(3, 22, 48, 0.95);
+            border-top: 1px solid rgba(238, 202, 62, 0.35);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 0.85rem 0;
             position: relative;
             z-index: 2;
+            backdrop-filter: blur(14px);
         }
-
-        .showcase-header {
-            margin-bottom: 2.2rem;
-        }
-        .showcase-tag {
+        .sponsor-mini-pill {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: rgba(255, 255, 255, 0.88);
+            border-radius: 50px;
+            padding: 5px 14px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(238, 202, 62, 0.12);
-            border: 1px solid rgba(238, 202, 62, 0.35);
-            color: var(--gold);
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            margin-bottom: 0.6rem;
+            transition: all 0.2s ease;
         }
-        .showcase-title {
-            color: #ffffff;
-            font-size: 1.4rem;
-            font-weight: 800;
-            margin-bottom: 0.35rem;
-        }
-        .showcase-subtitle {
-            color: rgba(255, 255, 255, 0.65);
-            font-size: 0.88rem;
-            margin: 0;
-        }
-
-        .btn-showcase-dir {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            color: #ffffff;
-            padding: 8px 18px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.25s ease;
-        }
-        .btn-showcase-dir:hover {
-            background: var(--gold);
-            color: #04244d;
+        .sponsor-mini-pill:hover {
+            background: rgba(238, 202, 62, 0.16);
             border-color: var(--gold);
-            transform: translateY(-2px);
-        }
-
-        /* Strategic Sponsor Card (الراعي الاستراتيجي) */
-        .strategic-sponsor-box {
-            background: linear-gradient(135deg, rgba(238, 202, 62, 0.08) 0%, rgba(4, 93, 176, 0.12) 100%);
-            border: 1.5px solid rgba(238, 202, 62, 0.4);
-            border-radius: 18px;
-            padding: 22px;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-            transition: all 0.3s ease;
-        }
-        .strategic-sponsor-box:hover {
-            border-color: rgba(238, 202, 62, 0.7);
-            box-shadow: 0 12px 35px rgba(238, 202, 62, 0.18);
-            transform: translateY(-2px);
-        }
-        .strategic-crown-badge {
-            position: absolute;
-            top: -12px;
-            right: 20px;
-            background: linear-gradient(135deg, #d97706, #f59e0b);
-            color: #ffffff;
-            font-size: 0.72rem;
-            font-weight: 800;
-            padding: 3px 12px;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .strategic-content {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .strategic-logo-frame {
-            width: 80px;
-            height: 60px;
-            background: #ffffff;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px;
-            flex-shrink: 0;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
-        }
-        .strategic-logo-frame img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-        .strategic-info h6 {
-            color: #ffffff;
-            font-weight: 800;
-            font-size: 0.98rem;
-            margin-bottom: 4px;
-            line-height: 1.35;
-        }
-        .strategic-info p {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.78rem;
-            margin: 0;
-            line-height: 1.4;
-        }
-
-        /* Participating Companies Grid (Reliable & Clean - No Broken Images!) */
-        .partners-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 12px;
-        }
-        .partner-card-item {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.09);
-            border-radius: 14px;
-            padding: 10px 14px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            transition: all 0.25s ease;
-        }
-        .partner-card-item:hover {
-            background: rgba(255, 255, 255, 0.09);
-            border-color: rgba(238, 202, 62, 0.4);
-            transform: translateY(-2px);
-        }
-        .partner-avatar-wrap {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.08);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            flex-shrink: 0;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-        }
-        .partner-avatar-wrap img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background: #ffffff;
-            padding: 4px;
-        }
-        .partner-avatar-wrap .partner-icon {
-            font-size: 1rem;
             color: var(--gold);
+            transform: translateY(-1px);
         }
-        .partner-card-info {
-            overflow: hidden;
-            text-align: right;
+        .sponsor-mini-pill img {
+            height: 18px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 4px;
         }
-        .partner-card-info .name {
-            display: block;
-            color: #ffffff;
-            font-weight: 700;
-            font-size: 0.82rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .partner-card-info .role {
-            display: block;
-            color: rgba(255, 255, 255, 0.55);
-            font-size: 0.7rem;
-        }
-
-        /* Unified Master Footer */
-        .master-site-footer {
+        .projects-footer {
             background: #010a17;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 40px 0 25px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.85rem;
-        }
-        .footer-brand-title {
-            color: #ffffff;
-            font-weight: 800;
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-        }
-        .footer-brand-desc {
-            font-size: 0.82rem;
-            line-height: 1.7;
-            color: rgba(255, 255, 255, 0.6);
-            max-width: 420px;
-        }
-        .footer-col-title {
-            color: var(--gold);
-            font-weight: 700;
-            font-size: 0.92rem;
-            margin-bottom: 16px;
-        }
-        .footer-links-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .footer-links-list li {
-            margin-bottom: 8px;
-        }
-        .footer-links-list a {
-            color: rgba(255, 255, 255, 0.65);
-            text-decoration: none;
-            transition: all 0.2s;
-            font-size: 0.82rem;
-        }
-        .footer-links-list a:hover {
-            color: var(--gold);
-            padding-right: 4px;
-        }
-        .footer-copyright-bar {
-            margin-top: 35px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-            font-size: 0.78rem;
-            color: rgba(255, 255, 255, 0.5);
+            padding: 1rem 0;
+            position: relative;
+            z-index: 2;
         }
 
         /* Coming Soon Styles */
@@ -1066,75 +800,39 @@
 
     <div class="page-content-wrapper">
 
-        <!-- Top Navigation (Redesigned - Luxury & Clean) -->
+        <!-- Top Navigation (التصميم الأصلي السابق - 3 أزرار فقط) -->
         <nav class="top-nav" id="topNav">
             <a href="{{ $fair && $fair->id ? route('job-fair.public', $fair->id) : route('home') }}" class="nav-brand">
                 <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" class="main-logo" onerror="this.style.display='none'">
-                <div class="nav-brand-text d-none d-sm-block">
+                <div class="nav-brand-text">
                     <div class="main">مكتب تدريب الخريجين</div>
                     <div class="sub">جامعة طرابلس</div>
                 </div>
-
                 @if($fair)
-                    <div class="nav-brand-divider d-none d-md-block"></div>
                     <img src="{{ $fair->white_logo_url }}" class="jf-logo" alt="{{ $fair->title }}" onerror="this.onerror=null;this.src='{{ $fair->horizontal_logo_url }}';">
+                @else
+                    <img src="{{ asset('images/job_fair_logo_white.png') }}" class="jf-logo" alt="شعار الفعالية" onerror="this.style.display='none'">
                 @endif
 
-                <div class="nav-brand-divider d-none d-lg-block"></div>
+                {{-- فاصل رأسي --}}
+                <div class="nav-brand-divider d-none d-sm-block"></div>
 
-                {{-- شعار الراعي الاستراتيجي --}}
-                <div class="nav-sponsor-badge d-none d-lg-inline-flex" title="الراعي الاستراتيجي للحدث">
-                    <span class="d-none d-xl-inline">الراعي الاستراتيجي:</span>
-                    <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة للمعارض" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
-                </div>
+                {{-- شعار شركة الواحة للمعارض المباشر --}}
+                <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" class="waha-nav-logo d-none d-sm-block" title="شركة الواحة لتنظيم المعارض والمؤتمرات — الراعي الاستراتيجي" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
             </a>
 
-            {{-- روابط التنقل الأنيقة بالوسط --}}
-            <ul class="nav-menu-links d-none d-md-flex">
+            <div class="nav-links">
                 @if($fair && $fair->id)
-                    <li>
-                        <a href="{{ route('job-fair.public', $fair->id) }}" class="nav-menu-link">
-                            <i class="fas fa-home me-1"></i>الرئيسية
-                        </a>
-                    </li>
+                    <a href="{{ route('job-fair.public', $fair->id) }}" class="nav-btn nav-btn-outline">
+                        <i class="fas fa-arrow-right"></i>العودة للمعرض
+                    </a>
+                    <a href="{{ route('job-fair.public.companies', $fair->id) }}" class="nav-btn nav-btn-outline">
+                        <i class="fas fa-building"></i>دليل الشركات
+                    </a>
+                    <a href="{{ route('job-fair.public.program', $fair->id) }}" class="nav-btn nav-btn-outline">
+                        <i class="fas fa-graduation-cap"></i>البرنامج العلمي
+                    </a>
                 @endif
-                <li>
-                    <a href="{{ $fair && $fair->id ? route('job-fair.public.projects', $fair->id) : '#' }}" class="nav-menu-link active">
-                        <i class="fas fa-lightbulb text-warning me-1"></i>مشاريع التخرج
-                    </a>
-                </li>
-                @if($fair && $fair->id)
-                    <li>
-                        <a href="{{ route('job-fair.public.companies', $fair->id) }}" class="nav-menu-link">
-                            <i class="fas fa-building me-1"></i>دليل الشركات
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('job-fair.public.program', $fair->id) }}" class="nav-menu-link">
-                            <i class="fas fa-graduation-cap me-1"></i>البرنامج العلمي
-                        </a>
-                    </li>
-                @endif
-            </ul>
-
-            {{-- أزرار الإجراءات اليسرى (مبسطة وأنيقة بدون ازدحام) --}}
-            <div class="nav-actions">
-                <a href="{{ $fair && $fair->id ? route('job-fair.public.projects.submit-fair', $fair->id) : route('job-fair.public.projects.submit') }}" class="btn-nav-cta">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>قدّم مشروعك</span>
-                </a>
-
-                @auth
-                    <a href="{{ route('dashboard') }}" class="btn-nav-login">
-                        <i class="fas fa-th-large"></i>
-                        <span class="d-none d-sm-inline">لوحة التحكم</span>
-                    </a>
-                @else
-                    <a href="{{ route('login') }}" class="btn-nav-login">
-                        <i class="fas fa-sign-in-alt"></i>
-                        <span class="d-none d-sm-inline">تسجيل الدخول</span>
-                    </a>
-                @endauth
             </div>
         </nav>
 
@@ -1401,178 +1099,45 @@
 
         </div>
 
-        <!-- Footer Companies & Sponsors Showcase (الشريط السفلي المتكامل للرعاة والشركات) -->
-        <section class="footer-showcase-section">
-            <div class="container">
-                {{-- Header --}}
-                <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 showcase-header">
-                    <div>
-                        <div class="showcase-tag">
-                            <i class="fas fa-handshake"></i>
-                            <span>الشركاء والرعاة الرسميون</span>
-                        </div>
-                        <h4 class="showcase-title">الشركات والمؤسسات المشاركة والداعمة للحدث</h4>
-                        <p class="showcase-subtitle">نخبة المؤسسات الوطنية الشريكة في تمكين وتوظيف خريجي جامعة طرابلس</p>
-                    </div>
-                    <div>
-                        <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="btn-showcase-dir">
-                            <span>دليل كافة الشركات والأجنحة</span>
-                            <i class="fas fa-arrow-left"></i>
-                        </a>
-                    </div>
+        <!-- Slim Footer Sponsors & Partners Strip (الشريط السفلي المدمج للرعاة والشركات) -->
+        <div class="footer-sponsors-strip">
+            <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                    <span class="badge rounded-pill bg-warning text-dark px-2.5 py-1 fw-bold" style="font-size: 0.72rem;">
+                        <i class="fas fa-crown me-1"></i>الراعي الاستراتيجي
+                    </span>
+                    <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 28px; width: auto; object-fit: contain;" title="شركة الواحة لتنظيم المعارض والمؤتمرات" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
                 </div>
-
-                {{-- Strategic Sponsor + Companies Grid --}}
-                <div class="row g-4 align-items-stretch mb-3">
-                    {{-- Strategic Sponsor --}}
-                    <div class="col-lg-4 col-md-5">
-                        <div class="strategic-sponsor-box">
-                            <div class="strategic-crown-badge">
-                                <i class="fas fa-crown"></i>
-                                <span>الراعي الاستراتيجي للحدث</span>
-                            </div>
-                            <div class="strategic-content">
-                                <div class="strategic-logo-frame">
-                                    <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
-                                </div>
-                                <div class="strategic-info">
-                                    <h6>شركة الواحة لتنظيم المعارض والمؤتمرات</h6>
-                                    <p>الشريك الاستراتيجي والمنظم لفعاليات معرض التوظيف 2026</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Participating Companies Grid (Zero broken images, clean cards) --}}
-                    <div class="col-lg-8 col-md-7">
-                        <div class="partners-grid">
-                            @if(isset($companies) && $companies->count() > 0)
-                                @foreach($companies->take(6) as $fc)
-                                    @php
-                                        $cLogo = $fc->company->logo_path ? Storage::url($fc->company->logo_path) : ($fc->company->logo ? Storage::url($fc->company->logo) : '');
-                                        $cName = $fc->company->name ?? 'شركة مشاركة';
-                                        $booth = $fc->booth_number ? 'جناح ' . strtoupper($fc->booth_number) : 'شريك توظيف';
-                                    @endphp
-                                    <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="partner-card-item" title="{{ $cName }}">
-                                        <div class="partner-avatar-wrap">
-                                            @if($cLogo)
-                                                <img src="{{ $cLogo }}" alt="{{ $cName }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                                <div class="partner-icon" style="display:none;"><i class="fas fa-building"></i></div>
-                                            @else
-                                                <div class="partner-icon"><i class="fas fa-building"></i></div>
-                                            @endif
-                                        </div>
-                                        <div class="partner-card-info">
-                                            <span class="name">{{ $cName }}</span>
-                                            <span class="role">{{ $booth }}</span>
-                                        </div>
-                                    </a>
-                                @endforeach
-                            @else
-                                {{-- Default Major Institutions with guaranteed beautiful icons --}}
-                                <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="partner-card-item">
-                                    <div class="partner-avatar-wrap">
-                                        <div class="partner-icon"><i class="fas fa-broadcast-tower"></i></div>
-                                    </div>
-                                    <div class="partner-card-info">
-                                        <span class="name">شركة المدار الجديد</span>
-                                        <span class="role">شريك قطاع الاتصالات</span>
-                                    </div>
-                                </a>
-                                <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="partner-card-item">
-                                    <div class="partner-avatar-wrap">
-                                        <div class="partner-icon"><i class="fas fa-signal text-info"></i></div>
-                                    </div>
-                                    <div class="partner-card-info">
-                                        <span class="name">شركة ليبيانا للهاتف المحمول</span>
-                                        <span class="role">شريك قطاع الاتصالات</span>
-                                    </div>
-                                </a>
-                                <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="partner-card-item">
-                                    <div class="partner-avatar-wrap">
-                                        <div class="partner-icon"><i class="fas fa-network-wired text-success"></i></div>
-                                    </div>
-                                    <div class="partner-card-info">
-                                        <span class="name">ليبيا للاتصالات والتقنية (LTT)</span>
-                                        <span class="role">شريك حلول الإنترنت</span>
-                                    </div>
-                                </a>
-                                <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="partner-card-item">
-                                    <div class="partner-avatar-wrap">
-                                        <div class="partner-icon"><i class="fas fa-university text-warning"></i></div>
-                                    </div>
-                                    <div class="partner-card-info">
-                                        <span class="name">مصرف التجارة والتنمية</span>
-                                        <span class="role">شريك القطاع المصرفي</span>
-                                    </div>
-                                </a>
-                                <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="partner-card-item">
-                                    <div class="partner-avatar-wrap">
-                                        <div class="partner-icon"><i class="fas fa-oil-can text-danger"></i></div>
-                                    </div>
-                                    <div class="partner-card-info">
-                                        <span class="name">شركة الواحة للنفط</span>
-                                        <span class="role">شريك قطاع الطاقة</span>
-                                    </div>
-                                </a>
-                                <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="partner-card-item">
-                                    <div class="partner-avatar-wrap">
-                                        <div class="partner-icon"><i class="fas fa-handshake text-primary"></i></div>
-                                    </div>
-                                    <div class="partner-card-info">
-                                        <span class="name">الشركة الليبية القابضة</span>
-                                        <span class="role">شريك استراتيجي</span>
-                                    </div>
-                                </a>
-                            @endif
-                        </div>
-                    </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap justify-content-center justify-content-md-end">
+                    <span class="text-white-50 small d-none d-lg-inline me-1" style="font-size: 0.76rem;">رعاة وشركاء المعرض:</span>
+                    <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="sponsor-mini-pill" title="شركة المدار الجديد">
+                        <i class="fas fa-broadcast-tower text-warning me-1"></i><span>المدار الجديد</span>
+                    </a>
+                    <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="sponsor-mini-pill" title="شركة ليبيانا للهاتف المحمول">
+                        <i class="fas fa-signal text-info me-1"></i><span>ليبيانا</span>
+                    </a>
+                    <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="sponsor-mini-pill" title="ليبيا للاتصالات والتقنية">
+                        <i class="fas fa-network-wired text-success me-1"></i><span>LTT</span>
+                    </a>
+                    <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="sponsor-mini-pill" title="مصرف التجارة والتنمية">
+                        <i class="fas fa-university text-warning me-1"></i><span>مصرف التجارة والتنمية</span>
+                    </a>
+                    <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="sponsor-mini-pill" title="شركة الواحة للنفط">
+                        <i class="fas fa-oil-can text-danger me-1"></i><span>شركة الواحة للنفط</span>
+                    </a>
+                    <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="sponsor-mini-pill" title="دليل كافة الشركات والأجنحة">
+                        <i class="fas fa-building text-primary me-1"></i><span>دليل الشركات &larr;</span>
+                    </a>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Master Footer -->
-        <footer class="master-site-footer">
-            <div class="container">
-                <div class="row g-4 align-items-center justify-content-between">
-                    <div class="col-lg-5 col-md-6">
-                        <div class="d-flex align-items-center gap-3 mb-2">
-                            <img src="{{ asset('images/logo.jpg') }}" alt="جامعة طرابلس" style="width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--gold); object-fit: cover;">
-                            <div>
-                                <h6 class="footer-brand-title mb-0">مكتب تدريب وتوظيف الخريجين</h6>
-                                <small class="text-warning">جامعة طرابلس — معرض التوظيف 2026</small>
-                            </div>
-                        </div>
-                        <p class="footer-brand-desc mb-0">
-                            منصة ربط الكفاءات الوطنية وخريجي جامعة طرابلس بسوق العمل والمؤسسات الرائدة، ودعم ريادة الأعمال والابتكار الأكاديمي.
-                        </p>
-                    </div>
-
-                    <div class="col-lg-3 col-md-3">
-                        <h6 class="footer-col-title">روابط سريعة</h6>
-                        <ul class="footer-links-list">
-                            <li><a href="{{ $fair && $fair->id ? route('job-fair.public', $fair->id) : route('home') }}"><i class="fas fa-angle-left me-1"></i> الرئيسية للمعرض</a></li>
-                            <li><a href="{{ $fair && $fair->id ? route('job-fair.public.projects', $fair->id) : '#' }}"><i class="fas fa-angle-left me-1"></i> مشاريع التخرج</a></li>
-                            <li><a href="{{ $fair && $fair->id ? route('job-fair.public.companies', $fair->id) : '#' }}"><i class="fas fa-angle-left me-1"></i> دليل الشركات</a></li>
-                            <li><a href="{{ $fair && $fair->id ? route('job-fair.public.program', $fair->id) : '#' }}"><i class="fas fa-angle-left me-1"></i> البرنامج العلمي</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="col-lg-4 col-md-3 text-md-start">
-                        <h6 class="footer-col-title">الرعاية الاستراتيجية</h6>
-                        <div class="p-2.5 rounded-3 d-inline-flex align-items-center gap-2" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(238,202,62,0.25);">
-                            <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة" style="height: 32px; width: auto; background: white; padding: 3px 6px; border-radius: 6px;">
-                            <div class="text-end small">
-                                <strong class="d-block text-white" style="font-size: 0.8rem;">شركة الواحة للمعارض</strong>
-                                <span class="text-white-50" style="font-size: 0.72rem;">الراعي والشريك الاستراتيجي</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="footer-copyright-bar text-center">
-                    <span>جميع الحقوق محفوظة &copy; {{ date('Y') }} جامعة طرابلس — مكتب تدريب وتوظيف الخريجين &bull; تنظيم ورعاية شركة الواحة لتنظيم المعارض والمؤتمرات</span>
-                </div>
+        <!-- Clean Compact Footer -->
+        <footer class="projects-footer">
+            <div class="container text-center">
+                <p class="mb-0 text-white-50" style="font-size: 0.8rem;">
+                    مكتب تدريب وتوظيف الخريجين — جامعة طرابلس &bull; {{ $fair ? $fair->title : 'معرض التوظيف 2026' }} &bull; تنظيم ورعاية: <span class="text-warning fw-bold">شركة الواحة لتنظيم المعارض والمؤتمرات</span>
+                </p>
             </div>
         </footer>
 

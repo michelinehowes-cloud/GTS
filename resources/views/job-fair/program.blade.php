@@ -1036,7 +1036,7 @@
             align-items: center;
             justify-content: center;
         }
-                /* Slim Footer Sponsors Strip — Blue Glassmorphism */
+                /* Slim Footer Sponsors Strip — Blue Glassmorphism (Fully Responsive) */
         .footer-sponsors-strip {
             background: linear-gradient(90deg, #021A3E 0%, #033566 40%, #042952 100%);
             border-top: 2px solid rgba(56,189,248,0.5);
@@ -1045,6 +1045,8 @@
             z-index: 10;
             overflow: hidden;
             box-shadow: 0 -4px 20px rgba(2, 26, 62, 0.4);
+            width: 100%;
+            max-width: 100vw;
         }
         .footer-sponsors-strip::before {
             content: '';
@@ -1057,10 +1059,16 @@
             content: '';
             position: absolute;
             left: 0; top: 0; bottom: 0;
-            width: 220px;
+            width: 180px;
             background: linear-gradient(90deg, rgba(3,53,102,1) 0%, transparent 100%);
             pointer-events: none;
             z-index: 2;
+        }
+        .strip-inner-row {
+            height: 58px;
+            width: 100%;
+            display: flex;
+            align-items: center;
         }
         .strip-featured-logos {
             display: flex;
@@ -1070,7 +1078,7 @@
             flex-shrink: 0;
             position: relative;
             z-index: 3;
-            height: 58px;
+            height: 100%;
             border-left: 1px solid rgba(56,189,248,0.3);
             border-right: 1px solid rgba(56,189,248,0.3);
             background: linear-gradient(90deg, rgba(3,53,102,0.95) 0%, rgba(3,40,80,0.6) 100%);
@@ -1108,10 +1116,15 @@
             border-right: 1px solid rgba(56,189,248,0.25);
             position: relative;
             z-index: 3;
+            display: flex;
+            align-items: center;
+            height: 100%;
         }
         .sponsors-ticker-wrap {
             overflow: hidden;
             width: 100%;
+            min-width: 0;
+            flex-grow: 1;
             mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
             -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
         }
@@ -1191,7 +1204,112 @@
             flex-shrink: 0;
         }
 
-        @media (max-width: 991px) {
+        /* ── Mobile Responsive for Sponsors Strip ── */
+        @media (max-width: 768px) {
+            .strip-inner-row {
+                height: 48px !important;
+            }
+            .footer-sponsors-strip::after {
+                width: 45px;
+                opacity: 0.7;
+            }
+            .strip-featured-logos {
+                padding: 0 10px;
+                gap: 8px;
+            }
+            .strip-office-logo {
+                height: 26px;
+            }
+            .strip-divider-dot {
+                width: 3px;
+                height: 3px;
+            }
+            .strip-wahaexpo-logo {
+                height: 20px;
+            }
+            .sponsors-strip-label {
+                padding: 0 8px;
+                font-size: 0.6rem;
+            }
+            .sponsor-glass-card {
+                padding: 4px 10px 4px 7px;
+                gap: 6px;
+                border-radius: 9px;
+            }
+            .sponsor-glass-logo {
+                width: 30px;
+                height: 25px;
+                border-radius: 6px;
+            }
+            .sponsor-glass-logo img {
+                padding: 2.5px;
+            }
+            .sponsor-glass-name {
+                font-size: 0.68rem;
+                max-width: 90px;
+            }
+            .sponsors-ticker-track {
+                gap: 0.65rem;
+                padding: 6px 0;
+                animation-duration: 25s;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .strip-inner-row {
+                height: 44px !important;
+            }
+            .footer-sponsors-strip::after {
+                display: none;
+            }
+            .strip-featured-logos {
+                padding: 0 7px;
+                gap: 5px;
+            }
+            .strip-office-logo {
+                height: 22px;
+            }
+            .strip-divider-dot {
+                width: 2.5px;
+                height: 2.5px;
+            }
+            .strip-wahaexpo-logo {
+                height: 17px;
+            }
+            .sponsors-strip-label {
+                padding: 0 6px;
+                font-size: 0.58rem;
+            }
+            .strip-label-text {
+                display: none;
+            }
+            .sponsor-glass-card {
+                padding: 3px 8px 3px 5px;
+                gap: 5px;
+                border-radius: 8px;
+            }
+            .sponsor-glass-logo {
+                width: 26px;
+                height: 22px;
+                border-radius: 5px;
+            }
+            .sponsor-glass-logo .sponsor-icon-fb {
+                font-size: 0.75rem;
+            }
+            .sponsor-glass-logo img {
+                padding: 2px;
+            }
+            .sponsor-glass-name {
+                font-size: 0.64rem;
+                max-width: 75px;
+            }
+            .sponsors-ticker-track {
+                gap: 0.5rem;
+                padding: 4px 0;
+            }
+        }
+
+@media (max-width: 991px) {
             .hero-stats { gap: 1.2rem; padding: 1.2rem 1.5rem; }
             .hero-stat { min-width: 100px; }
             .hero-stat-num { font-size: 1.8rem; }
@@ -1586,7 +1704,7 @@
 ══════════════════════════════════ --}}
 <!-- Glassmorphism Blue Sponsors Strip -->
 <div class="footer-sponsors-strip">
-    <div class="d-flex align-items-center" style="height:58px;">
+    <div class="strip-inner-row">
         <!-- Featured logos: office + wahaexpo -->
         <div class="strip-featured-logos">
             <img src="{{ asset('images/office_logo_white.png') }}"
@@ -1601,11 +1719,11 @@
         </div>
         <!-- Label -->
         <div class="sponsors-strip-label">
-            <i class="fas fa-star me-1" style="color:#38BDF8;"></i>
-            رعاة المعرض
+            <i class="fas fa-star" style="color:#38BDF8;"></i>
+            <span class="strip-label-text ms-1">رعاة المعرض</span>
         </div>
         <!-- Scrolling ticker -->
-        <div class="sponsors-ticker-wrap flex-grow-1">
+        <div class="sponsors-ticker-wrap">
             <div class="sponsors-ticker-track">
                 @php
                     $footerSponsors = isset($sponsors) && $sponsors->count() > 0 ? $sponsors : collect([]);
@@ -1645,6 +1763,13 @@
                             </div>
                             <span class="sponsor-glass-name">{{ $item['name'] }}</span>
                         </div>
+                    @endif
+                    <div class="sponsor-ticker-dot"></div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+</div>
                     @endif
                     <div class="sponsor-ticker-dot"></div>
                 @endforeach

@@ -2941,13 +2941,6 @@
         </div>
     </div>
 </div>
-                    @endif
-                    <div class="sponsor-ticker-dot"></div>
-                @endforeach
-            </div>
-        </div>
-    </div>
-</div>
 
 @endif
 

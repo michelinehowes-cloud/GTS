@@ -1995,7 +1995,7 @@
             {{-- الشريك والراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات --}}
             <div class="sponsor-card sponsor-card-strategic">
                 <div class="sponsor-tier-badge tier-strategic">
-                    <span>👑</span>
+                    <i class="fas fa-crown me-1 text-warning"></i>
                     <span>الراعي الاستراتيجي</span>
                 </div>
 
@@ -2016,22 +2016,37 @@
                 @foreach($sponsors as $sponsor)
                 <div class="sponsor-card">
                     @php
-                        $tierClass = match($sponsor->tier) {
-                            'diamond' => 'tier-diamond',
-                            'platinum' => 'tier-platinum',
-                            'silver' => 'tier-silver',
+                        $tKey = strtolower(trim((string)$sponsor->tier));
+                        $tierClass = match($tKey) {
+                            'strategic', 'الراعي الاستراتيجي' => 'tier-strategic',
+                            'diamond', 'الراعي الماسي' => 'tier-diamond',
+                            'platinum', 'الراعي البلاتيني' => 'tier-platinum',
+                            'silver', 'الراعي الفضي' => 'tier-silver',
                             default => 'tier-gold',
                         };
-                        $tierIcon = match($sponsor->tier) {
-                            'diamond' => '💎',
-                            'platinum' => '⭐',
-                            'silver' => '🥈',
-                            default => '🏆',
+                        $tierLabel = $sponsor->tier_label ?: match($tKey) {
+                            'strategic', 'الراعي الاستراتيجي' => 'الراعي الاستراتيجي',
+                            'diamond', 'الراعي الماسي' => 'الراعي الماسي',
+                            'platinum', 'الراعي البلاتيني' => 'الراعي البلاتيني',
+                            'silver', 'الراعي الفضي' => 'الراعي الفضي',
+                            'bronze', 'الراعي البرونزي' => 'الراعي البرونزي',
+                            'tech', 'راعي التقنية' => 'راعي التقنية',
+                            'media', 'الراعي الإعلامي' => 'الراعي الإعلامي',
+                            default => 'الراعي الذهبي',
+                        };
+                        $tierIconClass = match($tKey) {
+                            'strategic', 'الراعي الاستراتيجي' => 'fa-crown',
+                            'diamond', 'الراعي الماسي' => 'fa-gem',
+                            'platinum', 'الراعي البلاتيني' => 'fa-star',
+                            'silver', 'الراعي الفضي' => 'fa-award',
+                            'tech', 'راعي التقنية' => 'fa-microchip',
+                            'media', 'الراعي الإعلامي' => 'fa-bullhorn',
+                            default => 'fa-trophy',
                         };
                     @endphp
                     <div class="sponsor-tier-badge {{ $tierClass }}">
-                        <span>{{ $tierIcon }}</span>
-                        <span>{{ $sponsor->tier_label }}</span>
+                        <i class="fas {{ $tierIconClass }} me-1"></i>
+                        <span>{{ $tierLabel }}</span>
                     </div>
 
                     <div class="sponsor-logo-box">

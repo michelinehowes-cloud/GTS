@@ -1157,27 +1157,24 @@
     <div class="nav-links">
         @if($fair)
             <a href="{{ route('job-fair.public', $fair->id) }}" class="nav-btn nav-btn-outline">
-                <i class="fas fa-arrow-right"></i>العودة للمعرض
+                <i class="fas fa-home me-1"></i>الرئيسية
+            </a>
+            <a href="{{ route('job-fair.public.projects', $fair->id) }}" class="nav-btn nav-btn-outline">
+                <i class="fas fa-lightbulb me-1"></i>مشاريع التخرج
             </a>
             <a href="{{ route('job-fair.public.companies', $fair->id) }}" class="nav-btn nav-btn-outline">
-                <i class="fas fa-building"></i>دليل الشركات
+                <i class="fas fa-building me-1"></i>دليل الشركات
             </a>
         @endif
 
         @auth
             <a href="{{ route('dashboard') }}" class="nav-btn nav-btn-outline">
-                <i class="fas fa-th-large"></i>لوحة التحكم
+                <i class="fas fa-th-large me-1"></i>لوحة التحكم
             </a>
         @else
-            <a href="{{ route('login') }}" class="nav-btn nav-btn-outline">تسجيل الدخول</a>
-            <a href="{{ route('graduate.register') }}" class="nav-btn nav-btn-gold">
-                <i class="fas fa-user-plus"></i>سجّل كخريج
+            <a href="{{ route('login') }}" class="nav-btn nav-btn-outline">
+                <i class="fas fa-sign-in-alt me-1"></i>تسجيل الدخول
             </a>
-            @if($fair)
-                <a href="{{ route('job-fair.public', $fair->id) }}#visitor-register" class="nav-btn nav-btn-outline">
-                    <i class="fas fa-id-badge" style="color:var(--gold)"></i>سجّل كزائر
-                </a>
-            @endif
         @endauth
     </div>
 </nav>

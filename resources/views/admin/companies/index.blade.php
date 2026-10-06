@@ -18,12 +18,19 @@
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
     }
     .action-circle-btn {
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
+        max-width: 34px !important;
+        max-height: 34px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        aspect-ratio: 1 / 1 !important;
         transition: all 0.2s ease;
     }
     .action-circle-btn:hover {
@@ -285,37 +292,41 @@
                         </div>
 
                         @if(auth()->user()->role === 'admin' || auth()->user()->role === 'partnership_officer')
-                        <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
-                            <form action="{{ route('admin.companies.toggle-approval', $company->id) }}" method="POST" class="d-inline">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-2 pt-2 border-top">
+                            {{-- زر الاعتماد / التعليق مع منع انكسار السطر --}}
+                            <form action="{{ route('admin.companies.toggle-approval', $company->id) }}" method="POST" class="d-inline m-0">
                                 @csrf
                                 @if($isCompanyApproved)
-                                    <button type="submit" class="btn btn-sm btn-outline-warning rounded-pill px-3" style="font-size: 0.75rem;">
-                                        <i class="fas fa-pause me-1"></i>تعليق الاعتماد
+                                    <button type="submit" class="btn btn-sm btn-outline-warning rounded-pill px-3 py-1.5 shadow-sm text-nowrap d-inline-flex align-items-center gap-1.5" style="font-size: 0.78rem;">
+                                        <i class="fas fa-pause"></i>
+                                        <span class="fw-semibold">تعليق الاعتماد</span>
                                     </button>
                                 @else
-                                    <button type="submit" class="btn btn-sm btn-success rounded-pill px-3" style="font-size: 0.75rem;">
-                                        <i class="fas fa-check-circle me-1"></i>اعتماد الشركة
+                                    <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 py-1.5 shadow-sm text-nowrap d-inline-flex align-items-center gap-1.5 text-white" style="font-size: 0.78rem;">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span class="fw-semibold">اعتماد الشركة</span>
                                     </button>
                                 @endif
                             </form>
 
-                            <div class="d-flex gap-1">
+                            {{-- أزرار الإجراءات الدائرية المتناسقة بدون خروج عن البطاقة --}}
+                            <div class="d-flex align-items-center gap-1.5 flex-nowrap">
                                 @if($company->user_id)
-                                    <a href="{{ route('messages.show', $company->user_id) }}" class="btn btn-sm btn-outline-success rounded-pill px-2.5" style="font-size: 0.75rem;" title="مراسلة مسؤولي الشركة">
+                                    <a href="{{ route('messages.show', $company->user_id) }}" class="btn btn-sm btn-outline-success action-circle-btn" data-bs-toggle="tooltip" title="مراسلة مسؤولي الشركة">
                                         <i class="fas fa-comment-dots"></i>
                                     </a>
                                 @endif
-                                <a href="{{ route('admin.companies.show', $company->id) }}" class="btn btn-sm btn-outline-info rounded-pill px-3" style="font-size: 0.75rem;">
-                                    <i class="fas fa-eye me-1"></i>عرض
+                                <a href="{{ route('admin.companies.show', $company->id) }}" class="btn btn-sm btn-outline-info action-circle-btn" data-bs-toggle="tooltip" title="عرض ملف الشركة">
+                                    <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{{ route('admin.companies.edit', $company->id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size: 0.75rem;">
-                                    <i class="fas fa-edit me-1"></i>تعديل
+                                <a href="{{ route('admin.companies.edit', $company->id) }}" class="btn btn-sm btn-outline-primary action-circle-btn" data-bs-toggle="tooltip" title="تعديل بيانات الشركة">
+                                    <i class="fas fa-edit"></i>
                                 </a>
-                                <form action="{{ route('admin.companies.destroy', $company->id) }}" method="POST" class="d-inline">
+                                <form action="{{ route('admin.companies.destroy', $company->id) }}" method="POST" class="d-inline m-0">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2" onclick="return confirm('هل أنت متأكد من حذف هذه الشركة؟')" style="font-size: 0.75rem;">
-                                        <i class="fas fa-trash"></i>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger action-circle-btn" onclick="return confirm('هل أنت متأكد من حذف هذه الشركة؟')" data-bs-toggle="tooltip" title="حذف الشركة">
+                                        <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </form>
                             </div>

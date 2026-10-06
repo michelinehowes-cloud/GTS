@@ -230,6 +230,13 @@ class JobFairController extends Controller
                 ->toArray();
         }
 
+        $companies = collect();
+        $sponsors = collect();
+        if ($fair) {
+            $companies = $fair->companies()->with('company')->get();
+            $sponsors = $fair->sponsors()->get();
+        }
+
         return view('job-fair.program', compact(
             'fair',
             'events',
@@ -239,7 +246,9 @@ class JobFairController extends Controller
             'workshopsCount',
             'panelsCount',
             'speakersCount',
-            'registeredEventIds'
+            'registeredEventIds',
+            'companies',
+            'sponsors'
         ));
     }
 

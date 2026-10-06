@@ -19,7 +19,7 @@ class JobFairVisitorController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:50',
             'email' => 'nullable|email|max:255',
-            'visitor_type' => 'required|in:student,job_seeker,parent,company_rep,academic,general',
+            'visitor_type' => 'nullable|string|in:student,job_seeker,parent,company_rep,academic,general',
             'education_level' => 'nullable|string|max:100',
             'specialization' => 'nullable|string|max:255',
             'organization' => 'nullable|string|max:255',
@@ -29,8 +29,9 @@ class JobFairVisitorController extends Controller
         ], [
             'name.required' => 'يرجى إدخال اسمك الكامل أو الرباعي.',
             'phone.required' => 'يرجى إدخال رقم هاتفك المحمول أو الواتساب.',
-            'visitor_type.required' => 'يرجى تحديد صفتك كزائر للمعرض.',
         ]);
+
+        $validated['visitor_type'] = $validated['visitor_type'] ?? 'job_seeker';
 
         // التحقق من عدم التكرار لنفس المعرض ورقم الهاتف
         $existing = JobFairVisitor::where('job_fair_id', $fair->id)

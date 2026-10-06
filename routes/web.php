@@ -628,8 +628,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/companies', [CompanyController::class, 'index'])->name('career-guidance.companies');
         Route::get('/companies/{company}', [CompanyController::class, 'show'])->name('career-guidance.companies.show');
 
-        // الموافقة على حسابات الخريجين
+        // الموافقة على حسابات الخريجين والتدقيق الذكي
         Route::get('/pending-approvals', [App\Http\Controllers\GraduateRegistrationController::class, 'pendingApprovals'])->name('career-guidance.pending-approvals');
+        Route::post('/pending-approvals/ai-audit', [App\Http\Controllers\GraduateRegistrationController::class, 'aiAudit'])->name('career-guidance.ai-audit-graduates');
         Route::post('/pending-approvals/{id}/approve', [App\Http\Controllers\GraduateRegistrationController::class, 'approve'])->name('career-guidance.approve-graduate');
         Route::post('/pending-approvals/{id}/reject', [App\Http\Controllers\GraduateRegistrationController::class, 'reject'])->name('career-guidance.reject-graduate');
         Route::post('/pending-approvals/bulk-approve', [App\Http\Controllers\GraduateRegistrationController::class, 'bulkApprove'])->name('career-guidance.bulk-approve-graduates');

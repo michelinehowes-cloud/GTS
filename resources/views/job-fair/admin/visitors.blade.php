@@ -564,7 +564,7 @@
         </div>
 
         <h2 style="font-size: 26pt; color: #045db0; font-weight: 800; margin-bottom: 10px;">{{ $fair->title }}</h2>
-        <h4 style="font-size: 16pt; color: #555; margin-bottom: 25px;">جامعة طرابلس — مكتب تدريب وتأهيل الخريجين</h4>
+        <h4 style="font-size: 16pt; color: #555; margin-bottom: 25px;">جامعة طرابلس — مكتب تدريب الخريجين</h4>
 
         <div style="background: #f8fafc; border: 2px dashed #045db0; border-radius: 20px; padding: 25px; display: inline-block; margin-bottom: 25px;">
             <div id="gatePosterQrContainer"></div>

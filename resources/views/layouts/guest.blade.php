@@ -70,7 +70,7 @@
                 <img src="{{ asset('storage/logo.jpg') }}" alt="شعار جامعة طرابلس" class="rounded-circle shadow-sm" style="width: 44px; height: 44px; object-fit: cover;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
                 <div>
                     <h6 class="mb-0 fw-bold" style="color: var(--primary-navy); font-size: 1.05rem;">جامعة طرابلس</h6>
-                    <small class="text-muted" style="font-size: 0.75rem;">مكتب تدريب وتأهيل الخريجين</small>
+                    <small class="text-muted" style="font-size: 0.75rem;">مكتب تدريب الخريجين</small>
                 </div>
             </a>
 

@@ -221,7 +221,7 @@
                                     </span>
                                 </td>
                                 <td class="text-center" style="white-space: nowrap;">
-                                    <div class="d-flex align-items-center justify-content-center gap-1.5">
+                                    <div class="d-flex align-items-center justify-content-center gap-2">
                                         @if(!$company->is_approved)
                                             {{-- زر الاعتماد المباشر --}}
                                             <form action="{{ route('partnership.companies.approve', $company->id) }}" method="POST" class="d-inline m-0">
@@ -241,24 +241,24 @@
                                             {{-- زر إلغاء الاعتماد --}}
                                             <form action="{{ route('partnership.companies.toggle-approval', $company->id) }}" method="POST" class="d-inline m-0" onsubmit="return confirm('هل أنت متأكد من إلغاء اعتماد هذه الشركة؟');">
                                                 @csrf
-                                                <button type="submit" class="btn btn-sm btn-outline-secondary rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px;" title="إلغاء الاعتماد">
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; padding: 0; flex-shrink: 0; aspect-ratio: 1;" title="إلغاء الاعتماد">
                                                     <i class="fas fa-ban text-warning"></i>
                                                 </button>
                                             </form>
                                         @endif
 
                                         {{-- زر العرض --}}
-                                        <a href="{{ route('partnership.companies.show', $company->id) }}" class="btn btn-sm btn-outline-info rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px;" title="عرض التفاصيل">
+                                        <a href="{{ route('partnership.companies.show', $company->id) }}" class="btn btn-sm btn-outline-info rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; padding: 0; flex-shrink: 0; aspect-ratio: 1;" title="عرض التفاصيل">
                                             <i class="fas fa-eye"></i>
                                         </a>
 
                                         {{-- زر التعديل --}}
-                                        <a href="{{ route('partnership.companies.edit', $company->id) }}" class="btn btn-sm btn-outline-warning rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px;" title="تعديل البيانات">
+                                        <a href="{{ route('partnership.companies.edit', $company->id) }}" class="btn btn-sm btn-outline-warning rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; padding: 0; flex-shrink: 0; aspect-ratio: 1;" title="تعديل البيانات">
                                             <i class="fas fa-edit"></i>
                                         </a>
 
                                         {{-- زر فرص العمل --}}
-                                        <a href="{{ route('job-opportunities.index', ['company_id' => $company->id]) }}" class="btn btn-sm btn-outline-primary rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px;" title="فرص العمل والتدريب">
+                                        <a href="{{ route('job-opportunities.index', ['company_id' => $company->id]) }}" class="btn btn-sm btn-outline-primary rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; padding: 0; flex-shrink: 0; aspect-ratio: 1;" title="فرص العمل والتدريب">
                                             <i class="fas fa-briefcase"></i>
                                         </a>
                                     </div>

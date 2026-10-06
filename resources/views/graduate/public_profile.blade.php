@@ -62,7 +62,7 @@
 @push('styles')
 <style>
     /* =========================================================================
-       هوية المنظومة الموحدة — مكتب تدريب وتأهيل الخريجين بجامعة طرابلس
+       هوية المنظومة الموحدة — مكتب تدريب الخريجين بجامعة طرابلس
        ========================================================================= */
     :root {
         --bento-primary: #0d3882;
@@ -451,7 +451,7 @@
                             <!-- شعار وهوية المنظومة المعتمدة -->
                             <span class="system-hero-badge">
                                 <img src="{{ asset('storage/logo.jpg') }}" onerror="this.src='{{ asset('images/logo.jpg') }}'" class="rounded-circle" style="width: 20px; height: 20px; object-fit: cover;">
-                                <span>{{ $university }} — مكتب تدريب وتأهيل الخريجين</span>
+                                <span>{{ $university }} — مكتب تدريب الخريجين</span>
                             </span>
                         </div>
 

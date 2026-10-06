@@ -419,25 +419,13 @@
                         </h5>
 
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-12">
                                 <label for="name" class="form-label">
-                                    الاسم الرباعي <span class="required">*</span>
+                                    الاسم الرباعي الكامل <span class="required">*</span>
                                 </label>
                                 <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
-                                    name="name" value="{{ old('name') }}" required placeholder="الاسم كما هو في الهوية">
+                                    name="name" value="{{ old('name') }}" required placeholder="الاسم الرباعي كما هو في الشهادة أو البطاقة الشخصية">
                                 @error('name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-6">
-                                <label for="national_id" class="form-label">
-                                    رقم القيد <span class="required">*</span>
-                                </label>
-                                <input type="text" class="form-control @error('national_id') is-invalid @enderror"
-                                    id="national_id" name="national_id" value="{{ old('national_id') }}" required
-                                    placeholder="رقم القيد بالجامعة">
-                                @error('national_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

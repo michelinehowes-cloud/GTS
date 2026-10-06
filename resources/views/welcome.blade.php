@@ -1753,25 +1753,13 @@
                             </h5>
 
                             <div class="row g-3 text-start text-rtl">
-                                <div class="col-md-6">
+                                <div class="col-12">
                                     <label for="reg_name" class="form-label fw-bold text-dark small mb-1">
-                                        الاسم الرباعي <span class="text-danger">*</span>
+                                        الاسم الرباعي الكامل <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" class="form-control modal-login-input @error('name') is-invalid @enderror" id="reg_name"
-                                        name="name" value="{{ old('name') }}" required placeholder="الاسم كما هو في الهوية">
+                                        name="name" value="{{ old('name') }}" required placeholder="الاسم الرباعي كما هو في الشهادة أو البطاقة الشخصية">
                                     @error('name')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="reg_national_id" class="form-label fw-bold text-dark small mb-1">
-                                        رقم القيد / الرقم الوطني <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control modal-login-input @error('national_id') is-invalid @enderror"
-                                        id="reg_national_id" name="national_id" value="{{ old('national_id') }}" required
-                                        placeholder="رقم القيد بالجامعة">
-                                    @error('national_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>

@@ -29,7 +29,7 @@ return [
     'gemini_model' => $storedAi['GEMINI_MODEL'] ?? env('GEMINI_MODEL', env('AI_MODEL', 'gemini-3.6-flash')),
     'groq_model' => $storedAi['GROQ_MODEL'] ?? env('GROQ_MODEL', 'openai/gpt-oss-120b'),
 
-    'system_name' => 'المساعد الذكي لمكتب تدريب وتأهيل الخريجين — جامعة طرابلس',
+    'system_name' => 'المساعد الذكي لمكتب تدريب الخريجين — جامعة طرابلس',
 
     'temperature' => (float) ($storedAi['AI_TEMPERATURE'] ?? env('AI_TEMPERATURE', 0.3)),
 

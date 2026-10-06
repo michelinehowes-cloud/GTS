@@ -1036,47 +1036,92 @@
             align-items: center;
             justify-content: center;
         }
-        /* Slim Footer Sponsors Strip — Glassmorphism Logos */
+                /* Slim Footer Sponsors Strip — Blue Glassmorphism */
         .footer-sponsors-strip {
-            background: linear-gradient(135deg, rgba(2,14,32,0.97) 0%, rgba(5,28,60,0.97) 100%);
-            border-top: 1px solid rgba(238,202,62,0.4);
-            padding: 0.6rem 0;
+            background: linear-gradient(90deg, #021A3E 0%, #033566 40%, #042952 100%);
+            border-top: 2px solid rgba(56,189,248,0.5);
+            padding: 0;
             position: relative;
             z-index: 10;
-            backdrop-filter: blur(20px);
             overflow: hidden;
+            box-shadow: 0 -4px 20px rgba(2, 26, 62, 0.4);
         }
         .footer-sponsors-strip::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: repeating-linear-gradient(90deg, rgba(238,202,62,0.03) 0 1px, transparent 1px 60px);
+            background: repeating-linear-gradient(90deg, rgba(56,189,248,0.04) 0 1px, transparent 1px 60px);
             pointer-events: none;
         }
-        .sponsors-strip-label {
-            font-size: 0.68rem;
-            font-weight: 700;
-            color: rgba(238,202,62,0.8);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            white-space: nowrap;
-            padding: 0 1.2rem;
+        .footer-sponsors-strip::after {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 220px;
+            background: linear-gradient(90deg, rgba(3,53,102,1) 0%, transparent 100%);
+            pointer-events: none;
+            z-index: 2;
+        }
+        .strip-featured-logos {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 18px;
             flex-shrink: 0;
-            border-right: 1px solid rgba(238,202,62,0.25);
-            margin-right: 0.6rem;
+            position: relative;
+            z-index: 3;
+            height: 58px;
+            border-left: 1px solid rgba(56,189,248,0.3);
+            border-right: 1px solid rgba(56,189,248,0.3);
+            background: linear-gradient(90deg, rgba(3,53,102,0.95) 0%, rgba(3,40,80,0.6) 100%);
+        }
+        .strip-office-logo {
+            height: 36px;
+            width: auto;
+            object-fit: contain;
+            opacity: 0.95;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
+        }
+        .strip-divider-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(56,189,248,0.5);
+        }
+        .strip-wahaexpo-logo {
+            height: 28px;
+            width: auto;
+            object-fit: contain;
+            opacity: 0.92;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
+        }
+        .sponsors-strip-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: rgba(56,189,248,0.9);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            white-space: nowrap;
+            padding: 0 14px;
+            flex-shrink: 0;
+            border-left: 1px solid rgba(56,189,248,0.25);
+            border-right: 1px solid rgba(56,189,248,0.25);
+            position: relative;
+            z-index: 3;
         }
         .sponsors-ticker-wrap {
             overflow: hidden;
             width: 100%;
-            mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
         }
         .sponsors-ticker-track {
             display: flex;
             align-items: center;
             gap: 0.9rem;
             width: max-content;
-            animation: sponsorScroll 28s linear infinite;
+            animation: sponsorScroll 32s linear infinite;
+            padding: 10px 0;
         }
         .sponsors-ticker-track:hover { animation-play-state: paused; }
         @keyframes sponsorScroll {
@@ -1089,34 +1134,34 @@
             align-items: center;
             gap: 9px;
             background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.15);
+            border: 1px solid rgba(56,189,248,0.22);
             border-radius: 12px;
             padding: 6px 16px 6px 10px;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            box-shadow: 0 3px 14px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.1);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
             transition: all 0.25s ease;
             text-decoration: none;
             white-space: nowrap;
         }
         .sponsor-glass-card.is-link { cursor: pointer; }
         .sponsor-glass-card.is-link:hover {
-            background: rgba(238,202,62,0.12);
-            border-color: rgba(238,202,62,0.5);
-            box-shadow: 0 5px 20px rgba(238,202,62,0.15), inset 0 1px 0 rgba(255,255,255,0.15);
+            background: rgba(56,189,248,0.14);
+            border-color: rgba(56,189,248,0.55);
+            box-shadow: 0 4px 18px rgba(56,189,248,0.2), inset 0 1px 0 rgba(255,255,255,0.12);
             transform: translateY(-2px);
         }
         .sponsor-glass-logo {
-            width: 40px;
-            height: 34px;
+            width: 38px;
+            height: 32px;
             background: rgba(255,255,255,0.92);
-            border-radius: 8px;
+            border-radius: 7px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             flex-shrink: 0;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
         .sponsor-glass-logo img {
             width: 100%;
@@ -1125,11 +1170,11 @@
             padding: 4px;
         }
         .sponsor-glass-logo .sponsor-icon-fb {
-            font-size: 1rem;
-            color: rgba(3,22,48,0.65);
+            font-size: 0.95rem;
+            color: #033566;
         }
         .sponsor-glass-name {
-            font-size: 0.76rem;
+            font-size: 0.74rem;
             font-weight: 700;
             color: rgba(255,255,255,0.88);
             letter-spacing: 0.01em;
@@ -1137,12 +1182,12 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .sponsor-glass-card.is-link:hover .sponsor-glass-name { color: #EECA3E; }
+        .sponsor-glass-card.is-link:hover .sponsor-glass-name { color: #38BDF8; }
         .sponsor-ticker-dot {
             width: 3px;
             height: 3px;
             border-radius: 50%;
-            background: rgba(238,202,62,0.35);
+            background: rgba(56,189,248,0.3);
             flex-shrink: 0;
         }
 
@@ -1539,13 +1584,27 @@
 {{-- ══════════════════════════════════
      FOOTER
 ══════════════════════════════════ --}}
-<!-- Glassmorphism Sponsors Strip -->
+<!-- Glassmorphism Blue Sponsors Strip -->
 <div class="footer-sponsors-strip">
-    <div class="d-flex align-items-center" style="height:54px;">
+    <div class="d-flex align-items-center" style="height:58px;">
+        <!-- Featured logos: office + wahaexpo -->
+        <div class="strip-featured-logos">
+            <img src="{{ asset('images/office_logo_white.png') }}"
+                 alt="مكتب تدريب وتوظيف الخريجين"
+                 class="strip-office-logo"
+                 onerror="this.src='{{ asset('images/logo.jpg') }}'">
+            <div class="strip-divider-dot"></div>
+            <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}"
+                 alt="شركة الواحة لتنظيم المعارض والمؤتمرات"
+                 class="strip-wahaexpo-logo"
+                 onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}'">
+        </div>
+        <!-- Label -->
         <div class="sponsors-strip-label">
-            <i class="fas fa-crown me-1"></i>
+            <i class="fas fa-star me-1" style="color:#38BDF8;"></i>
             رعاة المعرض
         </div>
+        <!-- Scrolling ticker -->
         <div class="sponsors-ticker-wrap flex-grow-1">
             <div class="sponsors-ticker-track">
                 @php
@@ -1593,14 +1652,6 @@
         </div>
     </div>
 </div>
-
-<footer class="page-footer">
-    <div class="container text-center">
-        <p class="mb-0 text-white-50" style="font-size: 0.8rem;">
-            مكتب تدريب وتوظيف الخريجين — <a href="{{ route('home') }}" class="text-warning">جامعة طرابلس</a> &bull; {{ $fair ? $fair->title : 'معرض التوظيف 2026' }} &bull; تنظيم ورعاية: <strong class="text-warning">شركة الواحة لتنظيم المعارض والمؤتمرات</strong>
-        </p>
-    </div>
-</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>

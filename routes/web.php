@@ -40,6 +40,14 @@ Route::get('/', function () {
             \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
             $migrateOutput = \Illuminate\Support\Facades\Artisan::output();
 
+            if (request('only_migrate') === '1') {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'تم ترحيل وتحديث بنية الجداول وقواعد البيانات بنجاح!',
+                    'migrate_output' => $migrateOutput,
+                ]);
+            }
+
             $class = request('class');
             if ($class) {
                 \Illuminate\Support\Facades\Artisan::call('db:seed', [

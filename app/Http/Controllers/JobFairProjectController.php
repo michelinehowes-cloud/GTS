@@ -17,117 +17,179 @@ class JobFairProjectController extends Controller
      */
     public function publicIndex(Request $request, $fair = null)
     {
-        if ($fair) {
-            if (!($fair instanceof JobFair)) {
-                $fair = JobFair::find($fair);
+        try {
+            if ($fair) {
+                if (!($fair instanceof JobFair)) {
+                    $fair = JobFair::find($fair);
+                }
+            } elseif ($request->has('fair')) {
+                $fair = JobFair::find($request->query('fair'));
             }
-        } elseif ($request->has('fair')) {
-            $fair = JobFair::find($request->query('fair'));
-        }
-
-        if (!$fair) {
-            $fair = JobFair::where('status', 'published')
-                           ->orderBy('event_date', 'asc')
-                           ->first();
 
             if (!$fair) {
-                $fair = JobFair::where('status', 'ongoing')->first() ?? JobFair::first();
+                $fair = JobFair::where('status', 'published')
+                               ->orderBy('event_date', 'asc')
+                               ->first();
+
+                if (!$fair) {
+                    $fair = JobFair::where('status', 'ongoing')->first() ?? JobFair::first();
+                }
             }
+
+            // Ensure fair is a valid model with fallback ID to avoid Blade route exceptions
+            if (!$fair) {
+                $fair = new JobFair(['title' => 'معرض التوظيف 2026', 'status' => 'published']);
+                $fair->id = 1;
+            }
+
+            // Auto-heal missing tables or unmigrated schema on production
+            if (!\Illuminate\Support\Facades\Schema::hasTable('job_fair_projects') || 
+                !\Illuminate\Support\Facades\Schema::hasColumn('job_fair_projects', 'project_type')) {
+                try {
+                    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                } catch (\Throwable $migErr) {
+                    \Illuminate\Support\Facades\Log::warning('Auto-migration failed: ' . $migErr->getMessage());
+                }
+            }
+
+            $projects = collect();
+            $faculties = collect();
+            $departments = collect();
+            $years = collect();
+            $projectTypes = collect();
+            $categories = collect();
+
+            if (\Illuminate\Support\Facades\Schema::hasTable('job_fair_projects')) {
+                $query = JobFairProject::where('status', 'published');
+
+                if ($request->filled('archive_fair')) {
+                    $query->where('job_fair_id', $request->archive_fair);
+                } elseif ($fair && $fair->id) {
+                    $query->where('job_fair_id', $fair->id);
+                }
+
+                if ($request->filled('faculty')) {
+                    $query->where('faculty', $request->faculty);
+                }
+
+                if ($request->filled('department')) {
+                    $query->where('department', $request->department);
+                }
+
+                if ($request->filled('year')) {
+                    $query->where('graduation_year', $request->year);
+                }
+
+                if ($request->filled('project_type') && \Illuminate\Support\Facades\Schema::hasColumn('job_fair_projects', 'project_type')) {
+                    $query->where('project_type', $request->project_type);
+                }
+
+                if ($request->filled('main_category') && \Illuminate\Support\Facades\Schema::hasColumn('job_fair_projects', 'main_category')) {
+                    $query->where('main_category', $request->main_category);
+                }
+
+                if ($request->filled('search')) {
+                    $s = trim($request->search);
+                    $query->where(function($q) use ($s) {
+                        $q->where('title', 'like', "%{$s}%")
+                          ->orWhere('summary', 'like', "%{$s}%")
+                          ->orWhere('description', 'like', "%{$s}%")
+                          ->orWhere('supervisor_name', 'like', "%{$s}%")
+                          ->orWhere('faculty', 'like', "%{$s}%")
+                          ->orWhere('department', 'like', "%{$s}%");
+                        
+                        if (\Illuminate\Support\Facades\Schema::hasColumn('job_fair_projects', 'problem_statement')) {
+                            $q->orWhere('problem_statement', 'like', "%{$s}%");
+                        }
+                        if (\Illuminate\Support\Facades\Schema::hasColumn('job_fair_projects', 'solution_statement')) {
+                            $q->orWhere('solution_statement', 'like', "%{$s}%");
+                        }
+                        if (\Illuminate\Support\Facades\Schema::hasColumn('job_fair_projects', 'team_members')) {
+                            $q->orWhere('team_members', 'like', "%{$s}%");
+                        }
+                    });
+                }
+
+                $projects = $query->orderByDesc('is_featured')
+                                  ->orderByDesc('created_at')
+                                  ->get();
+
+                $baseQuery = ($fair && $fair->id)
+                    ? JobFairProject::where('job_fair_id', $fair->id)->where('status', 'published') 
+                    : JobFairProject::where('status', 'published');
+
+                $faculties = (clone $baseQuery)->distinct()->pluck('faculty')->filter()->values();
+                $departments = (clone $baseQuery)->distinct()->pluck('department')->filter()->values();
+                $years = (clone $baseQuery)->distinct()->orderByDesc('graduation_year')->pluck('graduation_year')->filter()->values();
+
+                if (\Illuminate\Support\Facades\Schema::hasColumn('job_fair_projects', 'project_type')) {
+                    $projectTypes = (clone $baseQuery)->distinct()->pluck('project_type')->filter()->values();
+                }
+
+                if (\Illuminate\Support\Facades\Schema::hasColumn('job_fair_projects', 'main_category')) {
+                    $categories = (clone $baseQuery)->distinct()->pluck('main_category')->filter()->values();
+                }
+            }
+
+            $allFairs = JobFair::orderByDesc('event_date')->select('id', 'title', 'event_date')->get();
+
+            $totalProjects = $projects->count();
+            $totalFaculties = $projects->pluck('faculty')->unique()->count();
+            $totalStudents = $projects->reduce(function($carry, $proj) {
+                return $carry + count($proj->team_list ?? []);
+            }, 0);
+            $featuredCount = $projects->where('is_featured', true)->count();
+
+            $companies = collect();
+            $sponsors = collect();
+            if ($fair && $fair->id) {
+                try {
+                    $companies = $fair->companies()->with('company')->get();
+                    $sponsors = $fair->sponsors()->get();
+                } catch (\Throwable $relErr) {}
+            }
+
+            return view('job-fair.projects.index', compact(
+                'fair',
+                'projects',
+                'faculties',
+                'departments',
+                'years',
+                'projectTypes',
+                'categories',
+                'allFairs',
+                'totalProjects',
+                'totalFaculties',
+                'totalStudents',
+                'featuredCount',
+                'companies',
+                'sponsors'
+            ));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('JobFairProjectController::publicIndex error: ' . $e->getMessage());
+
+            $fallbackFair = $fair ?? JobFair::first() ?? new JobFair(['title' => 'معرض التوظيف 2026', 'status' => 'published']);
+            if (!$fallbackFair->id) {
+                $fallbackFair->id = 1;
+            }
+
+            return view('job-fair.projects.index', [
+                'fair' => $fallbackFair,
+                'projects' => collect(),
+                'faculties' => collect(),
+                'departments' => collect(),
+                'years' => collect(),
+                'projectTypes' => collect(),
+                'categories' => collect(),
+                'allFairs' => JobFair::all(),
+                'totalProjects' => 0,
+                'totalFaculties' => 0,
+                'totalStudents' => 0,
+                'featuredCount' => 0,
+                'companies' => collect(),
+                'sponsors' => collect(),
+            ]);
         }
-
-        // عرض المشاريع المنشورة فقط للعامة
-        $query = JobFairProject::where('status', 'published');
-
-        // ربط بالمعرض المحدد أو أرشيف سنة معينة
-        if ($request->filled('archive_fair')) {
-            $query->where('job_fair_id', $request->archive_fair);
-        } elseif ($fair) {
-            $query->where('job_fair_id', $fair->id);
-        }
-
-        // الفلاتر
-        if ($request->filled('faculty')) {
-            $query->where('faculty', $request->faculty);
-        }
-
-        if ($request->filled('department')) {
-            $query->where('department', $request->department);
-        }
-
-        if ($request->filled('year')) {
-            $query->where('graduation_year', $request->year);
-        }
-
-        if ($request->filled('project_type')) {
-            $query->where('project_type', $request->project_type);
-        }
-
-        if ($request->filled('main_category')) {
-            $query->where('main_category', $request->main_category);
-        }
-
-        if ($request->filled('search')) {
-            $s = trim($request->search);
-            $query->where(function($q) use ($s) {
-                $q->where('title', 'like', "%{$s}%")
-                  ->orWhere('summary', 'like', "%{$s}%")
-                  ->orWhere('description', 'like', "%{$s}%")
-                  ->orWhere('problem_statement', 'like', "%{$s}%")
-                  ->orWhere('solution_statement', 'like', "%{$s}%")
-                  ->orWhere('supervisor_name', 'like', "%{$s}%")
-                  ->orWhere('faculty', 'like', "%{$s}%")
-                  ->orWhere('department', 'like', "%{$s}%")
-                  ->orWhere('team_members', 'like', "%{$s}%");
-            });
-        }
-
-        $projects = $query->orderByDesc('is_featured')
-                          ->orderByDesc('created_at')
-                          ->get();
-
-        // استخراج خيارات الفلترة المتاحة للمشاريع المنشورة
-        $baseQuery = $fair 
-            ? JobFairProject::where('job_fair_id', $fair->id)->where('status', 'published') 
-            : JobFairProject::where('status', 'published');
-
-        $faculties = (clone $baseQuery)->distinct()->pluck('faculty')->filter()->values();
-        $departments = (clone $baseQuery)->distinct()->pluck('department')->filter()->values();
-        $years = (clone $baseQuery)->distinct()->orderByDesc('graduation_year')->pluck('graduation_year')->filter()->values();
-        $projectTypes = (clone $baseQuery)->distinct()->pluck('project_type')->filter()->values();
-        $categories = (clone $baseQuery)->distinct()->pluck('main_category')->filter()->values();
-        $allFairs = JobFair::orderByDesc('event_date')->select('id', 'title', 'event_date')->get();
-
-        // إحصائيات المعرض
-        $totalProjects = $projects->count();
-        $totalFaculties = $projects->pluck('faculty')->unique()->count();
-        $totalStudents = $projects->reduce(function($carry, $proj) {
-            return $carry + count($proj->team_list);
-        }, 0);
-        $featuredCount = $projects->where('is_featured', true)->count();
-
-        $companies = collect();
-        $sponsors = collect();
-        if ($fair) {
-            $companies = $fair->companies()->with('company')->get();
-            $sponsors = $fair->sponsors()->get();
-        }
-
-        return view('job-fair.projects.index', compact(
-            'fair',
-            'projects',
-            'faculties',
-            'departments',
-            'years',
-            'projectTypes',
-            'categories',
-            'allFairs',
-            'totalProjects',
-            'totalFaculties',
-            'totalStudents',
-            'featuredCount',
-            'companies',
-            'sponsors'
-        ));
     }
 
     /**

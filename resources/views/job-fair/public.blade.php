@@ -2086,7 +2086,7 @@
 
                     <div class="d-flex gap-2">
                         <a href="{{ route('job-fair.public.events.show', $event->id) }}" class="btn-view-company w-100 text-center py-2" style="font-size:0.85rem;">
-                            <i class="fas fa-qrcode me-1"></i>تفاصيل الفعالية والتسجيل
+                            <i class="fas fa-info-circle me-1"></i>تفاصيل الفعالية
                         </a>
                     </div>
                 </div>
@@ -2101,7 +2101,7 @@
                 <i class="fas fa-arrow-left ms-2"></i>
             </a>
             <div class="mt-2 text-white-50" style="font-size: 0.88rem;">
-                <i class="fas fa-calendar-alt me-1 text-warning"></i> مواعيد ورش العمل، الماستر كلاس، والجلسات الحوارية، وتأكيد الحضور
+                <i class="fas fa-calendar-alt me-1 text-warning"></i> مواعيد ورش العمل، الماستر كلاس، والجلسات الحوارية
             </div>
         </div>
         @endif
@@ -2151,12 +2151,12 @@
         <div class="row g-4 mb-5">
             @foreach($previewProjects as $project)
             <div class="col-lg-4 col-md-6">
-                <div class="h-100 p-4 rounded-4 d-flex flex-column justify-content-between" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); position: relative; overflow: hidden;">
+                <div class="h-100 p-4 rounded-4 d-flex flex-column justify-content-between" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); position: relative; overflow: hidden; transition: transform 0.25s ease, border-color 0.25s ease;">
                     <div style="position: absolute; top: 0; right: 0; left: 0; height: 3px; background: linear-gradient(90deg, #eeca3e, #00d2ff);"></div>
                     
                     <div>
                         <div class="d-flex align-items-center justify-content-between mb-3">
-                            <span class="badge px-3 py-2 rounded-pill" style="background: rgba(4,93,176,0.4); border: 1px solid rgba(0,210,255,0.3); color: #7dd3fc; font-size: 0.78rem;">
+                            <span class="badge px-3 py-1.5 rounded-pill" style="background: rgba(4,93,176,0.35); border: 1px solid rgba(0,210,255,0.25); color: #7dd3fc; font-size: 0.78rem;">
                                 <i class="{{ $project->faculty_icon }} me-1"></i>{{ $project->faculty }}
                             </span>
                             @if($project->booth_number)
@@ -2166,41 +2166,26 @@
                             @endif
                         </div>
 
-                        <h4 class="text-white fw-bold mb-2" style="font-size: 1.18rem; line-height: 1.45;">
+                        <h4 class="text-white fw-bold mb-2" style="font-size: 1.15rem; line-height: 1.45; min-height: 2.9rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                             <a href="{{ route('job-fair.public.projects.show', $project->id) }}" class="text-white text-decoration-none" style="transition: color 0.2s;">
                                 {{ $project->title }}
                             </a>
                         </h4>
 
-                        <div class="text-info small mb-3" style="font-size: 0.82rem;">
-                            <i class="fas fa-code-branch me-1"></i>{{ $project->department }} &bull; سنة التخرج {{ $project->graduation_year }}
+                        <div class="text-info small mb-2" style="font-size: 0.8rem;">
+                            <i class="fas fa-code-branch me-1"></i>{{ $project->department }} &bull; سنة {{ $project->graduation_year }}
                         </div>
 
-                        <p class="text-white-50 mb-3" style="font-size: 0.85rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                        <p class="text-white-50 mb-3" style="font-size: 0.85rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                             {{ $project->summary }}
                         </p>
-
-                        <div class="p-2.5 rounded-3 mb-3" style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem;">
-                            <div class="d-flex align-items-center justify-content-between text-white-50 mb-1">
-                                <span><i class="fas fa-users text-warning me-1"></i>فريق العمل:</span>
-                                <span class="text-white fw-semibold">{{ count($project->team_list) }} أعضاء</span>
-                            </div>
-                            <div class="text-truncate text-white-50" style="font-size: 0.76rem;">
-                                {{ implode('، ', array_column($project->team_list, 'name')) }}
-                            </div>
-                            @if($project->supervisor_name)
-                            <div class="mt-1.5 pt-1.5 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between text-white-50" style="font-size: 0.76rem;">
-                                <span><i class="fas fa-chalkboard-teacher text-info me-1"></i>إشراف:</span>
-                                <span class="text-light">{{ $project->supervisor_title }} {{ $project->supervisor_name }}</span>
-                            </div>
-                            @endif
-                        </div>
                     </div>
 
-                    <div>
+                    <div class="pt-3 border-top border-white border-opacity-10">
                         <a href="{{ route('job-fair.public.projects.show', $project->id) }}" class="btn-view-company w-100 text-center py-2.5 d-flex align-items-center justify-content-center gap-2" style="font-size: 0.88rem; font-weight: 700; text-decoration: none;">
-                            <i class="fas fa-qrcode"></i>
-                            <span>تفاصيل المشروع ورمز QR</span>
+                            <i class="fas fa-qrcode text-warning"></i>
+                            <span>عرض تفاصيل المشروع كاملة ورمز QR</span>
+                            <i class="fas fa-arrow-left ms-1"></i>
                         </a>
                     </div>
                 </div>

@@ -1753,13 +1753,28 @@
                             </h5>
 
                             <div class="row g-3 text-start text-rtl">
-                                <div class="col-12">
+                                <div class="col-md-6">
                                     <label for="reg_name" class="form-label fw-bold text-dark small mb-1">
-                                        الاسم الرباعي الكامل <span class="text-danger">*</span>
+                                        الاسم الرباعي <span class="text-danger">*</span>
                                     </label>
                                     <input type="text" class="form-control modal-login-input @error('name') is-invalid @enderror" id="reg_name"
-                                        name="name" value="{{ old('name') }}" required placeholder="الاسم الرباعي كما هو في الشهادة أو البطاقة الشخصية">
+                                        name="name" value="{{ old('name') }}" required placeholder="الاسم الرباعي كما هو في الشهادة">
                                     @error('name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="reg_student_id" class="form-label fw-bold text-dark small mb-1">
+                                        رقم القيد الجامعي <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control modal-login-input @error('student_id') is-invalid @enderror @error('national_id') is-invalid @enderror"
+                                        id="reg_student_id" name="student_id" value="{{ old('student_id', old('national_id')) }}" required
+                                        placeholder="رقم القيد بالجامعة (الرقم الجامعي)">
+                                    @error('student_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                    @error('national_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>

@@ -419,13 +419,28 @@
                         </h5>
 
                         <div class="row g-3">
-                            <div class="col-12">
+                            <div class="col-md-6">
                                 <label for="name" class="form-label">
-                                    الاسم الرباعي الكامل <span class="required">*</span>
+                                    الاسم الرباعي <span class="required">*</span>
                                 </label>
                                 <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
-                                    name="name" value="{{ old('name') }}" required placeholder="الاسم الرباعي كما هو في الشهادة أو البطاقة الشخصية">
+                                    name="name" value="{{ old('name') }}" required placeholder="الاسم الرباعي كما هو في الشهادة">
                                 @error('name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="student_id" class="form-label">
+                                    رقم القيد الجامعي <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-control @error('student_id') is-invalid @enderror @error('national_id') is-invalid @enderror"
+                                    id="student_id" name="student_id" value="{{ old('student_id', old('national_id')) }}" required
+                                    placeholder="رقم القيد الجامعي بالجامعة">
+                                @error('student_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                @error('national_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

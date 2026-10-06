@@ -76,7 +76,7 @@
                     <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-1.5 fw-bold">
                         <i class="fas fa-robot me-1 text-primary"></i> نتائج التدقيق والتحقق الذكي
                     </span>
-                    <span class="text-muted small">فحص تلقائي للاسم والاتساق الأكاديمي وبيانات الاتصال والتسلسل الزمني</span>
+                    <span class="text-muted small">فحص تلقائي للاسم ورقم القيد الجامعي والاتساق الأكاديمي وبيانات الاتصال والتسلسل الزمني</span>
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <!-- زر سريع لتحديد السليمة فقط في الشيك بوكس -->
@@ -259,7 +259,7 @@
                                                 <div>
                                                     <div class="fw-bold text-dark fs-6">{{ $user->name }}</div>
                                                     <div class="small text-muted">
-                                                        <i class="fas fa-map-marker-alt me-1 text-secondary"></i>{{ $user->city ?? $user->address ?? 'جامعة طرابلس' }}
+                                                        <i class="fas fa-id-card me-1 text-primary"></i>رقم القيد: <span class="fw-bold text-dark">{{ $user->national_id ?? 'غير متوفر' }}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -364,6 +364,9 @@
                                         </div>
 
                                         <div class="row g-2 pt-2 border-top small text-muted">
+                                            <div class="col-12">
+                                                <i class="fas fa-id-card me-1 text-primary"></i>رقم القيد: <strong class="text-dark">{{ $user->national_id ?? 'غير متوفر' }}</strong>
+                                            </div>
                                             <div class="col-12">
                                                 <i class="fas fa-envelope me-1 text-secondary"></i>{{ $user->email }}
                                             </div>
@@ -479,7 +482,7 @@
                         </div>
                     @else
                         <div class="small text-success mt-1">
-                            <i class="fas fa-check-circle me-1"></i> جميع المدخلات (الاسم، التخصص والكلية، الهاتف، البريد، تاريخ الميلاد) مستوفية للشروط بنسبة 100%.
+                            <i class="fas fa-check-circle me-1"></i> جميع المدخلات (الاسم، رقم القيد الجامعي، التخصص والكلية، الهاتف، البريد، تاريخ الميلاد) مستوفية للشروط بنسبة 100%.
                         </div>
                     @endif
                 </div>
@@ -494,6 +497,12 @@
                             <div class="p-3 bg-light rounded-3 h-100 border">
                                 <small class="text-muted d-block mb-1">الاسم الكامل</small>
                                 <strong class="text-dark">{{ $user->name }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <div class="p-3 bg-light rounded-3 h-100 border">
+                                <small class="text-muted d-block mb-1">رقم القيد الجامعي</small>
+                                <strong class="text-dark">{{ $user->national_id ?? 'غير مسجل' }}</strong>
                             </div>
                         </div>
                         <div class="col-md-6 col-lg-4">

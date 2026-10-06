@@ -61,6 +61,8 @@ class GraduateRegistrationController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
+            'student_id' => 'required_without:national_id|nullable|string|max:50',
+            'national_id' => 'nullable|string|max:50',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'phone' => 'required|string|max:20',
@@ -80,6 +82,8 @@ class GraduateRegistrationController extends Controller
             'languages' => 'nullable|string',
         ], [
             'name.required' => 'الاسم الكامل مطلوب',
+            'student_id.required' => 'رقم القيد الجامعي مطلوب',
+            'student_id.required_without' => 'رقم القيد الجامعي مطلوب',
             'email.required' => 'البريد الإلكتروني مطلوب',
             'email.unique' => 'البريد الإلكتروني مستخدم بالفعل',
             'password.required' => 'كلمة المرور مطلوبة',
@@ -108,6 +112,9 @@ class GraduateRegistrationController extends Controller
         $rawLanguages = $request->input('languages');
         $languages = !empty($rawLanguages) ? (is_array($rawLanguages) ? $rawLanguages : array_filter(array_map('trim', explode(',', (string)$rawLanguages)))) : [];
 
+        // استخراج رقم القيد الجامعي
+        $studentId = $request->input('student_id') ?: $request->input('national_id');
+
         // إنشاء حساب جديد بحالة غير موافق عليه
         $user = User::create([
             'name' => $request->name,
@@ -115,6 +122,7 @@ class GraduateRegistrationController extends Controller
             'password' => Hash::make($request->password),
             'role' => 'graduate',
             'phone' => $request->phone,
+            'national_id' => $studentId, // تخزين رقم القيد الجامعي
             'date_of_birth' => $request->date_of_birth,
             'gender' => $request->gender,
             'address' => $request->address,
@@ -286,6 +294,7 @@ class GraduateRegistrationController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'phone' => $user->phone,
+                'national_id' => $user->national_id ?? null, // رقم القيد الجامعي
                 'major' => $user->specialization ?? $user->major ?? 'غير محدد',
                 'faculty' => $user->faculty ?? null,
                 'sector' => $user->sector ?? null,
@@ -594,7 +603,31 @@ class GraduateRegistrationController extends Controller
             ];
         }
 
-        // 5. فحص المعدل التراكمي
+        // 5. فحص رقم القيد الجامعي (Student University Registration ID)
+        $studentId = trim((string) ($user->national_id ?? ''));
+        if (empty($studentId)) {
+            $score -= 20;
+            $flags[] = [
+                'type' => 'warning',
+                'field' => 'student_id',
+                'title' => 'رقم القيد غير مسجل',
+                'msg' => 'لم يتم إدخال رقم القيد الجامعي للخريج.'
+            ];
+        } else {
+            // كشف أرقام القيد الوهمية أو المتكررة
+            $isFakeId = preg_match('/^(\d)\1{4,}$/', $studentId) || in_array($studentId, ['123', '1234', '12345', '123456', '0000', '00000', 'asdf', 'test', 'none']);
+            if ($isFakeId || strlen($studentId) < 3) {
+                $score -= 35;
+                $flags[] = [
+                    'type' => 'danger',
+                    'field' => 'student_id',
+                    'title' => 'رقم قيد غير صالح أو وهمي',
+                    'msg' => 'رقم القيد الجامعي يبدو وهمياً أو غير مكتمل.'
+                ];
+            }
+        }
+
+        // 6. فحص المعدل التراكمي
         if (!is_null($user->gpa)) {
             $gpa = (float) $user->gpa;
             if ($gpa < 0 || $gpa > 100) {

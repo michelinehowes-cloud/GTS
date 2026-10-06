@@ -1113,10 +1113,10 @@
         }
 
         /* ══════════════════════════════════
-           SCIENTIFIC PROGRAM PREVIEW SECTION
+           SCIENTIFIC PROGRAM PREVIEW SECTION (Compact & Refined)
         ══════════════════════════════════ */
         .program-preview-section {
-            padding: 100px 0;
+            padding: 90px 0;
             background: linear-gradient(180deg, #071324 0%, #044b8e 50%, #033566 100%);
             position: relative;
             overflow: hidden;
@@ -1124,99 +1124,183 @@
 
         .program-preview-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 1.8rem;
-            margin-bottom: 3.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+            gap: 1.4rem;
+            margin-bottom: 3rem;
         }
 
         .program-preview-card {
-            background: rgba(8, 34, 69, 0.7);
-            border: 1.5px solid rgba(255, 255, 255, 0.16);
-            border-radius: 24px;
-            padding: 1.8rem;
-            backdrop-filter: blur(16px);
+            background: rgba(8, 34, 69, 0.65);
+            border: 1.5px solid rgba(255, 255, 255, 0.14);
+            border-radius: 20px;
+            padding: 1.35rem 1.4rem;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+            gap: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
             text-decoration: none;
             color: #ffffff;
             position: relative;
+            cursor: pointer;
         }
 
         .program-preview-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--gold);
-            background: rgba(12, 45, 92, 0.9);
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45), 0 0 25px rgba(238, 202, 62, 0.25);
+            transform: translateY(-6px);
+            border-color: rgba(56, 189, 248, 0.6);
+            background: rgba(12, 45, 92, 0.85);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35), 0 0 25px rgba(56, 189, 248, 0.2);
             color: #ffffff;
         }
 
+        .program-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
         .badge-type-masterclass {
-            background: linear-gradient(135deg, #7c3aed, #a855f7);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            font-size: 0.75rem;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(168, 85, 247, 0.35));
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.45);
+            font-size: 0.72rem;
             font-weight: 800;
-            padding: 5px 12px;
+            padding: 4px 11px;
             border-radius: 50px;
         }
 
         .badge-type-workshop {
-            background: linear-gradient(135deg, #0284c7, #38bdf8);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            font-size: 0.75rem;
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.25), rgba(56, 189, 248, 0.3));
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            font-size: 0.72rem;
             font-weight: 800;
-            padding: 5px 12px;
+            padding: 4px 11px;
             border-radius: 50px;
         }
 
         .badge-type-panel {
-            background: linear-gradient(135deg, #059669, #34d399);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            font-size: 0.75rem;
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.25), rgba(52, 211, 153, 0.3));
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.4);
+            font-size: 0.72rem;
             font-weight: 800;
-            padding: 5px 12px;
+            padding: 4px 11px;
             border-radius: 50px;
         }
 
-        .event-speaker-strip {
+        .event-time-pill {
+            font-size: 0.74rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 3px 10px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .event-card-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.45;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 2.9rem;
+        }
+
+        .event-compact-speaker {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-            margin: 1rem 0 1.2rem;
-            padding: 10px 14px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            direction: rtl;
-        }
-
-        .event-speaker-info {
-            flex: 1;
-            min-width: 0;
-            text-align: right;
-        }
-
-        .event-speaker-avatar {
-            width: 64px;
-            height: 64px;
+            gap: 9px;
+            padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            color: var(--gold);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .speaker-avatar-sm {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1.5px solid rgba(56, 189, 248, 0.6);
+            flex-shrink: 0;
+        }
+
+        .speaker-avatar-sm-fallback {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.2rem;
+            font-size: 0.75rem;
             flex-shrink: 0;
-            object-fit: cover;
-            margin-right: auto;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .speaker-name-compact {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .program-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: auto;
+        }
+
+        .event-loc-compact {
+            font-size: 0.76rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            max-width: 60%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-event-quick-view {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-decoration: none;
+            padding: 5px 12px;
+            border-radius: 50px;
+            background: rgba(238, 202, 62, 0.12);
+            border: 1px solid rgba(238, 202, 62, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .btn-event-quick-view:hover {
+            background: linear-gradient(135deg, var(--gold), #f59e0b);
+            color: #071933;
+            border-color: var(--gold);
+            transform: translateX(-2px);
         }
 
         /* ══════════════════════════════════
@@ -2212,53 +2296,41 @@
                     default => 'badge-type-workshop',
                 };
             @endphp
-            <div class="program-preview-card">
-                <div>
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <span class="{{ $typeClass }}">
-                            <i class="{{ $event->type_icon }} me-1"></i>{{ $event->type_short_label }}
-                        </span>
-                        <span class="jobs-tag tag-available" style="font-size:0.72rem;">
-                            <i class="fas fa-check-circle me-1"></i>{{ $event->status_label }}
-                        </span>
-                    </div>
-
-                    <h4 class="fw-bold mb-2 text-white" style="font-size: 1.15rem; line-height: 1.4;">
-                        {{ $event->title }}
-                    </h4>
-
-                    @if($event->speaker_name)
-                    <div class="event-speaker-strip">
-                        <div class="event-speaker-info text-truncate">
-                            <div class="fw-bold text-white" style="font-size: 0.95rem;">{{ $event->speaker_name }}</div>
-                            <small class="text-white-50 d-block text-truncate" style="font-size: 0.72rem;">{{ $event->speaker_title ?: 'متحدث وخبير معتمد' }}</small>
-                        </div>
-                        @if($event->speaker_image_url)
-                            <img src="{{ $event->speaker_image_url }}" alt="{{ $event->speaker_name }}" class="event-speaker-avatar">
-                        @else
-                            <div class="event-speaker-avatar">
-                                <i class="fas fa-user-tie"></i>
-                            </div>
-                        @endif
-                    </div>
-                    @endif
-
-                    <p class="text-white-50 mb-3" style="font-size: 0.82rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                        {{ $event->description }}
-                    </p>
+            <div class="program-preview-card" onclick="window.location.href='{{ route('job-fair.public.events.show', $event->id) }}'">
+                <div class="program-card-header">
+                    <span class="{{ $typeClass }}">
+                        <i class="{{ $event->type_icon }} me-1"></i>{{ $event->type_short_label }}
+                    </span>
+                    <span class="event-time-pill">
+                        <i class="far fa-clock text-warning me-1"></i>{{ $event->start_time->format('H:i') }} - {{ $event->end_time->format('H:i') }}
+                    </span>
                 </div>
 
-                <div>
-                    <div class="d-flex align-items-center justify-content-between text-white-50 small mb-3 pt-2" style="font-size:0.76rem; border-top:1px solid rgba(255,255,255,0.08);">
-                        <span><i class="far fa-clock text-warning me-1"></i>{{ $event->start_time->format('H:i') }} - {{ $event->end_time->format('H:i') }}</span>
-                        <span><i class="fas fa-map-marker-alt text-info me-1"></i>{{ $event->location ?: 'المدرج الرئيسي' }}</span>
-                    </div>
+                <h4 class="event-card-title">
+                    {{ $event->title }}
+                </h4>
 
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('job-fair.public.events.show', $event->id) }}" class="btn-view-company w-100 text-center py-2" style="font-size:0.85rem;">
-                            <i class="fas fa-info-circle me-1"></i>تفاصيل الفعالية
-                        </a>
-                    </div>
+                @if($event->speaker_name)
+                <div class="event-compact-speaker">
+                    @if($event->speaker_image_url)
+                        <img src="{{ $event->speaker_image_url }}" alt="{{ $event->speaker_name }}" class="speaker-avatar-sm">
+                    @else
+                        <div class="speaker-avatar-sm-fallback">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                    @endif
+                    <span class="speaker-name-compact" title="{{ $event->speaker_name }}">{{ $event->speaker_name }}</span>
+                </div>
+                @endif
+
+                <div class="program-card-footer">
+                    <span class="event-loc-compact" title="{{ $event->location ?: 'المدرج الرئيسي' }}">
+                        <i class="fas fa-map-marker-alt text-info me-1"></i>{{ $event->location ?: 'المدرج الرئيسي' }}
+                    </span>
+                    <a href="{{ route('job-fair.public.events.show', $event->id) }}" class="btn-event-quick-view" onclick="event.stopPropagation();">
+                        <span>التفاصيل</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
                 </div>
             </div>
             @endforeach

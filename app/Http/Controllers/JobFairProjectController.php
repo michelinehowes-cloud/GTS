@@ -105,6 +105,13 @@ class JobFairProjectController extends Controller
         }, 0);
         $featuredCount = $projects->where('is_featured', true)->count();
 
+        $companies = collect();
+        $sponsors = collect();
+        if ($fair) {
+            $companies = $fair->companies()->with('company')->get();
+            $sponsors = $fair->sponsors()->get();
+        }
+
         return view('job-fair.projects.index', compact(
             'fair',
             'projects',
@@ -117,7 +124,9 @@ class JobFairProjectController extends Controller
             'totalProjects',
             'totalFaculties',
             'totalStudents',
-            'featuredCount'
+            'featuredCount',
+            'companies',
+            'sponsors'
         ));
     }
 

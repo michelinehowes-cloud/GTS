@@ -472,89 +472,85 @@
         }
 
         .project-card-body {
-            padding: 24px;
+            padding: 18px 20px 20px;
             display: flex;
             flex-direction: column;
             flex-grow: 1;
         }
 
         .project-dept-meta {
-            font-size: 0.78rem;
-            color: rgba(255,255,255,0.65);
-            margin-bottom: 8px;
+            font-size: 0.76rem;
+            color: rgba(255,255,255,0.68);
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
         .project-title {
-            font-size: 1.15rem;
+            font-size: 1.02rem;
             font-weight: 800;
-            line-height: 1.45;
+            line-height: 1.4;
             color: #ffffff;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 2.8em;
+        }
+
+        .project-summary {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.72);
+            line-height: 1.5;
             margin-bottom: 12px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            height: 3.3em;
+            height: 3em;
         }
 
-        .project-summary {
-            font-size: 0.85rem;
-            color: rgba(255,255,255,0.8);
-            line-height: 1.6;
-            margin-bottom: 18px;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            height: 4.8em;
-        }
-
-        .project-meta-box {
-            background: rgba(255,255,255,0.035);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px;
-            padding: 12px 14px;
-            margin-top: auto;
-            margin-bottom: 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 0.78rem;
-        }
-
-        .meta-line {
+        .project-compact-meta {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: rgba(255,255,255,0.85);
-            text-overflow: ellipsis;
+            margin-top: auto;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .compact-chip {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.88);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            max-width: 100%;
             white-space: nowrap;
             overflow: hidden;
-        }
-        .meta-line i {
-            color: var(--gold-lt);
-            width: 14px;
-            text-align: center;
-            flex-shrink: 0;
+            text-overflow: ellipsis;
         }
 
         .btn-view-project {
             background: linear-gradient(135deg, rgba(238,202,62,0.2) 0%, rgba(245,158,11,0.25) 100%);
             border: 1.5px solid var(--gold);
             color: #ffffff;
-            border-radius: 12px;
-            padding: 10px;
-            font-weight: 800;
-            font-size: 0.9rem;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-weight: 700;
+            font-size: 0.86rem;
             text-align: center;
             text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             transition: all 0.25s ease;
         }
         .btn-view-project:hover {
@@ -564,12 +560,95 @@
             box-shadow: 0 6px 20px rgba(245,158,11,0.35);
         }
 
+        /* Footer Companies & Sponsors Showcase */
+        .footer-companies-bar {
+            background: rgba(4, 25, 52, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+        }
+        .footer-section-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(238,202,62,0.15);
+            border: 1px solid rgba(238,202,62,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-footer-companies-link {
+            color: var(--gold);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 6px 14px;
+            border: 1px solid rgba(238,202,62,0.3);
+            border-radius: 20px;
+            background: rgba(238,202,62,0.08);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn-footer-companies-link:hover {
+            background: var(--gold);
+            color: #061c38;
+        }
+        .footer-sponsor-strategic-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(238,202,62,0.3);
+            border-radius: 14px;
+            padding: 12px 14px;
+            position: relative;
+        }
+        .strategic-badge {
+            position: absolute;
+            top: -10px;
+            right: 12px;
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+            color: #fff;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .footer-companies-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .footer-company-pill {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.85);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 0.78rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .footer-company-pill:hover {
+            background: rgba(255,255,255,0.12);
+            border-color: var(--gold);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+        .footer-company-pill img {
+            height: 22px;
+            width: auto;
+            max-width: 50px;
+            object-fit: contain;
+        }
+
         /* Footer */
         .projects-footer {
             margin-top: auto;
-            background: rgba(4, 30, 60, 0.85);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 25px 0;
+            background: #031428;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 20px 0;
             font-size: 0.85rem;
             color: rgba(255, 255, 255, 0.65);
         }
@@ -779,7 +858,7 @@
 
         <!-- Top Navigation -->
         <nav class="top-nav" id="topNav">
-            <a href="{{ $fair ? route('job-fair.public', $fair->id) : route('home') }}" class="nav-brand">
+            <a href="{{ $fair && $fair->id ? route('job-fair.public', $fair->id) : route('home') }}" class="nav-brand">
                 <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" class="main-logo" onerror="this.style.display='none'">
                 <div class="nav-brand-text">
                     <div class="main">مكتب تدريب الخريجين</div>
@@ -799,7 +878,7 @@
             </a>
 
             <div class="nav-links">
-                @if($fair)
+                @if($fair && $fair->id)
                     <a href="{{ route('job-fair.public', $fair->id) }}" class="nav-btn nav-btn-outline">
                         <i class="fas fa-arrow-right"></i>العودة للمعرض
                     </a>
@@ -811,7 +890,7 @@
                     </a>
                 @endif
 
-                <a href="{{ $fair ? route('job-fair.public.projects.submit-fair', $fair->id) : route('job-fair.public.projects.submit') }}" class="nav-btn nav-btn-gold">
+                <a href="{{ $fair && $fair->id ? route('job-fair.public.projects.submit-fair', $fair->id) : route('job-fair.public.projects.submit') }}" class="nav-btn nav-btn-gold">
                     <i class="fas fa-file-upload"></i>قدّم مشروعك
                 </a>
 
@@ -824,7 +903,7 @@
                     <a href="{{ route('graduate.register') }}" class="nav-btn nav-btn-gold">
                         <i class="fas fa-user-plus"></i>سجّل كخريج
                     </a>
-                    @if($fair)
+                    @if($fair && $fair->id)
                         <a href="{{ route('job-fair.public', $fair->id) }}#visitor-register" class="nav-btn nav-btn-outline">
                             <i class="fas fa-id-badge" style="color:var(--gold)"></i>سجّل كزائر
                         </a>
@@ -948,10 +1027,10 @@
                 </div>
 
                 <div class="cs-actions">
-                    <a href="{{ route('job-fair.public.companies', $fair ? $fair->id : 1) }}" class="btn-cs-gold">
+                    <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="btn-cs-gold">
                         <i class="fas fa-building me-1"></i>استكشف الشركات والجهات المشاركة في المعرض
                     </a>
-                    <a href="{{ route('job-fair.public', $fair ? $fair->id : null) }}" class="btn-cs-outline">
+                    <a href="{{ $fair && $fair->id ? route('job-fair.public', $fair->id) : route('home') }}" class="btn-cs-outline">
                         <i class="fas fa-arrow-right me-1"></i>العودة للصفحة الرئيسية للمعرض
                     </a>
                 </div>
@@ -961,7 +1040,7 @@
 
             <!-- Filter & Search Bar -->
             <div class="filter-panel">
-                <form action="{{ $fair ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" method="GET" id="filterForm">
+                <form action="{{ $fair && $fair->id ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" method="GET" id="filterForm">
                     <div class="row g-3">
                         <!-- Search Box -->
                         <div class="col-lg-4 col-md-12">
@@ -1001,7 +1080,7 @@
                             </select>
 
                             @if(request()->anyFilled(['search', 'faculty', 'department', 'year']))
-                            <a href="{{ $fair ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" class="btn-filter-reset" title="إعادة تعيين الفلاتر">
+                            <a href="{{ $fair && $fair->id ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" class="btn-filter-reset" title="إعادة تعيين الفلاتر">
                                 <i class="fas fa-undo"></i>
                             </a>
                             @endif
@@ -1040,7 +1119,7 @@
                             </div>
                         </div>
 
-                        <!-- Card Body -->
+                        <!-- Card Body (Condensed info) -->
                         <div class="project-card-body">
                             <div class="project-dept-meta">
                                 <span><i class="fas fa-layer-group text-warning"></i> {{ $proj->department }}</span>
@@ -1051,24 +1130,21 @@
                             <h3 class="project-title" title="{{ $proj->title }}">{{ $proj->title }}</h3>
 
                             <p class="project-summary">
-                                {{ $proj->summary ?: Str::limit(strip_tags($proj->description), 140) }}
+                                {{ $proj->summary ?: Str::limit(strip_tags($proj->description), 90) }}
                             </p>
 
-                            <!-- Meta Box -->
-                            <div class="project-meta-box">
-                                <div class="meta-line" title="أعضاء الفريق">
-                                    <i class="fas fa-users"></i>
-                                    <span>
-                                        @php
-                                            $names = collect($proj->team_list)->pluck('name')->filter()->implode('، ');
-                                        @endphp
-                                        {{ $names ?: 'فريق الخريجين' }}
-                                    </span>
-                                </div>
-                                <div class="meta-line" title="المشرف الأكاديمي">
-                                    <i class="fas fa-user-tie"></i>
-                                    <span>إشراف: {{ $proj->supervisor_name ?? 'القسم الأكاديمي' }}</span>
-                                </div>
+                            <!-- Compact Meta Chips (تقليص المعلومات في البطاقات) -->
+                            <div class="project-compact-meta">
+                                <span class="compact-chip" title="فريق العمل: {{ count($proj->team_list) }} أعضاء">
+                                    <i class="fas fa-users text-warning"></i>
+                                    <span>{{ count($proj->team_list) > 0 ? count($proj->team_list) . ' أعضاء' : 'فريق العمل' }}</span>
+                                </span>
+                                @if($proj->supervisor_name)
+                                <span class="compact-chip" title="إشراف: {{ $proj->supervisor_name }}">
+                                    <i class="fas fa-user-tie text-info"></i>
+                                    <span>إشراف: {{ Str::limit(preg_replace('/^(أستاذ التمويل المصرفي والأسواق المالية |أستاذ دكتور |أستاذ |دكتور |د\. )/u', '', $proj->supervisor_name), 20) }}</span>
+                                </span>
+                                @endif
                             </div>
 
                             <!-- Action Button -->
@@ -1086,7 +1162,7 @@
                         <i class="fas fa-folder-open fa-4x text-warning mb-3 d-block"></i>
                         <h4 class="fw-bold text-white mb-2">لم يتم العثور على مشاريع تخرج مطابقة</h4>
                         <p class="text-white-50 small mb-4">جرب البحث بكلمات أخرى أو اختر كلية أو تخصصاً مختلفاً.</p>
-                        <a href="{{ $fair ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" class="btn-nav-outline">
+                        <a href="{{ $fair && $fair->id ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" class="btn-nav-outline">
                             <i class="fas fa-undo"></i>
                             <span>عرض كافة المشاريع</span>
                         </a>
@@ -1099,13 +1175,99 @@
 
         </div>
 
+        <!-- Companies & Sponsors Showcase Bar (الشريط السفلي للشركات والرعاة) -->
+        <section class="footer-companies-bar py-4">
+            <div class="container">
+                <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 mb-3 border-bottom border-white-10 pb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="footer-section-icon"><i class="fas fa-building text-warning"></i></div>
+                        <div>
+                            <h5 class="text-white fw-bold mb-0" style="font-size: 1.05rem;">الشركات والمؤسسات المشاركة والداعمة</h5>
+                            <small class="text-white-50">شركاء التوظيف والرعاية الداعمين لمسيرة تمكين خريجي جامعة طرابلس</small>
+                        </div>
+                    </div>
+                    <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="btn-footer-companies-link">
+                        <span>دليل كافة الشركات والأجنحة</span>
+                        <i class="fas fa-arrow-left ms-1"></i>
+                    </a>
+                </div>
+
+                {{-- Strategic Sponsor + Participating Companies Grid/Strip --}}
+                <div class="row g-3 align-items-center">
+                    {{-- 1. Strategic Sponsor: Waha Expo --}}
+                    <div class="col-lg-4 col-md-5">
+                        <div class="footer-sponsor-strategic-card">
+                            <span class="strategic-badge"><i class="fas fa-crown text-warning me-1"></i>الراعي الاستراتيجي</span>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="strategic-logo-box bg-white p-2 rounded-2 shadow-sm d-flex align-items-center justify-content-center" style="width: 70px; height: 50px;">
+                                    <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="max-height: 38px; max-width: 60px; object-fit: contain;">
+                                </div>
+                                <div class="text-end">
+                                    <h6 class="text-white fw-bold mb-0" style="font-size: 0.88rem;">شركة الواحة لتنظيم المعارض والمؤتمرات</h6>
+                                    <small class="text-white-50" style="font-size: 0.74rem;">الشريك والراعي الاستراتيجي للمعرض</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 2. Participating Companies Showcase --}}
+                    <div class="col-lg-8 col-md-7">
+                        <div class="footer-companies-strip">
+                            @if(isset($companies) && $companies->count() > 0)
+                                @foreach($companies->take(6) as $fc)
+                                    @php
+                                        $cLogo = $fc->company->logo_path ? Storage::url($fc->company->logo_path) : ($fc->company->logo ? Storage::url($fc->company->logo) : '');
+                                        $cName = $fc->company->name ?? 'شركة مشاركة';
+                                    @endphp
+                                    <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="footer-company-pill" title="{{ $cName }}">
+                                        @if($cLogo)
+                                            <img src="{{ $cLogo }}" alt="{{ $cName }}">
+                                        @else
+                                            <i class="fas fa-building text-warning"></i>
+                                        @endif
+                                        <span>{{ Str::limit($cName, 18) }}</span>
+                                    </a>
+                                @endforeach
+                            @else
+                                {{-- Prominent Partner Institutions --}}
+                                <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="footer-company-pill">
+                                    <i class="fas fa-broadcast-tower text-warning"></i>
+                                    <span>شركة المدار الجديد</span>
+                                </a>
+                                <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="footer-company-pill">
+                                    <i class="fas fa-signal text-info"></i>
+                                    <span>شركة ليبيانا للهاتف المحمول</span>
+                                </a>
+                                <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="footer-company-pill">
+                                    <i class="fas fa-network-wired text-success"></i>
+                                    <span>ليبيا للاتصالات والتقنية LTT</span>
+                                </a>
+                                <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="footer-company-pill">
+                                    <i class="fas fa-university text-warning"></i>
+                                    <span>مصرف التجارة والتنمية</span>
+                                </a>
+                                <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="footer-company-pill">
+                                    <i class="fas fa-oil-can text-danger"></i>
+                                    <span>شركة الواحة للنفط</span>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Footer -->
         <footer class="projects-footer">
             <div class="container text-center">
                 <p class="mb-1 fw-bold text-white">
-                    مكتب تدريب الخريجين — جامعة طرابلس &bull; الراعي الاستراتيجي: <span class="text-warning">شركة الواحة لتنظيم المعارض والمؤتمرات</span>
+                    مكتب تدريب وتوظيف الخريجين — <a href="{{ route('home') }}" class="text-warning text-decoration-none">جامعة طرابلس</a>
+                    &nbsp;&bull;&nbsp;
+                    {{ $fair ? $fair->title : 'معرض التوظيف 2026' }}
+                    &nbsp;&bull;&nbsp;
+                    الراعي الاستراتيجي: <strong class="text-warning">شركة الواحة لتنظيم المعارض والمؤتمرات</strong>
                 </p>
-                <p class="mb-0">
+                <p class="mb-0 text-white-50 small">
                     أرشيف مشاريع التخرج: ربط الابتكار الأكاديمي بفرص سوق العمل والتطوير المستدام.
                 </p>
             </div>

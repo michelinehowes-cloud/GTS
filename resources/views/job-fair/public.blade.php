@@ -2436,19 +2436,8 @@
                             <input type="email" name="email" class="form-control text-white border-secondary rounded-3 py-2" style="background:#162b4c;" placeholder="name@example.com" dir="ltr">
                         </div>
 
-                        {{-- صفة الزائر --}}
-                        <div class="col-md-6">
-                            <label class="form-label text-light small fw-bold"><i class="fas fa-user-tag text-warning me-1"></i>صفة الزائر / الفئة <span class="text-danger">*</span></label>
-                            <select name="visitor_type" class="form-select text-white border-secondary rounded-3 py-2" style="background:#162b4c;" required>
-                                <option value="" disabled selected>-- اختر صفتك بالمعرض --</option>
-                                <option value="job_seeker">💼 خريج باحث عن عمل</option>
-                                <option value="student">🎓 طالب جامعي / ثانوي</option>
-                                <option value="company_rep">🏢 ممثل شركة / صاحب عمل</option>
-                                <option value="academic">👨‍🏫 عضو هيئة تدريس / أكاديمي</option>
-                                <option value="parent">👨‍👩‍👧 ولي أمر / عائلة خريج</option>
-                                <option value="general">✨ مهتم / زائر عام</option>
-                            </select>
-                        </div>
+                        {{-- صفة الزائر (تم إلغاء الخيار وتعيينه تلقائياً كخريج باحث عن عمل) --}}
+                        <input type="hidden" name="visitor_type" value="job_seeker">
 
                         {{-- المستوى التعليمي --}}
                         <div class="col-md-6">

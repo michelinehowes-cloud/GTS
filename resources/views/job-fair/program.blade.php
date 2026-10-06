@@ -1036,41 +1036,114 @@
             align-items: center;
             justify-content: center;
         }
-        /* Slim Footer Sponsors Strip */
+        /* Slim Footer Sponsors Strip — Glassmorphism Logos */
         .footer-sponsors-strip {
-            background: rgba(3, 22, 48, 0.95);
-            border-top: 1px solid rgba(238, 202, 62, 0.35);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 0.85rem 0;
+            background: linear-gradient(135deg, rgba(2,14,32,0.97) 0%, rgba(5,28,60,0.97) 100%);
+            border-top: 1px solid rgba(238,202,62,0.4);
+            padding: 0.6rem 0;
             position: relative;
-            z-index: 2;
-            backdrop-filter: blur(14px);
+            z-index: 10;
+            backdrop-filter: blur(20px);
+            overflow: hidden;
         }
-        .sponsor-mini-pill {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            color: rgba(255, 255, 255, 0.88);
-            border-radius: 50px;
-            padding: 5px 14px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            text-decoration: none;
+        .footer-sponsors-strip::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(90deg, rgba(238,202,62,0.03) 0 1px, transparent 1px 60px);
+            pointer-events: none;
+        }
+        .sponsors-strip-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: rgba(238,202,62,0.8);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+            padding: 0 1.2rem;
+            flex-shrink: 0;
+            border-right: 1px solid rgba(238,202,62,0.25);
+            margin-right: 0.6rem;
+        }
+        .sponsors-ticker-wrap {
+            overflow: hidden;
+            width: 100%;
+            mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
+        }
+        .sponsors-ticker-track {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            width: max-content;
+            animation: sponsorScroll 28s linear infinite;
+        }
+        .sponsors-ticker-track:hover { animation-play-state: paused; }
+        @keyframes sponsorScroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .sponsor-glass-card {
+            flex-shrink: 0;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
+            gap: 9px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 6px 16px 6px 10px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 3px 14px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: all 0.25s ease;
+            text-decoration: none;
+            white-space: nowrap;
         }
-        .sponsor-mini-pill:hover {
-            background: rgba(238, 202, 62, 0.16);
-            border-color: var(--gold);
-            color: var(--gold);
-            transform: translateY(-1px);
+        .sponsor-glass-card.is-link { cursor: pointer; }
+        .sponsor-glass-card.is-link:hover {
+            background: rgba(238,202,62,0.12);
+            border-color: rgba(238,202,62,0.5);
+            box-shadow: 0 5px 20px rgba(238,202,62,0.15), inset 0 1px 0 rgba(255,255,255,0.15);
+            transform: translateY(-2px);
         }
-        .sponsor-mini-pill img {
-            height: 18px;
-            width: auto;
+        .sponsor-glass-logo {
+            width: 40px;
+            height: 34px;
+            background: rgba(255,255,255,0.92);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+        }
+        .sponsor-glass-logo img {
+            width: 100%;
+            height: 100%;
             object-fit: contain;
-            border-radius: 4px;
+            padding: 4px;
+        }
+        .sponsor-glass-logo .sponsor-icon-fb {
+            font-size: 1rem;
+            color: rgba(3,22,48,0.65);
+        }
+        .sponsor-glass-name {
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.88);
+            letter-spacing: 0.01em;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sponsor-glass-card.is-link:hover .sponsor-glass-name { color: #EECA3E; }
+        .sponsor-ticker-dot {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: rgba(238,202,62,0.35);
+            flex-shrink: 0;
         }
 
         @media (max-width: 991px) {
@@ -1466,35 +1539,57 @@
 {{-- ══════════════════════════════════
      FOOTER
 ══════════════════════════════════ --}}
-<!-- Slim Footer Sponsors & Partners Strip (الشريط السفلي المدمج للرعاة والشركات) -->
+<!-- Glassmorphism Sponsors Strip -->
 <div class="footer-sponsors-strip">
-    <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
-        <div class="d-flex align-items-center gap-2 flex-shrink-0">
-            <span class="badge rounded-pill bg-warning text-dark px-2.5 py-1 fw-bold" style="font-size: 0.72rem;">
-                <i class="fas fa-crown me-1"></i>الراعي الاستراتيجي
-            </span>
-            <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 28px; width: auto; object-fit: contain;" title="شركة الواحة لتنظيم المعارض والمؤتمرات" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
+    <div class="d-flex align-items-center" style="height:54px;">
+        <div class="sponsors-strip-label">
+            <i class="fas fa-crown me-1"></i>
+            رعاة المعرض
         </div>
-        <div class="d-flex align-items-center gap-2 flex-wrap justify-content-center justify-content-md-end">
-            <span class="text-white-50 small d-none d-lg-inline me-1" style="font-size: 0.76rem;">رعاة وشركاء المعرض:</span>
-            <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="sponsor-mini-pill" title="شركة المدار الجديد">
-                <i class="fas fa-broadcast-tower text-warning me-1"></i><span>المدار الجديد</span>
-            </a>
-            <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="sponsor-mini-pill" title="شركة ليبيانا للهاتف المحمول">
-                <i class="fas fa-signal text-info me-1"></i><span>ليبيانا</span>
-            </a>
-            <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="sponsor-mini-pill" title="ليبيا للاتصالات والتقنية">
-                <i class="fas fa-network-wired text-success me-1"></i><span>LTT</span>
-            </a>
-            <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="sponsor-mini-pill" title="مصرف التجارة والتنمية">
-                <i class="fas fa-university text-warning me-1"></i><span>مصرف التجارة والتنمية</span>
-            </a>
-            <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="sponsor-mini-pill" title="شركة الواحة للنفط">
-                <i class="fas fa-oil-can text-danger me-1"></i><span>شركة الواحة للنفط</span>
-            </a>
-            <a href="{{ route('job-fair.public.companies', $fair && $fair->id ? $fair->id : 1) }}" class="sponsor-mini-pill" title="دليل كافة الشركات والأجنحة">
-                <i class="fas fa-building text-primary me-1"></i><span>دليل الشركات &larr;</span>
-            </a>
+        <div class="sponsors-ticker-wrap flex-grow-1">
+            <div class="sponsors-ticker-track">
+                @php
+                    $footerSponsors = isset($sponsors) && $sponsors->count() > 0 ? $sponsors : collect([]);
+                    $hasSponsors = $footerSponsors->count() > 0;
+                    $placeholders = [
+                        ["icon"=>"fa-broadcast-tower","name"=>"المدار الجديد"],
+                        ["icon"=>"fa-signal","name"=>"ليبيانا"],
+                        ["icon"=>"fa-network-wired","name"=>"LTT"],
+                        ["icon"=>"fa-university","name"=>"مصرف التجارة"],
+                        ["icon"=>"fa-oil-can","name"=>"الواحة للنفط"],
+                        ["icon"=>"fa-landmark","name"=>"بنك الجمهورية"],
+                        ["icon"=>"fa-globe","name"=>"شركة دولية"],
+                        ["icon"=>"fa-industry","name"=>"مجموعة صناعية"],
+                    ];
+                    $items = $hasSponsors ? $footerSponsors->toArray() : $placeholders;
+                    $allItems = array_merge((array)$items, (array)$items);
+                @endphp
+                @foreach($allItems as $idx => $item)
+                    @if($hasSponsors)
+                        @php $sp = (object)$item; @endphp
+                        <div class="sponsor-glass-card{{ isset($sp->website) && $sp->website ? ' is-link' : '' }}"
+                             @if(isset($sp->website) && $sp->website) onclick="window.open('{{ $sp->website }}','_blank')" @endif
+                             title="{{ $sp->name }}">
+                            <div class="sponsor-glass-logo">
+                                @if(isset($sp->logo_path) && $sp->logo_path)
+                                    <img src="{{ Storage::url($sp->logo_path) }}" alt="{{ $sp->name }}" loading="lazy">
+                                @else
+                                    <i class="fas fa-building sponsor-icon-fb"></i>
+                                @endif
+                            </div>
+                            <span class="sponsor-glass-name">{{ $sp->name }}</span>
+                        </div>
+                    @else
+                        <div class="sponsor-glass-card">
+                            <div class="sponsor-glass-logo">
+                                <i class="fas {{ $item['icon'] }} sponsor-icon-fb"></i>
+                            </div>
+                            <span class="sponsor-glass-name">{{ $item['name'] }}</span>
+                        </div>
+                    @endif
+                    <div class="sponsor-ticker-dot"></div>
+                @endforeach
+            </div>
         </div>
     </div>
 </div>

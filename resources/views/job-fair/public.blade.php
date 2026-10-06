@@ -1817,7 +1817,7 @@
         <div class="row pb-4">
             <div class="col-12 text-center">
                 <div class="d-flex justify-content-center align-items-center flex-wrap gap-4 gap-md-5 mt-2">
-                    <img src="{{ asset('images/logo.jpg') }}" alt="مكتب تدريب وتأهيل الخريجين — جامعة طرابلس" class="hero-strip-logo hero-strip-logo-office" title="مكتب تدريب وتأهيل الخريجين — جامعة طرابلس" onerror="this.src='{{ asset('images/uni_logo_white.png') }}'">
+                    <img src="{{ asset('images/logo.jpg') }}" alt="مكتب تدريب الخريجين — جامعة طرابلس" class="hero-strip-logo hero-strip-logo-office" title="مكتب تدريب الخريجين — جامعة طرابلس" onerror="this.src='{{ asset('images/uni_logo_white.png') }}'">
                     <div class="hero-strip-divider"></div>
                     <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" class="hero-strip-logo" title="شركة الواحة لتنظيم المعارض والمؤتمرات — الراعي الاستراتيجي" onerror="this.src='{{ asset('images/wahaexpo_horizontal_gold.png') }}'">
                 </div>
@@ -2386,7 +2386,7 @@
                         <img src="{{ asset('images/job_fair_logo_white.png') }}" alt="معرض التوظيف" style="height: 44px; width: auto; max-width: 130px; object-fit: contain;">
                     @endif
                     <div style="width: 1px; height: 32px; background: rgba(255,255,255,0.2);"></div>
-                    <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب وتأهيل الخريجين بجامعة طرابلس" style="height: 44px; width: auto; max-width: 130px; object-fit: contain;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                    <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب الخريجين بجامعة طرابلس" style="height: 44px; width: auto; max-width: 130px; object-fit: contain;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
                     <div style="width: 1px; height: 32px; background: rgba(255,255,255,0.2);"></div>
                     <div class="bg-white px-2 py-1 rounded-2 shadow-sm d-flex align-items-center" style="height: 44px;" title="تنظيم: شركة الواحة للمعارض">
                         <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 36px; width: auto; max-width: 110px; object-fit: contain;">

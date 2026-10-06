@@ -8,7 +8,7 @@
     <!-- Unified Page Hero Banner -->
     <x-page-hero
         title="بطاقة الخريج الرقمية الذكية"
-        subtitle="الهوية الرسمية المعتمدة للخريج — صالحة للاستخدام في كافة الدورات التدريبية، معارض التوظيف، والمشاريع والفعاليات المعتمدة بمكتب تدريب وتأهيل الخريجين بجامعة طرابلس."
+        subtitle="الهوية الرسمية المعتمدة للخريج — صالحة للاستخدام في كافة الدورات التدريبية، معارض التوظيف، والمشاريع والفعاليات المعتمدة بمكتب تدريب الخريجين بجامعة طرابلس."
         icon="fas fa-id-badge"
         :breadcrumbs="[
             ['label' => 'منصة الخريجين', 'url' => route('graduate.dashboard')],
@@ -213,7 +213,7 @@
                 <!-- الجزء السفلي من البطاقة (Footer) -->
                 <div class="card-footer bg-light border-top text-center py-2.5">
                     <small class="text-muted fw-bold" style="font-size: 0.78rem;">
-                        <i class="fas fa-university me-1 text-primary"></i> مكتب تدريب وتأهيل الخريجين — جامعة طرابلس
+                        <i class="fas fa-university me-1 text-primary"></i> مكتب تدريب الخريجين — جامعة طرابلس
                     </small>
                 </div>
 

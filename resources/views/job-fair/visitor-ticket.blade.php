@@ -322,11 +322,11 @@
         <div class="ticket-header">
             <div class="d-flex justify-content-center align-items-center gap-3 mb-2 ticket-logo flex-wrap">
                 <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" style="height: 48px; width: auto; max-width: 140px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
-                <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب وتأهيل الخريجين بجامعة طرابلس" style="height: 48px; width: auto;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب الخريجين بجامعة طرابلس" style="height: 48px; width: auto;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
             </div>
 
             <div class="ticket-event-name">{{ $fair->title ?? 'ملتقى ومعرض التوظيف السنوي' }}</div>
-            <div class="ticket-university">مكتب تدريب وتأهيل الخريجين</div>
+            <div class="ticket-university">مكتب تدريب الخريجين</div>
 
             <div class="mt-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.9)">
                 @if($fair->event_date)

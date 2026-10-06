@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'تسجيل حساب شركة أو مؤسسة جديدة - مكتب تدريب وتأهيل الخريجين')
+@section('title', 'تسجيل حساب شركة أو مؤسسة جديدة - مكتب تدريب الخريجين')
 
 @push('styles')
 <style>
@@ -123,7 +123,7 @@
                      onerror="this.src='{{ asset('images/office-logo.png') }}'">
                 <div>
                     <div class="fw-bold fs-6 text-primary">جامعة طرابلس</div>
-                    <small class="text-muted">مكتب تدريب وتأهيل الخريجين</small>
+                    <small class="text-muted">مكتب تدريب الخريجين</small>
                 </div>
             </a>
             <a href="{{ route('home') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
@@ -139,7 +139,7 @@
                 </div>
                 <h3 class="fw-bold mb-2">طلب انضمام وتسجيل شركة / مؤسسة شريكة</h3>
                 <p class="mb-0 text-white-50" style="font-size:.95rem;max-width:650px;margin:0 auto;">
-                    انضم إلى شبكة شركاء مكتب تدريب وتأهيل الخريجين بجامعة طرابلس للإعلان عن الشواغر الوظيفية وبرامج التدريب الميداني والتعاون الأكاديمي.
+                    انضم إلى شبكة شركاء مكتب تدريب الخريجين بجامعة طرابلس للإعلان عن الشواغر الوظيفية وبرامج التدريب الميداني والتعاون الأكاديمي.
                 </p>
             </div>
 

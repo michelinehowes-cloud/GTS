@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتب تدريب وتأهيل الخريجين - جامعة طرابلس</title>
+    <title>مكتب تدريب الخريجين - جامعة طرابلس</title>
     
     <!-- CSS Dependencies -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
@@ -755,7 +755,7 @@
 
         @media (max-width: 768px) {
             .hero-section {
-                padding: 70px 0 100px;
+                padding: 115px 0 90px;
             }
             .job-fair-spotlight {
                 padding: 2rem 1.5rem;
@@ -768,6 +768,12 @@
             }
             .reg-step-label {
                 font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-section {
+                padding: 110px 0 80px;
             }
         }
     </style>
@@ -878,7 +884,7 @@
         <div class="container">
             <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill mb-4" style="background: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255, 255, 255, 0.32); backdrop-filter: blur(8px);">
                 <i class="fas fa-university text-warning"></i>
-                <span class="fw-bold" style="font-size: 0.85rem;">جامعة طرابلس — المنصة المركزية لتدريب وتأهيل الخريجين</span>
+                <span class="fw-bold" style="font-size: 0.85rem;">جامعة طرابلس — المنصة لتدريب وتأهيل الخريجين</span>
             </div>
 
             <div class="mb-4" data-aos="zoom-in">
@@ -886,7 +892,7 @@
             </div>
 
             <h1 class="display-4 fw-bolder mb-3 text-white" data-aos="fade-up" data-aos-delay="150" style="letter-spacing: -0.5px;">
-                مكتب تدريب وتأهيل الخريجين
+                مكتب تدريب الخريجين
             </h1>
 
             <p class="lead text-white-50 mx-auto mb-4 px-3" style="max-width: 720px; font-size: 1.15rem; line-height: 1.8;" data-aos="fade-up" data-aos-delay="250">
@@ -1251,15 +1257,15 @@
                                             <div class="bento-news-card p-3 p-md-4 transition-all" style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
                                                 <div class="d-flex gap-3 align-items-start">
                                                     @if($news->thumbnail_url)
-                                                        <img src="{{ $news->thumbnail_url }}" class="rounded-3 flex-shrink-0 object-fit-cover" alt="{{ $news->title }}" style="width: 84px; height: 84px;">
+                                                        <img src="{{ $news->thumbnail_url }}" class="rounded-3 flex-shrink-0 object-fit-cover" alt="" style="width: 84px; height: 84px;" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'rounded-3 flex-shrink-0 d-flex align-items-center justify-content-center text-primary\' style=\'width: 84px; height: 84px; background: rgba(13, 56, 130, 0.08);\'><i class=\'fas fa-newspaper fs-3 opacity-50\'></i></div>';">
                                                     @else
                                                         <div class="rounded-3 flex-shrink-0 d-flex align-items-center justify-content-center text-primary" style="width: 84px; height: 84px; background: rgba(13, 56, 130, 0.08);">
                                                             <i class="fas fa-newspaper fs-3 opacity-50"></i>
                                                         </div>
                                                     @endif
-                                                    <div class="flex-grow-1">
-                                                        <h6 class="fw-bold text-dark mb-1 fs-6 text-truncate" title="{{ $news->title }}">{{ $news->title }}</h6>
-                                                        <p class="text-muted small mb-2" style="font-size: 0.84rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                                    <div class="flex-grow-1" style="min-width: 0;">
+                                                        <h6 class="fw-bold text-dark mb-1 fs-6" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.45;" title="{{ $news->title }}">{{ $news->title }}</h6>
+                                                        <p class="text-muted small mb-2" style="font-size: 0.84rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">
                                                             {{ $news->excerpt }}
                                                         </p>
                                                         <div class="d-flex justify-content-between align-items-center">
@@ -1295,8 +1301,8 @@
                                     <div class="col-12">
                                         <a href="{{ route('public.announcements.show', $announcement) }}" class="text-decoration-none d-block">
                                             <div class="bento-news-card p-3 p-md-4 transition-all" style="border-right: 4px solid var(--gold-accent); transition: transform 0.2s ease, box-shadow 0.2s ease;">
-                                                <h6 class="fw-bold text-dark mb-1 fs-6 text-truncate" title="{{ $announcement->title }}">{{ $announcement->title }}</h6>
-                                                <p class="text-muted small mb-2" style="font-size: 0.84rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                                <h6 class="fw-bold text-dark mb-1 fs-6" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.45;" title="{{ $announcement->title }}">{{ $announcement->title }}</h6>
+                                                <p class="text-muted small mb-2" style="font-size: 0.84rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">
                                                     {{ $announcement->excerpt }}
                                                 </p>
                                                 <div class="d-flex justify-content-between align-items-center pt-2 border-top">
@@ -1327,7 +1333,7 @@
                 <span class="badge rounded-pill px-3 py-1.5 small fw-bold mb-2" style="background: #eff6ff; color: #1565c0; border: 1px solid #bfdbfe;">
                     <i class="fas fa-bullseye me-1"></i>رؤيتنا ورسالتنا
                 </span>
-                <h2 class="display-6 fw-bold text-dark mb-2">أهداف مكتب تدريب وتأهيل الخريجين</h2>
+                <h2 class="display-6 fw-bold text-dark mb-2">أهداف مكتب تدريب الخريجين</h2>
                 <p class="text-muted small mx-auto" style="max-width: 600px;">نسعى لتحقيق التميز الوطني في تدريب وتأهيل الكفاءات الليبية الشابة لدخول سوق العمل بجدارة.</p>
             </div>
 
@@ -1377,7 +1383,7 @@
                         </div>
                         <div>
                             <h5 class="text-white fw-bold mb-0 fs-6">جامعة طرابلس</h5>
-                            <small class="text-white-50" style="font-size: 0.78rem;">مكتب تدريب وتأهيل الخريجين</small>
+                            <small class="text-white-50" style="font-size: 0.78rem;">مكتب تدريب الخريجين</small>
                         </div>
                     </div>
                     <p class="text-white-50 small mb-3" style="line-height: 1.8;">
@@ -1451,7 +1457,7 @@
             </div>
 
             <div class="border-top border-secondary pt-4 mt-2 text-center text-white-50 small d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <span>© {{ date('Y') }} جامعة طرابلس — جميع الحقوق محفوظة لمكتب تدريب وتأهيل الخريجين.</span>
+                <span>© {{ date('Y') }} جامعة طرابلس — جميع الحقوق محفوظة لمكتب تدريب الخريجين.</span>
                 <span class="text-warning">منصة الخريجين وسوق العمل</span>
             </div>
         </div>
@@ -1465,7 +1471,7 @@
                     <button type="button" class="btn-close btn-close-white position-absolute top-0 start-0 m-3 shadow-none" data-bs-dismiss="modal" aria-label="إغلاق"></button>
                     <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" class="modal-login-logo d-block" onerror="this.onerror=null;">
                     <h4 class="fw-bold mb-1" id="loginModalLabel">تسجيل الدخول</h4>
-                    <p class="mb-0 text-white-50 small">مكتب تدريب وتأهيل الخريجين — جامعة طرابلس</p>
+                    <p class="mb-0 text-white-50 small">مكتب تدريب الخريجين — جامعة طرابلس</p>
                 </div>
                 <div class="modal-login-body">
                     @if(session('success'))

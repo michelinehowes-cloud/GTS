@@ -429,9 +429,17 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
 
+        .mobile-topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px !important;
+        }
+
         .mobile-topbar-btn {
             width: 38px;
             height: 38px;
+            min-width: 38px;
+            min-height: 38px;
             padding: 0;
             display: inline-flex;
             align-items: center;
@@ -443,6 +451,19 @@
             font-size: 0.95rem;
             transition: all 0.2s ease;
             cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* منع تشوه الأزرار الدائرية على الهواتف والشاشات الصغيرة */
+        .btn.rounded-circle,
+        .action-btn-circle {
+            aspect-ratio: 1 / 1 !important;
+            padding: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+            border-radius: 50% !important;
         }
 
         .mobile-topbar-btn:active {
@@ -1400,7 +1421,7 @@
                     </div>
                 </a>
             </div>
-            <div class="d-flex align-items-center gap-1.5">
+            <div class="d-flex align-items-center gap-2 mobile-topbar-actions">
                 <!-- زر الرسائل -->
                 <button type="button" class="btn mobile-topbar-btn position-relative" onclick="openMessagesDrawer()" title="الرسائل">
                     <i class="fas fa-envelope"></i>

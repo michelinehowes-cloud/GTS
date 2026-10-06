@@ -271,7 +271,7 @@
                 <img src="{{ asset('storage/logo.jpg') }}" alt="شعار مكتب الخريجين" style="height: 48px; width: auto;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
             </div>
             <div class="ticket-event-name">{{ $registration->jobFair->title }}</div>
-            <div class="ticket-university">مكتب تدريب وتأهيل الخريجين</div>
+            <div class="ticket-university">مكتب تدريب الخريجين</div>
             <div class="mt-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.9)">
                 @if($registration->jobFair->event_date)
                     <i class="fas fa-calendar ms-1 text-warning"></i>{{ $registration->jobFair->event_date->format('d/m/Y') }}

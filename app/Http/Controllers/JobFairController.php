@@ -1001,6 +1001,9 @@ class JobFairController extends Controller
         $totalVisitors = 0;
         $attendedVisitors = 0;
         $daysRemaining = 0;
+        $totalLeads = 0;
+        $jobApplications = 0;
+        $generalLeads = 0;
 
         try { $totalRegistered = $fair->registrations()->count(); } catch (\Throwable $e) {}
         try { $totalAttended = $fair->registrations()->where('attended', true)->count(); } catch (\Throwable $e) {}
@@ -1009,6 +1012,15 @@ class JobFairController extends Controller
             if (\Illuminate\Support\Facades\Schema::hasTable('job_fair_visitors')) {
                 $totalVisitors = $fair->visitors()->count();
                 $attendedVisitors = $fair->visitors()->where('attended', true)->count();
+            }
+        } catch (\Throwable $e) {}
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('job_fair_visits')) {
+                $totalLeads = \App\Models\JobFairVisit::where('job_fair_id', $fair->id)->count();
+                if (\Illuminate\Support\Facades\Schema::hasColumn('job_fair_visits', 'job_opportunity_id')) {
+                    $jobApplications = \App\Models\JobFairVisit::where('job_fair_id', $fair->id)->whereNotNull('job_opportunity_id')->count();
+                    $generalLeads = \App\Models\JobFairVisit::where('job_fair_id', $fair->id)->whereNull('job_opportunity_id')->count();
+                }
             }
         } catch (\Throwable $e) {}
         try { $daysRemaining = $fair->days_remaining; } catch (\Throwable $e) {}
@@ -1020,6 +1032,9 @@ class JobFairController extends Controller
             'total_visitors'    => $totalVisitors,
             'attended_visitors' => $attendedVisitors,
             'days_remaining'    => $daysRemaining,
+            'total_leads'       => $totalLeads,
+            'job_applications'  => $jobApplications,
+            'general_leads'     => $generalLeads,
         ];
     }
 }

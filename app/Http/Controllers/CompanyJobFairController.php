@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\JobFair;
 use App\Models\JobFairVisit;
 use App\Models\JobFairRegistration;
+use App\Models\JobOpportunity;
+use App\Models\Nomination;
+use App\Models\GraduateData;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -146,6 +149,7 @@ class CompanyJobFairController extends Controller
             }
             if ($hasJobOppCol) {
                 $visit->load('jobOpportunity');
+                $this->syncNominationFromVisit($visit, $fair);
             }
             return response()->json([
                 'success'         => true,
@@ -170,6 +174,7 @@ class CompanyJobFairController extends Controller
 
         if ($hasJobOppCol) {
             $visit->load('jobOpportunity');
+            $this->syncNominationFromVisit($visit, $fair);
         }
             
         // جلب التدريبات التي حضرها الخريج
@@ -224,6 +229,7 @@ class CompanyJobFairController extends Controller
         }
 
         $visit->update(['status' => $outcome]);
+        $this->syncNominationFromVisit($visit);
 
         $labels = [
             'shortlisted' => 'مدرج في القائمة القصيرة ⭐',
@@ -341,6 +347,19 @@ class CompanyJobFairController extends Controller
             } catch (\Throwable $e) {}
         }
 
+        // مزامنة تلقائية لزيارات المعرض المرتبطة بوظائف مع جدول الترشيحات
+        try {
+            if ($hasJobOppColumn) {
+                $unsyncedVisits = JobFairVisit::where('job_fair_id', $fair->id)
+                    ->where('company_id', auth()->id())
+                    ->whereNotNull('job_opportunity_id')
+                    ->get();
+                foreach ($unsyncedVisits as $uv) {
+                    $this->syncNominationFromVisit($uv, $fair);
+                }
+            }
+        } catch (\Throwable $e) {}
+
         return view('company.job-fair.leads', compact('fair', 'visits', 'opportunities', 'jobCounts', 'generalCount'));
     }
 
@@ -377,6 +396,7 @@ class CompanyJobFairController extends Controller
             }
 
             $visit->save();
+            $this->syncNominationFromVisit($visit);
         }
 
         return response()->json([
@@ -597,6 +617,89 @@ class CompanyJobFairController extends Controller
                     abort(404, 'الحقيبة الإعلامية غير متوفرة حالياً.');
                 }
                 return response()->download($path, 'الحقيبة_الإعلامية_معرض_التوظيف_2026.zip');
+        }
+    }
+
+    /**
+     * مزامنة زيارة المعرض مع جدول الترشيحات والتوظيف الرسمي (Nomination)
+     */
+    private function syncNominationFromVisit(JobFairVisit $visit, ?JobFair $fair = null)
+    {
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('nominations')) {
+                return null;
+            }
+
+            if (!$visit->job_opportunity_id) {
+                return null;
+            }
+
+            $graduateUser = $visit->graduate;
+            if (!$graduateUser) {
+                return null;
+            }
+
+            $graduateData = $graduateUser->graduateData 
+                ?: GraduateData::where('user_id', $graduateUser->id)->first();
+
+            if (!$graduateData) {
+                $graduateData = GraduateData::create([
+                    'user_id'         => $graduateUser->id,
+                    'major'           => $graduateUser->specialization ?? $graduateUser->major ?? $graduateUser->qualification ?? 'عام',
+                    'university'      => $graduateUser->university ?? 'جامعة طرابلس',
+                    'graduation_year' => $graduateUser->graduation_year ?? date('Y'),
+                    'gpa'             => $graduateUser->gpa,
+                    'phone'           => $graduateUser->phone,
+                ]);
+            }
+
+            $fairTitle = $fair ? $fair->title : ($visit->jobFair ? $visit->jobFair->title : 'معرض التوظيف');
+
+            // خريطة تحويل حالات زيارة المعرض إلى حالات الترشيح الرسمية
+            $statusMapping = [
+                'pending'     => ['status' => 'pending', 'final' => 'in_progress'],
+                'shortlisted' => ['status' => 'under_review', 'final' => 'in_progress'],
+                'accepted'    => ['status' => 'accepted', 'final' => 'hired'],
+                'rejected'    => ['status' => 'rejected', 'final' => 'not_hired'],
+            ];
+            $outcomeInfo = $statusMapping[$visit->status] ?? ['status' => 'pending', 'final' => 'in_progress'];
+
+            $nomination = Nomination::where('job_opportunity_id', $visit->job_opportunity_id)
+                ->where('graduate_id', $graduateData->id)
+                ->first();
+
+            if ($nomination) {
+                $updateData = [
+                    'status'              => $outcomeInfo['status'],
+                    'final_status'        => $outcomeInfo['final'],
+                    'company_feedback'    => $visit->notes ?: $nomination->company_feedback,
+                    'company_response_at' => now(),
+                ];
+                if ($outcomeInfo['final'] === 'hired') {
+                    $updateData['final_decision_at'] = now();
+                }
+                $nomination->update($updateData);
+            } else {
+                $nomination = Nomination::create([
+                    'job_opportunity_id'  => $visit->job_opportunity_id,
+                    'graduate_id'         => $graduateData->id,
+                    'nominated_by'        => $visit->company_id, // ممثل الشركة بالمعرض
+                    'nomination_type'     => 'job_fair',
+                    'status'              => $outcomeInfo['status'],
+                    'final_status'        => $outcomeInfo['final'],
+                    'nomination_notes'    => "تم استلام السيرة الذاتية عبر {$fairTitle}",
+                    'company_feedback'    => $visit->notes,
+                    'nominated_at'        => $visit->created_at ?: now(),
+                    'sent_to_company_at'  => now(),
+                    'company_response_at' => now(),
+                    'final_decision_at'   => ($outcomeInfo['final'] === 'hired' ? now() : null),
+                ]);
+            }
+
+            return $nomination;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Failed to sync Nomination from JobFairVisit: ' . $e->getMessage());
+            return null;
         }
     }
 }

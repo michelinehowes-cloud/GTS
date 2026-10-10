@@ -67,8 +67,12 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">سير ذاتية مستلمة (زيارات)</div>
-                            <div class="h1 mb-0 font-weight-bold text-gray-800">{{ \App\Models\JobFairVisit::where('job_fair_id', $fair->id)->count() }}</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">سير ذاتية مستلمة (Leads)</div>
+                            <div class="h1 mb-0 font-weight-bold text-gray-800">{{ $stats['total_leads'] ?? \App\Models\JobFairVisit::where('job_fair_id', $fair->id)->count() }}</div>
+                            <div class="mt-1 text-muted" style="font-size: 0.78rem;">
+                                <span class="text-success font-weight-bold">{{ $stats['job_applications'] ?? 0 }}</span> لوظائف | 
+                                <span class="text-primary font-weight-bold">{{ $stats['general_leads'] ?? 0 }}</span> عام
+                            </div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-file-invoice fa-3x text-gray-300"></i>

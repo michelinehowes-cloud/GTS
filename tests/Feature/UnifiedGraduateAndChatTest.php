@@ -155,4 +155,73 @@ class UnifiedGraduateAndChatTest extends TestCase
         $response->assertSee('التخصصات المطلوبة');
         $response->assertSee('المهارات المطلوبة');
     }
+
+    /**
+     * اختبار قيام الخريج بتعديل بياناته الأكاديمية بنجاح ومزامنتها
+     */
+    public function test_graduate_can_update_profile_academic_data()
+    {
+        $graduate = User::factory()->create([
+            'role' => 'graduate',
+            'name' => 'خريج تجريبي للتعديل',
+            'email' => 'grad.update.' . uniqid() . '@example.com',
+            'university' => 'جامعة طرابلس',
+            'sector' => 'قاطع (أ)',
+            'faculty' => 'كلية العلوم',
+            'specialization' => 'قسم الحاسب الآلي',
+            'major' => 'قسم الحاسب الآلي',
+            'qualification' => 'بكالوريوس',
+            'degree' => 'بكالوريوس',
+            'graduation_year' => 2021,
+            'gpa' => 75.00,
+        ]);
+
+        // 1. التأكد من تحميل صفحة الملف الشخصي وتوفر المعرفات الصحيحة للبيانات الأكاديمية
+        $pageResponse = $this->actingAs($graduate)->get(route('graduate.profile'));
+        $pageResponse->assertStatus(200);
+        $pageResponse->assertSee('id="university"', false);
+        $pageResponse->assertSee('id="sector"', false);
+        $pageResponse->assertSee('id="faculty"', false);
+        $pageResponse->assertSee('id="specialization"', false);
+        $pageResponse->assertSee('id="old_specialization"', false);
+
+        // 2. إرسال طلب التعديل للبيانات الأكاديمية
+        $updateResponse = $this->actingAs($graduate)->put(route('graduate.profile.update'), [
+            'name' => $graduate->name,
+            'email' => $graduate->email,
+            'phone' => '0912233445',
+            'university' => 'جامعة طرابلس',
+            'sector' => 'قاطع (أ)',
+            'faculty' => 'كلية تقنية المعلومات',
+            'specialization' => 'قسم هندسة البرمجيات',
+            'qualification' => 'ماجستير',
+            'graduation_year' => 2024,
+            'gpa' => 91.25,
+            'languages' => 'العربية, الإنجليزية, الفرنسية',
+        ]);
+
+        $updateResponse->assertRedirect(route('graduate.profile'));
+        $updateResponse->assertSessionHas('success');
+
+        // 3. التحقق من تحديث جدول users
+        $graduate->refresh();
+        $this->assertEquals('كلية تقنية المعلومات', $graduate->faculty);
+        $this->assertEquals('قسم هندسة البرمجيات', $graduate->specialization);
+        $this->assertEquals('قسم هندسة البرمجيات', $graduate->major);
+        $this->assertEquals('ماجستير', $graduate->qualification);
+        $this->assertEquals('ماجستير', $graduate->degree);
+        $this->assertEquals(2024, $graduate->graduation_year);
+        $this->assertEquals(91.25, (float)$graduate->gpa);
+        $this->assertEquals(['العربية', 'الإنجليزية', 'الفرنسية'], $graduate->languages);
+
+        // 4. التحقق من مزامنة وتحديث سجل الخريج في graduates_data تلقائياً
+        $gradData = \App\Models\GraduateData::where('user_id', $graduate->id)->first();
+        $this->assertNotNull($gradData);
+        $this->assertEquals('كلية تقنية المعلومات', $gradData->faculty);
+        $this->assertEquals('قسم هندسة البرمجيات', $gradData->specialization);
+        $this->assertEquals('قسم هندسة البرمجيات', $gradData->major);
+        $this->assertEquals('ماجستير', $gradData->qualification);
+        $this->assertEquals(2024, $gradData->graduation_year);
+        $this->assertEquals(91.25, (float)$gradData->gpa);
+    }
 }

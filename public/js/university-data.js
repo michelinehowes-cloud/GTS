@@ -338,21 +338,24 @@ function loadSpecializations() {
 }
 
 // تهيئة القوائم عند تحميل الصفحة
-document.addEventListener('DOMContentLoaded', function () {
+function initUniversityDropdowns() {
     const universitySelect = document.getElementById('university');
     const sectorSelect = document.getElementById('sector');
     const facultySelect = document.getElementById('faculty');
     const specializationSelect = document.getElementById('specialization');
 
-    if (universitySelect) {
-        universitySelect.addEventListener('change', loadSectors);
-    }
+    if (!universitySelect) return;
+
+    universitySelect.removeEventListener('change', loadSectors);
+    universitySelect.addEventListener('change', loadSectors);
 
     if (sectorSelect) {
+        sectorSelect.removeEventListener('change', loadFaculties);
         sectorSelect.addEventListener('change', loadFaculties);
     }
 
     if (facultySelect) {
+        facultySelect.removeEventListener('change', loadSpecializations);
         facultySelect.addEventListener('change', loadSpecializations);
     }
 
@@ -401,5 +404,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initUniversityDropdowns);
+} else {
+    initUniversityDropdowns();
+}
 

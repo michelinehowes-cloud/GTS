@@ -252,10 +252,16 @@ class GraduateController extends Controller
             'address' => 'nullable|string',
             'city' => 'nullable|string|max:100',
             'qualification' => 'nullable|string|max:100',
+            'degree' => 'nullable|string|max:100',
             'university' => 'nullable|string|max:255',
+            'university_id' => 'nullable|string|max:255',
             'sector' => 'nullable|string|max:100',
+            'sector_id' => 'nullable|string|max:100',
             'faculty' => 'nullable|string|max:255',
+            'faculty_id' => 'nullable|string|max:255',
             'specialization' => 'nullable|string|max:100',
+            'specialization_id' => 'nullable|string|max:100',
+            'major' => 'nullable|string|max:100',
             'graduation_year' => 'nullable|integer|min:1950|max:' . (date('Y') + 1),
             'gpa' => 'nullable|numeric|min:0|max:100',
             'languages' => 'nullable|string|max:500',
@@ -277,8 +283,30 @@ class GraduateController extends Controller
             'specialization',
             'graduation_year',
             'gpa',
-            'languages',
         ]);
+
+        // توحيد الحقول الأكاديمية ومعالجة المرادفات
+        $data['university'] = $data['university'] ?? $request->input('university_id') ?? $user->university ?? 'جامعة طرابلس';
+        $data['sector'] = $data['sector'] ?? $request->input('sector_id') ?? $user->sector;
+        $data['faculty'] = $data['faculty'] ?? $request->input('faculty_id') ?? $user->faculty;
+        
+        $specValue = $data['specialization'] ?? $request->input('specialization_id') ?? $request->input('major') ?? $user->specialization ?? $user->major;
+        $data['specialization'] = $specValue;
+        $data['major'] = $specValue;
+
+        $qualValue = $data['qualification'] ?? $request->input('degree') ?? $user->qualification ?? $user->degree ?? 'بكالوريوس';
+        $data['qualification'] = $qualValue;
+        $data['degree'] = $qualValue;
+
+        // معالجة اللغات المتقنة كمصفوفة لتوافق casts في User و GraduateData
+        if ($request->has('languages')) {
+            $langInput = $request->input('languages');
+            if (is_string($langInput)) {
+                $data['languages'] = array_values(array_filter(array_map('trim', explode(',', $langInput))));
+            } else {
+                $data['languages'] = $langInput;
+            }
+        }
 
         $user->update($data);
 

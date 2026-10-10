@@ -144,6 +144,34 @@
         ])
     </div>
 
+    <!-- بطاقات إحصائيات التوظيف والترشيحات بالمعرض -->
+    <div class="row g-2 g-md-3 mb-4">
+        @include('components.stat-card', [
+            'col' => 'col-12 col-md-4',
+            'title' => 'إجمالي السير المستلمة (Leads)',
+            'value' => $stats['total_leads'] ?? 0,
+            'icon' => 'fas fa-file-invoice',
+            'color' => 'primary',
+            'description' => 'كافة السير الممسوحة بأجنحة الشركات المشاركة'
+        ])
+        @include('components.stat-card', [
+            'col' => 'col-6 col-md-4',
+            'title' => 'متقدمون لوظائف المعرض',
+            'value' => $stats['job_applications'] ?? 0,
+            'icon' => 'fas fa-briefcase',
+            'color' => 'success',
+            'description' => 'مرتبطون بوظائف وتم ترحيلهم لقسم التوظيف والترشيحات'
+        ])
+        @include('components.stat-card', [
+            'col' => 'col-6 col-md-4',
+            'title' => 'تقديم واهتمام عام بالأجنحة',
+            'value' => $stats['general_leads'] ?? 0,
+            'icon' => 'fas fa-users',
+            'color' => 'warning',
+            'description' => 'سير عامة تم استلامها دون ربط بشاغر محدد'
+        ])
+    </div>
+
     <!-- لوحة الوصول السريع وإعدادات نشر البرامج العلمية ومشاريع التخرج -->
     <div class="row g-3 mb-4">
         <!-- البرنامج العلمي والتدريبي -->

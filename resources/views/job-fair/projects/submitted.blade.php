@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>تم استلام طلب المشروع بنجاح — {{ $project->title }}</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
@@ -13,153 +13,175 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --gold:      #eeca3e;
-            --gold-lt:   #FDE68A;
-            --navy:      #045db0;
-            --navy-dark: #092347;
-            --green:     #10B981;
+            --uot-blue:       #0d3882;
+            --uot-blue-hover: #09275e;
+            --uot-gold:       #eeca3e;
+            --uot-gold-dark:  #d97706;
+            --slate-50:       #f8fafc;
+            --slate-100:      #f1f5f9;
+            --slate-200:      #e2e8f0;
+            --slate-700:      #334155;
+            --slate-800:      #1e293b;
         }
 
         body {
-            font-family: 'Cairo', sans-serif;
-            background: var(--navy);
-            color: #ffffff;
+            font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--slate-100);
+            color: var(--slate-800);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            position: relative;
-        }
-
-        .bg-layer {
-            position: fixed; inset: 0;
-            background:
-                radial-gradient(ellipse 80% 60% at 20% 30%, rgba(245,158,11,0.2) 0%, transparent 60%),
-                radial-gradient(ellipse 70% 80% at 80% 20%, rgba(14,165,233,0.25) 0%, transparent 55%),
-                linear-gradient(160deg, #045db0 0%, #03488a 50%, #092347 100%);
-            pointer-events: none;
-            z-index: 0;
+            padding: 30px 16px;
         }
 
         .success-card {
-            position: relative;
-            z-index: 1;
-            background: rgba(8, 34, 69, 0.85);
-            border: 2px solid rgba(238, 202, 62, 0.4);
-            border-radius: 28px;
-            padding: 45px 35px;
-            max-width: 720px;
+            background: #ffffff;
+            border: 1px solid var(--slate-200);
+            border-top: 5px solid var(--uot-blue);
+            border-radius: 24px;
+            padding: 42px 32px;
+            max-width: 700px;
             width: 100%;
             text-align: center;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+            box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.08);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .uot-logo-header {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            border: 2px solid var(--uot-gold);
+            object-fit: cover;
+            margin-bottom: 18px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .icon-celebration {
-            width: 90px; height: 90px;
+            width: 78px;
+            height: 78px;
             border-radius: 50%;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(16, 185, 129, 0.1));
+            background: #ecfdf5;
             border: 2px solid #10b981;
-            color: #34d399;
-            font-size: 2.8rem;
+            color: #059669;
+            font-size: 2.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 22px;
-            box-shadow: 0 0 30px rgba(16, 185, 129, 0.35);
+            margin: 0 auto 20px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
         }
 
         .card-title {
-            font-size: 2rem;
+            font-size: 1.85rem;
             font-weight: 900;
-            color: #ffffff;
-            margin-bottom: 12px;
+            color: var(--uot-blue);
+            margin-bottom: 10px;
         }
 
         .card-desc {
-            font-size: 1.05rem;
-            color: rgba(255, 255, 255, 0.85);
+            font-size: 1rem;
+            color: var(--slate-700);
             line-height: 1.7;
-            margin-bottom: 25px;
+            margin-bottom: 24px;
         }
 
         .project-receipt-box {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 18px;
-            padding: 20px;
+            background: #f8fafc;
+            border: 1.5px solid var(--slate-200);
+            border-radius: 16px;
+            padding: 18px 22px;
             text-align: right;
-            margin-bottom: 25px;
+            margin-bottom: 24px;
         }
 
         .receipt-row {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            font-size: 0.95rem;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--slate-200);
+            font-size: 0.94rem;
         }
 
-        .receipt-row:last-child { border-bottom: none; }
-        .receipt-label { color: rgba(255, 255, 255, 0.65); font-weight: 600; }
-        .receipt-value { color: #ffffff; font-weight: 700; }
+        .receipt-row:last-child {
+            border-bottom: none;
+            padding-bottom: 2px;
+        }
+
+        .receipt-label {
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .receipt-value {
+            color: #0f172a;
+            font-weight: 700;
+        }
 
         .btn-action-main {
-            background: linear-gradient(135deg, var(--gold) 0%, #f59e0b 100%);
+            background: linear-gradient(135deg, var(--uot-blue) 0%, #1565c0 100%);
             border: none;
-            color: #092347;
-            border-radius: 14px;
-            padding: 12px 28px;
+            color: #ffffff;
+            border-radius: 12px;
+            padding: 13px 28px;
             font-weight: 800;
-            font-size: 1rem;
+            font-size: 0.98rem;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 14px rgba(13, 56, 130, 0.25);
         }
 
         .btn-action-main:hover {
+            background: linear-gradient(135deg, var(--uot-blue-hover) 0%, var(--uot-blue) 100%);
+            color: #ffffff;
             transform: translateY(-2px);
-            color: #06172d;
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+            box-shadow: 0 8px 20px rgba(13, 56, 130, 0.35);
         }
 
         .btn-action-outline {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1.5px solid rgba(255, 255, 255, 0.3);
-            color: #ffffff;
-            border-radius: 14px;
-            padding: 12px 24px;
+            background: #ffffff;
+            border: 1.5px solid var(--slate-300);
+            color: var(--slate-700);
+            border-radius: 12px;
+            padding: 13px 24px;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.98rem;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
         }
 
         .btn-action-outline:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: var(--gold);
-            border-color: var(--gold);
+            background: var(--slate-100);
+            border-color: var(--slate-400);
+            color: var(--uot-blue);
         }
     </style>
 </head>
 <body>
 
-    <div class="bg-layer"></div>
-
     <div class="success-card">
+        <img src="{{ asset('images/logo.jpg') }}" alt="جامعة طرابلس" class="uot-logo-header" onerror="this.style.display='none'">
+
         <div class="icon-celebration">
-            <i class="fas fa-check-circle"></i>
+            <i class="fas fa-check"></i>
         </div>
 
-        <h1 class="card-title">تم استلام طلب مشروعكم بنجاح!</h1>
+        <h1 class="card-title">تم استلام طلب المشروع بنجاح!</h1>
         <p class="card-desc">
-            نشكركم على مساهمتكم المتميزة في {{ $fair ? $fair->title : 'معرض التوظيف بجامعة طرابلس' }}. تم تسجيل المشروع في النظام وهو الآن في مرحلة <strong>المراجعة والاعتماد الإداري</strong>.
+            نشكركم على مساهمتكم المتميزة في {{ $fair ? $fair->title : 'معرض التوظيف بجامعة طرابلس' }}. تم تسجيل المشروع في النظام وهو الآن في مرحلة <strong>المراجعة والاعتماد من قِبل اللجنة المنظمة</strong>.
         </p>
 
         <div class="project-receipt-box">
@@ -173,13 +195,13 @@
             </div>
             <div class="receipt-row">
                 <span class="receipt-label">نوع المشروع:</span>
-                <span class="receipt-value text-warning">{{ $project->project_type ?? 'مشروع تخرج' }}</span>
+                <span class="receipt-value text-primary">{{ $project->project_type ?? 'مشروع تخرج' }}</span>
             </div>
             <div class="receipt-row">
                 <span class="receipt-label">الحالة الحالية:</span>
                 <span class="receipt-value">
                     <span class="badge bg-warning text-dark px-3 py-1 rounded-pill">
-                        <i class="fas fa-hourglass-half me-1"></i> بانتظار اعتماد إدارة المعرض
+                        <i class="fas fa-hourglass-half me-1"></i> بانتظار الاعتماد الإداري
                     </span>
                 </span>
             </div>
@@ -189,14 +211,14 @@
             </div>
         </div>
 
-        <div class="alert alert-info text-white rounded-3 small text-end mb-4" style="background: rgba(14, 165, 233, 0.2); border: 1px solid rgba(14, 165, 233, 0.4);">
-            <i class="fas fa-info-circle me-1 text-info"></i>
+        <div class="alert alert-primary rounded-3 small text-end mb-4 border-0" style="background-color: #eff6ff; color: #1e40af;">
+            <i class="fas fa-info-circle me-1"></i>
             بمجرد قيام اللجنة الإشرافية باعتماد ونشر المشروع، سيظهر مباشرة في المعرض الرقمي العام مع رمز QR خاص به ورقم الجناح المخصص للعرض في حال تمت الموافقة عليه.
         </div>
 
         <div class="d-flex justify-content-center gap-3 flex-wrap">
             <a href="{{ $fair ? route('job-fair.public.projects', $fair->id) : route('job-fair.public.projects.index') }}" class="btn-action-main">
-                <i class="fas fa-layer-group"></i>
+                <i class="fas fa-th-large"></i>
                 <span>استعراض معرض المشاريع المنشورة</span>
             </a>
             @if($fair)

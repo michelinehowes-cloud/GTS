@@ -128,14 +128,18 @@
                         <div class="row g-3">
                             <!-- المؤهل العلمي -->
                             <div class="col-md-6">
-                                <label for="qualification" class="form-label small fw-bold text-secondary">المؤهل العلمي</label>
+                                <label for="qualification" class="form-label small fw-bold text-secondary">المؤهل العلمي <span class="text-danger">*</span></label>
+                                @php $currentDegree = old('qualification', old('degree', $user->qualification ?? $user->degree)); @endphp
                                 <select class="form-select rounded-3 @error('qualification') is-invalid @enderror" id="qualification" name="qualification">
                                     <option value="" disabled>اختر المؤهل</option>
-                                    <option value="بكالوريوس" {{ old('qualification', $user->qualification) == 'بكالوريوس' ? 'selected' : '' }}>بكالوريوس</option>
-                                    <option value="ماجستير" {{ old('qualification', $user->qualification) == 'ماجستير' ? 'selected' : '' }}>ماجستير</option>
-                                    <option value="دكتوراه" {{ old('qualification', $user->qualification) == 'دكتوراه' ? 'selected' : '' }}>دكتوراه</option>
-                                    <option value="دبلوم عالي" {{ old('qualification', $user->qualification) == 'دبلوم عالي' ? 'selected' : '' }}>دبلوم عالي</option>
+                                    <option value="بكالوريوس" {{ $currentDegree == 'بكالوريوس' ? 'selected' : '' }}>بكالوريوس</option>
+                                    <option value="ليسانس" {{ $currentDegree == 'ليسانس' ? 'selected' : '' }}>ليسانس</option>
+                                    <option value="ماجستير" {{ $currentDegree == 'ماجستير' ? 'selected' : '' }}>ماجستير</option>
+                                    <option value="دكتوراه" {{ $currentDegree == 'دكتوراه' ? 'selected' : '' }}>دكتوراه</option>
+                                    <option value="دبلوم" {{ $currentDegree == 'دبلوم' ? 'selected' : '' }}>دبلوم</option>
+                                    <option value="دبلوم عالي" {{ $currentDegree == 'دبلوم عالي' ? 'selected' : '' }}>دبلوم عالي</option>
                                 </select>
+                                <input type="hidden" name="degree" id="hidden_degree" value="{{ $currentDegree }}">
                                 @error('qualification')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
@@ -143,48 +147,51 @@
 
                             <!-- الجامعة -->
                             <div class="col-md-6">
-                                <label for="university_id" class="form-label small fw-bold text-secondary">الجامعة</label>
-                                <select class="form-select rounded-3 @error('university_id') is-invalid @enderror" id="university_id" name="university_id">
+                                <label for="university" class="form-label small fw-bold text-secondary">الجامعة <span class="text-danger">*</span></label>
+                                <select class="form-select rounded-3 @error('university') is-invalid @enderror" id="university" name="university">
                                     <option value="">اختر الجامعة</option>
+                                    <option value="جامعة طرابلس" {{ old('university', $user->university ?? 'جامعة طرابلس') == 'جامعة طرابلس' ? 'selected' : '' }}>جامعة طرابلس</option>
                                 </select>
-                                <input type="hidden" id="old_university_id" value="{{ old('university_id', $user->university_id) }}">
-                                @error('university_id')
+                                <input type="hidden" id="old_university" value="{{ old('university', $user->university ?? 'جامعة طرابلس') }}">
+                                @error('university')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
                             
                             <!-- القطاع -->
                             <div class="col-md-6">
-                                <label for="sector_id" class="form-label small fw-bold text-secondary">القطاع</label>
-                                <select class="form-select rounded-3 @error('sector_id') is-invalid @enderror" id="sector_id" name="sector_id" disabled>
+                                <label for="sector" class="form-label small fw-bold text-secondary">القطاع <span class="text-danger">*</span></label>
+                                <select class="form-select rounded-3 @error('sector') is-invalid @enderror" id="sector" name="sector" disabled>
                                     <option value="">اختر القطاع</option>
                                 </select>
-                                <input type="hidden" id="old_sector_id" value="{{ old('sector_id', $user->sector_id) }}">
-                                @error('sector_id')
+                                <input type="hidden" id="old_sector" value="{{ old('sector', $user->sector) }}">
+                                @error('sector')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <!-- الكلية -->
                             <div class="col-md-6">
-                                <label for="faculty_id" class="form-label small fw-bold text-secondary">الكلية</label>
-                                <select class="form-select rounded-3 @error('faculty_id') is-invalid @enderror" id="faculty_id" name="faculty_id" disabled>
+                                <label for="faculty" class="form-label small fw-bold text-secondary">الكلية <span class="text-danger">*</span></label>
+                                <select class="form-select rounded-3 @error('faculty') is-invalid @enderror" id="faculty" name="faculty" disabled>
                                     <option value="">اختر الكلية</option>
                                 </select>
-                                <input type="hidden" id="old_faculty_id" value="{{ old('faculty_id', $user->faculty_id) }}">
-                                @error('faculty_id')
+                                <input type="hidden" id="old_faculty" value="{{ old('faculty', $user->faculty) }}">
+                                @error('faculty')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <!-- التخصص -->
                             <div class="col-md-6">
-                                <label for="specialization_id" class="form-label small fw-bold text-secondary">التخصص</label>
-                                <select class="form-select rounded-3 @error('specialization_id') is-invalid @enderror" id="specialization_id" name="specialization_id" disabled>
+                                <label for="specialization" class="form-label small fw-bold text-secondary">التخصص <span class="text-danger">*</span></label>
+                                <select class="form-select rounded-3 @error('specialization') is-invalid @enderror" id="specialization" name="specialization" disabled>
                                     <option value="">اختر التخصص</option>
                                 </select>
-                                <input type="hidden" id="old_specialization_id" value="{{ old('specialization_id', $user->specialization_id) }}">
-                                @error('specialization_id')
+                                @php $currentSpec = old('specialization', old('major', $user->specialization ?? $user->major)); @endphp
+                                <input type="hidden" id="old_specialization" value="{{ $currentSpec }}">
+                                <input type="hidden" name="major" id="hidden_major" value="{{ $currentSpec }}">
+                                @error('specialization')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -331,9 +338,48 @@
     <!-- University Data Script -->
     <script src="{{ asset('js/university-data.js') }}"></script>
     <script>
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        document.addEventListener('DOMContentLoaded', function () {
+            const qualSelect = document.getElementById('qualification');
+            const hiddenDegree = document.getElementById('hidden_degree');
+            const specSelect = document.getElementById('specialization');
+            const hiddenMajor = document.getElementById('hidden_major');
+            const secSelect = document.getElementById('sector');
+            const facSelect = document.getElementById('faculty');
+
+            if (qualSelect && hiddenDegree) {
+                qualSelect.addEventListener('change', function () {
+                    hiddenDegree.value = this.value;
+                });
+            }
+
+            if (specSelect && hiddenMajor) {
+                specSelect.addEventListener('change', function () {
+                    hiddenMajor.value = this.value;
+                });
+            }
+
+            // ضمان تفعيل الحقول عند إرسال النموذج حتى لا تُحذف قيمتها من الـ Request
+            const profileForm = specSelect ? specSelect.closest('form') : null;
+            if (profileForm) {
+                profileForm.addEventListener('submit', function () {
+                    if (secSelect) secSelect.disabled = false;
+                    if (facSelect) facSelect.disabled = false;
+                    if (specSelect) {
+                        specSelect.disabled = false;
+                        if (hiddenMajor && specSelect.value) {
+                            hiddenMajor.value = specSelect.value;
+                        }
+                    }
+                    if (qualSelect && hiddenDegree && qualSelect.value) {
+                        hiddenDegree.value = qualSelect.value;
+                    }
+                });
+            }
+        });
+
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-          return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
+          return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
     </script>
 @endsection

@@ -3,6 +3,7 @@
 @section('title', 'إدارة مشاريع التخرج والأرشيف - ' . $fair->title)
 
 @push('styles')
+@include('job-fair.admin.partials.modal-styles')
 <style>
 
     .fair-actions-toolbar {
@@ -517,18 +518,22 @@
         <!-- Modal: Review Project Details -->
         <div class="modal fade text-start" id="reviewModal{{ $proj->id }}" tabindex="-1" aria-labelledby="reviewModalLabel{{ $proj->id }}" aria-hidden="true" dir="rtl">
             <div class="modal-dialog modal-xl modal-dialog-scrollable">
-                <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
-                    <div class="modal-header bg-primary text-white py-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="fas fa-microscope text-warning fs-5"></i>
+                <div class="modal-content uot-modal-content">
+                    <div class="modal-header uot-modal-header uot-modal-header-review">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="uot-modal-icon-badge" style="border-color:#34d399; background:rgba(52,211,153,0.18); color:#34d399;">
+                                <i class="fas fa-microscope"></i>
+                            </div>
                             <div>
-                                <h5 class="modal-title font-weight-bold mb-0" id="reviewModalLabel{{ $proj->id }}">
+                                <h5 class="uot-modal-title" id="reviewModalLabel{{ $proj->id }}">
                                     ملف مراجعة واعتماد المشروع: {{ $proj->title }}
                                 </h5>
-                                <small class="text-white-50">{{ $proj->faculty }} &bull; {{ $proj->department }} &bull; دفعة {{ $proj->graduation_year }}</small>
+                                <p class="uot-modal-subtitle">{{ $proj->faculty }} &bull; {{ $proj->department }} &bull; دفعة {{ $proj->graduation_year }}</p>
                             </div>
                         </div>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="uot-btn-close" data-bs-dismiss="modal" aria-label="Close" title="إغلاق">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                     <div class="modal-body p-4">
                         <!-- شريط القرار الإداري السريع -->
@@ -789,12 +794,22 @@
                     @csrf
                     @method('PATCH')
                     <input type="hidden" name="status" value="rejected">
-                    <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
-                        <div class="modal-header bg-danger text-white py-3">
-                            <h5 class="modal-title font-weight-bold" id="rejectModalLabel{{ $proj->id }}">
-                                <i class="fas fa-times-circle me-1"></i> رفض مشروع التخرج
-                            </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="modal-content uot-modal-content">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 60%, #b91c1c 100%) !important; border-bottom: 3.5px solid #eeca3e !important; padding: 1.25rem 1.75rem !important; color:#fff !important;">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="uot-modal-icon-badge" style="border-color:#fca5a5; background:rgba(252,165,165,0.18); color:#fca5a5;">
+                                    <i class="fas fa-times-circle"></i>
+                                </div>
+                                <div>
+                                    <h5 class="uot-modal-title" id="rejectModalLabel{{ $proj->id }}">
+                                        رفض مشروع التخرج
+                                    </h5>
+                                    <p class="uot-modal-subtitle">إجراء إداري رسمي &bull; توثيق سبب الرفض</p>
+                                </div>
+                            </div>
+                            <button type="button" class="uot-btn-close" data-bs-dismiss="modal" aria-label="Close" title="إغلاق">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
                         <div class="modal-body p-4">
                             <p class="mb-3">أنت على وشك رفض مشروع: <strong>«{{ $proj->title }}»</strong>.</p>
@@ -818,204 +833,247 @@
 
 <!-- Modal: Add Project -->
 <div class="modal fade" id="addProjectModal" tabindex="-1" role="dialog" aria-labelledby="addProjectModalLabel" aria-hidden="true" dir="rtl">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
         <form id="addProjectForm" action="{{ route('job-fair.admin.projects.store', $fair->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
-                <div class="modal-header bg-primary text-white py-3">
-                    <h5 class="modal-title font-weight-bold" id="addProjectModalLabel">
-                        <i class="fas fa-plus-circle me-1"></i> إضافة مشروع تخرج جديد (لوحة الإدارة)
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content uot-modal-content">
+                <div class="modal-header uot-modal-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="uot-modal-icon-badge">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div>
+                            <h5 class="uot-modal-title" id="addProjectModalLabel">
+                                إضافة مشروع تخرج جديد (لوحة الإدارة)
+                            </h5>
+                            <p class="uot-modal-subtitle">جامعة طرابلس &bull; منظومة أرشيف ومعرض مشاريع التخرج المعتمدة</p>
+                        </div>
+                    </div>
+                    <button type="button" class="uot-btn-close" data-bs-dismiss="modal" aria-label="Close" title="إغلاق">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
                 <div class="modal-body p-4">
-                    <div class="row">
-                        <div class="col-md-12 form-group mb-3">
-                            <label class="font-weight-bold">عنوان المشروع <span class="text-danger">*</span></label>
-                            <input type="text" name="title" class="form-control" required placeholder="عنوان المشروع بالكامل">
+                    {{-- القسم 1: البيانات الأكاديمية والأساسية --}}
+                    <div class="uot-section-divider">
+                        <span class="divider-icon"><i class="fas fa-university"></i></span>
+                        <h6 class="divider-title">البيانات الأكاديمية والأساسية للمشروع</h6>
+                        <span class="divider-badge">مطلوبة للتوثيق والأرشفة</span>
+                    </div>
+
+                    <div class="row g-3 mb-2">
+                        <div class="col-12">
+                            <label class="uot-form-label">
+                                عنوان المشروع <span class="req">*</span>
+                            </label>
+                            <input type="text" name="title" class="form-control uot-input" required placeholder="عنوان المشروع بالكامل كما هو معتمد في الكلية">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="uot-form-label">
+                                الكلية <span class="req">*</span>
+                            </label>
+                            <input type="text" name="faculty" class="form-control uot-input" required placeholder="مثال: كلية تقنية المعلومات">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="uot-form-label">
+                                القسم / التخصص <span class="req">*</span>
+                            </label>
+                            <input type="text" name="department" class="form-control uot-input" required placeholder="مثال: هندسة البرمجيات">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="uot-form-label">
+                                سنة التخرج <span class="req">*</span>
+                            </label>
+                            <input type="number" name="graduation_year" class="form-control uot-input" required value="{{ date('Y') }}" min="2000" max="2035">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="uot-form-label">نوع المشروع</label>
+                            <input type="text" name="project_type" class="form-control uot-input" placeholder="تطبيق ويب، ذكاء اصطناعي، إنترنت أشياء، نظم مدمجة...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="uot-form-label">المجال الرئيسي للمشروع</label>
+                            <input type="text" name="main_category" class="form-control uot-input" placeholder="تقنية المعلومات، الطاقة، الصحة والطب، البيئة...">
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-4 form-group mb-3">
-                            <label class="font-weight-bold">الكلية <span class="text-danger">*</span></label>
-                            <input type="text" name="faculty" class="form-control" required placeholder="مثال: كلية تقنية المعلومات">
-                        </div>
-                        <div class="col-md-4 form-group mb-3">
-                            <label class="font-weight-bold">القسم / التخصص <span class="text-danger">*</span></label>
-                            <input type="text" name="department" class="form-control" required placeholder="مثال: هندسة البرمجيات">
-                        </div>
-                        <div class="col-md-4 form-group mb-3">
-                            <label class="font-weight-bold">سنة التخرج <span class="text-danger">*</span></label>
-                            <input type="number" name="graduation_year" class="form-control" required value="{{ date('Y') }}">
-                        </div>
+                    {{-- القسم 2: المشرف الأكاديمي وفريق العمل --}}
+                    <div class="uot-section-divider">
+                        <span class="divider-icon"><i class="fas fa-users-cog"></i></span>
+                        <h6 class="divider-title">المشرف الأكاديمي وفريق العمل</h6>
+                        <span class="divider-badge">أعضاء الفريق والاتصال</span>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">نوع المشروع</label>
-                            <input type="text" name="project_type" class="form-control" placeholder="تطبيق ويب، ذكاء اصطناعي، إنترنت أشياء...">
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-6">
+                            <label class="uot-form-label">المشرف الأكاديمي</label>
+                            <input type="text" name="supervisor_name" class="form-control uot-input" placeholder="اسم الأستاذ المشرف">
                         </div>
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">المجال الرئيسي للمشروع</label>
-                            <input type="text" name="main_category" class="form-control" placeholder="تقنية المعلومات، الطاقة، الصحة...">
+                        <div class="col-md-6">
+                            <label class="uot-form-label">اللقب والصفة الأكاديمية</label>
+                            <input type="text" name="supervisor_title" class="form-control uot-input" placeholder="أستاذ دكتور / أستاذ مشارك / محاضر">
                         </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">المشرف الأكاديمي</label>
-                            <input type="text" name="supervisor_name" class="form-control" placeholder="اسم الأستاذ المشرف">
+                        <div class="col-12">
+                            <label class="uot-form-label">فريق العمل (اسم كل طالب في سطر مستقل)</label>
+                            <textarea name="team_members_raw" class="form-control uot-textarea" rows="3" placeholder="محمد علي الورفلي&#10;سارة عبد الله الزنتاني"></textarea>
+                            <small class="text-muted d-block mt-1">سيتم تقسيم الأسماء وعرضها كبطاقات طلاب معتمدة في المعرض.</small>
                         </div>
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">اللقب والصفة الأكاديمية</label>
-                            <input type="text" name="supervisor_title" class="form-control" placeholder="أستاذ دكتور / أستاذ مشارك">
-                        </div>
-                    </div>
 
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">فريق العمل (اسم كل طالب في سطر مستقل)</label>
-                        <textarea name="team_members_raw" class="form-control" rows="3" placeholder="محمد علي الورفلي&#10;سارة عبد الله الزنتاني"></textarea>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">البريد الإلكتروني العام للتواصل</label>
-                            <input type="email" name="contact_email" class="form-control" placeholder="project@example.com">
+                        <div class="col-md-6">
+                            <label class="uot-form-label">البريد الإلكتروني العام للتواصل</label>
+                            <input type="email" name="contact_email" class="form-control uot-input" placeholder="project@uot.edu.ly">
                         </div>
-                        <div class="col-md-3 form-group mb-3">
-                            <label class="font-weight-bold">رقم الجناح</label>
-                            <input type="text" name="booth_number" class="form-control" placeholder="مثال: IT-01">
+                        <div class="col-md-3">
+                            <label class="uot-form-label">رقم الجناح بالمعرض</label>
+                            <input type="text" name="booth_number" class="form-control uot-input" placeholder="مثال: IT-01">
                         </div>
-                        <div class="col-md-3 form-group mb-3">
-                            <label class="font-weight-bold">حالة النشر</label>
-                            <select name="status" class="form-control">
+                        <div class="col-md-3">
+                            <label class="uot-form-label">حالة النشر والاعتماد</label>
+                            <select name="status" class="form-select uot-select">
                                 <option value="published">منشور ومتاح للجمهور</option>
-                                <option value="pending">بانتظار الاعتماد (Pending)</option>
-                                <option value="draft">مسودة</option>
+                                <option value="pending" selected>بانتظار الاعتماد (Pending)</option>
+                                <option value="draft">مسودة داخلية</option>
                                 <option value="rejected">مرفوض</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">نبذة تعريفية مختصرة (Abstract)</label>
-                        <textarea name="summary" class="form-control" rows="2" placeholder="نبذة موجزة عن المشروع..."></textarea>
+                    {{-- القسم 3: المحتوى والملخص العلمي للمشروع --}}
+                    <div class="uot-section-divider">
+                        <span class="divider-icon"><i class="fas fa-file-alt"></i></span>
+                        <h6 class="divider-title">المحتوى والملخص العلمي للمشروع</h6>
+                        <span class="divider-badge">الملخص والأهداف الفنية</span>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">المشكلة التي يعالجها المشروع</label>
-                            <textarea name="problem_statement" class="form-control" rows="2"></textarea>
+                    <div class="row g-3 mb-2">
+                        <div class="col-12">
+                            <label class="uot-form-label">نبذة تعريفية مختصرة (Abstract)</label>
+                            <textarea name="summary" class="form-control uot-textarea" rows="2" placeholder="نبذة موجزة وشاملة تلخص فكرة المشروع..."></textarea>
                         </div>
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">الحل الذي يقدمه المشروع</label>
-                            <textarea name="solution_statement" class="form-control" rows="2"></textarea>
+
+                        <div class="col-md-6">
+                            <label class="uot-form-label">المشكلة التي يعالجها المشروع</label>
+                            <textarea name="problem_statement" class="form-control uot-textarea" rows="2" placeholder="ما هي الفجوة أو المشكلة الواقعية التي يتصدى لها المشروع؟"></textarea>
                         </div>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">أهداف المشروع</label>
-                        <textarea name="objectives" class="form-control" rows="2"></textarea>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">التفاصيل الفنية والمواصفات</label>
-                        <textarea name="technical_specifications" class="form-control" rows="2"></textarea>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">وصف المشروع الكامل</label>
-                        <textarea name="description" class="form-control" rows="3"></textarea>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">أبرز النتائج والمميزات</label>
-                            <textarea name="key_outcomes" class="form-control" rows="2"></textarea>
+                        <div class="col-md-6">
+                            <label class="uot-form-label">الحل المقترح ومخرجات الابتكار</label>
+                            <textarea name="solution_statement" class="form-control uot-textarea" rows="2" placeholder="كيف يحل المشروع هذه المشكلة تقنياً أو عملياً؟"></textarea>
                         </div>
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">إمكانية التطوير والتسويق التجاري</label>
-                            <textarea name="market_viability" class="form-control" rows="2"></textarea>
-                        </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">بوستر المشروع (Poster)</label>
-                            <input type="file" name="poster_image" class="form-control" accept="image/*">
+                        <div class="col-12">
+                            <label class="uot-form-label">أهداف المشروع</label>
+                            <textarea name="objectives" class="form-control uot-textarea" rows="2" placeholder="الأهداف الاستراتيجية والتنفيذية للمشروع..."></textarea>
                         </div>
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">صورة الغلاف (Cover)</label>
-                            <input type="file" name="cover_image" class="form-control" accept="image/*">
+
+                        <div class="col-12">
+                            <label class="uot-form-label">التفاصيل الفنية والمواصفات (Tech Stack)</label>
+                            <textarea name="technical_specifications" class="form-control uot-textarea" rows="2" placeholder="اللغات، التقنيات، أدوات التحليل، الحساسات، الأطر البرمجية المستخدمة..."></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="uot-form-label">وصف المشروع الكامل</label>
+                            <textarea name="description" class="form-control uot-textarea" rows="3" placeholder="شرح معمق لمنهجية العمل، معمارية النظام، ومراحل الاختبار..."></textarea>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="uot-form-label">أبرز النتائج والمميزات</label>
+                            <textarea name="key_outcomes" class="form-control uot-textarea" rows="2" placeholder="أهم النتائج المحققة وميزات الأداء..."></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="uot-form-label">قابلية التطوير والتسويق التجاري</label>
+                            <textarea name="market_viability" class="form-control uot-textarea" rows="2" placeholder="إمكانية تحويل المشروع إلى شركة ناشئة أو منتج تجاري..."></textarea>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">رابط المشروع البرمجي أو GitHub</label>
-                            <input type="url" name="project_url" class="form-control" placeholder="https://github.com/...">
+                    {{-- القسم 4: الوسائط والروابط الخارجية --}}
+                    <div class="uot-section-divider">
+                        <span class="divider-icon"><i class="fas fa-photo-video"></i></span>
+                        <h6 class="divider-title">الوسائط والروابط الخارجية</h6>
+                        <span class="divider-badge">البوستر والروابط</span>
+                    </div>
+
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-6">
+                            <label class="uot-form-label">بوستر المشروع (Poster File / Image)</label>
+                            <input type="file" name="poster_image" class="form-control uot-input" accept="image/*,application/pdf">
                         </div>
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">رابط فيديو العرض (Demo / YouTube)</label>
-                            <input type="url" name="video_url" class="form-control" placeholder="https://youtube.com/...">
+                        <div class="col-md-6">
+                            <label class="uot-form-label">صورة الغلاف (Cover Image)</label>
+                            <input type="file" name="cover_image" class="form-control uot-input" accept="image/*">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="uot-form-label">رابط المشروع البرمجي أو GitHub</label>
+                            <input type="url" name="project_url" class="form-control uot-input" placeholder="https://github.com/username/project">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="uot-form-label">رابط فيديو العرض (Demo / YouTube)</label>
+                            <input type="url" name="video_url" class="form-control uot-input" placeholder="https://youtube.com/watch?v=...">
                         </div>
                     </div>
 
-                    <!-- القسم الخاص بالمسؤول فقط -->
-                    <div class="card border-danger p-3 bg-light mb-3">
-                        <h6 class="font-weight-bold text-danger mb-3">
-                            <i class="fas fa-lock me-1"></i> معلومات خاصة بالمسؤول فقط (لا تظهر للعامة)
-                        </h6>
-                        <div class="row">
-                            <div class="col-md-6 form-group mb-3">
-                                <label class="font-weight-bold text-danger">الرقم الجامعي / رقم القيد</label>
-                                <input type="text" name="student_university_id" class="form-control" placeholder="رقم القيد الجامعي">
+                    {{-- القسم 5: بيانات التدقيق الإداري والاتصال الداخلي (خاصة بالمسؤول) --}}
+                    <div class="uot-admin-box">
+                        <div class="uot-admin-box-header">
+                            <i class="fas fa-user-shield fs-5 text-warning"></i>
+                            <span>معلومات خاصة بالمسؤول فقط (بيانات داخلية لا تظهر للعامة)</span>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="uot-form-label text-dark">الرقم الجامعي / رقم القيد</label>
+                                <input type="text" name="student_university_id" class="form-control uot-input" placeholder="رقم القيد الجامعي للطالب الممثل">
                             </div>
-                            <div class="col-md-6 form-group mb-3">
-                                <label class="font-weight-bold text-danger">رقم الهاتف المسجل بالواتساب</label>
-                                <input type="text" name="whatsapp_phone" class="form-control" placeholder="091XXXXXXX">
+                            <div class="col-md-6">
+                                <label class="uot-form-label text-dark">رقم الهاتف المسجل بالواتساب</label>
+                                <input type="text" name="whatsapp_phone" class="form-control uot-input" placeholder="091XXXXXXX">
                             </div>
-                            <div class="col-md-6 form-group mb-3">
-                                <label class="font-weight-bold text-danger">حالة النموذج الأولي</label>
-                                <input type="text" name="prototype_status" class="form-control" placeholder="فكرة، نموذج أولي تجريبي، منتج جاهز...">
+
+                            <div class="col-md-6">
+                                <label class="uot-form-label text-dark">حالة النموذج الأولي</label>
+                                <input type="text" name="prototype_status" class="form-control uot-input" placeholder="فكرة، نموذج تجريبي، منتج جاهز للإنتاج...">
                             </div>
-                            <div class="col-md-6 form-group mb-3">
-                                <label class="font-weight-bold text-danger">المتطلبات التي يحتاجها المشروع</label>
-                                <input type="text" name="project_requirements" class="form-control" placeholder="طاولات، توصيلات، إنترنت...">
+                            <div class="col-md-6">
+                                <label class="uot-form-label text-dark">المتطلبات التي يحتاجها المشروع أثناء العرض</label>
+                                <input type="text" name="project_requirements" class="form-control uot-input" placeholder="طاولات، شاشات، إنترنت، توصيلات كهربائية...">
                             </div>
-                            <div class="col-md-12 form-group mb-3">
-                                <div class="form-check">
+
+                            <div class="col-12">
+                                <div class="form-check form-switch mb-2">
                                     <input type="checkbox" name="needs_special_equipment" value="1" class="form-check-input" id="addNeedsEq">
-                                    <label class="form-check-label font-weight-bold text-danger" for="addNeedsEq">
-                                        يحتاج معدات خاصة أثناء العرض
+                                    <label class="form-check-label fw-bold text-dark" for="addNeedsEq">
+                                        يحتاج المشروع معدات أو تجهيزات خاصة في قاعة المعرض
                                     </label>
                                 </div>
-                                <input type="text" name="special_equipment_details" class="form-control mt-2" placeholder="تفاصيل المعدات الخاصة المطلوبة...">
+                                <input type="text" name="special_equipment_details" class="form-control uot-input" placeholder="وضح تفاصيل المعدات الخاصة المطلوبة...">
                             </div>
-                            <div class="col-md-12 form-group mb-3">
-                                <label class="font-weight-bold text-danger">الملخص التنفيذي للمراجعة الداخلية</label>
-                                <textarea name="executive_summary" class="form-control" rows="2"></textarea>
+
+                            <div class="col-md-6">
+                                <label class="uot-form-label text-dark">الملخص التنفيذي للمراجعة الداخلية</label>
+                                <textarea name="executive_summary" class="form-control uot-textarea" rows="2" placeholder="ملاحظات المحكمين أو تقييم اللجنة الأكاديمية..."></textarea>
                             </div>
-                            <div class="col-md-12 form-group mb-3">
-                                <label class="font-weight-bold text-danger">ملاحظات أو إجراءات إدارية</label>
-                                <textarea name="admin_notes" class="form-control" rows="2"></textarea>
+                            <div class="col-md-6">
+                                <label class="uot-form-label text-dark">ملاحظات أو قرارات إدارية</label>
+                                <textarea name="admin_notes" class="form-control uot-textarea" rows="2" placeholder="ملاحظات سرية خاصة بالإدارة..."></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <div class="form-check">
-                        <input type="checkbox" name="is_featured" value="1" class="form-check-input" id="addProjFeatured">
-                        <label class="form-check-label font-weight-bold text-warning" for="addProjFeatured">
-                            <i class="fas fa-star"></i> تمييز المشروع في الصفحة الرئيسية للمعرض
+                    <div class="form-check form-switch mt-4 p-3 rounded-3 bg-light border d-flex align-items-center gap-3">
+                        <input type="checkbox" name="is_featured" value="1" class="form-check-input m-0" id="addProjFeatured">
+                        <label class="form-check-label fw-bold text-dark m-0" for="addProjFeatured">
+                            <i class="fas fa-star text-warning me-1"></i> تمييز المشروع في الواجهة الرئيسية وأبرز مشاريع المعرض
                         </label>
                     </div>
                 </div>
 
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="submit" class="btn btn-primary fw-bold">
-                        <i class="fas fa-save me-1"></i> حفظ المشروع
+                <div class="modal-footer uot-modal-footer">
+                    <button type="button" class="uot-btn-cancel" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> إلغاء
+                    </button>
+                    <button type="submit" class="uot-btn-submit">
+                        <i class="fas fa-save me-1"></i> حفظ وتثبيت المشروع
                     </button>
                 </div>
             </div>
@@ -1025,208 +1083,250 @@
 
 <!-- Modal: Edit Project -->
 <div class="modal fade" id="editProjectModal" tabindex="-1" role="dialog" aria-labelledby="editProjectModalLabel" aria-hidden="true" dir="rtl">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
         <form id="editProjectForm" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
-            <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
-                <div class="modal-header bg-dark text-white py-3">
-                    <h5 class="modal-title font-weight-bold" id="editProjectModalLabel">
-                        <i class="fas fa-edit me-1"></i> تعديل بيانات مشروع التخرج
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content uot-modal-content">
+                <div class="modal-header uot-modal-header uot-modal-header-edit">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="uot-modal-icon-badge">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div>
+                            <h5 class="uot-modal-title" id="editProjectModalLabel">
+                                تعديل بيانات مشروع التخرج
+                            </h5>
+                            <p class="uot-modal-subtitle">جامعة طرابلس &bull; تحديث بيانات المشروع والأرشيف الأكاديمي</p>
+                        </div>
+                    </div>
+                    <button type="button" class="uot-btn-close" data-bs-dismiss="modal" aria-label="Close" title="إغلاق">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
                 <div class="modal-body p-4">
-                    <div class="row">
-                        <div class="col-md-12 form-group mb-3">
-                            <label class="font-weight-bold">عنوان المشروع <span class="text-danger">*</span></label>
-                            <input type="text" name="title" id="edit_title" class="form-control" required>
+                    {{-- القسم 1: البيانات الأكاديمية والأساسية --}}
+                    <div class="uot-section-divider">
+                        <span class="divider-icon"><i class="fas fa-university"></i></span>
+                        <h6 class="divider-title">البيانات الأكاديمية والأساسية للمشروع</h6>
+                        <span class="divider-badge">مطلوبة للتوثيق والأرشفة</span>
+                    </div>
+
+                    <div class="row g-3 mb-2">
+                        <div class="col-12">
+                            <label class="uot-form-label">
+                                عنوان المشروع <span class="req">*</span>
+                            </label>
+                            <input type="text" name="title" id="edit_title" class="form-control uot-input" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="uot-form-label">
+                                الكلية <span class="req">*</span>
+                            </label>
+                            <input type="text" name="faculty" id="edit_faculty" class="form-control uot-input" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="uot-form-label">
+                                القسم / التخصص <span class="req">*</span>
+                            </label>
+                            <input type="text" name="department" id="edit_department" class="form-control uot-input" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="uot-form-label">
+                                سنة التخرج <span class="req">*</span>
+                            </label>
+                            <input type="number" name="graduation_year" id="edit_graduation_year" class="form-control uot-input" required min="2000" max="2035">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="uot-form-label">نوع المشروع</label>
+                            <input type="text" name="project_type" id="edit_project_type" class="form-control uot-input">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="uot-form-label">المجال الرئيسي للمشروع</label>
+                            <input type="text" name="main_category" id="edit_main_category" class="form-control uot-input">
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-4 form-group mb-3">
-                            <label class="font-weight-bold">الكلية <span class="text-danger">*</span></label>
-                            <input type="text" name="faculty" id="edit_faculty" class="form-control" required>
-                        </div>
-                        <div class="col-md-4 form-group mb-3">
-                            <label class="font-weight-bold">القسم / التخصص <span class="text-danger">*</span></label>
-                            <input type="text" name="department" id="edit_department" class="form-control" required>
-                        </div>
-                        <div class="col-md-4 form-group mb-3">
-                            <label class="font-weight-bold">سنة التخرج <span class="text-danger">*</span></label>
-                            <input type="number" name="graduation_year" id="edit_graduation_year" class="form-control" required>
-                        </div>
+                    {{-- القسم 2: المشرف الأكاديمي وفريق العمل --}}
+                    <div class="uot-section-divider">
+                        <span class="divider-icon"><i class="fas fa-users-cog"></i></span>
+                        <h6 class="divider-title">المشرف الأكاديمي وفريق العمل</h6>
+                        <span class="divider-badge">أعضاء الفريق والاتصال</span>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">نوع المشروع</label>
-                            <input type="text" name="project_type" id="edit_project_type" class="form-control">
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-6">
+                            <label class="uot-form-label">المشرف الأكاديمي</label>
+                            <input type="text" name="supervisor_name" id="edit_supervisor_name" class="form-control uot-input">
                         </div>
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">المجال الرئيسي للمشروع</label>
-                            <input type="text" name="main_category" id="edit_main_category" class="form-control">
+                        <div class="col-md-6">
+                            <label class="uot-form-label">اللقب والصفة الأكاديمية</label>
+                            <input type="text" name="supervisor_title" id="edit_supervisor_title" class="form-control uot-input">
                         </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">المشرف الأكاديمي</label>
-                            <input type="text" name="supervisor_name" id="edit_supervisor_name" class="form-control">
+                        <div class="col-12">
+                            <label class="uot-form-label">فريق العمل (اسم كل طالب في سطر مستقل)</label>
+                            <textarea name="team_members_raw" id="edit_team_members_raw" class="form-control uot-textarea" rows="3"></textarea>
                         </div>
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">اللقب والصفة الأكاديمية</label>
-                            <input type="text" name="supervisor_title" id="edit_supervisor_title" class="form-control">
-                        </div>
-                    </div>
 
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">فريق العمل (اسم كل طالب في سطر)</label>
-                        <textarea name="team_members_raw" id="edit_team_members_raw" class="form-control" rows="3"></textarea>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">البريد الإلكتروني العام للتواصل</label>
-                            <input type="email" name="contact_email" id="edit_contact_email" class="form-control">
+                        <div class="col-md-6">
+                            <label class="uot-form-label">البريد الإلكتروني العام للتواصل</label>
+                            <input type="email" name="contact_email" id="edit_contact_email" class="form-control uot-input">
                         </div>
-                        <div class="col-md-3 form-group mb-3">
-                            <label class="font-weight-bold">رقم الجناح</label>
-                            <input type="text" name="booth_number" id="edit_booth_number" class="form-control">
+                        <div class="col-md-3">
+                            <label class="uot-form-label">رقم الجناح بالمعرض</label>
+                            <input type="text" name="booth_number" id="edit_booth_number" class="form-control uot-input">
                         </div>
-                        <div class="col-md-3 form-group mb-3">
-                            <label class="font-weight-bold">حالة النشر</label>
-                            <select name="status" id="edit_status" class="form-control">
+                        <div class="col-md-3">
+                            <label class="uot-form-label">حالة النشر والاعتماد</label>
+                            <select name="status" id="edit_status" class="form-select uot-select">
                                 <option value="published">منشور ومتاح للجمهور</option>
                                 <option value="pending">بانتظار الاعتماد (Pending)</option>
-                                <option value="draft">مسودة</option>
+                                <option value="draft">مسودة داخلية</option>
                                 <option value="rejected">مرفوض</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">نبذة تعريفية مختصرة (Abstract)</label>
-                        <textarea name="summary" id="edit_summary" class="form-control" rows="2"></textarea>
+                    {{-- القسم 3: المحتوى والملخص العلمي للمشروع --}}
+                    <div class="uot-section-divider">
+                        <span class="divider-icon"><i class="fas fa-file-alt"></i></span>
+                        <h6 class="divider-title">المحتوى والملخص العلمي للمشروع</h6>
+                        <span class="divider-badge">الملخص والأهداف الفنية</span>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">المشكلة التي يعالجها المشروع</label>
-                            <textarea name="problem_statement" id="edit_problem_statement" class="form-control" rows="2"></textarea>
+                    <div class="row g-3 mb-2">
+                        <div class="col-12">
+                            <label class="uot-form-label">نبذة تعريفية مختصرة (Abstract)</label>
+                            <textarea name="summary" id="edit_summary" class="form-control uot-textarea" rows="2"></textarea>
                         </div>
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">الحل الذي يقدمه المشروع</label>
-                            <textarea name="solution_statement" id="edit_solution_statement" class="form-control" rows="2"></textarea>
+
+                        <div class="col-md-6">
+                            <label class="uot-form-label">المشكلة التي يعالجها المشروع</label>
+                            <textarea name="problem_statement" id="edit_problem_statement" class="form-control uot-textarea" rows="2"></textarea>
                         </div>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">أهداف المشروع</label>
-                        <textarea name="objectives" id="edit_objectives" class="form-control" rows="2"></textarea>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">التفاصيل الفنية والمواصفات</label>
-                        <textarea name="technical_specifications" id="edit_technical_specifications" class="form-control" rows="2"></textarea>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label class="font-weight-bold">وصف المشروع الكامل</label>
-                        <textarea name="description" id="edit_description" class="form-control" rows="3"></textarea>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">أبرز النتائج والمميزات</label>
-                            <textarea name="key_outcomes" id="edit_key_outcomes" class="form-control" rows="2"></textarea>
+                        <div class="col-md-6">
+                            <label class="uot-form-label">الحل المقترح ومخرجات الابتكار</label>
+                            <textarea name="solution_statement" id="edit_solution_statement" class="form-control uot-textarea" rows="2"></textarea>
                         </div>
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">قابلية التطوير والتسويق التجاري</label>
-                            <textarea name="market_viability" id="edit_market_viability" class="form-control" rows="2"></textarea>
-                        </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">تحديث بوستر المشروع</label>
-                            <input type="file" name="poster_image" class="form-control" accept="image/*">
+                        <div class="col-12">
+                            <label class="uot-form-label">أهداف المشروع</label>
+                            <textarea name="objectives" id="edit_objectives" class="form-control uot-textarea" rows="2"></textarea>
                         </div>
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">تحديث صورة الغلاف</label>
-                            <input type="file" name="cover_image" class="form-control" accept="image/*">
+
+                        <div class="col-12">
+                            <label class="uot-form-label">التفاصيل الفنية والمواصفات (Tech Stack)</label>
+                            <textarea name="technical_specifications" id="edit_technical_specifications" class="form-control uot-textarea" rows="2"></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="uot-form-label">وصف المشروع الكامل</label>
+                            <textarea name="description" id="edit_description" class="form-control uot-textarea" rows="3"></textarea>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="uot-form-label">أبرز النتائج والمميزات</label>
+                            <textarea name="key_outcomes" id="edit_key_outcomes" class="form-control uot-textarea" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="uot-form-label">قابلية التطوير والتسويق التجاري</label>
+                            <textarea name="market_viability" id="edit_market_viability" class="form-control uot-textarea" rows="2"></textarea>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">رابط المشروع البرمجي أو GitHub</label>
-                            <input type="url" name="project_url" id="edit_project_url" class="form-control">
+                    {{-- القسم 4: الوسائط والروابط الخارجية --}}
+                    <div class="uot-section-divider">
+                        <span class="divider-icon"><i class="fas fa-photo-video"></i></span>
+                        <h6 class="divider-title">الوسائط والروابط الخارجية</h6>
+                        <span class="divider-badge">البوستر والروابط</span>
+                    </div>
+
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-6">
+                            <label class="uot-form-label">تحديث بوستر المشروع (Poster File / Image)</label>
+                            <input type="file" name="poster_image" class="form-control uot-input" accept="image/*,application/pdf">
                         </div>
-                        <div class="col-md-6 form-group mb-3">
-                            <label class="font-weight-bold">رابط فيديو العرض (Demo / YouTube)</label>
-                            <input type="url" name="video_url" id="edit_video_url" class="form-control">
+                        <div class="col-md-6">
+                            <label class="uot-form-label">تحديث صورة الغلاف (Cover Image)</label>
+                            <input type="file" name="cover_image" class="form-control uot-input" accept="image/*">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="uot-form-label">رابط المشروع البرمجي أو GitHub</label>
+                            <input type="url" name="project_url" id="edit_project_url" class="form-control uot-input">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="uot-form-label">رابط فيديو العرض (Demo / YouTube)</label>
+                            <input type="url" name="video_url" id="edit_video_url" class="form-control uot-input">
                         </div>
                     </div>
 
-                    <!-- القسم الخاص بالمسؤول فقط في التعديل -->
-                    <div class="card border-danger p-3 bg-light mb-3">
-                        <h6 class="font-weight-bold text-danger mb-3">
-                            <i class="fas fa-lock me-1"></i> معلومات خاصة بالمسؤول فقط (لا تظهر للعامة)
-                        </h6>
-                        <div class="row">
-                            <div class="col-md-6 form-group mb-3">
-                                <label class="font-weight-bold text-danger">الرقم الجامعي / رقم القيد</label>
-                                <input type="text" name="student_university_id" id="edit_student_university_id" class="form-control">
+                    {{-- القسم 5: بيانات التدقيق الإداري والاتصال الداخلي (خاصة بالمسؤول) --}}
+                    <div class="uot-admin-box">
+                        <div class="uot-admin-box-header">
+                            <i class="fas fa-user-shield fs-5 text-warning"></i>
+                            <span>معلومات خاصة بالمسؤول فقط (بيانات داخلية لا تظهر للعامة)</span>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="uot-form-label text-dark">الرقم الجامعي / رقم القيد</label>
+                                <input type="text" name="student_university_id" id="edit_student_university_id" class="form-control uot-input">
                             </div>
-                            <div class="col-md-6 form-group mb-3">
-                                <label class="font-weight-bold text-danger">رقم الهاتف المسجل بالواتساب</label>
-                                <input type="text" name="whatsapp_phone" id="edit_whatsapp_phone" class="form-control">
+                            <div class="col-md-6">
+                                <label class="uot-form-label text-dark">رقم الهاتف المسجل بالواتساب</label>
+                                <input type="text" name="whatsapp_phone" id="edit_whatsapp_phone" class="form-control uot-input">
                             </div>
-                            <div class="col-md-6 form-group mb-3">
-                                <label class="font-weight-bold text-danger">حالة النموذج الأولي</label>
-                                <input type="text" name="prototype_status" id="edit_prototype_status" class="form-control">
+
+                            <div class="col-md-6">
+                                <label class="uot-form-label text-dark">حالة النموذج الأولي</label>
+                                <input type="text" name="prototype_status" id="edit_prototype_status" class="form-control uot-input">
                             </div>
-                            <div class="col-md-6 form-group mb-3">
-                                <label class="font-weight-bold text-danger">المتطلبات التي يحتاجها المشروع</label>
-                                <input type="text" name="project_requirements" id="edit_project_requirements" class="form-control">
+                            <div class="col-md-6">
+                                <label class="uot-form-label text-dark">المتطلبات التي يحتاجها المشروع أثناء العرض</label>
+                                <input type="text" name="project_requirements" id="edit_project_requirements" class="form-control uot-input">
                             </div>
-                            <div class="col-md-12 form-group mb-3">
-                                <div class="form-check">
+
+                            <div class="col-12">
+                                <div class="form-check form-switch mb-2">
                                     <input type="checkbox" name="needs_special_equipment" value="1" class="form-check-input" id="edit_needs_special_equipment">
-                                    <label class="form-check-label font-weight-bold text-danger" for="edit_needs_special_equipment">
-                                        يحتاج معدات خاصة أثناء العرض
+                                    <label class="form-check-label fw-bold text-dark" for="edit_needs_special_equipment">
+                                        يحتاج المشروع معدات أو تجهيزات خاصة في قاعة المعرض
                                     </label>
                                 </div>
-                                <input type="text" name="special_equipment_details" id="edit_special_equipment_details" class="form-control mt-2" placeholder="تفاصيل المعدات الخاصة...">
+                                <input type="text" name="special_equipment_details" id="edit_special_equipment_details" class="form-control uot-input">
                             </div>
-                            <div class="col-md-12 form-group mb-3">
-                                <label class="font-weight-bold text-danger">الملخص التنفيذي للمراجعة الداخلية</label>
-                                <textarea name="executive_summary" id="edit_executive_summary" class="form-control" rows="2"></textarea>
+
+                            <div class="col-md-6">
+                                <label class="uot-form-label text-dark">الملخص التنفيذي للمراجعة الداخلية</label>
+                                <textarea name="executive_summary" id="edit_executive_summary" class="form-control uot-textarea" rows="2"></textarea>
                             </div>
-                            <div class="col-md-12 form-group mb-3">
-                                <label class="font-weight-bold text-danger">ملاحظات أو إجراءات إدارية</label>
-                                <textarea name="admin_notes" id="edit_admin_notes" class="form-control" rows="2"></textarea>
+                            <div class="col-md-6">
+                                <label class="uot-form-label text-dark">ملاحظات أو قرارات إدارية</label>
+                                <textarea name="admin_notes" id="edit_admin_notes" class="form-control uot-textarea" rows="2"></textarea>
                             </div>
-                            <div class="col-md-12 form-group mb-3">
-                                <label class="font-weight-bold text-danger">سبب الرفض (إن وُجد)</label>
-                                <textarea name="rejection_reason" id="edit_rejection_reason" class="form-control" rows="2"></textarea>
+                            <div class="col-12">
+                                <label class="uot-form-label text-dark">سبب الرفض (إن وُجد)</label>
+                                <textarea name="rejection_reason" id="edit_rejection_reason" class="form-control uot-textarea" rows="2"></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <div class="form-check">
-                        <input type="checkbox" name="is_featured" value="1" class="form-check-input" id="editProjFeatured">
-                        <label class="form-check-label font-weight-bold text-warning" for="editProjFeatured">
-                            <i class="fas fa-star"></i> تمييز المشروع في الصفحة الرئيسية للمعرض
+                    <div class="form-check form-switch mt-4 p-3 rounded-3 bg-light border d-flex align-items-center gap-3">
+                        <input type="checkbox" name="is_featured" value="1" class="form-check-input m-0" id="editProjFeatured">
+                        <label class="form-check-label fw-bold text-dark m-0" for="editProjFeatured">
+                            <i class="fas fa-star text-warning me-1"></i> تمييز المشروع في الواجهة الرئيسية وأبرز مشاريع المعرض
                         </label>
                     </div>
                 </div>
 
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="submit" class="btn btn-primary fw-bold">
+                <div class="modal-footer uot-modal-footer">
+                    <button type="button" class="uot-btn-cancel" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> إلغاء
+                    </button>
+                    <button type="submit" class="uot-btn-submit">
                         <i class="fas fa-save me-1"></i> حفظ التعديلات
                     </button>
                 </div>

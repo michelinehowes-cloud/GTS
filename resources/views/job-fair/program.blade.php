@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>البرنامج العلمي والتدريبي: رحلة الجاهزية المهنية — {{ $fair ? $fair->title : 'معرض التوظيف 2026' }}</title>
     <meta name="description" content="البرنامج العلمي والتدريبي المصاحب لـ {{ $fair ? $fair->title : 'معرض التوظيف' }}: ماستر كلاس، ورش عمل تطبيقية، وجلسات حوارية دولية.">
 

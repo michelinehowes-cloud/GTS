@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>دليل الشركات والمؤسسات المشاركة — {{ $fair ? $fair->title : 'معرض التوظيف 2026' }}</title>
     <meta name="description"
         content="دليل الشركات والمؤسسات المشاركة في {{ $fair ? $fair->title : 'معرض التوظيف' }} — جامعة طرابلس. استكشف الأجنحة والشواغر المتاحة.">

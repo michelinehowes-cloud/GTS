@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>@yield('title', 'منسق التدريب')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -45,19 +45,18 @@
 
         .sidebar {
             background: linear-gradient(180deg, var(--university-blue) 0%, #045db0 100%);
-            /* تم تغيير min-height إلى height: 100%vh */
             height: 100vh;
+            height: 100dvh;
             color: var(--white);
             position: fixed;
-            /* يبقى ثابتًا في مكانه */
             width: 280px;
             box-shadow: 3px 0 15px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             transition: all 0.3s ease;
             right: 0;
             top: 0;
-            /* تأكد من إخفاء شريط التمرير إذا كان موجوداً */
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .sidebar.collapsed {

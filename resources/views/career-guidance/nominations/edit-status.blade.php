@@ -94,8 +94,8 @@
     @include('components.breadcrumbs', [
         'items' => [
             ['label' => 'الرئيسية', 'url' => route('home')],
-            ['label' => 'لوحة الإرشاد المهني', 'url' => route($routePrefix . '.dashboard')],
-            ['label' => 'إدارة الترشيحات', 'url' => route($routePrefix . '.nominations')],
+            ['label' => 'لوحة التحكم', 'url' => Route::has($routePrefix . '.dashboard') ? route($routePrefix . '.dashboard') : route('home')],
+            ['label' => 'إدارة الترشيحات', 'url' => Route::has($routePrefix . '.nominations') ? route($routePrefix . '.nominations') : '#'],
             ['label' => 'تعديل حالة الترشيح', 'active' => true],
         ]
     ])
@@ -107,10 +107,10 @@
                 <i class="fas fa-edit me-2"></i> تعديل حالة الترشيح
             </h2>
             <div class="text-muted small mt-1">
-                المرشح: <strong class="text-dark">{{ $nomination->graduate->name }}</strong> &bull; الفرصة: <strong class="text-dark">{{ $nomination->jobOpportunity->title }}</strong>
+                المرشح: <strong class="text-dark">{{ $nomination->graduate?->name ?? 'غير محدد' }}</strong> &bull; الفرصة: <strong class="text-dark">{{ $nomination->jobOpportunity?->title ?? 'غير محدد' }}</strong>
             </div>
         </div>
-        <a href="{{ route($routePrefix . '.nominations') }}" class="btn btn-outline-secondary">
+        <a href="{{ Route::has($routePrefix . '.nominations') ? route($routePrefix . '.nominations') : '#' }}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-right me-1"></i> العودة للترشيحات
         </a>
     </div>
@@ -137,23 +137,32 @@
                         <h5 class="card-title mb-0 text-primary fw-bold">
                             <i class="fas fa-user-graduate me-2"></i>بيانات الخريج
                         </h5>
-                        <a href="{{ route($routePrefix . '.graduates.show', $nomination->graduate->id) }}" class="btn btn-sm btn-outline-info-modern">
-                            <i class="fas fa-external-link-alt me-1"></i> البروفايل
-                        </a>
+                        @if($nomination->graduate)
+                            @php
+                                $gradRoute = Route::has($routePrefix . '.graduates.show')
+                                    ? route($routePrefix . '.graduates.show', $nomination->graduate->id)
+                                    : (Route::has('career-guidance.graduates.show') ? route('career-guidance.graduates.show', $nomination->graduate->id) : null);
+                            @endphp
+                            @if($gradRoute)
+                            <a href="{{ $gradRoute }}" class="btn btn-sm btn-outline-info-modern">
+                                <i class="fas fa-external-link-alt me-1"></i> البروفايل
+                            </a>
+                            @endif
+                        @endif
                     </div>
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center mb-3">
                             <div class="avatar-sm bg-light text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; font-weight: 700; font-size: 1.2rem;">
-                                {{ mb_substr($nomination->graduate->name, 0, 1) }}
+                                {{ mb_substr($nomination->graduate?->name ?? 'خ', 0, 1) }}
                             </div>
                             <div>
-                                <h6 class="fw-bold text-dark mb-0 fs-6">{{ $nomination->graduate->name }}</h6>
-                                <div class="text-muted small">{{ $nomination->graduate->major ?? 'خريج' }} @if($nomination->graduate->graduation_year) ({{ $nomination->graduate->graduation_year }}) @endif</div>
+                                <h6 class="fw-bold text-dark mb-0 fs-6">{{ $nomination->graduate?->name ?? 'غير محدد' }}</h6>
+                                <div class="text-muted small">{{ $nomination->graduate?->major ?? 'خريج' }} @if($nomination->graduate?->graduation_year) ({{ $nomination->graduate->graduation_year }}) @endif</div>
                             </div>
                         </div>
 
                         <div class="row g-3">
-                            @if($nomination->graduate->email)
+                            @if($nomination->graduate?->email)
                             <div class="col-12">
                                 <div class="p-3 bg-light rounded-3">
                                     <small class="text-muted d-block mb-1"><i class="fas fa-envelope me-1"></i> البريد الإلكتروني</small>
@@ -162,7 +171,7 @@
                             </div>
                             @endif
 
-                            @if($nomination->graduate->phone)
+                            @if($nomination->graduate?->phone)
                             <div class="col-sm-6">
                                 <div class="p-3 bg-light rounded-3">
                                     <small class="text-muted d-block mb-1"><i class="fas fa-phone me-1"></i> الهاتف</small>
@@ -171,7 +180,7 @@
                             </div>
                             @endif
 
-                            @if($nomination->graduate->gpa)
+                            @if($nomination->graduate?->gpa)
                             <div class="col-sm-6">
                                 <div class="p-3 bg-light rounded-3">
                                     <small class="text-muted d-block mb-1"><i class="fas fa-star me-1 text-warning"></i> المعدل التراكمي</small>
@@ -180,7 +189,7 @@
                             </div>
                             @endif
 
-                            @if($nomination->graduate->university)
+                            @if($nomination->graduate?->university)
                             <div class="col-sm-6">
                                 <div class="p-3 bg-light rounded-3">
                                     <small class="text-muted d-block mb-1"><i class="fas fa-university me-1"></i> الجامعة</small>
@@ -189,7 +198,7 @@
                             </div>
                             @endif
 
-                            @if($nomination->graduate->national_id)
+                            @if($nomination->graduate?->national_id)
                             <div class="col-sm-6">
                                 <div class="p-3 bg-light rounded-3">
                                     <small class="text-muted d-block mb-1"><i class="fas fa-id-badge me-1"></i> رقم القيد الجامعي</small>
@@ -200,7 +209,7 @@
                         </div>
 
                         {{-- Skills --}}
-                        @if($nomination->graduate->skills)
+                        @if(!empty($nomination->graduate?->skills))
                             @php
                                 $skills = is_array($nomination->graduate->skills) ? $nomination->graduate->skills : explode(',', $nomination->graduate->skills);
                             @endphp
@@ -220,12 +229,12 @@
 
                         {{-- Links --}}
                         <div class="mt-3 d-flex gap-2 flex-wrap">
-                            @if($nomination->graduate->cv_path)
+                            @if($nomination->graduate?->cv_path)
                                 <a href="{{ Storage::url($nomination->graduate->cv_path) }}" target="_blank" class="btn btn-sm btn-outline-danger">
                                     <i class="fas fa-file-pdf me-1"></i> السيرة الذاتية
                                 </a>
                             @endif
-                            @if($nomination->graduate->linkedin_url)
+                            @if($nomination->graduate?->linkedin_url)
                                 <a href="{{ $nomination->graduate->linkedin_url }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                     <i class="fab fa-linkedin me-1"></i> LinkedIn
                                 </a>
@@ -243,13 +252,13 @@
                     </div>
                     <div class="card-body p-4">
                         <div class="p-3 bg-light rounded-3">
-                            <div class="fw-bold text-dark fs-6 mb-1">{{ $nomination->jobOpportunity->title }}</div>
-                            @if($nomination->jobOpportunity->company)
+                            <div class="fw-bold text-dark fs-6 mb-1">{{ $nomination->jobOpportunity?->title ?? 'غير محدد' }}</div>
+                            @if($nomination->jobOpportunity?->company)
                                 <div class="text-primary fw-semibold small mb-2">
                                     <i class="fas fa-building me-1"></i> {{ $nomination->jobOpportunity->company->name }}
                                 </div>
                             @endif
-                            @if($nomination->jobOpportunity->location)
+                            @if($nomination->jobOpportunity?->location)
                                 <div class="text-muted small mb-2">
                                     <i class="fas fa-map-marker-alt me-1"></i> {{ $nomination->jobOpportunity->location }}
                                 </div>
@@ -412,7 +421,7 @@
                     <button type="submit" class="btn btn-primary-modern flex-grow-1 py-3">
                         <i class="fas fa-save me-2"></i> حفظ التحديثات
                     </button>
-                    <a href="{{ route($routePrefix . '.nominations') }}" class="btn btn-outline-secondary px-4 py-3">
+                    <a href="{{ Route::has($routePrefix . '.nominations') ? route($routePrefix . '.nominations') : '#' }}" class="btn btn-outline-secondary px-4 py-3">
                         <i class="fas fa-arrow-right me-1"></i> رجوع
                     </a>
                 </div>

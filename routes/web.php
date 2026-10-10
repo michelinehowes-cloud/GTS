@@ -310,11 +310,11 @@ Route::middleware('auth')->group(function () {
             Route::get('/nominations/create', [CareerGuidanceController::class, 'createNomination'])->name('admin.career-guidance.nominations.create');
             Route::post('/nominations', [CareerGuidanceController::class, 'nominateGraduate'])->name('admin.career-guidance.nominations.store');
             Route::get('/nominations/{id}', [CareerGuidanceController::class, 'showNomination'])->name('admin.career-guidance.nominations.show');
-            // Route for updating the status - using PUT/PATCH for RESTful consistency
-            Route::put('/nominations/{id}/status', [CareerGuidanceController::class, 'updateNominationStatus'])->name('admin.career-guidance.nominations.update-status');
+            Route::match(['put', 'patch', 'post'], '/nominations/{id}/status', [CareerGuidanceController::class, 'updateNominationStatus'])->name('admin.career-guidance.nominations.update-status');
             // Route for displaying the edit form (if any) - assuming it's a GET request
             Route::get('/nominations/{id}/edit-status', [CareerGuidanceController::class, 'editNominationStatusForm'])->name('admin.career-guidance.nominations.edit-status');
-            Route::put('/nominations/{id}/status-fullpage', [CareerGuidanceController::class, 'updateNominationStatusFullPage'])->name('admin.career-guidance.nominations.update-status-fullpage');
+            Route::match(['put', 'patch', 'post'], '/nominations/{id}/status-fullpage', [CareerGuidanceController::class, 'updateNominationStatusFullPage'])->name('admin.career-guidance.nominations.update-status-fullpage');
+            Route::match(['put', 'patch', 'post'], '/nominations/{id}', [CareerGuidanceController::class, 'updateNominationStatus'])->name('admin.career-guidance.nominations.update');
 
             // 📈 التقارير المتقدمة
             Route::get('/advanced-reports', [CareerGuidanceController::class, 'advancedReports'])->name('admin.career-guidance.advanced-reports');
@@ -481,11 +481,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/nominations/create', [CareerGuidanceController::class, 'createNomination'])->name('partnership.nominations.create');
         Route::post('/nominations', [CareerGuidanceController::class, 'nominateGraduate'])->name('partnership.nominations.store');
         Route::get('/nominations/{id}', [CareerGuidanceController::class, 'showNomination'])->name('partnership.nominations.show');
-        // Route for displaying the edit form (if any) - assuming it's a GET request
         Route::get('/nominations/{id}/edit-status', [CareerGuidanceController::class, 'editNominationStatusForm'])->name('partnership.nominations.edit-status');
-        // Route for updating the status - using PUT/PATCH for RESTful consistency
-        Route::put('/nominations/{id}/status', [CareerGuidanceController::class, 'updateNominationStatus'])->name('partnership.nominations.update-status');
-        Route::put('/nominations/{id}/status-fullpage', [CareerGuidanceController::class, 'updateNominationStatusFullPage'])->name('partnership.nominations.update-status-fullpage');
+        Route::match(['put', 'patch', 'post'], '/nominations/{id}/status', [CareerGuidanceController::class, 'updateNominationStatus'])->name('partnership.nominations.update-status');
+        Route::match(['put', 'patch', 'post'], '/nominations/{id}/status-fullpage', [CareerGuidanceController::class, 'updateNominationStatusFullPage'])->name('partnership.nominations.update-status-fullpage');
+        Route::match(['put', 'patch', 'post'], '/nominations/{id}', [CareerGuidanceController::class, 'updateNominationStatus'])->name('partnership.nominations.update');
+        Route::get('/graduates/{id}', [CareerGuidanceController::class, 'showGraduate'])->name('partnership.graduates.show');
 
         // 📈 التقارير
         Route::get('/reports', [PartnershipController::class, 'reports'])->name('partnership.reports');
@@ -618,9 +618,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/nominations/create', [CareerGuidanceController::class, 'createNomination'])->name('career-guidance.nominations.create');
         Route::post('/nominations', [CareerGuidanceController::class, 'nominateGraduate'])->name('career-guidance.nominations.store');
         Route::get('/nominations/{id}', [CareerGuidanceController::class, 'showNomination'])->name('career-guidance.nominations.show');
-        Route::post('/nominations/{id}/status', [CareerGuidanceController::class, 'updateNominationStatus'])->name('career-guidance.nominations.update-status');
+        Route::match(['put', 'patch', 'post'], '/nominations/{id}/status', [CareerGuidanceController::class, 'updateNominationStatus'])->name('career-guidance.nominations.update-status');
         Route::get('/nominations/{id}/edit-status', [CareerGuidanceController::class, 'editNominationStatusForm'])->name('career-guidance.nominations.edit-status');
-        Route::put('/nominations/{id}/status-fullpage', [CareerGuidanceController::class, 'updateNominationStatusFullPage'])->name('career-guidance.nominations.update-status-fullpage');
+        Route::match(['put', 'patch', 'post'], '/nominations/{id}/status-fullpage', [CareerGuidanceController::class, 'updateNominationStatusFullPage'])->name('career-guidance.nominations.update-status-fullpage');
+        Route::match(['put', 'patch', 'post'], '/nominations/{id}', [CareerGuidanceController::class, 'updateNominationStatus'])->name('career-guidance.nominations.update');
         Route::get('/graduates', [CareerGuidanceController::class, 'graduates'])->name('career-guidance.graduates');
         Route::get('/graduates/create', [CareerGuidanceController::class, 'createGraduate'])->name('career-guidance.graduates.create');
         Route::post('/graduates', [CareerGuidanceController::class, 'storeGraduate'])->name('career-guidance.graduates.store');

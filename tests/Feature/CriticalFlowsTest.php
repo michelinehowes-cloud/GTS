@@ -293,4 +293,63 @@ class CriticalFlowsTest extends TestCase
 
         $this->assertEquals(0, \App\Models\Notification::forUser($user->id)->unread()->count());
     }
+
+    /**
+     * التحقق من تحميل صفحة إدارة مشاريع المعرض للأدمن وظهور التصميم المعتمد والمودال المتناسق
+     */
+    public function test_admin_job_fair_projects_loads_with_approved_theme_and_modals()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'is_active' => true,
+            'is_approved' => true,
+        ]);
+
+        $fair = \App\Models\JobFair::create([
+            'title' => 'معرض التوظيف السنوي 2026',
+            'location' => 'جامعة طرابلس',
+            'academic_year' => '2026',
+            'event_date' => now()->addDays(5),
+            'status' => 'published',
+            'created_by' => $admin->id,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('job-fair.admin.projects.index', $fair));
+
+        $response->assertStatus(200);
+        $response->assertSee('إضافة مشروع تخرج جديد');
+        $response->assertSee('uot-modal-content');
+        $response->assertSee('addProjectModal');
+        $response->assertSee('editProjectModal');
+    }
+
+    /**
+     * التحقق من تحميل صفحة إدارة فعاليات المعرض للأدمن وظهور التصميم المعتمد والمودال المتناسق
+     */
+    public function test_admin_job_fair_events_loads_with_approved_theme_and_modals()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'is_active' => true,
+            'is_approved' => true,
+        ]);
+
+        $fair = \App\Models\JobFair::create([
+            'title' => 'معرض التوظيف السنوي 2026',
+            'location' => 'جامعة طرابلس',
+            'academic_year' => '2026',
+            'event_date' => now()->addDays(5),
+            'status' => 'published',
+            'created_by' => $admin->id,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('job-fair.admin.events.index', $fair));
+
+        $response->assertStatus(200);
+        $response->assertSee('إضافة فعالية علمية جديدة');
+        $response->assertSee('uot-modal-content');
+        $response->assertSee('addEventModal');
+        $response->assertSee('editEventModal');
+    }
 }
+

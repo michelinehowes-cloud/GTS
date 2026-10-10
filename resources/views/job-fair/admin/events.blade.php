@@ -3,6 +3,7 @@
 @section('title', 'إدارة البرنامج العلمي والفعاليات - ' . $fair->title)
 
 @section('content')
+@include('job-fair.admin.partials.modal-styles')
 <div class="container-fluid py-4" dir="rtl">
     {{-- الشريط العلوي الموحد مع الشعارات الرسمية المتطابقة مع صفحة المعرض العامة --}}
     @include('job-fair.admin.partials.header', [
@@ -232,117 +233,157 @@
 </div>
 
 <!-- Modal: Add Event -->
-<div class="modal fade" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="addEventModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+<div class="modal fade" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="addEventModalLabel" aria-hidden="true" dir="rtl">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
         <form action="{{ route('job-fair.admin.events.store', $fair->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title font-weight-bold" id="addEventModalLabel">
-                        <i class="fas fa-plus-circle me-1"></i> إضافة فعالية علمية جديدة
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white close text-white" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+            <div class="modal-content uot-modal-content">
+                <div class="modal-header uot-modal-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="uot-modal-icon-badge">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                        <div>
+                            <h5 class="uot-modal-title" id="addEventModalLabel">
+                                إضافة فعالية علمية جديدة
+                            </h5>
+                            <p class="uot-modal-subtitle">{{ $fair->title }} &bull; البرنامج العلمي وجدول الورش والماستر كلاس</p>
+                        </div>
+                    </div>
+                    <button type="button" class="uot-btn-close" data-bs-dismiss="modal" aria-label="Close" title="إغلاق">
+                        <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-4 form-group">
-                            <label class="font-weight-bold">نوع الفعالية <span class="text-danger">*</span></label>
-                            <select name="type" class="form-control" required>
+                <div class="modal-body p-4">
+                    {{-- القسم 1: تفاصيل ونوع الفعالية --}}
+                    <div class="uot-section-divider">
+                        <span class="divider-icon"><i class="fas fa-layer-group"></i></span>
+                        <h6 class="divider-title">تفاصيل ونوع الفعالية</h6>
+                        <span class="divider-badge">المعلومات الأساسية</span>
+                    </div>
+
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-4">
+                            <label class="uot-form-label">
+                                نوع الفعالية <span class="req">*</span>
+                            </label>
+                            <select name="type" class="form-select uot-select" required>
                                 <option value="workshop">ورشة عمل تطبيقية (Workshop)</option>
                                 <option value="masterclass">ماستر كلاس (Masterclass)</option>
                                 <option value="panel_discussion">جلسة حوارية (Panel Discussion)</option>
                                 <option value="keynote">جلسة رئيسية / كلمة افتتاحية</option>
                             </select>
                         </div>
-                        <div class="col-md-8 form-group">
-                            <label class="font-weight-bold">عنوان الفعالية <span class="text-danger">*</span></label>
-                            <input type="text" name="title" class="form-control" required placeholder="مثال: خريطة سوق العمل: أين تتجه الوظائف؟">
+                        <div class="col-md-8">
+                            <label class="uot-form-label">
+                                عنوان الفعالية <span class="req">*</span>
+                            </label>
+                            <input type="text" name="title" class="form-control uot-input" required placeholder="مثال: خريطة سوق العمل: أين تتجه الوظائف؟">
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-4 form-group">
-                            <label class="font-weight-bold">اسم المتحدث / المدرب</label>
-                            <input type="text" name="speaker_name" class="form-control" placeholder="مثال: محمد قويش">
+                    {{-- القسم 2: بيانات المتحدث / المدرب --}}
+                    <div class="uot-section-divider">
+                        <span class="divider-icon"><i class="fas fa-user-tie"></i></span>
+                        <h6 class="divider-title">بيانات المتحدث / المدرب</h6>
+                        <span class="divider-badge">المسؤول عن التقديم</span>
+                    </div>
+
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-4">
+                            <label class="uot-form-label">اسم المتحدث / المدرب</label>
+                            <input type="text" name="speaker_name" class="form-control uot-input" placeholder="مثال: د. محمد قويش">
                         </div>
-                        <div class="col-md-4 form-group">
-                            <label class="font-weight-bold">الصفة المهنية للمتحدث</label>
-                            <input type="text" name="speaker_title" class="form-control" placeholder="مثال: مدرب ومستشار في الذكاء الاصطناعي">
+                        <div class="col-md-4">
+                            <label class="uot-form-label">الصفة المهنية للمتحدث</label>
+                            <input type="text" name="speaker_title" class="form-control uot-input" placeholder="مثال: مدرب ومستشار في الذكاء الاصطناعي">
                         </div>
-                        <div class="col-md-4 form-group">
-                            <label class="font-weight-bold">صورة المتحدث (اختياري)</label>
-                            <input type="file" name="speaker_image" class="form-control-file" accept="image/*">
+                        <div class="col-md-4">
+                            <label class="uot-form-label">صورة المتحدث (اختياري)</label>
+                            <input type="file" name="speaker_image" class="form-control uot-input" accept="image/*">
+                        </div>
+                        <div class="col-12">
+                            <label class="uot-form-label">نبذة عن المتحدث</label>
+                            <textarea name="speaker_bio" class="form-control uot-textarea" rows="2" placeholder="نبذة مختصرة عن خبرات وإنجازات المتحدث الأكاديمية والمهنية..."></textarea>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="font-weight-bold">نبذة عن المتحدث</label>
-                        <textarea name="speaker_bio" class="form-control" rows="2" placeholder="نبذة مختصرة عن خبرات وإنجازات المتحدث..."></textarea>
+                    {{-- القسم 3: فكرة ومحاور الفعالية --}}
+                    <div class="uot-section-divider">
+                        <span class="divider-icon"><i class="fas fa-lightbulb"></i></span>
+                        <h6 class="divider-title">فكرة ومحاور الفعالية</h6>
+                        <span class="divider-badge">المحتوى العلمي</span>
                     </div>
 
-                    <div class="form-group">
-                        <label class="font-weight-bold">فكرة الفعالية والهدف منها</label>
-                        <textarea name="description" class="form-control" rows="3" placeholder="أهداف الفعالية وما سيخرج به المشاركون..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="font-weight-bold">محاور الفعالية (ضع كل محور في سطر مستقل)</label>
-                        <textarea name="topics" class="form-control" rows="4" placeholder="المحور الأول&#10;المحور الثاني&#10;المحور الثالث"></textarea>
-                        <small class="text-muted">سيتم عرض كل سطر كعنصر مستقل في قائمة المحاور.</small>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 form-group">
-                            <label class="font-weight-bold">وقت البداية <span class="text-danger">*</span></label>
-                            <input type="datetime-local" name="start_time" class="form-control" required value="{{ \Carbon\Carbon::parse($fair->event_date)->format('Y-m-d\T10:00') }}">
+                    <div class="row g-3 mb-2">
+                        <div class="col-12">
+                            <label class="uot-form-label">فكرة الفعالية والهدف منها</label>
+                            <textarea name="description" class="form-control uot-textarea" rows="3" placeholder="أهداف الفعالية وما سيخرج به المشاركون من مهارات ومعارف..."></textarea>
                         </div>
-                        <div class="col-md-6 form-group">
-                            <label class="font-weight-bold">وقت النهاية <span class="text-danger">*</span></label>
-                            <input type="datetime-local" name="end_time" class="form-control" required value="{{ \Carbon\Carbon::parse($fair->event_date)->format('Y-m-d\T12:00') }}">
+                        <div class="col-12">
+                            <label class="uot-form-label">محاور الفعالية (ضع كل محور في سطر مستقل)</label>
+                            <textarea name="topics" class="form-control uot-textarea" rows="4" placeholder="المحور الأول: قراءة في واقع المهارات المطلوبة&#10;المحور الثاني: أدوات بناء السيرة الذاتية المهنية&#10;المحور الثالث: استراتيجيات اجتياز مقابلات العمل"></textarea>
+                            <small class="text-muted d-block mt-1">سيتم عرض كل سطر كعنصر مستقل في قائمة المحاور.</small>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-4 form-group">
-                            <label class="font-weight-bold">المكان / القاعة</label>
-                            <input type="text" name="location" class="form-control" placeholder="مثال: المدرج الرئيسي - جامعة طرابلس">
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label class="font-weight-bold">الفئة المستهدفة</label>
-                            <input type="text" name="target_audience" class="form-control" placeholder="مثال: خريجو وطلبة كليات الهندسة وتقنية المعلومات">
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label class="font-weight-bold">السعة الاستيعابية (المقاعد)</label>
-                            <input type="number" name="capacity" class="form-control" min="1" placeholder="مثال: 150">
-                            <small class="text-muted">اتركه فارغاً إذا كان العدد مفتوحاً</small>
-                        </div>
+                    {{-- القسم 4: التوقيت، القاعة، وتفاصيل الحضور --}}
+                    <div class="uot-section-divider">
+                        <span class="divider-icon"><i class="fas fa-clock"></i></span>
+                        <h6 class="divider-title">التوقيت، المكان، وتفاصيل الحضور</h6>
+                        <span class="divider-badge">الجدولة والسعة</span>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 form-group">
-                            <label class="font-weight-bold">حالة التسجيل</label>
-                            <select name="status" class="form-control">
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-6">
+                            <label class="uot-form-label">وقت البداية <span class="req">*</span></label>
+                            <input type="datetime-local" name="start_time" class="form-control uot-input" required value="{{ \Carbon\Carbon::parse($fair->event_date)->format('Y-m-d\T10:00') }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="uot-form-label">وقت النهاية <span class="req">*</span></label>
+                            <input type="datetime-local" name="end_time" class="form-control uot-input" required value="{{ \Carbon\Carbon::parse($fair->event_date)->format('Y-m-d\T12:00') }}">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="uot-form-label">المكان / القاعة</label>
+                            <input type="text" name="location" class="form-control uot-input" placeholder="مثال: المدرج الرئيسي - جامعة طرابلس">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="uot-form-label">الفئة المستهدفة</label>
+                            <input type="text" name="target_audience" class="form-control uot-input" placeholder="مثال: خريجو وطلبة كليات الهندسة والتقنية">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="uot-form-label">السعة الاستيعابية (المقاعد)</label>
+                            <input type="number" name="capacity" class="form-control uot-input" min="1" placeholder="مثال: 150">
+                            <small class="text-muted d-block mt-1">اتركه فارغاً إذا كانت السعة مفتوحة.</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="uot-form-label">حالة التسجيل</label>
+                            <select name="status" class="form-select uot-select">
                                 <option value="open">مفتوح للتسجيل</option>
                                 <option value="upcoming">قريباً</option>
                                 <option value="completed">مكتمل المقاعد</option>
                                 <option value="ended">انتهت الفعالية</option>
                             </select>
                         </div>
-                        <div class="col-md-6 form-group d-flex align-items-center pt-4">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" name="is_featured" value="1" class="custom-control-input" id="addFeatured">
-                                <label class="custom-control-label font-weight-bold text-warning" for="addFeatured">
-                                    <i class="fas fa-star"></i> تمييز الفعالية في الصفحة الرئيسية للمعرض
+                        <div class="col-md-6 d-flex align-items-center pt-3">
+                            <div class="form-check form-switch p-3 rounded-3 bg-light border w-100 d-flex align-items-center gap-3">
+                                <input type="checkbox" name="is_featured" value="1" class="form-check-input m-0" id="addFeatured">
+                                <label class="form-check-label fw-bold text-dark m-0" for="addFeatured">
+                                    <i class="fas fa-star text-warning me-1"></i> تمييز الفعالية في الصفحة الرئيسية للمعرض
                                 </label>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">إلغاء</button>
-                    <button type="submit" class="btn btn-primary">حفظ الفعالية</button>
+                <div class="modal-footer uot-modal-footer">
+                    <button type="button" class="uot-btn-cancel" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> إلغاء
+                    </button>
+                    <button type="submit" class="uot-btn-submit">
+                        <i class="fas fa-save me-1"></i> حفظ وتثبيت الفعالية
+                    </button>
                 </div>
             </div>
         </form>
@@ -350,116 +391,156 @@
 </div>
 
 <!-- Modal: Edit Event -->
-<div class="modal fade" id="editEventModal" tabindex="-1" role="dialog" aria-labelledby="editEventModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+<div class="modal fade" id="editEventModal" tabindex="-1" role="dialog" aria-labelledby="editEventModalLabel" aria-hidden="true" dir="rtl">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
         <form id="editEventForm" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
-            <div class="modal-content">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title font-weight-bold" id="editEventModalLabel">
-                        <i class="fas fa-edit me-1"></i> تعديل بيانات الفعالية العلمية
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white close text-white" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+            <div class="modal-content uot-modal-content">
+                <div class="modal-header uot-modal-header uot-modal-header-edit">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="uot-modal-icon-badge">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div>
+                            <h5 class="uot-modal-title" id="editEventModalLabel">
+                                تعديل بيانات الفعالية العلمية
+                            </h5>
+                            <p class="uot-modal-subtitle">{{ $fair->title }} &bull; تحديث البرنامج العلمي والتفاصيل</p>
+                        </div>
+                    </div>
+                    <button type="button" class="uot-btn-close" data-bs-dismiss="modal" aria-label="Close" title="إغلاق">
+                        <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-4 form-group">
-                            <label class="font-weight-bold">نوع الفعالية <span class="text-danger">*</span></label>
-                            <select name="type" id="edit_type" class="form-control" required>
+                <div class="modal-body p-4">
+                    {{-- القسم 1: تفاصيل ونوع الفعالية --}}
+                    <div class="uot-section-divider">
+                        <span class="divider-icon"><i class="fas fa-layer-group"></i></span>
+                        <h6 class="divider-title">تفاصيل ونوع الفعالية</h6>
+                        <span class="divider-badge">المعلومات الأساسية</span>
+                    </div>
+
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-4">
+                            <label class="uot-form-label">
+                                نوع الفعالية <span class="req">*</span>
+                            </label>
+                            <select name="type" id="edit_type" class="form-select uot-select" required>
                                 <option value="workshop">ورشة عمل تطبيقية (Workshop)</option>
                                 <option value="masterclass">ماستر كلاس (Masterclass)</option>
                                 <option value="panel_discussion">جلسة حوارية (Panel Discussion)</option>
                                 <option value="keynote">جلسة رئيسية / كلمة افتتاحية</option>
                             </select>
                         </div>
-                        <div class="col-md-8 form-group">
-                            <label class="font-weight-bold">عنوان الفعالية <span class="text-danger">*</span></label>
-                            <input type="text" name="title" id="edit_title" class="form-control" required>
+                        <div class="col-md-8">
+                            <label class="uot-form-label">
+                                عنوان الفعالية <span class="req">*</span>
+                            </label>
+                            <input type="text" name="title" id="edit_title" class="form-control uot-input" required>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-4 form-group">
-                            <label class="font-weight-bold">اسم المتحدث / المدرب</label>
-                            <input type="text" name="speaker_name" id="edit_speaker_name" class="form-control">
+                    {{-- القسم 2: بيانات المتحدث / المدرب --}}
+                    <div class="uot-section-divider">
+                        <span class="divider-icon"><i class="fas fa-user-tie"></i></span>
+                        <h6 class="divider-title">بيانات المتحدث / المدرب</h6>
+                        <span class="divider-badge">المسؤول عن التقديم</span>
+                    </div>
+
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-4">
+                            <label class="uot-form-label">اسم المتحدث / المدرب</label>
+                            <input type="text" name="speaker_name" id="edit_speaker_name" class="form-control uot-input">
                         </div>
-                        <div class="col-md-4 form-group">
-                            <label class="font-weight-bold">الصفة المهنية للمتحدث</label>
-                            <input type="text" name="speaker_title" id="edit_speaker_title" class="form-control">
+                        <div class="col-md-4">
+                            <label class="uot-form-label">الصفة المهنية للمتحدث</label>
+                            <input type="text" name="speaker_title" id="edit_speaker_title" class="form-control uot-input">
                         </div>
-                        <div class="col-md-4 form-group">
-                            <label class="font-weight-bold">تحديث صورة المتحدث</label>
-                            <input type="file" name="speaker_image" class="form-control-file" accept="image/*">
+                        <div class="col-md-4">
+                            <label class="uot-form-label">تحديث صورة المتحدث</label>
+                            <input type="file" name="speaker_image" class="form-control uot-input" accept="image/*">
+                        </div>
+                        <div class="col-12">
+                            <label class="uot-form-label">نبذة عن المتحدث</label>
+                            <textarea name="speaker_bio" id="edit_speaker_bio" class="form-control uot-textarea" rows="2"></textarea>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="font-weight-bold">نبذة عن المتحدث</label>
-                        <textarea name="speaker_bio" id="edit_speaker_bio" class="form-control" rows="2"></textarea>
+                    {{-- القسم 3: فكرة ومحاور الفعالية --}}
+                    <div class="uot-section-divider">
+                        <span class="divider-icon"><i class="fas fa-lightbulb"></i></span>
+                        <h6 class="divider-title">فكرة ومحاور الفعالية</h6>
+                        <span class="divider-badge">المحتوى العلمي</span>
                     </div>
 
-                    <div class="form-group">
-                        <label class="font-weight-bold">فكرة الفعالية والهدف منها</label>
-                        <textarea name="description" id="edit_description" class="form-control" rows="3"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="font-weight-bold">محاور الفعالية (ضع كل محور في سطر مستقل)</label>
-                        <textarea name="topics" id="edit_topics" class="form-control" rows="4"></textarea>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 form-group">
-                            <label class="font-weight-bold">وقت البداية <span class="text-danger">*</span></label>
-                            <input type="datetime-local" name="start_time" id="edit_start_time" class="form-control" required>
+                    <div class="row g-3 mb-2">
+                        <div class="col-12">
+                            <label class="uot-form-label">فكرة الفعالية والهدف منها</label>
+                            <textarea name="description" id="edit_description" class="form-control uot-textarea" rows="3"></textarea>
                         </div>
-                        <div class="col-md-6 form-group">
-                            <label class="font-weight-bold">وقت النهاية <span class="text-danger">*</span></label>
-                            <input type="datetime-local" name="end_time" id="edit_end_time" class="form-control" required>
+                        <div class="col-12">
+                            <label class="uot-form-label">محاور الفعالية (ضع كل محور في سطر مستقل)</label>
+                            <textarea name="topics" id="edit_topics" class="form-control uot-textarea" rows="4"></textarea>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-4 form-group">
-                            <label class="font-weight-bold">المكان / القاعة</label>
-                            <input type="text" name="location" id="edit_location" class="form-control">
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label class="font-weight-bold">الفئة المستهدفة</label>
-                            <input type="text" name="target_audience" id="edit_target_audience" class="form-control">
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label class="font-weight-bold">السعة الاستيعابية</label>
-                            <input type="number" name="capacity" id="edit_capacity" class="form-control" min="1">
-                        </div>
+                    {{-- القسم 4: التوقيت، القاعة، وتفاصيل الحضور --}}
+                    <div class="uot-section-divider">
+                        <span class="divider-icon"><i class="fas fa-clock"></i></span>
+                        <h6 class="divider-title">التوقيت، المكان، وتفاصيل الحضور</h6>
+                        <span class="divider-badge">الجدولة والسعة</span>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 form-group">
-                            <label class="font-weight-bold">حالة التسجيل <span class="text-danger">*</span></label>
-                            <select name="status" id="edit_status" class="form-control" required>
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-6">
+                            <label class="uot-form-label">وقت البداية <span class="req">*</span></label>
+                            <input type="datetime-local" name="start_time" id="edit_start_time" class="form-control uot-input" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="uot-form-label">وقت النهاية <span class="req">*</span></label>
+                            <input type="datetime-local" name="end_time" id="edit_end_time" class="form-control uot-input" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="uot-form-label">المكان / القاعة</label>
+                            <input type="text" name="location" id="edit_location" class="form-control uot-input">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="uot-form-label">الفئة المستهدفة</label>
+                            <input type="text" name="target_audience" id="edit_target_audience" class="form-control uot-input">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="uot-form-label">السعة الاستيعابية</label>
+                            <input type="number" name="capacity" id="edit_capacity" class="form-control uot-input" min="1">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="uot-form-label">حالة التسجيل <span class="req">*</span></label>
+                            <select name="status" id="edit_status" class="form-select uot-select" required>
                                 <option value="open">مفتوح للتسجيل</option>
                                 <option value="upcoming">قريباً</option>
                                 <option value="completed">مكتمل المقاعد</option>
                                 <option value="ended">انتهت الفعالية</option>
                             </select>
                         </div>
-                        <div class="col-md-6 form-group d-flex align-items-center pt-4">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" name="is_featured" value="1" class="custom-control-input" id="editFeatured">
-                                <label class="custom-control-label font-weight-bold text-warning" for="editFeatured">
-                                    <i class="fas fa-star"></i> تمييز الفعالية في الصفحة الرئيسية للمعرض
+                        <div class="col-md-6 d-flex align-items-center pt-3">
+                            <div class="form-check form-switch p-3 rounded-3 bg-light border w-100 d-flex align-items-center gap-3">
+                                <input type="checkbox" name="is_featured" value="1" class="form-check-input m-0" id="editFeatured">
+                                <label class="form-check-label fw-bold text-dark m-0" for="editFeatured">
+                                    <i class="fas fa-star text-warning me-1"></i> تمييز الفعالية في الصفحة الرئيسية للمعرض
                                 </label>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">إلغاء</button>
-                    <button type="submit" class="btn btn-primary">حفظ التعديلات</button>
+                <div class="modal-footer uot-modal-footer">
+                    <button type="button" class="uot-btn-cancel" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> إلغاء
+                    </button>
+                    <button type="submit" class="uot-btn-submit">
+                        <i class="fas fa-save me-1"></i> حفظ التعديلات
+                    </button>
                 </div>
             </div>
         </form>
@@ -467,32 +548,40 @@
 </div>
 
 <!-- Modal: View Attendees -->
-<div class="modal fade" id="attendeesModal" tabindex="-1" role="dialog" aria-labelledby="attendeesModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title font-weight-bold" id="attendeesModalLabel">
-                    <i class="fas fa-users me-1"></i> قائمة المسجلين في الفعالية
-                </h5>
-                <button type="button" class="btn-close btn-close-white close text-white" data-bs-dismiss="modal" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+<div class="modal fade" id="attendeesModal" tabindex="-1" role="dialog" aria-labelledby="attendeesModalLabel" aria-hidden="true" dir="rtl">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content uot-modal-content">
+            <div class="modal-header uot-modal-header" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 60%, #075985 100%) !important;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="uot-modal-icon-badge" style="border-color:#7dd3fc; background:rgba(125,211,252,0.18); color:#7dd3fc;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <h5 class="uot-modal-title" id="attendeesModalLabel">
+                            قائمة المسجلين في الفعالية
+                        </h5>
+                        <p class="uot-modal-subtitle">كشف الحضور والبيانات الرسمية المسجلة</p>
+                    </div>
+                </div>
+                <button type="button" class="uot-btn-close" data-bs-dismiss="modal" aria-label="Close" title="إغلاق">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="modal-body p-0">
-                <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
+                <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <div>
-                        <h6 class="font-weight-bold mb-0 text-dark" id="attendeeEventTitle">-</h6>
+                        <h6 class="fw-bold mb-0 text-dark" id="attendeeEventTitle">-</h6>
                         <small class="text-muted" id="attendeeEventCount">جاري التحميل...</small>
                     </div>
-                    <a href="#" id="modalExportBtn" class="btn btn-sm btn-success">
-                        <i class="fas fa-file-excel"></i> تصدير كشف الحضور (CSV)
+                    <a href="#" id="modalExportBtn" class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm">
+                        <i class="fas fa-file-excel me-1"></i> تصدير كشف الحضور (CSV)
                     </a>
                 </div>
-                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                    <table class="table table-hover mb-0">
-                        <thead class="bg-white">
+                <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
                             <tr>
-                                <th>#</th>
+                                <th class="text-center" style="width: 50px;">#</th>
                                 <th>اسم الخريج / الطالب</th>
                                 <th>الكلية / التخصص</th>
                                 <th>البريد الإلكتروني / الهاتف</th>
@@ -507,8 +596,10 @@
                     </table>
                 </div>
             </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">إغلاق</button>
+            <div class="modal-footer uot-modal-footer">
+                <button type="button" class="uot-btn-cancel ms-auto" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> إغلاق
+                </button>
             </div>
         </div>
     </div>

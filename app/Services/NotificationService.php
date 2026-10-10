@@ -151,7 +151,7 @@ class NotificationService
         $this->sendToRoles(['partnership_officer', 'admin'], $title, $message, $type, [
             'model_type' => get_class($company),
             'model_id' => $company->id,
-            'send_email' => true,
+            'send_email' => false,
         ]);
     }
 
@@ -333,7 +333,7 @@ class NotificationService
                 Mail::to($notification->user->email)->send(new NotificationMail($notification));
                 $notification->markAsSent();
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \Log::error('Failed to send email notification: ' . $e->getMessage());
         }
     }

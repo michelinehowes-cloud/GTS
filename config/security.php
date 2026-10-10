@@ -54,7 +54,7 @@ return [
     'rate_limits' => [
         'login_max_attempts' => 5,
         'login_decay_minutes' => 1,
-        'register_max_attempts' => 3,
+        'register_max_attempts' => 10,
         'register_decay_minutes' => 5,
     ],
 ];

@@ -159,7 +159,7 @@
                 </div>
                 @endif
 
-                <form action="{{ route('company.register.store') }}" method="POST" enctype="multipart/form-data">
+                <form id="companyRegisterForm" action="{{ route('company.register.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
                     {{-- =================== القسم الأول: بيانات الشركة =================== --}}
@@ -459,7 +459,7 @@
 
                     <!-- زر الإرسال -->
                     <div class="text-center pt-2">
-                        <button type="submit" class="btn btn-submit-reg">
+                        <button type="submit" id="btnSubmitCompany" class="btn btn-submit-reg">
                             <i class="fas fa-paper-plane me-2"></i> إرسال طلب تسجيل الشركة
                         </button>
                         <div class="mt-3">
@@ -491,6 +491,31 @@ document.addEventListener('DOMContentLoaded', function () {
                     this.value = '';
                 }
             }
+        });
+    }
+
+    const regForm = document.getElementById('companyRegisterForm');
+    const submitBtn = document.getElementById('btnSubmitCompany');
+
+    if (regForm && submitBtn) {
+        regForm.addEventListener('submit', function (e) {
+            if (regForm.checkValidity && !regForm.checkValidity()) {
+                return;
+            }
+
+            if (submitBtn.disabled) {
+                e.preventDefault();
+                return;
+            }
+
+            setTimeout(() => {
+                if (!e.defaultPrevented) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> جاري إرسال وتأكيد الطلب...';
+                    submitBtn.style.opacity = '0.85';
+                    submitBtn.style.cursor = 'not-allowed';
+                }
+            }, 10);
         });
     }
 });

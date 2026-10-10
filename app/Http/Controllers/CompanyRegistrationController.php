@@ -156,21 +156,25 @@ class CompanyRegistrationController extends Controller
                 ['name' => $company->name, 'email' => $company->email, 'industry' => $company->industry]
             );
 
-            // 5. إشعار المسؤولين المخولين (مسؤول الشراكات ومدير النظام)
+            // تأكيد حفظ بيانات الحساب والشركة فورياً لمنع أي تعليق لقاعدة البيانات
+            DB::commit();
+
+            // مسح سجل محاولات التسجيل بعد النجاح
+            \Illuminate\Support\Facades\RateLimiter::clear($throttleKey);
+
+            // 5. إشعار المسؤولين المخولين (مسؤول الشراكات ومدير النظام) بعد حفظ البيانات
             try {
                 $this->notificationService->notifyNewCompanyRegistration($company);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 Log::error('فشل إرسال إشعار تسجيل شركة جديدة: ' . $e->getMessage());
             }
-
-            DB::commit();
 
             return redirect()->route('company.register.success')->with([
                 'company_name' => $company->name,
                 'email' => $company->email,
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('خطأ أثناء تسجيل الشركة: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),

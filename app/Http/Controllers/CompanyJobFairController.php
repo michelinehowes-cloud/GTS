@@ -60,7 +60,7 @@ class CompanyJobFairController extends Controller
             $query = \App\Models\JobOpportunity::where('company_id', $company->id);
 
             if (\Illuminate\Support\Facades\Schema::hasColumn('job_opportunities', 'status')) {
-                $query->whereIn('status', ['open', 'approved', 'active']);
+                $query->whereNotIn('status', ['rejected', 'closed']);
             }
 
             if (\Illuminate\Support\Facades\Schema::hasColumn('job_opportunities', 'job_fair_id')) {
@@ -317,6 +317,7 @@ class CompanyJobFairController extends Controller
         $opportunities = collect();
         try {
             $opportunities = \App\Models\JobOpportunity::where('company_id', $company->id)
+                ->whereNotIn('status', ['rejected', 'closed'])
                 ->orderBy('title')
                 ->get();
         } catch (\Throwable $e) {}

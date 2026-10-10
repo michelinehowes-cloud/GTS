@@ -102,12 +102,17 @@ class GraduateData extends Model
             })
             ->first();
 
-        $skills = is_array($user->skills) ? $user->skills : (is_string($user->skills) ? (json_decode($user->skills, true) ?? array_values(array_filter(array_map('trim', explode(',', $user->skills))))) : []);
-        $languages = is_array($user->languages) ? $user->languages : (is_string($user->languages) ? (json_decode($user->languages, true) ?? array_values(array_filter(array_map('trim', explode(',', $user->languages))))) : []);
+        $cleanSkillsStr = is_string($user->skills) ? str_replace('،', ',', $user->skills) : '';
+        $skills = is_array($user->skills) ? $user->skills : ($cleanSkillsStr ? (json_decode($cleanSkillsStr, true) ?? array_values(array_filter(array_map('trim', explode(',', $cleanSkillsStr))))) : []);
+
+        $cleanLangStr = is_string($user->languages) ? str_replace('،', ',', $user->languages) : '';
+        $languages = is_array($user->languages) ? $user->languages : ($cleanLangStr ? (json_decode($cleanLangStr, true) ?? array_values(array_filter(array_map('trim', explode(',', $cleanLangStr))))) : []);
 
         $degreeValue = $user->qualification ?? $user->degree ?? ($existing?->degree) ?? 'بكالوريوس';
         $majorValue = $user->specialization ?? $user->major ?? ($existing?->major) ?? 'غير محدد';
         $experienceValue = $user->experiences ?? ($existing?->work_experience);
+        $certificationsValue = $additionalData['certifications'] ?? $user->education ?? ($existing?->certifications);
+        $employmentStatusValue = $additionalData['employment_status'] ?? ($existing?->employment_status) ?? 'seeking_opportunities';
 
         $dataToSync = [
             'user_id' => $user->id,
@@ -131,8 +136,9 @@ class GraduateData extends Model
             'skills' => !empty($skills) ? $skills : ($existing?->skills ?? []),
             'languages' => !empty($languages) ? $languages : ($existing?->languages ?? []),
             'work_experience' => $experienceValue,
+            'certifications' => $certificationsValue,
             'cv_path' => $user->cv_path ?? ($existing?->cv_path),
-            'employment_status' => $existing?->employment_status ?? 'seeking_opportunities',
+            'employment_status' => $employmentStatusValue,
             'is_active' => $user->is_active ?? true,
             'data_source' => $existing?->data_source ?? 'system_sync',
             'added_by' => $existing?->added_by ?? $user->id,

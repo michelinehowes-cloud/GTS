@@ -1896,17 +1896,6 @@
         {{-- شعار شركة الواحة للمعارض المباشر --}}
         <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" class="waha-nav-logo d-none d-sm-block" title="شركة الواحة لتنظيم المعارض والمؤتمرات — الراعي الاستراتيجي" onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
     </a>
-    <div class="d-none d-lg-flex align-items-center gap-2 mx-3">
-        <a href="{{ route('job-fair.public.companies', $fair->id ?? 1) }}" class="text-white text-decoration-none px-3 py-1.5 rounded-pill" style="font-size: 0.85rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); transition: all 0.2s;">
-            <i class="fas fa-building text-warning me-1"></i>الشركات
-        </a>
-        <a href="{{ route('job-fair.public.program', $fair->id ?? 1) }}" class="text-white text-decoration-none px-3 py-1.5 rounded-pill" style="font-size: 0.85rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); transition: all 0.2s;">
-            <i class="fas fa-graduation-cap text-warning me-1"></i>البرنامج العلمي
-        </a>
-        <a href="{{ route('job-fair.public.projects', $fair->id ?? 1) }}" class="text-white text-decoration-none px-3 py-1.5 rounded-pill" style="font-size: 0.85rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); transition: all 0.2s;">
-            <i class="fas fa-lightbulb text-warning me-1"></i>مشاريع التخرج
-        </a>
-    </div>
     <div class="nav-links">
         @auth
             <a href="{{ route('dashboard') }}" class="nav-btn nav-btn-outline">

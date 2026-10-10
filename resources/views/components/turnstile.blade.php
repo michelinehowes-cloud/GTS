@@ -127,16 +127,41 @@
             }, true);
         }
 
-        // دعم إعادة الرسم عند فتح المودال في بوتستراب
-        document.addEventListener('shown.bs.modal', function(e) {
+        // دالة مخصصة لإعادة رسم الكاشف عند ظهوره
+        window["renderTurnstile_{{ $funcSuffix }}"] = function() {
             const widget = document.getElementById("widget-{{ $funcSuffix }}");
             if (widget && window.turnstile && typeof window.turnstile.render === 'function') {
-                if (!widget.hasChildNodes()) {
+                if (!widget.hasChildNodes() || widget.children.length === 0) {
                     try {
                         window.turnstile.render(widget);
                     } catch (err) {}
                 }
             }
+        };
+
+        // دعم إعادة الرسم عند فتح المودال في بوتستراب
+        document.addEventListener('shown.bs.modal', function(e) {
+            window["renderTurnstile_{{ $funcSuffix }}"]();
+        });
+
+        // دعم إعادة الرسم عند إظهار الحاوية عبر IntersectionObserver (للنوافذ متعددة الخطوات)
+        if (typeof IntersectionObserver !== 'undefined') {
+            const wrapEl = document.getElementById(wrapId);
+            if (wrapEl) {
+                const obs = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            window["renderTurnstile_{{ $funcSuffix }}"]();
+                        }
+                    });
+                }, { threshold: 0.05 });
+                obs.observe(wrapEl);
+            }
+        }
+
+        // الاستماع لحدث طلب إعادة رسم الكاشفات
+        window.addEventListener('turnstile:render', function() {
+            window["renderTurnstile_{{ $funcSuffix }}"]();
         });
 
         if (document.readyState === 'loading') {

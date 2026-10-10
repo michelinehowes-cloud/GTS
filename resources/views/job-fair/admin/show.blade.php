@@ -152,7 +152,8 @@
             'value' => $stats['total_leads'] ?? 0,
             'icon' => 'fas fa-file-invoice',
             'color' => 'primary',
-            'description' => 'كافة السير الممسوحة بأجنحة الشركات المشاركة'
+            'link' => route('job-fair.admin.live', $fair->id),
+            'description' => 'انقر لمتابعة إحصائيات كل شركة وكل وظيفة لحظياً'
         ])
         @include('components.stat-card', [
             'col' => 'col-6 col-md-4',
@@ -160,6 +161,7 @@
             'value' => $stats['job_applications'] ?? 0,
             'icon' => 'fas fa-briefcase',
             'color' => 'success',
+            'link' => route('job-fair.admin.live', $fair->id),
             'description' => 'مرتبطون بوظائف وتم ترحيلهم لقسم التوظيف والترشيحات'
         ])
         @include('components.stat-card', [
@@ -168,6 +170,7 @@
             'value' => $stats['general_leads'] ?? 0,
             'icon' => 'fas fa-users',
             'color' => 'warning',
+            'link' => route('job-fair.admin.live', $fair->id),
             'description' => 'سير عامة تم استلامها دون ربط بشاغر محدد'
         ])
     </div>
@@ -338,6 +341,24 @@
                                     @endif
                                     @if($fc->available_positions)
                                     <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size: 0.72rem;">{{ $fc->available_positions }} وظائف</span>
+                                    @endif
+                                    @php
+                                        $cStat = collect($recruitment['company_stats'] ?? [])->firstWhere('company_id', $fc->company_id);
+                                    @endphp
+                                    @if($cStat && $cStat['total_leads'] > 0)
+                                        <a href="{{ route('job-fair.admin.live', $fair->id) }}" class="badge bg-warning bg-opacity-10 text-dark border border-warning border-opacity-25 text-decoration-none" style="font-size: 0.72rem;" title="عرض إحصائيات الشركة اللحظية">
+                                            <i class="fas fa-file-invoice text-warning me-1"></i> {{ $cStat['total_leads'] }} سير
+                                        </a>
+                                        @if($cStat['accepted'] > 0)
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size: 0.72rem;">
+                                            <i class="fas fa-check-circle me-1"></i> {{ $cStat['accepted'] }} مقبول
+                                        </span>
+                                        @endif
+                                        @if($cStat['shortlisted'] > 0)
+                                        <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25" style="font-size: 0.72rem;">
+                                            <i class="fas fa-star me-1"></i> {{ $cStat['shortlisted'] }} قائمة قصيرة
+                                        </span>
+                                        @endif
                                     @endif
                                 </div>
                             </div>

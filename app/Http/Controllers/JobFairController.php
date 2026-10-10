@@ -11,6 +11,8 @@ use App\Models\User;
 use App\Models\JobFairSponsor;
 use App\Models\JobFairEvent;
 use App\Models\JobFairEventAttendee;
+use App\Models\JobFairVisit;
+use App\Models\JobOpportunity;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -497,13 +499,14 @@ class JobFairController extends Controller
     {
         $fair->load(['companies.company', 'registrations.graduate', 'sponsors']);
         $stats = $this->getFairStats($fair);
+        $recruitment = $this->getRecruitmentStats($fair);
 
         $registrations = $fair->registrations()
                                ->with('graduate')
                                ->orderBy('created_at', 'desc')
                                ->paginate(20);
 
-        return view('job-fair.admin.show', compact('fair', 'stats', 'registrations'));
+        return view('job-fair.admin.show', compact('fair', 'stats', 'registrations', 'recruitment'));
     }
 
     /**
@@ -533,7 +536,9 @@ class JobFairController extends Controller
             ->take(5)
             ->get();
 
-        return view('job-fair.admin.live_dashboard', compact('fair', 'stats', 'recentCheckins', 'topMajors'));
+        $recruitment = $this->getRecruitmentStats($fair);
+
+        return view('job-fair.admin.live_dashboard', compact('fair', 'stats', 'recentCheckins', 'topMajors', 'recruitment'));
     }
 
     public function resetAttendance(JobFair $fair)
@@ -1035,6 +1040,175 @@ class JobFairController extends Controller
             'total_leads'       => $totalLeads,
             'job_applications'  => $jobApplications,
             'general_leads'     => $generalLeads,
+        ];
+    }
+
+    /**
+     * إحصائيات التوظيف والترشيحات المفصلة لكل شركة ولكل وظيفة
+     */
+    private function getRecruitmentStats(?JobFair $fair): array
+    {
+        $nominationStats = [
+            'total'       => 0,
+            'job_leads'   => 0,
+            'general'     => 0,
+            'pending'     => 0,
+            'shortlisted' => 0,
+            'accepted'    => 0,
+            'rejected'    => 0,
+        ];
+
+        $companyStats = [];
+        $jobStats = [];
+        $fairVisits = collect();
+
+        if (!$fair) {
+            return [
+                'nomination_stats' => $nominationStats,
+                'company_stats'    => [],
+                'job_stats'        => [],
+                'recent_leads'     => collect(),
+            ];
+        }
+
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('job_fair_visits')) {
+                $fairVisits = JobFairVisit::where('job_fair_id', $fair->id)
+                    ->with(['company.company', 'graduate', 'jobOpportunity.company'])
+                    ->latest()
+                    ->get();
+            }
+
+            // 1. حساب ملخص حالات الترشح
+            foreach ($fairVisits as $visit) {
+                $nominationStats['total']++;
+                if (!empty($visit->job_opportunity_id)) {
+                    $nominationStats['job_leads']++;
+                } else {
+                    $nominationStats['general']++;
+                }
+
+                $st = $visit->status ?? 'pending';
+                if (isset($nominationStats[$st])) {
+                    $nominationStats[$st]++;
+                } else {
+                    $nominationStats['pending']++;
+                }
+            }
+
+            // 2. تجميع إحصائيات كل شركة (المسجلة في المعرض + التي استلمت سير)
+            $fairCompanies = $fair->companies()->with(['company.user'])->get();
+            foreach ($fairCompanies as $fc) {
+                $comp = $fc->company;
+                $userId = $comp ? $comp->user_id : null;
+                $compId = $comp ? $comp->id : $fc->company_id;
+                $key = $userId ?: ('comp_' . $compId);
+
+                $companyStats[$key] = [
+                    'company_id'          => $compId,
+                    'user_id'             => $userId,
+                    'name'                => $comp ? $comp->name : 'شركة مشاركة',
+                    'logo'                => $comp ? ($comp->logo_path ?: $comp->logo) : null,
+                    'booth'               => $fc->booth_number ?? '-',
+                    'available_positions' => $fc->available_positions ?? 0,
+                    'total_leads'         => 0,
+                    'job_leads'           => 0,
+                    'general_leads'       => 0,
+                    'pending'             => 0,
+                    'shortlisted'         => 0,
+                    'accepted'            => 0,
+                    'rejected'            => 0,
+                ];
+            }
+
+            // ربط السير الممسوحة بالشركات
+            foreach ($fairVisits as $visit) {
+                $uId = $visit->company_id;
+                $cUser = $visit->company;
+                $cProfile = $cUser ? $cUser->company : null;
+                $key = $uId ?: ($cProfile ? 'comp_' . $cProfile->id : 'unknown_' . $visit->id);
+
+                if (!isset($companyStats[$key])) {
+                    $companyStats[$key] = [
+                        'company_id'          => $cProfile ? $cProfile->id : null,
+                        'user_id'             => $uId,
+                        'name'                => $cProfile ? $cProfile->name : ($cUser ? $cUser->name : 'شركة مشاركة'),
+                        'logo'                => $cProfile ? ($cProfile->logo_path ?: $cProfile->logo) : null,
+                        'booth'               => '-',
+                        'available_positions' => 0,
+                        'total_leads'         => 0,
+                        'job_leads'           => 0,
+                        'general_leads'       => 0,
+                        'pending'             => 0,
+                        'shortlisted'         => 0,
+                        'accepted'            => 0,
+                        'rejected'            => 0,
+                    ];
+                }
+
+                $companyStats[$key]['total_leads']++;
+                if (!empty($visit->job_opportunity_id)) {
+                    $companyStats[$key]['job_leads']++;
+                } else {
+                    $companyStats[$key]['general_leads']++;
+                }
+
+                $st = $visit->status ?? 'pending';
+                if (isset($companyStats[$key][$st])) {
+                    $companyStats[$key][$st]++;
+                } else {
+                    $companyStats[$key]['pending']++;
+                }
+            }
+
+            // 3. تجميع إحصائيات كل وظيفة
+            if (\Illuminate\Support\Facades\Schema::hasTable('job_opportunities')) {
+                $companyIds = collect($companyStats)->pluck('company_id')->filter()->unique()->toArray();
+                $jobQuery = JobOpportunity::with('company');
+
+                if (\Illuminate\Support\Facades\Schema::hasColumn('job_opportunities', 'job_fair_id')) {
+                    $jobQuery->where(function($q) use ($fair, $companyIds, $fairVisits) {
+                        $q->where('job_fair_id', $fair->id)
+                          ->orWhereIn('company_id', $companyIds)
+                          ->orWhereIn('id', $fairVisits->pluck('job_opportunity_id')->filter()->unique());
+                    });
+                } else {
+                    $jobQuery->where(function($q) use ($companyIds, $fairVisits) {
+                        $q->whereIn('company_id', $companyIds)
+                          ->orWhereIn('id', $fairVisits->pluck('job_opportunity_id')->filter()->unique());
+                    });
+                }
+
+                $jobs = $jobQuery->get();
+                foreach ($jobs as $job) {
+                    $jobVisits = $fairVisits->where('job_opportunity_id', $job->id);
+                    $totalApplied = $jobVisits->count();
+
+                    $jobStats[] = [
+                        'id'            => $job->id,
+                        'title'         => $job->title,
+                        'company_name'  => $job->company ? $job->company->name : 'غير محدد',
+                        'company_logo'  => $job->company ? ($job->company->logo_path ?: $job->company->logo) : null,
+                        'seats'         => $job->seats ?? 1,
+                        'total_applied' => $totalApplied,
+                        'pending'       => $jobVisits->where('status', 'pending')->count(),
+                        'shortlisted'   => $jobVisits->where('status', 'shortlisted')->count(),
+                        'accepted'      => $jobVisits->where('status', 'accepted')->count(),
+                        'rejected'      => $jobVisits->where('status', 'rejected')->count(),
+                        'status'        => $job->status ?? 'open',
+                    ];
+                }
+            }
+
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Error getting recruitment stats: ' . $e->getMessage());
+        }
+
+        return [
+            'nomination_stats' => $nominationStats,
+            'company_stats'    => array_values($companyStats),
+            'job_stats'        => $jobStats,
+            'recent_leads'     => $fairVisits->take(25),
         ];
     }
 }

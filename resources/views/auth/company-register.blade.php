@@ -270,7 +270,7 @@
                             <input type="file" name="logo" id="logo"
                                    class="form-control-plain w-100 @error('logo') is-invalid @enderror"
                                    accept="image/*">
-                            <small class="text-muted" style="font-size:.75rem;">PNG, JPG, WEBP بحد أقصى 2MB</small>
+                            <small class="text-muted" style="font-size:.75rem;">PNG, JPG, WEBP, SVG بحد أقصى 10MB</small>
                             @error('logo')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
@@ -476,3 +476,24 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const logoInput = document.getElementById('logo');
+    if (logoInput) {
+        logoInput.addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                const fileSizeMB = file.size / (1024 * 1024);
+                if (fileSizeMB > 10) {
+                    alert('حجم الملف المحدد (' + fileSizeMB.toFixed(1) + ' ميجابايت) يتجاوز الحد الأقصى المسموح به (10 ميجابايت).\nيرجى اختيار شعار بحجم أصغر لتجنب فشل الإرسال.');
+                    this.value = '';
+                }
+            }
+        });
+    }
+});
+</script>
+@endpush
+

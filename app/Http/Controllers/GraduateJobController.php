@@ -95,7 +95,7 @@ class GraduateJobController extends Controller
         }
 
         // الحصول على بيانات الخريج
-        $graduateData = GraduateData::where('email', auth()->user()->email)->first();
+        $graduateData = auth()->user()->graduateData ?? GraduateData::where('email', auth()->user()->email)->first();
 
         if (!$graduateData) {
             return back()->withErrors(['error' => 'يجب إكمال بياناتك الشخصية أولاً']);

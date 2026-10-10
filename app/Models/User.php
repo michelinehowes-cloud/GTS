@@ -381,7 +381,15 @@ class User extends Authenticatable
     }
 
     /**
-     * الحصول على بيانات الخريج مع دعم الربط بالبريد كخيار احتياطي تلقائي
+     * الاسم البديل لعلاقة بيانات الخريج
+     */
+    public function graduateProfile()
+    {
+        return $this->hasOne(GraduateData::class, 'user_id');
+    }
+
+    /**
+     * الحصول على بيانات الخريج مع دعم الربط بالبريد كخيار احتياطي تلقائي والمزامنة التلقائية
      */
     public function getGraduateDataAttribute()
     {
@@ -396,12 +404,21 @@ class User extends Authenticatable
         if ($this->email) {
             $data = GraduateData::where('email', $this->email)->first();
             if ($data) {
-                $data->updateQuietly(['user_id' => $this->id]);
+                if (!$data->user_id) {
+                    $data->updateQuietly(['user_id' => $this->id]);
+                }
                 return $data;
             }
         }
+
+        // إذا كان المستخدم خريجاً، قم بالمزامنة التلقائية لبياناته لضمان عدم فقدان أي حقل
+        if ($this->role === 'graduate') {
+            return GraduateData::syncFromUser($this);
+        }
+
         return null;
     }
+
 
     /**
      * العلاقة مع فرص العمل التي أنشأها المستخدم

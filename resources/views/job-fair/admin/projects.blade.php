@@ -517,7 +517,7 @@
     @foreach($projects as $proj)
         <!-- Modal: Review Project Details -->
         <div class="modal fade text-start" id="reviewModal{{ $proj->id }}" tabindex="-1" aria-labelledby="reviewModalLabel{{ $proj->id }}" aria-hidden="true" dir="rtl">
-            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-dialog uot-modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content uot-modal-content">
                     <div class="modal-header uot-modal-header uot-modal-header-review">
                         <div class="d-flex align-items-center gap-3">
@@ -535,7 +535,7 @@
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
-                    <div class="modal-body p-4">
+                    <div class="modal-body p-4 uot-modal-body">
                         <!-- شريط القرار الإداري السريع -->
                         <div class="card bg-light border-0 p-3 mb-4 rounded-3">
                             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -777,9 +777,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer bg-light">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
-                        <button type="button" class="btn btn-primary" onclick="editProjectById({{ $proj->id }})" data-bs-dismiss="modal">
+                    <div class="modal-footer uot-modal-footer">
+                        <button type="button" class="uot-btn-cancel" data-bs-dismiss="modal">إغلاق</button>
+                        <button type="button" class="uot-btn-submit" onclick="editProjectById({{ $proj->id }})" data-bs-dismiss="modal">
                             <i class="fas fa-edit me-1"></i> تعديل بيانات المشروع
                         </button>
                     </div>
@@ -790,11 +790,11 @@
         <!-- Modal: Reject Project -->
         <div class="modal fade" id="rejectModal{{ $proj->id }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ $proj->id }}" aria-hidden="true" dir="rtl">
             <div class="modal-dialog modal-dialog-centered">
-                <form action="{{ route('job-fair.admin.projects.update-status', $proj->id) }}" method="POST">
-                    @csrf
-                    @method('PATCH')
-                    <input type="hidden" name="status" value="rejected">
-                    <div class="modal-content uot-modal-content">
+                <div class="modal-content uot-modal-content">
+                    <form action="{{ route('job-fair.admin.projects.update-status', $proj->id) }}" method="POST" class="uot-modal-form">
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="status" value="rejected">
                         <div class="modal-header" style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 60%, #b91c1c 100%) !important; border-bottom: 3.5px solid #eeca3e !important; padding: 1.25rem 1.75rem !important; color:#fff !important;">
                             <div class="d-flex align-items-center gap-3">
                                 <div class="uot-modal-icon-badge" style="border-color:#fca5a5; background:rgba(252,165,165,0.18); color:#fca5a5;">
@@ -811,21 +811,21 @@
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
-                        <div class="modal-body p-4">
+                        <div class="modal-body p-4 uot-modal-body">
                             <p class="mb-3">أنت على وشك رفض مشروع: <strong>«{{ $proj->title }}»</strong>.</p>
                             <div class="form-group mb-2">
                                 <label class="font-weight-bold small mb-1">سبب الرفض (إجراء إداري رسمي) <span class="text-danger">*</span></label>
                                 <textarea name="rejection_reason" class="form-control" rows="3" required placeholder="وضح سبب رفض المشروع (عدم استيفاء الشروط، تكرار الفكرة، نقص التجهيزات...)..."></textarea>
                             </div>
                         </div>
-                        <div class="modal-footer bg-light">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                            <button type="submit" class="btn btn-danger fw-bold">
+                        <div class="modal-footer uot-modal-footer">
+                            <button type="button" class="uot-btn-cancel" data-bs-dismiss="modal">إلغاء</button>
+                            <button type="submit" class="btn btn-danger fw-bold rounded-pill px-4">
                                 <i class="fas fa-ban me-1"></i> تأكيد الرفض
                             </button>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     @endforeach
@@ -833,10 +833,10 @@
 
 <!-- Modal: Add Project -->
 <div class="modal fade" id="addProjectModal" tabindex="-1" role="dialog" aria-labelledby="addProjectModalLabel" aria-hidden="true" dir="rtl">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
-        <form id="addProjectForm" action="{{ route('job-fair.admin.projects.store', $fair->id) }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            <div class="modal-content uot-modal-content">
+    <div class="modal-dialog uot-modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content uot-modal-content">
+            <form id="addProjectForm" action="{{ route('job-fair.admin.projects.store', $fair->id) }}" method="POST" enctype="multipart/form-data" class="uot-modal-form">
+                @csrf
                 <div class="modal-header uot-modal-header">
                     <div class="d-flex align-items-center gap-3">
                         <div class="uot-modal-icon-badge">
@@ -853,7 +853,7 @@
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body p-4 uot-modal-body">
                     {{-- القسم 1: البيانات الأكاديمية والأساسية --}}
                     <div class="uot-section-divider">
                         <span class="divider-icon"><i class="fas fa-university"></i></span>
@@ -1076,18 +1076,18 @@
                         <i class="fas fa-save me-1"></i> حفظ وتثبيت المشروع
                     </button>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 
 <!-- Modal: Edit Project -->
 <div class="modal fade" id="editProjectModal" tabindex="-1" role="dialog" aria-labelledby="editProjectModalLabel" aria-hidden="true" dir="rtl">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
-        <form id="editProjectForm" method="POST" enctype="multipart/form-data">
-            @csrf
-            @method('PUT')
-            <div class="modal-content uot-modal-content">
+    <div class="modal-dialog uot-modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content uot-modal-content">
+            <form id="editProjectForm" method="POST" enctype="multipart/form-data" class="uot-modal-form">
+                @csrf
+                @method('PUT')
                 <div class="modal-header uot-modal-header uot-modal-header-edit">
                     <div class="d-flex align-items-center gap-3">
                         <div class="uot-modal-icon-badge">
@@ -1104,7 +1104,7 @@
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body p-4 uot-modal-body">
                     {{-- القسم 1: البيانات الأكاديمية والأساسية --}}
                     <div class="uot-section-divider">
                         <span class="divider-icon"><i class="fas fa-university"></i></span>
@@ -1330,8 +1330,8 @@
                         <i class="fas fa-save me-1"></i> حفظ التعديلات
                     </button>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 

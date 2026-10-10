@@ -389,4 +389,81 @@ class MessageController extends Controller
 
         return back()->with('success', 'تم إرسال الرسالة بنجاح.');
     }
+
+    /**
+     * حذف محادثة بالكامل (كافة الرسائل المتبادلة بين الطرفين)
+     */
+    public function destroyConversation(Request $request, $id)
+    {
+        $currentUser = auth()->user();
+        $userId = $currentUser->id;
+
+        $otherUser = User::find($id);
+        if (!$otherUser) {
+            $company = \App\Models\Company::find($id);
+            if ($company && $company->user_id) {
+                $otherUser = User::find($company->user_id);
+            }
+        }
+
+        if (!$otherUser) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'المستخدم غير موجود.'], 404);
+            }
+            return redirect()->route('messages.index')->with('error', 'المستخدم غير موجود.');
+        }
+
+        $otherId = $otherUser->id;
+
+        // حذف كافة الرسائل المتبادلة بين المستخدمين
+        $deletedCount = Message::where(function ($query) use ($userId, $otherId) {
+            $query->where('sender_id', $userId)->where('receiver_id', $otherId);
+        })->orWhere(function ($query) use ($userId, $otherId) {
+            $query->where('sender_id', $otherId)->where('receiver_id', $userId);
+        })->delete();
+
+        // حذف إشعارات الرسائل المرتبطة
+        \App\Models\Notification::where(function ($q) use ($userId, $otherId) {
+            $q->where('user_id', $userId)->where('sender_id', $otherId);
+        })->orWhere(function ($q) use ($userId, $otherId) {
+            $q->where('user_id', $otherId)->where('sender_id', $userId);
+        })->where('type', 'message')->delete();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'تم حذف المحادثة بنجاح.'
+            ]);
+        }
+
+        return redirect()->route('messages.index')->with('success', 'تم حذف المحادثة وجميع الرسائل بنجاح.');
+    }
+
+    /**
+     * حذف رسالة مفردة
+     */
+    public function destroyMessage(Request $request, $id)
+    {
+        $currentUser = auth()->user();
+        $message = Message::findOrFail($id);
+
+        if ((int)$message->sender_id !== (int)$currentUser->id && (int)$message->receiver_id !== (int)$currentUser->id && !$currentUser->isAdmin()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'غير مصرح لك بحذف هذه الرسالة.'], 403);
+            }
+            abort(403, 'غير مصرح لك بحذف هذه الرسالة.');
+        }
+
+        $message->delete();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'تم حذف الرسالة بنجاح.'
+            ]);
+        }
+
+        return back()->with('success', 'تم حذف الرسالة بنجاح.');
+    }
 }
+

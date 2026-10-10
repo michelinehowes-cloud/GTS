@@ -36,6 +36,20 @@
                                             <i class="fas fa-users me-1"></i>
                                             {{ $opportunity->seats }} مقاعد
                                         </span>
+                                        <span class="badge rounded-pill" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; font-size: 0.9rem; font-weight: 500;">
+                                            <i class="fas fa-tag me-1"></i>
+                                            {{ $opportunity->type == 'job' ? 'وظيفة' : ($opportunity->type == 'training' ? 'تدريب' : 'تدريب عملي') }}
+                                        </span>
+                                        <span class="badge rounded-pill" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; font-size: 0.9rem; font-weight: 500;">
+                                            <i class="fas fa-briefcase me-1"></i>
+                                            {{ match($opportunity->contract_type) { 'full_time' => 'دوام كامل', 'part_time' => 'دوام جزئي', 'contract' => 'عقد عمل', 'freelance' => 'عمل حر', default => $opportunity->contract_type ?? 'دوام كامل' } }}
+                                        </span>
+                                        @if($opportunity->salary)
+                                        <span class="badge rounded-pill" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; font-size: 0.9rem; font-weight: 500;">
+                                            <i class="fas fa-money-bill-wave me-1"></i>
+                                            {{ $opportunity->salary }} د.ل
+                                        </span>
+                                        @endif
                                         @if($opportunity->status === 'pending')
                                             <span class="badge rounded-pill bg-warning text-dark px-3 py-2 fw-bold" style="font-size: 0.9rem;">
                                                 <i class="fas fa-clock me-1"></i>بانتظار الاعتماد والمراجعة
@@ -254,6 +268,23 @@
                     </div>
                 </div>
                 @endif
+
+                <!-- المزايا والحوافز -->
+                @if($opportunity->benefits)
+                <div class="card shadow-sm border-0 rounded-4 transition-all hover-shadow">
+                    <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+                        <h5 class="fw-bold text-dark mb-0 d-flex align-items-center">
+                            <div class="bg-success bg-opacity-10 text-success rounded-circle p-2 me-3 d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;">
+                                <i class="fas fa-gift"></i>
+                            </div>
+                            المزايا والحوافز
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-secondary mb-0 bg-light p-3 rounded-3" style="line-height: 1.7;">{{ $opportunity->benefits }}</p>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
 
@@ -261,6 +292,23 @@
         <div class="col-lg-4">
             <div class="d-flex flex-column gap-4">
                 
+                @if($opportunity->salary)
+                <!-- الراتب والمكافأة -->
+                <div class="card shadow-sm border-0 rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #bbf7d0 !important;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 48px; height: 48px;">
+                                <i class="fas fa-money-bill-wave fs-5"></i>
+                            </div>
+                            <div>
+                                <div class="text-success fw-bold small mb-1">الراتب / المكافأة المتوقعة</div>
+                                <div class="text-dark fw-bold fs-5">{{ number_format($opportunity->salary, 2) }} دينار ليبي</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
                 <!-- التواريخ -->
                 <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
                     <div class="card-header bg-white border-bottom-0 pt-4 pb-2 px-4">

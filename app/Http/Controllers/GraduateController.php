@@ -282,35 +282,11 @@ class GraduateController extends Controller
 
         $user->update($data);
 
-        // تحديث البيانات في جدول graduates_data إذا وجد
-        $graduateRecord = \App\Models\GraduateData::where('user_id', $user->id)
-            ->orWhere('email', $oldEmail)
-            ->orWhere('email', $user->email)
-            ->first();
-
-        if ($graduateRecord) {
-            $graduateData = [
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'user_id' => $user->id,
-                'phone' => $data['phone'] ?? null,
-                'national_id' => $data['national_id'] ?? null,
-                'address' => ($data['city'] ?? '') . ' - ' . ($data['address'] ?? ''),
-                'university' => $data['university'] ?? 'جامعة طرابلس',
-                'sector' => $data['sector'] ?? null,
-                'faculty' => $data['faculty'] ?? null,
-                'major' => $data['specialization'] ?? null,
-                'specialization' => $data['specialization'] ?? null,
-                'graduation_year' => $data['graduation_year'] ?? null,
-                'gpa' => $data['gpa'] ?? null,
-                'degree' => $data['qualification'] ?? 'بكالوريوس',
-                'qualification' => $data['qualification'] ?? 'بكالوريوس',
-                'languages' => $data['languages'] ? array_map('trim', explode(',', $data['languages'])) : null,
-            ];
-
-            $graduateRecord->update(array_filter($graduateData, function ($v) {
-                return !is_null($v);
-            }));
+        // مزامنة البيانات وتحديثها فورياً في جدول graduates_data
+        try {
+            \App\Models\GraduateData::syncFromUser($user);
+        } catch (\Exception $e) {
+            \Log::warning('Failed GraduateData sync in updateProfile: ' . $e->getMessage());
         }
 
         return redirect()->route('graduate.profile')

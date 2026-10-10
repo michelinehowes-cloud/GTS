@@ -2,12 +2,135 @@
 /* ═══════════════════════════════════════════════════════════════
    🏛️ أنماط النوافذ المنبثقة المعتمدة — هوية جامعة طرابلس الفاخرة
    ═══════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   أبعاد وتناسق النوافذ المنبثقة مع الصفحة والشاشات المختلفة
+   ═══════════════════════════════════════════════════════════════ */
+.uot-modal-dialog,
+.modal-dialog.uot-modal-dialog,
+.modal-dialog.modal-xl:has(.uot-modal-content),
+.modal-dialog:has(.uot-modal-content) {
+    max-width: 860px !important;
+    width: 90% !important;
+    margin: 1.25rem auto !important;
+    max-height: calc(100vh - 2.5rem) !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+@media (min-width: 1400px) {
+    .uot-modal-dialog,
+    .modal-dialog.uot-modal-dialog,
+    .modal-dialog.modal-xl:has(.uot-modal-content),
+    .modal-dialog:has(.uot-modal-content) {
+        max-width: 880px !important;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .uot-modal-dialog,
+    .modal-dialog.uot-modal-dialog,
+    .modal-dialog.modal-xl:has(.uot-modal-content),
+    .modal-dialog:has(.uot-modal-content) {
+        max-width: 95% !important;
+        width: 95% !important;
+        margin: 0.75rem auto !important;
+    }
+}
+
+/* ضمان بقاء الرأس والذيل ظاهرين وتمرير الجسم الداخلي فقط */
+.uot-modal-dialog.modal-dialog-scrollable,
+.modal-dialog.uot-modal-dialog.modal-dialog-scrollable,
+.modal-dialog.modal-dialog-scrollable:has(.uot-modal-content) {
+    height: calc(100vh - 2.5rem) !important;
+    max-height: calc(100vh - 2.5rem) !important;
+}
+
+.modal.fade .modal-dialog.uot-modal-dialog,
+.modal.fade .modal-dialog:has(.uot-modal-content) {
+    max-height: calc(100vh - 2.5rem) !important;
+}
+
+.modal.fade.show {
+    padding-right: 0 !important;
+}
+
+.modal-dialog:has(.uot-modal-content) > form,
+.modal-dialog-scrollable:has(.uot-modal-content) > form {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-height: calc(100vh - 2.5rem) !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
+
 .uot-modal-content {
     border: none !important;
     border-radius: 20px !important;
     box-shadow: 0 25px 65px rgba(10, 43, 102, 0.3) !important;
     overflow: hidden !important;
     background: #ffffff !important;
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    flex: 1 1 auto !important;
+}
+
+.uot-modal-form {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+    height: 100% !important;
+    margin: 0 !important;
+}
+
+.uot-modal-header {
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+}
+
+.uot-modal-body,
+.uot-modal-content > .modal-body,
+.uot-modal-form > .modal-body {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    min-height: 0 !important;
+    padding: 1.4rem 1.75rem !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+.uot-modal-footer {
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+}
+
+/* شريط تمرير أنيق متناسق */
+.uot-modal-body::-webkit-scrollbar,
+.uot-modal-content .modal-body::-webkit-scrollbar,
+.uot-modal-form .modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+.uot-modal-body::-webkit-scrollbar-track,
+.uot-modal-content .modal-body::-webkit-scrollbar-track,
+.uot-modal-form .modal-body::-webkit-scrollbar-track {
+    background: #f8fafc;
+}
+.uot-modal-body::-webkit-scrollbar-thumb,
+.uot-modal-content .modal-body::-webkit-scrollbar-thumb,
+.uot-modal-form .modal-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+.uot-modal-body::-webkit-scrollbar-thumb:hover,
+.uot-modal-content .modal-body::-webkit-scrollbar-thumb:hover,
+.uot-modal-form .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .uot-modal-header {

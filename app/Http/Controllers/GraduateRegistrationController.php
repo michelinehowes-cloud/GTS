@@ -140,6 +140,17 @@ class GraduateRegistrationController extends Controller
             'is_approved' => false, // في انتظار الموافقة
         ]);
 
+        // مزامنة فورية وكاملة لبيانات الخريج في جدول graduates_data لحفظ كافة الحقول دون أي نقص
+        try {
+            \App\Models\GraduateData::syncFromUser($user, [
+                'is_active' => false,
+                'data_source' => 'online_registration',
+                'notes' => 'تسجيل ذاتي عبر الموقع الرئيسي (في انتظار الاعتماد)',
+            ]);
+        } catch (\Exception $e) {
+            \Log::warning('Failed immediate GraduateData sync on registration: ' . $e->getMessage());
+        }
+
         // إشعار لمسؤول الإرشاد المهني ومدير النظام
         try {
             $this->notificationService->sendToRoles(
@@ -274,51 +285,21 @@ class GraduateRegistrationController extends Controller
             \Log::error('Failed to send approval notification: ' . $e->getMessage());
         }
 
-        // 3. التحقق من وجود سجل مسبق في جدول graduates_data بالبريد الإلكتروني
-        $existingGraduate = \App\Models\GraduateData::where('email', $user->email)->first();
-
-        if ($existingGraduate) {
-            if ($existingGraduate->user_id !== $user->id) {
-                $existingGraduate->update(['user_id' => $user->id]);
-            }
-            return [
-                'status' => 'success',
-                'message' => 'تمت الموافقة على الحساب وتفعيله بنجاح (الخريج مسجل مسبقاً في قاعدة بيانات التوظيف).'
-            ];
-        }
-
-        // 4. إنشاء سجل في جدول graduates_data تلقائياً
+        // 3. مزامنة وتفعيل سجل الخريج في جدول graduates_data بكافة بياناته الكاملة
         try {
-            \App\Models\GraduateData::create([
-                'user_id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone,
-                'national_id' => $user->national_id ?? null, // رقم القيد الجامعي
-                'major' => $user->specialization ?? $user->major ?? 'غير محدد',
-                'faculty' => $user->faculty ?? null,
-                'sector' => $user->sector ?? null,
-                'university' => $user->university ?? 'جامعة طرابلس',
-                'graduation_year' => $user->graduation_year ?? date('Y'),
-                'gpa' => $user->gpa ?? null,
-                'degree' => $user->qualification ?? $user->degree ?? 'بكالوريوس',
-                'address' => $user->address ?? null,
-                'skills' => is_array($user->skills) ? $user->skills : (is_string($user->skills) ? (json_decode((string)$user->skills, true) ?? []) : []),
-                'languages' => is_array($user->languages) ? $user->languages : (is_string($user->languages) ? (json_decode((string)$user->languages, true) ?? []) : []),
-                'work_experience' => $user->experiences ?? null,
-                'employment_status' => 'seeking_opportunities',
+            \App\Models\GraduateData::syncFromUser($user, [
+                'is_active' => true,
                 'added_by' => auth()->id() ?? 1,
                 'data_source' => 'system_sync',
-                'is_active' => true,
-                'notes' => 'تم الإنشاء تلقائياً عند الموافقة على طلب التسجيل',
+                'notes' => 'تم الاعتماد والتفعيل بنجاح من قبل الإدارة',
             ]);
 
             return [
                 'status' => 'success',
-                'message' => 'تمت الموافقة على الحساب بنجاح وتمت إضافة الخريج إلى قاعدة بيانات الإرشاد والتوظيف.'
+                'message' => 'تمت الموافقة على الحساب بنجاح وتفعيل بيانات الخريج في قاعدة بيانات التوظيف والإرشاد.'
             ];
         } catch (\Exception $e) {
-            \Log::error('GraduateData creation error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            \Log::error('GraduateData sync error on approval: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return [
                 'status' => 'warning',
                 'message' => 'تم تفعيل حساب الخريج بنجاح، مع تعذر استكمال بيانات الإرشاد تلقائياً. يرجى مراجعة سجلات النظام.'

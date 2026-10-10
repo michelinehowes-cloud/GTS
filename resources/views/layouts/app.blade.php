@@ -268,6 +268,84 @@
             transform: scale(0.96) !important;
         }
 
+        /* تنسيقات عناصر درج الإشعارات المريح والأنيق */
+        .notif-drawer-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 0.85rem 1rem;
+            transition: background 0.2s ease, transform 0.3s ease;
+            position: relative;
+            background: #ffffff;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .notif-drawer-item.is-unread {
+            background: #f0f7ff !important;
+            border-right: 3.5px solid #0d3882 !important;
+        }
+
+        .notif-drawer-item:hover {
+            background: #f8fafc;
+        }
+
+        .notif-drawer-item.is-unread:hover {
+            background: #e6f0fc !important;
+        }
+
+        .notif-drawer-item .notif-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.35;
+        }
+
+        .notif-drawer-item .notif-message {
+            font-size: 0.78rem;
+            color: #475569;
+            line-height: 1.45;
+        }
+
+        .notif-drawer-item .notif-time {
+            font-size: 0.68rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .notif-check-btn {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            margin-right: 0.5rem;
+            font-size: 0.85rem;
+            padding: 0;
+        }
+
+        .notif-check-btn:hover {
+            background: #16a34a !important;
+            color: #ffffff !important;
+            border-color: #16a34a !important;
+            transform: scale(1.1);
+            box-shadow: 0 2px 6px rgba(22, 163, 74, 0.3);
+        }
+
+        .notif-check-btn:active {
+            transform: scale(0.92);
+        }
+
         /* إلغاء جميع الحركات والنبض التلقائي للأزرار والشارات واعتماد حركة هادئة عند تمرير الماوس فقط */
         .badge,
         .badge.rounded-pill,
@@ -1553,6 +1631,66 @@
     @endauth
 
     <style>
+        /* Notifications & Messages Drawer Styling */
+        .notif-drawer-item {
+            padding: 0.85rem 1.15rem;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #ffffff;
+            border-right: 4px solid transparent;
+            text-decoration: none;
+        }
+        .notif-drawer-item.is-unread {
+            background-color: #f0f7ff !important;
+            border-right: 4px solid #0d3882 !important;
+        }
+        .notif-drawer-item:hover {
+            background-color: #f8fafc !important;
+        }
+        .notif-drawer-item .notif-title {
+            color: #0f172a !important;
+            font-weight: 700;
+            font-size: 0.88rem;
+            margin-bottom: 2px;
+        }
+        .notif-drawer-item .notif-message {
+            color: #475569 !important;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            margin-bottom: 0;
+        }
+        .notif-drawer-item .notif-time {
+            color: #94a3b8 !important;
+            font-size: 0.72rem;
+            white-space: nowrap;
+        }
+        .notif-check-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 1.5px solid #10b981;
+            color: #059669;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            flex-shrink: 0;
+            margin-inline-start: 4px;
+        }
+        .notif-check-btn:hover {
+            background: #10b981;
+            color: #ffffff;
+            transform: scale(1.08);
+            box-shadow: 0 3px 8px rgba(16, 185, 129, 0.3);
+        }
+
         /* Dark mode support for drawers */
         html[data-theme='dark'] #notifDrawerPanel,
         body.dark-mode #notifDrawerPanel,
@@ -1560,6 +1698,24 @@
         body.dark-mode #msgDrawerPanel {
             background: #1e293b !important;
             color: #cbd5e1 !important;
+        }
+        html[data-theme='dark'] .notif-drawer-item,
+        body.dark-mode .notif-drawer-item {
+            background: #1e293b !important;
+            border-bottom-color: #334155 !important;
+        }
+        html[data-theme='dark'] .notif-drawer-item.is-unread,
+        body.dark-mode .notif-drawer-item.is-unread {
+            background: #172554 !important;
+            border-right-color: #3b82f6 !important;
+        }
+        html[data-theme='dark'] .notif-drawer-item .notif-title,
+        body.dark-mode .notif-drawer-item .notif-title {
+            color: #f1f5f9 !important;
+        }
+        html[data-theme='dark'] .notif-drawer-item .notif-message,
+        body.dark-mode .notif-drawer-item .notif-message {
+            color: #94a3b8 !important;
         }
         html[data-theme='dark'] #notifDrawerPanel div[style*="background:#f8fafc"],
         body.dark-mode #notifDrawerPanel div[style*="background:#f8fafc"],
@@ -2238,29 +2394,36 @@
                     return;
                 }
 
+                const iconConfig = {
+                    success: { icon: 'check-circle', bg: '#ecfdf5', color: '#059669' },
+                    danger:  { icon: 'exclamation-circle', bg: '#fef2f2', color: '#dc2626' },
+                    warning: { icon: 'exclamation-triangle', bg: '#fffbeb', color: '#d97706' },
+                    info:    { icon: 'info-circle', bg: '#eff6ff', color: '#2563eb' },
+                    message: { icon: 'envelope', bg: '#f0fdf4', color: '#16a34a' }
+                };
+
                 let html = '';
                 notifications.forEach(n => {
                     const isUnread = !n.is_read;
-                    const iconMap = { success: 'check-circle text-success', danger: 'exclamation-circle text-danger', warning: 'exclamation-triangle text-warning' };
-                    const iconClass = iconMap[n.type] || 'info-circle text-primary';
+                    const ic = iconConfig[n.type] || iconConfig.info;
                     const timeStr = n.created_at ? new Date(n.created_at).toLocaleDateString('ar-LY', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
                     html += `
-                    <div class="d-flex align-items-center justify-content-between border-bottom ${isUnread ? 'bg-primary bg-opacity-5' : ''}" style="transition:all 0.3s ease;">
-                        <a href="/notifications/${n.id}" class="d-flex align-items-start p-3 text-decoration-none flex-grow-1 min-w-0" style="color:inherit;">
-                            <div class="me-3 mt-1 flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center" style="width:38px;height:38px;background:rgba(15,23,42,0.06);">
-                                <i class="fas fa-${iconClass} fs-6"></i>
+                    <div class="notif-drawer-item ${isUnread ? 'is-unread' : 'is-read'}" data-notif-id="${n.id}">
+                        <a href="/notifications/${n.id}" class="d-flex align-items-start text-decoration-none flex-grow-1 min-w-0" style="color:inherit;">
+                            <div class="ms-3 mt-0.5 flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center" style="width:38px;height:38px;background:${ic.bg};color:${ic.color};">
+                                <i class="fas fa-${ic.icon} fs-6"></i>
                             </div>
                             <div class="flex-grow-1 min-w-0">
-                                <div class="d-flex justify-content-between align-items-baseline">
-                                    <h6 class="mb-0 fw-bold text-truncate" style="max-width:180px;font-size:0.88rem;">${n.title || 'إشعار جديد'}</h6>
-                                    <small class="text-muted text-nowrap ms-2" style="font-size:0.7rem;">${timeStr}</small>
+                                <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                    <h6 class="notif-title text-truncate mb-0" style="max-width:180px;">${n.title || 'إشعار جديد'}</h6>
+                                    <small class="notif-time ms-2">${timeStr}</small>
                                 </div>
-                                <p class="mb-0 text-muted text-truncate small" style="max-width:210px;">${n.message || ''}</p>
+                                <p class="notif-message text-truncate mb-0" style="max-width:210px;">${n.message || ''}</p>
                             </div>
-                            ${isUnread ? '<span class="rounded-circle bg-primary ms-2 mt-2 flex-shrink-0" style="width:8px;height:8px;min-width:8px;"></span>' : ''}
+                            ${isUnread ? '<span class="rounded-circle bg-primary me-2 mt-1.5 flex-shrink-0" style="width:8px;height:8px;min-width:8px;" title="غير مقروء"></span>' : ''}
                         </a>
                         ${isUnread ? `
-                            <button onclick="markDrawerNotificationAsRead(${n.id}, this)" class="btn btn-sm btn-light border-0 text-success p-1 me-2 rounded-circle flex-shrink-0" title="تحديد كمقروء وإخفاء" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+                            <button type="button" onclick="markDrawerNotificationAsRead(${n.id}, this)" class="notif-check-btn" title="تحديد كمقروء وإخفاء">
                                 <i class="fas fa-check"></i>
                             </button>
                         ` : ''}
@@ -2278,11 +2441,16 @@
             window.event.preventDefault();
             window.event.stopPropagation();
         }
-        const row = btn.closest('div');
+        const row = btn ? btn.closest('.notif-drawer-item') : document.querySelector(`.notif-drawer-item[data-notif-id="${id}"]`);
         if (row) {
-            row.style.transition = 'all 0.3s ease';
+            row.style.transition = 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
             row.style.opacity = '0';
-            row.style.transform = 'translateX(25px)';
+            row.style.transform = 'translateX(40px)';
+            row.style.maxHeight = '0px';
+            row.style.paddingTop = '0';
+            row.style.paddingBottom = '0';
+            row.style.margin = '0';
+            row.style.overflow = 'hidden';
         }
         const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
         fetch(`/notifications/${id}/read`, {
@@ -2293,12 +2461,12 @@
         .then(data => {
             if (row) setTimeout(() => {
                 row.remove();
-                const remaining = document.querySelectorAll('#notifDrawerBody > div');
+                const remaining = document.querySelectorAll('#notifDrawerBody .notif-drawer-item');
                 if (remaining.length === 0) {
                     const body = document.getElementById('notifDrawerBody');
                     if (body) body.innerHTML = `<div class="text-center py-5 text-muted"><i class="fas fa-bell-slash fa-3x mb-3 opacity-25 d-block"></i><p class="small">لا توجد إشعارات حتى الآن</p></div>`;
                 }
-            }, 250);
+            }, 350);
             const newCount = typeof data.unread_count !== 'undefined' ? data.unread_count : 0;
             updateUnreadBadge(newCount);
             const subtitle = document.getElementById('notifDrawerSubtitle');
@@ -2309,18 +2477,25 @@
             if (row) {
                 row.style.opacity = '1';
                 row.style.transform = 'none';
+                row.style.maxHeight = '';
             }
         });
     };
 
     function markAllNotificationsRead() {
         const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
-        const unreadRows = document.querySelectorAll('#notifDrawerBody .bg-primary.bg-opacity-5');
-        unreadRows.forEach(row => {
-            row.style.transition = 'all 0.3s ease';
-            row.style.opacity = '0';
-            row.style.transform = 'translateX(25px)';
-            setTimeout(() => row.remove(), 250);
+        const unreadRows = document.querySelectorAll('#notifDrawerBody .notif-drawer-item.is-unread');
+        unreadRows.forEach((row, idx) => {
+            setTimeout(() => {
+                row.style.transition = 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)';
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(40px)';
+                row.style.maxHeight = '0px';
+                row.style.paddingTop = '0';
+                row.style.paddingBottom = '0';
+                row.style.overflow = 'hidden';
+                setTimeout(() => row.remove(), 350);
+            }, idx * 40);
         });
 
         fetch('/notifications/mark-all-read', {
@@ -2331,12 +2506,12 @@
             const subtitle = document.getElementById('notifDrawerSubtitle');
             if (subtitle) subtitle.textContent = 'لا توجد إشعارات جديدة';
             setTimeout(() => {
-                const remaining = document.querySelectorAll('#notifDrawerBody > div');
+                const remaining = document.querySelectorAll('#notifDrawerBody .notif-drawer-item');
                 if (remaining.length === 0) {
                     const body = document.getElementById('notifDrawerBody');
                     if (body) body.innerHTML = `<div class="text-center py-5 text-muted"><i class="fas fa-bell-slash fa-3x mb-3 opacity-25 d-block"></i><p class="small">لا توجد إشعارات جديدة</p></div>`;
                 }
-            }, 300);
+            }, 350);
         }).catch(() => {});
     }
 

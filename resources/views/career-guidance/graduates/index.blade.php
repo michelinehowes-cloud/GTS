@@ -269,7 +269,7 @@
                                 $gEmpStatus = $gd->employment_status ?? null;
                                 $hasProfile = $gd !== null;
                                 // For show/edit routes - use graduateData id if exists, else show user profile
-                                $showRouteId = $gd ? $gd->id : null;
+                                $showRouteId = $gd ? $gd->id : $graduate->id;
                             @endphp
                             <tr class="{{ !$hasProfile ? 'table-warning' : '' }}">
                                 <td class="text-center text-muted fw-bold">{{ $loop->iteration }}</td>

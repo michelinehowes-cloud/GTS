@@ -234,10 +234,10 @@
 
 <!-- Modal: Add Event -->
 <div class="modal fade" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="addEventModalLabel" aria-hidden="true" dir="rtl">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
-        <form action="{{ route('job-fair.admin.events.store', $fair->id) }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            <div class="modal-content uot-modal-content">
+    <div class="modal-dialog uot-modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content uot-modal-content">
+            <form action="{{ route('job-fair.admin.events.store', $fair->id) }}" method="POST" enctype="multipart/form-data" class="uot-modal-form">
+                @csrf
                 <div class="modal-header uot-modal-header">
                     <div class="d-flex align-items-center gap-3">
                         <div class="uot-modal-icon-badge">
@@ -254,7 +254,7 @@
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body p-4 uot-modal-body">
                     {{-- القسم 1: تفاصيل ونوع الفعالية --}}
                     <div class="uot-section-divider">
                         <span class="divider-icon"><i class="fas fa-layer-group"></i></span>
@@ -385,18 +385,18 @@
                         <i class="fas fa-save me-1"></i> حفظ وتثبيت الفعالية
                     </button>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 
 <!-- Modal: Edit Event -->
 <div class="modal fade" id="editEventModal" tabindex="-1" role="dialog" aria-labelledby="editEventModalLabel" aria-hidden="true" dir="rtl">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
-        <form id="editEventForm" method="POST" enctype="multipart/form-data">
-            @csrf
-            @method('PUT')
-            <div class="modal-content uot-modal-content">
+    <div class="modal-dialog uot-modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content uot-modal-content">
+            <form id="editEventForm" method="POST" enctype="multipart/form-data" class="uot-modal-form">
+                @csrf
+                @method('PUT')
                 <div class="modal-header uot-modal-header uot-modal-header-edit">
                     <div class="d-flex align-items-center gap-3">
                         <div class="uot-modal-icon-badge">
@@ -413,7 +413,7 @@
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body p-4 uot-modal-body">
                     {{-- القسم 1: تفاصيل ونوع الفعالية --}}
                     <div class="uot-section-divider">
                         <span class="divider-icon"><i class="fas fa-layer-group"></i></span>
@@ -542,14 +542,14 @@
                         <i class="fas fa-save me-1"></i> حفظ التعديلات
                     </button>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 
 <!-- Modal: View Attendees -->
 <div class="modal fade" id="attendeesModal" tabindex="-1" role="dialog" aria-labelledby="attendeesModalLabel" aria-hidden="true" dir="rtl">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-dialog uot-modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
         <div class="modal-content uot-modal-content">
             <div class="modal-header uot-modal-header" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 60%, #075985 100%) !important;">
                 <div class="d-flex align-items-center gap-3">
@@ -567,7 +567,7 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body p-0">
+            <div class="modal-body p-0 uot-modal-body">
                 <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <div>
                         <h6 class="fw-bold mb-0 text-dark" id="attendeeEventTitle">-</h6>

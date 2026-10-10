@@ -354,7 +354,16 @@ class CareerGuidanceController extends Controller
      */
     public function editGraduate($id)
     {
-        $graduate = GraduateData::findOrFail($id);
+        $graduate = GraduateData::find($id);
+        if (!$graduate) {
+            $user = User::find($id);
+            if ($user && $user->role === 'graduate') {
+                $graduate = GraduateData::syncFromUser($user);
+            }
+        }
+        if (!$graduate) {
+            abort(404, 'بيانات الخريج غير موجودة.');
+        }
         $this->authorize('update', $graduate); // Authorize editing the graduate details
 
         $majors = GraduateData::distinct()->pluck('major');
@@ -626,7 +635,20 @@ class CareerGuidanceController extends Controller
      */
     public function showGraduate($id)
     {
-        $graduate = GraduateData::with(['nominations.jobOpportunity.company', 'nominations.nominator'])->findOrFail($id);
+        $graduate = GraduateData::with(['nominations.jobOpportunity.company', 'nominations.nominator'])->find($id);
+
+        if (!$graduate) {
+            $user = User::find($id);
+            if ($user && $user->role === 'graduate') {
+                $graduate = GraduateData::syncFromUser($user);
+                $graduate->load(['nominations.jobOpportunity.company', 'nominations.nominator']);
+            }
+        }
+
+        if (!$graduate) {
+            abort(404, 'بيانات الخريج غير موجودة.');
+        }
+
         $this->authorize('view', $graduate); // Authorize viewing the graduate details
 
         // البحث عن حساب المستخدم المرتبط أو ربطه بالبريد الإلكتروني

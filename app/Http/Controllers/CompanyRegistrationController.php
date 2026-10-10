@@ -81,7 +81,7 @@ class CompanyRegistrationController extends Controller
             'description' => 'nullable|string',
             'partnership_types' => 'required|array|min:1',
             'partnership_types.*' => 'in:employment,training,logistic_support,academic,workshops,training_employment',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:10240',
         ], [
             'contact_name.required' => 'اسم ممثل الشركة / مسؤول الاتصال مطلوب',
             'contact_phone.required' => 'رقم هاتف مسؤول الاتصال مطلوب',
@@ -98,7 +98,7 @@ class CompanyRegistrationController extends Controller
             'partnership_types.required' => 'يرجى اختيار نوع شراكة واحد على الأقل',
             'partnership_types.min' => 'يرجى اختيار نوع شراكة واحد على الأقل',
             'logo.image' => 'يجب أن يكون الشعار ملف صورة صحيح',
-            'logo.max' => 'حجم الشعار يجب ألا يتجاوز 2 ميجابايت',
+            'logo.max' => 'حجم الشعار يجب ألا يتجاوز 10 ميجابايت',
         ]);
 
         DB::beginTransaction();

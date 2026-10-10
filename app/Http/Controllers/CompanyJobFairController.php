@@ -46,7 +46,16 @@ class CompanyJobFairController extends Controller
             abort(403, 'غير مصرح لك بالوصول.');
         }
 
-        return view('company.job-fair.scanner', compact('fair'));
+        // جلب الشواغر الوظيفية المتاحة للشركة في المعرض
+        $opportunities = \App\Models\JobOpportunity::where('company_id', $company->id)
+            ->where('status', 'open')
+            ->where(function($q) use ($fair) {
+                $q->whereNull('job_fair_id')->orWhere('job_fair_id', $fair->id);
+            })
+            ->orderBy('title')
+            ->get();
+
+        return view('company.job-fair.scanner', compact('fair', 'opportunities'));
     }
 
     /**
@@ -65,7 +74,7 @@ class CompanyJobFairController extends Controller
     }
 
     /**
-     * تسجيل زيارة خريج (استلام سيرة ذاتية)
+     * تسجيل زيارة خريج (استلام سيرة ذاتية مع ربط الوظيفة المستهدفة)
      */
     public function storeVisit(Request $request, JobFair $fair)
     {
@@ -90,6 +99,17 @@ class CompanyJobFairController extends Controller
             return response()->json(['success' => false, 'message' => 'بيانات الشركة غير مكتملة. يرجى التواصل مع الإدارة.']);
         }
 
+        // التحقق من صحة الوظيفة المستهدفة إن تم تحديدها
+        $jobOpportunityId = $request->job_opportunity_id;
+        if ($jobOpportunityId && $jobOpportunityId !== 'general') {
+            $opp = \App\Models\JobOpportunity::where('id', $jobOpportunityId)
+                ->where('company_id', $company->id)
+                ->first();
+            $jobOpportunityId = $opp ? $opp->id : null;
+        } else {
+            $jobOpportunityId = null;
+        }
+
         // company_id in job_fair_visits references users.id, not companies.id
         $companyId = auth()->id();
 
@@ -100,26 +120,28 @@ class CompanyJobFairController extends Controller
             ->first();
 
         if ($visit) {
+            if ($jobOpportunityId && $visit->job_opportunity_id != $jobOpportunityId) {
+                $visit->update(['job_opportunity_id' => $jobOpportunityId]);
+            }
+            $visit->load('jobOpportunity');
             return response()->json([
-                'success' => true,
+                'success'         => true,
                 'already_visited' => true,
-                'graduate_name' => $graduate->name,
-                'message' => 'تم استلام بيانات هذا الخريج مسبقاً.'
+                'graduate_name'   => $graduate->name,
+                'job_title'       => $visit->jobOpportunity?->title ?? 'تقديم عام',
+                'message'         => 'تم استلام بيانات هذا الخريج مسبقاً.' . ($jobOpportunityId ? ' (تم تحديث الوظيفة المستهدفة)' : ''),
             ]);
         }
 
-        JobFairVisit::create([
-            'job_fair_id' => $fair->id,
-            'company_id'  => $companyId,
-            'graduate_id' => $graduate->id,
-            'notes'       => $request->notes,
+        $visit = JobFairVisit::create([
+            'job_fair_id'        => $fair->id,
+            'company_id'         => $companyId,
+            'graduate_id'        => $graduate->id,
+            'job_opportunity_id' => $jobOpportunityId,
+            'notes'              => $request->notes,
         ]);
 
-        // reload with the id
-        $visit = JobFairVisit::where('job_fair_id', $fair->id)
-            ->where('company_id', $companyId)
-            ->where('graduate_id', $graduate->id)
-            ->first();
+        $visit->load('jobOpportunity');
             
         // جلب التدريبات التي حضرها الخريج
         $attendedTrainings = \App\Models\TrainingApplication::where('user_id', $graduate->id)
@@ -134,18 +156,20 @@ class CompanyJobFairController extends Controller
             });
 
         return response()->json([
-            'success'        => true,
-            'already_visited'=> false,
-            'visit_id'       => $visit->id,
-            'graduate_name'  => $graduate->name,
-            'major'          => $graduate->specialization ?? $graduate->major ?? $graduate->qualification ?? null,
-            'university'     => $graduate->university,
-            'graduation_year'=> $graduate->graduation_year,
-            'gpa'            => $graduate->gpa ? number_format($graduate->gpa, 2) : null,
-            'phone'          => $graduate->phone,
-            'skills'         => $graduate->skills ?? [],
-            'trainings'      => $attendedTrainings,
-            'message'        => 'تم استلام بيانات الخريج بنجاح.',
+            'success'            => true,
+            'already_visited'    => false,
+            'visit_id'           => $visit->id,
+            'graduate_name'      => $graduate->name,
+            'job_title'          => $visit->jobOpportunity?->title ?? 'تقديم عام',
+            'job_opportunity_id' => $visit->job_opportunity_id,
+            'major'              => $graduate->specialization ?? $graduate->major ?? $graduate->qualification ?? null,
+            'university'         => $graduate->university,
+            'graduation_year'    => $graduate->graduation_year,
+            'gpa'                => $graduate->gpa ? number_format($graduate->gpa, 2) : null,
+            'phone'              => $graduate->phone,
+            'skills'             => $graduate->skills ?? [],
+            'trainings'          => $attendedTrainings,
+            'message'            => 'تم استلام بيانات الخريج بنجاح.',
         ]);
     }
 
@@ -193,7 +217,7 @@ class CompanyJobFairController extends Controller
 
 
     /**
-     * عرض السير الذاتية المستلمة (Leads) لمعرض محدد
+     * عرض السير الذاتية المستلمة (Leads) لمعرض محدد مع دعم الفلترة حسب الوظيفة
      */
     public function leads(JobFair $fair)
     {
@@ -203,19 +227,181 @@ class CompanyJobFairController extends Controller
             abort(403);
         }
 
-        $visits = JobFairVisit::where('job_fair_id', $fair->id)
+        $query = JobFairVisit::where('job_fair_id', $fair->id)
             ->where('company_id', auth()->id())
             ->with([
                 'graduate', 
                 'graduate.graduateData',
+                'jobOpportunity',
                 'graduate.trainingApplications' => function ($q) {
                     $q->with(['training', 'attendances']);
                 }
-            ])
-            ->latest()
-            ->paginate(15);
+            ]);
 
-        return view('company.job-fair.leads', compact('fair', 'visits'));
+        // تصفية حسب الوظيفة المتقدم عليها
+        if (request()->filled('job_opportunity_id')) {
+            if (request('job_opportunity_id') === 'general') {
+                $query->whereNull('job_opportunity_id');
+            } else {
+                $query->where('job_opportunity_id', request('job_opportunity_id'));
+            }
+        }
+
+        // تصفية حسب حالة التقييم
+        if (request()->filled('status')) {
+            $query->where('status', request('status'));
+        }
+
+        // بحث بالاسم، البريد، التخصص، أو الهاتف
+        if (request()->filled('keyword')) {
+            $keyword = request('keyword');
+            $query->where(function($q) use ($keyword) {
+                $q->whereHas('graduate', function($gq) use ($keyword) {
+                    $gq->where('name', 'like', "%{$keyword}%")
+                       ->orWhere('email', 'like', "%{$keyword}%")
+                       ->orWhere('phone', 'like', "%{$keyword}%");
+                })->orWhereHas('graduate.graduateData', function($gq) use ($keyword) {
+                    $gq->where('major', 'like', "%{$keyword}%")
+                       ->orWhere('university', 'like', "%{$keyword}%");
+                });
+            });
+        }
+
+        $visits = $query->latest()->paginate(15)->withQueryString();
+
+        // قائمة الوظائف الخاصة بالشركة للمعرض
+        $opportunities = \App\Models\JobOpportunity::where('company_id', $company->id)
+            ->orderBy('title')
+            ->get();
+
+        // إحصائيات التوزيع بحسب الوظائف
+        $generalCount = JobFairVisit::where('job_fair_id', $fair->id)
+            ->where('company_id', auth()->id())
+            ->whereNull('job_opportunity_id')
+            ->count();
+
+        $jobCounts = JobFairVisit::where('job_fair_id', $fair->id)
+            ->where('company_id', auth()->id())
+            ->whereNotNull('job_opportunity_id')
+            ->selectRaw('job_opportunity_id, count(*) as total')
+            ->groupBy('job_opportunity_id')
+            ->pluck('total', 'job_opportunity_id');
+
+        return view('company.job-fair.leads', compact('fair', 'visits', 'opportunities', 'jobCounts', 'generalCount'));
+    }
+
+    /**
+     * تحديث الوظيفة المتقدم عليها للخريج في المعرض
+     */
+    public function updateLeadJob(Request $request)
+    {
+        $request->validate([
+            'visit_id'           => 'required|exists:job_fair_visits,id',
+            'job_opportunity_id' => 'nullable',
+        ]);
+
+        $company = auth()->user()->company;
+        if (!$company) abort(403);
+
+        $visit = JobFairVisit::where('id', $request->visit_id)
+            ->where('company_id', auth()->id())
+            ->firstOrFail();
+
+        $jobId = $request->job_opportunity_id;
+        if ($jobId && $jobId !== 'general') {
+            $opp = \App\Models\JobOpportunity::where('id', $jobId)
+                ->where('company_id', $company->id)
+                ->firstOrFail();
+            $visit->job_opportunity_id = $opp->id;
+        } else {
+            $visit->job_opportunity_id = null;
+        }
+
+        $visit->save();
+        $visit->load('jobOpportunity');
+
+        return response()->json([
+            'success'   => true,
+            'message'   => 'تم تحديث الوظيفة المتقدم عليها بنجاح.',
+            'job_title' => $visit->jobOpportunity?->title ?? 'تقديم عام',
+        ]);
+    }
+
+    /**
+     * تصدير السير الذاتية المستلمة كملف CSV / Excel
+     */
+    public function exportLeads(JobFair $fair)
+    {
+        $company = auth()->user()->company;
+        if (!$company || !$fair->companies()->where('company_id', $company->id)->exists()) {
+            abort(403);
+        }
+
+        $visits = JobFairVisit::where('job_fair_id', $fair->id)
+            ->where('company_id', auth()->id())
+            ->with(['graduate.graduateData', 'jobOpportunity'])
+            ->latest()
+            ->get();
+
+        $filename = 'سير_ذاتية_' . Str::slug($fair->title) . '_' . date('Y-m-d') . '.csv';
+
+        $statusLabels = [
+            'pending'     => 'قيد الدراسة والمراجعة',
+            'shortlisted' => 'القائمة القصيرة',
+            'accepted'    => 'مقبول مبدئياً',
+            'rejected'    => 'غير متوافق',
+        ];
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+
+        $callback = function() use ($visits, $statusLabels) {
+            $file = fopen('php://output', 'w');
+            // Write UTF-8 BOM so Excel opens Arabic correctly
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            fputcsv($file, [
+                'الرقم',
+                'اسم الخريج',
+                'البريد الإلكتروني',
+                'رقم الهاتف',
+                'التخصص',
+                'الجامعة',
+                'سنة التخرج',
+                'المعدل التراكمي (%)',
+                'الوظيفة المتقدم عليها',
+                'حالة التقييم',
+                'ملاحظات المقابلة',
+                'تاريخ ووقت الاستلام'
+            ]);
+
+            foreach ($visits as $index => $v) {
+                $grad = $v->graduate;
+                $gData = $grad?->graduateData;
+                $gpa = $gData?->gpa ?? $grad?->gpa;
+
+                fputcsv($file, [
+                    $index + 1,
+                    $grad?->name ?? '—',
+                    $grad?->email ?? '—',
+                    $grad?->phone ?? '—',
+                    $gData?->major ?? $grad?->major ?? $grad?->specialization ?? '—',
+                    $gData?->university ?? $grad?->university ?? '—',
+                    $gData?->graduation_year ?? $grad?->graduation_year ?? '—',
+                    $gpa ? number_format($gpa, 2) . '%' : '—',
+                    $v->jobOpportunity?->title ?? 'تقديم عام',
+                    $statusLabels[$v->status] ?? $v->status,
+                    $v->notes ?? '—',
+                    $v->created_at->format('Y-m-d H:i')
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
     public function searchGraduates(Request $request, JobFair $fair)
     {

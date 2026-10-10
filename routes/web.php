@@ -735,6 +735,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/job-fairs/{fair}/leads', [App\Http\Controllers\CompanyJobFairController::class, 'leads'])->name('job-fairs.leads');
         Route::get('/job-fairs/{fair}/search', [App\Http\Controllers\CompanyJobFairController::class, 'searchGraduates'])->name('job-fairs.search');
         Route::post('/job-fairs/update-lead-status', [App\Http\Controllers\CompanyJobFairController::class, 'updateLeadStatus'])->name('job-fairs.update-lead-status');
+        Route::post('/job-fairs/update-lead-job', [App\Http\Controllers\CompanyJobFairController::class, 'updateLeadJob'])->name('job-fairs.update-lead-job');
+        Route::get('/job-fairs/{fair}/leads/export', [App\Http\Controllers\CompanyJobFairController::class, 'exportLeads'])->name('job-fairs.leads.export');
         Route::post('/job-fairs/visits/{visit}/outcome', [App\Http\Controllers\CompanyJobFairController::class, 'updateVisitOutcome'])->name('job-fairs.visit-outcome');
         Route::get('/job-fairs/{fair}/assets/{type}', [App\Http\Controllers\CompanyJobFairController::class, 'downloadAsset'])->name('job-fairs.download-asset');
     });

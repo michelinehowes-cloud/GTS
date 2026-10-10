@@ -292,7 +292,7 @@
     <div class="scanner-card p-4 mb-3">
 
         {{-- Stats row --}}
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="text-muted small fw-semibold">
                 <i class="fas fa-circle-dot text-success me-1" style="font-size:0.6rem;"></i>
                 جاهز للمسح
@@ -301,6 +301,33 @@
                 <i class="fas fa-user-check me-1"></i>
                 <span id="scan-count">0</span> تم المسح
             </span>
+        </div>
+
+        {{-- Job Opportunity Selector --}}
+        <div class="mb-4 p-3 rounded-3" style="background: #f8fafc; border: 1.5px solid #e2e8f0;">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <label for="target_job_opportunity" class="fw-bold text-dark small mb-0 d-flex align-items-center gap-1.5">
+                    <i class="fas fa-briefcase text-primary"></i>
+                    <span>الوظيفة المتقدم عليها المرشح:</span>
+                </label>
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill" style="font-size: 0.72rem;">
+                    تُسجل تلقائياً مع المسح
+                </span>
+            </div>
+            <select id="target_job_opportunity" class="form-select form-select-sm fw-bold text-dark" style="border-radius: 10px; border-color: #cbd5e1; padding: 10px 14px; font-size: 0.9rem;">
+                <option value="">💼 تقديم عام / بدون شاغر محدد</option>
+                @if(isset($opportunities) && $opportunities->count() > 0)
+                    @foreach($opportunities as $opp)
+                        <option value="{{ $opp->id }}">
+                            ⭐ {{ $opp->title }} ({{ $opp->type == 'job' ? 'وظيفة' : ($opp->type == 'training' ? 'تدريب' : 'تدريب عملي') }})
+                        </option>
+                    @endforeach
+                @endif
+            </select>
+            <div class="text-muted d-flex align-items-center gap-1 mt-1.5" style="font-size: 0.75rem;">
+                <i class="fas fa-info-circle text-info"></i>
+                <span>يمكنك اختيار الوظيفة قبل المسح ليتم ربط المرشح بها مباشرة، أو تغييرها لكل خريج.</span>
+            </div>
         </div>
 
         {{-- Camera Controls --}}
@@ -352,6 +379,14 @@
                 </div>
                 
                 <div class="row g-2 mb-3">
+                    <div class="col-12 mb-2 p-2.5 rounded-3 d-flex align-items-center justify-content-between" style="background:#e0f2fe; border:1px solid #bae6fd;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-briefcase text-primary"></i>
+                            <span class="small text-muted">الوظيفة المتقدم عليها:</span>
+                            <strong class="text-primary" id="result-job-title">تقديم عام</strong>
+                        </div>
+                        <span class="badge bg-primary text-white rounded-pill px-2.5 py-1" style="font-size:0.72rem;">مسجلة</span>
+                    </div>
                     <div class="col-6">
                         <small class="text-muted d-block"><i class="fas fa-graduation-cap me-1"></i> التخصص</small>
                         <span class="fw-semibold text-dark" id="result-major"></span>
@@ -494,10 +529,16 @@ function processQR(code) {
         return;
     }
 
+    const targetJobSelect = document.getElementById('target_job_opportunity');
+    const jobOpportunityId = (targetJobSelect && targetJobSelect.value) ? parseInt(targetJobSelect.value) : null;
+
     fetch(checkInUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-        body: JSON.stringify({ graduate_id: parseInt(graduateId) })
+        body: JSON.stringify({ 
+            graduate_id: parseInt(graduateId),
+            job_opportunity_id: jobOpportunityId
+        })
     })
     .then(r => r.json())
     .then(data => {
@@ -505,10 +546,11 @@ function processQR(code) {
         if (!data.success) {
             showResultError(data.message || 'رمز غير صالح أو الخريج غير مسجل في المعرض.');
         } else if (data.already_visited) {
-            document.getElementById('result-warning-msg').textContent = (data.graduate_name || '') + ' — مسجّل مسبقاً';
+            document.getElementById('result-warning-msg').innerHTML = '<strong>' + (data.graduate_name || '') + '</strong>' + '<br><span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill my-1 px-3 py-1">الوظيفة: ' + (data.job_title || 'تقديم عام') + '</span><br><small class="text-muted">' + (data.message || 'مسجّل مسبقاً') + '</small>';
             document.getElementById('result-warning').classList.remove('d-none');
         } else {
             document.getElementById('result-name').textContent   = data.graduate_name || '';
+            document.getElementById('result-job-title').textContent = data.job_title || 'تقديم عام';
             document.getElementById('result-major').textContent  = data.major || '—';
             document.getElementById('result-university').textContent = data.university || '—';
             document.getElementById('result-grad-year').textContent = data.graduation_year || '—';

@@ -15,6 +15,7 @@ class JobOpportunity extends Model
         'type',
         'contract_type',
         'company_id',
+        'job_fair_id',
         'location',
         'seats',
         'start_date',
@@ -124,11 +125,18 @@ class JobOpportunity extends Model
     }
 
     /**
-     * التحقق إذا كانت الفرصة مفتوحة للتقديم
+     * العلاقة مع معرض التوظيف (إن كانت الفرصة معلنة لمعرض محدد)
      */
-    public function getIsOpenForApplicationAttribute()
+    public function jobFair()
     {
-        return $this->status === 'open' && $this->application_deadline >= now();
+        return $this->belongsTo(JobFair::class, 'job_fair_id');
     }
-    
+
+    /**
+     * السير الذاتية / الزيارات المستلمة لهذه الفرصة في معارض التوظيف
+     */
+    public function fairVisits()
+    {
+        return $this->hasMany(JobFairVisit::class, 'job_opportunity_id');
+    }
 }

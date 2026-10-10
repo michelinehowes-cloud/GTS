@@ -49,18 +49,13 @@
                                 <option value="success" {{ request('type') == 'success' ? 'selected' : '' }}>نجاح</option>
                                 <option value="warning" {{ request('type') == 'warning' ? 'selected' : '' }}>تحذير</option>
                                 <option value="danger" {{ request('type') == 'danger' ? 'selected' : '' }}>تنبيه مهم</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Notifications List -->
-            <div class="d-flex flex-column gap-2 mb-4">
+              <!-- Notifications List -->
+            <div class="d-flex flex-column gap-2 mb-4" id="notificationsListContainer">
                 @forelse ($notifications as $notification)
-                    <div class="card border-0 rounded-4 shadow-sm notification-item {{ $notification->is_read ? 'bg-white' : 'border-start border-4 border-primary' }}"
-                         style="{{ $notification->is_read ? '' : 'background-color: #f8faff;' }}"
-                         data-notification-id="{{ $notification->id }}">
+                    <div class="card border-0 rounded-4 shadow-sm notification-item {{ $notification->is_read ? 'is-read bg-white' : 'is-unread border-start border-4 border-primary' }}"
+                         style="{{ $notification->is_read ? '' : 'background-color: #f8faff;' }}; transition: all 0.3s ease;"
+                         data-notification-id="{{ $notification->id }}"
+                         data-is-read="{{ $notification->is_read ? '1' : '0' }}">
                         <div class="card-body p-3">
                             <div class="d-flex align-items-start gap-3">
                                 <!-- Icon Circle -->
@@ -73,7 +68,9 @@
                                 <div class="flex-grow-1 min-w-0">
                                     <div class="d-flex justify-content-between align-items-start flex-wrap gap-1 mb-1">
                                         <h6 class="fw-bold text-dark mb-0 fs-6 {{ $notification->is_read ? 'opacity-85' : '' }}">
-                                            {{ $notification->title }}
+                                            <a href="{{ route('notifications.show', $notification->id) }}" class="text-decoration-none text-dark">
+                                                {{ $notification->title }}
+                                            </a>
                                             @if(!$notification->is_read)
                                                 <span class="badge bg-primary rounded-pill ms-1" style="font-size: 0.65rem;">جديد</span>
                                             @endif
@@ -96,7 +93,7 @@
                                 <div class="d-flex flex-column gap-1 flex-shrink-0">
                                     @if(!$notification->is_read)
                                         <button class="btn btn-sm btn-light text-success border mark-as-read-btn rounded-circle" 
-                                                style="width: 32px; height: 32px; padding: 0;" title="تحديد كمقروء">
+                                                style="width: 32px; height: 32px; padding: 0;" title="تحديد كمقروء وإخفاء">
                                             <i class="fas fa-check"></i>
                                         </button>
                                     @endif
@@ -109,7 +106,7 @@
                         </div>
                     </div>
                 @empty
-                    <div class="card border-0 rounded-4 shadow-sm p-5 text-center bg-white">
+                    <div class="card border-0 rounded-4 shadow-sm p-5 text-center bg-white" id="emptyNotificationsState">
                         <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px;">
                             <i class="fas fa-bell-slash fa-2x text-muted opacity-50"></i>
                         </div>
@@ -121,7 +118,7 @@
 
             <!-- Pagination -->
             @if($notifications->hasPages())
-                <div class="d-flex justify-content-center">
+                <div class="d-flex justify-content-center" id="notificationsPagination">
                     {{ $notifications->links() }}
                 </div>
             @endif
@@ -137,147 +134,279 @@
             const deleteAllReadBtn = document.getElementById('deleteAllReadBtn');
             const filterByType = document.getElementById('filterByType');
             const filterByReadStatus = document.getElementById('filterByReadStatus');
+            const listContainer = document.getElementById('notificationsListContainer');
 
-            // Mark single notification as read
+            function getCsrfToken() {
+                return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            }
+
+            // دالة التحقق من القائمة الفارغة وعرض رسالة فارغة ناعمة
+            function checkEmptyState() {
+                if (!listContainer) return;
+                const items = listContainer.querySelectorAll('.notification-item');
+                if (items.length === 0) {
+                    let emptyState = document.getElementById('emptyNotificationsState');
+                    if (!emptyState) {
+                        emptyState = document.createElement('div');
+                        emptyState.id = 'emptyNotificationsState';
+                        emptyState.className = 'card border-0 rounded-4 shadow-sm p-5 text-center bg-white';
+                        emptyState.innerHTML = `
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px;">
+                                <i class="fas fa-bell-slash fa-2x text-muted opacity-50"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-1">لا توجد إشعارات حالياً</h5>
+                            <p class="text-muted small mb-0">جميع الإشعارات والتنبيهات ستظهر لك هنا فور وصولها</p>
+                        `;
+                        listContainer.appendChild(emptyState);
+                    }
+                    emptyState.style.display = 'block';
+
+                    const pagination = document.getElementById('notificationsPagination');
+                    if (pagination) pagination.style.display = 'none';
+                }
+            }
+
+            // دالة إخفاء وحذف عنصر الإشعار بحركة انسيابية سريعة
+            function dismissNotificationCard(item, onFinish) {
+                if (!item) return;
+                item.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(30px)';
+                item.style.maxHeight = item.offsetHeight + 'px';
+                item.style.overflow = 'hidden';
+
+                setTimeout(() => {
+                    item.style.maxHeight = '0';
+                    item.style.paddingTop = '0';
+                    item.style.paddingBottom = '0';
+                    item.style.marginTop = '0';
+                    item.style.marginBottom = '0';
+                    item.style.border = 'none';
+                    setTimeout(() => {
+                        item.remove();
+                        if (typeof onFinish === 'function') onFinish();
+                        checkEmptyState();
+                    }, 260);
+                }, 80);
+            }
+
+            // تحديث شارات العداد العالمية في الهيدر والدرج
+            function updateGlobalBadges(count) {
+                const badge = document.getElementById('notification-badge');
+                if (count > 0) {
+                    if (badge) {
+                        badge.innerText = count;
+                        badge.style.display = 'inline-block';
+                    }
+                } else {
+                    if (badge) badge.remove();
+                }
+                const notifHeaderCount = document.getElementById('notification-header-count');
+                if (notifHeaderCount) {
+                    notifHeaderCount.innerText = count > 0 ? (count + ' غير مقروء') : '0 غير مقروء';
+                    notifHeaderCount.style.display = count > 0 ? 'inline-block' : 'none';
+                }
+                const notifDrawerSubtitle = document.getElementById('notifDrawerSubtitle');
+                if (notifDrawerSubtitle) {
+                    notifDrawerSubtitle.innerText = count > 0 ? (count + ' غير مقروء') : 'لا توجد إشعارات جديدة';
+                }
+            }
+
+            // 1. تحديد إشعار فردي كمقروء (يختفي مباشرة)
             document.querySelectorAll('.mark-as-read-btn').forEach(button => {
-                button.addEventListener('click', function () {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
                     const notificationItem = this.closest('.notification-item');
+                    if (!notificationItem) return;
                     const notificationId = notificationItem.dataset.notificationId;
+
+                    // تعطيل الزر فوراً لمنع التكرار
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
                     fetch(`/notifications/${notificationId}/read`, {
                         method: 'PATCH',
                         headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'X-CSRF-TOKEN': getCsrfToken(),
                             'Content-Type': 'application/json',
                             'Accept': 'application/json'
                         }
                     })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // إخفاء الإشعار فوراً من الصفحة
+                            dismissNotificationCard(notificationItem);
+                            if (typeof data.unread_count !== 'undefined') {
+                                updateGlobalBadges(data.unread_count);
+                            }
+                        } else {
+                            this.disabled = false;
+                            this.innerHTML = '<i class="fas fa-check"></i>';
+                            alert('تعذر تحديث حالة الإشعار، يرجى المحاولة لاحقاً.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        this.disabled = false;
+                        this.innerHTML = '<i class="fas fa-check"></i>';
+                        alert('حدث خطأ أثناء تحديث الإشعار.');
+                    });
+                });
+            });
+
+            // 2. حذف إشعار فردي
+            document.querySelectorAll('.delete-notification-btn').forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const notificationItem = this.closest('.notification-item');
+                    if (!notificationItem) return;
+                    const notificationId = notificationItem.dataset.notificationId;
+
+                    if (confirm('هل أنت متأكد من رغبتك في حذف هذا الإشعار؟')) {
+                        this.disabled = true;
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                        fetch(`/notifications/${notificationId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': getCsrfToken(),
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            }
+                        })
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                notificationItem.classList.remove('unread');
-                                notificationItem.classList.add('read');
-                                this.remove(); // Remove the button after marking as read
+                                dismissNotificationCard(notificationItem);
+                                if (typeof data.unread_count !== 'undefined') {
+                                    updateGlobalBadges(data.unread_count);
+                                }
                             } else {
-                                alert('Failed to mark notification as read.');
+                                this.disabled = false;
+                                this.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                                alert('فشل حذف الإشعار.');
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            alert('An error occurred while marking notification as read.');
+                            this.disabled = false;
+                            this.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                            alert('حدث خطأ أثناء حذف الإشعار.');
                         });
-                });
-            });
-
-            // Delete single notification
-            document.querySelectorAll('.delete-notification-btn').forEach(button => {
-                button.addEventListener('click', function () {
-                    const notificationItem = this.closest('.notification-item');
-                    const notificationId = notificationItem.dataset.notificationId;
-
-                    if (confirm('هل أنت متأكد أنك تريد حذف هذا الإشعار؟')) {
-                        fetch(`/notifications/${notificationId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            }
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    notificationItem.remove();
-                                } else {
-                                    alert('فشل حذف الإشعار.');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('حدث خطأ أثناء حذف الإشعار.');
-                            });
                     }
                 });
             });
 
-            // Mark all as read
+            // 3. تحديد الكل كمقروء (تختفي كافة الإشعارات غير المقروءة مباشرة)
             if (markAllAsReadBtn) {
                 markAllAsReadBtn.addEventListener('click', function () {
-                    if (confirm('هل أنت متأكد أنك تريد وضع جميع الإشعارات غير المقروءة كمقروءة؟')) {
+                    const unreadItems = listContainer ? listContainer.querySelectorAll('.notification-item.is-unread, .notification-item[data-is-read="0"]') : [];
+                    if (unreadItems.length === 0) {
+                        alert('لا توجد إشعارات غير مقروءة حالياً.');
+                        return;
+                    }
+
+                    if (confirm('هل أنت متأكد من تحديد جميع الإشعارات كمقروءة وإخفائها؟')) {
+                        const originalBtnHtml = markAllAsReadBtn.innerHTML;
+                        markAllAsReadBtn.disabled = true;
+                        markAllAsReadBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> جاري التحديد...';
+
                         fetch('/notifications/mark-all-read', {
                             method: 'PATCH',
                             headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'X-CSRF-TOKEN': getCsrfToken(),
                                 'Content-Type': 'application/json',
                                 'Accept': 'application/json'
                             }
                         })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    document.querySelectorAll('.notification-item.unread').forEach(item => {
-                                        item.classList.remove('unread');
-                                        item.classList.add('read');
-                                        const markBtn = item.querySelector('.mark-as-read-btn');
-                                        if (markBtn) markBtn.remove();
-                                    });
-                                    alert('تم وضع جميع الإشعارات كمقروءة.');
-                                } else {
-                                    alert('فشل وضع جميع الإشعارات كمقروءة.');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('حدث خطأ أثناء وضع جميع الإشعارات كمقروءة.');
-                            });
+                        .then(response => response.json())
+                        .then(data => {
+                            markAllAsReadBtn.disabled = false;
+                            markAllAsReadBtn.innerHTML = originalBtnHtml;
+
+                            if (data.success) {
+                                // إخفاء متتالي وسريع لجميع الإشعارات غير المقروءة
+                                unreadItems.forEach((item, index) => {
+                                    setTimeout(() => {
+                                        dismissNotificationCard(item);
+                                    }, index * 40);
+                                });
+                                updateGlobalBadges(0);
+                            } else {
+                                alert('فشل تحديث الإشعارات كمقروءة.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            markAllAsReadBtn.disabled = false;
+                            markAllAsReadBtn.innerHTML = originalBtnHtml;
+                            alert('حدث خطأ أثناء محاولة وضع جميع الإشعارات كمقروءة.');
+                        });
                     }
                 });
             }
 
-            // Delete all read notifications
+            // 4. حذف جميع الإشعارات المقروءة
             if (deleteAllReadBtn) {
                 deleteAllReadBtn.addEventListener('click', function () {
-                    if (confirm('هل أنت متأكد أنك تريد حذف جميع الإشعارات المقروءة؟')) {
+                    const readItems = listContainer ? listContainer.querySelectorAll('.notification-item.is-read, .notification-item[data-is-read="1"]') : [];
+                    if (readItems.length === 0) {
+                        alert('لا توجد إشعارات مقروءة لحذفها.');
+                        return;
+                    }
+
+                    if (confirm('هل أنت متأكد أنك تريد حذف جميع الإشعارات المقروءة نهائياً؟')) {
+                        const originalBtnHtml = deleteAllReadBtn.innerHTML;
+                        deleteAllReadBtn.disabled = true;
+                        deleteAllReadBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> جاري الحذف...';
+
                         fetch('/notifications/read/delete', {
                             method: 'DELETE',
                             headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'X-CSRF-TOKEN': getCsrfToken(),
                                 'Content-Type': 'application/json',
                                 'Accept': 'application/json'
                             }
                         })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    document.querySelectorAll('.notification-item.read').forEach(item => {
-                                        item.remove();
-                                    });
-                                    alert('تم حذف جميع الإشعارات المقروءة.');
-                                } else {
-                                    alert('فشل حذف الإشعارات المقروءة.');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('حدث خطأ أثناء حذف الإشعارات المقروءة.');
-                            });
+                        .then(response => response.json())
+                        .then(data => {
+                            deleteAllReadBtn.disabled = false;
+                            deleteAllReadBtn.innerHTML = originalBtnHtml;
+
+                            if (data.success) {
+                                readItems.forEach((item, index) => {
+                                    setTimeout(() => {
+                                        dismissNotificationCard(item);
+                                    }, index * 40);
+                                });
+                            } else {
+                                alert('فشل حذف الإشعارات المقروءة.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            deleteAllReadBtn.disabled = false;
+                            deleteAllReadBtn.innerHTML = originalBtnHtml;
+                            alert('حدث خطأ أثناء حذف الإشعارات المقروءة.');
+                        });
                     }
                 });
             }
 
-            // Filters
+            // 5. الفلاتر
             function applyFilters() {
-                const type = filterByType.value;
-                const readStatus = filterByReadStatus.value;
+                const type = filterByType ? filterByType.value : '';
+                const readStatus = filterByReadStatus ? filterByReadStatus.value : '';
                 let url = '{{ route('notifications.index') }}';
                 const params = new URLSearchParams();
 
-                if (type) {
-                    params.append('type', type);
-                }
-                if (readStatus) {
-                    params.append('read', readStatus);
-                }
+                if (type) params.append('type', type);
+                if (readStatus) params.append('read', readStatus);
 
                 if (params.toString()) {
                     url += '?' + params.toString();

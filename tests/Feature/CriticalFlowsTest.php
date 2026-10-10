@@ -187,4 +187,110 @@ class CriticalFlowsTest extends TestCase
         $followResponse->assertSee('تم استلام طلب المشروع بنجاح');
         $followResponse->assertSee('نظام إدارة مشاريع التخرج المعتمد');
     }
+
+    /**
+     * التحقق من تحميل صفحة مركز الإشعارات للمستخدم المسجل
+     */
+    public function test_notification_index_loads_successfully()
+    {
+        $user = User::factory()->create([
+            'role' => 'graduate',
+            'is_active' => true,
+            'is_approved' => true,
+        ]);
+
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => 'إشعار اختباري تجريبي',
+            'message' => 'محتوى الرسالة الخاصة بالإشعار التجريبي.',
+            'type' => 'info',
+            'is_read' => false,
+        ]);
+
+        $response = $this->actingAs($user)->get(route('notifications.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee('مركز الإشعارات');
+        $response->assertSee('إشعار اختباري تجريبي');
+    }
+
+    /**
+     * التحقق من تحديد إشعار فردي كمقروء وإرجاع unread_count المحدث
+     */
+    public function test_marking_notification_as_read_via_patch_returns_success_and_unread_count()
+    {
+        $user = User::factory()->create([
+            'role' => 'graduate',
+            'is_active' => true,
+            'is_approved' => true,
+        ]);
+
+        $notif1 = \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => 'إشعار 1',
+            'message' => 'رسالة 1',
+            'type' => 'info',
+            'is_read' => false,
+        ]);
+
+        $notif2 = \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => 'إشعار 2',
+            'message' => 'رسالة 2',
+            'type' => 'warning',
+            'is_read' => false,
+        ]);
+
+        $response = $this->actingAs($user)->patchJson("/notifications/{$notif1->id}/read");
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'id' => $notif1->id,
+            'unread_count' => 1,
+        ]);
+
+        $this->assertDatabaseHas('notifications', [
+            'id' => $notif1->id,
+            'is_read' => 1,
+        ]);
+    }
+
+    /**
+     * التحقق من تحديد كافة الإشعارات كمقروءة وإرجاع unread_count مساوياً لصفر
+     */
+    public function test_marking_all_notifications_as_read_returns_success_and_zero_unread_count()
+    {
+        $user = User::factory()->create([
+            'role' => 'graduate',
+            'is_active' => true,
+            'is_approved' => true,
+        ]);
+
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => 'إشعار غير مقروء أ',
+            'message' => 'نص أ',
+            'type' => 'info',
+            'is_read' => false,
+        ]);
+
+        \App\Models\Notification::create([
+            'user_id' => $user->id,
+            'title' => 'إشعار غير مقروء ب',
+            'message' => 'نص ب',
+            'type' => 'success',
+            'is_read' => false,
+        ]);
+
+        $response = $this->actingAs($user)->patchJson('/notifications/mark-all-read');
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+            'unread_count' => 0,
+        ]);
+
+        $this->assertEquals(0, \App\Models\Notification::forUser($user->id)->unread()->count());
+    }
 }

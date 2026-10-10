@@ -57,7 +57,7 @@ class NotificationController extends Controller
     public function show(Notification $notification)
     {
         // التحقق من الصلاحية
-        if ($notification->user_id !== auth()->id()) {
+        if ((int)$notification->user_id !== (int)auth()->id()) {
             abort(403);
         }
 
@@ -174,13 +174,17 @@ class NotificationController extends Controller
     public function markAsRead(Request $request, Notification $notification): JsonResponse
     {
         // التحقق من الصلاحية
-        if ($notification->user_id !== auth()->id()) {
+        if ((int)$notification->user_id !== (int)auth()->id()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $notification->markAsRead();
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'id' => $notification->id,
+            'unread_count' => Notification::forUser(auth()->id())->unread()->count(),
+        ]);
     }
 
     /**
@@ -197,7 +201,10 @@ class NotificationController extends Controller
                 'read_at' => now(),
             ]);
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'unread_count' => 0,
+        ]);
     }
 
     /**
@@ -206,13 +213,17 @@ class NotificationController extends Controller
     public function destroy(Notification $notification): JsonResponse
     {
         // التحقق من الصلاحية
-        if ($notification->user_id !== auth()->id()) {
+        if ((int)$notification->user_id !== (int)auth()->id()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $notification->delete();
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'id' => $notification->id,
+            'unread_count' => Notification::forUser(auth()->id())->unread()->count(),
+        ]);
     }
 
     /**
@@ -226,7 +237,10 @@ class NotificationController extends Controller
             ->where('is_read', true)
             ->delete();
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'unread_count' => Notification::forUser($user->id)->unread()->count(),
+        ]);
     }
 
     /**
@@ -235,7 +249,7 @@ class NotificationController extends Controller
     public function markAsReadAndDestroy(Notification $notification): JsonResponse
     {
         // التحقق من الصلاحية
-        if ($notification->user_id !== auth()->id()) {
+        if ((int)$notification->user_id !== (int)auth()->id()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 

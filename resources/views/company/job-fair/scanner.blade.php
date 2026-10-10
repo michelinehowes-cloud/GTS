@@ -62,7 +62,7 @@
         background: white;
         border-radius: 20px;
         box-shadow: 0 4px 30px rgba(30, 58, 138, 0.1);
-        overflow: hidden;
+        overflow: visible;
         border: 1px solid rgba(30, 58, 138, 0.08);
     }
 
@@ -452,9 +452,11 @@ let scanCooldown  = false;
 let scanCount     = 0;
 
 // ── Auto-focus ────────────────────────────────────────────
-input.focus();
+if (input) input.focus();
 document.body.addEventListener('click', e => {
-    if (!['INPUT','BUTTON','A'].includes(e.target.tagName)) input.focus();
+    // عدم سرقة التركيز إذا نقر المستخدم على القائمة المنسدلة للوظائف أو الخيارات أو أي عنصر تفاعلي
+    if (e.target.closest('select, option, input, button, a, label, .modal, .dropdown')) return;
+    if (input) input.focus();
 });
 
 // ── Manual Input ──────────────────────────────────────────

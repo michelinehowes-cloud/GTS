@@ -193,7 +193,7 @@ class JobOpportunityController extends Controller
                 // إشعار فوري للخريجين إذا تم الإنشاء مباشرة من قبل المسؤول
                 $this->notificationService->notifyNewJobOpportunity($jobOpportunity);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \Log::error('Failed to send job opportunity notification: ' . $e->getMessage());
         }
 

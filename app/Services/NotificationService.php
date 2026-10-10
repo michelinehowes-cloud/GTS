@@ -48,6 +48,38 @@ class NotificationService
      */
     public function sendToUsers(Collection $users, string $title, string $message, string $type = 'info', array $options = []): Collection
     {
+        if ($users->isEmpty()) {
+            return collect();
+        }
+
+        $sendEmail = !empty($options['send_email']);
+        $sendWhatsapp = !empty($options['send_whatsapp']);
+
+        // إذا لم يكن مطلوباً إرسال بريد أو واتساب، نستخدم الحفظ الجماعي السريع (Bulk Insert) لتوفير أقصى سرعة
+        if (!$sendEmail && !$sendWhatsapp && $users->count() > 5) {
+            $now = now();
+            $dataToInsert = [];
+            foreach ($users as $user) {
+                $dataToInsert[] = [
+                    'user_id' => $user->id,
+                    'title' => $title,
+                    'message' => $message,
+                    'type' => $type,
+                    'sender_id' => $options['sender_id'] ?? null,
+                    'model_type' => $options['model_type'] ?? null,
+                    'model_id' => $options['model_id'] ?? null,
+                    'data' => isset($options['data']) ? json_encode($options['data']) : null,
+                    'is_read' => false,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+            foreach (array_chunk($dataToInsert, 500) as $chunk) {
+                Notification::insert($chunk);
+            }
+            return collect();
+        }
+
         $notifications = collect();
 
         foreach ($users as $user) {
@@ -88,7 +120,7 @@ class NotificationService
         $this->sendToRole('graduate', $title, $message, $type, [
             'model_type' => get_class($training),
             'model_id' => $training->id,
-            'send_email' => true,
+            'send_email' => false,
         ]);
 
         // إشعار لمسؤولي الإرشاد المهني
@@ -123,7 +155,7 @@ class NotificationService
         $this->sendToRole('graduate', $title, $message, $type, [
             'model_type' => get_class($jobOpportunity),
             'model_id' => $jobOpportunity->id,
-            'send_email' => true,
+            'send_email' => false,
         ]);
 
         // إشعار لمسؤولي الإرشاد المهني
@@ -171,7 +203,7 @@ class NotificationService
         $this->sendToUser($company->user, $title, $message, $type, [
             'model_type' => get_class($company),
             'model_id' => $company->id,
-            'send_email' => true,
+            'send_email' => false,
         ]);
     }
 
@@ -191,7 +223,7 @@ class NotificationService
         $this->sendToUser($company->user, $title, $message, $type, [
             'model_type' => get_class($company),
             'model_id' => $company->id,
-            'send_email' => true,
+            'send_email' => false,
         ]);
     }
 
@@ -208,7 +240,7 @@ class NotificationService
         $this->sendToRoles(['partnership_officer', 'career_guidance_officer', 'admin'], $title, $message, $type, [
             'model_type' => get_class($jobOpportunity),
             'model_id' => $jobOpportunity->id,
-            'send_email' => true,
+            'send_email' => false,
         ]);
     }
 
@@ -227,7 +259,7 @@ class NotificationService
             $this->sendToUser($recipient, $title, $message, $type, [
                 'model_type' => get_class($jobOpportunity),
                 'model_id' => $jobOpportunity->id,
-                'send_email' => true,
+                'send_email' => false,
             ]);
         }
 
@@ -250,7 +282,7 @@ class NotificationService
             $this->sendToUser($recipient, $title, $message, $type, [
                 'model_type' => get_class($jobOpportunity),
                 'model_id' => $jobOpportunity->id,
-                'send_email' => true,
+                'send_email' => false,
             ]);
         }
     }

@@ -309,8 +309,8 @@ class JobFairProjectController extends Controller
             'project_url'              => 'nullable|url|max:255',
             'video_url'                => 'nullable|url|max:255',
             'contact_email'            => 'required|email|max:255',
-            'poster_image'             => 'nullable|image|max:10240',
-            'cover_image'              => 'nullable|image|max:10240',
+            'poster_image'             => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'cover_image'              => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
             // الحقول الخاصة بالمسؤول فقط
             'student_university_id'    => 'required|string|max:100',
             'whatsapp_phone'           => 'required|string|max:50',

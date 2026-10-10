@@ -14,7 +14,9 @@ return new class extends Migration
      */
     public function up()
     {
-        DB::statement("ALTER TABLE companies MODIFY COLUMN partnership_type ENUM('employment', 'training', 'logistic_support', 'academic', 'training_employment') NULL");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE companies MODIFY COLUMN partnership_type ENUM('employment', 'training', 'logistic_support', 'academic', 'training_employment') NULL");
+        }
     }
 
     /**
@@ -24,7 +26,9 @@ return new class extends Migration
      */
     public function down()
     {
-        // Revert the enum column to its original state
-        DB::statement("ALTER TABLE companies MODIFY COLUMN partnership_type ENUM('employment', 'training', 'logistic_support', 'academic') NULL");
+        if (DB::getDriverName() === 'mysql') {
+            // Revert the enum column to its original state
+            DB::statement("ALTER TABLE companies MODIFY COLUMN partnership_type ENUM('employment', 'training', 'logistic_support', 'academic') NULL");
+        }
     }
 };

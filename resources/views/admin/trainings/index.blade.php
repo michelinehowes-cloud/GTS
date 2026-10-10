@@ -219,8 +219,8 @@
     </div>
 </div>
 
-@include('trainings.partials.export_modal', ['exportRoute' => route('admin.trainings.export-report')])
-@include('trainings.partials.import_modal', ['importRoute' => route('admin.trainings.import')])
+@includeIf('trainings.partials.export_modal', ['exportRoute' => route('admin.trainings.export-report')])
+@includeIf('trainings.partials.import_modal', ['importRoute' => route('admin.trainings.import')])
 @endsection
 
 @push('scripts')

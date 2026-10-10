@@ -156,7 +156,11 @@
                     </p>
                 </div>
             </div>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ route('company.job-fairs.leads.export', $fair->id) }}"
+                   class="btn rounded-pill px-3 fw-bold" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);" title="تصدير النتائج إلى Excel">
+                    <i class="fas fa-file-excel me-1 text-warning"></i>تصدير إكسل
+                </a>
                 <a href="{{ route('company.job-fairs.scanner', $fair->id) }}"
                    class="btn btn-light fw-bold rounded-pill px-4" style="color:#1e3a8a;">
                     <i class="fas fa-qrcode me-2"></i>ماسح السير
@@ -168,19 +172,75 @@
             </div>
         </div>
         {{-- Stats Bar --}}
-        <div class="d-flex border-top" style="border-color:rgba(0,0,0,0.05) !important;">
+        <div class="d-flex border-top flex-wrap" style="border-color:rgba(0,0,0,0.05) !important;">
             <div class="flex-fill text-center py-3 px-2" style="border-left:1px solid rgba(0,0,0,0.05);">
                 <div class="fw-bold fs-4" style="color:#1e3a8a;">{{ $visits->total() }}</div>
                 <div class="text-muted small">إجمالي السير المستلمة</div>
+            </div>
+            <div class="flex-fill text-center py-3 px-2" style="border-left:1px solid rgba(0,0,0,0.05);">
+                <div class="fw-bold fs-4 text-primary">{{ isset($opportunities) ? $opportunities->count() : 0 }}</div>
+                <div class="text-muted small">الشواغر المعلنة</div>
             </div>
             <div class="flex-fill text-center py-3 px-2" style="border-left:1px solid rgba(0,0,0,0.05);">
                 <div class="fw-bold fs-4 text-success">{{ $visits->filter(fn($v) => ($v->graduate?->graduateData?->gpa ?? $v->graduate?->gpa) >= 80)->count() }}</div>
                 <div class="text-muted small">معدل ≥ 80% (متميز)</div>
             </div>
             <div class="flex-fill text-center py-3 px-2">
-                <div class="fw-bold fs-4 text-info">{{ $visits->filter(fn($v) => $v->graduate?->graduateData?->cv_path)->count() }}</div>
-                <div class="text-muted small">لديهم ملف PDF مرفق</div>
+                <div class="fw-bold fs-4 text-info">{{ $generalCount ?? 0 }}</div>
+                <div class="text-muted small">تقديم عام (بدون شاغر)</div>
             </div>
+        </div>
+    </div>
+
+    {{-- Filter Bar --}}
+    <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: #ffffff;">
+        <div class="card-body p-3">
+            <form action="{{ route('company.job-fairs.leads', $fair->id) }}" method="GET" class="row g-2 align-items-center">
+                {{-- فلترة حسب الوظيفة المتقدم عليها --}}
+                <div class="col-lg-4 col-md-5 col-sm-6">
+                    <label class="form-label small fw-bold text-muted mb-1"><i class="fas fa-briefcase text-primary me-1"></i> الوظيفة المتقدم عليها:</label>
+                    <select name="job_opportunity_id" class="form-select form-select-sm fw-semibold" onchange="this.form.submit()">
+                        <option value="">جميع الشواغر (الكل)</option>
+                        <option value="general" {{ request('job_opportunity_id') === 'general' ? 'selected' : '' }}>💼 تقديم عام ({{ $generalCount ?? 0 }})</option>
+                        @if(isset($opportunities))
+                            @foreach($opportunities as $opp)
+                                <option value="{{ $opp->id }}" {{ request('job_opportunity_id') == $opp->id ? 'selected' : '' }}>
+                                    ⭐ {{ $opp->title }} ({{ $jobCounts[$opp->id] ?? 0 }})
+                                </option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+
+                {{-- فلترة حسب حالة التقييم --}}
+                <div class="col-lg-3 col-md-3 col-sm-6">
+                    <label class="form-label small fw-bold text-muted mb-1"><i class="fas fa-filter text-primary me-1"></i> حالة التقييم:</label>
+                    <select name="status" class="form-select form-select-sm fw-semibold" onchange="this.form.submit()">
+                        <option value="">جميع الحالات</option>
+                        <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>قيد الدراسة والمراجعة</option>
+                        <option value="shortlisted" {{ request('status') === 'shortlisted' ? 'selected' : '' }}>القائمة القصيرة ⭐</option>
+                        <option value="accepted" {{ request('status') === 'accepted' ? 'selected' : '' }}>مقبول مبدئياً ✅</option>
+                        <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>غير متوافق ❌</option>
+                    </select>
+                </div>
+
+                {{-- بحث بالاسم أو التخصص --}}
+                <div class="col-lg-4 col-md-3 col-sm-8">
+                    <label class="form-label small fw-bold text-muted mb-1"><i class="fas fa-search text-primary me-1"></i> بحث بالاسم أو التخصص:</label>
+                    <input type="text" name="keyword" value="{{ request('keyword') }}" class="form-control form-control-sm" placeholder="ابحث بالاسم، البريد، التخصص...">
+                </div>
+
+                <div class="col-lg-1 col-md-1 col-sm-4 d-flex align-items-end gap-1 mt-auto">
+                    <button type="submit" class="btn btn-primary btn-sm rounded-pill w-100" title="تطبيق البحث">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    @if(request()->hasAny(['job_opportunity_id', 'status', 'keyword']))
+                        <a href="{{ route('company.job-fairs.leads', $fair->id) }}" class="btn btn-outline-secondary btn-sm rounded-pill" title="إلغاء الفلاتر">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
     </div>
 
@@ -250,6 +310,26 @@
                                 <span class="text-truncate" dir="ltr">{{ $grad->email }}</span>
                             </div>
                         </div>
+                    </div>
+
+                    {{-- شريط الوظيفة المتقدم عليها --}}
+                    <div class="mb-3 p-2.5 rounded-3 d-flex align-items-center justify-content-between" style="background: #eff6ff; border: 1px solid #dbeafe;">
+                        <div class="d-flex align-items-center gap-2 min-w-0">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <small class="text-muted d-block" style="font-size: 0.7rem; line-height: 1;">الوظيفة المتقدم عليها:</small>
+                                <span class="fw-bold text-primary text-truncate d-block" style="font-size: 0.84rem;" id="lead-job-title-{{ $visit->id }}">
+                                    {{ $visit->jobOpportunity?->title ?? 'تقديم عام (بدون شاغر)' }}
+                                </span>
+                            </div>
+                        </div>
+                        @if($visit->jobOpportunity)
+                            <span class="badge bg-primary text-white rounded-pill px-2.5 py-1" style="font-size: 0.68rem;">شاغر محدد</span>
+                        @else
+                            <span class="badge bg-secondary bg-opacity-25 text-secondary rounded-pill px-2.5 py-1" style="font-size: 0.68rem;">عام</span>
+                        @endif
                     </div>
 
                     {{-- لوحة التفاصيل السريعة المتناسقة --}}
@@ -425,7 +505,7 @@
                     </div>
                     <form action="{{ route('company.job-fairs.visit-outcome', $visit->id) }}" method="POST" class="d-flex align-items-center gap-2">
                         @csrf
-                        <select name="outcome" class="form-select form-select-sm rounded-pill fw-semibold border shadow-none" style="min-width: 220px;">
+                        <select name="outcome" class="form-select form-select-sm rounded-pill fw-semibold border shadow-none" style="min-width: 200px;">
                             <option value="pending" {{ $visit->status == 'pending' ? 'selected' : '' }}>⏳ قيد الدراسة والمراجعة</option>
                             <option value="shortlisted" {{ $visit->status == 'shortlisted' ? 'selected' : '' }}>⭐ مدرج في القائمة القصيرة</option>
                             <option value="accepted" {{ $visit->status == 'accepted' ? 'selected' : '' }}>✅ مقبول مبدئياً للتوظيف</option>
@@ -435,6 +515,21 @@
                             <i class="fas fa-save me-1"></i>حفظ
                         </button>
                     </form>
+
+                    {{-- تغيير / ربط الشاغر الوظيفي للمرشح --}}
+                    <div class="d-flex align-items-center gap-2 ps-2 border-start">
+                        <span class="small text-muted fw-semibold flex-shrink-0"><i class="fas fa-briefcase text-primary me-1"></i>الوظيفة:</span>
+                        <select class="form-select form-select-sm rounded-pill border shadow-none" 
+                                style="min-width: 170px; max-width: 230px; font-size: 0.82rem;"
+                                onchange="updateLeadJob({{ $visit->id }}, this.value)">
+                            <option value="" {{ empty($visit->job_opportunity_id) ? 'selected' : '' }}>🌐 تقديم عام (بدون تحديد شاغر)</option>
+                            @foreach($opportunities as $opp)
+                                <option value="{{ $opp->id }}" {{ $visit->job_opportunity_id == $opp->id ? 'selected' : '' }}>
+                                    💼 {{ $opp->title }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
 
                 {{-- أزرار الإجراءات السريعة --}}
@@ -539,6 +634,26 @@
 
                 {{-- محتوى السيرة الذاتية: تقسيم عمودين هندسي A4 يعرض كافة البيانات دفعة واحدة دون سكرول --}}
                 <div class="p-4" style="background: #ffffff;">
+                    {{-- بطاقة الشاغر الوظيفي المستهدف في المعرض --}}
+                    <div class="mb-4 p-3 rounded-3 border d-flex align-items-center justify-content-between flex-wrap gap-2" id="modal-job-display-{{ $visit->id }}" style="background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%); border-color: #bae6fd !important;">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <div class="rounded-circle bg-white text-primary shadow-sm d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px; font-size: 1rem;">
+                                <i class="fas fa-briefcase text-primary"></i>
+                            </div>
+                            <div>
+                                <span class="text-muted small d-block" style="font-size: 0.72rem;">الشاغر الوظيفي المستهدف بالمعرض:</span>
+                                <span class="fw-bold text-dark modal-job-title" style="font-size: 0.96rem;">
+                                    {{ $visit->jobOpportunity->title ?? 'تقديم عام (بدون تحديد شاغر)' }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge rounded-pill bg-white text-secondary border px-2.5 py-1 small">
+                                <i class="fas fa-calendar-check text-success me-1"></i>معرض التوظيف: {{ $fair->title }}
+                            </span>
+                        </div>
+                    </div>
+
                     <div class="row g-4">
 
                         {{-- العمود الأيمن (المحتوى الأكاديمي والمهني الأساسي - 65%) --}}
@@ -804,6 +919,77 @@ function printCvSheet(sheetId) {
         printWindow.print();
         printWindow.close();
     }, 500);
+}
+
+function updateLeadJob(visitId, jobId) {
+    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    
+    fetch('{{ route("company.job-fairs.update-lead-job") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': token,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            visit_id: visitId,
+            job_opportunity_id: jobId || null
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // تحديث كرت القائمة الرئيسي
+            const badge = document.getElementById(`lead-job-title-${visitId}`);
+            if (badge) {
+                badge.textContent = data.job_title;
+                if (data.job_id) {
+                    badge.className = 'badge rounded-pill px-2.5 py-1 text-primary';
+                    badge.style.background = '#eff6ff';
+                    badge.style.border = '1px solid #bfdbfe';
+                } else {
+                    badge.className = 'badge rounded-pill px-2.5 py-1 text-muted';
+                    badge.style.background = '#f8fafc';
+                    badge.style.border = '1px solid #e2e8f0';
+                }
+            }
+
+            // تحديث بطاقة الوظيفة في نافذة الـ Modal
+            const modalBox = document.getElementById(`modal-job-display-${visitId}`);
+            if (modalBox) {
+                const titleSpan = modalBox.querySelector('.modal-job-title');
+                if (titleSpan) {
+                    titleSpan.textContent = data.job_title;
+                }
+            }
+
+            // إشعار نجاح
+            if (window.Swal) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تم تحديث الوظيفة',
+                    text: data.message,
+                    timer: 1600,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
+            } else {
+                const toast = document.createElement('div');
+                toast.className = 'position-fixed top-0 end-0 p-3';
+                toast.style.zIndex = 99999;
+                toast.innerHTML = `<div class="toast show align-items-center text-white bg-success border-0"><div class="d-flex"><div class="toast-body"><i class="fas fa-check-circle me-1"></i> ${data.message}</div></div></div>`;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2500);
+            }
+        } else {
+            alert(data.message || 'حدث خطأ أثناء حفظ الوظيفة');
+        }
+    })
+    .catch(err => {
+        console.error('Update lead job error:', err);
+        alert('حدث خطأ في الاتصال بالسيرفر');
+    });
 }
 </script>
 @endpush

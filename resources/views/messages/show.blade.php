@@ -203,6 +203,14 @@
                             <i class="fas fa-user-tie me-1"></i>السيرة الذاتية
                         </a>
                     @endif
+                    <!-- زر حذف المحادثة بالكامل -->
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-xs fw-semibold d-inline-flex align-items-center gap-1.5"
+                            style="font-size: 0.78rem;"
+                            onclick="openDeleteConvModal({{ $otherUser->id }}, '{{ addslashes($displayName) }}')">
+                        <i class="fas fa-trash-alt"></i>
+                        <span>حذف المحادثة</span>
+                    </button>
                     <a href="{{ route('messages.index') }}" class="btn btn-sm btn-light border rounded-pill px-3 shadow-xs text-secondary d-none d-lg-inline-flex align-items-center gap-1" style="font-size: 0.78rem;">
                         <i class="fas fa-inbox text-primary"></i>
                         <span>كل المحادثات</span>
@@ -231,7 +239,7 @@
                         @php
                             $isMe = $msg->sender_id == auth()->id();
                         @endphp
-                        <div class="d-flex mb-3 {{ $isMe ? 'justify-content-start' : 'justify-content-end' }}" dir="rtl">
+                        <div class="d-flex mb-3 {{ $isMe ? 'justify-content-start' : 'justify-content-end' }}" dir="rtl" id="msg-row-{{ $msg->id }}">
                             <div class="d-flex flex-column {{ $isMe ? 'align-items-start' : 'align-items-end' }}" style="max-width: 78%; min-width: 140px;">
                                 <div class="{{ $isMe ? 'chat-bubble-me' : 'chat-bubble-other' }}">
                                     {!! nl2br(e($msg->content)) !!}
@@ -244,6 +252,17 @@
                                         <i class="fas {{ $msg->read_at ? 'fa-check-double text-primary' : 'fa-check text-muted' }}" 
                                            style="font-size: 0.72rem;" 
                                            title="{{ $msg->read_at ? 'تمت القراءة (' . $msg->read_at->format('H:i') . ')' : 'تم الإرسال' }}"></i>
+                                    @endif
+                                    @if($isMe || auth()->user()->isAdmin())
+                                        <button type="button" 
+                                                class="btn btn-link text-danger p-0 ms-1 delete-single-msg-btn text-decoration-none" 
+                                                data-msg-id="{{ $msg->id }}" 
+                                                title="حذف الرسالة"
+                                                style="font-size: 0.72rem; line-height: 1; opacity: 0.45; transition: opacity 0.2s;"
+                                                onmouseover="this.style.opacity='1'"
+                                                onmouseout="this.style.opacity='0.45'">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
                                     @endif
                                 </div>
                             </div>
@@ -360,9 +379,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 // إضافة الرسالة الجديدة فورياً إلى الشات
                 const timeNow = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
                 const dateNow = new Date().toISOString().split('T')[0];
+                const newMsgId = data.message ? data.message.id : null;
 
                 const bubbleHtml = `
-                    <div class="d-flex mb-3 justify-content-start" dir="rtl">
+                    <div class="d-flex mb-3 justify-content-start" dir="rtl" ${newMsgId ? `id="msg-row-${newMsgId}"` : ''}>
                         <div class="d-flex flex-column align-items-start" style="max-width: 78%; min-width: 140px;">
                             <div class="chat-bubble-me">
                                 ${content.replace(/\n/g, '<br>')}
@@ -372,6 +392,17 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <span class="opacity-40">•</span>
                                 <span>${dateNow}</span>
                                 <i class="fas fa-check text-muted" style="font-size: 0.72rem;" title="تم الإرسال"></i>
+                                ${newMsgId ? `
+                                    <button type="button" 
+                                            class="btn btn-link text-danger p-0 ms-1 delete-single-msg-btn text-decoration-none" 
+                                            data-msg-id="${newMsgId}" 
+                                            title="حذف الرسالة"
+                                            style="font-size: 0.72rem; line-height: 1; opacity: 0.45; transition: opacity 0.2s;"
+                                            onmouseover="this.style.opacity='1'"
+                                            onmouseout="this.style.opacity='0.45'">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
@@ -394,6 +425,71 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
+
+    // حذف رسالة مفردة عبر AJAX
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.delete-single-msg-btn');
+        if (!btn) return;
+
+        e.preventDefault();
+        const msgId = btn.getAttribute('data-msg-id');
+        if (!msgId) return;
+
+        if (!confirm('هل أنت متأكد من رغبتك في حذف هذه الرسالة؟')) {
+            return;
+        }
+
+        const msgRow = document.getElementById(`msg-row-${msgId}`) || btn.closest('.d-flex.mb-3');
+        btn.disabled = true;
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '{{ csrf_token() }}';
+
+        fetch("{{ url('/messages') }}/" + msgId, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                _method: 'DELETE'
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                if (msgRow) {
+                    msgRow.style.transition = 'all 0.3s ease';
+                    msgRow.style.opacity = '0';
+                    msgRow.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        msgRow.remove();
+                        const remaining = document.querySelectorAll('#chat-box .d-flex.mb-3');
+                        if (remaining.length === 0) {
+                            chatBox.innerHTML = `
+                                <div class="text-center text-muted my-auto py-5" id="chat-empty-state">
+                                    <div class="rounded-circle bg-white shadow-xs d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 64px; height: 64px; border: 1px solid #e2e8f0;">
+                                        <i class="fas fa-comments fs-3 text-primary opacity-60"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1">لا توجد رسائل سابقة في هذه المحادثة</h6>
+                                    <p class="small text-muted mb-0">ابدأ التواصل الآن واكتب أول رسالة في الحقل أدناه.</p>
+                                </div>
+                            `;
+                        }
+                    }, 300);
+                }
+            } else {
+                alert(data.message || 'حدث خطأ أثناء حذف الرسالة.');
+                btn.disabled = false;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('تعذر إتمام عملية الحذف، يرجى المحاولة لاحقاً.');
+            btn.disabled = false;
+        });
+    });
 });
 </script>
 @endpush

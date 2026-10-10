@@ -865,6 +865,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/messages/api/recent', [App\Http\Controllers\MessageController::class, 'index'])->name('messages.api.recent');
     Route::get('/messages/{id}', [App\Http\Controllers\MessageController::class, 'show'])->name('messages.show');
     Route::post('/messages/{id}', [App\Http\Controllers\MessageController::class, 'store'])->name('messages.store');
+    Route::delete('/messages/conversation/{id}', [App\Http\Controllers\MessageController::class, 'destroyConversation'])->name('messages.destroy-conversation');
+    Route::delete('/messages/{message}', [App\Http\Controllers\MessageController::class, 'destroyMessage'])->name('messages.destroy-message');
 
     // السيرة الذاتية الرقمية (Digital CV Profile)
     Route::get('/graduate/profile/{id}', [App\Http\Controllers\PublicProfileController::class, 'show'])->name('graduate.profile.public');

@@ -169,6 +169,40 @@
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="required_specializations" class="form-label">التخصصات المطلوبة</label>
+                                <select name="required_specializations[]" id="required_specializations" 
+                                        class="form-select @error('required_specializations') is-invalid @enderror" multiple style="min-height: 140px;">
+                                    @foreach($specializations as $specialization)
+                                        <option value="{{ $specialization }}" {{ in_array($specialization, old('required_specializations', $opportunity->required_specializations ?? [])) ? 'selected' : '' }}>
+                                            {{ $specialization }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="form-text">اضغط Ctrl لاختيار أكثر من تخصص</div>
+                                @error('required_specializations')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="required_skills" class="form-label">المهارات المطلوبة</label>
+                                <select name="required_skills[]" id="required_skills" 
+                                        class="form-select @error('required_skills') is-invalid @enderror" multiple style="min-height: 140px;">
+                                    @foreach($skills as $skill)
+                                        <option value="{{ $skill }}" {{ in_array($skill, old('required_skills', $opportunity->required_skills ?? [])) ? 'selected' : '' }}>
+                                            {{ $skill }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="form-text">اضغط Ctrl لاختيار أكثر من مهارة</div>
+                                @error('required_skills')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
                         <div class="mb-3">
                             <label for="benefits" class="form-label">المزايا</label>
                             <textarea class="form-control @error('benefits') is-invalid @enderror" 

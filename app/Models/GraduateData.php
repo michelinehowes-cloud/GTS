@@ -92,9 +92,72 @@ class GraduateData extends Model
     }
 
     /**
+     * مزامنة وإنشاء أو تحديث بيانات الخريج الكاملة من حساب المستخدم
+     */
+    public static function syncFromUser(User $user, array $additionalData = []): self
+    {
+        $existing = self::where('user_id', $user->id)
+            ->orWhere(function ($q) use ($user) {
+                if ($user->email) $q->where('email', $user->email);
+            })
+            ->first();
+
+        $skills = is_array($user->skills) ? $user->skills : (is_string($user->skills) ? (json_decode($user->skills, true) ?? array_values(array_filter(array_map('trim', explode(',', $user->skills))))) : []);
+        $languages = is_array($user->languages) ? $user->languages : (is_string($user->languages) ? (json_decode($user->languages, true) ?? array_values(array_filter(array_map('trim', explode(',', $user->languages))))) : []);
+
+        $degreeValue = $user->qualification ?? $user->degree ?? ($existing?->degree) ?? 'بكالوريوس';
+        $majorValue = $user->specialization ?? $user->major ?? ($existing?->major) ?? 'غير محدد';
+        $experienceValue = $user->experiences ?? ($existing?->work_experience);
+
+        $dataToSync = [
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone ?? ($existing?->phone),
+            'national_id' => $user->national_id ?? ($existing?->national_id),
+            'date_of_birth' => $user->date_of_birth ?? ($existing?->date_of_birth),
+            'gender' => $user->gender ?? ($existing?->gender),
+            'city' => $user->city ?? ($existing?->city) ?? 'طرابلس',
+            'address' => $user->address ?? ($existing?->address),
+            'university' => $user->university ?? ($existing?->university) ?? 'جامعة طرابلس',
+            'sector' => $user->sector ?? ($existing?->sector),
+            'faculty' => $user->faculty ?? ($existing?->faculty),
+            'major' => $majorValue,
+            'specialization' => $user->specialization ?? ($existing?->specialization) ?? $majorValue,
+            'degree' => $degreeValue,
+            'qualification' => $degreeValue,
+            'graduation_year' => $user->graduation_year ?? ($existing?->graduation_year) ?? (int)date('Y'),
+            'gpa' => $user->gpa ?? ($existing?->gpa),
+            'skills' => !empty($skills) ? $skills : ($existing?->skills ?? []),
+            'languages' => !empty($languages) ? $languages : ($existing?->languages ?? []),
+            'work_experience' => $experienceValue,
+            'cv_path' => $user->cv_path ?? ($existing?->cv_path),
+            'employment_status' => $existing?->employment_status ?? 'seeking_opportunities',
+            'is_active' => $user->is_active ?? true,
+            'data_source' => $existing?->data_source ?? 'system_sync',
+            'added_by' => $existing?->added_by ?? $user->id,
+        ];
+
+        // دمج أي بيانات إضافية
+        if (!empty($additionalData)) {
+            $dataToSync = array_merge($dataToSync, $additionalData);
+        }
+
+        if ($existing) {
+            $existing->fill(array_filter($dataToSync, function ($val) { return !is_null($val); }));
+            $existing->user_id = $user->id;
+            $existing->save();
+            return $existing;
+        }
+
+        return self::create($dataToSync);
+    }
+
+    /**
      * العلاقة مع الترشيحات
      */
     public function nominations()
+
     {
         return $this->hasMany(Nomination::class, 'graduate_id');
     }

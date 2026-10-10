@@ -99,12 +99,23 @@
                         <!-- تفاصيل جهة الاتصال والرسالة الأخيرة -->
                         <div class="min-w-0 flex-grow-1">
                             <div class="d-flex align-items-center justify-content-between mb-0.5">
-                                <h6 class="mb-0 text-truncate fw-bold {{ $isActive ? 'text-primary' : 'text-dark' }}" style="font-size: 0.9rem; max-width: 170px;">
+                                <h6 class="mb-0 text-truncate fw-bold {{ $isActive ? 'text-primary' : 'text-dark' }}" style="font-size: 0.9rem; max-width: 160px;">
                                     {{ $displayName }}
                                 </h6>
-                                <span class="small text-muted font-monospace" style="font-size: 0.7rem;">
-                                    {{ $conv['last_message']->created_at->diffForHumans(null, true, true) }}
-                                </span>
+                                <div class="d-flex align-items-center gap-1.5">
+                                    <span class="small text-muted font-monospace" style="font-size: 0.7rem;">
+                                        {{ $conv['last_message']->created_at->diffForHumans(null, true, true) }}
+                                    </span>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-link text-danger p-0 delete-conv-quick-btn text-decoration-none" 
+                                            title="حذف المحادثة" 
+                                            style="font-size: 0.78rem; line-height: 1; opacity: 0.45; transition: opacity 0.2s;"
+                                            onmouseover="this.style.opacity='1'"
+                                            onmouseout="this.style.opacity='0.45'"
+                                            onclick="event.preventDefault(); event.stopPropagation(); openDeleteConvModal({{ $cUserId }}, '{{ addslashes($displayName) }}');">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="d-flex align-items-center justify-content-between gap-1">
@@ -149,3 +160,50 @@
         @endif
     </div>
 </div>
+
+<!-- مودال تأكيد حذف المحادثة -->
+<div class="modal fade" id="deleteConversationModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-body p-4 text-center">
+                <div class="rounded-circle bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 58px; height: 58px; font-size: 1.4rem;">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
+                <h6 class="fw-bold text-dark mb-1">حذف المحادثة بالكامل</h6>
+                <p class="text-muted small mb-3">
+                    هل أنت متأكد من رغبتك في حذف المحادثة مع <strong id="deleteConvUserNameText">المستخدم</strong>؟ سيتم مسح كافة الرسائل المتبادلة نهائياً.
+                </p>
+                <form id="globalDeleteConversationForm" method="POST" action="">
+                    @csrf
+                    @method('DELETE')
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-light rounded-pill flex-fill py-2 small fw-semibold" data-bs-dismiss="modal">إلغاء</button>
+                        <button type="submit" class="btn btn-danger rounded-pill flex-fill py-2 small fw-bold">حذف نهائي</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openDeleteConvModal(userId, userName) {
+    const modalEl = document.getElementById('deleteConversationModal');
+    if (!modalEl) return;
+    
+    const userTextEl = document.getElementById('deleteConvUserNameText');
+    if (userTextEl) userTextEl.textContent = userName;
+    
+    const form = document.getElementById('globalDeleteConversationForm');
+    if (form) {
+        form.action = "{{ url('/messages/conversation') }}/" + userId;
+    }
+    
+    if (window.bootstrap && bootstrap.Modal) {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    } else {
+        $(modalEl).modal('show');
+    }
+}
+</script>

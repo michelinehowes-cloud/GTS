@@ -16,7 +16,7 @@
                     @endif
 
                     <x-bento-form title="إضافة فرصة عمل جديدة" subtitle="أدخل تفاصيل الفرصة الوظيفية ومتطلباتها" icon="fa-briefcase" :backRoute="route('job-opportunities.index')">
-<form action="{{ route('job-opportunities.store') }}" method="POST">
+<form id="jobOpportunityForm" action="{{ route('job-opportunities.store') }}" method="POST">
                         @csrf
                         
                         <div class="row">
@@ -222,7 +222,7 @@
                             <a href="{{ route('job-opportunities.index') }}" class="btn btn-secondary">
                                 <i class="fas fa-times me-2"></i>إلغاء
                             </a>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" id="btnSubmitJob" class="btn btn-primary">
                                 <i class="fas fa-save me-2"></i>حفظ الفرصة
                             </button>
                         </div>
@@ -246,6 +246,27 @@ document.addEventListener('DOMContentLoaded', function() {
     startDate.addEventListener('change', function() {
         deadline.max = this.value;
     });
+
+    // مؤشر التحميل عند الإرسال
+    const jobForm = document.getElementById('jobOpportunityForm');
+    const submitBtn = document.getElementById('btnSubmitJob');
+    if (jobForm && submitBtn) {
+        jobForm.addEventListener('submit', function(e) {
+            if (jobForm.checkValidity && !jobForm.checkValidity()) {
+                return;
+            }
+            if (submitBtn.disabled) {
+                e.preventDefault();
+                return;
+            }
+            setTimeout(() => {
+                if (!e.defaultPrevented) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> جاري الحفظ والمعالجة...';
+                }
+            }, 10);
+        });
+    }
 });
 </script>
 @endsection

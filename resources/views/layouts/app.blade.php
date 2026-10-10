@@ -1912,22 +1912,29 @@
                             const timeString = n.created_at ? new Date(n.created_at).toLocaleDateString('ar-LY', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
 
                             html += `
-                            <li class="border-bottom notification-item-row ${bgClass}">
-                                <a href="/notifications/${n.id}" class="d-flex align-items-start p-3 text-decoration-none text-dark notification-link" style="transition: background 0.15s ease;">
-                                    <div class="me-3 mt-1 flex-shrink-0">
-                                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background: rgba(15, 23, 42, 0.06);">
-                                            <i class="fas fa-${iconClass} fs-6"></i>
+                            <li class="border-bottom notification-item-row notification-item-${n.id} ${bgClass}" style="transition: all 0.3s ease;">
+                                <div class="d-flex align-items-center justify-content-between p-1">
+                                    <a href="/notifications/${n.id}" class="d-flex align-items-start p-2 text-decoration-none text-dark notification-link flex-grow-1 min-w-0" style="transition: background 0.15s ease;">
+                                        <div class="me-3 mt-1 flex-shrink-0">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; background: rgba(15, 23, 42, 0.06);">
+                                                <i class="fas fa-${iconClass} fs-6"></i>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="flex-grow-1 min-w-0">
-                                        <div class="d-flex justify-content-between align-items-baseline mb-1">
-                                            <h6 class="mb-0 fw-bold fs-6 text-truncate text-slate-800" style="max-width: 210px;">${n.title || 'إشعار جديد'}</h6>
-                                            <small class="text-muted text-nowrap ms-2" style="font-size: 0.7rem;">${timeString}</small>
+                                        <div class="flex-grow-1 min-w-0">
+                                            <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                                <h6 class="mb-0 fw-bold fs-6 text-truncate text-slate-800" style="max-width: 190px;">${n.title || 'إشعار جديد'}</h6>
+                                                <small class="text-muted text-nowrap ms-2" style="font-size: 0.7rem;">${timeString}</small>
+                                            </div>
+                                            <p class="mb-0 text-muted small text-truncate" style="max-width: 230px;">${n.message || ''}</p>
                                         </div>
-                                        <p class="mb-0 text-muted small text-truncate" style="max-width: 250px;">${n.message || ''}</p>
-                                    </div>
-                                    ${isUnread ? '<span class="badge bg-primary rounded-circle p-1 ms-2 mt-2" style="width: 8px; height: 8px;" title="غير مقروء"></span>' : ''}
-                                </a>
+                                        ${isUnread ? '<span class="badge bg-primary rounded-circle p-1 ms-2 mt-2 flex-shrink-0" style="width: 8px; height: 8px;" title="غير مقروء"></span>' : ''}
+                                    </a>
+                                    ${isUnread ? `
+                                        <button onclick="markSingleDropdownNotificationAsRead(${n.id}, this)" class="btn btn-sm btn-light border-0 text-success p-1 me-2 rounded-circle flex-shrink-0" title="تحديد كمقروء وإخفاء" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    ` : ''}
+                                </div>
                             </li>
                         `;
                         });
@@ -1943,6 +1950,51 @@
                     `;
                     });
             }
+
+            // تحديد إشعار فردي كمقروء وإخفاؤه مباشرة من القائمة المنسدلة
+            window.markSingleDropdownNotificationAsRead = function(id, btn) {
+                if (window.event) {
+                    window.event.preventDefault();
+                    window.event.stopPropagation();
+                }
+                const li = btn.closest('li');
+                if (li) {
+                    li.style.transition = 'all 0.3s ease';
+                    li.style.opacity = '0';
+                    li.style.transform = 'translateX(25px)';
+                }
+                fetch(`/notifications/${id}/read`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (li) setTimeout(() => {
+                        li.remove();
+                        const remaining = notifList ? notifList.querySelectorAll('li') : [];
+                        if (remaining.length === 0) {
+                            notifList.innerHTML = `
+                                <li class="text-center py-4 text-muted">
+                                    <i class="fas fa-bell-slash fa-2x mb-2 text-secondary opacity-50 d-block"></i>
+                                    <span class="small">لا توجد إشعارات حتى الآن</span>
+                                </li>
+                            `;
+                        }
+                    }, 250);
+                    updateUnreadBadge(data.unread_count ?? 0);
+                })
+                .catch(err => {
+                    console.error(err);
+                    if (li) {
+                        li.style.opacity = '1';
+                        li.style.transform = 'none';
+                    }
+                });
+            };
 
             // الاستماع لفتح القائمة المنسدلة - نقل القائمة إلى الـ body لتجنب overflow:hidden
             if (notifDropdownBtn) {
@@ -1978,12 +2030,21 @@
                 });
             }
 
-            // زر تحديد كافة الإشعارات كمقروءة
+            // زر تحديد كافة الإشعارات كمقروءة (تختفي فورياً)
             if (markAllBtn) {
                 markAllBtn.addEventListener('click', function (e) {
                     e.preventDefault();
                     e.stopPropagation();
                     markAllBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> جاري التحديد...';
+
+                    // إخفاء فوري لجميع الإشعارات غير المقروءة من القائمة
+                    const unreadRows = notifList ? notifList.querySelectorAll('.bg-primary-subtle') : [];
+                    unreadRows.forEach(r => {
+                        r.style.transition = 'all 0.3s ease';
+                        r.style.opacity = '0';
+                        r.style.transform = 'translateX(20px)';
+                        setTimeout(() => r.remove(), 250);
+                    });
 
                     fetch('/notifications/mark-all-read', {
                         method: 'POST',
@@ -1996,11 +2057,19 @@
                         .then(res => res.json())
                         .then(() => {
                             updateUnreadBadge(0);
-                            fetchNotificationsList();
                             markAllBtn.innerHTML = '<i class="fas fa-check-double me-1"></i> تم التحديد';
                             setTimeout(() => {
                                 markAllBtn.innerHTML = '<i class="fas fa-check-double me-1"></i> تحديد الكل كمقروء';
-                            }, 2500);
+                                const remaining = notifList ? notifList.querySelectorAll('li') : [];
+                                if (remaining.length === 0) {
+                                    notifList.innerHTML = `
+                                        <li class="text-center py-4 text-muted">
+                                            <i class="fas fa-bell-slash fa-2x mb-2 text-secondary opacity-50 d-block"></i>
+                                            <span class="small">لا توجد إشعارات جديدة</span>
+                                        </li>
+                                    `;
+                                }
+                            }, 300);
                         })
                         .catch(err => {
                             console.error('Error marking all as read:', err);
@@ -2176,19 +2245,26 @@
                     const iconClass = iconMap[n.type] || 'info-circle text-primary';
                     const timeStr = n.created_at ? new Date(n.created_at).toLocaleDateString('ar-LY', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
                     html += `
-                    <a href="/notifications/${n.id}" class="d-flex align-items-start p-3 text-decoration-none border-bottom ${isUnread ? 'bg-primary bg-opacity-5' : ''}" style="color:inherit;transition:background 0.15s;">
-                        <div class="me-3 mt-1 flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center" style="width:38px;height:38px;background:rgba(15,23,42,0.06);">
-                            <i class="fas fa-${iconClass} fs-6"></i>
-                        </div>
-                        <div class="flex-grow-1 min-w-0">
-                            <div class="d-flex justify-content-between align-items-baseline">
-                                <h6 class="mb-0 fw-bold text-truncate" style="max-width:200px;font-size:0.88rem;">${n.title || 'إشعار جديد'}</h6>
-                                <small class="text-muted text-nowrap ms-2" style="font-size:0.7rem;">${timeStr}</small>
+                    <div class="d-flex align-items-center justify-content-between border-bottom ${isUnread ? 'bg-primary bg-opacity-5' : ''}" style="transition:all 0.3s ease;">
+                        <a href="/notifications/${n.id}" class="d-flex align-items-start p-3 text-decoration-none flex-grow-1 min-w-0" style="color:inherit;">
+                            <div class="me-3 mt-1 flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center" style="width:38px;height:38px;background:rgba(15,23,42,0.06);">
+                                <i class="fas fa-${iconClass} fs-6"></i>
                             </div>
-                            <p class="mb-0 text-muted text-truncate small" style="max-width:250px;">${n.message || ''}</p>
-                        </div>
-                        ${isUnread ? '<span class="rounded-circle bg-primary ms-2 mt-2 flex-shrink-0" style="width:8px;height:8px;min-width:8px;"></span>' : ''}
-                    </a>`;
+                            <div class="flex-grow-1 min-w-0">
+                                <div class="d-flex justify-content-between align-items-baseline">
+                                    <h6 class="mb-0 fw-bold text-truncate" style="max-width:180px;font-size:0.88rem;">${n.title || 'إشعار جديد'}</h6>
+                                    <small class="text-muted text-nowrap ms-2" style="font-size:0.7rem;">${timeStr}</small>
+                                </div>
+                                <p class="mb-0 text-muted text-truncate small" style="max-width:210px;">${n.message || ''}</p>
+                            </div>
+                            ${isUnread ? '<span class="rounded-circle bg-primary ms-2 mt-2 flex-shrink-0" style="width:8px;height:8px;min-width:8px;"></span>' : ''}
+                        </a>
+                        ${isUnread ? `
+                            <button onclick="markDrawerNotificationAsRead(${n.id}, this)" class="btn btn-sm btn-light border-0 text-success p-1 me-2 rounded-circle flex-shrink-0" title="تحديد كمقروء وإخفاء" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        ` : ''}
+                    </div>`;
                 });
                 body.innerHTML = html;
             })
@@ -2197,12 +2273,71 @@
             });
     }
 
+    window.markDrawerNotificationAsRead = function(id, btn) {
+        if (window.event) {
+            window.event.preventDefault();
+            window.event.stopPropagation();
+        }
+        const row = btn.closest('div');
+        if (row) {
+            row.style.transition = 'all 0.3s ease';
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(25px)';
+        }
+        const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+        fetch(`/notifications/${id}/read`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (row) setTimeout(() => {
+                row.remove();
+                const remaining = document.querySelectorAll('#notifDrawerBody > div');
+                if (remaining.length === 0) {
+                    const body = document.getElementById('notifDrawerBody');
+                    if (body) body.innerHTML = `<div class="text-center py-5 text-muted"><i class="fas fa-bell-slash fa-3x mb-3 opacity-25 d-block"></i><p class="small">لا توجد إشعارات حتى الآن</p></div>`;
+                }
+            }, 250);
+            const newCount = typeof data.unread_count !== 'undefined' ? data.unread_count : 0;
+            updateUnreadBadge(newCount);
+            const subtitle = document.getElementById('notifDrawerSubtitle');
+            if (subtitle) subtitle.textContent = newCount > 0 ? `${newCount} غير مقروء` : 'لا توجد إشعارات جديدة';
+        })
+        .catch(err => {
+            console.error(err);
+            if (row) {
+                row.style.opacity = '1';
+                row.style.transform = 'none';
+            }
+        });
+    };
+
     function markAllNotificationsRead() {
         const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+        const unreadRows = document.querySelectorAll('#notifDrawerBody .bg-primary.bg-opacity-5');
+        unreadRows.forEach(row => {
+            row.style.transition = 'all 0.3s ease';
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(25px)';
+            setTimeout(() => row.remove(), 250);
+        });
+
         fetch('/notifications/mark-all-read', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' }
-        }).then(() => loadNotificationsInDrawer()).catch(() => {});
+        }).then(res => res.json()).then(data => {
+            updateUnreadBadge(0);
+            const subtitle = document.getElementById('notifDrawerSubtitle');
+            if (subtitle) subtitle.textContent = 'لا توجد إشعارات جديدة';
+            setTimeout(() => {
+                const remaining = document.querySelectorAll('#notifDrawerBody > div');
+                if (remaining.length === 0) {
+                    const body = document.getElementById('notifDrawerBody');
+                    if (body) body.innerHTML = `<div class="text-center py-5 text-muted"><i class="fas fa-bell-slash fa-3x mb-3 opacity-25 d-block"></i><p class="small">لا توجد إشعارات جديدة</p></div>`;
+                }
+            }, 300);
+        }).catch(() => {});
     }
 
     // ==========================================

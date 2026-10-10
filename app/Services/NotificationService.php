@@ -465,24 +465,33 @@ class NotificationService
     {
         $statusText = [
             'pending' => 'قيد المراجعة',
+            'sent_to_company' => 'مرسل للشركة',
             'approved' => 'مقبول',
             'accepted' => 'مقبول وتم التوظيف',
             'rejected' => 'مرفوض',
             'interview' => 'تم تحديد موعد مقابلة',
             'under_review' => 'قيد الدراسة (تحت المراجعة)',
             'interview_scheduled' => 'تم تحديد موعد مقابلة',
+            'withdrawn' => 'مسحوب',
         ];
 
+        $statusLabel = $statusText[$status] ?? $status;
         $title = 'تحديث حالة الترشيح';
-        $message = "تم تحديث حالة ترشيحك للوظيفة: {$nomination->jobOpportunity->title} إلى: {$statusText[$status]}";
-        $type = $status === 'approved' ? 'success' : ($status === 'rejected' ? 'warning' : 'info');
+        $jobTitle = ($nomination->jobOpportunity && $nomination->jobOpportunity->title)
+            ? $nomination->jobOpportunity->title
+            : 'الفرصة الوظيفية';
+        $message = "تم تحديث حالة ترشيحك للوظيفة: {$jobTitle} إلى: {$statusLabel}";
+        $type = in_array($status, ['approved', 'accepted']) ? 'success' : ($status === 'rejected' ? 'warning' : 'info');
 
-        // إشعار للخريج
-        $this->sendToUser($nomination->graduate->user, $title, $message, $type, [
-            'model_type' => get_class($nomination),
-            'model_id' => $nomination->id,
-            'send_email' => true,
-        ]);
+        // إشعار للخريج فقط إذا كان لديه حساب مستخدم نشط
+        $user = $nomination->graduate ? ($nomination->graduate->user ?? null) : null;
+        if ($user instanceof \App\Models\User) {
+            $this->sendToUser($user, $title, $message, $type, [
+                'model_type' => get_class($nomination),
+                'model_id' => $nomination->id,
+                'send_email' => false,
+            ]);
+        }
     }
 
     /**

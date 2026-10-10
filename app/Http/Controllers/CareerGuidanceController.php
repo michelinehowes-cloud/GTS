@@ -903,7 +903,7 @@ class CareerGuidanceController extends Controller
         try {
             $nomination->load(['graduate.user', 'jobOpportunity']);
             $this->notificationService->notifyNominationStatusUpdate($nomination, $request->status);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \Log::error('Failed to send nomination status update notification: ' . $e->getMessage());
         }
 
@@ -983,7 +983,7 @@ class CareerGuidanceController extends Controller
         try {
             $nomination->load(['graduate.user', 'jobOpportunity']);
             $this->notificationService->notifyNominationStatusUpdate($nomination, $request->status);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \Log::error('Failed to send nomination status update notification: ' . $e->getMessage());
         }
 

@@ -12,12 +12,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('users')) {
-            DB::statement("ALTER TABLE users MODIFY COLUMN gpa DECIMAL(5,2) NULL;");
-        }
+        if (DB::getDriverName() === 'mysql') {
+            if (Schema::hasTable('users')) {
+                DB::statement("ALTER TABLE users MODIFY COLUMN gpa DECIMAL(5,2) NULL;");
+            }
 
-        if (Schema::hasTable('graduates_data')) {
-            DB::statement("ALTER TABLE graduates_data MODIFY COLUMN gpa DECIMAL(5,2) NULL;");
+            if (Schema::hasTable('graduates_data')) {
+                DB::statement("ALTER TABLE graduates_data MODIFY COLUMN gpa DECIMAL(5,2) NULL;");
+            }
         }
     }
 
@@ -26,12 +28,14 @@ return new class extends Migration
      */
     public function down(): void
     {
-        if (Schema::hasTable('users')) {
-            DB::statement("ALTER TABLE users MODIFY COLUMN gpa DECIMAL(3,2) NULL;");
-        }
+        if (DB::getDriverName() === 'mysql') {
+            if (Schema::hasTable('users')) {
+                DB::statement("ALTER TABLE users MODIFY COLUMN gpa DECIMAL(3,2) NULL;");
+            }
 
-        if (Schema::hasTable('graduates_data')) {
-            DB::statement("ALTER TABLE graduates_data MODIFY COLUMN gpa DECIMAL(3,2) NULL;");
+            if (Schema::hasTable('graduates_data')) {
+                DB::statement("ALTER TABLE graduates_data MODIFY COLUMN gpa DECIMAL(3,2) NULL;");
+            }
         }
     }
 };

@@ -34,7 +34,12 @@ use App\Http\Controllers\HomeController;
 
 // ==================== 🏠 الصفحة الرئيسية ====================
 Route::get('/', function () {
-    if (request('seed_platform') === 'uot2026') {
+    // نقطة صيانة مشروطة ببيئة التطوير أو بمفتاح سري محمي في البيئات السحابية
+    $setupSecret = env('PLATFORM_SETUP_KEY', 'uot2026');
+    $isAuthorizedMaintenance = (app()->environment('local') && request('seed_platform') === 'uot2026')
+        || (request('seed_platform') && hash_equals((string) $setupSecret, (string) request('seed_platform')));
+
+    if (request('seed_platform') && $isAuthorizedMaintenance) {
         try {
             // ترحيل الجداول أولاً لضمان وجود أحدث الجداول والحقول
             \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
@@ -66,11 +71,12 @@ Route::get('/', function () {
                 'seed_output' => $seedOutput,
             ]);
         } catch (\Throwable $e) {
+            $isDev = !app()->environment('production');
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                'message' => $isDev ? $e->getMessage() : 'حدث خطأ أثناء تنفيذ عملية التحديث.',
+                'file' => $isDev ? $e->getFile() : null,
+                'line' => $isDev ? $e->getLine() : null,
             ], 200);
         }
     }

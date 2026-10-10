@@ -32,9 +32,11 @@ class AppServiceProvider extends ServiceProvider
 
         \Illuminate\Pagination\Paginator::useBootstrapFive();
         
-        // Auto-run migrations in production if visitors table is not yet migrated
+        // Auto-run migrations in production if schema is missing newer tables or columns
         try {
-            if (!\Illuminate\Support\Facades\Schema::hasTable('job_fair_visitors')) {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('job_fair_visitors') ||
+                !\Illuminate\Support\Facades\Schema::hasColumn('job_fair_visits', 'job_opportunity_id') ||
+                !\Illuminate\Support\Facades\Schema::hasColumn('job_opportunities', 'job_fair_id')) {
                 \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
             }
         } catch (\Throwable $e) {

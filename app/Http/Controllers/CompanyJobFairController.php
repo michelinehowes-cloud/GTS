@@ -46,14 +46,33 @@ class CompanyJobFairController extends Controller
             abort(403, 'غير مصرح لك بالوصول.');
         }
 
-        // جلب الشواغر الوظيفية المتاحة للشركة في المعرض
-        $opportunities = \App\Models\JobOpportunity::where('company_id', $company->id)
-            ->where('status', 'open')
-            ->where(function($q) use ($fair) {
-                $q->whereNull('job_fair_id')->orWhere('job_fair_id', $fair->id);
-            })
-            ->orderBy('title')
-            ->get();
+        // تشغيل الترحيل التلقائي لضمان وجود أحدث الأعمدة
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('job_opportunities', 'job_fair_id') ||
+                !\Illuminate\Support\Facades\Schema::hasColumn('job_fair_visits', 'job_opportunity_id')) {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            }
+        } catch (\Throwable $e) {}
+
+        // جلب الشواغر الوظيفية المتاحة للشركة في المعرض بشكل آمن
+        $opportunities = collect();
+        try {
+            $query = \App\Models\JobOpportunity::where('company_id', $company->id);
+
+            if (\Illuminate\Support\Facades\Schema::hasColumn('job_opportunities', 'status')) {
+                $query->whereIn('status', ['open', 'approved', 'active']);
+            }
+
+            if (\Illuminate\Support\Facades\Schema::hasColumn('job_opportunities', 'job_fair_id')) {
+                $query->where(function($q) use ($fair) {
+                    $q->whereNull('job_fair_id')->orWhere('job_fair_id', $fair->id);
+                });
+            }
+
+            $opportunities = $query->orderBy('title')->get();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Error fetching scanner job opportunities: ' . $e->getMessage());
+        }
 
         return view('company.job-fair.scanner', compact('fair', 'opportunities'));
     }
@@ -119,29 +138,39 @@ class CompanyJobFairController extends Controller
             ->where('graduate_id', $graduate->id)
             ->first();
 
+        $hasJobOppCol = \Illuminate\Support\Facades\Schema::hasColumn('job_fair_visits', 'job_opportunity_id');
+
         if ($visit) {
-            if ($jobOpportunityId && $visit->job_opportunity_id != $jobOpportunityId) {
+            if ($hasJobOppCol && $jobOpportunityId && $visit->job_opportunity_id != $jobOpportunityId) {
                 $visit->update(['job_opportunity_id' => $jobOpportunityId]);
             }
-            $visit->load('jobOpportunity');
+            if ($hasJobOppCol) {
+                $visit->load('jobOpportunity');
+            }
             return response()->json([
                 'success'         => true,
                 'already_visited' => true,
                 'graduate_name'   => $graduate->name,
-                'job_title'       => $visit->jobOpportunity?->title ?? 'تقديم عام',
+                'job_title'       => ($hasJobOppCol && $visit->jobOpportunity) ? $visit->jobOpportunity->title : 'تقديم عام',
                 'message'         => 'تم استلام بيانات هذا الخريج مسبقاً.' . ($jobOpportunityId ? ' (تم تحديث الوظيفة المستهدفة)' : ''),
             ]);
         }
 
-        $visit = JobFairVisit::create([
-            'job_fair_id'        => $fair->id,
-            'company_id'         => $companyId,
-            'graduate_id'        => $graduate->id,
-            'job_opportunity_id' => $jobOpportunityId,
-            'notes'              => $request->notes,
-        ]);
+        $visitData = [
+            'job_fair_id' => $fair->id,
+            'company_id'  => $companyId,
+            'graduate_id' => $graduate->id,
+            'notes'       => $request->notes,
+        ];
+        if ($hasJobOppCol) {
+            $visitData['job_opportunity_id'] = $jobOpportunityId;
+        }
 
-        $visit->load('jobOpportunity');
+        $visit = JobFairVisit::create($visitData);
+
+        if ($hasJobOppCol) {
+            $visit->load('jobOpportunity');
+        }
             
         // جلب التدريبات التي حضرها الخريج
         $attendedTrainings = \App\Models\TrainingApplication::where('user_id', $graduate->id)
@@ -227,19 +256,34 @@ class CompanyJobFairController extends Controller
             abort(403);
         }
 
+        // تشغيل الترحيل التلقائي إذا لم تكن الجداول محدثة
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('job_opportunities', 'job_fair_id') ||
+                !\Illuminate\Support\Facades\Schema::hasColumn('job_fair_visits', 'job_opportunity_id')) {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            }
+        } catch (\Throwable $e) {}
+
+        $hasJobOppColumn = \Illuminate\Support\Facades\Schema::hasColumn('job_fair_visits', 'job_opportunity_id');
+
+        $withRelations = [
+            'graduate', 
+            'graduate.graduateData',
+            'graduate.trainingApplications' => function ($q) {
+                $q->with(['training', 'attendances']);
+            }
+        ];
+
+        if ($hasJobOppColumn) {
+            $withRelations[] = 'jobOpportunity';
+        }
+
         $query = JobFairVisit::where('job_fair_id', $fair->id)
             ->where('company_id', auth()->id())
-            ->with([
-                'graduate', 
-                'graduate.graduateData',
-                'jobOpportunity',
-                'graduate.trainingApplications' => function ($q) {
-                    $q->with(['training', 'attendances']);
-                }
-            ]);
+            ->with($withRelations);
 
         // تصفية حسب الوظيفة المتقدم عليها
-        if (request()->filled('job_opportunity_id')) {
+        if ($hasJobOppColumn && request()->filled('job_opportunity_id')) {
             if (request('job_opportunity_id') === 'general') {
                 $query->whereNull('job_opportunity_id');
             } else {
@@ -270,22 +314,31 @@ class CompanyJobFairController extends Controller
         $visits = $query->latest()->paginate(15)->withQueryString();
 
         // قائمة الوظائف الخاصة بالشركة للمعرض
-        $opportunities = \App\Models\JobOpportunity::where('company_id', $company->id)
-            ->orderBy('title')
-            ->get();
+        $opportunities = collect();
+        try {
+            $opportunities = \App\Models\JobOpportunity::where('company_id', $company->id)
+                ->orderBy('title')
+                ->get();
+        } catch (\Throwable $e) {}
 
         // إحصائيات التوزيع بحسب الوظائف
-        $generalCount = JobFairVisit::where('job_fair_id', $fair->id)
-            ->where('company_id', auth()->id())
-            ->whereNull('job_opportunity_id')
-            ->count();
+        $generalCount = 0;
+        $jobCounts = collect();
+        if ($hasJobOppColumn) {
+            try {
+                $generalCount = JobFairVisit::where('job_fair_id', $fair->id)
+                    ->where('company_id', auth()->id())
+                    ->whereNull('job_opportunity_id')
+                    ->count();
 
-        $jobCounts = JobFairVisit::where('job_fair_id', $fair->id)
-            ->where('company_id', auth()->id())
-            ->whereNotNull('job_opportunity_id')
-            ->selectRaw('job_opportunity_id, count(*) as total')
-            ->groupBy('job_opportunity_id')
-            ->pluck('total', 'job_opportunity_id');
+                $jobCounts = JobFairVisit::where('job_fair_id', $fair->id)
+                    ->where('company_id', auth()->id())
+                    ->whereNotNull('job_opportunity_id')
+                    ->selectRaw('job_opportunity_id, count(*) as total')
+                    ->groupBy('job_opportunity_id')
+                    ->pluck('total', 'job_opportunity_id');
+            } catch (\Throwable $e) {}
+        }
 
         return view('company.job-fair.leads', compact('fair', 'visits', 'opportunities', 'jobCounts', 'generalCount'));
     }
@@ -307,23 +360,29 @@ class CompanyJobFairController extends Controller
             ->where('company_id', auth()->id())
             ->firstOrFail();
 
-        $jobId = $request->job_opportunity_id;
-        if ($jobId && $jobId !== 'general') {
-            $opp = \App\Models\JobOpportunity::where('id', $jobId)
-                ->where('company_id', $company->id)
-                ->firstOrFail();
-            $visit->job_opportunity_id = $opp->id;
-        } else {
-            $visit->job_opportunity_id = null;
-        }
+        $hasJobOppCol = \Illuminate\Support\Facades\Schema::hasColumn('job_fair_visits', 'job_opportunity_id');
+        $jobTitle = 'تقديم عام';
 
-        $visit->save();
-        $visit->load('jobOpportunity');
+        if ($hasJobOppCol) {
+            $jobId = $request->job_opportunity_id;
+            if ($jobId && $jobId !== 'general') {
+                $opp = \App\Models\JobOpportunity::where('id', $jobId)
+                    ->where('company_id', $company->id)
+                    ->firstOrFail();
+                $visit->job_opportunity_id = $opp->id;
+                $jobTitle = $opp->title;
+            } else {
+                $visit->job_opportunity_id = null;
+            }
+
+            $visit->save();
+        }
 
         return response()->json([
             'success'   => true,
             'message'   => 'تم تحديث الوظيفة المتقدم عليها بنجاح.',
-            'job_title' => $visit->jobOpportunity?->title ?? 'تقديم عام',
+            'job_title' => $jobTitle,
+            'job_id'    => $visit->job_opportunity_id ?? null,
         ]);
     }
 
@@ -337,9 +396,15 @@ class CompanyJobFairController extends Controller
             abort(403);
         }
 
+        $hasJobOppCol = \Illuminate\Support\Facades\Schema::hasColumn('job_fair_visits', 'job_opportunity_id');
+        $withs = ['graduate.graduateData'];
+        if ($hasJobOppCol) {
+            $withs[] = 'jobOpportunity';
+        }
+
         $visits = JobFairVisit::where('job_fair_id', $fair->id)
             ->where('company_id', auth()->id())
-            ->with(['graduate.graduateData', 'jobOpportunity'])
+            ->with($withs)
             ->latest()
             ->get();
 
@@ -357,7 +422,7 @@ class CompanyJobFairController extends Controller
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
-        $callback = function() use ($visits, $statusLabels) {
+        $callback = function() use ($visits, $statusLabels, $hasJobOppCol) {
             $file = fopen('php://output', 'w');
             // Write UTF-8 BOM so Excel opens Arabic correctly
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
@@ -391,7 +456,7 @@ class CompanyJobFairController extends Controller
                     $gData?->university ?? $grad?->university ?? '—',
                     $gData?->graduation_year ?? $grad?->graduation_year ?? '—',
                     $gpa ? number_format($gpa, 2) . '%' : '—',
-                    $v->jobOpportunity?->title ?? 'تقديم عام',
+                    ($hasJobOppCol && $v->jobOpportunity) ? $v->jobOpportunity->title : 'تقديم عام',
                     $statusLabels[$v->status] ?? $v->status,
                     $v->notes ?? '—',
                     $v->created_at->format('Y-m-d H:i')

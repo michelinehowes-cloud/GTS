@@ -15,22 +15,24 @@ return new class extends Migration
     {
         if (Schema::hasTable('job_fair_visits') && !Schema::hasColumn('job_fair_visits', 'job_opportunity_id')) {
             Schema::table('job_fair_visits', function (Blueprint $table) {
-                $table->foreignId('job_opportunity_id')
-                    ->nullable()
-                    ->after('graduate_id')
-                    ->constrained('job_opportunities')
-                    ->nullOnDelete();
+                $table->unsignedBigInteger('job_opportunity_id')->nullable()->after('graduate_id');
             });
+            try {
+                Schema::table('job_fair_visits', function (Blueprint $table) {
+                    $table->foreign('job_opportunity_id')->references('id')->on('job_opportunities')->nullOnDelete();
+                });
+            } catch (\Throwable $e) {}
         }
 
         if (Schema::hasTable('job_opportunities') && !Schema::hasColumn('job_opportunities', 'job_fair_id')) {
             Schema::table('job_opportunities', function (Blueprint $table) {
-                $table->foreignId('job_fair_id')
-                    ->nullable()
-                    ->after('company_id')
-                    ->constrained('job_fairs')
-                    ->nullOnDelete();
+                $table->unsignedBigInteger('job_fair_id')->nullable()->after('company_id');
             });
+            try {
+                Schema::table('job_opportunities', function (Blueprint $table) {
+                    $table->foreign('job_fair_id')->references('id')->on('job_fairs')->nullOnDelete();
+                });
+            } catch (\Throwable $e) {}
         }
     }
 

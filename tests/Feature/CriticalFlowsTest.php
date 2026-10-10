@@ -111,4 +111,80 @@ class CriticalFlowsTest extends TestCase
         // صفحة المشاريع العامة تعمل بنجاح بدون خطأ
         $this->assertNotEquals(500, $response->getStatusCode());
     }
+
+    /**
+     * التحقق من تحميل النموذج المعتمد لمشاريع التخرج بنجاح
+     */
+    public function test_graduation_project_submission_form_loads_successfully()
+    {
+        $response = $this->get(route('job-fair.public.projects.submit'));
+
+        $response->assertStatus(200);
+        $response->assertSee('النموذج المعتمد');
+        $response->assertSee('استمارة تقديم وتسجيل مشروع التخرج');
+    }
+
+    /**
+     * التحقق من نجاح إرسال مشروع التخرج وتخزينه وعرض صفحة التأكيد
+     */
+    public function test_graduation_project_submission_stores_and_redirects_successfully()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'is_active' => true,
+            'is_approved' => true,
+        ]);
+
+        $fair = \App\Models\JobFair::create([
+            'title' => 'معرض التوظيف السنوي جامعة طرابلس',
+            'location' => 'جامعة طرابلس - القاطع ب',
+            'academic_year' => '2026',
+            'event_date' => now()->addDays(10),
+            'status' => 'published',
+            'created_by' => $admin->id,
+        ]);
+
+        $postData = [
+            'job_fair_id' => $fair->id,
+            'title' => 'نظام إدارة مشاريع التخرج المعتمد',
+            'faculty' => 'كلية تقنية المعلومات',
+            'department' => 'هندسة البرمجيات',
+            'graduation_year' => 2026,
+            'project_type' => 'تطبيق ويب وسحابي (Web Application)',
+            'main_category' => 'تقنية المعلومات والبرمجيات',
+            'supervisor_name' => 'د. أحمد الفيتوري',
+            'supervisor_title' => 'أستاذ مشارك',
+            'summary' => 'نبذة ملخصة ومختصرة عن النظام المعتمد لمشاريع التخرج بجامعة طرابلس.',
+            'problem_statement' => 'صعوبة أرشفة وتوثيق ابتكارات ومشاريع التخرج ورقياً.',
+            'solution_statement' => 'بناء منصة رقمية موحدة تعتمد المعايير المؤسسية.',
+            'objectives' => 'توثيق المشاريع وأرشفتها.',
+            'description' => 'وصف تفصيلي شامل لكافة عناصر المشروع ومنهجية بنائه واختباره.',
+            'technical_specifications' => 'Laravel, MySQL, Bootstrap',
+            'key_outcomes' => 'أرشفة فورية وسهولة وصول',
+            'market_viability' => 'جاهز للتطبيق والتوسع',
+            'team_members_raw' => "طارق محمد\nسهيل علي",
+            'contact_email' => 'graduation-team@uot.edu.ly',
+            'student_university_id' => 'UOT-2026-999',
+            'whatsapp_phone' => '0912345678',
+            'prototype_status' => 'منتج كامل قابل للتشغيل والإنتاج (Production Ready / MVP)',
+        ];
+
+        $response = $this->post(route('job-fair.public.projects.store-submission'), $postData);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect();
+
+        // التأكد من حفظ المشروع بحالة pending
+        $this->assertDatabaseHas('job_fair_projects', [
+            'title' => 'نظام إدارة مشاريع التخرج المعتمد',
+            'status' => 'pending',
+            'student_university_id' => 'UOT-2026-999',
+        ]);
+
+        // متابعة التوجيه والتأكد من ظهور صفحة التأكيد المعتمدة
+        $followResponse = $this->get($response->headers->get('Location'));
+        $followResponse->assertStatus(200);
+        $followResponse->assertSee('تم استلام طلب المشروع بنجاح');
+        $followResponse->assertSee('نظام إدارة مشاريع التخرج المعتمد');
+    }
 }

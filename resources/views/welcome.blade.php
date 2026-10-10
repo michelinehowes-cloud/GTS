@@ -1788,8 +1788,14 @@
                         </div>
                     @endif
 
+                    <!-- Step Alert Container -->
+                    <div id="regStepAlert" class="alert alert-warning border-0 rounded-3 py-2 px-3 small mb-3 shadow-none d-none">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <span id="regStepAlertText">يرجى استكمال الحقول الإلزامية المطلوبة.</span>
+                    </div>
+
                     <!-- Form -->
-                    <form method="POST" action="{{ route('graduate.register.store') }}" id="modalRegistrationForm">
+                    <form method="POST" action="{{ route('graduate.register.store') }}" id="modalRegistrationForm" novalidate>
                         @csrf
                         <input type="hidden" name="from_register_modal" value="1">
                         <x-honeypot />
@@ -2111,7 +2117,7 @@
                                     <i class="fas fa-arrow-right"></i>
                                     <span>السابق: البيانات الأكاديمية</span>
                                 </button>
-                                <button type="submit" class="btn btn-modal-login px-5 d-flex align-items-center justify-content-center gap-2" id="modalSubmitRegisterBtn" style="flex:1 1 auto; min-width:150px; touch-action: manipulation;">
+                                <button type="submit" class="btn btn-modal-login px-5 d-flex align-items-center justify-content-center gap-2" id="modalSubmitRegisterBtn" style="flex:1 1 auto; min-width:150px; touch-action: manipulation;" data-original-html='<i class="fas fa-user-plus"></i> <span>تسجيل حساب جديد</span>'>
                                     <i class="fas fa-user-plus"></i>
                                     <span>تسجيل حساب جديد</span>
                                 </button>
@@ -2145,27 +2151,258 @@
             disableMutationObserver: true
         });
 
+        // حالة الخطوة الحالية في نموذج تسجيل الخريج
+        window.currentRegStep = 1;
+
+        // دالة مسح رسائل الخطأ من قسم معين
+        function clearRegFieldErrors(sectionEl) {
+            if (!sectionEl) return;
+            sectionEl.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            sectionEl.querySelectorAll('.js-validation-msg').forEach(el => el.remove());
+            const alertBox = document.getElementById('regStepAlert');
+            if (alertBox) alertBox.classList.add('d-none');
+        }
+
+        // دالة إظهار خطأ لحقل معين
+        function showRegFieldError(inputEl, msg) {
+            if (!inputEl) return;
+            inputEl.classList.add('is-invalid');
+            let feedback = inputEl.parentNode.querySelector('.js-validation-msg');
+            if (!feedback) {
+                feedback = document.createElement('div');
+                feedback.className = 'invalid-feedback d-block js-validation-msg';
+                inputEl.parentNode.appendChild(feedback);
+            }
+            feedback.textContent = msg;
+        }
+
+        // دالة إظهار تنبيه عام أعلى النموذج
+        function showRegStepAlert(msg) {
+            const alertBox = document.getElementById('regStepAlert');
+            const alertText = document.getElementById('regStepAlertText');
+            if (alertBox && alertText) {
+                alertText.textContent = msg;
+                alertBox.classList.remove('d-none');
+                alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        // التحقق من صحة بيانات الخطوة 1 (البيانات الشخصية)
+        window.validateRegStep1 = function() {
+            const sec = document.getElementById('regSection1');
+            if (!sec) return true;
+            clearRegFieldErrors(sec);
+
+            let isValid = true;
+            let firstInvalid = null;
+
+            const name = document.getElementById('reg_name');
+            if (!name || !name.value.trim() || name.value.trim().length < 3) {
+                showRegFieldError(name, 'يرجى إدخال الاسم الرباعي بشكل صحيح (3 أحرف على الأقل)');
+                if (!firstInvalid) firstInvalid = name;
+                isValid = false;
+            }
+
+            const studentId = document.getElementById('reg_student_id');
+            if (!studentId || !studentId.value.trim()) {
+                showRegFieldError(studentId, 'يرجى إدخال رقم القيد بالجامعة (الرقم الجامعي)');
+                if (!firstInvalid) firstInvalid = studentId;
+                isValid = false;
+            }
+
+            const email = document.getElementById('reg_email');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email || !email.value.trim() || !emailRegex.test(email.value.trim())) {
+                showRegFieldError(email, 'يرجى إدخال بريد إلكتروني صحيح');
+                if (!firstInvalid) firstInvalid = email;
+                isValid = false;
+            }
+
+            const phone = document.getElementById('reg_phone');
+            if (!phone || !phone.value.trim() || phone.value.trim().length < 8) {
+                showRegFieldError(phone, 'يرجى إدخال رقم هاتف صحيح');
+                if (!firstInvalid) firstInvalid = phone;
+                isValid = false;
+            }
+
+            const pass = document.getElementById('reg_password');
+            if (!pass || pass.value.length < 8) {
+                showRegFieldError(pass, 'كلمة المرور يجب أن لا تقل عن 8 أحرف وأرقام');
+                if (!firstInvalid) firstInvalid = pass;
+                isValid = false;
+            }
+
+            const confirmPass = document.getElementById('reg_password_confirmation');
+            if (!confirmPass || confirmPass.value !== (pass ? pass.value : '')) {
+                showRegFieldError(confirmPass, 'تأكيد كلمة المرور غير متطابق مع كلمة المرور');
+                if (!firstInvalid) firstInvalid = confirmPass;
+                isValid = false;
+            }
+
+            const dob = document.getElementById('reg_date_of_birth');
+            if (!dob || !dob.value) {
+                showRegFieldError(dob, 'يرجى تحديد تاريخ الميلاد');
+                if (!firstInvalid) firstInvalid = dob;
+                isValid = false;
+            }
+
+            const gender = document.getElementById('reg_gender');
+            if (!gender || !gender.value) {
+                showRegFieldError(gender, 'يرجى اختيار الجنس');
+                if (!firstInvalid) firstInvalid = gender;
+                isValid = false;
+            }
+
+            const city = document.getElementById('reg_city');
+            if (!city || !city.value.trim()) {
+                showRegFieldError(city, 'يرجى إدخال المدينة');
+                if (!firstInvalid) firstInvalid = city;
+                isValid = false;
+            }
+
+            const address = document.getElementById('reg_address');
+            if (!address || !address.value.trim()) {
+                showRegFieldError(address, 'يرجى إدخال العنوان بالتفصيل');
+                if (!firstInvalid) firstInvalid = address;
+                isValid = false;
+            }
+
+            if (!isValid) {
+                showRegStepAlert('يرجى تصحيح الحقول المميزة باللون الأحمر للمتابعة.');
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            return isValid;
+        };
+
+        // التحقق من صحة بيانات الخطوة 2 (البيانات الأكاديمية)
+        window.validateRegStep2 = function() {
+            const sec = document.getElementById('regSection2');
+            if (!sec) return true;
+            clearRegFieldErrors(sec);
+
+            let isValid = true;
+            let firstInvalid = null;
+
+            const univ = document.getElementById('university');
+            if (!univ || !univ.value) {
+                showRegFieldError(univ, 'يرجى اختيار الجامعة');
+                if (!firstInvalid) firstInvalid = univ;
+                isValid = false;
+            }
+
+            const sector = document.getElementById('sector');
+            if (!sector || !sector.value) {
+                showRegFieldError(sector, 'يرجى اختيار القطاع / القاطع');
+                if (!firstInvalid) firstInvalid = sector;
+                isValid = false;
+            }
+
+            const faculty = document.getElementById('faculty');
+            if (!faculty || !faculty.value) {
+                showRegFieldError(faculty, 'يرجى اختيار الكلية');
+                if (!firstInvalid) firstInvalid = faculty;
+                isValid = false;
+            }
+
+            const qual = document.getElementById('qualification');
+            if (!qual || !qual.value) {
+                showRegFieldError(qual, 'يرجى اختيار المؤهل العلمي');
+                if (!firstInvalid) firstInvalid = qual;
+                isValid = false;
+            }
+
+            const spec = document.getElementById('specialization');
+            if (!spec || !spec.value) {
+                showRegFieldError(spec, 'يرجى اختيار التخصص الأكاديمي');
+                if (!firstInvalid) firstInvalid = spec;
+                isValid = false;
+            }
+
+            const gradYear = document.getElementById('graduation_year');
+            const currentYear = new Date().getFullYear();
+            if (!gradYear || !gradYear.value || Number(gradYear.value) < 1960 || Number(gradYear.value) > currentYear + 1) {
+                showRegFieldError(gradYear, 'يرجى إدخال سنة تخرج صحيحة');
+                if (!firstInvalid) firstInvalid = gradYear;
+                isValid = false;
+            }
+
+            if (!isValid) {
+                showRegStepAlert('يرجى استكمال البيانات الأكاديمية المطلوبة (القطاع والكلية والتخصص).');
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            return isValid;
+        };
+
         // دالة التبديل بين خطوات التسجيل
-        window.switchRegStep = function (step) {
+        window.switchRegStep = function (targetStep, force = false) {
+            const currentStep = window.currentRegStep || 1;
+
+            // إذا كان المستخدم يتقدم للأمام، نتحقق من صحة الخطوات السابقة
+            if (!force && targetStep > currentStep) {
+                if (currentStep === 1 && !window.validateRegStep1()) {
+                    return false;
+                }
+                if (currentStep === 2 && !window.validateRegStep2()) {
+                    return false;
+                }
+                if (currentStep === 1 && targetStep === 3) {
+                    if (!window.validateRegStep1()) return false;
+                    if (!window.validateRegStep2()) {
+                        window.switchRegStep(2, true);
+                        return false;
+                    }
+                }
+            }
+
             // إخفاء كافة الأقسام
             document.querySelectorAll('.reg-step-section').forEach(el => el.classList.add('d-none'));
+
             // إظهار القسم المطلوب
-            const targetSection = document.getElementById('regSection' + step);
+            const targetSection = document.getElementById('regSection' + targetStep);
             if (targetSection) {
                 targetSection.classList.remove('d-none');
             }
+
+            window.currentRegStep = targetStep;
+
+            // إخفاء رسالة التنبيه
+            const alertBox = document.getElementById('regStepAlert');
+            if (alertBox) alertBox.classList.add('d-none');
 
             // تحديث مؤشرات الخطوات
             for (let i = 1; i <= 3; i++) {
                 const ind = document.getElementById('modalStepIndicator' + i);
                 if (!ind) continue;
                 ind.classList.remove('active', 'completed');
-                if (i < step) {
+                if (i < targetStep) {
                     ind.classList.add('completed');
-                } else if (i === step) {
+                } else if (i === targetStep) {
                     ind.classList.add('active');
                 }
             }
+
+            // تفعيل كاشف الروبوتات عند الوصول للخطوة 3
+            if (targetStep === 3) {
+                setTimeout(function() {
+                    window.dispatchEvent(new CustomEvent('turnstile:render'));
+                }, 60);
+            }
+
+            // التمرير لأعلى جسم المودال
+            const modalBody = document.querySelector('.modal-register-body');
+            if (modalBody) {
+                modalBody.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            return true;
         };
 
         // تفعيل النوافذ المنبثقة وإظهار/إخفاء كلمة المرور
@@ -2283,6 +2520,106 @@
             } else if (isLoginRequested || hasErrors || hasStatus || hasSuccess) {
                 loginModal?.show();
             }
+
+            // التعامل مع نموذج تسجيل الخريج الجديد
+            const regForm = document.getElementById('modalRegistrationForm');
+            if (regForm) {
+                // إزالة الخطأ تلقائياً بمجرد إدخال أو تغيير أي قيمة
+                regForm.querySelectorAll('input, select, textarea').forEach(input => {
+                    input.addEventListener('input', function() {
+                        if (this.classList.contains('is-invalid')) {
+                            this.classList.remove('is-invalid');
+                            const msg = this.parentNode.querySelector('.js-validation-msg');
+                            if (msg) msg.remove();
+                        }
+                    });
+                    input.addEventListener('change', function() {
+                        if (this.classList.contains('is-invalid')) {
+                            this.classList.remove('is-invalid');
+                            const msg = this.parentNode.querySelector('.js-validation-msg');
+                            if (msg) msg.remove();
+                        }
+                    });
+                });
+
+                // فحص تطابق كلمة المرور أثناء الكتابة
+                const regPass = document.getElementById('reg_password');
+                const regConfirm = document.getElementById('reg_password_confirmation');
+                if (regPass && regConfirm) {
+                    function checkPasswordMatch() {
+                        if (regConfirm.value.length > 0) {
+                            if (regConfirm.value !== regPass.value) {
+                                showRegFieldError(regConfirm, 'كلمتا المرور غير متطابقتين');
+                            } else {
+                                regConfirm.classList.remove('is-invalid');
+                                const msg = regConfirm.parentNode.querySelector('.js-validation-msg');
+                                if (msg) msg.remove();
+                            }
+                        }
+                    }
+                    regPass.addEventListener('input', checkPasswordMatch);
+                    regConfirm.addEventListener('input', checkPasswordMatch);
+                }
+
+                // عند الضغط على زر الإرسال
+                regForm.addEventListener('submit', function (e) {
+                    // 1. التحقق من الخطوة 1
+                    if (!window.validateRegStep1()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.switchRegStep(1, true);
+                        return false;
+                    }
+
+                    // 2. التحقق من الخطوة 2
+                    if (!window.validateRegStep2()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.switchRegStep(2, true);
+                        return false;
+                    }
+
+                    // 3. التأكد من تمكين القوائم المنسدلة لإرسال قيمها إلى السيرفر
+                    ['university', 'sector', 'faculty', 'qualification', 'specialization'].forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el && el.value) {
+                            el.disabled = false;
+                        }
+                    });
+
+                    // 4. فحص كاشف الروبوتات Turnstile في حال كان مفعلاً
+                    const tsWrapper = regForm.querySelector('.turnstile-wrapper');
+                    if (tsWrapper) {
+                        const tokenInput = regForm.querySelector('[name="cf-turnstile-response"]');
+                        const hasToken = window.isTurnstileVerified || (tokenInput && tokenInput.value && tokenInput.value.trim().length > 10 && !tokenInput.value.startsWith('BYPASS_'));
+                        if (!hasToken) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            showRegStepAlert('يرجى النقر على كاشف الروبوتات (Cloudflare) وإكمال التحقق الأمني أولاً.');
+                            tsWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            return false;
+                        }
+                    }
+
+                    // 5. إظهار مؤشر التحميل وتعطيل الزر لمنع الإرسال المتكرر
+                    const submitBtn = document.getElementById('modalSubmitRegisterBtn');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.style.opacity = '0.85';
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> جاري تسجيل الحساب...';
+                    }
+                });
+            }
+
+            @if ($errors->any() && (request('open_register') || old('from_register_modal')))
+                @if ($errors->has('university') || $errors->has('sector') || $errors->has('faculty') || $errors->has('qualification') || $errors->has('specialization') || $errors->has('graduation_year') || $errors->has('gpa'))
+                    window.switchRegStep(2, true);
+                @elseif ($errors->has('experiences') || $errors->has('skills') || $errors->has('languages') || $errors->has('cf-turnstile-response') || $errors->has('security'))
+                    window.switchRegStep(3, true);
+                @else
+                    window.switchRegStep(1, true);
+                @endif
+            @endif
         });
 
         // دالة لعرض/إخفاء التدريبات الإضافية

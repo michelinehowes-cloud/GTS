@@ -176,7 +176,7 @@ class UnifiedGraduateAndChatTest extends TestCase
             'gpa' => 75.00,
         ]);
 
-        // 1. التأكد من تحميل صفحة الملف الشخصي وتوفر المعرفات الصحيحة للبيانات الأكاديمية
+        // 1. التأكد من تحميل صفحة الملف الشخصي وتوفر المعرفات الصحيحة للبيانات الأكاديمية والشخصية والمهارات
         $pageResponse = $this->actingAs($graduate)->get(route('graduate.profile'));
         $pageResponse->assertStatus(200);
         $pageResponse->assertSee('id="university"', false);
@@ -184,12 +184,20 @@ class UnifiedGraduateAndChatTest extends TestCase
         $pageResponse->assertSee('id="faculty"', false);
         $pageResponse->assertSee('id="specialization"', false);
         $pageResponse->assertSee('id="old_specialization"', false);
+        $pageResponse->assertSee('id="national_id"', false);
+        $pageResponse->assertSee('id="address"', false);
+        $pageResponse->assertSee('id="employment_status"', false);
+        $pageResponse->assertSee('id="skills"', false);
+        $pageResponse->assertSee('id="experiences"', false);
+        $pageResponse->assertSee('id="education"', false);
 
-        // 2. إرسال طلب التعديل للبيانات الأكاديمية
+        // 2. إرسال طلب التعديل للبيانات الأكاديمية والمهارات والخبرات
         $updateResponse = $this->actingAs($graduate)->put(route('graduate.profile.update'), [
             'name' => $graduate->name,
             'email' => $graduate->email,
             'phone' => '0912233445',
+            'national_id' => '119955443322',
+            'address' => 'طرابلس - طريق الشط',
             'university' => 'جامعة طرابلس',
             'sector' => 'قاطع (أ)',
             'faculty' => 'كلية تقنية المعلومات',
@@ -197,7 +205,11 @@ class UnifiedGraduateAndChatTest extends TestCase
             'qualification' => 'ماجستير',
             'graduation_year' => 2024,
             'gpa' => 91.25,
-            'languages' => 'العربية, الإنجليزية, الفرنسية',
+            'employment_status' => 'employed',
+            'languages' => 'العربية، الإنجليزية، الفرنسية',
+            'skills' => 'Laravel، PHP، Vue.js، MySQL',
+            'experiences' => 'مطور برمجيات متفرغ لعدة مشاريع ويب',
+            'education' => 'شهادة معتمدة في هندسة وتطوير الويب',
         ]);
 
         $updateResponse->assertRedirect(route('graduate.profile'));
@@ -205,6 +217,8 @@ class UnifiedGraduateAndChatTest extends TestCase
 
         // 3. التحقق من تحديث جدول users
         $graduate->refresh();
+        $this->assertEquals('119955443322', $graduate->national_id);
+        $this->assertEquals('طرابلس - طريق الشط', $graduate->address);
         $this->assertEquals('كلية تقنية المعلومات', $graduate->faculty);
         $this->assertEquals('قسم هندسة البرمجيات', $graduate->specialization);
         $this->assertEquals('قسم هندسة البرمجيات', $graduate->major);
@@ -213,15 +227,24 @@ class UnifiedGraduateAndChatTest extends TestCase
         $this->assertEquals(2024, $graduate->graduation_year);
         $this->assertEquals(91.25, (float)$graduate->gpa);
         $this->assertEquals(['العربية', 'الإنجليزية', 'الفرنسية'], $graduate->languages);
+        $this->assertEquals(['Laravel', 'PHP', 'Vue.js', 'MySQL'], $graduate->skills);
+        $this->assertEquals('مطور برمجيات متفرغ لعدة مشاريع ويب', $graduate->experiences);
+        $this->assertEquals('شهادة معتمدة في هندسة وتطوير الويب', $graduate->education);
 
         // 4. التحقق من مزامنة وتحديث سجل الخريج في graduates_data تلقائياً
         $gradData = \App\Models\GraduateData::where('user_id', $graduate->id)->first();
         $this->assertNotNull($gradData);
+        $this->assertEquals('119955443322', $gradData->national_id);
+        $this->assertEquals('طرابلس - طريق الشط', $gradData->address);
         $this->assertEquals('كلية تقنية المعلومات', $gradData->faculty);
         $this->assertEquals('قسم هندسة البرمجيات', $gradData->specialization);
         $this->assertEquals('قسم هندسة البرمجيات', $gradData->major);
         $this->assertEquals('ماجستير', $gradData->qualification);
         $this->assertEquals(2024, $gradData->graduation_year);
         $this->assertEquals(91.25, (float)$gradData->gpa);
+        $this->assertEquals('employed', $gradData->employment_status);
+        $this->assertEquals(['Laravel', 'PHP', 'Vue.js', 'MySQL'], $gradData->skills);
+        $this->assertEquals('مطور برمجيات متفرغ لعدة مشاريع ويب', $gradData->work_experience);
+        $this->assertEquals('شهادة معتمدة في هندسة وتطوير الويب', $gradData->certifications);
     }
 }

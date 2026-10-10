@@ -227,26 +227,33 @@ class GraduateController extends Controller
      */
     public function profile()
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
-        return view('graduate.profile', compact('user'));
+        $user->load([
+            'graduateData',
+            'trainingApplications.training',
+            'certificates.training'
+        ]);
+
+        $myTrainings = $user->trainingApplications()->with('training')->latest()->take(5)->get();
+        $myCertificates = $user->certificates()->with('training')->latest()->take(5)->get();
+
+        return view('graduate.profile', compact('user', 'myTrainings', 'myCertificates'));
     }
 
     /**
      * تحديث الملف الشخصي للخريج
      */
-    /**
-     * تحديث الملف الشخصي للخريج
-     */
     public function updateProfile(Request $request)
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
-        $oldEmail = $user->email;
 
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'phone' => 'nullable|string|max:20',
-            'national_id' => 'nullable|string|max:20',
+            'phone' => 'nullable|string|max:30',
+            'national_id' => 'nullable|string|max:50',
             'date_of_birth' => 'nullable|date',
             'gender' => 'nullable|in:male,female',
             'address' => 'nullable|string',
@@ -264,7 +271,11 @@ class GraduateController extends Controller
             'major' => 'nullable|string|max:100',
             'graduation_year' => 'nullable|integer|min:1950|max:' . (date('Y') + 1),
             'gpa' => 'nullable|numeric|min:0|max:100',
-            'languages' => 'nullable|string|max:500',
+            'employment_status' => 'nullable|string|in:seeking_opportunities,employed,unemployed,further_study,continuing_education',
+            'languages' => 'nullable',
+            'skills' => 'nullable',
+            'experiences' => 'nullable|string',
+            'education' => 'nullable|string',
         ]);
 
         $data = $request->only([
@@ -283,6 +294,8 @@ class GraduateController extends Controller
             'specialization',
             'graduation_year',
             'gpa',
+            'experiences',
+            'education',
         ]);
 
         // توحيد الحقول الأكاديمية ومعالجة المرادفات
@@ -302,17 +315,45 @@ class GraduateController extends Controller
         if ($request->has('languages')) {
             $langInput = $request->input('languages');
             if (is_string($langInput)) {
-                $data['languages'] = array_values(array_filter(array_map('trim', explode(',', $langInput))));
+                $cleaned = str_replace('،', ',', $langInput);
+                $data['languages'] = array_values(array_filter(array_map('trim', explode(',', $cleaned))));
+            } elseif (is_array($langInput)) {
+                $data['languages'] = array_values(array_filter($langInput));
             } else {
-                $data['languages'] = $langInput;
+                $data['languages'] = [];
+            }
+        }
+
+        // معالجة المهارات كمصفوفة لتوافق casts في User و GraduateData
+        if ($request->has('skills')) {
+            $skillsInput = $request->input('skills');
+            if (is_string($skillsInput)) {
+                $cleaned = str_replace('،', ',', $skillsInput);
+                $data['skills'] = array_values(array_filter(array_map('trim', explode(',', $cleaned))));
+            } elseif (is_array($skillsInput)) {
+                $data['skills'] = array_values(array_filter($skillsInput));
+            } else {
+                $data['skills'] = [];
             }
         }
 
         $user->update($data);
 
+        // إعداد الحقول الإضافية لمزامنة جدول graduates_data
+        $syncPayload = [];
+        if ($request->filled('employment_status')) {
+            $syncPayload['employment_status'] = $request->input('employment_status');
+        }
+        if (array_key_exists('education', $data)) {
+            $syncPayload['certifications'] = $data['education'];
+        }
+        if (array_key_exists('experiences', $data)) {
+            $syncPayload['work_experience'] = $data['experiences'];
+        }
+
         // مزامنة البيانات وتحديثها فورياً في جدول graduates_data
         try {
-            \App\Models\GraduateData::syncFromUser($user);
+            \App\Models\GraduateData::syncFromUser($user, $syncPayload);
         } catch (\Exception $e) {
             \Log::warning('Failed GraduateData sync in updateProfile: ' . $e->getMessage());
         }

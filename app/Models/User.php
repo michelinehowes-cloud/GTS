@@ -588,4 +588,44 @@ class User extends Authenticatable
     {
         return $this->hasMany(Certificate::class);
     }
+
+    /**
+     * نص المهارات مفصولاً بفواصل
+     */
+    public function getSkillsTextAttribute()
+    {
+        $skills = $this->skills ?? $this->graduateData?->skills;
+        if (is_array($skills)) {
+            return implode(', ', array_filter($skills));
+        }
+        return is_string($skills) ? $skills : '';
+    }
+
+    /**
+     * نص اللغات المتقنة مفصولاً بفواصل
+     */
+    public function getLanguagesTextAttribute()
+    {
+        $languages = $this->languages ?? $this->graduateData?->languages;
+        if (is_array($languages)) {
+            return implode(', ', array_filter($languages));
+        }
+        return is_string($languages) ? $languages : '';
+    }
+
+    /**
+     * حالة التوظيف الحالية للخريج
+     */
+    public function getEmploymentStatusAttribute()
+    {
+        return $this->graduateData?->employment_status ?? 'seeking_opportunities';
+    }
+
+    /**
+     * الدورات والشهادات الإضافية
+     */
+    public function getCertificationsAttribute()
+    {
+        return $this->education ?? $this->graduateData?->certifications;
+    }
 }

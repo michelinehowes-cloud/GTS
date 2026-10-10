@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>مكتب تدريب الخريجين - جامعة طرابلس</title>
     
     <!-- CSS Dependencies -->
@@ -654,8 +654,10 @@
         .modal-register-body {
             padding: 28px 32px;
             background: #ffffff;
-            max-height: calc(85vh - 120px);
+            max-height: calc(85dvh - 120px);
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* iOS smooth scroll fix */
+            overscroll-behavior: contain;
         }
 
         .reg-progress-steps {
@@ -765,15 +767,62 @@
             }
             .modal-register-body {
                 padding: 20px 16px;
+                max-height: calc(100dvh - 180px);
             }
             .reg-step-label {
                 font-size: 0.75rem;
+            }
+            /* Fix nav buttons wrapping on small screens */
+            .modal-register-body .d-flex.justify-content-between {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .modal-register-body .d-flex.justify-content-between .btn {
+                flex: 1 1 auto;
+                min-width: 130px;
+            }
+            /* Make submit button full width on mobile */
+            #modalSubmitRegisterBtn {
+                width: 100%;
+                justify-content: center;
             }
         }
 
         @media (max-width: 480px) {
             .hero-section {
                 padding: 110px 0 80px;
+            }
+            .modal-register-header {
+                padding: 18px 16px 14px;
+            }
+            .modal-register-header h3 {
+                font-size: 1.2rem;
+            }
+            .modal-register-body {
+                padding: 14px 12px;
+                max-height: calc(100dvh - 160px);
+            }
+            .reg-progress-steps {
+                padding: 0 4px;
+                margin-bottom: 16px;
+            }
+            .reg-step-circle {
+                width: 30px;
+                height: 30px;
+                font-size: 0.82rem;
+            }
+            .reg-step-label {
+                font-size: 0.68rem;
+            }
+            .reg-section-title {
+                font-size: 1rem;
+            }
+        }
+
+        /* iOS safe area for notch/home indicator */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .modal-register-footer {
+                padding-bottom: calc(16px + env(safe-area-inset-bottom));
             }
         }
     </style>
@@ -1697,7 +1746,7 @@
 
     <!-- ==================== 14. نافذة تسجيل خريج جديد المنبثقة (Graduate Registration Modal) ==================== -->
     <div class="modal fade" id="graduateRegisterModal" tabindex="-1" aria-labelledby="graduateRegisterModalLabel" aria-hidden="true" style="backdrop-filter: blur(8px);">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 860px;">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 860px; margin: 0.5rem auto;">
             <div class="modal-content modal-register-content">
                 <!-- Header -->
                 <div class="modal-register-header position-relative">
@@ -2057,12 +2106,12 @@
                                 <x-turnstile action="register_graduate" />
                             </div>
 
-                            <div class="d-flex justify-content-between mt-4 pt-2 border-top">
-                                <button type="button" class="btn btn-outline-secondary rounded-3 px-4 d-flex align-items-center gap-2" onclick="switchRegStep(2)">
+                            <div class="d-flex justify-content-between mt-4 pt-2 border-top gap-2 flex-wrap">
+                                <button type="button" class="btn btn-outline-secondary rounded-3 px-4 d-flex align-items-center gap-2" onclick="switchRegStep(2)" style="flex:1 1 auto; min-width:130px;">
                                     <i class="fas fa-arrow-right"></i>
                                     <span>السابق: البيانات الأكاديمية</span>
                                 </button>
-                                <button type="submit" class="btn btn-modal-login px-5 d-flex align-items-center gap-2" id="modalSubmitRegisterBtn">
+                                <button type="submit" class="btn btn-modal-login px-5 d-flex align-items-center justify-content-center gap-2" id="modalSubmitRegisterBtn" style="flex:1 1 auto; min-width:150px; touch-action: manipulation;">
                                     <i class="fas fa-user-plus"></i>
                                     <span>تسجيل حساب جديد</span>
                                 </button>

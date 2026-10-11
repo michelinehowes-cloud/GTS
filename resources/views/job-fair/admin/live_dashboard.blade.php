@@ -12,79 +12,79 @@
         'subtitle' => $fair->title . ' — مؤشرات الأداء الحية ومعدلات الإقبال والزيارات الميدانية'
     ])
 
-    <!-- بطاقات الإحصائيات الرئيسية -->
+    <!-- بطاقات المؤشرات العامة وحضور المعرض -->
     <div class="row g-3 mb-4">
-        <!-- إجمالي الحضور -->
+        <!-- إجمالي الحضور الفعلي -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card kpi-border-primary">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-bold mb-1.5">إجمالي الحضور (Check-ins)</div>
-                        <h2 class="fw-bold mb-1 text-dark" style="font-size: 2.1rem; line-height: 1;">{{ $stats['attended'] ?? 0 }}</h2>
-                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">
+            <div class="kpi-metric-card kpi-primary">
+                <div class="d-flex align-items-start justify-content-between gap-2">
+                    <div class="flex-grow-1">
+                        <div class="kpi-metric-title">إجمالي الحضور الفعلي</div>
+                        <div class="kpi-metric-value">{{ $stats['attended'] ?? 0 }}</div>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1" style="font-size: 0.72rem; font-weight: 600;">
                             <i class="fas fa-id-badge me-1"></i>حضور فعلي بالقاعة
                         </span>
                     </div>
-                    <div class="rounded-4 d-flex align-items-center justify-content-center shadow-xs flex-shrink-0" style="width: 52px; height: 52px; background: rgba(37,99,235,0.12); color: #2563eb; font-size: 1.4rem; border: 1px solid rgba(37,99,235,0.25);">
+                    <div class="kpi-metric-icon" style="background: rgba(37,99,235,0.1); color: #2563eb;">
                         <i class="fas fa-user-check"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- المسجلين الإجمالي -->
+        <!-- إجمالي المسجلين -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card kpi-border-success">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-bold mb-1.5">المسجلين الإجمالي</div>
-                        <h2 class="fw-bold mb-1 text-dark" style="font-size: 2.1rem; line-height: 1;">{{ $stats['total_registrations'] ?? 0 }}</h2>
-                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">
-                            <i class="fas fa-users me-1"></i>خريجون مسجلون بالمعرض
+            <div class="kpi-metric-card kpi-success">
+                <div class="d-flex align-items-start justify-content-between gap-2">
+                    <div class="flex-grow-1">
+                        <div class="kpi-metric-title">إجمالي الخريجين المسجلين</div>
+                        <div class="kpi-metric-value">{{ $stats['total_registrations'] ?? 0 }}</div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1" style="font-size: 0.72rem; font-weight: 600;">
+                            <i class="fas fa-users me-1"></i>تسجيل مسبق بالمعرض
                         </span>
                     </div>
-                    <div class="rounded-4 d-flex align-items-center justify-content-center shadow-xs flex-shrink-0" style="width: 52px; height: 52px; background: rgba(16,185,129,0.12); color: #10b981; font-size: 1.4rem; border: 1px solid rgba(16,185,129,0.25);">
+                    <div class="kpi-metric-icon" style="background: rgba(16,185,129,0.1); color: #10b981;">
                         <i class="fas fa-users"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- الشركات المشاركة -->
+        <!-- الشركات والأجنحة -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card kpi-border-info">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-bold mb-1.5">الشركات المشاركة</div>
-                        <h2 class="fw-bold mb-1 text-dark" style="font-size: 2.1rem; line-height: 1;">{{ $stats['total_companies'] ?? 0 }}</h2>
-                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">
+            <div class="kpi-metric-card kpi-info">
+                <div class="d-flex align-items-start justify-content-between gap-2">
+                    <div class="flex-grow-1">
+                        <div class="kpi-metric-title">الشركات المشاركة</div>
+                        <div class="kpi-metric-value">{{ $stats['total_companies'] ?? 0 }}</div>
+                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-2.5 py-1" style="font-size: 0.72rem; font-weight: 600;">
                             <i class="fas fa-building me-1"></i>أجنحة وشركات معتمدة
                         </span>
                     </div>
-                    <div class="rounded-4 d-flex align-items-center justify-content-center shadow-xs flex-shrink-0" style="width: 52px; height: 52px; background: rgba(2,132,199,0.12); color: #0284c7; font-size: 1.4rem; border: 1px solid rgba(2,132,199,0.25);">
+                    <div class="kpi-metric-icon" style="background: rgba(2,132,199,0.1); color: #0284c7;">
                         <i class="fas fa-building"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- سير ذاتية مستلمة -->
+        <!-- السير الذاتية المستلمة -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card kpi-border-warning">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-bold mb-1.5">سير ذاتية مستلمة (Leads)</div>
-                        <h2 class="fw-bold mb-1 text-dark" style="font-size: 2.1rem; line-height: 1;">{{ $stats['total_leads'] ?? \App\Models\JobFairVisit::where('job_fair_id', $fair->id)->count() }}</h2>
-                        <div class="d-flex align-items-center gap-1.5 mt-1 flex-wrap">
-                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-1.5 py-0.5" style="font-size: 0.68rem;">
+            <div class="kpi-metric-card kpi-warning">
+                <div class="d-flex align-items-start justify-content-between gap-2">
+                    <div class="flex-grow-1">
+                        <div class="kpi-metric-title">السير الذاتية المستلمة</div>
+                        <div class="kpi-metric-value">{{ $stats['total_leads'] ?? \App\Models\JobFairVisit::where('job_fair_id', $fair->id)->count() }}</div>
+                        <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-0.5" style="font-size: 0.7rem; font-weight: 600;">
                                 {{ $stats['job_applications'] ?? 0 }} لوظائف
                             </span>
-                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-1.5 py-0.5" style="font-size: 0.68rem;">
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-0.5" style="font-size: 0.7rem; font-weight: 600;">
                                 {{ $stats['general_leads'] ?? 0 }} عام
                             </span>
                         </div>
                     </div>
-                    <div class="rounded-4 d-flex align-items-center justify-content-center shadow-xs flex-shrink-0" style="width: 52px; height: 52px; background: rgba(245,158,11,0.12); color: #f59e0b; font-size: 1.4rem; border: 1px solid rgba(245,158,11,0.25);">
+                    <div class="kpi-metric-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
                         <i class="fas fa-file-invoice"></i>
                     </div>
                 </div>
@@ -95,13 +95,13 @@
     <div class="row g-3 mb-4">
         <!-- أحدث الحضور -->
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden" style="border: 1px solid #e2e8f0 !important;">
                 <div class="card-header py-3 px-3.5 d-flex align-items-center justify-content-between bg-white border-bottom">
-                    <h6 class="m-0 fw-bold text-dark d-flex align-items-center gap-2">
-                        <i class="fas fa-history text-primary"></i>
-                        <span>أحدث الخريجين الحاضرين</span>
+                    <h6 class="m-0 fw-bold text-dark d-flex align-items-center gap-2" style="font-size: 0.95rem;">
+                        <i class="fas fa-user-clock text-primary"></i>
+                        <span>أحدث الخريجين الحاضرين (Live Stream)</span>
                     </h6>
-                    <span class="badge bg-light text-muted border px-2.5 py-1">تحديث مباشر</span>
+                    <span class="badge bg-light text-muted border px-2.5 py-1 rounded-pill small">تحديث فوري</span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -119,7 +119,7 @@
                                         <td>
                                             <div class="d-flex align-items-center gap-2.5">
                                                 <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-xs flex-shrink-0" style="width: 38px; height: 38px; font-size: 0.95rem;">
-                                                    {{ mb_substr($checkin->graduate->name, 0, 1) }}
+                                                    {{ mb_substr($checkin->graduate->name ?? 'خ', 0, 1) }}
                                                 </div>
                                                 <div>
                                                     <div class="fw-bold text-dark">{{ $checkin->graduate->name }}</div>
@@ -139,7 +139,12 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="3" class="text-center py-4 text-muted">لم يتم تسجيل أي حضور حتى الآن.</td>
+                                        <td colspan="3" class="text-center py-4 text-muted">
+                                            <div class="py-2">
+                                                <i class="fas fa-user-clock fa-2x text-muted opacity-50 mb-2 d-block"></i>
+                                                <span class="small fw-semibold">بانتظار تسجيل أول حضور عبر ماسح الباركود</span>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -151,28 +156,28 @@
 
         <!-- أكثر التخصصات حضوراً -->
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden" style="border: 1px solid #e2e8f0 !important;">
                 <div class="card-header py-3 px-3.5 bg-white border-bottom">
-                    <h6 class="m-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <h6 class="m-0 fw-bold text-dark d-flex align-items-center gap-2" style="font-size: 0.95rem;">
                         <i class="fas fa-chart-pie text-info"></i>
                         <span>التخصصات الأكثر حضوراً</span>
                     </h6>
                 </div>
                 <div class="card-body p-3.5">
                     @forelse($topMajors as $major)
-                        <div class="mb-3.5">
+                        <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="fw-bold text-dark small">{{ $major->major }}</span>
                                 <span class="badge bg-light text-muted border px-2 py-0.5 font-monospace">{{ $major->total }} خريج</span>
                             </div>
                             <div class="progress rounded-pill overflow-hidden shadow-xs" style="height: 8px; background-color: #f1f5f9;">
-                                <div class="progress-bar" role="progressbar" style="width: {{ ($major->total / max($stats['total_attended'], 1)) * 100 }}%; background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%);"></div>
+                                <div class="progress-bar" role="progressbar" style="width: {{ ($major->total / max($stats['total_attended'] ?? 1, 1)) * 100 }}%; background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%);"></div>
                             </div>
                         </div>
                     @empty
                         <div class="text-center py-4 text-muted">
-                            <i class="fas fa-chart-bar fa-3x mb-3 text-gray-300"></i>
-                            <p class="mb-0">لا توجد بيانات كافية بعد.</p>
+                            <i class="fas fa-chart-pie fa-2x mb-2 text-muted opacity-50 d-block"></i>
+                            <span class="small fw-semibold">ستظهر نسب التخصصات فور بدء تسجيل الحضور</span>
                         </div>
                     @endforelse
                 </div>
@@ -180,60 +185,49 @@
         </div>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════════
-         مؤشرات التوظيف، إحصائيات الشركات والوظائف، وحالات الترشح اللحظية
-         ══════════════════════════════════════════════════════════════════ --}}
-    <div class="row mb-4 mt-2">
-        <div class="col-12">
-            <div class="card shadow-sm border-0 rounded-4 overflow-hidden position-relative" style="background: linear-gradient(135deg, #091f3c 0%, #03488a 55%, #045db0 100%); box-shadow: 0 10px 30px rgba(3, 72, 138, 0.22) !important;">
-                {{-- إضاءة ذهبية وزرقاء ملكية ناعمة بدون أي نقاط بيضاء مشوشة --}}
-                <div class="position-absolute top-0 end-0 w-50 h-100 opacity-25" style="background: radial-gradient(circle at top right, rgba(238,202,62,0.35) 0%, transparent 70%); pointer-events: none;"></div>
-                <div class="position-absolute bottom-0 start-0 w-40 h-100 opacity-20" style="background: radial-gradient(circle at bottom left, rgba(56,189,248,0.3) 0%, transparent 70%); pointer-events: none;"></div>
-                <div class="card-body p-3.5 p-md-4 text-white d-flex flex-wrap align-items-center justify-content-between gap-3 position-relative z-1">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-4 d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm" style="width: 54px; height: 54px; background: rgba(238,202,62,0.18); color: #eeca3e; font-size: 1.5rem; border: 1px solid rgba(238,202,62,0.35);">
-                            <i class="fas fa-briefcase"></i>
-                        </div>
-                        <div>
-                            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
-                                <h5 class="fw-bold mb-0 text-white" style="letter-spacing: -0.3px;">إحصائيات التوظيف والترشيحات بالمعرض (Live Recruitment)</h5>
-                                <span class="badge bg-danger bg-opacity-75 text-white px-2.5 py-1 rounded-pill d-inline-flex align-items-center gap-1.5 shadow-xs" style="font-size: 0.72rem;">
-                                    <span class="spinner-grow spinner-grow-sm text-white" style="width: 7px; height: 7px;" role="status"></span>
-                                    <span>متابعة حية</span>
-                                </span>
-                            </div>
-                            <p class="mb-0 text-white-50 small">متابعة دقيقة وفورية للسير الذاتية المستلمة، طلبات التقديم لكل شركة ولكل وظيفة، وحالات الترشح</p>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-center gap-2.5">
-                        <span class="badge px-3 py-2 rounded-pill fw-bold d-inline-flex align-items-center gap-2 shadow-xs" style="background: rgba(238, 202, 62, 0.22); color: #ffe685; border: 1px solid rgba(238, 202, 62, 0.4); font-size: 0.88rem;">
-                            <i class="fas fa-file-invoice text-warning"></i>
-                            <span>إجمالي السير: <strong>{{ $recruitment['nomination_stats']['total'] ?? 0 }}</strong></span>
-                        </span>
-                        <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="btn btn-sm btn-outline-light rounded-pill px-3.5 py-1.5 d-inline-flex align-items-center gap-1.5 shadow-xs" style="font-size: 0.84rem;">
-                            <i class="fas fa-cog"></i>
-                            <span>تفاصيل المعرض</span>
-                        </a>
-                    </div>
-                </div>
+    <!-- عنوان قسم إحصائيات التوظيف ومسار الترشيحات (شريط ناعم بدلاً من البانر المكرر) -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3 mt-4 pt-3 border-top">
+        <div class="d-flex align-items-center gap-2.5">
+            <div class="rounded-3 d-flex align-items-center justify-content-center shadow-xs" style="width: 42px; height: 42px; background: rgba(37, 99, 235, 0.1); color: #2563eb; font-size: 1.25rem;">
+                <i class="fas fa-briefcase"></i>
             </div>
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <h5 class="fw-bold mb-0 text-dark">مؤشرات التوظيف ومسار الترشيحات</h5>
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2.5 py-0.5 d-inline-flex align-items-center gap-1.5" style="font-size: 0.72rem; font-weight: 700;">
+                        <span class="spinner-grow spinner-grow-sm" style="width: 6px; height: 6px;"></span>
+                        مباشر
+                    </span>
+                </div>
+                <small class="text-muted">متابعة فورية ومفصلة لطلبات التقديم المستلمة وحالات الفرز لكل شركة ووظيفة</small>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-white text-dark border px-3 py-2 rounded-pill fw-bold shadow-xs" style="font-size: 0.84rem;">
+                <i class="fas fa-file-invoice text-warning me-1.5"></i>
+                إجمالي السير: <strong class="text-primary">{{ $recruitment['nomination_stats']['total'] ?? 0 }}</strong>
+            </span>
+            <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-xs" style="font-size: 0.8rem;">
+                <i class="fas fa-cog"></i>
+                <span>تفاصيل المعرض</span>
+            </a>
         </div>
     </div>
 
-    <!-- بطاقات تفصيل حالات الترشح -->
+    <!-- بطاقات تفصيل مسار حالات الترشح -->
     <div class="row g-3 mb-4">
         <!-- قيد المراجعة والانتظار -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card kpi-border-warning">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-bold mb-1.5">قيد المراجعة والانتظار</div>
-                        <h2 class="fw-bold mb-1 text-dark" style="font-size: 2.1rem; line-height: 1;">{{ $recruitment['nomination_stats']['pending'] ?? 0 }}</h2>
-                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">
+            <div class="kpi-metric-card kpi-warning">
+                <div class="d-flex align-items-start justify-content-between gap-2">
+                    <div class="flex-grow-1">
+                        <div class="kpi-metric-title">قيد التقييم والمراجعة</div>
+                        <div class="kpi-metric-value">{{ $recruitment['nomination_stats']['pending'] ?? 0 }}</div>
+                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1" style="font-size: 0.72rem; font-weight: 600;">
                             <i class="fas fa-clock me-1"></i>بانتظار استكمال التقييم
                         </span>
                     </div>
-                    <div class="rounded-4 d-flex align-items-center justify-content-center shadow-xs flex-shrink-0" style="width: 52px; height: 52px; background: rgba(245,158,11,0.12); color: #f59e0b; font-size: 1.4rem; border: 1px solid rgba(245,158,11,0.25);">
+                    <div class="kpi-metric-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
                         <i class="fas fa-hourglass-half"></i>
                     </div>
                 </div>
@@ -242,34 +236,34 @@
 
         <!-- القائمة القصيرة -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card kpi-border-info">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-bold mb-1.5">القائمة القصيرة (Shortlisted)</div>
-                        <h2 class="fw-bold mb-1 text-dark" style="font-size: 2.1rem; line-height: 1;">{{ $recruitment['nomination_stats']['shortlisted'] ?? 0 }}</h2>
-                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">
+            <div class="kpi-metric-card kpi-info">
+                <div class="d-flex align-items-start justify-content-between gap-2">
+                    <div class="flex-grow-1">
+                        <div class="kpi-metric-title">القائمة القصيرة للمرشحين</div>
+                        <div class="kpi-metric-value">{{ $recruitment['nomination_stats']['shortlisted'] ?? 0 }}</div>
+                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-2.5 py-1" style="font-size: 0.72rem; font-weight: 600;">
                             <i class="fas fa-star me-1"></i>مرشحون مميزون للمقابلات
                         </span>
                     </div>
-                    <div class="rounded-4 d-flex align-items-center justify-content-center shadow-xs flex-shrink-0" style="width: 52px; height: 52px; background: rgba(2,132,199,0.12); color: #0284c7; font-size: 1.4rem; border: 1px solid rgba(2,132,199,0.25);">
+                    <div class="kpi-metric-icon" style="background: rgba(2,132,199,0.1); color: #0284c7;">
                         <i class="fas fa-star"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- تم القبول والتوظيف -->
+        <!-- تم القبول والترشيح -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card kpi-border-success">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-bold mb-1.5">تم القبول والترشيح (Accepted)</div>
-                        <h2 class="fw-bold mb-1 text-dark" style="font-size: 2.1rem; line-height: 1;">{{ $recruitment['nomination_stats']['accepted'] ?? 0 }}</h2>
-                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">
+            <div class="kpi-metric-card kpi-success">
+                <div class="d-flex align-items-start justify-content-between gap-2">
+                    <div class="flex-grow-1">
+                        <div class="kpi-metric-title">تم القبول والترشيح</div>
+                        <div class="kpi-metric-value">{{ $recruitment['nomination_stats']['accepted'] ?? 0 }}</div>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1" style="font-size: 0.72rem; font-weight: 600;">
                             <i class="fas fa-check-circle me-1"></i>مقبولون للوظائف والشواغر
                         </span>
                     </div>
-                    <div class="rounded-4 d-flex align-items-center justify-content-center shadow-xs flex-shrink-0" style="width: 52px; height: 52px; background: rgba(16,185,129,0.12); color: #10b981; font-size: 1.4rem; border: 1px solid rgba(16,185,129,0.25);">
+                    <div class="kpi-metric-icon" style="background: rgba(16,185,129,0.1); color: #10b981;">
                         <i class="fas fa-check-circle"></i>
                     </div>
                 </div>
@@ -278,16 +272,16 @@
 
         <!-- غير ملائم / مرفوض -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card kpi-border-danger">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-bold mb-1.5">غير ملائم / مرفوض (Rejected)</div>
-                        <h2 class="fw-bold mb-1 text-dark" style="font-size: 2.1rem; line-height: 1;">{{ $recruitment['nomination_stats']['rejected'] ?? 0 }}</h2>
-                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2 py-0.5" style="font-size: 0.72rem;">
+            <div class="kpi-metric-card kpi-danger">
+                <div class="d-flex align-items-start justify-content-between gap-2">
+                    <div class="flex-grow-1">
+                        <div class="kpi-metric-title">غير ملائم / مرفوض</div>
+                        <div class="kpi-metric-value">{{ $recruitment['nomination_stats']['rejected'] ?? 0 }}</div>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2.5 py-1" style="font-size: 0.72rem; font-weight: 600;">
                             <i class="fas fa-times-circle me-1"></i>لم يستوفوا متطلبات الشاغر
                         </span>
                     </div>
-                    <div class="rounded-4 d-flex align-items-center justify-content-center shadow-xs flex-shrink-0" style="width: 52px; height: 52px; background: rgba(239,68,68,0.12); color: #ef4444; font-size: 1.4rem; border: 1px solid rgba(239,68,68,0.25);">
+                    <div class="kpi-metric-icon" style="background: rgba(239,68,68,0.1); color: #ef4444;">
                         <i class="fas fa-times-circle"></i>
                     </div>
                 </div>
@@ -736,38 +730,91 @@
         color: #ffffff !important;
     }
 
-    /* KPI recruitment cards with clean soft accents and zero corner clipping */
+    /* KPI Metric Cards - Premium, perfectly padded and unclipped */
+    .kpi-metric-card,
     .recruitment-kpi-card {
         background: #ffffff !important;
         border: 1px solid #e2e8f0 !important;
         border-radius: 16px !important;
-        position: relative;
-        overflow: hidden;
-        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+        padding: 1.25rem 1.35rem !important;
+        position: relative !important;
+        overflow: hidden !important;
+        transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease, border-color 0.22s ease !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.02) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        height: 100% !important;
     }
-    .recruitment-kpi-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 4px;
-        background: #cbd5e1;
-        transition: width 0.2s ease;
-    }
+    .kpi-metric-card:hover,
     .recruitment-kpi-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.08) !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.09) !important;
         border-color: #cbd5e1 !important;
     }
-    .recruitment-kpi-card:hover::before {
-        width: 6px;
+    .kpi-metric-card::before,
+    .recruitment-kpi-card::before {
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 4.5px !important;
+        border-top-right-radius: 16px !important;
+        border-bottom-right-radius: 16px !important;
+        background: #cbd5e1;
+        transition: width 0.2s ease !important;
     }
-    .recruitment-kpi-card.kpi-border-primary::before { background: #2563eb; }
-    .recruitment-kpi-card.kpi-border-success::before { background: #10b981; }
-    .recruitment-kpi-card.kpi-border-info::before { background: #0284c7; }
-    .recruitment-kpi-card.kpi-border-warning::before { background: #f59e0b; }
-    .recruitment-kpi-card.kpi-border-danger::before { background: #ef4444; }
+    .kpi-metric-card:hover::before,
+    .recruitment-kpi-card:hover::before {
+        width: 6.5px !important;
+    }
+    .kpi-metric-card.kpi-primary::before,
+    .recruitment-kpi-card.kpi-border-primary::before { background: #2563eb !important; }
+    
+    .kpi-metric-card.kpi-success::before,
+    .recruitment-kpi-card.kpi-border-success::before { background: #10b981 !important; }
+    
+    .kpi-metric-card.kpi-info::before,
+    .recruitment-kpi-card.kpi-border-info::before { background: #0284c7 !important; }
+    
+    .kpi-metric-card.kpi-warning::before,
+    .recruitment-kpi-card.kpi-border-warning::before { background: #f59e0b !important; }
+    
+    .kpi-metric-card.kpi-danger::before,
+    .recruitment-kpi-card.kpi-border-danger::before { background: #ef4444 !important; }
+
+    .kpi-metric-title {
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        color: #64748b !important;
+        margin-bottom: 0.45rem !important;
+        line-height: 1.4 !important;
+    }
+
+    .kpi-metric-value {
+        font-size: 2rem !important;
+        font-weight: 800 !important;
+        color: #0f172a !important;
+        line-height: 1.15 !important;
+        margin-bottom: 0.5rem !important;
+        letter-spacing: -0.5px !important;
+    }
+
+    .kpi-metric-icon {
+        width: 48px !important;
+        height: 48px !important;
+        border-radius: 13px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.35rem !important;
+        flex-shrink: 0 !important;
+        transition: transform 0.2s ease !important;
+    }
+    .kpi-metric-card:hover .kpi-metric-icon {
+        transform: scale(1.06) !important;
+    }
 
     /* Table aesthetic */
     .live-recruitment-table th {

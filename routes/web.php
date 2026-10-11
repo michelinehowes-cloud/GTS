@@ -894,6 +894,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin/job-fair')->name('job-fair.a
     Route::post('/{fair}/companies', [App\Http\Controllers\JobFairController::class, 'addCompany'])->name('add-company');
     Route::delete('/{fair}/companies/{company}', [App\Http\Controllers\JobFairController::class, 'removeCompany'])->name('remove-company');
     Route::get('/{fair}/export', [App\Http\Controllers\JobFairController::class, 'exportRegistrations'])->name('export');
+    Route::get('/{fair}/export-recruitment-excel', [App\Http\Controllers\JobFairController::class, 'exportRecruitmentExcel'])->name('export-recruitment-excel');
     Route::get('/{fair}/attendance', [App\Http\Controllers\JobFairController::class, 'attendancePage'])->name('attendance');
     Route::post('/{fair}/reset-attendance', [App\Http\Controllers\JobFairController::class, 'resetAttendance'])->name('reset-attendance');
     Route::post('/check-in', [App\Http\Controllers\JobFairController::class, 'checkIn'])->name('check-in');

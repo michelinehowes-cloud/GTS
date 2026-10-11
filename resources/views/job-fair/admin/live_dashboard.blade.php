@@ -202,11 +202,38 @@
                 <small class="text-muted">متابعة فورية ومفصلة لطلبات التقديم المستلمة وحالات الفرز لكل شركة ووظيفة</small>
             </div>
         </div>
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
             <span class="badge bg-white text-dark border px-3 py-2 rounded-pill fw-bold shadow-xs" style="font-size: 0.84rem;">
                 <i class="fas fa-file-invoice text-warning me-1.5"></i>
                 إجمالي السير: <strong class="text-primary">{{ $recruitment['nomination_stats']['total'] ?? 0 }}</strong>
             </span>
+            <div class="dropdown">
+                <button class="btn btn-sm btn-success rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 shadow-xs dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background: linear-gradient(135deg, #059669, #10b981); border: none; font-size: 0.82rem;">
+                    <i class="fas fa-file-excel"></i>
+                    <span>تنزيل إكسيل التوظيف والمقابلات</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-1 py-1" style="font-size: 0.82rem; min-width: 235px;">
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{{ route('job-fair.admin.export-recruitment-excel', ['fair' => $fair->id, 'format' => 'xlsx']) }}">
+                            <i class="fas fa-file-excel text-success fs-6"></i>
+                            <div>
+                                <div class="fw-bold">تقرير كامل Excel (.xlsx)</div>
+                                <small class="text-muted d-block" style="font-size: 0.72rem;">متعدد الصفحات (شركات، مقابلات، شواغر)</small>
+                            </div>
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="{{ route('job-fair.admin.export-recruitment-excel', ['fair' => $fair->id, 'format' => 'csv']) }}">
+                            <i class="fas fa-file-csv text-primary fs-6"></i>
+                            <div>
+                                <div class="fw-bold">تصدير بتنسيق CSV (.csv)</div>
+                                <small class="text-muted d-block" style="font-size: 0.72rem;">ملف نصي مدعوم في كافة الجداول</small>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
             <a href="{{ route('job-fair.admin.show', $fair->id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1.5 fw-semibold d-inline-flex align-items-center gap-1.5 shadow-xs" style="font-size: 0.8rem;">
                 <i class="fas fa-cog"></i>
                 <span>تفاصيل المعرض</span>
@@ -310,12 +337,16 @@
                 </button>
             </div>
 
-            <!-- شريط البحث السريع والفلترة -->
-            <div class="d-flex align-items-center gap-2" style="min-width: 250px;">
+            <!-- شريط البحث السريع وتصدير Excel -->
+            <div class="d-flex align-items-center gap-2 flex-wrap" style="min-width: 250px;">
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fas fa-search"></i></span>
                     <input type="text" id="filterRecruitmentInput" class="form-control bg-light border-start-0 py-2" placeholder="بحث سريع في الجدول...">
                 </div>
+                <a href="{{ route('job-fair.admin.export-recruitment-excel', ['fair' => $fair->id, 'format' => 'xlsx']) }}" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 shadow-xs text-nowrap" title="تحميل تقرير التوظيف والمقابلات كملف Excel">
+                    <i class="fas fa-file-excel"></i>
+                    <span>تصدير Excel</span>
+                </a>
             </div>
         </div>
         <div class="card-body p-0">

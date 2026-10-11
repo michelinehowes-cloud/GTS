@@ -740,6 +740,16 @@ class JobFairController extends Controller
     }
 
     /**
+     * تصدير تقرير التوظيف والمقابلات وإحصائيات كل شركة كملف Excel (XLSX) أو CSV
+     */
+    public function exportRecruitmentExcel(Request $request, JobFair $fair)
+    {
+        $format = $request->get('format', 'xlsx');
+        $exporter = app(\App\Services\JobFairRecruitmentExcelExportService::class);
+        return $exporter->export($fair, $format);
+    }
+
+    /**
      * صفحة تسجيل الحضور (محطة التحقق الذكي والـ QR Scanner)
      */
     public function attendancePage(Request $request, JobFair $fair)

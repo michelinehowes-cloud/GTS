@@ -13,8 +13,14 @@
         </li>
         <li>
             <a class="dropdown-item rounded-2 py-2 px-3 small d-flex align-items-center gap-2" href="{{ route('job-fair.admin.export', $fair->id) }}">
+                <i class="fas fa-users text-primary"></i>
+                <span>تصدير المسجلين والحضور (Excel)</span>
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item rounded-2 py-2 px-3 small d-flex align-items-center gap-2" href="{{ route('job-fair.admin.export-recruitment-excel', $fair->id) }}">
                 <i class="fas fa-file-excel text-success"></i>
-                <span>تصدير بيانات (Excel)</span>
+                <span>تصدير التوظيف والمقابلات (Excel)</span>
             </a>
         </li>
         <li class="dropdown-divider my-1"></li>

@@ -98,7 +98,29 @@ class JobFairController extends Controller
             }
 
             try {
-                $recentJobs = \App\Models\JobOpportunity::where('status', 'open')->with('company')->latest()->take(6)->get();
+                if ($fair) {
+                    $fairJobs = \App\Models\JobOpportunity::where('status', 'open')
+                        ->where('job_fair_id', $fair->id)
+                        ->with('company')
+                        ->latest()
+                        ->take(6)
+                        ->get();
+                    if ($fairJobs->count() < 6) {
+                        $otherJobs = \App\Models\JobOpportunity::where('status', 'open')
+                            ->where(function($q) use ($fair) {
+                                $q->whereNull('job_fair_id')->orWhere('job_fair_id', '!=', $fair->id);
+                            })
+                            ->with('company')
+                            ->latest()
+                            ->take(6 - $fairJobs->count())
+                            ->get();
+                        $recentJobs = $fairJobs->concat($otherJobs);
+                    } else {
+                        $recentJobs = $fairJobs;
+                    }
+                } else {
+                    $recentJobs = \App\Models\JobOpportunity::where('status', 'open')->with('company')->latest()->take(6)->get();
+                }
             } catch (\Throwable $e) {}
 
             $stats = $this->getFairStats($fair);

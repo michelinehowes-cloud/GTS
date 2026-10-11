@@ -23,7 +23,7 @@ class GraduateJobController extends Controller
     {
         $query = JobOpportunity::where('status', 'open')
             ->where('application_deadline', '>=', now())
-            ->with(['company']);
+            ->with(['company', 'jobFair']);
 
         // البحث
         if ($request->filled('search')) {

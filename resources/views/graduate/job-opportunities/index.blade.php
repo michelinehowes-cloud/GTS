@@ -124,6 +124,11 @@
                             @endif
 
                             <div class="d-flex flex-wrap gap-2 mb-3">
+                                @if($job->jobFair)
+                                    <span class="badge rounded-pill" style="background: rgba(238, 202, 62, 0.2); color: #b45309; border: 1px solid rgba(238, 202, 62, 0.5); font-size: 0.72rem; font-weight: 600;">
+                                        <i class="fas fa-calendar-star me-1 text-warning"></i>{{ Str::limit($job->jobFair->title, 20) }}
+                                    </span>
+                                @endif
                                 <span class="badge bg-light text-secondary border rounded-pill px-2 py-1 small">
                                     <i class="fas fa-map-marker-alt text-danger me-1"></i>
                                     {{ $job->location ?? 'غير محدد' }}

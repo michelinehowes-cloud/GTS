@@ -540,10 +540,36 @@
                                                 @endif
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge {{ $j['status'] === 'open' ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-secondary-subtle text-secondary border' }} px-2.5 py-1 rounded-pill fw-bold d-inline-flex align-items-center gap-1.5" style="font-size: 0.74rem;">
-                                                    <span class="rounded-circle {{ $j['status'] === 'open' ? 'bg-success' : 'bg-secondary' }}" style="width: 6px; height: 6px;"></span>
-                                                    <span>{{ $j['status'] === 'open' ? 'نشطة ومفتوحة' : $j['status'] }}</span>
-                                                </span>
+                                                @if($j['status'] === 'open')
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill fw-bold d-inline-flex align-items-center gap-1.5" style="font-size: 0.74rem;">
+                                                        <span class="rounded-circle bg-success" style="width: 6px; height: 6px;"></span>
+                                                        <span>معتمدة ونشطة</span>
+                                                    </span>
+                                                @elseif($j['status'] === 'pending')
+                                                    <div class="d-inline-flex align-items-center gap-1.5">
+                                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2.5 py-1 rounded-pill fw-bold d-inline-flex align-items-center gap-1.5" style="font-size: 0.74rem;">
+                                                            <span class="rounded-circle bg-warning" style="width: 6px; height: 6px;"></span>
+                                                            <span>بانتظار الاعتماد</span>
+                                                        </span>
+                                                        @if(in_array(auth()->user()->role ?? '', ['admin', 'partnership_officer', 'career_guidance_officer']))
+                                                            <form action="{{ route('job-opportunities.approve', $j['id']) }}" method="POST" class="d-inline m-0">
+                                                                @csrf
+                                                                <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2 py-0.5 fw-bold" style="font-size: 0.68rem;" title="اعتماد ونشر الفرصة الآن" onclick="return confirm('هل تريد اعتماد ونشر هذه الفرصة الوظيفية في المعرض؟')">
+                                                                    <i class="fas fa-check"></i> اعتماد
+                                                                </button>
+                                                            </form>
+                                                        @endif
+                                                    </div>
+                                                @elseif($j['status'] === 'rejected')
+                                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 rounded-pill fw-bold d-inline-flex align-items-center gap-1.5" style="font-size: 0.74rem;">
+                                                        <span class="rounded-circle bg-danger" style="width: 6px; height: 6px;"></span>
+                                                        <span>مرفوضة</span>
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-secondary-subtle text-secondary border px-2.5 py-1 rounded-pill fw-bold" style="font-size: 0.74rem;">
+                                                        {{ $j['status'] }}
+                                                    </span>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

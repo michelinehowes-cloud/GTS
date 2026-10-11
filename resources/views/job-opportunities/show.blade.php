@@ -24,6 +24,14 @@
                                 <div class="flex-grow-1 ms-4 me-4">
                                     <h1 class="h2 mb-3 fw-bold text-white">{{ $opportunity->title }}</h1>
                                     <div class="d-flex flex-wrap gap-2 gap-md-3">
+                                        @if($opportunity->jobFair)
+                                        <a href="{{ route('job-fair.public') }}" class="text-decoration-none">
+                                            <span class="badge rounded-pill shadow-xs" style="background: rgba(238, 202, 62, 0.28); color: #fff; border: 1px solid rgba(238, 202, 62, 0.6); padding: 8px 16px; font-size: 0.9rem; font-weight: 600;">
+                                                <i class="fas fa-calendar-star me-1 text-warning"></i>
+                                                معرض التوظيف: {{ $opportunity->jobFair->title }}
+                                            </span>
+                                        </a>
+                                        @endif
                                         <span class="badge rounded-pill" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; font-size: 0.9rem; font-weight: 500;">
                                             <i class="fas fa-building me-1"></i>
                                             {{ $opportunity->company->name }}
@@ -292,6 +300,29 @@
         <div class="col-lg-4">
             <div class="d-flex flex-column gap-4">
                 
+                @if($opportunity->jobFair)
+                <!-- بطاقة معرض التوظيف المرتبط -->
+                <div class="card shadow-sm border-0 rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #fffdf5 0%, #fefce8 100%); border: 1px solid #fef08a !important;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="rounded-circle bg-warning text-white d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 44px; height: 44px;">
+                                <i class="fas fa-calendar-star fs-5"></i>
+                            </div>
+                            <div>
+                                <div class="text-warning-emphasis fw-bold small mb-0">مخصصة لمعرض التوظيف</div>
+                                <div class="text-dark fw-bold fs-6">{{ $opportunity->jobFair->title }}</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between pt-2 border-top border-warning-subtle small text-muted">
+                            <span><i class="fas fa-calendar-day me-1"></i>{{ $opportunity->jobFair->event_date ? $opportunity->jobFair->event_date->format('Y-m-d') : 'مستمر' }}</span>
+                            <a href="{{ route('job-fair.admin.live', $opportunity->jobFair->id) }}" class="btn btn-sm btn-outline-warning rounded-pill px-2.5 py-0.5 fw-bold text-dark" style="font-size: 0.76rem;">
+                                <i class="fas fa-chart-line me-1"></i>المتابعة اللحظية
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
                 @if($opportunity->salary)
                 <!-- الراتب والمكافأة -->
                 <div class="card shadow-sm border-0 rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #bbf7d0 !important;">

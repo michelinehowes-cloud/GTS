@@ -63,7 +63,8 @@ class CompanyJobFairController extends Controller
             $query = \App\Models\JobOpportunity::where('company_id', $company->id);
 
             if (\Illuminate\Support\Facades\Schema::hasColumn('job_opportunities', 'status')) {
-                $query->whereNotIn('status', ['rejected', 'closed']);
+                // لا تُعرض في ماسح المعرض إلا الوظائف المعتمدة والمفتوحة رسمياً
+                $query->where('status', 'open');
             }
 
             if (\Illuminate\Support\Facades\Schema::hasColumn('job_opportunities', 'job_fair_id')) {

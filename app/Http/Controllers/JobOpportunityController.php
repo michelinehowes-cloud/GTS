@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\JobOpportunity;
 use App\Models\Company;
 use App\Models\Nomination;
+use App\Models\JobFair;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
@@ -31,7 +32,7 @@ class JobOpportunityController extends Controller
         $isCompany = $user && $user->role === 'company';
         $userCompany = $isCompany ? ($user->company ?: Company::where('user_id', $user->id)->first()) : null;
 
-        $query = JobOpportunity::with(['company', 'creator']);
+        $query = JobOpportunity::with(['company', 'creator', 'jobFair']);
 
         // إذا كان المستخدم شركة، تقييد النتائج بفرص شركته فقط
         if ($isCompany && $userCompany) {
@@ -110,14 +111,20 @@ class JobOpportunityController extends Controller
         if ($user && $user->role === 'company') {
             $userCompany = $user->company ?: Company::where('user_id', $user->id)->first();
             $companies = $userCompany ? collect([$userCompany]) : collect([]);
+            $participatingFairs = $userCompany
+                ? JobFair::whereHas('companies', function ($q) use ($userCompany) {
+                    $q->where('company_id', $userCompany->id);
+                })->where('status', '!=', 'completed')->orderBy('event_date', 'desc')->get()
+                : collect();
         } else {
             $companies = Company::all();
+            $participatingFairs = JobFair::where('status', '!=', 'completed')->orderBy('event_date', 'desc')->get();
         }
 
         $specializations = $this->getAvailableSpecializations();
         $skills = $this->getAvailableSkills();
 
-        return view('job-opportunities.create', compact('companies', 'specializations', 'skills'));
+        return view('job-opportunities.create', compact('companies', 'specializations', 'skills', 'participatingFairs'));
     }
 
     /**
@@ -152,6 +159,7 @@ class JobOpportunityController extends Controller
             'salary' => 'nullable|numeric|min:0',
             'benefits' => 'nullable|string',
             'requirements' => 'nullable|string',
+            'job_fair_id' => 'nullable|exists:job_fairs,id',
         ]);
 
         if ($validator->fails()) {
@@ -163,12 +171,15 @@ class JobOpportunityController extends Controller
         $isCompanyUser = $user && $user->role === 'company';
         $initialStatus = $isCompanyUser ? 'pending' : 'open';
 
+        $jobFairId = ($request->boolean('is_for_job_fair') && $request->filled('job_fair_id')) ? $request->job_fair_id : null;
+
         $jobOpportunity = JobOpportunity::create([
             'title' => $request->title,
             'description' => $request->description,
             'type' => $request->type,
             'contract_type' => $request->contract_type,
             'company_id' => $request->company_id,
+            'job_fair_id' => $jobFairId,
             'location' => $request->location,
             'seats' => $request->seats,
             'start_date' => $request->start_date,
@@ -243,14 +254,27 @@ class JobOpportunityController extends Controller
         if ($user && $user->role === 'company') {
             $userCompany = $user->company ?: Company::where('user_id', $user->id)->first();
             $companies = $userCompany ? collect([$userCompany]) : collect([]);
+            $participatingFairs = $userCompany
+                ? JobFair::whereHas('companies', function ($q) use ($userCompany) {
+                    $q->where('company_id', $userCompany->id);
+                })->where('status', '!=', 'completed')->orderBy('event_date', 'desc')->get()
+                : collect();
         } else {
             $companies = Company::all();
+            $participatingFairs = JobFair::where('status', '!=', 'completed')->orderBy('event_date', 'desc')->get();
+        }
+
+        if ($opportunity->job_fair_id && !$participatingFairs->contains('id', $opportunity->job_fair_id)) {
+            $currentFair = JobFair::find($opportunity->job_fair_id);
+            if ($currentFair) {
+                $participatingFairs->push($currentFair);
+            }
         }
 
         $specializations = $this->getAvailableSpecializations();
         $skills = $this->getAvailableSkills();
 
-        return view('job-opportunities.edit', compact('opportunity', 'companies', 'specializations', 'skills'));
+        return view('job-opportunities.edit', compact('opportunity', 'companies', 'specializations', 'skills', 'participatingFairs'));
     }
 
     /**
@@ -292,6 +316,7 @@ class JobOpportunityController extends Controller
             'benefits' => 'nullable|string',
             'requirements' => 'nullable|string',
             'status' => $statusRule,
+            'job_fair_id' => 'nullable|exists:job_fairs,id',
         ]);
 
         if ($validator->fails()) {
@@ -301,10 +326,13 @@ class JobOpportunityController extends Controller
         }
 
         $data = $request->all();
+        $data['job_fair_id'] = ($request->boolean('is_for_job_fair') && $request->filled('job_fair_id')) ? $request->job_fair_id : null;
 
         // إذا قامت الشركة بتعديل فرصة كانت مرفوضة أو معلقة، تُعاد للحالة المعلقة لإعادة المراجعة
         if ($isCompany) {
-            if ($opportunity->status === 'rejected') {
+            $wasNotFair = empty($opportunity->job_fair_id) && !empty($data['job_fair_id']);
+
+            if ($opportunity->status === 'rejected' || $wasNotFair) {
                 $data['status'] = 'pending';
                 $data['rejection_reason'] = null;
                 try {

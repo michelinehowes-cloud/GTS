@@ -51,6 +51,60 @@
                             </div>
                         </div>
 
+                        {{-- تخصيص الوظيفة لمعرض التوظيف --}}
+                        @if(isset($participatingFairs) && $participatingFairs->count() > 0)
+                            @php
+                                $isFairLinked = old('is_for_job_fair', !empty($opportunity->job_fair_id));
+                                $currentFairId = old('job_fair_id', $opportunity->job_fair_id);
+                            @endphp
+                            <div class="card border border-warning-subtle rounded-4 mb-4 shadow-xs" style="background: linear-gradient(135deg, #fffdf5 0%, #fefce8 100%);">
+                                <div class="card-body p-3.5">
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                                        <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="is_for_job_fair" name="is_for_job_fair" value="1" {{ $isFairLinked ? 'checked' : '' }} style="cursor: pointer; width: 2.5rem; height: 1.3rem;">
+                                            <label class="form-check-label fw-bold text-dark mb-0 fs-6" for="is_for_job_fair" style="cursor: pointer;">
+                                                <i class="fas fa-calendar-star text-warning me-1"></i>
+                                                تخصيص هذه الوظيفة لمعرض التوظيف
+                                            </label>
+                                        </div>
+                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2.5 py-1" style="font-size: 0.74rem;">
+                                            <i class="fas fa-shield-alt me-1"></i>تخضع لاعتماد إدارة المعرض
+                                        </span>
+                                    </div>
+                                    <p class="text-muted small mb-0 ms-md-4 ps-md-2">
+                                        عند تفعيل هذا الخيار، سيتم ربط الوظيفة بجناح الشركة في المعرض ومؤشرات التوظيف الحية.
+                                    </p>
+
+                                    <div id="job_fair_selection_wrapper" class="mt-3 ps-md-4 {{ $isFairLinked ? '' : 'd-none' }}">
+                                        <div class="row align-items-center g-3">
+                                            <div class="col-md-7">
+                                                <label for="job_fair_id" class="form-label small fw-bold text-dark mb-1">اختر معرض التوظيف المستهدف <span class="text-danger">*</span></label>
+                                                <select name="job_fair_id" id="job_fair_id" class="form-select @error('job_fair_id') is-invalid @enderror">
+                                                    @if($participatingFairs->count() > 1)
+                                                        <option value="">-- اختر المعرض --</option>
+                                                    @endif
+                                                    @foreach($participatingFairs as $fair)
+                                                        <option value="{{ $fair->id }}" {{ $currentFairId == $fair->id ? 'selected' : '' }}>
+                                                            {{ $fair->title }} ({{ $fair->event_date ? $fair->event_date->format('Y-m-d') : 'مستمر' }})
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                @error('job_fair_id')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <div class="col-md-5">
+                                                <div class="alert alert-info py-2 px-3 small rounded-3 mb-0 border-0 bg-info-subtle text-info-emphasis">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    <strong>إشعار:</strong> لا تظهر الوظيفة في المعرض أو في مسح السير إلا بعد اعتمادها من الجهة المختصة.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="mb-3">
                             <label for="description" class="form-label">الوصف *</label>
                             <textarea class="form-control @error('description') is-invalid @enderror" 
@@ -231,4 +285,26 @@
                         </div>
                     </form>
 </x-bento-form>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const isForJobFair = document.getElementById('is_for_job_fair');
+    const jobFairWrapper = document.getElementById('job_fair_selection_wrapper');
+    const jobFairSelect = document.getElementById('job_fair_id');
+    if (isForJobFair && jobFairWrapper) {
+        isForJobFair.addEventListener('change', function() {
+            if (this.checked) {
+                jobFairWrapper.classList.remove('d-none');
+                if (jobFairSelect && jobFairSelect.options.length === 1) {
+                    jobFairSelect.selectedIndex = 0;
+                }
+            } else {
+                jobFairWrapper.classList.add('d-none');
+            }
+        });
+    }
+});
+</script>
 @endsection

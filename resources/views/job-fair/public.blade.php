@@ -872,235 +872,579 @@
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
+        /* ══════════════════════════════════
+           SPONSORS SECTION (Luxury Glassmorphic Redesign)
+        ══════════════════════════════════ */
+        .sponsors-section {
+            padding: 95px 0 100px;
+            background: radial-gradient(circle at 50% 10%, rgba(14, 116, 144, 0.12) 0%, transparent 65%),
+                        radial-gradient(circle at 85% 70%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+                        linear-gradient(180deg, #020e1e 0%, #041830 50%, #031224 100%);
+            position: relative;
+            border-top: 1px solid rgba(56, 189, 248, 0.12);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.12);
+        }
+
+        /* ── Strategic Partner VIP Spotlight Card ── */
+        .strategic-spotlight-card {
+            background: radial-gradient(circle at 90% 20%, rgba(245, 158, 11, 0.18) 0%, rgba(13, 37, 68, 0.95) 55%, rgba(6, 21, 42, 0.98) 100%);
+            border: 1.5px solid rgba(238, 202, 62, 0.45);
+            border-radius: 28px;
+            padding: 2.2rem 2.4rem;
+            margin: 0 auto 3.2rem;
+            max-width: 1100px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55), 0 0 35px rgba(238, 202, 62, 0.15);
+            position: relative;
+            backdrop-filter: blur(16px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        .strategic-spotlight-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #eeca3e, #f59e0b, #38bdf8, transparent);
+        }
+
+        .strategic-spotlight-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(238, 202, 62, 0.7);
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.65), 0 0 50px rgba(238, 202, 62, 0.25);
+        }
+
+        .strategic-spotlight-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        @media (max-width: 991px) {
+            .strategic-spotlight-card {
+                padding: 1.8rem 1.4rem;
+            }
+            .strategic-spotlight-inner {
+                flex-direction: column-reverse;
+                text-align: center;
+                gap: 1.8rem;
+            }
+        }
+
+        .strategic-vip-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3));
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.5);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.84rem;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            box-shadow: 0 0 16px rgba(245, 158, 11, 0.2);
+            margin-bottom: 0.9rem;
+        }
+
+        .strategic-title {
+            color: #ffffff;
+            font-size: 1.65rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            line-height: 1.35;
+        }
+
+        .strategic-desc {
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 0.98rem;
+            line-height: 1.75;
+            margin-bottom: 1.4rem;
+            max-width: 650px;
+        }
+
+        .strategic-action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, rgba(238, 202, 62, 0.18), rgba(245, 158, 11, 0.32));
+            color: #fbbf24;
+            border: 1.5px solid rgba(238, 202, 62, 0.6);
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+        }
+
+        .strategic-action-btn:hover {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            color: #041224;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+
+        .strategic-logo-box {
+            min-width: 210px;
+            max-width: 240px;
+            height: 120px;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+            border: 2px solid rgba(238, 202, 62, 0.35);
+            flex-shrink: 0;
+            transition: transform 0.35s ease;
+        }
+
+        .strategic-spotlight-card:hover .strategic-logo-box {
+            transform: scale(1.05) rotate(-1deg);
+        }
+
+        .strategic-logo-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        /* ── Tiered Sponsors Grid ── */
         .sponsors-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 1.8rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
             max-width: 1200px;
             margin: 0 auto;
         }
 
         .sponsor-card {
-            background: rgba(255, 255, 255, 0.03);
+            background: linear-gradient(180deg, rgba(14, 38, 70, 0.65) 0%, rgba(6, 20, 40, 0.88) 100%);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 22px;
-            padding: 2rem 1.5rem;
+            border-radius: 24px;
+            padding: 2.2rem 1.8rem 1.8rem;
             text-align: center;
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(14px);
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             overflow: hidden;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
         }
 
         .sponsor-card:hover {
             transform: translateY(-8px);
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(245, 158, 11, 0.4);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+            background: linear-gradient(180deg, rgba(18, 48, 88, 0.75) 0%, rgba(8, 26, 52, 0.95) 100%);
+        }
+
+        .sponsor-card.is-diamond {
+            border-color: rgba(56, 189, 248, 0.35);
+        }
+        .sponsor-card.is-diamond:hover {
+            border-color: rgba(56, 189, 248, 0.7);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 30px rgba(56, 189, 248, 0.25);
+        }
+
+        .sponsor-card.is-platinum {
+            border-color: rgba(226, 232, 240, 0.35);
+        }
+        .sponsor-card.is-platinum:hover {
+            border-color: rgba(226, 232, 240, 0.7);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 30px rgba(226, 232, 240, 0.2);
+        }
+
+        .sponsor-card.is-gold {
+            border-color: rgba(245, 158, 11, 0.35);
+        }
+        .sponsor-card.is-gold:hover {
+            border-color: rgba(245, 158, 11, 0.7);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 30px rgba(245, 158, 11, 0.25);
+        }
+
+        .sponsor-card.is-silver {
+            border-color: rgba(148, 163, 184, 0.35);
+        }
+        .sponsor-card.is-silver:hover {
+            border-color: rgba(148, 163, 184, 0.7);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 30px rgba(148, 163, 184, 0.2);
         }
 
         .sponsor-tier-badge {
-            font-size: 0.75rem;
+            font-size: 0.78rem;
             font-weight: 800;
-            padding: 4px 14px;
+            padding: 5px 16px;
             border-radius: 50px;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1.4rem;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            letter-spacing: 0.5px;
+            gap: 7px;
+            letter-spacing: 0.4px;
         }
+
         .tier-diamond {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(14, 165, 233, 0.3));
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(14, 165, 233, 0.35));
             color: #38bdf8;
-            border: 1px solid rgba(56, 189, 248, 0.4);
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.22);
         }
         .tier-platinum {
-            background: linear-gradient(135deg, rgba(226, 232, 240, 0.2), rgba(203, 213, 225, 0.3));
+            background: linear-gradient(135deg, rgba(226, 232, 240, 0.22), rgba(203, 213, 225, 0.35));
             color: #f1f5f9;
-            border: 1px solid rgba(226, 232, 240, 0.4);
-            box-shadow: 0 0 15px rgba(226, 232, 240, 0.15);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+            box-shadow: 0 0 15px rgba(226, 232, 240, 0.18);
         }
         .tier-gold {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3));
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.35));
             color: #fbbf24;
-            border: 1px solid rgba(245, 158, 11, 0.4);
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.5);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.22);
         }
         .tier-silver {
-            background: linear-gradient(135deg, rgba(156, 163, 175, 0.2), rgba(107, 114, 128, 0.3));
+            background: linear-gradient(135deg, rgba(156, 163, 175, 0.22), rgba(107, 114, 128, 0.35));
             color: #d1d5db;
-            border: 1px solid rgba(156, 163, 175, 0.4);
+            border: 1px solid rgba(156, 163, 175, 0.5);
         }
 
         .sponsor-logo-box {
-            width: 130px;
-            height: 90px;
+            width: 145px;
+            height: 96px;
             background: #ffffff;
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 1.2rem;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-            transition: transform 0.3s;
+            margin-bottom: 1.3rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
         }
+
         .sponsor-card:hover .sponsor-logo-box {
-            transform: scale(1.05);
+            transform: scale(1.08);
         }
+
         .sponsor-logo-box img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
         }
+
+        .sponsor-fallback-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #0a264a 0%, #15467e 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: #fbbf24;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .sponsor-fallback-avatar .avatar-letter {
+            font-size: 1.7rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .sponsor-fallback-avatar .avatar-icon {
+            font-size: 0.85rem;
+            color: #38bdf8;
+            opacity: 0.85;
+        }
+
         .sponsor-name {
             color: #ffffff;
-            font-size: 1.15rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        .sponsor-desc {
-            color: rgba(255, 255, 255, 0.65);
-            font-size: 0.88rem;
-            line-height: 1.6;
-            margin-bottom: 1rem;
-            flex-grow: 1;
-        }
-        .sponsor-link {
-            color: var(--gold);
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            transition: color 0.2s;
-        }
-        .sponsor-link:hover {
-            color: #fbbf24;
-            text-decoration: underline;
-        }
-
-        /* ══════════════════════════════════
-           COMPANIES SECTION (Logos Grid)
-        ══════════════════════════════════ */
-        .companies-section {
-            padding: 100px 0;
-            background: #071324;
-            position: relative;
-        }
-
-        .companies-logo-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 1.5rem;
-        }
-
-        .company-logo-item {
-            width: 160px;
-            height: 160px;
-            background: #ffffff;
-            border-radius: 24px;
-            padding: 1.5rem;
-            border: none;
-            transition: all 0.3s ease;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            text-decoration: none;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        .company-logo-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-        }
-
-        .company-logo-item img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            mix-blend-mode: multiply;
-        }
-
-        .company-logo-item .fallback-icon {
-            font-size: 2.5rem;
-            color: #d1d5db;
-            margin-bottom: 0.5rem;
-        }
-        
-        .company-logo-item .fallback-text {
-            color: #1f2937;
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-align: center;
+            font-size: 1.22rem;
+            font-weight: 800;
+            margin-bottom: 0.6rem;
             line-height: 1.4;
         }
 
-        .booth-badge {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: linear-gradient(135deg, #3B82F6, #2563EB);
-            color: white;
-            font-size: 0.75rem;
-            font-weight: 800;
-            padding: 4px 12px;
-            border-radius: 50px;
-            box-shadow: 0 4px 10px rgba(37,99,235,0.4);
-            border: 1px solid rgba(255,255,255,0.2);
-            z-index: 2;
+        .sponsor-desc {
+            color: rgba(255, 255, 255, 0.68);
+            font-size: 0.89rem;
+            line-height: 1.65;
+            margin-bottom: 1.2rem;
+            flex-grow: 1;
         }
 
-        .jobs-badge {
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #10B981;
-            color: white;
-            font-size: 0.7rem;
-            font-weight: 800;
-            padding: 2px 10px;
+        .sponsor-link {
+            color: #38bdf8;
+            font-size: 0.86rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
             border-radius: 50px;
-            box-shadow: 0 4px 10px rgba(16,185,129,0.4);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            transition: all 0.25s ease;
+        }
+
+        .sponsor-link:hover {
+            color: #ffffff;
+            background: rgba(56, 189, 248, 0.25);
+            border-color: #38bdf8;
+            transform: translateY(-2px);
+        }
+
+        /* ══════════════════════════════════
+           COMPANIES SECTION (Interactive Expo Booths)
+        ══════════════════════════════════ */
+        .companies-section {
+            padding: 100px 0 110px;
+            background: radial-gradient(circle at 50% 0%, rgba(30, 64, 175, 0.15) 0%, transparent 70%),
+                        linear-gradient(180deg, #031224 0%, #051d38 50%, #020e1e 100%);
+            position: relative;
+        }
+
+        .companies-booth-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+            gap: 1.7rem;
+            max-width: 1240px;
+            margin: 0 auto;
+        }
+
+        .company-booth-card {
+            background: linear-gradient(180deg, rgba(14, 34, 62, 0.78) 0%, rgba(6, 20, 39, 0.94) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.18);
+            border-radius: 24px;
+            padding: 1.35rem 1.3rem 1.15rem;
+            text-align: center;
+            text-decoration: none;
+            backdrop-filter: blur(14px);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.38);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .company-booth-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            padding: 1.5px;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.4), transparent 60%, rgba(238, 202, 62, 0.3));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+        }
+
+        .company-booth-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(56, 189, 248, 0.55);
+            box-shadow: 0 22px 45px rgba(0, 0, 0, 0.55), 0 0 30px rgba(56, 189, 248, 0.22);
+        }
+
+        .company-booth-card:hover::after {
+            opacity: 1;
+        }
+
+        .company-card-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 1.2rem;
+            width: 100%;
+        }
+
+        .booth-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(37, 99, 235, 0.18);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            padding: 4px 11px;
+            border-radius: 50px;
+            font-size: 0.76rem;
+            font-weight: 800;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+        }
+
+        .jobs-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 11px;
+            border-radius: 50px;
+            font-size: 0.76rem;
+            font-weight: 800;
             white-space: nowrap;
         }
 
-        .jobs-badge.jobs-badge-info {
-            background: linear-gradient(135deg, #0284c7, #0369a1);
-            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.4);
+        .jobs-pill.has-vacancies {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.45);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
         }
 
+        .jobs-pill.info-booth {
+            background: rgba(14, 165, 233, 0.18);
+            color: #38bdf8;
+            border: 1px solid rgba(14, 165, 233, 0.4);
+            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);
+        }
+
+        .company-logo-well {
+            width: 92px;
+            height: 92px;
+            margin: 0 auto 1.1rem;
+            border-radius: 22px;
+            background: #ffffff;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.95);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .company-booth-card:hover .company-logo-well {
+            transform: scale(1.08) translateY(-2px);
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.4), 0 0 16px rgba(56, 189, 248, 0.3);
+        }
+
+        .company-logo-well img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .company-fallback-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #0b325c 0%, #08559e 100%);
+            color: #fbbf24;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.25);
+        }
+
+        .company-fallback-avatar .company-monogram {
+            font-size: 1.35rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .company-fallback-avatar .company-subicon {
+            font-size: 0.75rem;
+            color: #38bdf8;
+            margin-top: 3px;
+            opacity: 0.85;
+        }
+
+        .company-card-name {
+            color: #ffffff;
+            font-size: 1.15rem;
+            font-weight: 800;
+            margin-bottom: 0.45rem;
+            line-height: 1.35;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .company-card-sector {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: #94a3b8;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-bottom: 1.1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        .company-card-action {
+            margin-top: auto;
+            padding-top: 0.85rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #38bdf8;
+            transition: color 0.2s ease;
+        }
+
+        .company-booth-card:hover .company-card-action {
+            color: #fbbf24;
+        }
+
+        .company-card-action i {
+            transition: transform 0.25s ease;
+        }
+
+        .company-booth-card:hover .company-card-action i {
+            transform: translateX(-5px);
+        }
+
+        /* ── Modern Directory Button ── */
         .companies-dir-btn {
             display: inline-flex;
             align-items: center;
             gap: 12px;
-            background: linear-gradient(135deg, #045db0 0%, #1e40af 50%, #d97706 150%);
+            background: linear-gradient(135deg, rgba(6, 43, 84, 0.9) 0%, rgba(14, 76, 148, 0.95) 50%, rgba(217, 119, 6, 0.85) 150%);
             color: #ffffff;
-            border: 1.5px solid rgba(238, 202, 62, 0.5);
-            padding: 14px 34px;
+            border: 1.5px solid rgba(238, 202, 62, 0.6);
+            padding: 15px 36px;
             border-radius: 50px;
-            font-weight: 700;
+            font-weight: 800;
             font-size: 1.05rem;
             text-decoration: none;
-            box-shadow: 0 10px 25px rgba(4, 93, 176, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 12px 30px rgba(4, 93, 176, 0.45), 0 0 20px rgba(238, 202, 62, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
         }
 
         .companies-dir-btn:hover {
             color: #ffffff;
             transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 15px 35px rgba(238, 202, 62, 0.4);
+            box-shadow: 0 18px 40px rgba(238, 202, 62, 0.4), 0 0 30px rgba(56, 189, 248, 0.3);
             border-color: #eeca3e;
         }
 
@@ -1109,8 +1453,9 @@
         }
 
         .companies-dir-btn:hover i {
-            transform: translateX(-4px);
+            transform: translateX(-5px);
         }
+
 
         /* ══════════════════════════════════
            SCIENTIFIC PROGRAM PREVIEW SECTION (Compact & Refined)
@@ -2182,89 +2527,119 @@
             <p class="section-subtitle">نفتخر برعاية ودعم نخبة المؤسسات الوطنية الرائدة لمسيرة تمكين وتوظيف الكفاءات الشابة</p>
         </div>
 
-        <div class="sponsors-grid">
-            {{-- الشريك والراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات --}}
-            <div class="sponsor-card sponsor-card-strategic">
-                <div class="sponsor-tier-badge tier-strategic">
-                    <i class="fas fa-crown me-1 text-warning"></i>
-                    <span>الراعي الاستراتيجي</span>
+        {{-- الشريك والراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات (VIP Spotlight Card) --}}
+        <div class="strategic-spotlight-card">
+            <div class="strategic-spotlight-inner">
+                <div>
+                    <span class="strategic-vip-pill">
+                        <i class="fas fa-crown text-warning"></i>
+                        <span>الشريك والراعي الاستراتيجي الرسمي</span>
+                    </span>
+                    <h3 class="strategic-title">شركة الواحة لتنظيم المعارض والمؤتمرات</h3>
+                    <p class="strategic-desc">
+                        الشريك والراعي الاستراتيجي لمعرض التوظيف السنوي بجامعة طرابلس، الرائد في صناعة وتنظيم كبرى الفعاليات والمعارض والمؤتمرات المهنية في ليبيا.
+                    </p>
+                    <a href="https://ly.linkedin.com/company/wahaexpo" target="_blank" rel="noopener noreferrer" class="strategic-action-btn">
+                        <span>زيارة صفحة الشريك الاستراتيجي</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
                 </div>
 
-                <div class="sponsor-logo-box bg-white p-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center" style="min-height: 90px;">
-                    <img src="{{ asset('images/wahaexpo_logo.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="max-height: 75px; max-width: 170px; object-fit: contain;">
+                <div class="strategic-logo-box">
+                    <img src="{{ asset('images/wahaexpo_logo.png') }}" 
+                         alt="شركة الواحة لتنظيم المعارض والمؤتمرات"
+                         onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
                 </div>
-
-                <h3 class="sponsor-name">شركة الواحة لتنظيم المعارض والمؤتمرات</h3>
-                <p class="sponsor-desc">الشريك والراعي الاستراتيجي لمعرض التوظيف السنوي بجامعة طرابلس، الرائد في صناعة وتنظيم كبرى الفعاليات والمعارض والمؤتمرات المهنية في ليبيا.</p>
-
-                <a href="https://ly.linkedin.com/company/wahaexpo" target="_blank" rel="noopener noreferrer" class="sponsor-link">
-                    <span>زيارة صفحة الشركة</span>
-                    <i class="fas fa-external-link-alt" style="font-size: 0.75rem;"></i>
-                </a>
             </div>
+        </div>
 
-            @if(isset($sponsors) && $sponsors->count() > 0)
+        {{-- شبكة الرعاة الآخرين مصنفة حسب الفئات (Diamond / Platinum / Gold / Silver) --}}
+        @if(isset($sponsors) && $sponsors->count() > 0)
+            <div class="sponsors-grid">
                 @foreach($sponsors as $sponsor)
-                <div class="sponsor-card">
                     @php
                         $tKey = strtolower(trim((string)$sponsor->tier));
-                        $tierClass = match($tKey) {
-                            'strategic', 'الراعي الاستراتيجي' => 'tier-strategic',
-                            'diamond', 'الراعي الماسي' => 'tier-diamond',
-                            'platinum', 'الراعي البلاتيني' => 'tier-platinum',
-                            'silver', 'الراعي الفضي' => 'tier-silver',
-                            default => 'tier-gold',
-                        };
-                        $tierLabel = $sponsor->tier_label ?: match($tKey) {
-                            'strategic', 'الراعي الاستراتيجي' => 'الراعي الاستراتيجي',
-                            'diamond', 'الراعي الماسي' => 'الراعي الماسي',
-                            'platinum', 'الراعي البلاتيني' => 'الراعي البلاتيني',
-                            'silver', 'الراعي الفضي' => 'الراعي الفضي',
-                            'bronze', 'الراعي البرونزي' => 'الراعي البرونزي',
-                            'tech', 'راعي التقنية' => 'راعي التقنية',
-                            'media', 'الراعي الإعلامي' => 'الراعي الإعلامي',
-                            default => 'الراعي الذهبي',
-                        };
-                        $tierIconClass = match($tKey) {
-                            'strategic', 'الراعي الاستراتيجي' => 'fa-crown',
-                            'diamond', 'الراعي الماسي' => 'fa-gem',
-                            'platinum', 'الراعي البلاتيني' => 'fa-star',
-                            'silver', 'الراعي الفضي' => 'fa-award',
-                            'tech', 'راعي التقنية' => 'fa-microchip',
-                            'media', 'الراعي الإعلامي' => 'fa-bullhorn',
-                            default => 'fa-trophy',
-                        };
+                        $isStrategic = in_array($tKey, ['strategic', 'الراعي الاستراتيجي']);
                     @endphp
-                    <div class="sponsor-tier-badge {{ $tierClass }}">
-                        <i class="fas {{ $tierIconClass }} me-1"></i>
-                        <span>{{ $tierLabel }}</span>
-                    </div>
+                    @if(!$isStrategic)
+                        @php
+                            $tierClass = match($tKey) {
+                                'diamond', 'الراعي الماسي' => 'tier-diamond',
+                                'platinum', 'الراعي البلاتيني' => 'tier-platinum',
+                                'silver', 'الراعي الفضي' => 'tier-silver',
+                                default => 'tier-gold',
+                            };
+                            $tierCardModifier = match($tKey) {
+                                'diamond', 'الراعي الماسي' => 'is-diamond',
+                                'platinum', 'الراعي البلاتيني' => 'is-platinum',
+                                'silver', 'الراعي الفضي' => 'is-silver',
+                                default => 'is-gold',
+                            };
+                            $tierLabel = $sponsor->tier_label ?: match($tKey) {
+                                'diamond', 'الراعي الماسي' => 'الراعي الماسي',
+                                'platinum', 'الراعي البلاتيني' => 'الراعي البلاتيني',
+                                'silver', 'الراعي الفضي' => 'الراعي الفضي',
+                                'bronze', 'الراعي البرونزي' => 'الراعي البرونزي',
+                                'tech', 'راعي التقنية' => 'راعي التقنية',
+                                'media', 'الراعي الإعلامي' => 'الراعي الإعلامي',
+                                default => 'الراعي الذهبي',
+                            };
+                            $tierIconClass = match($tKey) {
+                                'diamond', 'الراعي الماسي' => 'fa-gem',
+                                'platinum', 'الراعي البلاتيني' => 'fa-star',
+                                'silver', 'الراعي الفضي' => 'fa-award',
+                                'tech', 'راعي التقنية' => 'fa-microchip',
+                                'media', 'الراعي الإعلامي' => 'fa-bullhorn',
+                                default => 'fa-trophy',
+                            };
+                            $monogramLetter = mb_substr(trim($sponsor->name), 0, 1, 'UTF-8');
+                        @endphp
+                        <div class="sponsor-card {{ $tierCardModifier }}">
+                            <div class="sponsor-tier-badge {{ $tierClass }}">
+                                <i class="fas {{ $tierIconClass }}"></i>
+                                <span>{{ $tierLabel }}</span>
+                            </div>
 
-                    <div class="sponsor-logo-box">
-                        @if($sponsor->logo_path)
-                            <img src="{{ Storage::url($sponsor->logo_path) }}" alt="{{ $sponsor->name }}">
-                        @else
-                            <i class="fas fa-award fa-2x text-warning"></i>
-                        @endif
-                    </div>
+                            <div class="sponsor-logo-box">
+                                @if($sponsor->logo_path)
+                                    <img src="{{ Storage::url($sponsor->logo_path) }}" 
+                                         alt="{{ $sponsor->name }}"
+                                         loading="lazy"
+                                         onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                                    <div class="sponsor-fallback-avatar" style="display:none;">
+                                        <span class="avatar-letter">{{ $monogramLetter }}</span>
+                                        <i class="fas fa-building avatar-icon"></i>
+                                    </div>
+                                @else
+                                    <div class="sponsor-fallback-avatar">
+                                        <span class="avatar-letter">{{ $monogramLetter }}</span>
+                                        <i class="fas fa-building avatar-icon"></i>
+                                    </div>
+                                @endif
+                            </div>
 
-                    <h3 class="sponsor-name">{{ $sponsor->name }}</h3>
-                    <p class="sponsor-desc">{{ $sponsor->description }}</p>
+                            <h3 class="sponsor-name">{{ $sponsor->name }}</h3>
+                            @if($sponsor->description)
+                                <p class="sponsor-desc">{{ $sponsor->description }}</p>
+                            @else
+                                <p class="sponsor-desc">شريك استراتيجي داعم لمسارات التوظيف وتمكين الكفاءات الوطنية الشابة.</p>
+                            @endif
 
-                    @if($sponsor->website)
-                        <a href="{{ $sponsor->website }}" target="_blank" rel="noopener noreferrer" class="sponsor-link">
-                            <span>زيارة الموقع الإلكتروني</span>
-                            <i class="fas fa-external-link-alt" style="font-size: 0.75rem;"></i>
-                        </a>
+                            @if($sponsor->website)
+                                <a href="{{ $sponsor->website }}" target="_blank" rel="noopener noreferrer" class="sponsor-link">
+                                    <span>زيارة الموقع الإلكتروني</span>
+                                    <i class="fas fa-arrow-left"></i>
+                                </a>
+                            @endif
+                        </div>
                     @endif
-                </div>
                 @endforeach
-            @endif
-        </div>
+            </div>
+        @endif
     </div>
 </section>
 
-{{-- COMPANIES SECTION (Interactive Popup Cards) --}}
+{{-- COMPANIES SECTION (Interactive Expo Booths) --}}
 @if($companies->count() > 0)
 @php
     $totalComp = $companies->count();
@@ -2286,53 +2661,97 @@
         <div class="text-center mb-5">
             <div class="section-badge"><i class="fas fa-building"></i>الشركات والمؤسسات المشاركة</div>
             <div class="title-line"></div>
-            <h2 class="section-title">الشركات المشاركة</h2>
-            <p class="section-subtitle">{{ $countText }} في المعرض — اضغط على أي شركة للتعرف على تفاصيلها وجناحها</p>
+            <h2 class="section-title">أجنحة الشركات المشاركة</h2>
+            <p class="section-subtitle">{{ $countText }} في المعرض — انقر على أي جناح للتعرف على فرصه وتفاصيله</p>
         </div>
 
-        <div class="companies-logo-grid">
+        <div class="companies-booth-grid">
             @foreach($previewCompanies as $fc)
             @php
                 $companyLogo = $fc->company->logo_path ? Storage::url($fc->company->logo_path) : ($fc->company->logo ? Storage::url($fc->company->logo) : '');
                 $companyName = $fc->company->name ?? 'شركة مشاركة';
                 $companyDesc = $fc->company->description ?: ('جهة رائدة مشاركة في فعاليات ' . ($fair->title ?? 'المعرض والملتقى') . ' لتوفير أفضل الفرص للخرجين.');
                 $pos = (int)($fc->available_positions ?? 0);
+                $industry = $fc->company->industry ?? 'قطاع الأعمال والخدمات';
+                $monogram = mb_substr(trim($companyName), 0, 2, 'UTF-8');
             @endphp
             <div role="button" 
                  tabindex="0"
-                 class="company-logo-item" 
+                 class="company-booth-card" 
                  data-bs-toggle="modal" 
                  data-bs-target="#companyDetailModal"
                  data-name="{{ $companyName }}"
                  data-logo="{{ $companyLogo }}"
-                 data-industry="{{ $fc->company->industry ?? 'قطاع الأعمال والخدمات' }}"
+                 data-industry="{{ $industry }}"
                  data-booth="{{ $fc->booth_number ? strtoupper($fc->booth_number) : '' }}"
                  data-jobs="{{ $pos }}"
                  data-desc="{{ $companyDesc }}"
                  data-website="{{ $fc->company->website ?? '' }}"
                  data-email="{{ $fc->company->email ?? '' }}"
                  data-phone="{{ $fc->company->phone ?? '' }}"
-                 title="انقر للاطلاع على تفاصيل {{ $companyName }}">
+                 title="انقر للاطلاع على تفاصيل جناح {{ $companyName }}">
                 
-                @if($fc->booth_number)
-                    <span class="booth-badge"><i class="fas fa-map-marker-alt me-1"></i>جناح {{ strtoupper($fc->booth_number) }}</span>
-                @endif
+                {{-- شريط الشارات العلوي --}}
+                <div class="company-card-top-bar">
+                    @if($fc->booth_number)
+                        <span class="booth-pill">
+                            <i class="fas fa-map-pin"></i>
+                            <span>جناح {{ strtoupper($fc->booth_number) }}</span>
+                        </span>
+                    @else
+                        <span class="booth-pill">
+                            <i class="fas fa-store"></i>
+                            <span>جناح بالمعرض</span>
+                        </span>
+                    @endif
 
-                @if($pos > 0)
-                    @php
-                        $posText = ($pos == 1 ? 'فرصة واحدة' : ($pos == 2 ? 'فرصتان' : ($pos <= 10 ? $pos.' فرص' : $pos.' فرصة')));
-                    @endphp
-                    <span class="jobs-badge"><i class="fas fa-briefcase me-1"></i>{{ $posText }}</span>
-                @else
-                    <span class="jobs-badge jobs-badge-info"><i class="fas fa-handshake me-1"></i>جناح تعريفي</span>
-                @endif
+                    @if($pos > 0)
+                        @php
+                            $posText = ($pos == 1 ? 'فرصة واحدة' : ($pos == 2 ? 'فرصتان' : ($pos <= 10 ? $pos.' فرص' : $pos.' فرصة')));
+                        @endphp
+                        <span class="jobs-pill has-vacancies">
+                            <i class="fas fa-briefcase"></i>
+                            <span>{{ $posText }}</span>
+                        </span>
+                    @else
+                        <span class="jobs-pill info-booth">
+                            <i class="fas fa-handshake"></i>
+                            <span>جناح تعريفي</span>
+                        </span>
+                    @endif
+                </div>
 
-                @if($companyLogo)
-                    <img src="{{ $companyLogo }}" alt="{{ $companyName }}">
-                @else
-                    <i class="fas fa-building fallback-icon"></i>
-                    <span class="fallback-text">{{ $companyName }}</span>
-                @endif
+                {{-- صندوق الشعار مع المعالجة الذاتية للصور التالفة --}}
+                <div class="company-logo-well">
+                    @if($companyLogo)
+                        <img src="{{ $companyLogo }}" 
+                             alt="{{ $companyName }}" 
+                             loading="lazy"
+                             onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                        <div class="company-fallback-avatar" style="display:none;">
+                            <span class="company-monogram">{{ $monogram }}</span>
+                            <i class="fas fa-building company-subicon"></i>
+                        </div>
+                    @else
+                        <div class="company-fallback-avatar">
+                            <span class="company-monogram">{{ $monogram }}</span>
+                            <i class="fas fa-building company-subicon"></i>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- عنوان وبيانات الشركة --}}
+                <h4 class="company-card-name" title="{{ $companyName }}">{{ $companyName }}</h4>
+                <div class="company-card-sector" title="{{ $industry }}">
+                    <i class="fas fa-layer-group"></i>
+                    <span>{{ $industry }}</span>
+                </div>
+
+                {{-- تذييل تفاعلي للبطاقة --}}
+                <div class="company-card-action">
+                    <span>استكشاف تفاصيل الجناح</span>
+                    <i class="fas fa-arrow-left"></i>
+                </div>
             </div>
             @endforeach
         </div>
@@ -2626,7 +3045,7 @@
                 <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
                 
                 <div class="company-modal-logo-wrapper" id="modalCompanyLogoBox">
-                    <img id="modalCompanyLogo" src="" alt="شعار الشركة" style="display:none;">
+                    <img id="modalCompanyLogo" src="" alt="شعار الشركة" style="display:none;" onerror="this.style.display='none'; document.getElementById('modalCompanyLogoFallback').style.display='block';">
                     <i id="modalCompanyLogoFallback" class="fas fa-building fa-2x text-primary" style="display:none;"></i>
                 </div>
 
@@ -2858,81 +3277,7 @@
 
 {{-- GLASSMORPHISM SPONSORS STRIP --}}
 @if($fair)
-@php
-    $footerSponsors = isset($sponsors) && $sponsors->count() > 0 ? $sponsors : collect([]);
-    $hasSponsors = $footerSponsors->count() > 0;
-@endphp
-<!-- Glassmorphism Blue Sponsors Strip -->
-<div class="footer-sponsors-strip">
-    <div class="strip-inner-row">
-        <!-- Featured logos: office + wahaexpo -->
-        <div class="strip-featured-logos">
-            <img src="{{ asset('images/office_logo_white.png') }}"
-                 alt="مكتب تدريب وتوظيف الخريجين"
-                 class="strip-office-logo"
-                 onerror="this.src='{{ asset('images/logo.jpg') }}'">
-            <div class="strip-divider-dot"></div>
-            <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}"
-                 alt="شركة الواحة لتنظيم المعارض والمؤتمرات"
-                 class="strip-wahaexpo-logo"
-                 onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}'">
-        </div>
-        <!-- Label -->
-        <div class="sponsors-strip-label">
-            <i class="fas fa-star" style="color:#38BDF8;"></i>
-            <span class="strip-label-text ms-1">رعاة المعرض</span>
-        </div>
-        <!-- Scrolling ticker -->
-        <div class="sponsors-ticker-wrap">
-            <div class="sponsors-ticker-track">
-                @php
-                    $footerSponsors = isset($sponsors) && $sponsors->count() > 0 ? $sponsors : collect([]);
-                    $hasSponsors = $footerSponsors->count() > 0;
-                    $placeholders = [
-                        ["icon"=>"fa-broadcast-tower","name"=>"المدار الجديد"],
-                        ["icon"=>"fa-signal","name"=>"ليبيانا"],
-                        ["icon"=>"fa-network-wired","name"=>"LTT"],
-                        ["icon"=>"fa-university","name"=>"مصرف التجارة"],
-                        ["icon"=>"fa-oil-can","name"=>"الواحة للنفط"],
-                        ["icon"=>"fa-landmark","name"=>"بنك الجمهورية"],
-                        ["icon"=>"fa-globe","name"=>"شركة دولية"],
-                        ["icon"=>"fa-industry","name"=>"مجموعة صناعية"],
-                    ];
-                    $items = $hasSponsors ? $footerSponsors->toArray() : $placeholders;
-                    $allItems = array_merge((array)$items, (array)$items);
-                @endphp
-                @foreach($allItems as $idx => $item)
-                    @if($hasSponsors)
-                        @php $sp = (object)$item; @endphp
-                        <div class="sponsor-glass-card{{ isset($sp->website) && $sp->website ? ' is-link' : '' }}"
-                             @if(isset($sp->website) && $sp->website) onclick="window.open('{{ $sp->website }}','_blank')" @endif
-                             title="{{ $sp->name }}">
-                            <div class="sponsor-glass-logo">
-                                @if(isset($sp->logo_path) && $sp->logo_path)
-                                    <img src="{{ Storage::url($sp->logo_path) }}" alt="{{ $sp->name }}" loading="lazy"
-                                         onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';">
-                                    <i class="fas fa-building sponsor-icon-fb" style="display:none;"></i>
-                                @else
-                                    <i class="fas fa-building sponsor-icon-fb"></i>
-                                @endif
-                            </div>
-                            <span class="sponsor-glass-name">{{ $sp->name }}</span>
-                        </div>
-                    @else
-                        <div class="sponsor-glass-card">
-                            <div class="sponsor-glass-logo">
-                                <i class="fas {{ $item['icon'] }} sponsor-icon-fb"></i>
-                            </div>
-                            <span class="sponsor-glass-name">{{ $item['name'] }}</span>
-                        </div>
-                    @endif
-                    <div class="sponsor-ticker-dot"></div>
-                @endforeach
-            </div>
-        </div>
-    </div>
-</div>
-
+    @include('job-fair.partials.footer-sponsors-strip', ['fair' => $fair, 'sponsors' => $sponsors ?? null])
 @endif
 
 {{-- FOOTER removed per user request --}}

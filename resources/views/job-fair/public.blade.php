@@ -4170,17 +4170,13 @@
                                             {{ $project->title }}
                                         </h3>
 
-                                        <div class="text-info small mb-2 text-truncate" style="font-size: 0.8rem;"
+                                        <div class="text-info small mb-3 text-truncate" style="font-size: 0.8rem;"
                                             title="{{ $project->department }} @if($project->supervisor_name) • إشراف: {{ $project->supervisor_name }} @endif">
                                             <i class="fas fa-code-branch me-1"></i>{{ $project->department }}
                                             @if($project->supervisor_name)
                                                 &bull; إشراف: {{ $project->supervisor_name }}
                                             @endif
                                         </div>
-
-                                        <p class="cyber-card-desc" title="{{ $project->summary }}">
-                                            {{ Str::limit($project->summary, 130) }}
-                                        </p>
 
                                         {{-- شريط تفاصيل المشروع ورمز QR المطابق للصورة تماماً --}}
                                         <div class="cyber-action-strip">

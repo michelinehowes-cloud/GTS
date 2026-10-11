@@ -485,7 +485,7 @@ class NotificationService
 
         // إشعار للخريج فقط إذا كان لديه حساب مستخدم نشط
         $user = $nomination->graduate ? ($nomination->graduate->user ?? null) : null;
-        if ($user instanceof \App\Models\User) {
+        if ($user instanceof User) {
             $this->sendToUser($user, $title, $message, $type, [
                 'model_type' => get_class($nomination),
                 'model_id' => $nomination->id,

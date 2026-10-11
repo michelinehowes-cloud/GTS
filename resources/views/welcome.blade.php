@@ -45,40 +45,39 @@
             overflow-x: hidden;
         }
 
-        /* 1. الشريط العلوي العائم الفاخر (Floating Glassmorphic Navbar) */
+        /* 1. الشريط العلوي الحديث كامل العرض (Modern Dynamic Full-Width Navbar) */
         .home-navbar-wrapper {
             position: fixed;
-            top: 14px;
+            top: 0;
             left: 0;
             right: 0;
+            width: 100%;
             z-index: 1050;
-            padding: 0 1.25rem;
-            pointer-events: none;
-            transform: translateZ(0);
-            -webkit-transform: translateZ(0);
-            will-change: transform;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            background: linear-gradient(180deg, rgba(8, 28, 58, 0.55) 0%, rgba(13, 56, 130, 0.35) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 1rem 2rem;
+        }
+
+        .home-navbar-wrapper.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            box-shadow: 0 10px 30px -5px rgba(11, 31, 58, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+            padding: 0.6rem 2rem;
         }
 
         .home-navbar {
-            pointer-events: auto;
-            max-width: 1260px;
+            max-width: 1440px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            border-radius: 22px;
-            box-shadow: 0 10px 30px -5px rgba(11, 31, 58, 0.08), 0 0 0 1px rgba(226, 232, 240, 0.55);
-            padding: 0.55rem 1.25rem;
-            transform: translateZ(0);
-            -webkit-transform: translateZ(0);
-            transition: background-color 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-        }
-
-        .home-navbar.scrolled {
-            background: rgba(255, 255, 255, 0.96);
-            box-shadow: 0 14px 40px -5px rgba(11, 31, 58, 0.12), 0 0 0 1px rgba(203, 213, 225, 0.75);
-            border-color: rgba(255, 255, 255, 0.95);
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            width: 100%;
         }
 
         .navbar-brand-wrap {
@@ -94,8 +93,8 @@
             border-radius: 13px;
             background: #ffffff;
             padding: 2.5px;
-            border: 1.5px solid rgba(245, 158, 11, 0.45);
-            box-shadow: 0 4px 14px rgba(13, 56, 130, 0.08);
+            border: 1.5px solid rgba(245, 158, 11, 0.6);
+            box-shadow: 0 4px 14px rgba(13, 56, 130, 0.15);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -106,7 +105,7 @@
 
         .navbar-brand-wrap:hover .navbar-brand-logo-frame {
             transform: scale(1.05) rotate(-2deg);
-            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.28);
+            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35);
         }
 
         .navbar-brand-logo-img {
@@ -116,23 +115,36 @@
             border-radius: 10px;
         }
 
+        /* Adaptive brand text */
         .brand-text-title {
             font-weight: 800;
-            font-size: 0.96rem;
-            color: #0b1f3a;
+            font-size: 1rem;
+            color: #ffffff;
             line-height: 1.2;
             letter-spacing: -0.2px;
             margin: 0;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+        .home-navbar-wrapper.scrolled .brand-text-title {
+            color: #0b1f3a;
+            text-shadow: none;
         }
 
         .brand-text-subtitle {
-            font-size: 0.72rem;
-            color: #64748b;
+            font-size: 0.74rem;
+            color: rgba(255, 255, 255, 0.92);
             font-weight: 600;
             display: flex;
             align-items: center;
             gap: 5px;
             margin-top: 1px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+        .home-navbar-wrapper.scrolled .brand-text-subtitle {
+            color: #64748b;
+            text-shadow: none;
         }
 
         .brand-dot-pulse {
@@ -140,33 +152,64 @@
             height: 6px;
             border-radius: 50%;
             background-color: #10b981;
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.22);
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4);
             display: inline-block;
         }
 
+        /* Modern nav links with animated underline (matching snippet) */
         .nav-link-custom {
-            font-weight: 600;
-            color: #475569 !important;
-            padding: 0.5rem 0.95rem !important;
-            border-radius: 12px;
-            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-            font-size: 0.92rem;
+            font-weight: 700;
+            color: #ffffff !important;
+            padding: 0.45rem 0.85rem !important;
+            font-size: 0.95rem;
             position: relative;
             display: inline-flex;
+            flex-direction: column;
             align-items: center;
-            gap: 6px;
+            text-decoration: none;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+            transition: color 0.25s ease, text-shadow 0.25s ease;
+        }
+        .home-navbar-wrapper.scrolled .nav-link-custom {
+            color: #334155 !important;
+            text-shadow: none;
+        }
+
+        .nav-link-custom::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: #f59e0b;
+            border-radius: 4px;
+            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .nav-link-custom:hover::after,
+        .nav-link-custom.active::after {
+            width: 80%;
         }
 
         .nav-link-custom:hover {
+            color: #fbbf24 !important;
+            background: transparent !important;
+        }
+        .home-navbar-wrapper.scrolled .nav-link-custom:hover {
             color: #0d3882 !important;
-            background: rgba(13, 56, 130, 0.06);
-            transform: translateY(-1px);
         }
 
         .nav-link-custom.active {
+            color: #fbbf24 !important;
+            background: transparent !important;
+        }
+        .home-navbar-wrapper.scrolled .nav-link-custom.active {
             color: #0d3882 !important;
-            background: rgba(13, 56, 130, 0.08);
-            font-weight: 700;
+        }
+        .home-navbar-wrapper.scrolled .nav-link-custom.active::after {
+            background: #0d3882;
+            box-shadow: none;
         }
 
         .nav-badge-pill {
@@ -176,134 +219,133 @@
             font-weight: 700;
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             color: #ffffff;
-            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.35);
+            margin-right: 4px;
         }
 
+        /* Pill Action Buttons */
         .nav-btn-login {
-            background: rgba(13, 56, 130, 0.05);
-            color: #0d3882 !important;
-            border: 1px solid rgba(13, 56, 130, 0.16);
+            background: rgba(255, 255, 255, 0.18);
+            color: #ffffff !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.55);
             font-weight: 700;
-            font-size: 0.86rem;
-            padding: 0.5rem 1.25rem;
+            font-size: 0.88rem;
+            padding: 0.5rem 1.45rem;
             border-radius: 50px;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(8px);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+            transition: all 0.25s ease;
             display: inline-flex;
             align-items: center;
             gap: 7px;
         }
-
-        .nav-btn-login:hover {
-            background: #0d3882;
-            color: #ffffff !important;
-            border-color: #0d3882;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(13, 56, 130, 0.22);
+        .home-navbar-wrapper.scrolled .nav-btn-login {
+            background: rgba(13, 56, 130, 0.06);
+            color: #0d3882 !important;
+            border: 1.5px solid rgba(13, 56, 130, 0.25);
+            text-shadow: none;
         }
-
-        .nav-btn-login:hover i {
+        .nav-btn-login:hover {
+            background: #ffffff !important;
+            color: #0d3882 !important;
+            border-color: #ffffff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+            text-shadow: none;
+        }
+        .home-navbar-wrapper.scrolled .nav-btn-login:hover {
+            background: #0d3882 !important;
             color: #ffffff !important;
+            border-color: #0d3882 !important;
+            box-shadow: 0 6px 18px rgba(13, 56, 130, 0.25);
         }
 
         .nav-btn-register {
-            background: linear-gradient(135deg, #0d3882 0%, #1e40af 100%);
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
             color: #ffffff !important;
-            border: 1px solid rgba(255, 255, 255, 0.25);
             font-weight: 700;
-            font-size: 0.86rem;
-            padding: 0.5rem 1.35rem;
+            font-size: 0.88rem;
+            padding: 0.52rem 1.6rem;
             border-radius: 50px;
-            box-shadow: 0 6px 18px rgba(13, 56, 130, 0.25);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+            transition: all 0.25s ease;
             display: inline-flex;
             align-items: center;
             gap: 7px;
-            position: relative;
-            overflow: hidden;
         }
-
-        .nav-btn-register::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 60%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
-            transform: skewX(-20deg);
-            transition: left 0.75s ease;
-        }
-
-        .nav-btn-register:hover::before {
-            left: 140%;
-        }
-
         .nav-btn-register:hover {
-            background: linear-gradient(135deg, #0a2d69 0%, #1d4ed8 100%);
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(13, 56, 130, 0.35);
+            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.45);
         }
 
         .nav-btn-dashboard {
             background: linear-gradient(135deg, #0d3882 0%, #1e40af 100%);
             color: #ffffff !important;
             border-radius: 50px;
-            padding: 0.5rem 1.35rem;
+            padding: 0.52rem 1.45rem;
             font-weight: 700;
-            font-size: 0.86rem;
+            font-size: 0.88rem;
             box-shadow: 0 6px 18px rgba(13, 56, 130, 0.25);
             display: inline-flex;
             align-items: center;
             gap: 7px;
             transition: all 0.25s ease;
         }
-
         .nav-btn-dashboard:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(13, 56, 130, 0.35);
         }
 
         .navbar-toggler-custom {
-            width: 38px;
-            height: 38px;
-            border-radius: 11px;
-            background: rgba(13, 56, 130, 0.06);
-            border: 1px solid rgba(13, 56, 130, 0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1.5px solid rgba(255, 255, 255, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 0;
-            color: #0d3882;
-            transition: all 0.2s ease;
+            color: #ffffff;
+            transition: all 0.25s ease;
         }
-
-        .navbar-toggler-custom:hover,
-        .navbar-toggler-custom:focus {
-            background: rgba(13, 56, 130, 0.12);
-            box-shadow: none;
-            outline: none;
+        .home-navbar-wrapper.scrolled .navbar-toggler-custom {
+            background: rgba(13, 56, 130, 0.06);
+            border-color: rgba(13, 56, 130, 0.18);
+            color: #0d3882;
         }
 
         @media (max-width: 991.98px) {
             .home-navbar-wrapper {
-                top: 8px;
-                padding: 0 0.65rem;
+                padding: 0.75rem 1.25rem;
             }
-            .home-navbar {
-                border-radius: 18px;
-                padding: 0.5rem 0.9rem;
+            .home-navbar-wrapper.scrolled {
+                padding: 0.6rem 1.25rem;
             }
             .home-navbar .navbar-collapse {
                 background: rgba(255, 255, 255, 0.98);
-                border-radius: 16px;
-                margin-top: 10px;
-                padding: 1rem;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-                border: 1px solid #f1f5f9;
+                backdrop-filter: blur(20px);
+                border-radius: 20px;
+                padding: 1.25rem 1.5rem;
+                margin-top: 0.75rem;
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+                border: 1px solid rgba(226, 232, 240, 0.85);
             }
-            .nav-link-custom {
-                padding: 0.65rem 1rem !important;
-                justify-content: center;
+            .home-navbar .navbar-collapse .nav-link-custom {
+                color: #1e293b !important;
+                padding: 0.7rem 1rem !important;
+                border-radius: 10px;
+            }
+            .home-navbar .navbar-collapse .nav-link-custom:hover {
+                background: rgba(13, 56, 130, 0.06) !important;
+                color: #0d3882 !important;
+            }
+            .home-navbar .navbar-collapse .nav-btn-login {
+                color: #0d3882 !important;
+                background: rgba(13, 56, 130, 0.06);
+                border-color: rgba(13, 56, 130, 0.2);
             }
         }
 
@@ -456,37 +498,430 @@
             border-bottom: 1px solid #f1f5f9;
         }
 
-        /* 6. رحلة الخريج (Journey Steps) */
-        .journey-step-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem 1.5rem;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.03);
-            text-align: center;
+        /* ========================================================
+           6. رحلة الخريج — Premium Navy/Gold Horizontal Stepper
+           ======================================================== */
+
+        /* ── Section Shell ── */
+        .journey-section {
             position: relative;
-            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
-            height: 100%;
+            background: linear-gradient(165deg, #071b3e 0%, #0b2654 45%, #0d3a72 100%);
+            padding: 5.5rem 0 5rem;
+            overflow: hidden;
+            scroll-margin-top: 85px;
         }
 
-        .journey-step-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 14px 30px rgba(0,0,0,0.08);
-            border-color: #bfdbfe;
+        /* Hex-grid overlay */
+        .journey-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(238,202,62,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(238,202,62,0.04) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
         }
 
-        .step-number-badge {
-            width: 38px;
-            height: 38px;
+        /* Radial glow spots */
+        .journey-glow-top {
+            position: absolute;
+            top: -80px; right: -80px;
+            width: 420px; height: 420px;
             border-radius: 50%;
-            background: var(--gold-accent);
-            color: #0b1f3a;
-            font-weight: 800;
+            background: radial-gradient(circle, rgba(238,202,62,0.14) 0%, transparent 65%);
+            pointer-events: none; z-index: 0;
+        }
+        .journey-glow-bottom {
+            position: absolute;
+            bottom: -80px; left: -80px;
+            width: 380px; height: 380px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(14,165,233,0.10) 0%, transparent 65%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* ── Section Header ── */
+        .journey-eyebrow {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
+            gap: 8px;
+            background: rgba(238,202,62,0.12);
+            border: 1px solid rgba(238,202,62,0.35);
+            color: #eecc3e;
+            padding: 5px 18px;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.8px;
             margin-bottom: 1rem;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+        .journey-eyebrow-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #eecc3e;
+            box-shadow: 0 0 0 3px rgba(238,202,62,0.3);
+            animation: journeyPulse 2s infinite;
+        }
+        @keyframes journeyPulse {
+            0%  { box-shadow: 0 0 0 0 rgba(238,202,62,0.5); }
+            70% { box-shadow: 0 0 0 7px rgba(238,202,62,0); }
+            100%{ box-shadow: 0 0 0 0 rgba(238,202,62,0); }
+        }
+        .journey-main-title {
+            font-size: clamp(1.85rem, 3.5vw, 2.6rem);
+            font-weight: 900;
+            color: #ffffff;
+            line-height: 1.2;
+            margin-bottom: 0.75rem;
+        }
+        .journey-main-title .gold-word {
+            background: linear-gradient(135deg, #eecc3e 0%, #f59e0b 55%, #ea580c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .journey-sub {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.96rem;
+            max-width: 580px;
+            line-height: 1.7;
+        }
+
+        /* ── Stepper Wrapper ── */
+        .journey-stepper {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            justify-content: space-between;
+            gap: 0;
+        }
+
+        /* ── Connector Track (Segment between steps) ── */
+        .journey-stepper-track {
+            display: none;
+        }
+
+        .journey-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 44px;
+            right: 50%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(270deg,
+                rgba(238,202,62,0.9) 0%,
+                rgba(238,202,62,0.5) 100%);
+            box-shadow: 0 0 10px rgba(238,202,62,0.35);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ── Individual Step ── */
+        .journey-step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+            padding: 0 10px;
+        }
+
+        /* Step Number Circle */
+        .journey-step-num {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(238,202,62,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+            z-index: 2;
+            flex-shrink: 0;
+        }
+        .journey-step-num .step-num-inner {
+            width: 66px;
+            height: 66px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0b2654 0%, #113376 100%);
+            border: 1.5px solid rgba(238,202,62,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            transition: all 0.4s ease;
+        }
+        .journey-step-num .step-num-icon {
+            font-size: 1.5rem;
+            color: #eecc3e;
+            filter: drop-shadow(0 0 8px rgba(238,202,62,0.6));
+            transition: transform 0.4s ease;
+        }
+        .journey-step-num .step-ordinal {
+            font-size: 0.62rem;
+            font-weight: 800;
+            color: rgba(238,202,62,0.65);
+            letter-spacing: 0.5px;
+            margin-top: 1px;
+        }
+
+        /* Outer ring pulse on hover */
+        .journey-step:hover .journey-step-num {
+            border-color: rgba(238,202,62,0.85);
+            box-shadow: 0 0 0 8px rgba(238,202,62,0.08),
+                        0 12px 28px rgba(0,0,0,0.35);
+        }
+        .journey-step:hover .step-num-inner {
+            background: linear-gradient(135deg, #1a4d9c 0%, #1c5ab5 100%);
+            border-color: rgba(238,202,62,0.9);
+        }
+        .journey-step:hover .step-num-icon {
+            transform: scale(1.15) rotate(-8deg);
+            filter: drop-shadow(0 0 14px rgba(238,202,62,0.9));
+        }
+
+        /* Step Body Card */
+        .journey-step-body {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 20px;
+            padding: 1.35rem 1.2rem 1.2rem;
+            margin-top: 1rem;
+            width: 100%;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+            position: relative;
+            overflow: hidden;
+        }
+        .journey-step-body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(238,202,62,0.07) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .journey-step:hover .journey-step-body {
+            background: rgba(255,255,255,0.09);
+            border-color: rgba(238,202,62,0.35);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.3),
+                        0 0 0 1px rgba(238,202,62,0.15);
+            transform: translateY(-4px);
+        }
+        .journey-step:hover .journey-step-body::before {
+            opacity: 1;
+        }
+
+        .journey-step-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(238,202,62,0.7);
+            margin-bottom: 0.5rem;
+        }
+        .journey-step-title {
+            font-size: 1.02rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.55rem;
+            line-height: 1.35;
+        }
+        .journey-step-desc {
+            font-size: 0.83rem;
+            color: rgba(255,255,255,0.58);
+            line-height: 1.65;
+            margin-bottom: 0.9rem;
+        }
+        .journey-step-bullets {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 0.9rem;
+            text-align: right;
+        }
+        .journey-step-bullets li {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.72);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 5px;
+        }
+        .journey-step-bullets li i {
+            color: #eecc3e;
+            font-size: 0.68rem;
+            flex-shrink: 0;
+        }
+
+        /* Step Footer */
+        .journey-step-footer {
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.4);
+            font-weight: 700;
+        }
+        .journey-step-progress {
+            display: flex;
+            gap: 3px;
+        }
+        .jsp-bar {
+            width: 13px;
+            height: 3px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.15);
+        }
+        .jsp-bar.active {
+            background: linear-gradient(90deg, #eecc3e, #f59e0b);
+        }
+
+        /* Special: last step (goal) */
+        .journey-step-goal .journey-step-num {
+            border-color: rgba(238,202,62,0.65);
+            background: rgba(238,202,62,0.08);
+        }
+        .journey-step-goal .step-num-inner {
+            background: linear-gradient(135deg, #eecc3e 0%, #f97316 100%);
+            border-color: transparent;
+        }
+        .journey-step-goal .step-num-icon {
+            color: #0b1f3a;
+            filter: none;
+        }
+        .journey-step-goal .step-ordinal {
+            color: rgba(11,31,58,0.7);
+        }
+        .journey-step-goal:hover .journey-step-num {
+            box-shadow: 0 0 0 8px rgba(238,202,62,0.15),
+                        0 12px 30px rgba(238,202,62,0.35);
+        }
+        .journey-step-goal .journey-step-body {
+            border-color: rgba(238,202,62,0.25);
+            background: rgba(238,202,62,0.07);
+        }
+        .journey-step-goal:hover .journey-step-body {
+            border-color: rgba(238,202,62,0.5);
+            box-shadow: 0 16px 40px rgba(238,202,62,0.2),
+                        0 0 0 1px rgba(238,202,62,0.3);
+        }
+        .journey-step-goal .journey-step-label { color: #eecc3e; }
+        .goal-achieved-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(238,202,62,0.15);
+            border: 1px solid rgba(238,202,62,0.4);
+            color: #eecc3e;
+            font-size: 0.74rem;
+            font-weight: 800;
+            padding: 3px 12px;
+            border-radius: 50px;
+        }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .journey-stepper {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1.5rem;
+            }
+            .journey-stepper-track { display: none; }
+            .journey-step-num { width: 72px; height: 72px; }
+            .journey-step-num .step-num-inner { width: 54px; height: 54px; }
+            .journey-step-num .step-num-icon { font-size: 1.25rem; }
+            .journey-step-body { text-align: right; }
+            .journey-step-bullets { text-align: right; }
+            .journey-step { flex-direction: row; align-items: flex-start; gap: 1rem; }
+            .journey-step-body { margin-top: 0; flex: 1; }
+        }
+        @media (max-width: 576px) {
+            .journey-step-title { font-size: 0.96rem; }
+            .journey-step-desc  { font-size: 0.8rem; }
+        }
+
+        /* ── CTA Banner (reused) ── */
+        .journey-cta-banner {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(238,202,62,0.2);
+            border-radius: 22px;
+            padding: 2.2rem 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .journey-cta-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%; right: -20%;
+            width: 320px; height: 320px;
+            background: radial-gradient(circle, rgba(238,202,62,0.18) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .journey-cta-badge {
+            background: rgba(238,202,62,0.15);
+            border: 1px solid rgba(238,202,62,0.35);
+            color: #eecc3e;
+            font-size: 0.78rem;
+            font-weight: 800;
+            padding: 4px 14px;
+            border-radius: 9999px;
+        }
+        .btn-journey-primary {
+            background: linear-gradient(135deg, #eecc3e 0%, #f59e0b 50%, #ea580c 100%);
+            color: #0b1f3a;
+            font-weight: 800;
+            font-size: 0.92rem;
+            padding: 0.78rem 1.7rem;
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 6px 18px rgba(238,202,62,0.4);
+            transition: all 0.25s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-journey-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 26px rgba(238,202,62,0.55);
+            color: #0b1f3a;
+        }
+        .btn-journey-outline {
+            background: rgba(255,255,255,0.08);
+            color: #ffffff;
+            border: 1.5px solid rgba(255,255,255,0.28);
+            font-weight: 700;
+            font-size: 0.92rem;
+            padding: 0.78rem 1.5rem;
+            border-radius: 12px;
+            backdrop-filter: blur(6px);
+            transition: all 0.25s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-journey-outline:hover {
+            background: rgba(255,255,255,0.16);
+            color: #ffffff;
+            border-color: rgba(238,202,62,0.5);
+            transform: translateY(-2px);
         }
 
         /* 7. بطاقات الأخبار والإعلانات */
@@ -1226,59 +1661,198 @@
         </section>
     @endif
 
-    <!-- ==================== 7. رحلة الخريج (How It Works) ==================== -->
-    <section class="py-5 bg-white border-top border-bottom" id="journey">
-        <div class="container">
+    <!-- ==================== 6. رحلة الخريج (How It Works - Connected Stepper) ==================== -->
+    <section class="journey-section" id="journey">
+        <!-- Ambient Glow Spots -->
+        <div class="journey-glow-top"></div>
+        <div class="journey-glow-bottom"></div>
+
+        <div class="container position-relative" style="z-index: 2;">
+            <!-- Section Header -->
             <div class="text-center mb-5" data-aos="fade-down">
-                <span class="badge rounded-pill px-3 py-1.5 small fw-bold mb-2" style="background: #fef3c7; color: #b45309; border: 1px solid #fde68a;">
-                    <i class="fas fa-road me-1"></i>مسارك نحو المستقبل
-                </span>
-                <h2 class="display-6 fw-bold text-dark mb-2">رحلة الخريج في 4 خطوات بسيطة</h2>
-                <p class="text-muted small mx-auto" style="max-width: 600px;">صممنا المنصة لترافقك خطوة بخطوة منذ يوم تخرجك وحتى حصولك على وظيفتك الأولى.</p>
+                <div class="journey-eyebrow">
+                    <span class="journey-eyebrow-dot"></span>
+                    <i class="fas fa-route small"></i>
+                    <span>مسارك المعتمد نحو المستقبل</span>
+                </div>
+                <h2 class="journey-main-title">
+                    رحلة الخريج في <span class="gold-word">4 خطوات متصلة</span>
+                </h2>
+                <p class="journey-sub mx-auto mb-0">
+                    صممنا المنصة لترافقك خطوة بخطوة منذ يوم تخرجك وحتى حصولك على وظيفتك الأولى، عبر آليات ذكية تضمن تأهيلك ومطابقتك مع أفضل الفرص.
+                </p>
             </div>
 
-            <div class="row g-4">
-                <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="100">
-                    <div class="journey-step-card">
-                        <div class="step-number-badge">1</div>
-                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 58px; height: 58px; background: rgba(37,99,235,0.1); color: #2563eb; font-size: 1.5rem;">
-                            <i class="fas fa-user-edit"></i>
+            <!-- Connected Horizontal Stepper -->
+            <div class="journey-stepper" data-aos="fade-up" data-aos-delay="100">
+                <!-- Glowing Connection Track (Desktop) -->
+                <div class="journey-stepper-track"></div>
+
+                <!-- الخطوة 1: التسجيل الأكاديمي -->
+                <div class="journey-step" data-aos="fade-up" data-aos-delay="150">
+                    <div class="journey-step-num">
+                        <div class="step-num-inner">
+                            <i class="fas fa-id-card-clip step-num-icon"></i>
+                            <span class="step-ordinal">01</span>
                         </div>
-                        <h5 class="fw-bold text-dark fs-6 mb-2">التسجيل الأكاديمي</h5>
-                        <p class="text-muted small mb-0">أنشئ حسابك ووثق بيانات كليتك، تخصصك، معدلك التراكمي، ومهاراتك الشخصية.</p>
+                    </div>
+                    <div class="journey-step-body">
+                        <div class="journey-step-label">المرحلة الأولى</div>
+                        <h3 class="journey-step-title">التسجيل الأكاديمي</h3>
+                        <p class="journey-step-desc">
+                            أنشئ حسابك المهني الموحد، وثّق بيانات كليتك وتخصصك ومعدلك، وأبرز مهاراتك بدقة.
+                        </p>
+                        <ul class="journey-step-bullets">
+                            <li><i class="fas fa-check"></i><span>ملف خريج معتمد وموثق</span></li>
+                            <li><i class="fas fa-check"></i><span>سيرة ذاتية احترافية تلقائية</span></li>
+                            <li><i class="fas fa-check"></i><span>لوحة تحكم تفاعلية للمتابعة</span></li>
+                        </ul>
+                        <div class="journey-step-footer">
+                            <span>الخطوة 01</span>
+                            <div class="journey-step-progress">
+                                <span class="jsp-bar active"></span>
+                                <span class="jsp-bar"></span>
+                                <span class="jsp-bar"></span>
+                                <span class="jsp-bar"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="200">
-                    <div class="journey-step-card">
-                        <div class="step-number-badge">2</div>
-                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 58px; height: 58px; background: rgba(16,185,129,0.1); color: #10b981; font-size: 1.5rem;">
-                            <i class="fas fa-laptop-code"></i>
+                <!-- الخطوة 2: التأهيل والتدريب -->
+                <div class="journey-step" data-aos="fade-up" data-aos-delay="250">
+                    <div class="journey-step-num">
+                        <div class="step-num-inner">
+                            <i class="fas fa-laptop-code step-num-icon"></i>
+                            <span class="step-ordinal">02</span>
                         </div>
-                        <h5 class="fw-bold text-dark fs-6 mb-2">التأهيل والتدريب</h5>
-                        <p class="text-muted small mb-0">التحق بورش العمل والدورات المكثفة واحصل على شهادات حضور معتمدة ومسجلة.</p>
+                    </div>
+                    <div class="journey-step-body">
+                        <div class="journey-step-label">المرحلة الثانية</div>
+                        <h3 class="journey-step-title">التأهيل والتدريب</h3>
+                        <p class="journey-step-desc">
+                            انضم للبرامج التطبيقية وورش العمل المتخصصة لصقل قدراتك وجاهزيتك لسوق العمل.
+                        </p>
+                        <ul class="journey-step-bullets">
+                            <li><i class="fas fa-check"></i><span>ورش عمل حضورية وتفاعلية</span></li>
+                            <li><i class="fas fa-check"></i><span>شهادات حضور برمز QR معتمد</span></li>
+                            <li><i class="fas fa-check"></i><span>تدريب بإشراف نخبة من الخبراء</span></li>
+                        </ul>
+                        <div class="journey-step-footer">
+                            <span>الخطوة 02</span>
+                            <div class="journey-step-progress">
+                                <span class="jsp-bar active"></span>
+                                <span class="jsp-bar active"></span>
+                                <span class="jsp-bar"></span>
+                                <span class="jsp-bar"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="300">
-                    <div class="journey-step-card">
-                        <div class="step-number-badge">3</div>
-                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 58px; height: 58px; background: rgba(245,158,11,0.1); color: #f59e0b; font-size: 1.5rem;">
-                            <i class="fas fa-briefcase"></i>
+                <!-- الخطوة 3: الترشيح الوظيفي -->
+                <div class="journey-step" data-aos="fade-up" data-aos-delay="350">
+                    <div class="journey-step-num">
+                        <div class="step-num-inner">
+                            <i class="fas fa-briefcase step-num-icon"></i>
+                            <span class="step-ordinal">03</span>
                         </div>
-                        <h5 class="fw-bold text-dark fs-6 mb-2">الترشيح الوظيفي</h5>
-                        <p class="text-muted small mb-0">يرشحك المكتب مباشرة للوظائف المناسبة لدى الشركات الشريكة حسب كفاءتك وتخصصك.</p>
+                    </div>
+                    <div class="journey-step-body">
+                        <div class="journey-step-label">المرحلة الثالثة</div>
+                        <h3 class="journey-step-title">الترشيح الوظيفي</h3>
+                        <p class="journey-step-desc">
+                            يرشحك المكتب مباشرة للوظائف الشاغرة لدى الشركات الشريكة بحسب كفاءتك وتخصصك.
+                        </p>
+                        <ul class="journey-step-bullets">
+                            <li><i class="fas fa-check"></i><span>مطابقة ذكية للفرص المتاحة</span></li>
+                            <li><i class="fas fa-check"></i><span>شراكات رسمية مع الشركات</span></li>
+                            <li><i class="fas fa-check"></i><span>مشاركة حصرية بمعارض التوظيف</span></li>
+                        </ul>
+                        <div class="journey-step-footer">
+                            <span>الخطوة 03</span>
+                            <div class="journey-step-progress">
+                                <span class="jsp-bar active"></span>
+                                <span class="jsp-bar active"></span>
+                                <span class="jsp-bar active"></span>
+                                <span class="jsp-bar"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="400">
-                    <div class="journey-step-card">
-                        <div class="step-number-badge">4</div>
-                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 58px; height: 58px; background: rgba(139,92,246,0.1); color: #8b5cf6; font-size: 1.5rem;">
-                            <i class="fas fa-handshake"></i>
+                <!-- الخطوة 4: المقابلات والتوظيف (Goal) -->
+                <div class="journey-step journey-step-goal" data-aos="fade-up" data-aos-delay="450">
+                    <div class="journey-step-num">
+                        <div class="step-num-inner">
+                            <i class="fas fa-handshake step-num-icon"></i>
+                            <span class="step-ordinal">04</span>
                         </div>
-                        <h5 class="fw-bold text-dark fs-6 mb-2">المقابلات والتوظيف</h5>
-                        <p class="text-muted small mb-0">تابع مواعيد مقابلاتك عبر لوحة التحكم، وتفاعل في معارض التوظيف السنوية.</p>
+                    </div>
+                    <div class="journey-step-body">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="journey-step-label mb-0">المرحلة النهائية</span>
+                            <span class="goal-achieved-tag"><i class="fas fa-star small"></i>الهدف</span>
+                        </div>
+                        <h3 class="journey-step-title">المقابلات والتوظيف</h3>
+                        <p class="journey-step-desc">
+                            استقبل مواعيد مقابلاتك عبر المنصة، وتابع حالة الترشيح حتى الحصول على عرض العمل.
+                        </p>
+                        <ul class="journey-step-bullets">
+                            <li><i class="fas fa-check"></i><span>جدولة ومتابعة المقابلات</span></li>
+                            <li><i class="fas fa-check"></i><span>إشعارات فورية بالنتائج والقرارات</span></li>
+                            <li><i class="fas fa-check"></i><span>انطلاقة آمنة لمسارك المهني</span></li>
+                        </ul>
+                        <div class="journey-step-footer">
+                            <span class="text-warning"><i class="fas fa-award me-1 small"></i>الهدف المحقق</span>
+                            <div class="journey-step-progress">
+                                <span class="jsp-bar active"></span>
+                                <span class="jsp-bar active"></span>
+                                <span class="jsp-bar active"></span>
+                                <span class="jsp-bar active"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Journey CTA Banner -->
+            <div class="journey-cta-banner mt-5" data-aos="fade-up" data-aos-delay="450">
+                <div class="row align-items-center g-4">
+                    <div class="col-lg-7 text-center text-lg-start text-rtl">
+                        <div class="d-inline-flex align-items-center gap-2 mb-2 flex-wrap justify-content-center justify-content-lg-start">
+                            <span class="journey-cta-badge">
+                                <i class="fas fa-sparkles text-warning me-1"></i>انطلاقة مسارك تبدأ هنا
+                            </span>
+                            <span class="text-white-50 small">
+                                <i class="fas fa-shield-halved text-success me-1"></i>خدمة مجانية رسمية لخريجي جامعة طرابلس
+                            </span>
+                        </div>
+                        <h4 class="fw-bold text-white mb-2 fs-5">هل أنت خريج وجاهز لبدء رحلتك المهنية اليوم؟</h4>
+                        <p class="text-white-50 small mb-0" style="max-width: 600px;">
+                            أنشئ حسابك في خطوات معدودة لتصل سيرتك الذاتية إلى أصحاب الأعمال وتلتحق بأحدث البرامج التأهيلية.
+                        </p>
+                    </div>
+                    <div class="col-lg-5 text-center text-lg-end">
+                        <div class="d-flex flex-wrap flex-sm-nowrap align-items-center justify-content-center justify-content-lg-end gap-2">
+                            @auth
+                                <a href="{{ route('dashboard') }}" class="btn btn-journey-primary text-nowrap">
+                                    <i class="fas fa-th-large ms-1"></i>
+                                    <span>لوحة التحكم الخاصة بك</span>
+                                    <i class="fas fa-arrow-left ms-1 small"></i>
+                                </a>
+                            @else
+                                <button type="button" class="btn btn-journey-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal">
+                                    <i class="fas fa-user-plus ms-1"></i>
+                                    <span>ابدأ بالتسجيل كخريج</span>
+                                    <i class="fas fa-arrow-left ms-1 small"></i>
+                                </button>
+                                <button type="button" class="btn btn-journey-outline text-nowrap" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                    <i class="fas fa-sign-in-alt ms-1"></i>
+                                    <span>تسجيل الدخول</span>
+                                </button>
+                            @endauth
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2665,6 +3239,7 @@
 
         // تأثير التمرير للشريط العلوي العائم (Scroll Elevation مع Hysteresis و rAF لمنع الارتعاش)
         (function() {
+            const wrapper = document.querySelector('.home-navbar-wrapper');
             const navbar = document.querySelector('.home-navbar');
             if (!navbar) return;
 
@@ -2673,12 +3248,13 @@
 
             function updateNavbar() {
                 const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-                // عتبة التمرير مع Hysteresis لتفادي الارتعاش والتذبذب
-                if (!isScrolled && scrollY > 50) {
+                if (!isScrolled && scrollY > 20) {
                     isScrolled = true;
+                    if (wrapper) wrapper.classList.add('scrolled');
                     navbar.classList.add('scrolled');
-                } else if (isScrolled && scrollY < 15) {
+                } else if (isScrolled && scrollY <= 20) {
                     isScrolled = false;
+                    if (wrapper) wrapper.classList.remove('scrolled');
                     navbar.classList.remove('scrolled');
                 }
                 ticking = false;

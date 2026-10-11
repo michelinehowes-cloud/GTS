@@ -1702,7 +1702,7 @@
 {{-- ══════════════════════════════════
      FOOTER
 ══════════════════════════════════ --}}
-@include('job-fair.partials.footer-sponsors-strip', ['fair' => $fair, 'sponsors' => $sponsors ?? null])
+@include('job-fair.partials.footer-sponsors-strip', ['fair' => $fair, 'sponsors' => $sponsors ?? null, 'companies' => $companies ?? null])
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>

@@ -144,7 +144,7 @@ class JobFairVisitorController extends Controller
             $query->where('city', $city);
         }
 
-        $visitors = $query->paginate(20)->withQueryString();
+        $visitors = $query->paginate(20)->appends($request->query());
 
         // إحصائيات عامة وتفصيلية
         $allVisitors = JobFairVisitor::where('job_fair_id', $fair->id)->get();

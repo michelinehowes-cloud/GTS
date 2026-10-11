@@ -1089,10 +1089,14 @@
                             <div class="col-md-3">
                                 <label class="form-label-modern small fw-bold">مستوى الرعاية <span class="text-danger">*</span></label>
                                 <select name="tier" class="form-select form-select-sm" required>
+                                    <option value="strategic">الراعي الاستراتيجي 👑 (Strategic)</option>
                                     <option value="diamond">الراعي الماسي 💎 (Diamond)</option>
                                     <option value="platinum">الراعي البلاتيني ⭐ (Platinum)</option>
                                     <option value="gold" selected>الراعي الذهبي 🏆 (Gold)</option>
                                     <option value="silver">الراعي الفضي 🥈 (Silver)</option>
+                                    <option value="bronze">الراعي البرونزي 🥉 (Bronze)</option>
+                                    <option value="tech">راعي التقنية 💻 (Tech Sponsor)</option>
+                                    <option value="media">الراعي الإعلامي 📢 (Media Sponsor)</option>
                                 </select>
                             </div>
 
@@ -1238,10 +1242,14 @@
                                                         <div class="col-md-6">
                                                             <label class="form-label-modern small fw-bold">مستوى الرعاية <span class="text-danger">*</span></label>
                                                             <select name="tier" class="form-select form-select-sm" required>
+                                                                <option value="strategic" {{ in_array($sp->tier, ['strategic', 'الراعي الاستراتيجي']) ? 'selected' : '' }}>الراعي الاستراتيجي 👑 (Strategic)</option>
                                                                 <option value="diamond" {{ $sp->tier == 'diamond' ? 'selected' : '' }}>الراعي الماسي 💎 (Diamond)</option>
                                                                 <option value="platinum" {{ $sp->tier == 'platinum' ? 'selected' : '' }}>الراعي البلاتيني ⭐ (Platinum)</option>
                                                                 <option value="gold" {{ $sp->tier == 'gold' ? 'selected' : '' }}>الراعي الذهبي 🏆 (Gold)</option>
                                                                 <option value="silver" {{ $sp->tier == 'silver' ? 'selected' : '' }}>الراعي الفضي 🥈 (Silver)</option>
+                                                                <option value="bronze" {{ $sp->tier == 'bronze' ? 'selected' : '' }}>الراعي البرونزي 🥉 (Bronze)</option>
+                                                                <option value="tech" {{ $sp->tier == 'tech' ? 'selected' : '' }}>راعي التقنية 💻 (Tech Sponsor)</option>
+                                                                <option value="media" {{ $sp->tier == 'media' ? 'selected' : '' }}>الراعي الإعلامي 📢 (Media Sponsor)</option>
                                                             </select>
                                                         </div>
 

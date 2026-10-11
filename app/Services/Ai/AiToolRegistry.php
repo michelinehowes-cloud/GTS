@@ -263,7 +263,7 @@ class AiToolRegistry
                             'priority' => $a->priority_arabic ?? $a->priority,
                             'target_audience' => $a->target_audience_arabic ?? $a->target_audience,
                             'start_date' => $a->start_date ? $a->start_date->format('Y-m-d') : null,
-                            'content' => \Illuminate\Support\Str::limit(strip_tags($a->content), 120),
+                            'content' => Str::limit(strip_tags($a->content), 120),
                         ];
                     });
 
@@ -734,7 +734,7 @@ class AiToolRegistry
                         'data' => [
                             'title' => $args['title'],
                             'category' => $args['category'] ?? 'general',
-                            'excerpt' => $args['excerpt'] ?? \Illuminate\Support\Str::limit($args['content'], 120),
+                            'excerpt' => $args['excerpt'] ?? Str::limit($args['content'], 120),
                             'content' => $args['content'],
                         ]
                     ];
@@ -2063,7 +2063,7 @@ class AiToolRegistry
                     $email = $args['email'] ?? (strtolower(str_replace(' ', '', $name)) . '@partner.uot.edu.ly');
                     $address = $args['address'] ?? 'طرابلس، ليبيا';
 
-                    $defaultPassword = $args['password'] ?? ('Comp@' . \Illuminate\Support\Str::random(10) . '!');
+                    $defaultPassword = $args['password'] ?? ('Comp@' . Str::random(10) . '!');
 
                     return [
                         'status' => 'proposal',

@@ -99,14 +99,14 @@ class JobFairController extends Controller
 
             try {
                 if ($fair) {
-                    $fairJobs = \App\Models\JobOpportunity::where('status', 'open')
+                    $fairJobs = JobOpportunity::where('status', 'open')
                         ->where('job_fair_id', $fair->id)
                         ->with('company')
                         ->latest()
                         ->take(6)
                         ->get();
                     if ($fairJobs->count() < 6) {
-                        $otherJobs = \App\Models\JobOpportunity::where('status', 'open')
+                        $otherJobs = JobOpportunity::where('status', 'open')
                             ->where(function($q) use ($fair) {
                                 $q->whereNull('job_fair_id')->orWhere('job_fair_id', '!=', $fair->id);
                             })
@@ -119,7 +119,7 @@ class JobFairController extends Controller
                         $recentJobs = $fairJobs;
                     }
                 } else {
-                    $recentJobs = \App\Models\JobOpportunity::where('status', 'open')->with('company')->latest()->take(6)->get();
+                    $recentJobs = JobOpportunity::where('status', 'open')->with('company')->latest()->take(6)->get();
                 }
             } catch (\Throwable $e) {}
 
@@ -813,11 +813,11 @@ class JobFairController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'tier' => 'required|in:diamond,platinum,gold,silver',
+            'tier' => 'required|in:strategic,diamond,platinum,gold,silver,bronze,tech,media',
             'website' => 'nullable|url|max:255',
             'description' => 'nullable|string|max:1000',
             'display_order' => 'nullable|integer|min:0',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:5120',
         ]);
 
         $logoPath = null;
@@ -845,11 +845,11 @@ class JobFairController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'tier' => 'required|in:diamond,platinum,gold,silver',
+            'tier' => 'required|in:strategic,diamond,platinum,gold,silver,bronze,tech,media',
             'website' => 'nullable|url|max:255',
             'description' => 'nullable|string|max:1000',
             'display_order' => 'nullable|integer|min:0',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:5120',
         ]);
 
         $data = [
@@ -1063,10 +1063,10 @@ class JobFairController extends Controller
         } catch (\Throwable $e) {}
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('job_fair_visits')) {
-                $totalLeads = \App\Models\JobFairVisit::where('job_fair_id', $fair->id)->count();
+                $totalLeads = JobFairVisit::where('job_fair_id', $fair->id)->count();
                 if (\Illuminate\Support\Facades\Schema::hasColumn('job_fair_visits', 'job_opportunity_id')) {
-                    $jobApplications = \App\Models\JobFairVisit::where('job_fair_id', $fair->id)->whereNotNull('job_opportunity_id')->count();
-                    $generalLeads = \App\Models\JobFairVisit::where('job_fair_id', $fair->id)->whereNull('job_opportunity_id')->count();
+                    $jobApplications = JobFairVisit::where('job_fair_id', $fair->id)->whereNotNull('job_opportunity_id')->count();
+                    $generalLeads = JobFairVisit::where('job_fair_id', $fair->id)->whereNull('job_opportunity_id')->count();
                 }
             }
         } catch (\Throwable $e) {}

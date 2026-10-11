@@ -183,7 +183,7 @@ class GraduateRegistrationController extends Controller
             'valid' => 0,
             'warning' => 0,
             'invalid' => 0,
-            'total' => $pendingUsers->count(),
+            'total' => $pendingUsers->total(),
         ];
 
         foreach ($pendingUsers as $u) {

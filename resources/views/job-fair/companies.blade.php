@@ -1411,7 +1411,9 @@
                     <div class="card-top-row">
                         <div class="company-logo-frame">
                             @if($companyLogo)
-                                <img src="{{ $companyLogo }}" alt="{{ $companyName }}" loading="lazy">
+                                <img src="{{ $companyLogo }}" alt="{{ $companyName }}" loading="lazy"
+                                     onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';">
+                                <i class="fas fa-building logo-fallback" style="display:none;"></i>
                             @else
                                 <i class="fas fa-building logo-fallback"></i>
                             @endif
@@ -1491,7 +1493,7 @@
                         data-bs-dismiss="modal" aria-label="Close"></button>
 
                     <div class="company-modal-logo-wrapper" id="modalCompanyLogoBox">
-                        <img id="modalCompanyLogo" src="" alt="شعار الشركة" style="display:none;">
+                        <img id="modalCompanyLogo" src="" alt="شعار الشركة" style="display:none;" onerror="this.style.display='none'; document.getElementById('modalCompanyLogoFallback').style.display='block';">
                         <i id="modalCompanyLogoFallback" class="fas fa-building fa-2x"
                             style="color:var(--navy); display:none;"></i>
                     </div>
@@ -1582,76 +1584,8 @@
         </div>
     </div>
 
-    <!-- Glassmorphism Blue Sponsors Strip -->
-<div class="footer-sponsors-strip">
-    <div class="strip-inner-row">
-        <!-- Featured logos: office + wahaexpo -->
-        <div class="strip-featured-logos">
-            <img src="{{ asset('images/office_logo_white.png') }}"
-                 alt="مكتب تدريب وتوظيف الخريجين"
-                 class="strip-office-logo"
-                 onerror="this.src='{{ asset('images/logo.jpg') }}'">
-            <div class="strip-divider-dot"></div>
-            <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}"
-                 alt="شركة الواحة لتنظيم المعارض والمؤتمرات"
-                 class="strip-wahaexpo-logo"
-                 onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}'">
-        </div>
-        <!-- Label -->
-        <div class="sponsors-strip-label">
-            <i class="fas fa-star" style="color:#38BDF8;"></i>
-            <span class="strip-label-text ms-1">رعاة المعرض</span>
-        </div>
-        <!-- Scrolling ticker -->
-        <div class="sponsors-ticker-wrap">
-            <div class="sponsors-ticker-track">
-                @php
-                    $footerSponsors = isset($sponsors) && $sponsors->count() > 0 ? $sponsors : collect([]);
-                    $hasSponsors = $footerSponsors->count() > 0;
-                    $placeholders = [
-                        ["icon"=>"fa-broadcast-tower","name"=>"المدار الجديد"],
-                        ["icon"=>"fa-signal","name"=>"ليبيانا"],
-                        ["icon"=>"fa-network-wired","name"=>"LTT"],
-                        ["icon"=>"fa-university","name"=>"مصرف التجارة"],
-                        ["icon"=>"fa-oil-can","name"=>"الواحة للنفط"],
-                        ["icon"=>"fa-landmark","name"=>"بنك الجمهورية"],
-                        ["icon"=>"fa-globe","name"=>"شركة دولية"],
-                        ["icon"=>"fa-industry","name"=>"مجموعة صناعية"],
-                    ];
-                    $items = $hasSponsors ? $footerSponsors->toArray() : $placeholders;
-                    $allItems = array_merge((array)$items, (array)$items);
-                @endphp
-                @foreach($allItems as $idx => $item)
-                    @if($hasSponsors)
-                        @php $sp = (object)$item; @endphp
-                        <div class="sponsor-glass-card{{ isset($sp->website) && $sp->website ? ' is-link' : '' }}"
-                             @if(isset($sp->website) && $sp->website) onclick="window.open('{{ $sp->website }}','_blank')" @endif
-                             title="{{ $sp->name }}">
-                            <div class="sponsor-glass-logo">
-                                @if(isset($sp->logo_path) && $sp->logo_path)
-                                    <img src="{{ Storage::url($sp->logo_path) }}" alt="{{ $sp->name }}" loading="lazy"
-                                         onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';">
-                                    <i class="fas fa-building sponsor-icon-fb" style="display:none;"></i>
-                                @else
-                                    <i class="fas fa-building sponsor-icon-fb"></i>
-                                @endif
-                            </div>
-                            <span class="sponsor-glass-name">{{ $sp->name }}</span>
-                        </div>
-                    @else
-                        <div class="sponsor-glass-card">
-                            <div class="sponsor-glass-logo">
-                                <i class="fas {{ $item['icon'] }} sponsor-icon-fb"></i>
-                            </div>
-                            <span class="sponsor-glass-name">{{ $item['name'] }}</span>
-                        </div>
-                    @endif
-                    <div class="sponsor-ticker-dot"></div>
-                @endforeach
-            </div>
-        </div>
-    </div>
-</div>
+    @include('job-fair.partials.footer-sponsors-strip', ['fair' => $fair, 'sponsors' => $sponsors ?? null])
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>

@@ -1685,23 +1685,29 @@
 
         .cyber-card-title {
             color: #ffffff;
-            font-size: 1.22rem;
+            font-size: 1.15rem;
             font-weight: 800;
-            line-height: 1.42;
+            line-height: 1.45;
             margin-bottom: 0.65rem;
             text-align: right;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 3.35rem;
         }
 
         .cyber-card-desc {
             color: rgba(255, 255, 255, 0.65);
             font-size: 0.86rem;
-            line-height: 1.65;
-            margin-bottom: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
             display: -webkit-box;
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-align: right;
+            min-height: 2.75rem;
         }
 
         .cyber-card-speaker {
@@ -3568,7 +3574,7 @@
                                         </div>
 
                                         {{-- عنوان الفعالية / الورشة --}}
-                                        <h3 class="cyber-card-title">
+                                        <h3 class="cyber-card-title" title="{{ $event->title }}">
                                             {{ $event->title }}
                                         </h3>
 
@@ -3586,8 +3592,8 @@
                                             </div>
                                         @endif
 
-                                        <p class="cyber-card-desc">
-                                            {{ $event->description ?: 'جلسة تدريبية نوعية تستهدف رفع كفاءة الخريجين وإكسابهم المهارات التطبيقية التي يتطلبها سوق العمل المعاصر.' }}
+                                        <p class="cyber-card-desc" title="{{ $event->description }}">
+                                            {{ Str::limit($event->description ?: 'جلسة تدريبية نوعية تستهدف رفع كفاءة الخريجين وإكسابهم المهارات التطبيقية التي يتطلبها سوق العمل المعاصر.', 130) }}
                                         </p>
 
                                         {{-- الشريط السفلي التفاعلي --}}
@@ -3705,19 +3711,20 @@
                                         </div>
 
                                         {{-- عنوان مشروع التخرج --}}
-                                        <h3 class="cyber-card-title">
+                                        <h3 class="cyber-card-title" title="{{ $project->title }}">
                                             {{ $project->title }}
                                         </h3>
 
-                                        <div class="text-info small mb-2" style="font-size: 0.8rem;">
+                                        <div class="text-info small mb-2 text-truncate" style="font-size: 0.8rem;"
+                                            title="{{ $project->department }} @if($project->supervisor_name) • إشراف: {{ $project->supervisor_name }} @endif">
                                             <i class="fas fa-code-branch me-1"></i>{{ $project->department }}
                                             @if($project->supervisor_name)
                                                 &bull; إشراف: {{ $project->supervisor_name }}
                                             @endif
                                         </div>
 
-                                        <p class="cyber-card-desc">
-                                            {{ $project->summary }}
+                                        <p class="cyber-card-desc" title="{{ $project->summary }}">
+                                            {{ Str::limit($project->summary, 130) }}
                                         </p>
 
                                         {{-- شريط تفاصيل المشروع ورمز QR المطابق للصورة تماماً --}}
@@ -4187,22 +4194,28 @@
             if (!companyModal) return;
 
             companyModal.addEventListener('show.bs.modal', function (event) {
-                const button = event.relatedTarget;
+                const rawTrigger = event.relatedTarget;
+                const button = rawTrigger ? (rawTrigger.closest('[data-name]') || rawTrigger) : null;
                 if (!button) return;
 
                 const name = button.getAttribute('data-name') || 'شركة مشاركة';
                 const logo = button.getAttribute('data-logo') || '';
                 const industry = button.getAttribute('data-industry') || 'قطاع الأعمال والخدمات';
                 const booth = button.getAttribute('data-booth') || '';
-                const jobs = parseInt(button.getAttribute('data-jobs') || '0');
+                const jobs = parseInt(button.getAttribute('data-jobs') || '0', 10);
                 const desc = button.getAttribute('data-desc') || '';
                 const website = button.getAttribute('data-website') || '';
                 const email = button.getAttribute('data-email') || '';
                 const phone = button.getAttribute('data-phone') || '';
 
-                document.getElementById('modalCompanyName').textContent = name;
-                document.getElementById('modalCompanyIndustry').textContent = industry;
-                document.getElementById('modalCompanyDesc').textContent = desc;
+                const nameEl = document.getElementById('modalCompanyName');
+                if (nameEl) nameEl.textContent = name;
+
+                const indEl = document.getElementById('modalCompanyIndustry');
+                if (indEl) indEl.textContent = industry;
+
+                const descEl = document.getElementById('modalCompanyDesc');
+                if (descEl) descEl.textContent = desc || 'جهة رائدة مشاركة في فعاليات المعرض لتوفير أفضل الفرص للخرجين.';
 
                 const logoImg = document.getElementById('modalCompanyLogo');
                 const logoFallback = document.getElementById('modalCompanyLogoFallback');
@@ -4258,6 +4271,17 @@
                     phoneChip.style.display = 'flex';
                 } else {
                     phoneChip.style.display = 'none';
+                }
+            });
+
+            // Keyboard accessibility for booth cards
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    const card = e.target.closest && e.target.closest('.company-booth-card');
+                    if (card && document.activeElement === card) {
+                        e.preventDefault();
+                        card.click();
+                    }
                 }
             });
         })();
@@ -4321,7 +4345,8 @@
                         // Fallback: submit standard form
                         vForm.submit();
                     });
-            })();
+            });
+        })();
 
             function copyVisitorFormLink(btn) {
                 const url = window.location.origin + window.location.pathname + '#visitor-register';

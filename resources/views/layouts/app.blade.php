@@ -242,8 +242,64 @@
         }
 
         @media (min-width: 768.01px) {
+            /* إخفاء زر إغلاق الموبايل تماماً على الديسكتوب */
+            .sidebar-mobile-close {
+                display: none !important;
+            }
+
+            /* إعدادات الشريط الجانبي على الديسكتوب */
+            .sidebar {
+                position: fixed !important;
+                top: 0 !important;
+                right: 0 !important;
+                width: 280px !important;
+                height: 100vh !important;
+                z-index: 1040 !important;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s ease, opacity 0.25s ease !important;
+            }
+
+            /* عندما يكون الشريط الجانبي مطوياً على الديسكتوب */
+            .sidebar.collapsed,
+            body.sidebar-is-collapsed .sidebar {
+                transform: translateX(100%) !important;
+                right: -320px !important;
+                width: 0 !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+                pointer-events: none !important;
+            }
+
+            /* زر فتح القائمة الجانبية العائم عند الطي */
             body.sidebar-is-collapsed .floating-sidebar-toggle {
                 display: flex !important;
+            }
+
+            body:not(.sidebar-is-collapsed) .floating-sidebar-toggle {
+                display: none !important;
+            }
+
+            /* إزاحة المحتوى الرئيسي بمقدار عرض الشريط الجانبي (280px) عندما يكون مفتوحاً */
+            body:not(.sidebar-is-collapsed) .main-content:not(.expanded) {
+                margin-right: 280px !important;
+                width: calc(100% - 280px) !important;
+                transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+
+            /* توسيع المحتوى الرئيسي لكامل الشاشة عندما يكون الشريط مطوياً */
+            body.sidebar-is-collapsed .main-content,
+            .main-content.expanded {
+                margin-right: 0 !important;
+                width: 100% !important;
+                transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+
+            /* ملاءمة الشريط العلوي مع الشريط الجانبي */
+            body:not(.sidebar-is-collapsed) .navbar-main:not(.expanded) {
+                width: calc(100% - 280px) !important;
+            }
+            body.sidebar-is-collapsed .navbar-main,
+            .navbar-main.expanded {
+                width: 100% !important;
             }
         }
 

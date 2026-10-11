@@ -60,9 +60,12 @@
         }
 
         .sidebar.collapsed {
-            transform: translateX(100%);
-            width: 0;
-            opacity: 0;
+            transform: translateX(100%) !important;
+            right: -320px !important;
+            width: 0 !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
         }
 
         .sidebar-content {

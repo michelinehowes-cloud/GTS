@@ -3,7 +3,7 @@
 @section('title', 'المتابعة اللحظية لإحصائيات المعرض - ' . $fair->title)
 
 @section('content')
-<div class="container-fluid py-4" style="background-color: #f8f9fa;">
+<div class="live-dashboard-wrapper">
     {{-- الشريط العلوي الموحد مع الشعارات الرسمية المتطابقة مع صفحة المعرض العامة --}}
     @include('job-fair.admin.partials.header', [
         'fair' => $fair,
@@ -16,7 +16,7 @@
     <div class="row g-3 mb-4">
         <!-- إجمالي الحضور -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card" style="background: #ffffff; border-right: 5px solid #2563eb !important;">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card kpi-border-primary">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-bold mb-1.5">إجمالي الحضور (Check-ins)</div>
@@ -34,7 +34,7 @@
 
         <!-- المسجلين الإجمالي -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card" style="background: #ffffff; border-right: 5px solid #10b981 !important;">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card kpi-border-success">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-bold mb-1.5">المسجلين الإجمالي</div>
@@ -52,7 +52,7 @@
 
         <!-- الشركات المشاركة -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card" style="background: #ffffff; border-right: 5px solid #0284c7 !important;">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card kpi-border-info">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-bold mb-1.5">الشركات المشاركة</div>
@@ -70,7 +70,7 @@
 
         <!-- سير ذاتية مستلمة -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card" style="background: #ffffff; border-right: 5px solid #f59e0b !important;">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card kpi-border-warning">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-bold mb-1.5">سير ذاتية مستلمة (Leads)</div>
@@ -185,11 +185,13 @@
          ══════════════════════════════════════════════════════════════════ --}}
     <div class="row mb-4 mt-2">
         <div class="col-12">
-            <div class="card shadow-sm border-0 rounded-4 overflow-hidden position-relative" style="background: linear-gradient(135deg, #091f3c 0%, #03488a 55%, #045db0 100%);">
-                <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 16px 16px; pointer-events: none;"></div>
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden position-relative" style="background: linear-gradient(135deg, #091f3c 0%, #03488a 55%, #045db0 100%); box-shadow: 0 10px 30px rgba(3, 72, 138, 0.22) !important;">
+                {{-- إضاءة ذهبية وزرقاء ملكية ناعمة بدون أي نقاط بيضاء مشوشة --}}
+                <div class="position-absolute top-0 end-0 w-50 h-100 opacity-25" style="background: radial-gradient(circle at top right, rgba(238,202,62,0.35) 0%, transparent 70%); pointer-events: none;"></div>
+                <div class="position-absolute bottom-0 start-0 w-40 h-100 opacity-20" style="background: radial-gradient(circle at bottom left, rgba(56,189,248,0.3) 0%, transparent 70%); pointer-events: none;"></div>
                 <div class="card-body p-3.5 p-md-4 text-white d-flex flex-wrap align-items-center justify-content-between gap-3 position-relative z-1">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-4 d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm" style="width: 54px; height: 54px; background: rgba(238,202,62,0.18); color: #eeca3e; font-size: 1.5rem; border: 1px solid rgba(238,202,62,0.3);">
+                        <div class="rounded-4 d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm" style="width: 54px; height: 54px; background: rgba(238,202,62,0.18); color: #eeca3e; font-size: 1.5rem; border: 1px solid rgba(238,202,62,0.35);">
                             <i class="fas fa-briefcase"></i>
                         </div>
                         <div>
@@ -222,7 +224,7 @@
     <div class="row g-3 mb-4">
         <!-- قيد المراجعة والانتظار -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card" style="background: #ffffff; border-right: 5px solid #f59e0b !important;">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card kpi-border-warning">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-bold mb-1.5">قيد المراجعة والانتظار</div>
@@ -240,7 +242,7 @@
 
         <!-- القائمة القصيرة -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card" style="background: #ffffff; border-right: 5px solid #0284c7 !important;">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card kpi-border-info">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-bold mb-1.5">القائمة القصيرة (Shortlisted)</div>
@@ -258,7 +260,7 @@
 
         <!-- تم القبول والتوظيف -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card" style="background: #ffffff; border-right: 5px solid #10b981 !important;">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card kpi-border-success">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-bold mb-1.5">تم القبول والترشيح (Accepted)</div>
@@ -276,7 +278,7 @@
 
         <!-- غير ملائم / مرفوض -->
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card" style="background: #ffffff; border-right: 5px solid #ef4444 !important;">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-3.5 recruitment-kpi-card kpi-border-danger">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-muted small fw-bold mb-1.5">غير ملائم / مرفوض (Rejected)</div>
@@ -708,15 +710,38 @@
         color: #ffffff !important;
     }
 
-    /* KPI recruitment cards */
+    /* KPI recruitment cards with clean soft accents and zero corner clipping */
     .recruitment-kpi-card {
-        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
         border-radius: 16px !important;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+    .recruitment-kpi-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 4px;
+        background: #cbd5e1;
+        transition: width 0.2s ease;
     }
     .recruitment-kpi-card:hover {
         transform: translateY(-4px);
         box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.08) !important;
+        border-color: #cbd5e1 !important;
     }
+    .recruitment-kpi-card:hover::before {
+        width: 6px;
+    }
+    .recruitment-kpi-card.kpi-border-primary::before { background: #2563eb; }
+    .recruitment-kpi-card.kpi-border-success::before { background: #10b981; }
+    .recruitment-kpi-card.kpi-border-info::before { background: #0284c7; }
+    .recruitment-kpi-card.kpi-border-warning::before { background: #f59e0b; }
+    .recruitment-kpi-card.kpi-border-danger::before { background: #ef4444; }
 
     /* Table aesthetic */
     .live-recruitment-table th {

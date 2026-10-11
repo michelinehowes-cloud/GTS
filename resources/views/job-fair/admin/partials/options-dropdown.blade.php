@@ -18,7 +18,7 @@
             </a>
         </li>
         <li>
-            <a class="dropdown-item rounded-2 py-2 px-3 small d-flex align-items-center gap-2" href="{{ route('job-fair.admin.export-recruitment-excel', $fair->id) }}">
+            <a class="dropdown-item rounded-2 py-2 px-3 small d-flex align-items-center gap-2" href="{{ route('job-fair.admin.export-recruitment-excel', ['fair' => $fair->id, 'format' => 'xlsx']) }}">
                 <i class="fas fa-file-excel text-success"></i>
                 <span>تصدير التوظيف والمقابلات (Excel)</span>
             </a>

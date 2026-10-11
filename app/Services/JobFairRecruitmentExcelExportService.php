@@ -24,7 +24,14 @@ class JobFairRecruitmentExcelExportService
             return $this->exportCsv($fair);
         }
 
-        return $this->exportXlsx($fair);
+        try {
+            return $this->exportXlsx($fair);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('JobFair Excel export fallback to CSV: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+            return $this->exportCsv($fair);
+        }
     }
 
     /**

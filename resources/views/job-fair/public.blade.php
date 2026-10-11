@@ -872,338 +872,476 @@
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* ══════════════════════════════════
-           SPONSORS SECTION (Luxury Glassmorphic Redesign)
-        ══════════════════════════════════ */
-        .sponsors-section {
-            padding: 95px 0 100px;
-            background: radial-gradient(circle at 50% 10%, rgba(14, 116, 144, 0.12) 0%, transparent 65%),
-                        radial-gradient(circle at 85% 70%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
-                        linear-gradient(180deg, #020e1e 0%, #041830 50%, #031224 100%);
+        /* ═══════════════════════════════════════════════════════════════
+           CYBER-LUXURY DESIGN SYSTEM (Futuristic Grid & Geometric Cards)
+        ═══════════════════════════════════════════════════════════════ */
+        .cyber-matrix-wrap {
+            padding: 95px 0 105px;
+            background-color: #020a17;
+            background-image: 
+                radial-gradient(circle at 50% 12%, rgba(14, 116, 144, 0.18) 0%, transparent 60%),
+                radial-gradient(circle at 85% 65%, rgba(245, 158, 11, 0.09) 0%, transparent 45%),
+                linear-gradient(rgba(0, 195, 255, 0.038) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 195, 255, 0.038) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
             position: relative;
-            border-top: 1px solid rgba(56, 189, 248, 0.12);
-            border-bottom: 1px solid rgba(56, 189, 248, 0.12);
-        }
-
-        /* ── Strategic Partner VIP Spotlight Card ── */
-        .strategic-spotlight-card {
-            background: radial-gradient(circle at 90% 20%, rgba(245, 158, 11, 0.18) 0%, rgba(13, 37, 68, 0.95) 55%, rgba(6, 21, 42, 0.98) 100%);
-            border: 1.5px solid rgba(238, 202, 62, 0.45);
-            border-radius: 28px;
-            padding: 2.2rem 2.4rem;
-            margin: 0 auto 3.2rem;
-            max-width: 1100px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55), 0 0 35px rgba(238, 202, 62, 0.15);
-            position: relative;
-            backdrop-filter: blur(16px);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border-top: 1px solid rgba(56, 189, 248, 0.14);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.14);
             overflow: hidden;
         }
 
-        .strategic-spotlight-card::before {
-            content: '';
+        /* Side Decorative Dot Matrix Meters */
+        .cyber-side-meter {
             position: absolute;
-            top: 0;
-            right: 0;
-            left: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #eeca3e, #f59e0b, #38bdf8, transparent);
-        }
-
-        .strategic-spotlight-card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(238, 202, 62, 0.7);
-            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.65), 0 0 50px rgba(238, 202, 62, 0.25);
-        }
-
-        .strategic-spotlight-inner {
+            top: 50%;
+            transform: translateY(-50%);
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 2.5rem;
-            position: relative;
-            z-index: 2;
+            flex-direction: column;
+            gap: 14px;
+            z-index: 3;
+            pointer-events: none;
+        }
+        .cyber-side-meter.start { right: 24px; }
+        .cyber-side-meter.end { left: 24px; }
+        .cyber-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(56, 189, 248, 0.25);
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.2);
+            transition: all 0.3s ease;
+        }
+        .cyber-dot.is-gold {
+            background: #f59e0b;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.7);
+        }
+        .cyber-dot.is-cyan {
+            background: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
         }
 
-        @media (max-width: 991px) {
-            .strategic-spotlight-card {
-                padding: 1.8rem 1.4rem;
-            }
-            .strategic-spotlight-inner {
-                flex-direction: column-reverse;
-                text-align: center;
-                gap: 1.8rem;
-            }
-        }
-
-        .strategic-vip-pill {
+        /* Section Titles & Badges */
+        .cyber-section-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3));
-            color: #fbbf24;
-            border: 1px solid rgba(245, 158, 11, 0.5);
-            padding: 6px 16px;
+            background: rgba(14, 116, 144, 0.22);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #7dd3fc;
+            padding: 6px 20px;
             border-radius: 50px;
-            font-size: 0.84rem;
+            font-size: 0.85rem;
             font-weight: 800;
             letter-spacing: 0.3px;
-            box-shadow: 0 0 16px rgba(245, 158, 11, 0.2);
             margin-bottom: 0.9rem;
+            box-shadow: 0 0 18px rgba(14, 116, 144, 0.25);
         }
-
-        .strategic-title {
+        .cyber-section-title {
+            font-size: 2.35rem;
+            font-weight: 900;
             color: #ffffff;
-            font-size: 1.65rem;
-            font-weight: 800;
             margin-bottom: 0.75rem;
-            line-height: 1.35;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 35px rgba(56, 189, 248, 0.25);
         }
-
-        .strategic-desc {
-            color: rgba(255, 255, 255, 0.78);
-            font-size: 0.98rem;
+        .cyber-section-title .gold-accent {
+            background: linear-gradient(135deg, #fef08a 0%, #f59e0b 60%, #eeca3e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .cyber-section-subtitle {
+            color: rgba(255, 255, 255, 0.68);
+            font-size: 1rem;
             line-height: 1.75;
-            margin-bottom: 1.4rem;
-            max-width: 650px;
-        }
-
-        .strategic-action-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: linear-gradient(135deg, rgba(238, 202, 62, 0.18), rgba(245, 158, 11, 0.32));
-            color: #fbbf24;
-            border: 1.5px solid rgba(238, 202, 62, 0.6);
-            padding: 10px 24px;
-            border-radius: 50px;
-            font-size: 0.92rem;
-            font-weight: 700;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
-        }
-
-        .strategic-action-btn:hover {
-            background: linear-gradient(135deg, #fbbf24, #d97706);
-            color: #041224;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
-        }
-
-        .strategic-logo-box {
-            min-width: 210px;
-            max-width: 240px;
-            height: 120px;
-            background: #ffffff;
-            border-radius: 24px;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-            border: 2px solid rgba(238, 202, 62, 0.35);
-            flex-shrink: 0;
-            transition: transform 0.35s ease;
-        }
-
-        .strategic-spotlight-card:hover .strategic-logo-box {
-            transform: scale(1.05) rotate(-1deg);
-        }
-
-        .strategic-logo-box img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
-        /* ── Tiered Sponsors Grid ── */
-        .sponsors-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            max-width: 1200px;
+            max-width: 680px;
             margin: 0 auto;
         }
 
-        .sponsor-card {
-            background: linear-gradient(180deg, rgba(14, 38, 70, 0.65) 0%, rgba(6, 20, 40, 0.88) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            padding: 2.2rem 1.8rem 1.8rem;
-            text-align: center;
-            backdrop-filter: blur(14px);
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        /* SECTION 1: SPONSORS PODIUM */
+        .sponsors-podium-wrap {
+            max-width: 1200px;
+            margin: 3.5rem auto 0;
             position: relative;
+        }
+        .sponsors-podium-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 2.5rem 2rem;
+            align-items: start;
+            position: relative;
+            z-index: 2;
+        }
+        .sponsors-circuit-track {
+            position: absolute;
+            bottom: -15px;
+            left: 5%;
+            right: 5%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.45) 20%, rgba(245, 158, 11, 0.5) 80%, transparent);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .sponsors-circuit-track::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 20%;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #38bdf8;
+            box-shadow: 0 0 12px #38bdf8;
+        }
+        .sponsors-circuit-track::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            right: 20%;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #f59e0b;
+            box-shadow: 0 0 12px #f59e0b;
+        }
+
+        .cyber-sponsor-card {
+            position: relative;
+            background: linear-gradient(180deg, rgba(10, 30, 58, 0.88) 0%, rgba(4, 16, 36, 0.98) 100%);
+            border: 1.5px solid rgba(56, 189, 248, 0.3);
+            border-radius: 20px;
+            padding: 2.4rem 1.6rem 1.8rem;
+            text-align: center;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.55);
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow: hidden;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+            justify-content: space-between;
+            min-height: 290px;
         }
-
-        .sponsor-card:hover {
+        .cyber-sponsor-card:hover {
             transform: translateY(-8px);
-            background: linear-gradient(180deg, rgba(18, 48, 88, 0.75) 0%, rgba(8, 26, 52, 0.95) 100%);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
         }
-
-        .sponsor-card.is-diamond {
-            border-color: rgba(56, 189, 248, 0.35);
-        }
-        .sponsor-card.is-diamond:hover {
-            border-color: rgba(56, 189, 248, 0.7);
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 30px rgba(56, 189, 248, 0.25);
-        }
-
-        .sponsor-card.is-platinum {
-            border-color: rgba(226, 232, 240, 0.35);
-        }
-        .sponsor-card.is-platinum:hover {
-            border-color: rgba(226, 232, 240, 0.7);
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 30px rgba(226, 232, 240, 0.2);
-        }
-
-        .sponsor-card.is-gold {
-            border-color: rgba(245, 158, 11, 0.35);
-        }
-        .sponsor-card.is-gold:hover {
-            border-color: rgba(245, 158, 11, 0.7);
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 30px rgba(245, 158, 11, 0.25);
-        }
-
-        .sponsor-card.is-silver {
-            border-color: rgba(148, 163, 184, 0.35);
-        }
-        .sponsor-card.is-silver:hover {
-            border-color: rgba(148, 163, 184, 0.7);
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5), 0 0 30px rgba(148, 163, 184, 0.2);
-        }
-
-        .sponsor-tier-badge {
-            font-size: 0.78rem;
-            font-weight: 800;
-            padding: 5px 16px;
-            border-radius: 50px;
-            margin-bottom: 1.4rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            letter-spacing: 0.4px;
-        }
-
-        .tier-diamond {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(14, 165, 233, 0.35));
+        .cyber-sponsor-tab {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #061833;
+            border: 1.5px solid rgba(56, 189, 248, 0.45);
             color: #38bdf8;
-            border: 1px solid rgba(56, 189, 248, 0.5);
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.22);
+            padding: 4px 18px;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            white-space: nowrap;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+            z-index: 3;
+            letter-spacing: 0.3px;
         }
-        .tier-platinum {
-            background: linear-gradient(135deg, rgba(226, 232, 240, 0.22), rgba(203, 213, 225, 0.35));
-            color: #f1f5f9;
-            border: 1px solid rgba(226, 232, 240, 0.5);
-            box-shadow: 0 0 15px rgba(226, 232, 240, 0.18);
+        .cyber-sponsor-card.is-strategic {
+            border: 2px solid rgba(245, 158, 11, 0.8);
+            background: linear-gradient(180deg, rgba(22, 48, 86, 0.92) 0%, rgba(8, 24, 48, 0.98) 100%);
+            box-shadow: 0 25px 65px rgba(0, 0, 0, 0.65), 0 0 40px rgba(245, 158, 11, 0.22);
+            padding-top: 2.8rem;
         }
-        .tier-gold {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.35));
+        .cyber-sponsor-card.is-strategic:hover {
+            border-color: #f59e0b;
+            box-shadow: 0 30px 75px rgba(0, 0, 0, 0.75), 0 0 50px rgba(245, 158, 11, 0.35);
+        }
+        .cyber-sponsor-card.is-strategic .cyber-sponsor-tab {
+            background: linear-gradient(135deg, #221b08 0%, #3a2b0c 100%);
+            border-color: rgba(245, 158, 11, 0.85);
             color: #fbbf24;
-            border: 1px solid rgba(245, 158, 11, 0.5);
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.22);
+            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35);
         }
-        .tier-silver {
-            background: linear-gradient(135deg, rgba(156, 163, 175, 0.22), rgba(107, 114, 128, 0.35));
-            color: #d1d5db;
-            border: 1px solid rgba(156, 163, 175, 0.5);
+        .cyber-crown-badge {
+            position: absolute;
+            top: -46px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            filter: drop-shadow(0 4px 14px rgba(245, 158, 11, 0.75));
+        }
+        .cyber-crown-badge i {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #b45309 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: cyberCrownBounce 3s ease-in-out infinite alternate;
+        }
+        @keyframes cyberCrownBounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-4px); }
+        }
+        .cyber-sponsor-card.is-gold {
+            border-color: rgba(238, 202, 62, 0.6);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55), 0 0 25px rgba(238, 202, 62, 0.12);
+        }
+        .cyber-sponsor-card.is-gold:hover {
+            border-color: #eeca3e;
+            box-shadow: 0 22px 55px rgba(0, 0, 0, 0.65), 0 0 35px rgba(238, 202, 62, 0.25);
+        }
+        .cyber-sponsor-card.is-gold .cyber-sponsor-tab {
+            background: #181907;
+            border-color: rgba(238, 202, 62, 0.75);
+            color: #fcd34d;
+        }
+        .cyber-sponsor-card.is-silver {
+            border-color: rgba(203, 213, 225, 0.45);
+        }
+        .cyber-sponsor-card.is-silver:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 22px 50px rgba(0, 0, 0, 0.65), 0 0 30px rgba(203, 213, 225, 0.2);
+        }
+        .cyber-sponsor-card.is-silver .cyber-sponsor-tab {
+            background: #101a28;
+            border-color: rgba(203, 213, 225, 0.65);
+            color: #e2e8f0;
         }
 
-        .sponsor-logo-box {
-            width: 145px;
-            height: 96px;
+        .cyber-logo-box {
+            width: 150px;
+            height: 74px;
             background: #ffffff;
-            border-radius: 20px;
-            padding: 12px;
+            border-radius: 14px;
+            padding: 8px 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 1.3rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+            margin: 0.6rem auto 1.1rem;
+            transition: transform 0.35s ease;
+            border: 2px solid rgba(255, 255, 255, 0.95);
         }
-
-        .sponsor-card:hover .sponsor-logo-box {
-            transform: scale(1.08);
+        .cyber-sponsor-card:hover .cyber-logo-box {
+            transform: scale(1.06);
         }
-
-        .sponsor-logo-box img {
+        .cyber-logo-box img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
         }
-
-        .sponsor-fallback-avatar {
-            width: 100%;
-            height: 100%;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #0a264a 0%, #15467e 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            color: #fbbf24;
-            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .sponsor-fallback-avatar .avatar-letter {
-            font-size: 1.7rem;
-            font-weight: 800;
-            line-height: 1;
-        }
-
-        .sponsor-fallback-avatar .avatar-icon {
-            font-size: 0.85rem;
-            color: #38bdf8;
-            opacity: 0.85;
-        }
-
-        .sponsor-name {
+        .cyber-sponsor-name {
             color: #ffffff;
-            font-size: 1.22rem;
+            font-size: 1.12rem;
             font-weight: 800;
-            margin-bottom: 0.6rem;
-            line-height: 1.4;
+            margin-bottom: 0.5rem;
+            line-height: 1.35;
         }
-
-        .sponsor-desc {
-            color: rgba(255, 255, 255, 0.68);
-            font-size: 0.89rem;
-            line-height: 1.65;
+        .cyber-sponsor-desc {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            line-height: 1.6;
             margin-bottom: 1.2rem;
-            flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
-
-        .sponsor-link {
+        .cyber-sponsor-link {
             color: #38bdf8;
-            font-size: 0.86rem;
+            font-size: 0.84rem;
             font-weight: 700;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 16px;
+            padding: 6px 18px;
             border-radius: 50px;
-            background: rgba(56, 189, 248, 0.1);
-            border: 1px solid rgba(56, 189, 248, 0.25);
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.35);
             transition: all 0.25s ease;
+            margin-top: auto;
         }
-
-        .sponsor-link:hover {
-            color: #ffffff;
-            background: rgba(56, 189, 248, 0.25);
+        .cyber-sponsor-card.is-strategic .cyber-sponsor-link {
+            background: rgba(245, 158, 11, 0.18);
+            border-color: rgba(245, 158, 11, 0.5);
+            color: #fbbf24;
+        }
+        .cyber-sponsor-link:hover {
+            color: #ffffff !important;
+            background: #38bdf8;
             border-color: #38bdf8;
             transform: translateY(-2px);
+        }
+        .cyber-sponsor-card.is-strategic .cyber-sponsor-link:hover {
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            border-color: #fbbf24;
+            color: #041224 !important;
+        }
+
+        /* CHAMFERED CARDS SYSTEM */
+        .cyber-chamfer-card {
+            position: relative;
+            background: linear-gradient(180deg, rgba(8, 28, 58, 0.82) 0%, rgba(4, 16, 36, 0.96) 100%);
+            border: 1.5px solid rgba(56, 189, 248, 0.26);
+            border-radius: 18px;
+            padding: 1.45rem 1.4rem 1.15rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            text-decoration: none;
+            color: #ffffff;
+            cursor: pointer;
+        }
+        .cyber-chamfer-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(225deg, rgba(56, 189, 248, 0.6) 0%, transparent 60%);
+            clip-path: polygon(100% 0, 0 0, 100% 100%);
+            pointer-events: none;
+            opacity: 0.75;
+            transition: opacity 0.3s ease;
+        }
+        .cyber-chamfer-card:hover {
+            transform: translateY(-7px);
+            border-color: rgba(56, 189, 248, 0.65);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 30px rgba(56, 189, 248, 0.24);
+            color: #ffffff;
+        }
+        .cyber-chamfer-card:hover::before {
+            opacity: 1;
+        }
+        .cyber-chamfer-card.is-featured,
+        .cyber-chamfer-card.is-gold {
+            border-color: rgba(245, 158, 11, 0.48);
+            background: linear-gradient(180deg, rgba(18, 38, 70, 0.88) 0%, rgba(6, 18, 40, 0.98) 100%);
+            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.5), 0 0 28px rgba(245, 158, 11, 0.15);
+        }
+        .cyber-chamfer-card.is-featured::before,
+        .cyber-chamfer-card.is-gold::before {
+            background: linear-gradient(225deg, rgba(245, 158, 11, 0.75) 0%, transparent 60%);
+        }
+        .cyber-chamfer-card.is-featured:hover,
+        .cyber-chamfer-card.is-gold:hover {
+            border-color: rgba(245, 158, 11, 0.85);
+            box-shadow: 0 22px 55px rgba(0, 0, 0, 0.65), 0 0 40px rgba(245, 158, 11, 0.3);
+        }
+        .cyber-card-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 1.15rem;
+            width: 100%;
+        }
+        .cyber-time-pill {
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            padding: 3.5px 11px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+        .cyber-track-pill {
+            font-size: 0.74rem;
+            font-weight: 800;
+            padding: 3.5px 12px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+            letter-spacing: 0.2px;
+        }
+        .cyber-track-pill.badge-workshop,
+        .cyber-track-pill.badge-type-workshop {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.3), rgba(56, 189, 248, 0.35));
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+        }
+        .cyber-track-pill.badge-masterclass,
+        .cyber-track-pill.badge-type-masterclass {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(168, 85, 247, 0.35));
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            box-shadow: 0 0 12px rgba(168, 85, 247, 0.2);
+        }
+        .cyber-track-pill.badge-panel,
+        .cyber-track-pill.badge-type-panel {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.3), rgba(52, 211, 153, 0.35));
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.5);
+            box-shadow: 0 0 12px rgba(52, 211, 153, 0.2);
+        }
+        .cyber-track-pill.badge-gold-featured {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.35));
+            color: #fcd34d;
+            border: 1px solid rgba(245, 158, 11, 0.55);
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+        }
+        .cyber-card-title {
+            color: #ffffff;
+            font-size: 1.22rem;
+            font-weight: 800;
+            line-height: 1.42;
+            margin-bottom: 0.65rem;
+            text-align: right;
+        }
+        .cyber-card-desc {
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 0.86rem;
+            line-height: 1.65;
+            margin-bottom: 1.1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-align: right;
+        }
+        .cyber-card-speaker {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 1rem;
+            font-size: 0.82rem;
+            color: #93c5fd;
+            font-weight: 700;
+        }
+        .cyber-action-strip {
+            margin-top: auto;
+            padding-top: 0.95rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.09);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #38bdf8;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            width: 100%;
+        }
+        .cyber-chamfer-card:hover .cyber-action-strip {
+            color: #fcd34d;
+        }
+        .cyber-chamfer-card.is-featured .cyber-action-strip,
+        .cyber-chamfer-card.is-gold .cyber-action-strip {
+            color: #fbbf24;
+        }
+        .cyber-action-strip i {
+            transition: transform 0.25s ease;
+        }
+        .cyber-chamfer-card:hover .cyber-action-strip i.fa-arrow-left {
+            transform: translateX(-5px);
         }
 
         /* ══════════════════════════════════
@@ -2517,125 +2655,138 @@
     </div>
 </section>
 
-{{-- SPONSORS SECTION (الجهات الراعية والشريك الاستراتيجي) --}}
-<section class="sponsors-section" id="sponsors">
-    <div class="container">
+{{-- SPONSORS SECTION (الشركاء والرعاة) --}}
+<section class="sponsors-section cyber-matrix-wrap" id="sponsors">
+    {{-- Side Decorative Dot Meters --}}
+    <div class="cyber-side-meter start d-none d-lg-flex">
+        <span class="cyber-dot is-gold"></span>
+        <span class="cyber-dot is-gold"></span>
+        <span class="cyber-dot is-cyan"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+    </div>
+    <div class="cyber-side-meter end d-none d-lg-flex">
+        <span class="cyber-dot is-gold"></span>
+        <span class="cyber-dot is-cyan"></span>
+        <span class="cyber-dot is-cyan"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+    </div>
+
+    <div class="container position-relative z-2">
         <div class="text-center mb-5">
-            <div class="section-badge"><i class="fas fa-crown text-warning me-1"></i>الجهات الراعية والداعمة</div>
+            <div class="cyber-section-badge">
+                <i class="fas fa-crown text-warning"></i>
+                <span>شركاء النجاح والرعاية</span>
+            </div>
             <div class="title-line"></div>
-            <h2 class="section-title">شركاء الرعاية والتميز</h2>
-            <p class="section-subtitle">نفتخر برعاية ودعم نخبة المؤسسات الوطنية الرائدة لمسيرة تمكين وتوظيف الكفاءات الشابة</p>
+            <h2 class="cyber-section-title">الشركاء والرعاة</h2>
+            <p class="cyber-section-subtitle">
+                نفتخر برعاية ودعم نخبة المؤسسات الوطنية الرائدة لمسيرة تمكين وتوظيف الكفاءات الوطنية الشابة
+            </p>
         </div>
 
-        {{-- الشريك والراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات (VIP Spotlight Card) --}}
-        <div class="strategic-spotlight-card">
-            <div class="strategic-spotlight-inner">
-                <div>
-                    <span class="strategic-vip-pill">
-                        <i class="fas fa-crown text-warning"></i>
-                        <span>الشريك والراعي الاستراتيجي الرسمي</span>
-                    </span>
-                    <h3 class="strategic-title">شركة الواحة لتنظيم المعارض والمؤتمرات</h3>
-                    <p class="strategic-desc">
-                        الشريك والراعي الاستراتيجي لمعرض التوظيف السنوي بجامعة طرابلس، الرائد في صناعة وتنظيم كبرى الفعاليات والمعارض والمؤتمرات المهنية في ليبيا.
+        <div class="sponsors-podium-wrap">
+            <div class="sponsors-podium-grid">
+                
+                {{-- 1. الراعي الاستراتيجي: شركة الواحة لتنظيم المعارض والمؤتمرات (Crowned VIP Centerpiece) --}}
+                <div class="cyber-sponsor-card is-strategic">
+                    <div class="cyber-crown-badge">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="cyber-sponsor-tab">
+                        <i class="fas fa-crown me-1 text-warning"></i>الراعي الاستراتيجي
+                    </div>
+
+                    <div class="cyber-logo-box">
+                        <img src="{{ asset('images/wahaexpo_logo.png') }}" 
+                             alt="شركة الواحة لتنظيم المعارض والمؤتمرات"
+                             onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
+                    </div>
+
+                    <h3 class="cyber-sponsor-name">شركة الواحة لتنظيم المعارض والمؤتمرات</h3>
+                    <p class="cyber-sponsor-desc">
+                        الشريك والراعي الاستراتيجي لمعرض التوظيف السنوي بجامعة طرابلس، الرائد في صناعة وتنظيم كبرى الفعاليات والمعارض المهنية.
                     </p>
-                    <a href="https://ly.linkedin.com/company/wahaexpo" target="_blank" rel="noopener noreferrer" class="strategic-action-btn">
-                        <span>زيارة صفحة الشريك الاستراتيجي</span>
-                        <i class="fas fa-arrow-left"></i>
+
+                    <a href="https://ly.linkedin.com/company/wahaexpo" target="_blank" rel="noopener noreferrer" class="cyber-sponsor-link">
+                        <span>زيارة منصة الشركة</span>
+                        <i class="fas fa-external-link-alt ms-1"></i>
                     </a>
                 </div>
 
-                <div class="strategic-logo-box">
-                    <img src="{{ asset('images/wahaexpo_logo.png') }}" 
-                         alt="شركة الواحة لتنظيم المعارض والمؤتمرات"
-                         onerror="this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
-                </div>
-            </div>
-        </div>
-
-        {{-- شبكة الرعاة الآخرين مصنفة حسب الفئات (Diamond / Platinum / Gold / Silver) --}}
-        @if(isset($sponsors) && $sponsors->count() > 0)
-            <div class="sponsors-grid">
-                @foreach($sponsors as $sponsor)
-                    @php
-                        $tKey = strtolower(trim((string)$sponsor->tier));
-                        $isStrategic = in_array($tKey, ['strategic', 'الراعي الاستراتيجي']);
-                    @endphp
-                    @if(!$isStrategic)
+                {{-- 2. الرعاة الآخرين المسجلين في المعرض (Diamond / Platinum / Gold / Silver / Bronze) --}}
+                @if(isset($sponsors) && $sponsors->count() > 0)
+                    @foreach($sponsors as $sponsor)
                         @php
-                            $tierClass = match($tKey) {
-                                'diamond', 'الراعي الماسي' => 'tier-diamond',
-                                'platinum', 'الراعي البلاتيني' => 'tier-platinum',
-                                'silver', 'الراعي الفضي' => 'tier-silver',
-                                default => 'tier-gold',
-                            };
-                            $tierCardModifier = match($tKey) {
-                                'diamond', 'الراعي الماسي' => 'is-diamond',
-                                'platinum', 'الراعي البلاتيني' => 'is-platinum',
-                                'silver', 'الراعي الفضي' => 'is-silver',
-                                default => 'is-gold',
-                            };
-                            $tierLabel = $sponsor->tier_label ?: match($tKey) {
-                                'diamond', 'الراعي الماسي' => 'الراعي الماسي',
-                                'platinum', 'الراعي البلاتيني' => 'الراعي البلاتيني',
-                                'silver', 'الراعي الفضي' => 'الراعي الفضي',
-                                'bronze', 'الراعي البرونزي' => 'الراعي البرونزي',
-                                'tech', 'راعي التقنية' => 'راعي التقنية',
-                                'media', 'الراعي الإعلامي' => 'الراعي الإعلامي',
-                                default => 'الراعي الذهبي',
-                            };
-                            $tierIconClass = match($tKey) {
-                                'diamond', 'الراعي الماسي' => 'fa-gem',
-                                'platinum', 'الراعي البلاتيني' => 'fa-star',
-                                'silver', 'الراعي الفضي' => 'fa-award',
-                                'tech', 'راعي التقنية' => 'fa-microchip',
-                                'media', 'الراعي الإعلامي' => 'fa-bullhorn',
-                                default => 'fa-trophy',
-                            };
-                            $monogramLetter = mb_substr(trim($sponsor->name), 0, 1, 'UTF-8');
+                            $tKey = strtolower(trim((string)$sponsor->tier));
+                            $isStrat = in_array($tKey, ['strategic', 'الراعي الاستراتيجي']);
                         @endphp
-                        <div class="sponsor-card {{ $tierCardModifier }}">
-                            <div class="sponsor-tier-badge {{ $tierClass }}">
-                                <i class="fas {{ $tierIconClass }}"></i>
-                                <span>{{ $tierLabel }}</span>
-                            </div>
+                        @if(!$isStrat)
+                            @php
+                                $tierMod = match($tKey) {
+                                    'diamond', 'الراعي الماسي', 'platinum', 'الراعي البلاتيني' => 'is-silver',
+                                    'silver', 'الراعي الفضي' => 'is-silver',
+                                    default => 'is-gold',
+                                };
+                                $tierLbl = $sponsor->tier_label ?: match($tKey) {
+                                    'diamond', 'الراعي الماسي' => 'الراعي الماسي',
+                                    'platinum', 'الراعي البلاتيني' => 'الراعي البلاتيني',
+                                    'silver', 'الراعي الفضي' => 'الراعي الفضي',
+                                    'bronze', 'الراعي البرونزي' => 'الراعي الثاني',
+                                    default => 'الراعي الذهبي',
+                                };
+                                $monogramLetter = mb_substr(trim($sponsor->name), 0, 1, 'UTF-8');
+                            @endphp
+                            <div class="cyber-sponsor-card {{ $tierMod }}">
+                                <div class="cyber-sponsor-tab">
+                                    {{ $tierLbl }}
+                                </div>
 
-                            <div class="sponsor-logo-box">
-                                @if($sponsor->logo_path)
-                                    <img src="{{ Storage::url($sponsor->logo_path) }}" 
-                                         alt="{{ $sponsor->name }}"
-                                         loading="lazy"
-                                         onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
-                                    <div class="sponsor-fallback-avatar" style="display:none;">
-                                        <span class="avatar-letter">{{ $monogramLetter }}</span>
-                                        <i class="fas fa-building avatar-icon"></i>
-                                    </div>
+                                <div class="cyber-logo-box">
+                                    @if($sponsor->logo_path)
+                                        <img src="{{ Storage::url($sponsor->logo_path) }}" 
+                                             alt="{{ $sponsor->name }}"
+                                             loading="lazy"
+                                             onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                                        <div class="company-fallback-avatar" style="display:none; width:100%; height:100%;">
+                                            <span class="company-monogram">{{ $monogramLetter }}</span>
+                                        </div>
+                                    @else
+                                        <div class="company-fallback-avatar" style="width:100%; height:100%;">
+                                            <span class="company-monogram">{{ $monogramLetter }}</span>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <h3 class="cyber-sponsor-name">{{ $sponsor->name }}</h3>
+                                <p class="cyber-sponsor-desc">
+                                    {{ $sponsor->description ?: 'شريك رعاية متميز داعم لمسارات التوظيف وتمكين الكفاءات الوطنية الشابة.' }}
+                                </p>
+
+                                @if($sponsor->website)
+                                    <a href="{{ $sponsor->website }}" target="_blank" rel="noopener noreferrer" class="cyber-sponsor-link">
+                                        <span>زيارة منصة الشركة</span>
+                                        <i class="fas fa-external-link-alt ms-1"></i>
+                                    </a>
                                 @else
-                                    <div class="sponsor-fallback-avatar">
-                                        <span class="avatar-letter">{{ $monogramLetter }}</span>
-                                        <i class="fas fa-building avatar-icon"></i>
-                                    </div>
+                                    <span class="cyber-sponsor-link" style="opacity: 0.85;">
+                                        <span>شريك معتمد</span>
+                                        <i class="fas fa-check-circle ms-1"></i>
+                                    </span>
                                 @endif
                             </div>
+                        @endif
+                    @endforeach
+                @endif
 
-                            <h3 class="sponsor-name">{{ $sponsor->name }}</h3>
-                            @if($sponsor->description)
-                                <p class="sponsor-desc">{{ $sponsor->description }}</p>
-                            @else
-                                <p class="sponsor-desc">شريك استراتيجي داعم لمسارات التوظيف وتمكين الكفاءات الوطنية الشابة.</p>
-                            @endif
-
-                            @if($sponsor->website)
-                                <a href="{{ $sponsor->website }}" target="_blank" rel="noopener noreferrer" class="sponsor-link">
-                                    <span>زيارة الموقع الإلكتروني</span>
-                                    <i class="fas fa-arrow-left"></i>
-                                </a>
-                            @endif
-                        </div>
-                    @endif
-                @endforeach
             </div>
-        @endif
+
+            {{-- خط التوصيل الشبكي أسفل البطاقات --}}
+            <div class="sponsors-circuit-track d-none d-md-block"></div>
+        </div>
     </div>
 </section>
 
@@ -2655,14 +2806,31 @@
     // عرض معاينة لأول 12 شركة لإبقاء الصفحة الرئيسية خفيفة وسريعة التصفح
     $previewCompanies = $companies->take(12);
 @endphp
-<section class="companies-section" id="companies">
-    <div class="container">
+<section class="companies-section cyber-matrix-wrap" id="companies">
+    {{-- Side Decorative Dot Meters --}}
+    <div class="cyber-side-meter start d-none d-lg-flex">
+        <span class="cyber-dot is-cyan"></span>
+        <span class="cyber-dot is-gold"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+    </div>
+    <div class="cyber-side-meter end d-none d-lg-flex">
+        <span class="cyber-dot is-cyan"></span>
+        <span class="cyber-dot is-gold"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+    </div>
 
+    <div class="container position-relative z-2">
         <div class="text-center mb-5">
-            <div class="section-badge"><i class="fas fa-building"></i>الشركات والمؤسسات المشاركة</div>
+            <div class="cyber-section-badge"><i class="fas fa-building me-1"></i>الشركات والمؤسسات المشاركة</div>
             <div class="title-line"></div>
-            <h2 class="section-title">أجنحة الشركات المشاركة</h2>
-            <p class="section-subtitle">{{ $countText }} في المعرض — انقر على أي جناح للتعرف على فرصه وتفاصيله</p>
+            <h2 class="cyber-section-title">أجنحة الشركات المشاركة</h2>
+            <p class="cyber-section-subtitle">{{ $countText }} في المعرض — انقر على أي جناح للتعرف على فرصه وتفاصيله</p>
         </div>
 
         <div class="companies-booth-grid">
@@ -2677,7 +2845,7 @@
             @endphp
             <div role="button" 
                  tabindex="0"
-                 class="company-booth-card" 
+                 class="cyber-chamfer-card company-booth-card" 
                  data-bs-toggle="modal" 
                  data-bs-target="#companyDetailModal"
                  data-name="{{ $companyName }}"
@@ -2692,16 +2860,14 @@
                  title="انقر للاطلاع على تفاصيل جناح {{ $companyName }}">
                 
                 {{-- شريط الشارات العلوي --}}
-                <div class="company-card-top-bar">
+                <div class="cyber-card-top-bar">
                     @if($fc->booth_number)
-                        <span class="booth-pill">
-                            <i class="fas fa-map-pin"></i>
-                            <span>جناح {{ strtoupper($fc->booth_number) }}</span>
+                        <span class="cyber-time-pill">
+                            <i class="fas fa-map-pin text-warning me-1"></i>جناح {{ strtoupper($fc->booth_number) }}
                         </span>
                     @else
-                        <span class="booth-pill">
-                            <i class="fas fa-store"></i>
-                            <span>جناح بالمعرض</span>
+                        <span class="cyber-time-pill">
+                            <i class="fas fa-store text-info me-1"></i>جناح بالمعرض
                         </span>
                     @endif
 
@@ -2709,48 +2875,44 @@
                         @php
                             $posText = ($pos == 1 ? 'فرصة واحدة' : ($pos == 2 ? 'فرصتان' : ($pos <= 10 ? $pos.' فرص' : $pos.' فرصة')));
                         @endphp
-                        <span class="jobs-pill has-vacancies">
-                            <i class="fas fa-briefcase"></i>
-                            <span>{{ $posText }}</span>
+                        <span class="cyber-track-pill badge-panel">
+                            <i class="fas fa-briefcase me-1"></i>{{ $posText }}
                         </span>
                     @else
-                        <span class="jobs-pill info-booth">
-                            <i class="fas fa-handshake"></i>
-                            <span>جناح تعريفي</span>
+                        <span class="cyber-track-pill badge-workshop">
+                            <i class="fas fa-handshake me-1"></i>تعريفي
                         </span>
                     @endif
                 </div>
 
-                {{-- صندوق الشعار مع المعالجة الذاتية للصور التالفة --}}
-                <div class="company-logo-well">
+                {{-- صندوق الشعار الأبيض --}}
+                <div class="cyber-logo-box">
                     @if($companyLogo)
                         <img src="{{ $companyLogo }}" 
                              alt="{{ $companyName }}" 
                              loading="lazy"
                              onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
-                        <div class="company-fallback-avatar" style="display:none;">
+                        <div class="company-fallback-avatar" style="display:none; width:100%; height:100%;">
                             <span class="company-monogram">{{ $monogram }}</span>
-                            <i class="fas fa-building company-subicon"></i>
                         </div>
                     @else
-                        <div class="company-fallback-avatar">
+                        <div class="company-fallback-avatar" style="width:100%; height:100%;">
                             <span class="company-monogram">{{ $monogram }}</span>
-                            <i class="fas fa-building company-subicon"></i>
                         </div>
                     @endif
                 </div>
 
                 {{-- عنوان وبيانات الشركة --}}
-                <h4 class="company-card-name" title="{{ $companyName }}">{{ $companyName }}</h4>
-                <div class="company-card-sector" title="{{ $industry }}">
-                    <i class="fas fa-layer-group"></i>
+                <h4 class="cyber-card-title text-center" title="{{ $companyName }}" style="font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $companyName }}</h4>
+                <div class="company-card-sector text-center" title="{{ $industry }}">
+                    <i class="fas fa-layer-group text-info me-1"></i>
                     <span>{{ $industry }}</span>
                 </div>
 
                 {{-- تذييل تفاعلي للبطاقة --}}
-                <div class="company-card-action">
+                <div class="cyber-action-strip">
                     <span>استكشاف تفاصيل الجناح</span>
-                    <i class="fas fa-arrow-left"></i>
+                    <i class="fas fa-arrow-left ms-auto"></i>
                 </div>
             </div>
             @endforeach
@@ -2771,22 +2933,40 @@
 </section>
 @endif
 
-{{-- SCIENTIFIC PROGRAM PREVIEW SECTION (رحلة الجاهزية المهنية) --}}
+{{-- SCIENTIFIC PROGRAM PREVIEW SECTION (البرنامج العلمي والتدريبي المصاحب) --}}
 @if(isset($events) && $events->count() > 0)
 @php
-    $previewEvents = $events->take(4);
+    $previewEvents = $events->take(3);
 @endphp
-<section class="program-preview-section" id="program">
-    <div class="container">
+<section class="program-preview-section cyber-matrix-wrap" id="program">
+    {{-- Side Decorative Dot Meters --}}
+    <div class="cyber-side-meter start d-none d-lg-flex">
+        <span class="cyber-dot is-gold"></span>
+        <span class="cyber-dot is-cyan"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+    </div>
+    <div class="cyber-side-meter end d-none d-lg-flex">
+        <span class="cyber-dot is-gold"></span>
+        <span class="cyber-dot is-cyan"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+    </div>
 
+    <div class="container position-relative z-2">
         <div class="text-center mb-5">
-            <div class="section-badge">
-                <i class="fas fa-graduation-cap me-1"></i>رحلة الجاهزية المهنية
+            <div class="cyber-section-badge">
+                <i class="fas fa-graduation-cap text-warning"></i>
+                <span>رحلة الجاهزية المهنية</span>
             </div>
             <div class="title-line"></div>
-            <h2 class="section-title">البرنامج العلمي والتدريبي المصاحب</h2>
-            <p class="section-subtitle">
-                سلسلة متكاملة من ورش العمل التطبيقية، الماستر كلاس، والجلسات الحوارية الاستراتيجية بمشاركة نخبة من الخبراء والمدربين المحليين والدوليين لتأهيلك لسوق العمل.
+            <h2 class="cyber-section-title">البرنامج العلمي والتدريبي المصاحب</h2>
+            <p class="cyber-section-subtitle">
+                سلسلة متكاملة من ورش العمل التطبيقية، الماستر كلاس، والجلسات الحوارية الاستراتيجية لتأهيلك لسوق العمل
             </p>
         </div>
 
@@ -2805,7 +2985,7 @@
                     البرنامج العلمي والتدريبي قيد التحضير النهائي
                 </h3>
                 <p class="text-white-50 mb-4 mx-auto" style="max-width: 650px; font-size: 0.98rem; line-height: 1.7;">
-                    نضع حالياً اللمسات الأخيرة على جدول ورش العمل التطبيقية وجلسات الماستر كلاس مع نخبة من كبار المدربين والخبراء. سيتم فتح باب التسجيل وتأكيد الحضور قريباً لجميع المسجلين.
+                    نضع حالياً اللمسات الأخيرة على جدول ورش العمل التطبيقية وجلسات الماستر كلاس مع نخبة من كبار المدربين والخبراء.
                 </p>
                 <a href="{{ route('job-fair.public.program', $fair->id) }}" class="companies-dir-btn d-inline-flex align-items-center">
                     <span>استعراض محاور البرنامج والتفاصيل</span>
@@ -2813,50 +2993,58 @@
                 </a>
             </div>
         @else
-        <div class="program-preview-grid">
-            @foreach($previewEvents as $event)
+        <div class="row g-4 mb-5">
+            @foreach($previewEvents as $idx => $event)
             @php
                 $typeClass = match($event->type) {
                     'masterclass' => 'badge-type-masterclass',
                     'panel_discussion' => 'badge-type-panel',
                     default => 'badge-type-workshop',
                 };
+                $isCenterCard = ($idx === 1); // Center card gets gold accent like reference image
             @endphp
-            <div class="program-preview-card" onclick="window.location.href='{{ route('job-fair.public.events.show', $event->id) }}'">
-                <div class="program-card-header">
-                    <span class="{{ $typeClass }}">
-                        <i class="{{ $event->type_icon }} me-1"></i>{{ $event->type_short_label }}
-                    </span>
-                    <span class="event-time-pill">
-                        <i class="far fa-clock text-warning me-1"></i>{{ $event->start_time->format('H:i') }} - {{ $event->end_time->format('H:i') }}
-                    </span>
-                </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="cyber-chamfer-card h-100 {{ $isCenterCard ? 'is-featured' : '' }}" 
+                     onclick="window.location.href='{{ route('job-fair.public.events.show', $event->id) }}'">
+                    
+                    {{-- شريط الوقت ونوع الورشة --}}
+                    <div class="cyber-card-top-bar">
+                        <span class="cyber-time-pill">
+                            <i class="far fa-clock text-warning me-1"></i>{{ $event->start_time ? $event->start_time->format('H:i') : '10:00' }} - {{ $event->end_time ? $event->end_time->format('H:i') : '12:30' }}
+                        </span>
+                        <span class="cyber-track-pill {{ $isCenterCard ? 'badge-gold-featured' : $typeClass }}">
+                            <i class="{{ $event->type_icon }} me-1"></i>{{ $event->type_short_label ?: 'ورشة تدريبية' }}
+                        </span>
+                    </div>
 
-                <h4 class="event-card-title">
-                    {{ $event->title }}
-                </h4>
+                    {{-- عنوان الفعالية / الورشة --}}
+                    <h3 class="cyber-card-title">
+                        {{ $event->title }}
+                    </h3>
 
-                @if($event->speaker_name)
-                <div class="event-compact-speaker">
-                    @if($event->speaker_image_url)
-                        <img src="{{ $event->speaker_image_url }}" alt="{{ $event->speaker_name }}" class="speaker-avatar-sm">
-                    @else
-                        <div class="speaker-avatar-sm-fallback">
-                            <i class="fas fa-user-tie"></i>
-                        </div>
+                    @if($event->speaker_name)
+                    <div class="cyber-card-speaker">
+                        @if($event->speaker_image_url)
+                            <img src="{{ $event->speaker_image_url }}" alt="{{ $event->speaker_name }}" class="speaker-avatar-sm">
+                        @else
+                            <div class="speaker-avatar-sm-fallback">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                        @endif
+                        <span>{{ $event->speaker_name }}</span>
+                    </div>
                     @endif
-                    <span class="speaker-name-compact" title="{{ $event->speaker_name }}">{{ $event->speaker_name }}</span>
-                </div>
-                @endif
 
-                <div class="program-card-footer">
-                    <span class="event-loc-compact" title="{{ $event->location ?: 'المدرج الرئيسي' }}">
-                        <i class="fas fa-map-marker-alt text-info me-1"></i>{{ $event->location ?: 'المدرج الرئيسي' }}
-                    </span>
-                    <a href="{{ route('job-fair.public.events.show', $event->id) }}" class="btn-event-quick-view" onclick="event.stopPropagation();">
-                        <span>التفاصيل</span>
-                        <i class="fas fa-arrow-left"></i>
-                    </a>
+                    <p class="cyber-card-desc">
+                        {{ $event->description ?: 'جلسة تدريبية نوعية تستهدف رفع كفاءة الخريجين وإكسابهم المهارات التطبيقية التي يتطلبها سوق العمل المعاصر.' }}
+                    </p>
+
+                    {{-- الشريط السفلي التفاعلي --}}
+                    <div class="cyber-action-strip">
+                        <i class="fas fa-plus-circle me-1"></i>
+                        <span>عرض التفاصيل الكاملة والجدول</span>
+                        <i class="fas fa-arrow-left ms-auto"></i>
+                    </div>
                 </div>
             </div>
             @endforeach
@@ -2878,22 +3066,41 @@
 </section>
 @endif
 
-{{-- GRADUATE PROJECTS PREVIEW SECTION (معرض وأرشيف مشاريع التخرج) --}}
+{{-- GRADUATE PROJECTS PREVIEW SECTION (معرض مشاريع التخرج المتميزة) --}}
 @if(isset($projects) && $projects->count() > 0)
 @php
     $previewProjects = $projects->take(3);
     $isProjectsComingSoon = !($fair && $fair->is_projects_published);
 @endphp
-<section class="projects-preview-section" id="projects" style="padding: 5rem 0; position: relative; background: radial-gradient(circle at 80% 20%, rgba(238,202,62,0.06) 0%, transparent 50%), linear-gradient(180deg, rgba(6,30,62,0.95) 0%, rgba(4,22,46,0.98) 100%); border-top: 1px solid rgba(255,255,255,0.06);">
-    <div class="container position-relative z-10">
+<section class="projects-preview-section cyber-matrix-wrap" id="projects">
+    {{-- Side Decorative Dot Meters --}}
+    <div class="cyber-side-meter start d-none d-lg-flex">
+        <span class="cyber-dot is-gold"></span>
+        <span class="cyber-dot is-gold"></span>
+        <span class="cyber-dot is-cyan"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+    </div>
+    <div class="cyber-side-meter end d-none d-lg-flex">
+        <span class="cyber-dot is-gold"></span>
+        <span class="cyber-dot is-cyan"></span>
+        <span class="cyber-dot is-cyan"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+        <span class="cyber-dot"></span>
+    </div>
+
+    <div class="container position-relative z-2">
         <div class="text-center mb-5">
-            <div class="section-badge" style="background: rgba(238,202,62,0.15); border: 1px solid rgba(238,202,62,0.4); color: #fbd34d; padding: 6px 18px; border-radius: 999px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 8px;">
-                <i class="fas fa-lightbulb"></i>ابتكارات كفاءات المستقبل
+            <div class="cyber-section-badge">
+                <i class="fas fa-lightbulb text-warning"></i>
+                <span>ابتكارات كفاءات المستقبل</span>
             </div>
             <div class="title-line"></div>
-            <h2 class="section-title text-white fw-bold" style="font-size: 2.2rem; margin-top: 0.8rem;">معرض مشاريع التخرج المتميزة</h2>
-            <p class="section-subtitle text-white-50 mx-auto" style="max-width: 680px; font-size: 1rem; line-height: 1.7;">
-                نافذة حية تبرز نتاج إبداعات خريجي جامعة طرابلس بمختلف الكليات والأقسام، وفرصة مباشرة لأصحاب الأعمال والشركات لتبني العقول الواعدة واستثمار الأفكار الابتكارية.
+            <h2 class="cyber-section-title">معرض مشاريع التخرج المتميزة</h2>
+            <p class="cyber-section-subtitle">
+                نافذة حية تبرز نتاج إبداعات خريجي كليات جامعة طرابلس، وفرصة استثمارية مباشرة لأصحاب الأعمال لتبني العقول الواعدة
             </p>
         </div>
 
@@ -2908,7 +3115,7 @@
                 معرض وأرشيف مشاريع التخرج قيد التحضير والتنسيق
             </h3>
             <p class="text-white-50 mb-4 mx-auto" style="max-width: 650px; font-size: 0.98rem; line-height: 1.7;">
-                نستكمل حالياً استقبال وفهرسة نخبة مشاريع وبحوث تخرج طلبة كليات جامعة طرابلس، وتجهيز أجنحة العرض التفاعلية ورموز الـ QR Code الخاصة بكل ابتكار. ترقبوا التدشين الرسمي قريباً!
+                نستكمل حالياً استقبال وفهرسة نخبة مشاريع وبحوث تخرج طلبة كليات جامعة طرابلس، وتجهيز أجنحة العرض التفاعلية ورموز الـ QR Code الخاصة بكل ابتكار.
             </p>
             <a href="{{ route('job-fair.public.projects', $fair->id) }}" class="companies-dir-btn d-inline-flex align-items-center">
                 <span>استعراض محاور ومسارات المشاريع</span>
@@ -2917,44 +3124,48 @@
         </div>
         @else
         <div class="row g-4 mb-5">
-            @foreach($previewProjects as $project)
+            @foreach($previewProjects as $idx => $project)
+            @php
+                $isCenterProject = ($idx === 1); // Center card gets gold accent like reference image
+            @endphp
             <div class="col-lg-4 col-md-6">
-                <div class="h-100 p-4 rounded-4 d-flex flex-column justify-content-between" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); position: relative; overflow: hidden; transition: transform 0.25s ease, border-color 0.25s ease;">
-                    <div style="position: absolute; top: 0; right: 0; left: 0; height: 3px; background: linear-gradient(90deg, #eeca3e, #00d2ff);"></div>
+                <div class="cyber-chamfer-card h-100 {{ $isCenterProject ? 'is-featured' : '' }}"
+                     onclick="window.location.href='{{ route('job-fair.public.projects.show', $project->id) }}'">
                     
-                    <div>
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <span class="badge px-3 py-1.5 rounded-pill" style="background: rgba(4,93,176,0.35); border: 1px solid rgba(0,210,255,0.25); color: #7dd3fc; font-size: 0.78rem;">
-                                <i class="{{ $project->faculty_icon }} me-1"></i>{{ $project->faculty }}
-                            </span>
+                    {{-- شريط الكلية والسنة / الجناح --}}
+                    <div class="cyber-card-top-bar">
+                        <span class="cyber-time-pill">
+                            <i class="fas fa-calendar-alt text-warning me-1"></i>سنة {{ $project->graduation_year }}
                             @if($project->booth_number)
-                                <span class="badge px-2.5 py-1.5 rounded-pill" style="background: rgba(238,202,62,0.15); border: 1px solid rgba(238,202,62,0.3); color: #fef08a; font-size: 0.75rem;">
-                                    <i class="fas fa-map-pin me-1"></i>جناح {{ $project->booth_number }}
-                                </span>
+                                &bull; جناح {{ $project->booth_number }}
                             @endif
-                        </div>
-
-                        <h4 class="text-white fw-bold mb-2" style="font-size: 1.15rem; line-height: 1.45; min-height: 2.9rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                            <a href="{{ route('job-fair.public.projects.show', $project->id) }}" class="text-white text-decoration-none" style="transition: color 0.2s;">
-                                {{ $project->title }}
-                            </a>
-                        </h4>
-
-                        <div class="text-info small mb-2" style="font-size: 0.8rem;">
-                            <i class="fas fa-code-branch me-1"></i>{{ $project->department }} &bull; سنة {{ $project->graduation_year }}
-                        </div>
-
-                        <p class="text-white-50 mb-3" style="font-size: 0.85rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                            {{ $project->summary }}
-                        </p>
+                        </span>
+                        <span class="cyber-track-pill {{ $isCenterProject ? 'badge-gold-featured' : 'badge-workshop' }}">
+                            <i class="{{ $project->faculty_icon ?: 'fas fa-graduation-cap' }} me-1"></i>{{ $project->faculty }}
+                        </span>
                     </div>
 
-                    <div class="pt-3 border-top border-white border-opacity-10">
-                        <a href="{{ route('job-fair.public.projects.show', $project->id) }}" class="btn-view-company w-100 text-center py-2.5 d-flex align-items-center justify-content-center gap-2" style="font-size: 0.88rem; font-weight: 700; text-decoration: none;">
-                            <i class="fas fa-qrcode text-warning"></i>
-                            <span>عرض تفاصيل المشروع كاملة ورمز QR</span>
-                            <i class="fas fa-arrow-left ms-1"></i>
-                        </a>
+                    {{-- عنوان مشروع التخرج --}}
+                    <h3 class="cyber-card-title">
+                        {{ $project->title }}
+                    </h3>
+
+                    <div class="text-info small mb-2" style="font-size: 0.8rem;">
+                        <i class="fas fa-code-branch me-1"></i>{{ $project->department }}
+                        @if($project->supervisor_name)
+                            &bull; إشراف: {{ $project->supervisor_name }}
+                        @endif
+                    </div>
+
+                    <p class="cyber-card-desc">
+                        {{ $project->summary }}
+                    </p>
+
+                    {{-- شريط تفاصيل المشروع ورمز QR المطابق للصورة تماماً --}}
+                    <div class="cyber-action-strip">
+                        <i class="fas fa-plus text-warning me-1"></i>
+                        <span>عرض تفاصيل المشروع كاملة ورمز QR</span>
+                        <i class="fas fa-qrcode ms-auto text-warning fs-6"></i>
                     </div>
                 </div>
             </div>
@@ -2963,15 +3174,16 @@
 
         {{-- زر استعراض الأرشيف الكامل لمشاريع التخرج --}}
         <div class="text-center">
-            <a href="{{ route('job-fair.public.projects', $fair->id) }}" class="companies-dir-btn" style="display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #045db0, #092347); border: 1px solid rgba(238,202,62,0.4); color: white; padding: 12px 32px; border-radius: 999px; text-decoration: none; font-weight: 700; font-size: 1rem; box-shadow: 0 8px 25px rgba(4,93,176,0.3); transition: all 0.3s ease;">
+            <a href="{{ route('job-fair.public.projects', $fair->id) }}" class="companies-dir-btn">
                 <span>استعراض الأرشيف الكامل لمشاريع التخرج ({{ $projects->count() }} مشروع)</span>
-                <i class="fas fa-arrow-left ms-2 text-warning"></i>
+                <i class="fas fa-arrow-left ms-2"></i>
             </a>
             <div class="mt-2 text-white-50" style="font-size: 0.88rem;">
                 <i class="fas fa-search me-1 text-warning"></i> تصفح وفلترة حسب الكلية، التخصص، وسنة التخرج، وتحميل الملصقات والملفات
             </div>
         </div>
         @endif
+
     </div>
 </section>
 @endif

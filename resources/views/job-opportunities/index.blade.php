@@ -266,6 +266,11 @@
                                             {{ $opportunity->title }}
                                         </a>
                                         <div class="d-flex flex-wrap align-items-center gap-2">
+                                            @if($opportunity->jobFair)
+                                                <span class="badge rounded-pill" style="background: rgba(238, 202, 62, 0.2); color: #b45309; border: 1px solid rgba(238, 202, 62, 0.5); font-size: 0.72rem; font-weight: 600;" title="مخصصة لمعرض: {{ $opportunity->jobFair->title }}">
+                                                    <i class="fas fa-calendar-star me-1 text-warning"></i>{{ Str::limit($opportunity->jobFair->title, 22) }}
+                                                </span>
+                                            @endif
                                             @if($opportunity->salary)
                                                 <span class="badge bg-success bg-opacity-10 text-success rounded-pill fw-bold" style="font-size: 0.72rem;">
                                                     <i class="fas fa-money-bill-wave me-1"></i>{{ number_format($opportunity->salary) }} د.ل
@@ -478,6 +483,11 @@
                         @endif
 
                         <div class="d-flex flex-wrap gap-2 my-2">
+                            @if($opportunity->jobFair)
+                                <span class="badge rounded-pill" style="background: rgba(238, 202, 62, 0.2); color: #b45309; border: 1px solid rgba(238, 202, 62, 0.5); font-size: 0.72rem; font-weight: 600;">
+                                    <i class="fas fa-calendar-star me-1 text-warning"></i>{{ Str::limit($opportunity->jobFair->title, 22) }}
+                                </span>
+                            @endif
                             <span class="badge bg-light text-primary border" style="font-size: 0.72rem;">
                                 <i class="fas fa-tag me-1"></i>{{ $typeLabels[$opportunity->type] ?? $opportunity->type }}
                             </span>

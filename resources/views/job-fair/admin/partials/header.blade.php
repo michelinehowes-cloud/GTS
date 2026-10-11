@@ -437,7 +437,7 @@
                     <span>تحديث البيانات</span>
                 </button>
 
-                <a href="{{ route('job-fair.admin.export-recruitment-excel', $fair->id) }}" class="fair-btn-action btn btn-success text-white fw-bold shadow-sm" style="background: linear-gradient(135deg, #059669, #10b981); border: none;" title="تحميل تقرير التوظيف والمقابلات الشامل كملف Excel يتضمن إحصائيات كل شركة">
+                <a href="{{ route('job-fair.admin.export-recruitment-excel', ['fair' => $fair->id, 'format' => 'xlsx']) }}" class="fair-btn-action btn btn-success text-white fw-bold shadow-sm" style="background: linear-gradient(135deg, #059669, #10b981); border: none;" title="تحميل تقرير التوظيف والمقابلات الشامل كملف Excel يتضمن إحصائيات كل شركة">
                     <i class="fas fa-file-excel"></i>
                     <span>تنزيل إكسيل التوظيف</span>
                 </a>

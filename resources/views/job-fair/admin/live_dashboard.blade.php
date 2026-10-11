@@ -207,10 +207,19 @@
                 <i class="fas fa-file-invoice text-warning me-1.5"></i>
                 إجمالي السير: <strong class="text-primary">{{ $recruitment['nomination_stats']['total'] ?? 0 }}</strong>
             </span>
-            <div class="dropdown">
-                <button class="btn btn-sm btn-success rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 shadow-xs dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background: linear-gradient(135deg, #059669, #10b981); border: none; font-size: 0.82rem;">
+            <div class="btn-group shadow-xs rounded-pill" style="overflow: hidden; border-radius: 50rem;">
+                <a href="{{ route('job-fair.admin.export-recruitment-excel', ['fair' => $fair->id, 'format' => 'xlsx']) }}" 
+                   class="btn btn-sm btn-success px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 text-white" 
+                   style="background: linear-gradient(135deg, #059669, #10b981); border: none; font-size: 0.82rem;"
+                   title="انقر للتحميل المباشر لتقرير التوظيف والمقابلات كملف Excel (.xlsx)">
                     <i class="fas fa-file-excel"></i>
                     <span>تنزيل إكسيل التوظيف والمقابلات</span>
+                </a>
+                <button type="button" class="btn btn-sm btn-success dropdown-toggle dropdown-toggle-split px-2 text-white" 
+                        data-bs-toggle="dropdown" aria-expanded="false" 
+                        style="background: linear-gradient(135deg, #047857, #059669); border: none; border-inline-start: 1px solid rgba(255,255,255,0.25);"
+                        title="خيارات التنسيق (Excel / CSV)">
+                    <span class="visually-hidden">خيارات التصدير</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-1 py-1" style="font-size: 0.82rem; min-width: 235px;">
                     <li>

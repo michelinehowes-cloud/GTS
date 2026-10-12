@@ -74,9 +74,6 @@
                         <a href="{{ route('graduate.profile.public', $graduate->id) }}" target="_blank" class="btn btn-outline-primary btn-sm">
                             <i class="fas fa-user me-1"></i> عرض السيرة الذاتية
                         </a>
-                        <a href="{{ route('messages.show', $graduate->id) }}" class="btn btn-success btn-sm">
-                            <i class="fas fa-envelope me-1"></i> مراسلة
-                        </a>
                     </div>
                 </div>
             </div>

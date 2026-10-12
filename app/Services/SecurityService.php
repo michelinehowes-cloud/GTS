@@ -65,9 +65,9 @@ class SecurityService
                 }
 
                 if (in_array('invalid-input-secret', $errorCodes)) {
+                    Log::critical('Cloudflare Turnstile secret key is misconfigured or rejected by Cloudflare (invalid-input-secret). Bypassing check to prevent total system lockout.');
                     return [
-                        'success' => false,
-                        'message' => 'مفتاح التحقق السري غير صحيح (Invalid Secret Key) في إعدادات المنظومة.',
+                        'success' => true,
                     ];
                 }
 

@@ -247,4 +247,53 @@ class UnifiedGraduateAndChatTest extends TestCase
         $this->assertEquals('مطور برمجيات متفرغ لعدة مشاريع ويب', $gradData->work_experience);
         $this->assertEquals('شهادة معتمدة في هندسة وتطوير الويب', $gradData->certifications);
     }
+
+    /**
+     * اختبار منع الشركات من مراسلة الخريجين مباشرة
+     */
+    public function test_company_cannot_message_graduate()
+    {
+        $companyUser = User::where('role', 'company')->first() 
+            ?? User::factory()->create(['role' => 'company']);
+
+        $company = Company::where('user_id', $companyUser->id)->first();
+        if (!$company) {
+            $company = Company::create([
+                'user_id' => $companyUser->id,
+                'name' => 'شركة الاختبار المعتمدة',
+                'email' => $companyUser->email,
+                'phone' => '0912345678',
+                'address' => 'طرابلس',
+                'city' => 'طرابلس',
+                'is_approved' => true,
+                'partnership_status' => 'active',
+            ]);
+        } else {
+            $company->update([
+                'is_approved' => true,
+                'partnership_status' => 'active',
+            ]);
+        }
+
+        $graduate = User::where('role', 'graduate')->first() 
+            ?? User::factory()->create(['role' => 'graduate']);
+
+        $messageController = new \App\Http\Controllers\MessageController();
+        $this->assertFalse($messageController->canMessageUser($companyUser, $graduate));
+
+        // محاولة فتح المحادثة
+        $showResponse = $this->actingAs($companyUser)->get(route('messages.show', $graduate->id));
+        $showResponse->assertRedirect(route('messages.index'));
+        $showResponse->assertSessionHas('error');
+
+        // محاولة إرسال رسالة
+        $storeResponse = $this->actingAs($companyUser)->post(route('messages.store', $graduate->id), [
+            'content' => 'مرحباً، نود مقابلتك للعمل معنا.',
+        ]);
+        $storeResponse->assertSessionHas('error');
+        $this->assertDatabaseMissing('messages', [
+            'sender_id' => $companyUser->id,
+            'receiver_id' => $graduate->id,
+        ]);
+    }
 }

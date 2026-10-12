@@ -1417,27 +1417,32 @@
 
         .strategic-logo-pod {
             width: 100%;
-            height: 125px;
-            background: rgba(255, 255, 255, 0.98);
-            border: 2px solid rgba(254, 240, 138, 0.7);
-            border-radius: 20px;
-            padding: 14px 22px;
+            height: 120px;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.45), 0 0 25px rgba(245, 158, 11, 0.15);
-            transition: transform 0.3s ease;
+            box-shadow: none;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .strategic-hero-showcase:hover .strategic-logo-pod {
-            transform: scale(1.03);
+            transform: translateY(-2px) scale(1.05);
         }
 
         .strategic-logo-pod img {
             max-width: 100%;
-            max-height: 100%;
+            max-height: 110px;
             object-fit: contain;
-            filter: contrast(1.05);
+            filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.6));
+            transition: filter 0.3s ease, transform 0.3s ease;
+        }
+
+        .strategic-hero-showcase:hover .strategic-logo-pod img {
+            filter: drop-shadow(0 8px 24px rgba(245, 158, 11, 0.35)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
         }
 
         .strategic-hero-title {
@@ -3402,46 +3407,47 @@
                                 $initH = floor(($diffSecs % 86400) / 3600);
                                 $initM = floor(($diffSecs % 3600) / 60);
                                 $initS = $diffSecs % 60;
-                                $targetEpochMs = $eventTargetCarbon->timestamp * 1000;
+                                $targetIso = $eventTargetCarbon->toIso8601String();
                             @endphp
                             <div class="d-flex justify-content-lg-start justify-content-center">
-                                <div dir="ltr" class="countdown-row justify-content-center m-0" id="countdown">
+                                <div class="countdown-row justify-content-center m-0" id="countdown">
                                     <div class="cd-box">
                                         <div class="cd-num" id="cd-d">{{ sprintf('%02d', $initD) }}</div>
-                                        <div class="cd-lbl">Days</div>
+                                        <div class="cd-lbl">يوم</div>
                                     </div>
                                     <div class="cd-sep">:</div>
                                     <div class="cd-box">
                                         <div class="cd-num" id="cd-h">{{ sprintf('%02d', $initH) }}</div>
-                                        <div class="cd-lbl">Hours</div>
+                                        <div class="cd-lbl">ساعة</div>
                                     </div>
                                     <div class="cd-sep">:</div>
                                     <div class="cd-box">
                                         <div class="cd-num" id="cd-m">{{ sprintf('%02d', $initM) }}</div>
-                                        <div class="cd-lbl">Min</div>
+                                        <div class="cd-lbl">دقيقة</div>
                                     </div>
                                     <div class="cd-sep">:</div>
                                     <div class="cd-box">
                                         <div class="cd-num" id="cd-s">{{ sprintf('%02d', $initS) }}</div>
-                                        <div class="cd-lbl">Sec</div>
+                                        <div class="cd-lbl">ثانية</div>
                                     </div>
                                 </div>
                             </div>
                             <script>
                                 (function () {
-                                    var targetMs = {{ $targetEpochMs }};
+                                    var targetDate = new Date("{{ $targetIso }}");
                                     function pad(n) { return String(Math.max(0, n)).padStart(2, '0'); }
                                     function tick() {
-                                        var diff = targetMs - Date.now();
+                                        var now = new Date();
+                                        var diff = targetDate.getTime() - now.getTime();
                                         if (diff <= 0) {
                                             var el = document.getElementById('countdown');
-                                            if (el) el.innerHTML = '<span class="badge bg-success p-2 fs-6">الحدث جارٍ الآن!</span>';
+                                            if (el) el.innerHTML = '<span class="badge bg-success py-2 px-3 fs-6 rounded-pill"><i class="fas fa-check-circle me-1"></i> الحدث جارٍ الآن!</span>';
                                             return;
                                         }
-                                        var d = Math.floor(diff / 86400000);
-                                        var h = Math.floor((diff % 86400000) / 3600000);
-                                        var m = Math.floor((diff % 3600000) / 60000);
-                                        var s = Math.floor((diff % 60000) / 1000);
+                                        var d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                        var h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                        var m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                                        var s = Math.floor((diff % (1000 * 60)) / 1000);
                                         var elD = document.getElementById('cd-d');
                                         var elH = document.getElementById('cd-h');
                                         var elM = document.getElementById('cd-m');
@@ -3657,7 +3663,7 @@
                             <div class="strategic-logo-pod">
                                 <img src="{{ $stratLogo }}"
                                      alt="{{ $stratName }}"
-                                     onerror="this.src='{{ asset('images/wahaexpo_logo.png') }}';">
+                                     onerror="this.src='{{ asset('images/wahaexpo_horizontal_white.png') }}';">
                             </div>
 
                             <div>
@@ -4629,29 +4635,6 @@
             }
         })();
 
-        @if($fair && $fair->is_upcoming)
-            // ── Countdown
-            (function () {
-                const target = new Date("{{ $fair->event_date->format('Y-m-d') }}T{{ $fair->start_time ? substr($fair->start_time, 0, 5) : '09:00' }}:00");
-
-                function pad(n) { return String(Math.max(0, n)).padStart(2, '0'); }
-
-                function tick() {
-                    const diff = target - new Date();
-                    if (diff <= 0) {
-                        document.getElementById('countdown')?.remove();
-                        return;
-                    }
-                    document.getElementById('cd-d').textContent = pad(Math.floor(diff / 864e5));
-                    document.getElementById('cd-h').textContent = pad(Math.floor(diff % 864e5 / 36e5));
-                    document.getElementById('cd-m').textContent = pad(Math.floor(diff % 36e5 / 6e4));
-                    document.getElementById('cd-s').textContent = pad(Math.floor(diff % 6e4 / 1e3));
-                }
-
-                tick();
-                setInterval(tick, 1000);
-            })();
-        @endif
 
         // ── Company Detail Modal Population
         (function () {

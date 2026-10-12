@@ -39,10 +39,13 @@ class MessageController extends Controller
         }
 
         // قاعدة الشركات:
-        // الشركات تراسل الخريجين، مسؤولي الشراكات، الإرشاد المهني، منسقي التدريب، والإدارة
+        // الشركات لا يمكنها مراسلة الخريجين مباشرة نهائياً (التواصل يتم حصراً عبر إدارة شؤون الخريجين والتوظيف)
         if ($sender->role === 'company') {
+            if ($receiver->role === 'graduate') {
+                return false;
+            }
+
             return in_array($receiver->role, [
-                'graduate',
                 'admin',
                 'partnership_officer',
                 'career_guidance_officer',
@@ -122,9 +125,8 @@ class MessageController extends Controller
             // مدير النظام لا يراسل الخريجين مباشرة
             $contactsQuery->where('role', '!=', 'graduate');
         } elseif ($currentUser->role === 'company') {
-            // الشركة تراسل الخريجين ومسؤولي الشراكات والإرشاد
+            // الشركة تراسل مسؤولي الشراكات والإرشاد والتدريب والإدارة (ولا تراسل الخريجين)
             $contactsQuery->whereIn('role', [
-                'graduate',
                 'admin',
                 'partnership_officer',
                 'career_guidance_officer',
@@ -227,6 +229,8 @@ class MessageController extends Controller
                 $errorMsg = 'غير مصرح للخريج بمراسلة هذا المستخدم. التواصل متاح فقط وحصرياً مع مسؤولي إدارة شؤون الخريجين.';
             } elseif ($currentUser->isAdmin() && $otherUser->role === 'graduate') {
                 $errorMsg = 'لا يمكن لمدير النظام مراسلة الخريجين مباشرة؛ التواصل مع الخريجين محصور بإدارة الخريجين.';
+            } elseif ($currentUser->role === 'company' && $otherUser->role === 'graduate') {
+                $errorMsg = 'غير مصرح للشركات بمراسلة الخريجين مباشرة؛ التواصل مع الخريجين يتم حصراً عبر إدارة شؤون الخريجين والتوظيف.';
             }
 
             if ($request->ajax() || $request->wantsJson()) {
@@ -334,6 +338,8 @@ class MessageController extends Controller
                 $errorMsg = 'غير مصرح للخريج بمراسلة هذا المستخدم. التواصل متاح فقط وحصرياً مع مسؤولي إدارة شؤون الخريجين.';
             } elseif ($sender->isAdmin() && $receiver->role === 'graduate') {
                 $errorMsg = 'لا يمكن لمدير النظام مراسلة الخريجين مباشرة؛ التواصل مع الخريجين محصور بإدارة الخريجين.';
+            } elseif ($sender->role === 'company' && $receiver->role === 'graduate') {
+                $errorMsg = 'غير مصرح للشركات بمراسلة الخريجين مباشرة؛ التواصل مع الخريجين يتم حصراً عبر إدارة شؤون الخريجين والتوظيف.';
             }
 
             if ($request->ajax() || $request->wantsJson()) {

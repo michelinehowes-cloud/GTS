@@ -3317,6 +3317,153 @@
             align-items: center;
         }
 
+        /* ══════════════════════════════════════════════════
+           LOADING WAVE COMPONENT (From Uiverse.io by mrpumps31232)
+           Customized to Exhibition Brand Identity (#043C73, #EECA3E, #38BDF8)
+        ══════════════════════════════════════════════════ */
+        .loading-wave-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 20px;
+            text-align: center;
+        }
+
+        .loading-wave {
+            width: 240px;
+            height: 75px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            margin: 0 auto 16px auto;
+        }
+
+        .loading-bar {
+            width: 16px;
+            height: 10px;
+            margin: 0 6px;
+            border-radius: 6px;
+            animation: loading-wave-animation 1s ease-in-out infinite;
+            transition: all 0.3s ease;
+        }
+
+        /* Exhibition Brand Colors with Neon Glow */
+        .loading-bar:nth-child(1) {
+            background: linear-gradient(180deg, #38BDF8, #0284C7);
+            box-shadow: 0 0 16px rgba(56, 189, 248, 0.65);
+            animation-delay: 0s;
+        }
+
+        .loading-bar:nth-child(2) {
+            background: linear-gradient(180deg, #EECA3E, #F59E0B);
+            box-shadow: 0 0 16px rgba(238, 202, 62, 0.65);
+            animation-delay: 0.12s;
+        }
+
+        .loading-bar:nth-child(3) {
+            background: linear-gradient(180deg, #60A5FA, #043C73);
+            box-shadow: 0 0 16px rgba(96, 165, 250, 0.65);
+            animation-delay: 0.24s;
+        }
+
+        .loading-bar:nth-child(4) {
+            background: linear-gradient(180deg, #FDE047, #EECA3E);
+            box-shadow: 0 0 16px rgba(253, 224, 71, 0.65);
+            animation-delay: 0.36s;
+        }
+
+        @keyframes loading-wave-animation {
+            0% {
+                height: 10px;
+                opacity: 0.55;
+            }
+            50% {
+                height: 52px;
+                opacity: 1;
+            }
+            100% {
+                height: 10px;
+                opacity: 0.55;
+            }
+        }
+
+        .loading-wave-text {
+            font-size: 0.96rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.3px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .loading-wave-subtext {
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        /* Mini Inline Wave (Buttons & Badges) */
+        .loading-wave-sm {
+            width: auto;
+            height: 18px;
+            display: inline-flex;
+            align-items: flex-end;
+            gap: 3px;
+            vertical-align: middle;
+        }
+        .loading-wave-sm .loading-bar {
+            width: 4px;
+            height: 5px;
+            margin: 0;
+            border-radius: 3px;
+            animation: loading-wave-sm-animation 0.9s ease-in-out infinite;
+        }
+        .loading-wave-sm .loading-bar:nth-child(1) { animation-delay: 0s; box-shadow: 0 0 8px rgba(56, 189, 248, 0.6); }
+        .loading-wave-sm .loading-bar:nth-child(2) { animation-delay: 0.12s; box-shadow: 0 0 8px rgba(238, 202, 62, 0.6); }
+        .loading-wave-sm .loading-bar:nth-child(3) { animation-delay: 0.24s; box-shadow: 0 0 8px rgba(96, 165, 250, 0.6); }
+        .loading-wave-sm .loading-bar:nth-child(4) { animation-delay: 0.36s; box-shadow: 0 0 8px rgba(253, 224, 71, 0.6); }
+
+        @keyframes loading-wave-sm-animation {
+            0%, 100% { height: 5px; opacity: 0.6; }
+            50% { height: 16px; opacity: 1; }
+        }
+
+        /* Global Cyber Processing Overlay */
+        .cyber-processing-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 18, 38, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            z-index: 10999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+        .cyber-processing-overlay.is-active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .cyber-processing-box {
+            background: linear-gradient(160deg, rgba(4, 32, 66, 0.96) 0%, rgba(2, 18, 38, 0.98) 100%);
+            border: 1.5px solid rgba(56, 189, 248, 0.45);
+            border-radius: 24px;
+            padding: 32px 42px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(4, 93, 176, 0.4);
+            text-align: center;
+            min-width: 310px;
+            max-width: 420px;
+            position: relative;
+        }
+
         /* ══════════════════════════════════
            COMPANIES SECTION (Interactive Expo Booths)
         ══════════════════════════════════ */
@@ -7048,7 +7195,24 @@
             </div>
         </div>
 
-    @else
+        <!-- Cyber Processing Overlay (Loading Wave by mrpumps31232) -->
+        <div class="cyber-processing-overlay" id="cyberProcessingOverlay" aria-hidden="true">
+            <div class="cyber-processing-box">
+                <div class="loading-wave">
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                    <div class="loading-bar"></div>
+                </div>
+                <div class="loading-wave-text" id="cyberProcessingText">
+                    <i class="fas fa-microchip text-warning"></i>
+                    <span>جاري معالجة وتأكيد البيانات...</span>
+                </div>
+                <div class="loading-wave-subtext" id="cyberProcessingSubtext">
+                    يرجى الانتظار لحظات، يجري التواصل الآمن مع خوادم المنظومة
+                </div>
+            </div>
+        </div>
 
         {{-- NO FAIR STATE --}}
         <div class="empty-hero">
@@ -7431,6 +7595,24 @@
             if (nextBtn) nextBtn.addEventListener('click', () => stepCylinder(-1));
         })();
 
+        // ── Global Cyber Processing Wave Helpers (Uiverse mrpumps31232)
+        window.showLoadingWave = function(text, subtext) {
+            const overlay = document.getElementById('cyberProcessingOverlay');
+            const textEl = document.getElementById('cyberProcessingText');
+            const subtextEl = document.getElementById('cyberProcessingSubtext');
+            if (text && textEl) {
+                const s = textEl.querySelector('span');
+                if (s) s.textContent = text;
+            }
+            if (subtext && subtextEl) subtextEl.textContent = subtext;
+            if (overlay) overlay.classList.add('is-active');
+        };
+
+        window.hideLoadingWave = function() {
+            const overlay = document.getElementById('cyberProcessingOverlay');
+            if (overlay) overlay.classList.remove('is-active');
+        };
+
         // ── Visitor Registration Form Handling
         (function () {
             const vForm = document.getElementById('visitorRegisterForm');
@@ -7444,7 +7626,11 @@
                 const originalBtnHtml = submitBtn.innerHTML;
 
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span> جاري إصدار بطاقة الدخول...';
+                submitBtn.innerHTML = '<span class="loading-wave-sm me-2"><span class="loading-bar"></span><span class="loading-bar"></span><span class="loading-bar"></span><span class="loading-bar"></span></span><span>جاري إصدار بطاقة الدخول...</span>';
+
+                if (window.showLoadingWave) {
+                    window.showLoadingWave('جاري إصدار بطاقة الدخول الذكية...', 'يرجى الانتظار لحظات، يجري الربط مع النظام وإنشاء رمز QR الرقمي');
+                }
 
                 alertBox.className = 'alert d-none mb-3';
                 alertBox.innerHTML = '';
@@ -7468,12 +7654,16 @@
                     })
                     .then(res => {
                         if (res.ok && res.data.success) {
+                            if (window.showLoadingWave) {
+                                window.showLoadingWave('تم تأكيد التسجيل بنجاح! 🎉', 'جاري تجهيز بطاقتك وتوجيهك فوراً...');
+                            }
                             alertBox.className = 'alert alert-success d-block mb-3 fw-bold';
                             alertBox.innerHTML = '<i class="fas fa-check-circle me-1"></i> ' + (res.data.message || 'تم تسجيلك بنجاح! جاري توجيهك لبطاقتك الرقمية...');
                             setTimeout(() => {
                                 window.location.href = res.data.ticket_url;
                             }, 1000);
                         } else {
+                            if (window.hideLoadingWave) window.hideLoadingWave();
                             submitBtn.disabled = false;
                             submitBtn.innerHTML = originalBtnHtml;
                             alertBox.className = 'alert alert-danger d-block mb-3';
@@ -7486,6 +7676,7 @@
                         }
                     })
                     .catch(err => {
+                        if (window.hideLoadingWave) window.hideLoadingWave();
                         console.error(err);
                         // Fallback: submit standard form
                         vForm.submit();

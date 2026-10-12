@@ -2070,120 +2070,21 @@
         .cyber-cylinder-scene {
             width: 100%;
             position: relative;
-            margin: 1.5rem 0 3.5rem;
-        }
-
-        /* شريط التحكم والتبديل العلوي */
-        .cylinder-controls-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            max-width: 960px;
-            margin: 0 auto 1.8rem;
-            padding: 8px 18px;
-            background: rgba(3, 22, 50, 0.75);
-            border: 1px solid rgba(56, 189, 248, 0.28);
-            border-radius: 50px;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        }
-
-        .cylinder-view-switch {
-            display: inline-flex;
-            align-items: center;
-            background: rgba(2, 14, 32, 0.65);
-            border: 1px solid rgba(56, 189, 248, 0.2);
-            border-radius: 40px;
-            padding: 3px;
-            gap: 4px;
-        }
-
-        .view-switch-btn {
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            font-size: 0.82rem;
-            font-weight: 700;
-            padding: 6px 16px;
-            border-radius: 30px;
-            transition: all 0.25s ease;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .view-switch-btn.active {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.3) 0%, rgba(4, 60, 115, 0.8) 100%);
-            color: #ffffff;
-            border: 1px solid rgba(56, 189, 248, 0.55);
-            box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
-        }
-
-        .cylinder-playback-controls {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .cylinder-play-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(238, 202, 62, 0.12);
-            border: 1px solid rgba(238, 202, 62, 0.4);
-            color: #fbbf24;
-            border-radius: 30px;
-            padding: 6px 16px;
-            font-size: 0.8rem;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
-
-        .cylinder-play-btn:hover {
-            background: rgba(238, 202, 62, 0.25);
-            border-color: #fbbf24;
-            color: #ffffff;
-            box-shadow: 0 0 16px rgba(238, 202, 62, 0.35);
-        }
-
-        .cylinder-step-btn {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: rgba(56, 189, 248, 0.1);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            color: #e2e8f0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
-
-        .cylinder-step-btn:hover {
-            background: rgba(56, 189, 248, 0.25);
-            color: #38bdf8;
-            border-color: #38bdf8;
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+            margin: 0.5rem 0 2rem;
         }
 
         /* مسرح الأسطوانة */
         .cyber-cylinder-wrapper {
             width: 100%;
-            height: 520px;
+            height: 480px;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: visible;
             user-select: none;
-            padding: 2rem 0;
-            margin-bottom: 3.5rem;
+            padding: 0;
+            margin-bottom: 2rem;
         }
 
         /* حلقة الأرضية الهولوجرافية */
@@ -2212,7 +2113,7 @@
             position: absolute;
             width: var(--w);
             height: var(--h);
-            top: 50%;
+            top: 48%;
             left: 50%;
             margin-top: calc(-1 * (var(--h) / 2));
             margin-left: calc(-1 * (var(--w) / 2));
@@ -2260,16 +2161,22 @@
             flex-direction: column;
             justify-content: space-between;
             padding: 1.15rem 1.05rem 1rem;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
             cursor: pointer;
             text-align: center;
             backface-visibility: hidden;
+            will-change: transform;
         }
 
         .cyber-cylinder-card:hover {
             border-color: rgba(var(--color-card, 56, 189, 248), 1);
-            box-shadow: 0 0 45px rgba(var(--color-card, 56, 189, 248), 0.8), inset 0 0 30px rgba(var(--color-card, 56, 189, 248), 0.35), 0 24px 50px rgba(0, 0, 0, 0.85);
-            transform: rotateY(calc((360deg / var(--quantity)) * var(--index))) translateZ(calc(var(--translateZ) + 28px)) scale(1.06);
+            box-shadow: 0 0 50px rgba(var(--color-card, 56, 189, 248), 0.85), inset 0 0 35px rgba(var(--color-card, 56, 189, 248), 0.35), 0 20px 45px rgba(0, 0, 0, 0.8);
+            background: radial-gradient(
+                circle at 50% 25%,
+                rgba(var(--color-card, 56, 189, 248), 0.4) 0%,
+                rgba(4, 45, 90, 0.92) 60%,
+                rgba(2, 18, 42, 0.99) 100%
+            );
             z-index: 20;
         }
 
@@ -2848,15 +2755,15 @@
         .companies-dir-cta-wrap {
             position: relative;
             z-index: 10;
-            margin-top: 5.5rem;
-            padding-top: 1.5rem;
+            margin-top: 3.2rem;
+            padding-top: 1rem;
             clear: both;
         }
 
         @media (max-width: 991px) {
             .companies-dir-cta-wrap {
-                margin-top: 3.5rem;
-                padding-top: 1rem;
+                margin-top: 2.5rem;
+                padding-top: 0.8rem;
             }
         }
 
@@ -4708,40 +4615,15 @@
             @endphp
             <section class="companies-section cyber-matrix-wrap" id="companies">
                 <div class="container position-relative z-2">
-                    <div class="text-center mb-4">
+                    <div class="text-center mb-2">
                         <div class="cyber-section-badge"><i class="fas fa-building me-1"></i>الشركات والمؤسسات المشاركة</div>
                         <h2 class="cyber-section-title scramble-on-scroll" data-scramble="أجنحة الشركات المشاركة" title="انقر لإعادة فك التشفير">أجنحة الشركات المشاركة</h2>
-                        <p class="cyber-section-subtitle">{{ $countText }} في المعرض — انقر على أي جناح للتعرف على فرصه وتفاصيله
+                        <p class="cyber-section-subtitle mb-0">{{ $countText }} في المعرض — انقر على أي جناح للتعرف على فرصه وتفاصيله
                         </p>
                     </div>
 
                     {{-- مشهد الأسطوانة ثلاثية الأبعاد (3D Cylinder Showcase) --}}
                     <div class="cyber-cylinder-scene" id="companiesCylinderScene">
-                        {{-- شريط التحكم الذكي والتبديل بين العرض الأسطواني 3D وعرض الشبكة --}}
-                        <div class="cylinder-controls-bar">
-                            <div class="cylinder-view-switch">
-                                <button type="button" class="view-switch-btn active" id="btnView3d" title="عرض أسطواني ثلاثي الأبعاد">
-                                    <i class="fas fa-cube me-1"></i> استعراض ثلاثي الأبعاد (3D)
-                                </button>
-                                <button type="button" class="view-switch-btn" id="btnViewGrid" title="عرض الشبكة المنظمة">
-                                    <i class="fas fa-th-large me-1"></i> عرض الشبكة
-                                </button>
-                            </div>
-
-                            <div class="cylinder-playback-controls" id="cylinderPlaybackControls">
-                                <button type="button" class="cylinder-step-btn" id="btnCylinderPrev" title="تدوير لليمين">
-                                    <i class="fas fa-chevron-right"></i>
-                                </button>
-                                <button type="button" class="cylinder-play-btn" id="btnCylinderPause" title="إيقاف / تشغيل الدوران">
-                                    <i class="fas fa-pause" id="cylinderPlayIcon"></i>
-                                    <span id="cylinderPlayText">إيقاف مؤقت</span>
-                                </button>
-                                <button type="button" class="cylinder-step-btn" id="btnCylinderNext" title="تدوير لليسار">
-                                    <i class="fas fa-chevron-left"></i>
-                                </button>
-                            </div>
-                        </div>
-
                         {{-- مسرح الأسطوانة ثلاثية الأبعاد 3D --}}
                         <div class="cyber-cylinder-wrapper" id="companiesCylinderWrapper">
                             <div class="cylinder-floor-glow"></div>

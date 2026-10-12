@@ -147,8 +147,12 @@ class AiToolRegistry
                             'google_maps_url' => 'https://maps.app.goo.gl/U8z9xwycDn9qAYz47',
                             'coordinates' => '32.8527, 13.2186',
                             'pin_name' => 'مكتب تدريب الخريجين',
-                            'official_email' => 'graduate.training@uot.edu.ly',
-                            'official_phone' => '+218 21 4625500',
+                            'official_email' => 'officetraining@uot.edu.ly',
+                            'official_phone' => '093-0822581',
+                            'official_website' => 'https://uot.edu.ly/gto/',
+                            'facebook_page' => 'https://www.facebook.com/p/%D9%85%D9%83%D8%AA%D8%A8-%D8%AA%D8%AF%D8%B1%D9%8A%D8%A8-%D8%A7%D9%84%D8%AE%D8%B1%D9%8A%D8%AC%D9%8A%D9%86-%D8%AC%D8%A7%D9%85%D8%B9%D8%A9-%D8%B7%D8%B1%D8%A8%D9%84%D8%B3-61554996546918/',
+                            'linkedin_page' => 'https://www.linkedin.com/company/traning2024office/',
+                            'tiktok_account' => 'https://www.tiktok.com/@graduate_training_office',
                             'working_hours' => 'الأحد إلى الخميس: 8:30 صباحاً – 2:30 ظهراً (الجمعة والسبت عطلة رسمية)',
                             'directions_note' => 'يقع المكتب داخل الحرم الجامعي الرئيسي لجامعة طرابلس في منطقة سيدي المصري / طريق الفرناج بالقرب من مبنى الإدارة العامة للجامعة.'
                         ]

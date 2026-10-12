@@ -41,7 +41,7 @@
 
         body {
             font-family: 'Cairo', sans-serif;
-            background: #020a17;
+            background: #043c73;
             color: #e2e8f0;
             overflow-x: hidden;
         }
@@ -342,10 +342,11 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            background: var(--navy);
+            background: #045db0;
+            border-bottom: none !important;
         }
 
-        /* Animated background layers */
+        /* Animated background layers with seamless landing on #043c73 */
         .hero-bg-layer {
             position: absolute;
             inset: 0;
@@ -353,11 +354,11 @@
                 radial-gradient(ellipse 80% 60% at 20% 40%, rgba(245, 158, 11, 0.12) 0%, transparent 60%),
                 radial-gradient(ellipse 60% 80% at 80% 20%, rgba(14, 165, 233, 0.1) 0%, transparent 55%),
                 radial-gradient(ellipse 50% 50% at 50% 100%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
-                linear-gradient(160deg, #045db0 0%, #03488a 50%, #0d2444 100%);
+                linear-gradient(180deg, #045db0 0%, #03488a 50%, #043c73 100%);
             pointer-events: none;
         }
 
-        /* Grid overlay */
+        /* Grid overlay with smooth bottom fade */
         .hero-grid {
             position: absolute;
             inset: 0;
@@ -366,6 +367,8 @@
                 linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
             background-size: 50px 50px;
             pointer-events: none;
+            mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
         }
 
         /* Floating orbs */
@@ -491,15 +494,36 @@
         }
 
         .hero-title {
-            font-size: clamp(2.3rem, 4.4vw, 3.9rem);
+            margin-bottom: 0.85rem;
+            line-height: 1.15;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
+        }
+
+        .hero-title-main {
+            display: block;
+            white-space: nowrap;
+            font-size: clamp(2rem, 3.4vw, 3.25rem);
             font-weight: 900;
             line-height: 1.15;
-            margin-bottom: 0.85rem;
-            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, var(--gold) 100%);
+            letter-spacing: -0.01em;
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 60%, var(--gold-lt) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        .hero-title-sub {
+            display: block;
+            white-space: nowrap;
+            font-size: clamp(1.6rem, 2.7vw, 2.5rem);
+            font-weight: 900;
+            line-height: 1.2;
+            letter-spacing: -0.01em;
+            margin-top: 0.2rem;
+            background: linear-gradient(135deg, #ffffff 0%, var(--gold) 65%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .hero-subtitle {
@@ -1056,12 +1080,9 @@
             margin: 0 auto 2rem;
         }
 
-        .title-line {
-            width: 60px;
-            height: 4px;
-            background: var(--gold);
-            margin: 0 auto 1.5rem;
-            border-radius: 10px;
+        .title-line,
+        .kinetic-divider {
+            display: none !important;
         }
 
         /* ══════════════════════════════════
@@ -1213,71 +1234,30 @@
         }
 
         /* ══════════════════════════════════
-           SPONSORS SECTION (الجهات الراعية)
+           SECTIONS UNIFIED CANVAS (#043c73)
+           توحيد لون خلفية كامل الصفحة تحت الهيرو بانسيابية تامة وبدون فواصل أو تباينات لونية
         ══════════════════════════════════ */
-        .sponsors-section {
-            padding: 90px 0;
-            background: linear-gradient(180deg, #071324 0%, #0a182e 50%, #071324 100%);
-            position: relative;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        /* ═══════════════════════════════════════════════════════════════
-           CYBER-LUXURY DESIGN SYSTEM (Futuristic Grid & Geometric Cards)
-        ═══════════════════════════════════════════════════════════════ */
+        .sponsors-section,
+        .companies-section,
+        .program-preview-section,
+        .projects-preview-section,
         .cyber-matrix-wrap {
             padding: 95px 0 105px;
-            background-color: #020a17;
-            background-image:
-                radial-gradient(circle at 50% 12%, rgba(14, 116, 144, 0.18) 0%, transparent 60%),
-                radial-gradient(circle at 85% 65%, rgba(245, 158, 11, 0.09) 0%, transparent 45%),
-                linear-gradient(rgba(0, 195, 255, 0.038) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 195, 255, 0.038) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+            background: #043c73 !important;
+            background-color: #043c73 !important;
+            background-image: none !important;
+            border-top: none !important;
+            border-bottom: none !important;
+            border: none !important;
+            box-shadow: none !important;
             position: relative;
-            border-top: 1px solid rgba(56, 189, 248, 0.14);
-            border-bottom: 1px solid rgba(56, 189, 248, 0.14);
             overflow: hidden;
         }
 
-        /* Side Decorative Dot Matrix Meters */
-        .cyber-side-meter {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            z-index: 3;
-            pointer-events: none;
-        }
-
-        .cyber-side-meter.start {
-            right: 24px;
-        }
-
-        .cyber-side-meter.end {
-            left: 24px;
-        }
-
+        /* Side Decorative Dot Matrix Meters — إخفاء النقاط المزعجة وغير المتفاعلية */
+        .cyber-side-meter,
         .cyber-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(56, 189, 248, 0.25);
-            box-shadow: 0 0 8px rgba(56, 189, 248, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .cyber-dot.is-gold {
-            background: #f59e0b;
-            box-shadow: 0 0 12px rgba(245, 158, 11, 0.7);
-        }
-
-        .cyber-dot.is-cyan {
-            background: #38bdf8;
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
+            display: none !important;
         }
 
         /* Section Titles & Badges */
@@ -1558,7 +1538,7 @@
         /* ── Tiered Sponsor Card (Podium) ── */
         .podium-sponsor-card {
             position: relative;
-            background: linear-gradient(180deg, rgba(10, 26, 52, 0.85) 0%, rgba(5, 16, 36, 0.96) 100%);
+            background: linear-gradient(160deg, rgba(6, 20, 44, 0.95) 0%, rgba(2, 10, 24, 0.98) 100%);
             border-radius: 22px;
             padding: 2.4rem 1.6rem 1.6rem;
             display: flex;
@@ -1566,12 +1546,12 @@
             align-items: center;
             justify-content: space-between;
             min-height: 310px;
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.12);
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             overflow: hidden;
-            border: 1.5px solid rgba(56, 189, 248, 0.25);
+            border: 1.5px solid rgba(56, 189, 248, 0.32);
         }
 
         .podium-sponsor-card:hover {
@@ -1847,14 +1827,14 @@
         /* CHAMFERED CARDS SYSTEM */
         .cyber-chamfer-card {
             position: relative;
-            background: linear-gradient(180deg, rgba(8, 28, 58, 0.82) 0%, rgba(4, 16, 36, 0.96) 100%);
-            border: 1.5px solid rgba(56, 189, 248, 0.26);
+            background: linear-gradient(180deg, rgba(6, 20, 44, 0.94) 0%, rgba(2, 10, 24, 0.98) 100%);
+            border: 1.5px solid rgba(56, 189, 248, 0.32);
             border-radius: 18px;
             padding: 1.45rem 1.4rem 1.15rem;
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.52), inset 0 1px 0 rgba(255, 255, 255, 0.12);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -2045,9 +2025,10 @@
            COMPANIES SECTION (Interactive Expo Booths)
         ══════════════════════════════════ */
         .companies-section {
-            padding: 100px 0 110px;
-            background: radial-gradient(circle at 50% 0%, rgba(30, 64, 175, 0.15) 0%, transparent 70%),
-                linear-gradient(180deg, #031224 0%, #051d38 50%, #020e1e 100%);
+            padding: 95px 0 105px;
+            background: #043c73 !important;
+            border: none !important;
+            box-shadow: none !important;
             position: relative;
         }
 
@@ -2071,20 +2052,20 @@
         }
 
         .company-booth-card {
-            background: linear-gradient(180deg, rgba(13, 35, 70, 0.88) 0%, rgba(4, 18, 42, 0.98) 100%);
-            border: 1.5px solid rgba(56, 189, 248, 0.24);
+            background: linear-gradient(160deg, rgba(15, 38, 78, 0.92) 0%, rgba(5, 20, 48, 0.98) 100%);
+            border: 1.5px solid rgba(56, 189, 248, 0.3);
             border-radius: 24px;
             padding: 1.4rem 1.35rem 1.25rem;
             text-align: center;
             text-decoration: none;
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             cursor: pointer;
             overflow: hidden;
             min-height: 380px;
@@ -2397,8 +2378,19 @@
            SCIENTIFIC PROGRAM PREVIEW SECTION (Compact & Refined)
         ══════════════════════════════════ */
         .program-preview-section {
-            padding: 90px 0;
-            background: linear-gradient(180deg, #071324 0%, #044b8e 50%, #033566 100%);
+            padding: 95px 0 105px;
+            background: #043c73 !important;
+            border: none !important;
+            box-shadow: none !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .projects-preview-section {
+            padding: 95px 0 105px;
+            background: #043c73 !important;
+            border: none !important;
+            box-shadow: none !important;
             position: relative;
             overflow: hidden;
         }
@@ -2411,8 +2403,8 @@
         }
 
         .program-preview-card {
-            background: rgba(8, 34, 69, 0.65);
-            border: 1.5px solid rgba(255, 255, 255, 0.14);
+            background: linear-gradient(160deg, rgba(5, 18, 42, 0.94) 0%, rgba(2, 10, 24, 0.98) 100%);
+            border: 1.5px solid rgba(56, 189, 248, 0.32);
             border-radius: 20px;
             padding: 1.35rem 1.4rem;
             backdrop-filter: blur(14px);
@@ -2703,35 +2695,20 @@
         ══════════════════════════════════ */
         /* Slim Footer Sponsors Strip — Blue Glassmorphism (Fully Responsive) */
         .footer-sponsors-strip {
-            background: linear-gradient(90deg, #021A3E 0%, #033566 40%, #042952 100%);
-            border-top: 2px solid rgba(56, 189, 248, 0.5);
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
             padding: 0;
             position: relative;
             z-index: 10;
             overflow: hidden;
-            box-shadow: 0 -4px 20px rgba(2, 26, 62, 0.4);
             width: 100%;
             max-width: 100vw;
         }
 
-        .footer-sponsors-strip::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: repeating-linear-gradient(90deg, rgba(56, 189, 248, 0.04) 0 1px, transparent 1px 60px);
-            pointer-events: none;
-        }
-
+        .footer-sponsors-strip::before,
         .footer-sponsors-strip::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 180px;
-            background: linear-gradient(90deg, rgba(3, 53, 102, 1) 0%, transparent 100%);
-            pointer-events: none;
-            z-index: 2;
+            display: none !important;
         }
 
         .strip-inner-row {
@@ -3134,9 +3111,20 @@
             }
 
             .hero-title {
-                font-size: clamp(1.8rem, 6.5vw, 2.6rem) !important;
-                line-height: 1.25 !important;
                 margin-bottom: 0.75rem !important;
+            }
+
+            .hero-title-main {
+                font-size: clamp(1.45rem, 5.8vw, 2.1rem) !important;
+                white-space: nowrap !important;
+                line-height: 1.2 !important;
+            }
+
+            .hero-title-sub {
+                font-size: clamp(1.2rem, 4.6vw, 1.7rem) !important;
+                white-space: nowrap !important;
+                line-height: 1.25 !important;
+                margin-top: 0.15rem !important;
             }
 
             .hero-subtitle {
@@ -3435,10 +3423,266 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(245, 158, 11, 0.4) !important;
             border-color: var(--gold) !important;
         }
+
+        /* ══════════════════════════════════════════════════════════
+           8. OMNIX SCROLL-REVEAL ANIMATION SYSTEM
+        ══════════════════════════════════════════════════════════ */
+
+        /* Scroll Progress Bar */
+        #scroll-progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), #f97316, var(--gold));
+            background-size: 200% auto;
+            z-index: 9999;
+            width: 0%;
+            transition: width 0.1s linear;
+            animation: shiftGrad 3s linear infinite;
+            box-shadow: 0 0 8px rgba(238,202,62,0.7);
+        }
+        @keyframes shiftGrad {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* Section Entrance Animations */
+        .sr-fade-up {
+            opacity: 0;
+            transform: translateY(60px);
+            transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+        }
+        .sr-fade-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+        }
+        .sr-fade-right {
+            opacity: 0;
+            transform: translateX(60px);
+            transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+        }
+        .sr-zoom-in {
+            opacity: 0;
+            transform: scale(0.85);
+            transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+        }
+        .sr-flip-up {
+            opacity: 0;
+            transform: perspective(800px) rotateX(35deg) translateY(40px);
+            transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1);
+        }
+        .sr-slide-scale {
+            opacity: 0;
+            transform: scale(0.7) translateY(30px);
+            transition: opacity 0.75s cubic-bezier(0.34,1.56,0.64,1), transform 0.75s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        /* Revealed state */
+        .sr-revealed {
+            opacity: 1 !important;
+            transform: none !important;
+        }
+
+        /* Omnix Stagger Delays */
+        .sr-d1 { transition-delay: 0.05s; }
+        .sr-d2 { transition-delay: 0.12s; }
+        .sr-d3 { transition-delay: 0.19s; }
+        .sr-d4 { transition-delay: 0.26s; }
+        .sr-d5 { transition-delay: 0.33s; }
+        .sr-d6 { transition-delay: 0.40s; }
+
+        /* Section Title Kinetic Underline */
+        .kinetic-title-wrap {
+            position: relative;
+            display: inline-block;
+        }
+        .kinetic-title-wrap::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            transition: width 1.2s cubic-bezier(0.16,1,0.3,1);
+        }
+        .kinetic-title-wrap.line-revealed::after {
+            width: 80%;
+        }
+
+        /* Glitch Text Effect on Section Badges */
+        .glitch-badge {
+            position: relative;
+        }
+        .glitch-badge::before,
+        .glitch-badge::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0; left: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .glitch-badge.is-glitching::before {
+            opacity: 0.5;
+            color: #00e5ff;
+            clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+            animation: glitch-1 0.4s steps(2) forwards;
+        }
+        .glitch-badge.is-glitching::after {
+            opacity: 0.5;
+            color: #ff0066;
+            clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+            animation: glitch-2 0.4s steps(2) forwards;
+        }
+        @keyframes glitch-1 {
+            0%   { transform: translateX(0); }
+            25%  { transform: translateX(-4px); }
+            50%  { transform: translateX(4px); }
+            75%  { transform: translateX(-2px); }
+            100% { transform: translateX(0); opacity: 0; }
+        }
+        @keyframes glitch-2 {
+            0%   { transform: translateX(0); }
+            25%  { transform: translateX(4px); }
+            50%  { transform: translateX(-4px); }
+            75%  { transform: translateX(2px); }
+            100% { transform: translateX(0); opacity: 0; }
+        }
+
+        /* Counter Animation Highlight */
+        .count-up-num {
+            display: inline-block;
+            font-variant-numeric: tabular-nums;
+            transition: color 0.3s;
+        }
+        .count-up-num.counting {
+            color: var(--gold);
+            text-shadow: 0 0 20px rgba(238,202,62,0.5);
+        }
+
+        /* Spotlight Card Effect */
+        .omnix-spotlight-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .omnix-spotlight-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle 200px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(238,202,62,0.12) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .omnix-spotlight-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Omnix Reveal for Cards */
+        .omnix-reveal {
+            opacity: 0;
+            transform: translateY(45px) scale(0.96);
+            transition: opacity 0.75s cubic-bezier(0.16,1,0.3,1),
+                        transform 0.75s cubic-bezier(0.16,1,0.3,1);
+        }
+        .omnix-reveal.is-revealed {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Horizontal Scan Line & Glowing Parallax Blobs — تم إلغاؤها لمنع التشويش البصري */
+        .section-scan-line,
+        .scroll-orb,
+        .kinetic-divider {
+            display: none !important;
+        }
+
+        /* Staggered Number Odometer Effect */
+        @keyframes digitFlip {
+            0%   { transform: translateY(-100%); opacity: 0; }
+            100% { transform: translateY(0);     opacity: 1; }
+        }
+        .digit-reveal {
+            display: inline-block;
+            animation: digitFlip 0.5s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        /* Section entrance with wave of cards */
+        @keyframes cardWaveIn {
+            0%   { opacity: 0; transform: translateY(50px) rotateX(20deg); }
+            100% { opacity: 1; transform: translateY(0) rotateX(0deg); }
+        }
+        .card-wave-in {
+            animation: cardWaveIn 0.7s cubic-bezier(0.16,1,0.3,1) both;
+            perspective: 1000px;
+        }
+
+        /* Pulsing Border on Hover for Sponsor Cards */
+        .podium-sponsor-card,
+        .strategic-hero-showcase {
+            position: relative;
+            transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+        .podium-sponsor-card:hover {
+            transform: translateY(-6px);
+        }
+
+        /* Text Shimmer on Hero Title */
+        @keyframes textShimmer {
+            0%   { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .shimmer-text {
+            background: linear-gradient(90deg, var(--gold) 0%, #fff 40%, var(--gold-lt) 60%, var(--gold) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textShimmer 4s linear infinite;
+        }
+
+        /* ── CURSOR FOLLOWER ── */
+        #cursor-glow {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(238,202,62,0.06) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: left 0.12s ease, top 0.12s ease;
+            will-change: left, top;
+        }
+
+        /* Section Number Counter Pill */
+        .stat-counter-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(238,202,62,0.1);
+            border: 1px solid rgba(238,202,62,0.3);
+            border-radius: 50px;
+            padding: 0.4rem 1.2rem;
+            font-size: 0.9rem;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+        }
+
     </style>
 </head>
 
 <body>
+
+    {{-- ══ SCROLL PROGRESS BAR ══ --}}
+    <div id="scroll-progress-bar"></div>
+
+    {{-- ══ CURSOR GLOW FOLLOWER ══ --}}
+    <div id="cursor-glow"></div>
 
     {{-- ══════════════════════════════════
     TOP NAV
@@ -3527,8 +3771,29 @@
                             <span class="dot"></span>
                         </div>
 
+                        @php
+                            $fullFairTitle = $fair->title ?? 'معرض التوظيف 2026 جامعة طرابلس';
+                            // فصل ذكي ومتقن لضمان بقاء "معرض التوظيف 2026" في سطر واحد بدون انكسار، و"جامعة طرابلس" في سطر متناسق
+                            if (preg_match('/^(.*?20\d\d)(.*)$/u', $fullFairTitle, $m)) {
+                                $mainFairTitle = trim($m[1]);
+                                $subFairTitle = trim($m[2], " -–\t\n\r\0\x0B");
+                            } elseif (str_contains($fullFairTitle, 'جامعة طرابلس')) {
+                                $parts = explode('جامعة طرابلس', $fullFairTitle);
+                                $mainFairTitle = trim($parts[0], " -–\t\n\r\0\x0B");
+                                $subFairTitle = 'جامعة طرابلس';
+                            } else {
+                                $mainFairTitle = $fullFairTitle;
+                                $subFairTitle = '';
+                            }
+                        @endphp
+
                         {{-- Title --}}
-                        <h1 class="hero-title">{{ $fair->title }}</h1>
+                        <h1 class="hero-title">
+                            <span class="hero-title-main">{{ $mainFairTitle }}</span>
+                            @if(!empty($subFairTitle))
+                                <span class="hero-title-sub">{{ $subFairTitle }}</span>
+                            @endif
+                        </h1>
 
                         @if($fair->subtitle)
                             <p class="hero-subtitle">{{ $fair->subtitle }}</p>
@@ -3768,31 +4033,12 @@
 
         {{-- SPONSORS SECTION (الشركاء والرعاة) --}}
         <section class="sponsors-section cyber-matrix-wrap" id="sponsors">
-            {{-- Side Decorative Dot Meters --}}
-            <div class="cyber-side-meter start d-none d-lg-flex">
-                <span class="cyber-dot is-gold"></span>
-                <span class="cyber-dot is-gold"></span>
-                <span class="cyber-dot is-cyan"></span>
-                <span class="cyber-dot"></span>
-                <span class="cyber-dot"></span>
-                <span class="cyber-dot"></span>
-            </div>
-            <div class="cyber-side-meter end d-none d-lg-flex">
-                <span class="cyber-dot is-gold"></span>
-                <span class="cyber-dot is-cyan"></span>
-                <span class="cyber-dot is-cyan"></span>
-                <span class="cyber-dot"></span>
-                <span class="cyber-dot"></span>
-                <span class="cyber-dot"></span>
-            </div>
-
             <div class="container position-relative z-2">
                 <div class="text-center mb-5">
                     <div class="cyber-section-badge">
                         <i class="fas fa-crown text-warning"></i>
                         <span>شركاء النجاح والرعاية</span>
                     </div>
-                    <div class="title-line"></div>
                     <h2 class="cyber-section-title">الشركاء والرعاة</h2>
                     <p class="cyber-section-subtitle">
                         نفتخر برعاية ودعم نخبة المؤسسات الوطنية الرائدة لمسيرة تمكين وتوظيف الكفاءات الوطنية الشابة
@@ -3955,28 +4201,9 @@
                 $previewCompanies = $companies->take(12);
             @endphp
             <section class="companies-section cyber-matrix-wrap" id="companies">
-                {{-- Side Decorative Dot Meters --}}
-                <div class="cyber-side-meter start d-none d-lg-flex">
-                    <span class="cyber-dot is-cyan"></span>
-                    <span class="cyber-dot is-gold"></span>
-                    <span class="cyber-dot"></span>
-                    <span class="cyber-dot"></span>
-                    <span class="cyber-dot"></span>
-                    <span class="cyber-dot"></span>
-                </div>
-                <div class="cyber-side-meter end d-none d-lg-flex">
-                    <span class="cyber-dot is-cyan"></span>
-                    <span class="cyber-dot is-gold"></span>
-                    <span class="cyber-dot"></span>
-                    <span class="cyber-dot"></span>
-                    <span class="cyber-dot"></span>
-                    <span class="cyber-dot"></span>
-                </div>
-
                 <div class="container position-relative z-2">
                     <div class="text-center mb-5">
                         <div class="cyber-section-badge"><i class="fas fa-building me-1"></i>الشركات والمؤسسات المشاركة</div>
-                        <div class="title-line"></div>
                         <h2 class="cyber-section-title">أجنحة الشركات المشاركة</h2>
                         <p class="cyber-section-subtitle">{{ $countText }} في المعرض — انقر على أي جناح للتعرف على فرصه وتفاصيله
                         </p>
@@ -4127,31 +4354,12 @@
                 $previewEvents = $events->take(3);
             @endphp
             <section class="program-preview-section cyber-matrix-wrap" id="program">
-                {{-- Side Decorative Dot Meters --}}
-                <div class="cyber-side-meter start d-none d-lg-flex">
-                    <span class="cyber-dot is-gold"></span>
-                    <span class="cyber-dot is-cyan"></span>
-                    <span class="cyber-dot"></span>
-                    <span class="cyber-dot"></span>
-                    <span class="cyber-dot"></span>
-                    <span class="cyber-dot"></span>
-                </div>
-                <div class="cyber-side-meter end d-none d-lg-flex">
-                    <span class="cyber-dot is-gold"></span>
-                    <span class="cyber-dot is-cyan"></span>
-                    <span class="cyber-dot"></span>
-                    <span class="cyber-dot"></span>
-                    <span class="cyber-dot"></span>
-                    <span class="cyber-dot"></span>
-                </div>
-
                 <div class="container position-relative z-2">
                     <div class="text-center mb-5">
                         <div class="cyber-section-badge">
                             <i class="fas fa-graduation-cap text-warning"></i>
                             <span>رحلة الجاهزية المهنية</span>
                         </div>
-                        <div class="title-line"></div>
                         <h2 class="cyber-section-title">البرنامج العلمي والتدريبي المصاحب</h2>
                         <p class="cyber-section-subtitle">
                             سلسلة متكاملة من ورش العمل التطبيقية، الماستر كلاس، والجلسات الحوارية الاستراتيجية لتأهيلك لسوق
@@ -4271,31 +4479,12 @@
                 $isProjectsComingSoon = !($fair && $fair->is_projects_published);
             @endphp
             <section class="projects-preview-section cyber-matrix-wrap" id="projects">
-                {{-- Side Decorative Dot Meters --}}
-                <div class="cyber-side-meter start d-none d-lg-flex">
-                    <span class="cyber-dot is-gold"></span>
-                    <span class="cyber-dot is-gold"></span>
-                    <span class="cyber-dot is-cyan"></span>
-                    <span class="cyber-dot"></span>
-                    <span class="cyber-dot"></span>
-                    <span class="cyber-dot"></span>
-                </div>
-                <div class="cyber-side-meter end d-none d-lg-flex">
-                    <span class="cyber-dot is-gold"></span>
-                    <span class="cyber-dot is-cyan"></span>
-                    <span class="cyber-dot is-cyan"></span>
-                    <span class="cyber-dot"></span>
-                    <span class="cyber-dot"></span>
-                    <span class="cyber-dot"></span>
-                </div>
-
                 <div class="container position-relative z-2">
                     <div class="text-center mb-5">
                         <div class="cyber-section-badge">
                             <i class="fas fa-lightbulb text-warning"></i>
                             <span>ابتكارات كفاءات المستقبل</span>
                         </div>
-                        <div class="title-line"></div>
                         <h2 class="cyber-section-title">معرض مشاريع التخرج المتميزة</h2>
                         <p class="cyber-section-subtitle">
                             نافذة حية تبرز نتاج إبداعات خريجي كليات جامعة طرابلس، وفرصة استثمارية مباشرة لأصحاب الأعمال لتبني
@@ -5090,6 +5279,151 @@
                     });
                 }
             })();
+
+            // ══════════════════════════════════════════════════════════
+            //  OMNIX CREATIVE SCROLL ANIMATION ENGINE v2
+            // ══════════════════════════════════════════════════════════
+
+            // ─── 4. Scroll Progress Bar
+            (function initScrollProgress() {
+                const bar = document.getElementById('scroll-progress-bar');
+                if (!bar) return;
+                function updateBar() {
+                    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+                    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                    const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+                    bar.style.width = pct.toFixed(2) + '%';
+                }
+                window.addEventListener('scroll', updateBar, { passive: true });
+                updateBar();
+            })();
+
+            // ─── 5. Cursor Glow Follower
+            (function initCursorGlow() {
+                const glow = document.getElementById('cursor-glow');
+                if (!glow) return;
+                document.addEventListener('mousemove', function(e) {
+                    glow.style.left = e.clientX + 'px';
+                    glow.style.top  = e.clientY + 'px';
+                }, { passive: true });
+            })();
+
+            // ─── 6. Advanced Section Reveal
+            (function initAdvancedSectionReveal() {
+                if (!('IntersectionObserver' in window)) return;
+                const sectionHeaders = document.querySelectorAll(
+                    '.cyber-section-badge, .cyber-section-title, .cyber-section-subtitle, ' +
+                    '.strategic-hero-showcase, .podium-sponsor-card, ' +
+                    '.cyber-chamfer-card, .project-preview-card, ' +
+                    '.stat-pill, .cd-box, .title-line, .podium-divider-wrap'
+                );
+                const delays = ['sr-d1','sr-d2','sr-d3','sr-d4','sr-d5','sr-d6'];
+                sectionHeaders.forEach(function(el, idx) {
+                    let animClass = 'sr-fade-up';
+                    if (el.classList.contains('cyber-section-badge'))     animClass = 'sr-zoom-in';
+                    if (el.classList.contains('strategic-hero-showcase')) animClass = 'sr-flip-up';
+                    if (el.classList.contains('podium-sponsor-card'))     animClass = 'sr-slide-scale';
+                    if (el.classList.contains('cd-box'))                  animClass = 'sr-zoom-in';
+                    if (el.classList.contains('cyber-chamfer-card'))      animClass = 'sr-flip-up';
+                    if (el.classList.contains('title-line'))              animClass = 'sr-fade-left';
+                    if (el.classList.contains('stat-pill'))               animClass = 'sr-slide-scale';
+                    el.classList.add(animClass, delays[idx % delays.length]);
+                });
+                const srObs = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) { entry.target.classList.add('sr-revealed'); srObs.unobserve(entry.target); }
+                    });
+                }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+                sectionHeaders.forEach(function(el) { srObs.observe(el); });
+            })();
+
+            // ─── 7. Kinetic Title Underline
+            (function initKineticTitles() {
+                if (!('IntersectionObserver' in window)) return;
+                const titles = document.querySelectorAll('.cyber-section-title');
+                titles.forEach(function(t) { t.classList.add('kinetic-title-wrap'); });
+                const tObs = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            setTimeout(function() { entry.target.classList.add('line-revealed'); }, 400);
+                            tObs.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.3 });
+                titles.forEach(function(t) { tObs.observe(t); });
+            })();
+
+            // ─── 8. Glitch on Section Badges
+            (function initGlitchBadges() {
+                if (!('IntersectionObserver' in window)) return;
+                const badges = document.querySelectorAll('.cyber-section-badge');
+                badges.forEach(function(b) { b.classList.add('glitch-badge'); b.setAttribute('data-text', b.innerText); });
+                const gObs = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-glitching');
+                            setTimeout(function() { entry.target.classList.remove('is-glitching'); }, 500);
+                            gObs.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.5 });
+                badges.forEach(function(b) { gObs.observe(b); });
+            })();
+
+            // ─── 9. Count-Up Animation
+            (function initCountUp() {
+                if (!('IntersectionObserver' in window)) return;
+                function animateCount(el, target, dur) {
+                    const t0 = performance.now();
+                    el.classList.add('counting');
+                    (function step(now) {
+                        const p = Math.min((now - t0) / dur, 1);
+                        const e = 1 - Math.pow(1 - p, 3);
+                        el.innerText = Math.round(target * e);
+                        if (p < 1) requestAnimationFrame(step);
+                        else { el.innerText = target; el.classList.remove('counting'); }
+                    })(t0);
+                }
+                const numEls = document.querySelectorAll('.cd-num, .stat-value, .hero-stat-value, [data-count-target]');
+                const cObs = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            const t = parseInt(entry.target.innerText.replace(/[^\d]/g,''), 10);
+                            if (!isNaN(t) && t > 0 && t < 99999) animateCount(entry.target, t, 1800);
+                            cObs.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.5 });
+                numEls.forEach(function(el) { el.classList.add('count-up-num'); cObs.observe(el); });
+            })();
+
+            // Animations for orbs, scan lines and kinetic dividers disabled to keep the UI clean and calm.
+
+            // ─── 13. Card Tilt Effect
+            (function initCardTilt() {
+                document.querySelectorAll('.podium-sponsor-card, .cyber-chamfer-card, .project-preview-card').forEach(function(card) {
+                    card.addEventListener('mousemove', function(e) {
+                        const r = card.getBoundingClientRect();
+                        const dx = (e.clientX - (r.left + r.width/2)) / (r.width/2);
+                        const dy = (e.clientY - (r.top  + r.height/2)) / (r.height/2);
+                        card.style.transform = 'perspective(800px) rotateX('+(dy*-8).toFixed(1)+'deg) rotateY('+(dx*8).toFixed(1)+'deg) translateY(-4px)';
+                    });
+                    card.addEventListener('mouseleave', function() { card.style.transform = ''; });
+                });
+            })();
+
+            // ─── 14. Extended Spotlight
+            (function extendSpotlight() {
+                document.querySelectorAll('.podium-sponsor-card, .cyber-chamfer-card, .project-preview-card, .strategic-hero-showcase, .strategic-logo-pod').forEach(function(card) {
+                    card.classList.add('omnix-spotlight-card');
+                    card.addEventListener('mousemove', function(e) {
+                        const r = card.getBoundingClientRect();
+                        card.style.setProperty('--mouse-x', (e.clientX-r.left)+'px');
+                        card.style.setProperty('--mouse-y', (e.clientY-r.top) +'px');
+                    });
+                });
+            })();
+
     </script>
 </body>
 

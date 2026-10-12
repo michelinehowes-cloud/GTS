@@ -53,8 +53,8 @@ class CompanyRegistrationTest extends TestCase
             'contact_position' => 'مدير الموارد البشرية',
             'contact_phone' => '0912345678',
             'email' => $email,
-            'password' => 'Secret1234!',
-            'password_confirmation' => 'Secret1234!',
+            'password' => ($testPass = \Illuminate\Support\Str::random(12) . '!Aa1'),
+            'password_confirmation' => $testPass,
         ];
 
         $response = $this->post(route('company.register.store'), $payload);

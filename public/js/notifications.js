@@ -9,6 +9,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!notifList) return;
 
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
     function getCsrfToken() {
         return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
     }
@@ -50,10 +60,10 @@ document.addEventListener('DOMContentLoaded', function () {
             notifications.forEach(notif => {
                 const isUnread = !notif.is_read;
                 const bgClass = isUnread ? 'bg-light border-start border-3 border-primary' : '';
-                const title = notif.title || 'إشعار جديد';
-                const message = notif.message || '';
-                const time = notif.time_ago || '';
-                const id = notif.id;
+                const title = escapeHtml(notif.title || 'إشعار جديد');
+                const message = escapeHtml(notif.message || '');
+                const time = escapeHtml(notif.time_ago || '');
+                const id = encodeURIComponent(String(notif.id || ''));
 
                 html += `
                     <li class="notification-dropdown-item ${bgClass} position-relative border-bottom p-2" id="coord-notif-${id}" style="transition: all 0.35s ease;">

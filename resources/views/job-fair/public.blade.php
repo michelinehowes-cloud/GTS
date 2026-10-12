@@ -3270,6 +3270,171 @@
                 height: 24px !important;
             }
         }
+
+        /* ══════════════════════════════════════════════════════════
+           OMNIX STUDIO (PARALLAX, SPOTLIGHT & KINETIC MICRO-INTERACTIONS)
+        ══════════════════════════════════════════════════════════ */
+
+        /* ── 2. Omnix Interactive Mouse Spotlight on Cards ── */
+        .omnix-spotlight-card {
+            position: relative;
+            overflow: hidden !important;
+            transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                        border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        .omnix-spotlight-card::after {
+            content: '';
+            position: absolute;
+            top: var(--mouse-y, -200px);
+            left: var(--mouse-x, -200px);
+            width: 340px;
+            height: 340px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, rgba(14, 165, 233, 0.08) 45%, transparent 70%);
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+            z-index: 2;
+        }
+
+        .omnix-spotlight-card:hover::after {
+            opacity: 1;
+        }
+
+        /* ── 3. High-End Card Hover Lift & Border Shimmer ── */
+        .company-booth-card:hover,
+        .sponsor-card:hover,
+        .project-card:hover,
+        .workshop-card:hover {
+            transform: translateY(-9px) scale(1.015) !important;
+            border-color: rgba(245, 158, 11, 0.75) !important;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 35px rgba(245, 158, 11, 0.22) !important;
+        }
+
+        .company-booth-card .booth-logo-dock,
+        .sponsor-card .sponsor-logo-box,
+        .booth-crest-emblem {
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        .company-booth-card:hover .booth-logo-dock,
+        .company-booth-card:hover .booth-crest-emblem,
+        .sponsor-card:hover .sponsor-logo-box {
+            transform: scale(1.1) translateY(-4px) !important;
+        }
+
+        /* ── 4. Omnix Smooth Magnetic Buttons with Ambient Aura ── */
+        .hero-action-buttons .nav-btn-gold {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            box-shadow: 0 6px 24px rgba(245, 158, 11, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+        }
+
+        .hero-action-buttons .nav-btn-gold::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -120%;
+            width: 80%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.75s ease;
+        }
+
+        .hero-action-buttons .nav-btn-gold:hover::before {
+            left: 140%;
+        }
+
+        .hero-action-buttons .nav-btn-gold:hover {
+            transform: translateY(-3px) scale(1.03) !important;
+            box-shadow: 0 12px 35px rgba(245, 158, 11, 0.65), 0 0 25px rgba(245, 158, 11, 0.4) !important;
+        }
+
+        .hero-action-buttons .nav-btn-outline {
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.18) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        .hero-action-buttons .nav-btn-outline:hover {
+            background: rgba(245, 158, 11, 0.14) !important;
+            border-color: #f59e0b !important;
+            color: #fbbf24 !important;
+            transform: translateY(-3px) scale(1.02) !important;
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3) !important;
+        }
+
+        .hero-action-buttons .nav-btn i {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        .hero-action-buttons .nav-btn:hover i {
+            transform: scale(1.2) translateY(-1px) !important;
+        }
+
+        /* ── 5. Staggered Scroll Reveal System (GSAP/Framer feel) ── */
+        .omnix-reveal {
+            opacity: 0;
+            transform: translateY(35px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+        }
+
+        .omnix-reveal.is-revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── 6. Futuristic Countdown Cards ── */
+        .countdown-row .cd-box {
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .countdown-row .cd-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+
+        .countdown-row .cd-box:hover {
+            transform: translateY(-4px) scale(1.04);
+            border-color: rgba(245, 158, 11, 0.8) !important;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5), 0 0 25px rgba(245, 158, 11, 0.35) !important;
+        }
+
+        .countdown-row .cd-box:hover::before {
+            opacity: 1;
+        }
+
+        /* ── 7. Floating Depth Micro-Animations ── */
+        .float-element {
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.3s ease !important;
+        }
+
+        .float-element:hover {
+            transform: scale(1.15) !important;
+            background: rgba(255, 255, 255, 0.22) !important;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(245, 158, 11, 0.4) !important;
+            border-color: var(--gold) !important;
+        }
     </style>
 </head>
 
@@ -4830,6 +4995,101 @@
             window.addEventListener('DOMContentLoaded', checkVisitorModalHash);
             window.addEventListener('hashchange', checkVisitorModalHash);
             setTimeout(checkVisitorModalHash, 300);
+
+            // ══════════════════════════════════════════════════════════
+            // OMNIX STUDIO INTERACTIVE MICRO-ANIMATIONS & PARALLAX
+            // ══════════════════════════════════════════════════════════
+
+            // 1. Omnix Mouse Spotlight Tracker on all interactive cards
+            (function initOmnixSpotlight() {
+                const targetCards = document.querySelectorAll('.company-booth-card, .sponsor-card, .workshop-card, .project-card, .cd-box, .stat-pill');
+                targetCards.forEach(function(card) {
+                    card.classList.add('omnix-spotlight-card');
+                    card.addEventListener('mousemove', function(e) {
+                        const rect = card.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        card.style.setProperty('--mouse-x', x + 'px');
+                        card.style.setProperty('--mouse-y', y + 'px');
+                    });
+                });
+            })();
+
+            // 2. Omnix Interactive 3D Hero Parallax & Depth Tilt
+            (function initOmnixHeroParallax() {
+                const heroSection = document.getElementById('hero');
+                const glassCard = document.querySelector('.premium-glass-card');
+                const capWrapper = document.querySelector('.hero-3d-cap-wrapper');
+                const floatShapes = document.querySelectorAll('.float-element');
+
+                if (!heroSection) return;
+
+                let targetRotX = 0, targetRotY = 0;
+                let currentRotX = 0, currentRotY = 0;
+                let isMouseInside = false;
+
+                heroSection.addEventListener('mousemove', function(e) {
+                    isMouseInside = true;
+                    const rect = heroSection.getBoundingClientRect();
+                    const xRatio = (e.clientX - rect.left) / rect.width - 0.5;
+                    const yRatio = (e.clientY - rect.top) / rect.height - 0.5;
+                    targetRotY = xRatio * 24; // Y rotation in degrees
+                    targetRotX = yRatio * -24; // X rotation in degrees
+                });
+
+                heroSection.addEventListener('mouseleave', function() {
+                    isMouseInside = false;
+                    targetRotX = 0;
+                    targetRotY = 0;
+                });
+
+                function stepParallax() {
+                    currentRotX += (targetRotX - currentRotX) * 0.08;
+                    currentRotY += (targetRotY - currentRotY) * 0.08;
+
+                    if (glassCard && (isMouseInside || Math.abs(currentRotX) > 0.01)) {
+                        glassCard.style.transform = 'perspective(1000px) rotateY(' + currentRotY.toFixed(2) + 'deg) rotateX(' + currentRotX.toFixed(2) + 'deg)';
+                    }
+                    if (capWrapper && (isMouseInside || Math.abs(currentRotX) > 0.01)) {
+                        capWrapper.style.transform = 'perspective(1000px) rotateY(' + (currentRotY * 1.3).toFixed(2) + 'deg) rotateX(' + (currentRotX * 1.3).toFixed(2) + 'deg) translateY(' + (currentRotX * -0.8).toFixed(2) + 'px)';
+                    }
+                    if (floatShapes.length && (isMouseInside || Math.abs(currentRotX) > 0.01)) {
+                        floatShapes.forEach(function(shape, idx) {
+                            const speed = (idx + 1) * 0.55;
+                            shape.style.transform = 'translate(' + (currentRotY * speed * -1.2).toFixed(2) + 'px, ' + (currentRotX * speed * 1.2).toFixed(2) + 'px)';
+                        });
+                    }
+
+                    requestAnimationFrame(stepParallax);
+                }
+                requestAnimationFrame(stepParallax);
+            })();
+
+            // 3. Omnix Staggered Scroll Reveal System (Framer/GSAP feel)
+            (function initOmnixScrollReveal() {
+                const revealElements = document.querySelectorAll('.company-booth-card, .sponsor-card, .workshop-card, .project-card, .countdown-row, .hero-action-buttons');
+                
+                if ('IntersectionObserver' in window) {
+                    const observer = new IntersectionObserver(function(entries) {
+                        entries.forEach(function(entry) {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('is-revealed');
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, {
+                        threshold: 0.12,
+                        rootMargin: '0px 0px -30px 0px'
+                    });
+
+                    revealElements.forEach(function(el, index) {
+                        el.classList.add('omnix-reveal');
+                        const staggerDelay = (index % 6) * 0.08;
+                        el.style.transitionDelay = staggerDelay + 's';
+                        observer.observe(el);
+                    });
+                }
+            })();
     </script>
 </body>
 

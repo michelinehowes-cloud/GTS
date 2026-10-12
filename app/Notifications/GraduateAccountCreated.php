@@ -39,6 +39,7 @@ class GraduateAccountCreated extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
+            ->from(config('mail.from.address', 'moneeb20mohamed@gmail.com'), config('mail.from.name', 'مكتب تدريب الخريجين'))
             ->subject('حساب جديد في نظام إدارة الخريجين')
             ->greeting('مرحباً ' . $this->graduateName . ',')
             ->line('تم إنشاء حساب لك في نظام إدارة الخريجين بجامعة طرابلس.')

@@ -5,11 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>مكتب تدريب الخريجين - جامعة طرابلس</title>
-    
+
     <!-- CSS Dependencies -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap"
+        rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
     <style>
@@ -126,6 +127,7 @@
             text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
             transition: color 0.3s ease, text-shadow 0.3s ease;
         }
+
         .home-navbar-wrapper.scrolled .brand-text-title {
             color: #0b1f3a;
             text-shadow: none;
@@ -142,6 +144,7 @@
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
             transition: color 0.3s ease, text-shadow 0.3s ease;
         }
+
         .home-navbar-wrapper.scrolled .brand-text-subtitle {
             color: #64748b;
             text-shadow: none;
@@ -170,6 +173,7 @@
             text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
             transition: color 0.25s ease, text-shadow 0.25s ease;
         }
+
         .home-navbar-wrapper.scrolled .nav-link-custom {
             color: #334155 !important;
             text-shadow: none;
@@ -187,6 +191,7 @@
             border-radius: 4px;
             transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
         .nav-link-custom:hover::after,
         .nav-link-custom.active::after {
             width: 80%;
@@ -196,6 +201,7 @@
             color: #fbbf24 !important;
             background: transparent !important;
         }
+
         .home-navbar-wrapper.scrolled .nav-link-custom:hover {
             color: #0d3882 !important;
         }
@@ -204,9 +210,11 @@
             color: #fbbf24 !important;
             background: transparent !important;
         }
+
         .home-navbar-wrapper.scrolled .nav-link-custom.active {
             color: #0d3882 !important;
         }
+
         .home-navbar-wrapper.scrolled .nav-link-custom.active::after {
             background: #0d3882;
             box-shadow: none;
@@ -239,12 +247,14 @@
             align-items: center;
             gap: 7px;
         }
+
         .home-navbar-wrapper.scrolled .nav-btn-login {
             background: rgba(13, 56, 130, 0.06);
             color: #0d3882 !important;
             border: 1.5px solid rgba(13, 56, 130, 0.25);
             text-shadow: none;
         }
+
         .nav-btn-login:hover {
             background: #ffffff !important;
             color: #0d3882 !important;
@@ -253,6 +263,7 @@
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
             text-shadow: none;
         }
+
         .home-navbar-wrapper.scrolled .nav-btn-login:hover {
             background: #0d3882 !important;
             color: #ffffff !important;
@@ -275,6 +286,7 @@
             gap: 7px;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
+
         .nav-btn-register:hover {
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
             color: #0b1f3a !important;
@@ -283,6 +295,7 @@
             box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
             text-shadow: none;
         }
+
         .nav-btn-register:hover i {
             color: #0b1f3a !important;
         }
@@ -300,6 +313,7 @@
             gap: 7px;
             transition: all 0.25s ease;
         }
+
         .nav-btn-dashboard:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(13, 56, 130, 0.35);
@@ -318,6 +332,7 @@
             color: #ffffff;
             transition: all 0.25s ease;
         }
+
         .home-navbar-wrapper.scrolled .navbar-toggler-custom {
             background: rgba(13, 56, 130, 0.06);
             border-color: rgba(13, 56, 130, 0.18);
@@ -328,9 +343,11 @@
             .home-navbar-wrapper {
                 padding: 0.75rem 1.25rem;
             }
+
             .home-navbar-wrapper.scrolled {
                 padding: 0.6rem 1.25rem;
             }
+
             .home-navbar .navbar-collapse {
                 background: rgba(255, 255, 255, 0.98);
                 backdrop-filter: blur(20px);
@@ -340,15 +357,18 @@
                 box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
                 border: 1px solid rgba(226, 232, 240, 0.85);
             }
+
             .home-navbar .navbar-collapse .nav-link-custom {
                 color: #1e293b !important;
                 padding: 0.7rem 1rem !important;
                 border-radius: 10px;
             }
+
             .home-navbar .navbar-collapse .nav-link-custom:hover {
                 background: rgba(13, 56, 130, 0.06) !important;
                 color: #0d3882 !important;
             }
+
             .home-navbar .navbar-collapse .nav-btn-login {
                 color: #0d3882 !important;
                 background: rgba(13, 56, 130, 0.06);
@@ -374,7 +394,7 @@
             width: 100%;
             height: 100%;
             background: radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.15) 0%, transparent 60%),
-                        radial-gradient(circle at 15% 85%, rgba(245, 158, 11, 0.12) 0%, transparent 50%);
+                radial-gradient(circle at 15% 85%, rgba(245, 158, 11, 0.12) 0%, transparent 50%);
             pointer-events: none;
         }
 
@@ -491,7 +511,7 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle at center, rgba(255,255,255,0.08) 0%, transparent 60%);
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
             pointer-events: none;
         }
 
@@ -539,8 +559,8 @@
             position: absolute;
             inset: 0;
             background-image:
-                linear-gradient(rgba(238,202,62,0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(238,202,62,0.04) 1px, transparent 1px);
+                linear-gradient(rgba(238, 202, 62, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(238, 202, 62, 0.04) 1px, transparent 1px);
             background-size: 48px 48px;
             pointer-events: none;
             z-index: 0;
@@ -549,19 +569,26 @@
         /* Radial glow spots */
         .journey-glow-top {
             position: absolute;
-            top: -80px; right: -80px;
-            width: 420px; height: 420px;
+            top: -80px;
+            right: -80px;
+            width: 420px;
+            height: 420px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(238,202,62,0.14) 0%, transparent 65%);
-            pointer-events: none; z-index: 0;
+            background: radial-gradient(circle, rgba(238, 202, 62, 0.14) 0%, transparent 65%);
+            pointer-events: none;
+            z-index: 0;
         }
+
         .journey-glow-bottom {
             position: absolute;
-            bottom: -80px; left: -80px;
-            width: 380px; height: 380px;
+            bottom: -80px;
+            left: -80px;
+            width: 380px;
+            height: 380px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(14,165,233,0.10) 0%, transparent 65%);
-            pointer-events: none; z-index: 0;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.10) 0%, transparent 65%);
+            pointer-events: none;
+            z-index: 0;
         }
 
         /* ── Section Header ── */
@@ -569,8 +596,8 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(238,202,62,0.12);
-            border: 1px solid rgba(238,202,62,0.35);
+            background: rgba(238, 202, 62, 0.12);
+            border: 1px solid rgba(238, 202, 62, 0.35);
             color: #eecc3e;
             padding: 5px 18px;
             border-radius: 50px;
@@ -579,18 +606,30 @@
             letter-spacing: 0.8px;
             margin-bottom: 1rem;
         }
+
         .journey-eyebrow-dot {
-            width: 7px; height: 7px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
             background: #eecc3e;
-            box-shadow: 0 0 0 3px rgba(238,202,62,0.3);
+            box-shadow: 0 0 0 3px rgba(238, 202, 62, 0.3);
             animation: journeyPulse 2s infinite;
         }
+
         @keyframes journeyPulse {
-            0%  { box-shadow: 0 0 0 0 rgba(238,202,62,0.5); }
-            70% { box-shadow: 0 0 0 7px rgba(238,202,62,0); }
-            100%{ box-shadow: 0 0 0 0 rgba(238,202,62,0); }
+            0% {
+                box-shadow: 0 0 0 0 rgba(238, 202, 62, 0.5);
+            }
+
+            70% {
+                box-shadow: 0 0 0 7px rgba(238, 202, 62, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(238, 202, 62, 0);
+            }
         }
+
         .journey-main-title {
             font-size: clamp(1.85rem, 3.5vw, 2.6rem);
             font-weight: 900;
@@ -598,14 +637,16 @@
             line-height: 1.2;
             margin-bottom: 0.75rem;
         }
+
         .journey-main-title .gold-word {
             background: linear-gradient(135deg, #eecc3e 0%, #f59e0b 55%, #ea580c 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+
         .journey-sub {
-            color: rgba(255,255,255,0.6);
+            color: rgba(255, 255, 255, 0.6);
             font-size: 0.96rem;
             max-width: 580px;
             line-height: 1.7;
@@ -635,9 +676,9 @@
             width: 100%;
             height: 2px;
             background: linear-gradient(270deg,
-                rgba(238,202,62,0.9) 0%,
-                rgba(238,202,62,0.5) 100%);
-            box-shadow: 0 0 10px rgba(238,202,62,0.35);
+                    rgba(238, 202, 62, 0.9) 0%,
+                    rgba(238, 202, 62, 0.5) 100%);
+            box-shadow: 0 0 10px rgba(238, 202, 62, 0.35);
             z-index: 0;
             pointer-events: none;
         }
@@ -659,88 +700,96 @@
             width: 88px;
             height: 88px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.06);
-            border: 2px solid rgba(238,202,62,0.35);
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid rgba(238, 202, 62, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             z-index: 2;
             flex-shrink: 0;
         }
+
         .journey-step-num .step-num-inner {
             width: 66px;
             height: 66px;
             border-radius: 50%;
             background: linear-gradient(135deg, #0b2654 0%, #113376 100%);
-            border: 1.5px solid rgba(238,202,62,0.5);
+            border: 1.5px solid rgba(238, 202, 62, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
             transition: all 0.4s ease;
         }
+
         .journey-step-num .step-num-icon {
             font-size: 1.5rem;
             color: #eecc3e;
-            filter: drop-shadow(0 0 8px rgba(238,202,62,0.6));
+            filter: drop-shadow(0 0 8px rgba(238, 202, 62, 0.6));
             transition: transform 0.4s ease;
         }
+
         .journey-step-num .step-ordinal {
             font-size: 0.62rem;
             font-weight: 800;
-            color: rgba(238,202,62,0.65);
+            color: rgba(238, 202, 62, 0.65);
             letter-spacing: 0.5px;
             margin-top: 1px;
         }
 
         /* Outer ring pulse on hover */
         .journey-step:hover .journey-step-num {
-            border-color: rgba(238,202,62,0.85);
-            box-shadow: 0 0 0 8px rgba(238,202,62,0.08),
-                        0 12px 28px rgba(0,0,0,0.35);
+            border-color: rgba(238, 202, 62, 0.85);
+            box-shadow: 0 0 0 8px rgba(238, 202, 62, 0.08),
+                0 12px 28px rgba(0, 0, 0, 0.35);
         }
+
         .journey-step:hover .step-num-inner {
             background: linear-gradient(135deg, #1a4d9c 0%, #1c5ab5 100%);
-            border-color: rgba(238,202,62,0.9);
+            border-color: rgba(238, 202, 62, 0.9);
         }
+
         .journey-step:hover .step-num-icon {
             transform: scale(1.15) rotate(-8deg);
-            filter: drop-shadow(0 0 14px rgba(238,202,62,0.9));
+            filter: drop-shadow(0 0 14px rgba(238, 202, 62, 0.9));
         }
 
         /* Step Body Card */
         .journey-step-body {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.10);
+            border: 1px solid rgba(255, 255, 255, 0.10);
             border-radius: 20px;
             padding: 1.35rem 1.2rem 1.2rem;
             margin-top: 1rem;
             width: 100%;
             text-align: center;
-            transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             overflow: hidden;
         }
+
         .journey-step-body::before {
             content: '';
             position: absolute;
             inset: 0;
             border-radius: 20px;
-            background: linear-gradient(135deg, rgba(238,202,62,0.07) 0%, transparent 60%);
+            background: linear-gradient(135deg, rgba(238, 202, 62, 0.07) 0%, transparent 60%);
             opacity: 0;
             transition: opacity 0.4s ease;
         }
+
         .journey-step:hover .journey-step-body {
-            background: rgba(255,255,255,0.09);
-            border-color: rgba(238,202,62,0.35);
-            box-shadow: 0 16px 40px rgba(0,0,0,0.3),
-                        0 0 0 1px rgba(238,202,62,0.15);
+            background: rgba(255, 255, 255, 0.09);
+            border-color: rgba(238, 202, 62, 0.35);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(238, 202, 62, 0.15);
             transform: translateY(-4px);
         }
+
         .journey-step:hover .journey-step-body::before {
             opacity: 1;
         }
@@ -750,9 +799,10 @@
             font-weight: 800;
             letter-spacing: 1px;
             text-transform: uppercase;
-            color: rgba(238,202,62,0.7);
+            color: rgba(238, 202, 62, 0.7);
             margin-bottom: 0.5rem;
         }
+
         .journey-step-title {
             font-size: 1.02rem;
             font-weight: 800;
@@ -760,27 +810,31 @@
             margin-bottom: 0.55rem;
             line-height: 1.35;
         }
+
         .journey-step-desc {
             font-size: 0.83rem;
-            color: rgba(255,255,255,0.58);
+            color: rgba(255, 255, 255, 0.58);
             line-height: 1.65;
             margin-bottom: 0.9rem;
         }
+
         .journey-step-bullets {
             list-style: none;
             padding: 0;
             margin: 0 0 0.9rem;
             text-align: right;
         }
+
         .journey-step-bullets li {
             font-size: 0.78rem;
-            color: rgba(255,255,255,0.72);
+            color: rgba(255, 255, 255, 0.72);
             font-weight: 600;
             display: flex;
             align-items: center;
             gap: 7px;
             margin-bottom: 5px;
         }
+
         .journey-step-bullets li i {
             color: #eecc3e;
             font-size: 0.68rem;
@@ -789,65 +843,78 @@
 
         /* Step Footer */
         .journey-step-footer {
-            border-top: 1px solid rgba(255,255,255,0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
             padding-top: 0.7rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
             font-size: 0.75rem;
-            color: rgba(255,255,255,0.4);
+            color: rgba(255, 255, 255, 0.4);
             font-weight: 700;
         }
+
         .journey-step-progress {
             display: flex;
             gap: 3px;
         }
+
         .jsp-bar {
             width: 13px;
             height: 3px;
             border-radius: 2px;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
         }
+
         .jsp-bar.active {
             background: linear-gradient(90deg, #eecc3e, #f59e0b);
         }
 
         /* Special: last step (goal) */
         .journey-step-goal .journey-step-num {
-            border-color: rgba(238,202,62,0.65);
-            background: rgba(238,202,62,0.08);
+            border-color: rgba(238, 202, 62, 0.65);
+            background: rgba(238, 202, 62, 0.08);
         }
+
         .journey-step-goal .step-num-inner {
             background: linear-gradient(135deg, #eecc3e 0%, #f97316 100%);
             border-color: transparent;
         }
+
         .journey-step-goal .step-num-icon {
             color: #0b1f3a;
             filter: none;
         }
+
         .journey-step-goal .step-ordinal {
-            color: rgba(11,31,58,0.7);
+            color: rgba(11, 31, 58, 0.7);
         }
+
         .journey-step-goal:hover .journey-step-num {
-            box-shadow: 0 0 0 8px rgba(238,202,62,0.15),
-                        0 12px 30px rgba(238,202,62,0.35);
+            box-shadow: 0 0 0 8px rgba(238, 202, 62, 0.15),
+                0 12px 30px rgba(238, 202, 62, 0.35);
         }
+
         .journey-step-goal .journey-step-body {
-            border-color: rgba(238,202,62,0.25);
-            background: rgba(238,202,62,0.07);
+            border-color: rgba(238, 202, 62, 0.25);
+            background: rgba(238, 202, 62, 0.07);
         }
+
         .journey-step-goal:hover .journey-step-body {
-            border-color: rgba(238,202,62,0.5);
-            box-shadow: 0 16px 40px rgba(238,202,62,0.2),
-                        0 0 0 1px rgba(238,202,62,0.3);
+            border-color: rgba(238, 202, 62, 0.5);
+            box-shadow: 0 16px 40px rgba(238, 202, 62, 0.2),
+                0 0 0 1px rgba(238, 202, 62, 0.3);
         }
-        .journey-step-goal .journey-step-label { color: #eecc3e; }
+
+        .journey-step-goal .journey-step-label {
+            color: #eecc3e;
+        }
+
         .goal-achieved-tag {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(238,202,62,0.15);
-            border: 1px solid rgba(238,202,62,0.4);
+            background: rgba(238, 202, 62, 0.15);
+            border: 1px solid rgba(238, 202, 62, 0.4);
             color: #eecc3e;
             font-size: 0.74rem;
             font-weight: 800;
@@ -862,48 +929,88 @@
                 align-items: stretch;
                 gap: 1.5rem;
             }
-            .journey-stepper-track { display: none; }
-            .journey-step-num { width: 72px; height: 72px; }
-            .journey-step-num .step-num-inner { width: 54px; height: 54px; }
-            .journey-step-num .step-num-icon { font-size: 1.25rem; }
-            .journey-step-body { text-align: right; }
-            .journey-step-bullets { text-align: right; }
-            .journey-step { flex-direction: row; align-items: flex-start; gap: 1rem; }
-            .journey-step-body { margin-top: 0; flex: 1; }
+
+            .journey-stepper-track {
+                display: none;
+            }
+
+            .journey-step-num {
+                width: 72px;
+                height: 72px;
+            }
+
+            .journey-step-num .step-num-inner {
+                width: 54px;
+                height: 54px;
+            }
+
+            .journey-step-num .step-num-icon {
+                font-size: 1.25rem;
+            }
+
+            .journey-step-body {
+                text-align: right;
+            }
+
+            .journey-step-bullets {
+                text-align: right;
+            }
+
+            .journey-step {
+                flex-direction: row;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .journey-step-body {
+                margin-top: 0;
+                flex: 1;
+            }
         }
+
         @media (max-width: 576px) {
-            .journey-step-title { font-size: 0.96rem; }
-            .journey-step-desc  { font-size: 0.8rem; }
+            .journey-step-title {
+                font-size: 0.96rem;
+            }
+
+            .journey-step-desc {
+                font-size: 0.8rem;
+            }
         }
 
         /* ── CTA Banner (reused) ── */
         .journey-cta-banner {
-            background: rgba(255,255,255,0.06);
+            background: rgba(255, 255, 255, 0.06);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(238,202,62,0.2);
+            border: 1px solid rgba(238, 202, 62, 0.2);
             border-radius: 22px;
             padding: 2.2rem 2.5rem;
             position: relative;
             overflow: hidden;
         }
+
         .journey-cta-banner::before {
             content: '';
             position: absolute;
-            top: -50%; right: -20%;
-            width: 320px; height: 320px;
-            background: radial-gradient(circle, rgba(238,202,62,0.18) 0%, transparent 70%);
+            top: -50%;
+            right: -20%;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(238, 202, 62, 0.18) 0%, transparent 70%);
             pointer-events: none;
         }
+
         .journey-cta-badge {
-            background: rgba(238,202,62,0.15);
-            border: 1px solid rgba(238,202,62,0.35);
+            background: rgba(238, 202, 62, 0.15);
+            border: 1px solid rgba(238, 202, 62, 0.35);
             color: #eecc3e;
             font-size: 0.78rem;
             font-weight: 800;
             padding: 4px 14px;
             border-radius: 9999px;
         }
+
         .btn-journey-primary {
             background: linear-gradient(135deg, #eecc3e 0%, #f59e0b 50%, #ea580c 100%);
             color: #0b1f3a;
@@ -912,22 +1019,24 @@
             padding: 0.78rem 1.7rem;
             border-radius: 12px;
             border: none;
-            box-shadow: 0 6px 18px rgba(238,202,62,0.4);
+            box-shadow: 0 6px 18px rgba(238, 202, 62, 0.4);
             transition: all 0.25s ease;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
+
         .btn-journey-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 26px rgba(238,202,62,0.55);
+            box-shadow: 0 10px 26px rgba(238, 202, 62, 0.55);
             color: #0b1f3a;
         }
+
         .btn-journey-outline {
-            background: rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.08);
             color: #ffffff;
-            border: 1.5px solid rgba(255,255,255,0.28);
+            border: 1.5px solid rgba(255, 255, 255, 0.28);
             font-weight: 700;
             font-size: 0.92rem;
             padding: 0.78rem 1.5rem;
@@ -939,10 +1048,11 @@
             align-items: center;
             gap: 6px;
         }
+
         .btn-journey-outline:hover {
-            background: rgba(255,255,255,0.16);
+            background: rgba(255, 255, 255, 0.16);
             color: #ffffff;
-            border-color: rgba(238,202,62,0.5);
+            border-color: rgba(238, 202, 62, 0.5);
             transform: translateY(-2px);
         }
 
@@ -953,7 +1063,7 @@
             border: 1px solid #e2e8f0;
             overflow: hidden;
             transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -961,7 +1071,7 @@
 
         .bento-news-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
         }
 
         /* 8. تذييل الصفحة الشامل (Modern Mega Footer) */
@@ -1193,7 +1303,8 @@
             background: #ffffff;
             max-height: calc(85dvh - 120px);
             overflow-y: auto;
-            -webkit-overflow-scrolling: touch; /* iOS smooth scroll fix */
+            -webkit-overflow-scrolling: touch;
+            /* iOS smooth scroll fix */
             overscroll-behavior: contain;
         }
 
@@ -1296,28 +1407,35 @@
             .hero-section {
                 padding: 115px 0 90px;
             }
+
             .job-fair-spotlight {
                 padding: 2rem 1.5rem;
             }
+
             .stats-ribbon {
                 margin-top: -45px;
             }
+
             .modal-register-body {
                 padding: 20px 16px;
                 max-height: calc(100dvh - 180px);
             }
+
             .reg-step-label {
                 font-size: 0.75rem;
             }
+
             /* Fix nav buttons wrapping on small screens */
             .modal-register-body .d-flex.justify-content-between {
                 flex-wrap: wrap;
                 gap: 10px;
             }
+
             .modal-register-body .d-flex.justify-content-between .btn {
                 flex: 1 1 auto;
                 min-width: 130px;
             }
+
             /* Make submit button full width on mobile */
             #modalSubmitRegisterBtn {
                 width: 100%;
@@ -1329,28 +1447,35 @@
             .hero-section {
                 padding: 110px 0 80px;
             }
+
             .modal-register-header {
                 padding: 18px 16px 14px;
             }
+
             .modal-register-header h3 {
                 font-size: 1.2rem;
             }
+
             .modal-register-body {
                 padding: 14px 12px;
                 max-height: calc(100dvh - 160px);
             }
+
             .reg-progress-steps {
                 padding: 0 4px;
                 margin-bottom: 16px;
             }
+
             .reg-step-circle {
                 width: 30px;
                 height: 30px;
                 font-size: 0.82rem;
             }
+
             .reg-step-label {
                 font-size: 0.68rem;
             }
+
             .reg-section-title {
                 font-size: 1rem;
             }
@@ -1374,7 +1499,8 @@
                 <!-- الشعار والهوية -->
                 <a class="navbar-brand navbar-brand-wrap" href="{{ route('home') }}">
                     <div class="navbar-brand-logo-frame">
-                        <img src="{{ asset('images/logo.jpg') }}" alt="شعار جامعة طرابلس" class="navbar-brand-logo-img" onerror="this.onerror=null;">
+                        <img src="{{ asset('images/logo.jpg') }}" alt="شعار جامعة طرابلس" class="navbar-brand-logo-img"
+                            onerror="this.onerror=null;">
                     </div>
                     <div class="d-flex flex-column text-start text-rtl">
                         <span class="brand-text-title">مكتب تدريب الخريجين</span>
@@ -1386,7 +1512,9 @@
                 </a>
 
                 <!-- زر القائمة للأجهزة الصغيرة -->
-                <button class="navbar-toggler navbar-toggler-custom" type="button" data-bs-toggle="collapse" data-bs-target="#homeNavContent" aria-controls="homeNavContent" aria-expanded="false" aria-label="تبديل القائمة">
+                <button class="navbar-toggler navbar-toggler-custom" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#homeNavContent" aria-controls="homeNavContent" aria-expanded="false"
+                    aria-label="تبديل القائمة">
                     <i class="fas fa-bars-staggered fs-6"></i>
                 </button>
 
@@ -1450,11 +1578,13 @@
                                 <i class="fas fa-arrow-left ms-1 small"></i>
                             </a>
                         @else
-                            <button type="button" class="btn nav-btn-login" data-bs-toggle="modal" data-bs-target="#loginModal">
+                            <button type="button" class="btn nav-btn-login" data-bs-toggle="modal"
+                                data-bs-target="#loginModal">
                                 <i class="fas fa-arrow-right-to-bracket"></i>
                                 <span>تسجيل الدخول</span>
                             </button>
-                            <button type="button" class="btn nav-btn-register shadow-sm" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal">
+                            <button type="button" class="btn nav-btn-register shadow-sm" data-bs-toggle="modal"
+                                data-bs-target="#graduateRegisterModal">
                                 <i class="fas fa-user-plus text-warning"></i>
                                 <span>تسجيل خريج</span>
                             </button>
@@ -1468,36 +1598,44 @@
     <!-- ==================== 2. قسم البطل الرئيسي (Hero Section) ==================== -->
     <section class="hero-section" id="hero">
         <div class="container">
-            <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill mb-4" style="background: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255, 255, 255, 0.32); backdrop-filter: blur(8px);">
+            <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill mb-4"
+                style="background: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255, 255, 255, 0.32); backdrop-filter: blur(8px);">
                 <i class="fas fa-university text-warning"></i>
                 <span class="fw-bold" style="font-size: 0.85rem;">جامعة طرابلس — المنصة لتدريب وتأهيل الخريجين</span>
             </div>
 
             <div class="mb-4" data-aos="zoom-in">
-                <img src="{{ asset('images/logo.jpg') }}" alt="شعار جامعة طرابلس" class="university-logo-img" onerror="this.onerror=null;">
+                <img src="{{ asset('images/logo.jpg') }}" alt="شعار جامعة طرابلس" class="university-logo-img"
+                    onerror="this.onerror=null;">
             </div>
 
-            <h1 class="display-4 fw-bolder mb-3 text-white" data-aos="fade-up" data-aos-delay="150" style="letter-spacing: -0.5px;">
+            <h1 class="display-4 fw-bolder mb-3 text-white" data-aos="fade-up" data-aos-delay="150"
+                style="letter-spacing: -0.5px;">
                 مكتب تدريب الخريجين
             </h1>
 
-            <p class="lead text-white-50 mx-auto mb-4 px-3" style="max-width: 720px; font-size: 1.15rem; line-height: 1.8;" data-aos="fade-up" data-aos-delay="250">
-                جسركم الموثوق من مقاعد الدراسة إلى آفاق سوق العمل، عبر مسارات تدريبية احترافية معتمدة، شراكات استراتيجية مع كبرى الشركات، ومعارض توظيف سنوية رائدة.
+            <p class="lead text-white-50 mx-auto mb-4 px-3"
+                style="max-width: 720px; font-size: 1.15rem; line-height: 1.8;" data-aos="fade-up" data-aos-delay="250">
+                جسركم الموثوق من مقاعد الدراسة إلى آفاق سوق العمل، عبر مسارات تدريبية احترافية معتمدة، شراكات استراتيجية
+                مع كبرى الشركات، ومعارض توظيف سنوية رائدة.
             </p>
 
             <div class="d-flex justify-content-center gap-3 flex-wrap" data-aos="fade-up" data-aos-delay="350">
                 @auth
-                    <a href="{{ route('dashboard') }}" class="btn btn-gold btn-lg shadow-sm d-flex align-items-center gap-2">
+                    <a href="{{ route('dashboard') }}"
+                        class="btn btn-gold btn-lg shadow-sm d-flex align-items-center gap-2">
                         <i class="fas fa-th-large"></i>
                         <span>الانتقال للوحة التحكم</span>
                         <i class="fas fa-arrow-left ms-1 small"></i>
                     </a>
                 @else
-                    <button type="button" class="btn btn-gold btn-lg shadow-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#loginModal">
+                    <button type="button" class="btn btn-gold btn-lg shadow-sm d-flex align-items-center gap-2"
+                        data-bs-toggle="modal" data-bs-target="#loginModal">
                         <i class="fas fa-sign-in-alt"></i>
                         <span>تسجيل الدخول</span>
                     </button>
-                    <button type="button" class="btn btn-outline-hero btn-lg d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal">
+                    <button type="button" class="btn btn-outline-hero btn-lg d-flex align-items-center gap-2"
+                        data-bs-toggle="modal" data-bs-target="#graduateRegisterModal">
                         <i class="fas fa-user-plus"></i>
                         <span>إنشاء حساب خريج جديد</span>
                     </button>
@@ -1519,7 +1657,8 @@
                         @if($card['is_visible'])
                             <div class="col-6 col-md-3" data-aos="fade-up" data-aos-delay="{{ $loop->iteration * 100 }}">
                                 <div class="stat-bento-card">
-                                    <div class="stat-icon-wrapper" style="background: {{ $card['bg_color'] }}; color: {{ $card['color'] }};">
+                                    <div class="stat-icon-wrapper"
+                                        style="background: {{ $card['bg_color'] }}; color: {{ $card['color'] }};">
                                         <i class="{{ $card['icon'] }}"></i>
                                     </div>
                                     <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">
@@ -1536,7 +1675,8 @@
                             <div class="stat-icon-wrapper" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;">
                                 <i class="fas fa-user-graduate"></i>
                             </div>
-                            <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">{{ number_format($stats['graduates_count'] ?? 0) }}</h3>
+                            <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">
+                                {{ number_format($stats['graduates_count'] ?? 0) }}</h3>
                             <p class="text-muted small mb-0 fw-semibold">خريج مسجل ومعتمد</p>
                         </div>
                     </div>
@@ -1545,7 +1685,8 @@
                             <div class="stat-icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
                                 <i class="fas fa-building"></i>
                             </div>
-                            <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">{{ number_format($stats['companies_count'] ?? 0) }}</h3>
+                            <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">
+                                {{ number_format($stats['companies_count'] ?? 0) }}</h3>
                             <p class="text-muted small mb-0 fw-semibold">شركة ومؤسسة شريكة</p>
                         </div>
                     </div>
@@ -1554,7 +1695,8 @@
                             <div class="stat-icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
                                 <i class="fas fa-chalkboard-teacher"></i>
                             </div>
-                            <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">{{ number_format($stats['trainings_count'] ?? 0) }}</h3>
+                            <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">
+                                {{ number_format($stats['trainings_count'] ?? 0) }}</h3>
                             <p class="text-muted small mb-0 fw-semibold">برنامج تدريبي وتأهيلي</p>
                         </div>
                     </div>
@@ -1563,7 +1705,8 @@
                             <div class="stat-icon-wrapper" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
                                 <i class="fas fa-briefcase"></i>
                             </div>
-                            <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">{{ number_format($stats['opportunities_count'] ?? 0) }}</h3>
+                            <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">
+                                {{ number_format($stats['opportunities_count'] ?? 0) }}</h3>
                             <p class="text-muted small mb-0 fw-semibold">فرصة عمل وترشيح</p>
                         </div>
                     </div>
@@ -1574,92 +1717,110 @@
 
     <!-- ==================== 4. الفعاليات والمعارض النشطة (Job Fairs Showcase) ==================== -->
     @if(isset($activeFairs) && $activeFairs->count() > 0)
-    <section class="py-5" id="jobfair">
-        <div class="container">
-            @if($activeFairs->count() > 1)
-                <div class="text-center mb-4" data-aos="fade-up">
-                    <div class="d-inline-flex align-items-center gap-2 px-3.5 py-1.5 rounded-pill mb-2 shadow-xs" style="background: rgba(13, 56, 130, 0.08); border: 1px solid rgba(13, 56, 130, 0.18);">
-                        <i class="fas fa-calendar-star text-primary"></i>
-                        <span class="text-primary fw-bold small">الفعاليات والمعارض المعتمدة — جامعة طرابلس</span>
+        <section class="py-5" id="jobfair">
+            <div class="container">
+                @if($activeFairs->count() > 1)
+                    <div class="text-center mb-4" data-aos="fade-up">
+                        <div class="d-inline-flex align-items-center gap-2 px-3.5 py-1.5 rounded-pill mb-2 shadow-xs"
+                            style="background: rgba(13, 56, 130, 0.08); border: 1px solid rgba(13, 56, 130, 0.18);">
+                            <i class="fas fa-calendar-star text-primary"></i>
+                            <span class="text-primary fw-bold small">الفعاليات والمعارض المعتمدة — جامعة طرابلس</span>
+                        </div>
+                        <h2 class="display-6 fw-bold text-dark mb-2">الفعاليات والمعارض النشطة</h2>
+                        <p class="text-muted mx-auto" style="max-width: 620px; font-size: 0.95rem;">
+                            استكشف أحدث المعارض والملتقيات الوظيفية المنظمة، واحجز بطاقتك الرقمية المعتمدة لحضور كل فعالية.
+                        </p>
                     </div>
-                    <h2 class="display-6 fw-bold text-dark mb-2">الفعاليات والمعارض النشطة</h2>
-                    <p class="text-muted mx-auto" style="max-width: 620px; font-size: 0.95rem;">
-                        استكشف أحدث المعارض والملتقيات الوظيفية المنظمة، واحجز بطاقتك الرقمية المعتمدة لحضور كل فعالية.
-                    </p>
-                </div>
-            @endif
+                @endif
 
-            <div class="d-flex flex-column gap-4">
-                @foreach($activeFairs as $fair)
-                    <div class="job-fair-spotlight" data-aos="fade-up">
-                        <div class="row align-items-center g-4">
-                            <div class="col-lg-8">
-                                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4);">
-                                    <i class="fas fa-star text-warning"></i>
-                                    <span class="text-warning fw-bold small">حدث سنوي معتمد — جامعة طرابلس</span>
-                                </div>
+                <div class="d-flex flex-column gap-4">
+                    @foreach($activeFairs as $fair)
+                        <div class="job-fair-spotlight" data-aos="fade-up">
+                            <div class="row align-items-center g-4">
+                                <div class="col-lg-8">
+                                    <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3"
+                                        style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4);">
+                                        <i class="fas fa-star text-warning"></i>
+                                        <span class="text-warning fw-bold small">حدث سنوي معتمد — جامعة طرابلس</span>
+                                    </div>
 
-                                <h2 class="display-6 fw-bold mb-3 text-white">
-                                    {{ $fair->title }}
-                                </h2>
-                                <p class="text-white-50 mb-4" style="font-size: 1.05rem; line-height: 1.7; max-width: 680px;">
-                                    {{ $fair->description ?? 'فرصتكم الذهبية للقاء مسؤولي الموارد البشرية بكبرى الشركات الوطنية والدولية، إجراء المقابلات الفورية، حجز بطاقتكم الرقمية الذكية المزودة برمز QR، واستكشاف أحدث الوظائف.' }}
-                                </p>
-                                <div class="d-flex align-items-center gap-3 text-white-50 small mb-4 flex-wrap">
-                                    <span><i class="fas fa-map-marker-alt text-warning me-1"></i> {{ $fair->location ?? 'الحرم الجامعي — جامعة طرابلس' }}</span>
-                                    <span>•</span>
-                                    <span><i class="fas fa-calendar-alt text-warning me-1"></i> الموعد: {{ $fair->event_date ? \Carbon\Carbon::parse($fair->event_date)->translatedFormat('d F Y') : 'يحدد لاحقاً' }}</span>
-                                    <span>•</span>
-                                    <span><i class="fas fa-qrcode text-warning me-1"></i> تذاكر وبطاقات ذكية موحدة</span>
-                                </div>
-                                <div class="d-flex align-items-center gap-3 flex-wrap">
-                                    <a href="{{ route('job-fair.public', $fair->id) }}" class="btn btn-gold fw-bold rounded-pill px-4 py-2.5 d-flex align-items-center gap-2">
-                                        <span>استكشف المعرض والشركات</span>
-                                        <i class="fas fa-arrow-left small"></i>
-                                    </a>
-                                    @if($fair->registration_open)
-                                        <a href="{{ route('job-fair.public', $fair->id) }}#register" class="btn btn-outline-hero rounded-pill px-4 py-2.5">
-                                            <i class="fas fa-ticket-alt me-1.5"></i>حجز بطاقة المعرض
+                                    <h2 class="display-6 fw-bold mb-3 text-white">
+                                        {{ $fair->title }}
+                                    </h2>
+                                    <p class="text-white-50 mb-4"
+                                        style="font-size: 1.05rem; line-height: 1.7; max-width: 680px;">
+                                        {{ $fair->description ?? 'فرصتكم الذهبية للقاء مسؤولي الموارد البشرية بكبرى الشركات الوطنية والدولية، إجراء المقابلات الفورية، حجز بطاقتكم الرقمية الذكية المزودة برمز QR، واستكشاف أحدث الوظائف.' }}
+                                    </p>
+                                    <div class="d-flex align-items-center gap-3 text-white-50 small mb-4 flex-wrap">
+                                        <span><i class="fas fa-map-marker-alt text-warning me-1"></i>
+                                            {{ $fair->location ?? 'الحرم الجامعي — جامعة طرابلس' }}</span>
+                                        <span>•</span>
+                                        <span><i class="fas fa-calendar-alt text-warning me-1"></i> الموعد:
+                                            {{ $fair->event_date ? \Carbon\Carbon::parse($fair->event_date)->translatedFormat('d F Y') : 'يحدد لاحقاً' }}</span>
+                                        <span>•</span>
+                                        <span><i class="fas fa-qrcode text-warning me-1"></i> تذاكر وبطاقات ذكية موحدة</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                                        <a href="{{ route('job-fair.public', $fair->id) }}"
+                                            class="btn btn-gold fw-bold rounded-pill px-4 py-2.5 d-flex align-items-center gap-2">
+                                            <span>استكشف المعرض والشركات</span>
+                                            <i class="fas fa-arrow-left small"></i>
                                         </a>
-                                    @else
-                                        <span class="badge rounded-pill px-3 py-2 text-white-50" style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.25);">
-                                            <i class="fas fa-clock me-1 text-warning"></i>التسجيل متاح قريباً
-                                        </span>
-                                    @endif
+                                        @if($fair->registration_open)
+                                            <a href="{{ route('job-fair.public', $fair->id) }}#register"
+                                                class="btn btn-outline-hero rounded-pill px-4 py-2.5">
+                                                <i class="fas fa-ticket-alt me-1.5"></i>حجز بطاقة المعرض
+                                            </a>
+                                        @else
+                                            <span class="badge rounded-pill px-3 py-2 text-white-50"
+                                                style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.25);">
+                                                <i class="fas fa-clock me-1 text-warning"></i>التسجيل متاح قريباً
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-lg-4 text-center">
-                                <div class="p-4 rounded-4" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px);">
-                                    @if($fair->white_logo_url)
-                                        <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" class="img-fluid mb-3" style="max-height: 85px; max-width: 180px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25));" onerror="this.onerror=null;this.src='{{ $fair->logo_url }}';">
-                                    @elseif($fair->logo_url)
-                                        <div class="d-inline-block bg-white rounded-3 p-2 mb-3 shadow-sm">
-                                            <img src="{{ $fair->logo_url }}" alt="{{ $fair->title }}" class="img-fluid" style="max-height: 70px; max-width: 140px; object-fit: contain;" onerror="this.onerror=null;this.style.display='none'">
-                                        </div>
-                                    @elseif($fair->banner_image)
-                                        <img src="{{ asset('storage/' . $fair->banner_image) }}" alt="{{ $fair->title }}" class="img-fluid mb-3 rounded-3" style="max-height: 70px; object-fit: contain;" onerror="this.onerror=null;this.style.display='none'">
-                                    @else
-                                        <i class="fas fa-id-card fa-4x text-warning mb-3"></i>
-                                    @endif
-                                    <h5 class="text-white fw-bold mb-1">بطاقتك الرقمية للفعالية</h5>
-                                    <p class="text-white-50 small mb-3">رمز QR موحد لتسجيل الحضور وتسهيل التواصل مع أجنحة الشركات</p>
-                                    @if($fair->registration_open)
-                                        <span class="badge rounded-pill px-3 py-1.5 text-white" style="background: rgba(16, 185, 129, 0.25); border: 1px solid rgba(16, 185, 129, 0.4);">
-                                            <i class="fas fa-check-circle me-1 text-success"></i>التسجيل متاح لجميع الخريجين
-                                        </span>
-                                    @else
-                                        <span class="badge rounded-pill px-3 py-1.5 text-white-50" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
-                                            <i class="fas fa-info-circle me-1 text-warning"></i>تصدر البطاقة آلياً فور التسجيل
-                                        </span>
-                                    @endif
+                                <div class="col-lg-4 text-center">
+                                    <div class="p-4 rounded-4"
+                                        style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px);">
+                                        @if($fair->white_logo_url)
+                                            <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" class="img-fluid mb-3"
+                                                style="max-height: 85px; max-width: 180px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25));"
+                                                onerror="this.onerror=null;this.src='{{ $fair->logo_url }}';">
+                                        @elseif($fair->logo_url)
+                                            <div class="d-inline-block bg-white rounded-3 p-2 mb-3 shadow-sm">
+                                                <img src="{{ $fair->logo_url }}" alt="{{ $fair->title }}" class="img-fluid"
+                                                    style="max-height: 70px; max-width: 140px; object-fit: contain;"
+                                                    onerror="this.onerror=null;this.style.display='none'">
+                                            </div>
+                                        @elseif($fair->banner_image)
+                                            <img src="{{ asset('storage/' . $fair->banner_image) }}" alt="{{ $fair->title }}"
+                                                class="img-fluid mb-3 rounded-3" style="max-height: 70px; object-fit: contain;"
+                                                onerror="this.onerror=null;this.style.display='none'">
+                                        @else
+                                            <i class="fas fa-id-card fa-4x text-warning mb-3"></i>
+                                        @endif
+                                        <h5 class="text-white fw-bold mb-1">بطاقتك الرقمية للفعالية</h5>
+                                        <p class="text-white-50 small mb-3">رمز QR موحد لتسجيل الحضور وتسهيل التواصل مع أجنحة
+                                            الشركات</p>
+                                        @if($fair->registration_open)
+                                            <span class="badge rounded-pill px-3 py-1.5 text-white"
+                                                style="background: rgba(16, 185, 129, 0.25); border: 1px solid rgba(16, 185, 129, 0.4);">
+                                                <i class="fas fa-check-circle me-1 text-success"></i>التسجيل متاح لجميع الخريجين
+                                            </span>
+                                        @else
+                                            <span class="badge rounded-pill px-3 py-1.5 text-white-50"
+                                                style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
+                                                <i class="fas fa-info-circle me-1 text-warning"></i>تصدر البطاقة آلياً فور التسجيل
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
     @endif
 
     <!-- ==================== 5. معرض الصور والفعاليات (Media Carousel) ==================== -->
@@ -1674,7 +1835,8 @@
                                     alt="{{ $image->caption ?? 'صورة ترحيبية' }}" style="height: 380px;"
                                     onerror="this.onerror=null;this.src='{{ asset('images/logo.jpg') }}'">
                                 @if($image->caption)
-                                    <div class="carousel-caption d-none d-md-block p-3 rounded-3" style="background: rgba(11, 31, 58, 0.65); backdrop-filter: blur(6px); max-width: 600px; margin: 0 auto;">
+                                    <div class="carousel-caption d-none d-md-block p-3 rounded-3"
+                                        style="background: rgba(11, 31, 58, 0.65); backdrop-filter: blur(6px); max-width: 600px; margin: 0 auto;">
                                         <h5 class="text-white mb-0 fw-bold">{{ $image->caption }}</h5>
                                     </div>
                                 @endif
@@ -1682,12 +1844,16 @@
                         @endforeach
                     </div>
                     @if($welcomeImages->count() > 1)
-                        <button class="carousel-control-prev" type="button" data-bs-target="#welcomeCarousel" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon p-3 rounded-circle" style="background-color: rgba(0,0,0,0.4);" aria-hidden="true"></span>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#welcomeCarousel"
+                            data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon p-3 rounded-circle"
+                                style="background-color: rgba(0,0,0,0.4);" aria-hidden="true"></span>
                             <span class="visually-hidden">السابق</span>
                         </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#welcomeCarousel" data-bs-slide="next">
-                            <span class="carousel-control-next-icon p-3 rounded-circle" style="background-color: rgba(0,0,0,0.4);" aria-hidden="true"></span>
+                        <button class="carousel-control-next" type="button" data-bs-target="#welcomeCarousel"
+                            data-bs-slide="next">
+                            <span class="carousel-control-next-icon p-3 rounded-circle"
+                                style="background-color: rgba(0,0,0,0.4);" aria-hidden="true"></span>
                             <span class="visually-hidden">التالي</span>
                         </button>
                     @endif
@@ -1705,40 +1871,50 @@
         <section class="py-5" id="trainings">
             <div class="container">
                 <div class="text-center mb-5" data-aos="fade-down">
-                    <span class="badge rounded-pill px-3 py-1.5 small fw-bold mb-2" style="background: #eff6ff; color: #1565c0; border: 1px solid #bfdbfe;">
+                    <span class="badge rounded-pill px-3 py-1.5 small fw-bold mb-2"
+                        style="background: #eff6ff; color: #1565c0; border: 1px solid #bfdbfe;">
                         <i class="fas fa-chalkboard-teacher me-1"></i>بناء القدرات والكفاءات
                     </span>
                     <h2 class="display-6 fw-bold text-dark mb-2">أحدث البرامج والدورات التدريبية</h2>
-                    <p class="text-muted small mx-auto" style="max-width: 600px;">برامج معتمدة من جامعة طرابلس تستهدف سد الفجوة بين المناهج الأكاديمية واحتياجات سوق العمل الحقيقية.</p>
+                    <p class="text-muted small mx-auto" style="max-width: 600px;">برامج معتمدة من جامعة طرابلس تستهدف سد
+                        الفجوة بين المناهج الأكاديمية واحتياجات سوق العمل الحقيقية.</p>
                 </div>
 
                 <div class="row g-4">
                     @foreach($advertisedTrainings as $index => $training)
                         <div class="col-lg-4 col-md-6 training-card {{ $index >= 3 ? 'hidden-training' : '' }}"
-                            data-aos="fade-up" data-aos-delay="{{ ($index % 3) * 100 }}" style="{{ $index >= 3 ? 'display: none;' : '' }}">
+                            data-aos="fade-up" data-aos-delay="{{ ($index % 3) * 100 }}"
+                            style="{{ $index >= 3 ? 'display: none;' : '' }}">
                             <div class="bento-training-card">
                                 <div class="bento-card-header d-flex justify-content-between align-items-center">
-                                    <span class="badge rounded-pill px-2.5 py-1 small fw-bold" style="background: #eff6ff; color: #1565c0; border: 1px solid #bfdbfe;">
+                                    <span class="badge rounded-pill px-2.5 py-1 small fw-bold"
+                                        style="background: #eff6ff; color: #1565c0; border: 1px solid #bfdbfe;">
                                         <i class="fas fa-certificate me-1 text-warning"></i>برنامج معتمد
                                     </span>
-                                    <small class="text-muted"><i class="fas fa-clock me-1 text-warning"></i>{{ $training->duration }} أيام</small>
+                                    <small class="text-muted"><i
+                                            class="fas fa-clock me-1 text-warning"></i>{{ $training->duration }} أيام</small>
                                 </div>
                                 <div class="card-body p-4 d-flex flex-column flex-grow-1">
                                     <h5 class="fw-bold text-dark mb-2 fs-6">{{ $training->title }}</h5>
                                     <p class="text-muted small mb-3 flex-grow-1" style="line-height: 1.6;">
                                         {{ Str::limit(strip_tags($training->description), 130) }}
                                     </p>
-                                    <div class="p-2.5 rounded-3 bg-light mb-3 text-muted small d-flex justify-content-between align-items-center" style="font-size: 0.8rem;">
-                                        <span><i class="fas fa-calendar-alt text-primary me-1"></i> {{ \Carbon\Carbon::parse($training->start_date)->format('Y/m/d') }}</span>
-                                        <span><i class="fas fa-map-marker-alt text-danger me-1"></i> {{ $training->location ?? 'جامعة طرابلس' }}</span>
+                                    <div class="p-2.5 rounded-3 bg-light mb-3 text-muted small d-flex justify-content-between align-items-center"
+                                        style="font-size: 0.8rem;">
+                                        <span><i class="fas fa-calendar-alt text-primary me-1"></i>
+                                            {{ \Carbon\Carbon::parse($training->start_date)->format('Y/m/d') }}</span>
+                                        <span><i class="fas fa-map-marker-alt text-danger me-1"></i>
+                                            {{ $training->location ?? 'جامعة طرابلس' }}</span>
                                     </div>
                                     @auth
-                                        <a href="{{ route('graduate.trainings.show', $training->id) }}" class="btn btn-outline-primary rounded-3 w-100 fw-bold py-2">
+                                        <a href="{{ route('graduate.trainings.show', $training->id) }}"
+                                            class="btn btn-outline-primary rounded-3 w-100 fw-bold py-2">
                                             <span>تفاصيل التدريب والتسجيل</span>
                                             <i class="fas fa-arrow-left ms-1 small"></i>
                                         </a>
                                     @else
-                                        <button type="button" class="btn btn-outline-primary rounded-3 w-100 fw-bold py-2" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                        <button type="button" class="btn btn-outline-primary rounded-3 w-100 fw-bold py-2"
+                                            data-bs-toggle="modal" data-bs-target="#loginModal">
                                             <span>سجل دخولك للتقديم</span>
                                             <i class="fas fa-arrow-left ms-1 small"></i>
                                         </button>
@@ -1751,7 +1927,8 @@
 
                 @if($totalTrainings > 3)
                     <div class="text-center mt-4 pt-2">
-                        <button id="showMoreBtn" class="btn btn-gold rounded-pill px-4 py-2.5 shadow-sm" onclick="showMoreTrainings()">
+                        <button id="showMoreBtn" class="btn btn-gold rounded-pill px-4 py-2.5 shadow-sm"
+                            onclick="showMoreTrainings()">
                             <span id="btnText">
                                 <i class="fas fa-plus-circle me-1.5"></i>
                                 عرض المزيد من التدريبات ({{ $totalTrainings - 3 }} تدريب إضافي)
@@ -1781,7 +1958,8 @@
                     رحلة الخريج في <span class="gold-word">4 خطوات متصلة</span>
                 </h2>
                 <p class="journey-sub mx-auto mb-0">
-                    صممنا المنصة لترافقك خطوة بخطوة منذ يوم تخرجك وحتى حصولك على وظيفتك الأولى، عبر آليات ذكية تضمن تأهيلك ومطابقتك مع أفضل الفرص.
+                    صممنا المنصة لترافقك خطوة بخطوة منذ يوم تخرجك وحتى حصولك على وظيفتك الأولى، عبر آليات ذكية تضمن
+                    تأهيلك ومطابقتك مع أفضل الفرص.
                 </p>
             </div>
 
@@ -1922,21 +2100,25 @@
             <div class="journey-cta-banner mt-5" data-aos="fade-up" data-aos-delay="450">
                 <div class="row align-items-center g-4">
                     <div class="col-lg-7 text-center text-lg-start text-rtl">
-                        <div class="d-inline-flex align-items-center gap-2 mb-2 flex-wrap justify-content-center justify-content-lg-start">
+                        <div
+                            class="d-inline-flex align-items-center gap-2 mb-2 flex-wrap justify-content-center justify-content-lg-start">
                             <span class="journey-cta-badge">
                                 <i class="fas fa-sparkles text-warning me-1"></i>انطلاقة مسارك تبدأ هنا
                             </span>
                             <span class="text-white-50 small">
-                                <i class="fas fa-shield-halved text-success me-1"></i>خدمة مجانية رسمية لخريجي جامعة طرابلس
+                                <i class="fas fa-shield-halved text-success me-1"></i>خدمة مجانية رسمية لخريجي جامعة
+                                طرابلس
                             </span>
                         </div>
                         <h4 class="fw-bold text-white mb-2 fs-5">هل أنت خريج وجاهز لبدء رحلتك المهنية اليوم؟</h4>
                         <p class="text-white-50 small mb-0" style="max-width: 600px;">
-                            أنشئ حسابك في خطوات معدودة لتصل سيرتك الذاتية إلى أصحاب الأعمال وتلتحق بأحدث البرامج التأهيلية.
+                            أنشئ حسابك في خطوات معدودة لتصل سيرتك الذاتية إلى أصحاب الأعمال وتلتحق بأحدث البرامج
+                            التأهيلية.
                         </p>
                     </div>
                     <div class="col-lg-5 text-center text-lg-end">
-                        <div class="d-flex flex-wrap flex-sm-nowrap align-items-center justify-content-center justify-content-lg-end gap-2">
+                        <div
+                            class="d-flex flex-wrap flex-sm-nowrap align-items-center justify-content-center justify-content-lg-end gap-2">
                             @auth
                                 <a href="{{ route('dashboard') }}" class="btn btn-journey-primary text-nowrap">
                                     <i class="fas fa-th-large ms-1"></i>
@@ -1944,12 +2126,14 @@
                                     <i class="fas fa-arrow-left ms-1 small"></i>
                                 </a>
                             @else
-                                <button type="button" class="btn btn-journey-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal">
+                                <button type="button" class="btn btn-journey-primary text-nowrap" data-bs-toggle="modal"
+                                    data-bs-target="#graduateRegisterModal">
                                     <i class="fas fa-user-plus ms-1"></i>
                                     <span>ابدأ بالتسجيل كخريج</span>
                                     <i class="fas fa-arrow-left ms-1 small"></i>
                                 </button>
-                                <button type="button" class="btn btn-journey-outline text-nowrap" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                <button type="button" class="btn btn-journey-outline text-nowrap" data-bs-toggle="modal"
+                                    data-bs-target="#loginModal">
                                     <i class="fas fa-sign-in-alt ms-1"></i>
                                     <span>تسجيل الدخول</span>
                                 </button>
@@ -1979,18 +2163,26 @@
                                 @foreach($latestNews as $news)
                                     <div class="col-12">
                                         <a href="{{ route('public.news.show', $news) }}" class="text-decoration-none d-block">
-                                            <div class="bento-news-card p-3 p-md-4 transition-all" style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                                            <div class="bento-news-card p-3 p-md-4 transition-all"
+                                                style="transition: transform 0.2s ease, box-shadow 0.2s ease;">
                                                 <div class="d-flex gap-3 align-items-start">
                                                     @if($news->thumbnail_url)
-                                                        <img src="{{ $news->thumbnail_url }}" class="rounded-3 flex-shrink-0 object-fit-cover" alt="" style="width: 84px; height: 84px;" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'rounded-3 flex-shrink-0 d-flex align-items-center justify-content-center text-primary\' style=\'width: 84px; height: 84px; background: rgba(13, 56, 130, 0.08);\'><i class=\'fas fa-newspaper fs-3 opacity-50\'></i></div>';">
+                                                        <img src="{{ $news->thumbnail_url }}"
+                                                            class="rounded-3 flex-shrink-0 object-fit-cover" alt=""
+                                                            style="width: 84px; height: 84px;"
+                                                            onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'rounded-3 flex-shrink-0 d-flex align-items-center justify-content-center text-primary\' style=\'width: 84px; height: 84px; background: rgba(13, 56, 130, 0.08);\'><i class=\'fas fa-newspaper fs-3 opacity-50\'></i></div>';">
                                                     @else
-                                                        <div class="rounded-3 flex-shrink-0 d-flex align-items-center justify-content-center text-primary" style="width: 84px; height: 84px; background: rgba(13, 56, 130, 0.08);">
+                                                        <div class="rounded-3 flex-shrink-0 d-flex align-items-center justify-content-center text-primary"
+                                                            style="width: 84px; height: 84px; background: rgba(13, 56, 130, 0.08);">
                                                             <i class="fas fa-newspaper fs-3 opacity-50"></i>
                                                         </div>
                                                     @endif
                                                     <div class="flex-grow-1" style="min-width: 0;">
-                                                        <h6 class="fw-bold text-dark mb-1 fs-6" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.45;" title="{{ $news->title }}">{{ $news->title }}</h6>
-                                                        <p class="text-muted small mb-2" style="font-size: 0.84rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">
+                                                        <h6 class="fw-bold text-dark mb-1 fs-6"
+                                                            style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.45;"
+                                                            title="{{ $news->title }}">{{ $news->title }}</h6>
+                                                        <p class="text-muted small mb-2"
+                                                            style="font-size: 0.84rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">
                                                             {{ $news->excerpt }}
                                                         </p>
                                                         <div class="d-flex justify-content-between align-items-center">
@@ -1999,7 +2191,8 @@
                                                                 {{ $news->published_at ? $news->published_at->format('Y/m/d') : '' }}
                                                             </small>
                                                             <span class="small fw-bold text-primary">
-                                                                قراءة الخبر <i class="fas fa-arrow-left ms-1" style="font-size: 0.7rem;"></i>
+                                                                قراءة الخبر <i class="fas fa-arrow-left ms-1"
+                                                                    style="font-size: 0.7rem;"></i>
                                                             </span>
                                                         </div>
                                                     </div>
@@ -2024,10 +2217,15 @@
                             <div class="row g-3">
                                 @foreach($activeAnnouncements as $announcement)
                                     <div class="col-12">
-                                        <a href="{{ route('public.announcements.show', $announcement) }}" class="text-decoration-none d-block">
-                                            <div class="bento-news-card p-3 p-md-4 transition-all" style="border-right: 4px solid var(--gold-accent); transition: transform 0.2s ease, box-shadow 0.2s ease;">
-                                                <h6 class="fw-bold text-dark mb-1 fs-6" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.45;" title="{{ $announcement->title }}">{{ $announcement->title }}</h6>
-                                                <p class="text-muted small mb-2" style="font-size: 0.84rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">
+                                        <a href="{{ route('public.announcements.show', $announcement) }}"
+                                            class="text-decoration-none d-block">
+                                            <div class="bento-news-card p-3 p-md-4 transition-all"
+                                                style="border-right: 4px solid var(--gold-accent); transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                                                <h6 class="fw-bold text-dark mb-1 fs-6"
+                                                    style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.45;"
+                                                    title="{{ $announcement->title }}">{{ $announcement->title }}</h6>
+                                                <p class="text-muted small mb-2"
+                                                    style="font-size: 0.84rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">
                                                     {{ $announcement->excerpt }}
                                                 </p>
                                                 <div class="d-flex justify-content-between align-items-center pt-2 border-top">
@@ -2036,7 +2234,8 @@
                                                         {{ $announcement->created_at->diffForHumans() }}
                                                     </small>
                                                     <span class="small fw-bold text-primary">
-                                                        التفاصيل الكاملة <i class="fas fa-arrow-left ms-1" style="font-size: 0.7rem;"></i>
+                                                        التفاصيل الكاملة <i class="fas fa-arrow-left ms-1"
+                                                            style="font-size: 0.7rem;"></i>
                                                     </span>
                                                 </div>
                                             </div>
@@ -2055,41 +2254,49 @@
     <section class="py-5 bg-white" id="about">
         <div class="container">
             <div class="text-center mb-5" data-aos="fade-down">
-                <span class="badge rounded-pill px-3 py-1.5 small fw-bold mb-2" style="background: #eff6ff; color: #1565c0; border: 1px solid #bfdbfe;">
+                <span class="badge rounded-pill px-3 py-1.5 small fw-bold mb-2"
+                    style="background: #eff6ff; color: #1565c0; border: 1px solid #bfdbfe;">
                     <i class="fas fa-bullseye me-1"></i>رؤيتنا ورسالتنا
                 </span>
                 <h2 class="display-6 fw-bold text-dark mb-2">أهداف مكتب تدريب الخريجين</h2>
-                <p class="text-muted small mx-auto" style="max-width: 600px;">نسعى لتحقيق التميز الوطني في تدريب وتأهيل الكفاءات الليبية الشابة لدخول سوق العمل بجدارة.</p>
+                <p class="text-muted small mx-auto" style="max-width: 600px;">نسعى لتحقيق التميز الوطني في تدريب وتأهيل
+                    الكفاءات الليبية الشابة لدخول سوق العمل بجدارة.</p>
             </div>
 
             <div class="row g-4 text-center">
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
                     <div class="p-4 border rounded-4 shadow-sm h-100" style="background: #f8fafc;">
-                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px; background: rgba(21, 101, 192, 0.1); color: #1565c0; font-size: 1.6rem;">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                            style="width: 64px; height: 64px; background: rgba(21, 101, 192, 0.1); color: #1565c0; font-size: 1.6rem;">
                             <i class="fas fa-graduation-cap"></i>
                         </div>
                         <h5 class="fw-bold text-dark fs-6 mb-2">تطوير مهني احترافي</h5>
-                        <p class="text-muted small mb-0">تقديم حزم تدريبية دورية تركز على المهارات التقنية، القيادية، واللغوية المطلوبة من أرباب العمل.</p>
+                        <p class="text-muted small mb-0">تقديم حزم تدريبية دورية تركز على المهارات التقنية، القيادية،
+                            واللغوية المطلوبة من أرباب العمل.</p>
                     </div>
                 </div>
 
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="p-4 border rounded-4 shadow-sm h-100" style="background: #f8fafc;">
-                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px; background: rgba(16, 185, 129, 0.1); color: #10b981; font-size: 1.6rem;">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                            style="width: 64px; height: 64px; background: rgba(16, 185, 129, 0.1); color: #10b981; font-size: 1.6rem;">
                             <i class="fas fa-handshake"></i>
                         </div>
                         <h5 class="fw-bold text-dark fs-6 mb-2">شراكات عمل استراتيجية</h5>
-                        <p class="text-muted small mb-0">بناء مذكرات تفاهم وشراكات مستدامة مع القطاعين العام والخاص لتسهيل استيعاب الخريجين في برامج تدريب وتوظيف.</p>
+                        <p class="text-muted small mb-0">بناء مذكرات تفاهم وشراكات مستدامة مع القطاعين العام والخاص
+                            لتسهيل استيعاب الخريجين في برامج تدريب وتوظيف.</p>
                     </div>
                 </div>
 
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="p-4 border rounded-4 shadow-sm h-100" style="background: #f8fafc;">
-                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; font-size: 1.6rem;">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                            style="width: 64px; height: 64px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; font-size: 1.6rem;">
                             <i class="fas fa-chart-line"></i>
                         </div>
                         <h5 class="fw-bold text-dark fs-6 mb-2">متابعة الأثر والتقييم المستمر</h5>
-                        <p class="text-muted small mb-0">توثيق معدلات التوظيف ونسب نجاح الخريجين واستطلاع آراء الشركات لتحسين مخرجات التعليم الجامعي.</p>
+                        <p class="text-muted small mb-0">توثيق معدلات التوظيف ونسب نجاح الخريجين واستطلاع آراء الشركات
+                            لتحسين مخرجات التعليم الجامعي.</p>
                     </div>
                 </div>
             </div>
@@ -2099,20 +2306,20 @@
     <!-- ==================== 10. تذييل الصفحة الجامعي الشامل (Mega Footer) ==================== -->
     <footer class="main-footer" id="contact">
         <div class="container">
-            <div class="row g-4 pb-4 justify-content-between">
+            <div class="row g-4 pb-4 ">
                 <!-- Column 1: عن المنصة -->
-                <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
+                <div class="col-lg-4 col-md-6">
                     <div class="d-flex align-items-center gap-3 mb-3">
                         <div class="footer-brand-logo-frame">
-                            <img src="{{ asset('images/logo.jpg') }}" alt="مكتب تدريب الخريجين" class="footer-brand-logo-img" onerror="this.onerror=null;">
+                            <img src="{{ asset('images/logo.jpg') }}" alt="جامعة طرابلس" class="footer-brand-logo-img" onerror="this.onerror=null;">
                         </div>
                         <div>
-                            <h5 class="text-white fw-bold mb-0 fs-6">مكتب تدريب الخريجين</h5>
-                            <div class="text-warning fw-bold" style="font-size: 0.8rem;">جامعة طرابلس — المنصة الرسمية الموحدة</div>
+                            <h5 class="text-white fw-bold mb-0 fs-6">جامعة طرابلس</h5>
+                            <small class="text-white-50" style="font-size: 0.78rem;">مكتب تدريب الخريجين</small>
                         </div>
                     </div>
-                    <p class="text-white-50 small mb-3" style="line-height: 1.85;">
-                        المنصة الإلكترونية المعتمدة لمكتب تدريب الخريجين بجامعة طرابلس لربط الكفاءات الوطنية بسوق العمل، وتقديم البرامج التدريبية الاحترافية وتنظيم معارض التوظيف السنوية.
+                    <p class="text-white-50 small mb-3" style="line-height: 1.8;">
+                        المنصة الإلكترونية الموحدة لربط خريجي جامعة طرابلس بسوق العمل، وتقديم البرامج التدريبية المعتمدة وتنظيم معارض التوظيف السنوية.
                     </p>
                     <div class="d-flex gap-2 flex-wrap">
                         <a href="https://uot.edu.ly/gto/" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="الموقع الرسمي لمكتب تدريب الخريجين">
@@ -2131,74 +2338,62 @@
                 </div>
 
                 <!-- Column 2: روابط سريعة -->
-                <div class="col-lg-2 col-md-4 col-6 mb-4 mb-lg-0 ps-lg-3">
-                    <h6 class="footer-column-title">
-                        <i class="fas fa-link text-warning" style="font-size: 0.8rem;"></i>
-                        روابط سريعة
-                    </h6>
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h6 class="text-white fw-bold mb-3 fs-6">روابط سريعة</h6>
                     <ul class="list-unstyled mb-0">
-                        <li><a href="#hero" class="footer-link"><i class="fas fa-chevron-left text-warning opacity-50" style="font-size: 0.7rem;"></i>الرئيسية</a></li>
+                        <li><a href="#hero" class="footer-link">الرئيسية</a></li>
                         @if(isset($activeFair) && $activeFair && !$activeFair->is_ended)
-                            <li><a href="#jobfair" class="footer-link"><i class="fas fa-chevron-left text-warning opacity-50" style="font-size: 0.7rem;"></i>الفعاليات والمعارض</a></li>
+                            <li><a href="#jobfair" class="footer-link">الفعاليات والمعارض</a></li>
                         @endif
-                        <li><a href="#journey" class="footer-link"><i class="fas fa-chevron-left text-warning opacity-50" style="font-size: 0.7rem;"></i>رحلة الخريج</a></li>
-                        <li><a href="#news" class="footer-link"><i class="fas fa-chevron-left text-warning opacity-50" style="font-size: 0.7rem;"></i>الأخبار والإعلانات</a></li>
+                        <li><a href="#journey" class="footer-link">رحلة الخريج</a></li>
+                        <li><a href="#news" class="footer-link">الأخبار والإعلانات</a></li>
                     </ul>
                 </div>
 
                 <!-- Column 3: البوابات والخدمات -->
-                <div class="col-lg-3 col-md-4 col-6 mb-4 mb-lg-0">
-                    <h6 class="footer-column-title">
-                        <i class="fas fa-th-large text-warning" style="font-size: 0.8rem;"></i>
-                        البوابات والخدمات
-                    </h6>
+                <div class="col-lg-3 col-md-6 col-6">
+                    <h6 class="text-white fw-bold mb-3 fs-6">البوابات والخدمات</h6>
                     <ul class="list-unstyled mb-0">
-                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal" class="footer-link"><i class="fas fa-user-graduate text-warning opacity-75" style="font-size: 0.75rem;"></i>تسجيل خريج جديد</a></li>
-                        <li><a href="{{ route('company.register') }}" class="footer-link"><i class="fas fa-building text-warning opacity-75" style="font-size: 0.75rem;"></i>تسجيل جهة توظيف جديدة</a></li>
-                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#loginModal" class="footer-link"><i class="fas fa-sign-in-alt text-warning opacity-75" style="font-size: 0.75rem;"></i>تسجيل الدخول للنظام</a></li>
+                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal" class="footer-link">تسجيل خريج جديد</a></li>
+                        <li><a href="{{ route('company.register') }}" class="footer-link"><i class="fas fa-building me-1 text-warning"></i>تسجيل شركة أو مؤسسة جديدة</a></li>
+                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#loginModal" class="footer-link">تسجيل الدخول للنظام</a></li>
                         @if(isset($activeFair) && $activeFair && !$activeFair->is_ended)
-                            <li><a href="{{ route('job-fair.public', $activeFair->id) }}" class="footer-link"><i class="fas fa-store-alt text-warning opacity-75" style="font-size: 0.75rem;"></i>بوابة {{ $activeFair->title }}</a></li>
+                            <li><a href="{{ route('job-fair.public', $activeFair->id) }}" class="footer-link">بوابة {{ $activeFair->title }}</a></li>
                         @endif
-                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" class="footer-link"><i class="fas fa-key text-warning opacity-75" style="font-size: 0.75rem;"></i>استعادة كلمة المرور</a></li>
+                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" class="footer-link">استعادة كلمة المرور</a></li>
                     </ul>
                 </div>
 
                 <!-- Column 4: بيانات التواصل -->
-                <div class="col-lg-3 col-md-4 col-12 mb-4 mb-lg-0">
-                    <h6 class="footer-column-title">
-                        <i class="fas fa-headset text-warning" style="font-size: 0.8rem;"></i>
-                        تواصل مع المكتب
-                    </h6>
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="text-white fw-bold mb-3 fs-6">بيانات التواصل</h6>
                     <ul class="list-unstyled text-white-50 small mb-0">
-                        <li class="footer-contact-item">
-                            <span class="footer-contact-bubble"><i class="fas fa-map-marker-alt"></i></span>
+                        <li class="d-flex align-items-start gap-2 mb-2">
+                            <span class="footer-contact-icon mt-1"><i class="fas fa-map-marker-alt"></i></span>
                             <a href="https://maps.app.goo.gl/U8z9xwycDn9qAYz47" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none text-hover-warning" title="عرض موقع مكتب تدريب الخريجين على خرائط جوجل">
-                                جامعة طرابلس، سيدي المصري — ليبيا
+                                جامعة طرابلس، سيدي المصري، طرابلس — ليبيا
                                 <i class="fas fa-external-link-alt ms-1 text-warning" style="font-size: 0.7rem;"></i>
                             </a>
                         </li>
-                        <li class="footer-contact-item">
-                            <span class="footer-contact-bubble"><i class="fas fa-envelope"></i></span>
+                        <li class="d-flex align-items-center gap-2 mb-2">
+                            <span class="footer-contact-icon"><i class="fas fa-envelope"></i></span>
                             <a href="mailto:officetraining@uot.edu.ly" class="text-white-50 text-decoration-none text-hover-warning">officetraining@uot.edu.ly</a>
                         </li>
-                        <li class="footer-contact-item">
-                            <span class="footer-contact-bubble"><i class="fas fa-phone-alt"></i></span>
+                        <li class="d-flex align-items-center gap-2 mb-2">
+                            <span class="footer-contact-icon"><i class="fas fa-phone-alt"></i></span>
                             <a href="tel:0930822581" class="text-white-50 text-decoration-none text-hover-warning" dir="ltr">093-0822581</a>
                         </li>
-                        <li class="footer-contact-item">
-                            <span class="footer-contact-bubble"><i class="fas fa-clock"></i></span>
+                        <li class="d-flex align-items-center gap-2">
+                            <span class="footer-contact-icon"><i class="fas fa-clock"></i></span>
                             <span>الأحد – الخميس: 8:30 ص – 2:30 م</span>
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <div class="border-top pt-3 mt-2 text-center text-white-50 small d-flex justify-content-between align-items-center flex-wrap gap-2" style="border-color: rgba(255,255,255,0.08) !important;">
-                <span>© {{ date('Y') }} مكتب تدريب وتوظيف الخريجين — جامعة طرابلس &bull; جميع الحقوق محفوظة.</span>
-                <span class="text-warning fw-bold d-inline-flex align-items-center gap-1">
-                    <i class="fas fa-graduation-cap"></i>
-                    منصة مكتب تدريب الخريجين وسوق العمل
-                </span>
+            <div class="border-top border-secondary pt-4 mt-2 text-center text-white-50 small d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <span>© {{ date('Y') }} جامعة طرابلس — جميع الحقوق محفوظة لمكتب تدريب الخريجين.</span>
+                <span class="text-warning">منصة الخريجين وسوق العمل</span>
             </div>
         </div>
     </footer>

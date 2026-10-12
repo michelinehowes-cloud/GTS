@@ -78,112 +78,107 @@
 
 <style>
     /* ══════════════════════════════════════════════════════════════════
-       الشريط السفلي الزجاجي الشفاف (Pure Glassmorphic Logos Strip)
+       الشريط السفلي للرعاة والشركات — انسيابي وبدون شريط واضح (Seamless Logo Ticker)
+       مطابق للصورة تماماً: يظهر الشعار والاسم معاً مباشرة على لون الصفحة بدون إطار أو شريط واضح
        ══════════════════════════════════════════════════════════════════ */
     .lux-glass-strip {
-        background: linear-gradient(180deg, #03386b 0%, #033363 50%, #03284f 100%) !important;
+        background: #043c73 !important;
+        background-color: #043c73 !important;
         position: relative;
         z-index: 100;
         overflow: hidden;
         width: 100%;
         max-width: 100vw;
-        border-top: 1px solid rgba(56, 189, 248, 0.3) !important;
-        border-bottom: 1px solid rgba(2, 20, 45, 0.8) !important;
-        box-shadow: 0 -10px 30px rgba(3, 40, 79, 0.5) !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 22px 0 28px;
     }
 
-    /* خط مضيء علوي متناغم مع الهوية */
-    .lux-glass-strip::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 1.5px;
-        background: linear-gradient(90deg, transparent 0%, rgba(56, 189, 248, 0.5) 25%, rgba(238, 202, 62, 0.6) 50%, rgba(56, 189, 248, 0.5) 75%, transparent 100%);
-        pointer-events: none;
-        z-index: 10;
+    .lux-glass-strip::before,
+    .lux-glass-strip::after {
+        display: none !important;
     }
 
     .lux-strip-inner {
-        height: 60px;
+        height: 48px;
         width: 100%;
         display: flex;
         align-items: center;
+        position: relative;
     }
 
-    /* الكتلة الثابتة لليمين: الشعار والهوية الرسمية */
+    /* العلامة الجانبية — انسيابية وخفيفة وبدون أي حدود أو صناديق بارزة */
     .lux-strip-brand {
         display: flex;
         align-items: center;
-        gap: 14px;
-        padding: 0 20px 0 24px;
+        gap: 12px;
+        padding: 0 20px 0 16px;
         flex-shrink: 0;
         position: relative;
         z-index: 5;
         height: 100%;
-        background: linear-gradient(90deg, #04427c 0%, #03386b 100%);
-        border-left: 1px solid rgba(56, 189, 248, 0.25);
-        box-shadow: -10px 0 20px rgba(2, 20, 45, 0.45);
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
     }
 
     .lux-strip-badge {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        background: rgba(238, 202, 62, 0.14);
-        border: 1px solid rgba(238, 202, 62, 0.4);
+        background: rgba(238, 202, 62, 0.12);
+        border: 1px solid rgba(238, 202, 62, 0.25);
         color: #f6d860;
-        font-size: 0.76rem;
+        font-size: 0.75rem;
         font-weight: 800;
         padding: 4px 12px;
         border-radius: 50px;
         white-space: nowrap;
         letter-spacing: 0.3px;
-        box-shadow: 0 0 10px rgba(238, 202, 62, 0.15);
     }
 
     .lux-strip-logos {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
     }
 
     .lux-strip-logo-img {
-        height: 32px;
+        height: 26px;
         width: auto;
         object-fit: contain;
+        opacity: 0.88;
         filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-        transition: transform 0.2s ease, filter 0.2s ease;
+        transition: all 0.25s ease;
     }
     .lux-strip-logo-img:hover {
+        opacity: 1;
         transform: scale(1.06);
-        filter: drop-shadow(0 4px 8px rgba(255,255,255,0.3));
     }
 
     .lux-strip-divider {
         width: 1px;
-        height: 24px;
-        background: linear-gradient(to bottom, transparent, rgba(56, 189, 248, 0.45), transparent);
+        height: 18px;
+        background: rgba(255, 255, 255, 0.18);
     }
 
-    /* مسار الشريط المتحرك مع قناع التلاشي الجانبي الناعم */
+    /* مسار الشريط المتحرك مع قناع تلاشي جانبي متدرج وناعم */
     .lux-ticker-container {
         overflow: hidden;
         width: 100%;
         min-width: 0;
         flex-grow: 1;
         position: relative;
-        mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
-        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%);
+        mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
     }
 
     .lux-ticker-track {
         display: flex;
         align-items: center;
         width: max-content;
-        animation: luxLogosScroll 34s linear infinite;
-        padding: 6px 0;
+        animation: luxLogosScroll 38s linear infinite;
+        padding: 4px 0;
     }
     .lux-ticker-track:hover {
         animation-play-state: paused;
@@ -194,141 +189,110 @@
         100% { transform: translateX(-50%); }
     }
 
-    /* ── شعار الشركة الخالص (بدون أي شكل بيضاوي أو خلفية مقيدة) ── */
-    .lux-logo-pure-item {
+    /* ── عنصر الشعار + الاسم (انسيابي بدون أي صندوق أو إطار مثل الصورة المرفقة) ── */
+    .lux-seamless-item {
         flex-shrink: 0;
         display: inline-flex;
         align-items: center;
-        justify-content: center;
+        gap: 10px;
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
-        padding: 4px 12px;
+        padding: 4px 14px;
         transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         text-decoration: none;
         cursor: default;
+        opacity: 0.88;
     }
 
-    .lux-logo-pure-item.is-clickable {
+    .lux-seamless-item.is-clickable {
         cursor: pointer;
     }
 
-    /* حاوية الشعار للشركة أو الراعي */
-    .lux-logo-card {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 4px 12px;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        min-height: 40px;
+    .lux-seamless-item:hover {
+        opacity: 1;
+        transform: translateY(-2px);
     }
 
-    .lux-logo-card:hover {
-        background: rgba(255, 255, 255, 0.12);
-        border-color: rgba(56, 189, 248, 0.45);
-        box-shadow: 0 4px 16px rgba(56, 189, 248, 0.25);
-        transform: translateY(-1px);
-    }
-
-    /* صورة الشعار المباشرة */
-    .lux-pure-img {
-        height: 34px;
-        max-width: 130px;
+    /* صورة الشعار داخل العنصر بدون خلفية أو صندوق */
+    .lux-seamless-logo {
+        height: 28px;
+        max-width: 90px;
         object-fit: contain;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
-        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+        transition: transform 0.25s ease;
         user-select: none;
     }
 
-    .lux-logo-card:hover .lux-pure-img {
+    .lux-seamless-item:hover .lux-seamless-logo {
         transform: scale(1.08);
     }
 
-    /* بطاقة نصية أنيقة إذا لم يكن للشركة أو الراعي صورة شعار بعد */
-    .lux-pure-text-wrap {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 5px 14px;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        color: rgba(255, 255, 255, 0.92);
-        font-size: 0.92rem;
+    /* اسم الشركة أو الراعي المرافق للشعار مباشرة */
+    .lux-seamless-name {
+        font-size: 0.95rem;
         font-weight: 700;
+        color: #ffffff;
+        letter-spacing: 0.02em;
         white-space: nowrap;
         user-select: none;
-        transition: all 0.22s ease;
+        transition: color 0.2s ease;
     }
 
-    .lux-pure-text-wrap:hover {
-        background: rgba(56, 189, 248, 0.12);
-        border-color: rgba(56, 189, 248, 0.35);
+    .lux-seamless-item:hover .lux-seamless-name {
         color: #38bdf8;
     }
 
-    /* شريحة الإعلان عندما لا توجد شركات بعد في لوحة التحكم */
-    .lux-empty-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 4px 14px;
-        border-radius: 20px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px dashed rgba(255, 255, 255, 0.15);
-        color: rgba(255, 255, 255, 0.85);
-        font-size: 0.86rem;
-        font-weight: 600;
-        white-space: nowrap;
-        user-select: none;
+    /* أيقونة احتياطية في حال لم تكن هناك صورة شعار */
+    .lux-seamless-icon {
+        font-size: 1.1rem;
+        color: #38bdf8;
+        opacity: 0.9;
+        transition: transform 0.25s ease;
+    }
+    .lux-seamless-item:hover .lux-seamless-icon {
+        transform: scale(1.15);
+        color: #f6d860;
     }
 
-    /* الفاصل النقطي المضيء بين الشعارات */
-    .lux-ticker-separator {
-        width: 5px;
-        height: 5px;
+    /* فاصل نقطي ناعم جداً بين الشعارات */
+    .lux-seamless-dot {
+        width: 4px;
+        height: 4px;
         border-radius: 50%;
-        background: #38bdf8;
-        box-shadow: 0 0 8px rgba(56, 189, 248, 0.7);
+        background: rgba(255, 255, 255, 0.25);
         flex-shrink: 0;
-        margin: 0 1.25rem;
-        opacity: 0.6;
+        margin: 0 14px;
     }
 
-    /* التجاوب للشاشات المتوسطة والصغيرة */
+    /* التجاوب */
     @media (max-width: 991.98px) {
-        .lux-strip-inner { height: 56px; }
-        .lux-strip-brand { padding: 0 14px 0 16px; gap: 10px; }
-        .lux-strip-badge { font-size: 0.7rem; padding: 3px 9px; }
-        .lux-strip-logo-img { height: 26px; }
-        .lux-logo-card { min-height: 34px; padding: 2px 10px; }
-        .lux-pure-img { height: 28px; max-width: 105px; }
-        .lux-pure-text-wrap { font-size: 0.82rem; padding: 4px 10px; }
-        .lux-empty-chip { font-size: 0.78rem; }
-        .lux-ticker-separator { margin: 0 1rem; }
+        .lux-glass-strip { padding: 18px 0 22px; }
+        .lux-strip-inner { height: 44px; }
+        .lux-strip-brand { padding: 0 12px; gap: 8px; }
+        .lux-strip-badge { font-size: 0.7rem; padding: 3px 8px; }
+        .lux-strip-logo-img { height: 22px; }
+        .lux-seamless-logo { height: 24px; max-width: 75px; }
+        .lux-seamless-name { font-size: 0.85rem; }
+        .lux-seamless-dot { margin: 0 10px; }
     }
 
     @media (max-width: 575.98px) {
-        .lux-strip-inner { height: 50px; }
-        .lux-strip-brand { padding: 0 10px; }
+        .lux-glass-strip { padding: 14px 0 18px; }
+        .lux-strip-inner { height: 40px; }
+        .lux-strip-brand { padding: 0 8px; }
         .lux-strip-badge span { display: none; }
-        .lux-strip-badge { padding: 4px 8px; font-size: 0.8rem; }
-        .lux-strip-logos { gap: 8px; }
-        .lux-strip-logo-img { height: 22px; }
-        .lux-logo-card { min-height: 30px; padding: 2px 8px; }
-        .lux-pure-img { height: 24px; max-width: 85px; }
-        .lux-pure-text-wrap { font-size: 0.76rem; }
-        .lux-empty-chip { font-size: 0.74rem; }
-        .lux-ticker-separator { margin: 0 0.75rem; }
+        .lux-strip-badge { padding: 3px 6px; }
+        .lux-strip-logo-img { height: 20px; }
+        .lux-seamless-logo { height: 20px; max-width: 60px; }
+        .lux-seamless-name { font-size: 0.8rem; }
+        .lux-seamless-dot { margin: 0 8px; }
     }
 </style>
 
 <div class="lux-glass-strip" role="region" aria-label="شريط رعاة وشركات المعرض">
     <div class="lux-strip-inner">
-        <!-- الكتلة الثابتة لليمين: الشعار والهوية الرسمية -->
+        <!-- الكتلة الثابتة لليمين: الشعار والهوية الرسمية بانسيابية تامة وبدون أي صندوق -->
         <div class="lux-strip-brand">
             <div class="lux-strip-badge" title="رعاة وشركاء معرض التوظيف 2026">
                 <i class="fas fa-crown text-warning"></i>
@@ -366,57 +330,44 @@
                             $spUrl = $sp->website ?? null;
                             $isSponsor = ($sp->type ?? '') === 'sponsor';
                         @endphp
-                        <div class="lux-logo-pure-item {{ $spUrl ? 'is-clickable' : '' }}"
+                        <div class="lux-seamless-item {{ $spUrl ? 'is-clickable' : '' }}"
                              @if($spUrl) onclick="window.open('{{ $spUrl }}', '_blank', 'noopener,noreferrer');" @endif
                              title="{{ $spName }} ({{ $sp->tier_label ?? ($isSponsor ? 'جهة راعية' : 'شركة مشاركة') }})">
                             @if($spLogo)
-                                <div class="lux-logo-card">
-                                    <img src="{{ $spLogo }}" 
-                                         alt="{{ $spName }}" 
-                                         class="lux-pure-img"
-                                         loading="lazy"
-                                         onerror="this.parentElement.style.display='none'; if(this.closest('.lux-logo-pure-item').querySelector('.lux-pure-text-wrap')) this.closest('.lux-logo-pure-item').querySelector('.lux-pure-text-wrap').style.display='inline-flex';">
-                                </div>
-                                <div class="lux-pure-text-wrap" style="display:none;">
-                                    <i class="fas {{ $isSponsor ? 'fa-crown text-warning' : 'fa-building text-info' }}"></i>
-                                    <span>{{ $spName }}</span>
-                                </div>
+                                <img src="{{ $spLogo }}" 
+                                     alt="{{ $spName }}" 
+                                     class="lux-seamless-logo"
+                                     loading="lazy"
+                                     onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-flex';">
+                                <i class="fas {{ $isSponsor ? 'fa-crown text-warning' : 'fa-building text-info' }} lux-seamless-icon" style="display:none;"></i>
+                                <span class="lux-seamless-name">{{ $spName }}</span>
+                                @if($isSponsor)
+                                    <i class="fas fa-crown text-warning" style="font-size: 0.72rem; opacity: 0.85;" title="جهة راعية"></i>
+                                @endif
                             @else
-                                <div class="lux-pure-text-wrap">
-                                    <i class="fas {{ $isSponsor ? 'fa-crown text-warning' : 'fa-building text-info' }}"></i>
-                                    <span>{{ $spName }}</span>
-                                </div>
+                                <i class="fas {{ $isSponsor ? 'fa-crown text-warning' : 'fa-building text-info' }} lux-seamless-icon"></i>
+                                <span class="lux-seamless-name">{{ $spName }}</span>
                             @endif
                         </div>
-                        <div class="lux-ticker-separator"></div>
+                        <div class="lux-seamless-dot"></div>
                     @endforeach
                 @else
                     {{-- عرض شريط إعلامي أنيق عندما لا تكون هناك جهات مضافة بعد في لوحة التحكم --}}
-                    <div class="lux-empty-chip">
-                        <i class="fas fa-crown text-warning"></i>
-                        <span>باب الرعاية والمشاركة في المعرض متاح لكبرى الشركات والمؤسسات</span>
+                    <div class="lux-seamless-item">
+                        <i class="fas fa-crown text-warning lux-seamless-icon"></i>
+                        <span class="lux-seamless-name">باب الرعاية والمشاركة متاح لكبرى الشركات والمؤسسات</span>
                     </div>
-                    <div class="lux-ticker-separator"></div>
-                    <div class="lux-empty-chip">
-                        <i class="fas fa-handshake text-info"></i>
-                        <span>تضاف شعارات الرعاة والشركات فور اعتمادها في لوحة تحكم المعرض</span>
+                    <div class="lux-seamless-dot"></div>
+                    <div class="lux-seamless-item">
+                        <i class="fas fa-handshake text-info lux-seamless-icon"></i>
+                        <span class="lux-seamless-name">تضاف شعارات الرعاة والشركات فور اعتمادها</span>
                     </div>
-                    <div class="lux-ticker-separator"></div>
-                    <div class="lux-empty-chip">
-                        <i class="fas fa-university text-warning"></i>
-                        <span>جامعة طرابلس — تنظيم بالتعاون مع شركة الواحة للمعارض والمؤتمرات</span>
+                    <div class="lux-seamless-dot"></div>
+                    <div class="lux-seamless-item">
+                        <i class="fas fa-university text-warning lux-seamless-icon"></i>
+                        <span class="lux-seamless-name">جامعة طرابلس — تنظيم بالتعاون مع شركة الواحة للمعارض</span>
                     </div>
-                    <div class="lux-ticker-separator"></div>
-                    <div class="lux-empty-chip">
-                        <i class="fas fa-crown text-warning"></i>
-                        <span>باب الرعاية والمشاركة في المعرض متاح لكبرى الشركات والمؤسسات</span>
-                    </div>
-                    <div class="lux-ticker-separator"></div>
-                    <div class="lux-empty-chip">
-                        <i class="fas fa-handshake text-info"></i>
-                        <span>تضاف شعارات الرعاة والشركات فور اعتمادها في لوحة تحكم المعرض</span>
-                    </div>
-                    <div class="lux-ticker-separator"></div>
+                    <div class="lux-seamless-dot"></div>
                 @endif
             </div>
         </div>

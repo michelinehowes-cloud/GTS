@@ -72,6 +72,7 @@ class CodePasswordResetController extends Controller
         // إرسال الإيميل
         try {
             Mail::send('emails.reset-code', ['code' => $code], function ($message) use ($request) {
+                $message->from(config('mail.from.address', 'moneeb20mohamed@gmail.com'), config('mail.from.name', 'مكتب تدريب الخريجين'));
                 $message->to($request->email);
                 $message->subject('رمز استعادة كلمة المرور - جامعة طرابلس');
             });

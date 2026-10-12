@@ -261,23 +261,30 @@
         }
 
         .nav-btn-register {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+            background: rgba(245, 158, 11, 0.15) !important;
             color: #ffffff !important;
             font-weight: 700;
             font-size: 0.88rem;
-            padding: 0.52rem 1.6rem;
+            padding: 0.5rem 1.5rem;
             border-radius: 50px;
-            border: none;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+            border: 1.5px solid #f59e0b !important;
+            box-shadow: 0 2px 10px rgba(245, 158, 11, 0.2);
             transition: all 0.25s ease;
             display: inline-flex;
             align-items: center;
             gap: 7px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
         .nav-btn-register:hover {
-            background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+            color: #0b1f3a !important;
+            border-color: #f59e0b !important;
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.45);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+            text-shadow: none;
+        }
+        .nav-btn-register:hover i {
+            color: #0b1f3a !important;
         }
 
         .nav-btn-dashboard {
@@ -383,20 +390,35 @@
         }
 
         .btn-gold {
-            background: var(--gold-accent);
-            color: #0b1f3a !important;
+            background: rgba(245, 158, 11, 0.12) !important;
+            border: 2px solid #f59e0b !important;
+            color: #ffffff !important;
             font-weight: 800;
-            padding: 0.75rem 2rem;
+            padding: 0.72rem 2rem;
             border-radius: 50px;
-            border: none;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             transition: all 0.25s ease;
-            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.22), inset 0 0 12px rgba(245, 158, 11, 0.1);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-gold i {
+            color: #fbbf24 !important;
+            transition: all 0.25s ease;
         }
 
         .btn-gold:hover {
-            background: #fbbf24;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+            border-color: #f59e0b !important;
+            color: #0b1f3a !important;
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.45);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45);
+            text-shadow: none;
+        }
+
+        .btn-gold:hover i {
+            color: #0b1f3a !important;
         }
 
         .btn-outline-hero {
@@ -2012,15 +2034,18 @@
                     <p class="text-white-50 small mb-3" style="line-height: 1.8;">
                         المنصة الإلكترونية الموحدة لربط خريجي جامعة طرابلس بسوق العمل، وتقديم البرامج التدريبية المعتمدة وتنظيم معارض التوظيف السنوية.
                     </p>
-                    <div class="d-flex gap-2">
-                        <a href="https://uot.edu.ly" target="_blank" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="https://uot.edu.ly/gto/" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="الموقع الرسمي لمكتب تدريب الخريجين">
                             <i class="fas fa-globe"></i>
                         </a>
-                        <a href="#" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                        <a href="https://www.facebook.com/p/%D9%85%D9%83%D8%AA%D8%A8-%D8%AA%D8%AF%D8%B1%D9%8A%D8%A8-%D8%A7%D9%84%D8%AE%D8%B1%D9%8A%D8%AC%D9%8A%D9%86-%D8%AC%D8%A7%D9%85%D8%B9%D8%A9-%D8%B7%D8%B1%D8%A8%D9%84%D8%B3-61554996546918/" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="صفحة فيسبوك الرسمية">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="#" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                        <a href="https://www.linkedin.com/company/traning2024office/" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="صفحة لينكد إن الرسمية">
                             <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="https://www.tiktok.com/@graduate_training_office" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="حساب تيك توك الرسمي">
+                            <i class="fab fa-tiktok"></i>
                         </a>
                     </div>
                 </div>
@@ -2065,11 +2090,11 @@
                         </li>
                         <li class="d-flex align-items-center gap-2 mb-2">
                             <i class="fas fa-envelope text-warning"></i>
-                            <span>graduate.training@uot.edu.ly</span>
+                            <a href="mailto:officetraining@uot.edu.ly" class="text-white-50 text-decoration-none text-hover-warning">officetraining@uot.edu.ly</a>
                         </li>
                         <li class="d-flex align-items-center gap-2 mb-2">
                             <i class="fas fa-phone-alt text-warning"></i>
-                            <span>+218 21 4625500</span>
+                            <a href="tel:0930822581" class="text-white-50 text-decoration-none text-hover-warning" dir="ltr">093-0822581</a>
                         </li>
                         <li class="d-flex align-items-center gap-2">
                             <i class="fas fa-clock text-warning"></i>

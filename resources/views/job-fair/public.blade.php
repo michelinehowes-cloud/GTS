@@ -497,14 +497,18 @@
             margin-bottom: 0.85rem;
             line-height: 1.15;
             filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
-            user-select: none;
+        }
+
+        .scramble-on-scroll {
             cursor: pointer;
+            user-select: none;
+            transition: opacity 0.2s ease;
         }
 
         .scramble-cursor {
             display: inline-block;
-            width: 3.5px;
-            height: 0.82em;
+            width: 3px;
+            height: 0.85em;
             background: var(--gold);
             box-shadow: 0 0 10px rgba(245, 158, 11, 0.9);
             margin-inline-start: 6px;
@@ -2060,7 +2064,455 @@
         }
 
         /* ══════════════════════════════════════════════════════════
-           LUXURY CYBER BOOTH CARD (معرض الشركات والمؤسسات المشاركة)
+           3D CYLINDER SHOWCASE CAROUSEL (أسطوانة الشركات ثلاثية الأبعاد)
+           مستوحاة من Uiverse ومُطورة بهوية المعرض الملكية السيبرانية
+        ══════════════════════════════════════════════════════════ */
+        .cyber-cylinder-scene {
+            width: 100%;
+            position: relative;
+            margin: 1.5rem 0 2.5rem;
+        }
+
+        /* شريط التحكم والتبديل العلوي */
+        .cylinder-controls-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            max-width: 960px;
+            margin: 0 auto 1.8rem;
+            padding: 8px 18px;
+            background: rgba(3, 22, 50, 0.75);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            border-radius: 50px;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .cylinder-view-switch {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(2, 14, 32, 0.65);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 40px;
+            padding: 3px;
+            gap: 4px;
+        }
+
+        .view-switch-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 30px;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .view-switch-btn.active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.3) 0%, rgba(4, 60, 115, 0.8) 100%);
+            color: #ffffff;
+            border: 1px solid rgba(56, 189, 248, 0.55);
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
+        }
+
+        .cylinder-playback-controls {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cylinder-play-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(238, 202, 62, 0.12);
+            border: 1px solid rgba(238, 202, 62, 0.4);
+            color: #fbbf24;
+            border-radius: 30px;
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .cylinder-play-btn:hover {
+            background: rgba(238, 202, 62, 0.25);
+            border-color: #fbbf24;
+            color: #ffffff;
+            box-shadow: 0 0 16px rgba(238, 202, 62, 0.35);
+        }
+
+        .cylinder-step-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: #e2e8f0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .cylinder-step-btn:hover {
+            background: rgba(56, 189, 248, 0.25);
+            color: #38bdf8;
+            border-color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+        }
+
+        /* مسرح الأسطوانة */
+        .cyber-cylinder-wrapper {
+            width: 100%;
+            height: 520px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
+            user-select: none;
+            padding: 2rem 0;
+        }
+
+        /* حلقة الأرضية الهولوجرافية */
+        .cylinder-floor-glow {
+            position: absolute;
+            width: 760px;
+            height: 760px;
+            bottom: -150px;
+            left: 50%;
+            transform: translateX(-50%) rotateX(76deg);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, rgba(4, 60, 115, 0.35) 45%, transparent 72%);
+            border: 1.5px dashed rgba(56, 189, 248, 0.35);
+            box-shadow: 0 0 50px rgba(56, 189, 248, 0.2);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* الأسطوانة الدوارة 3D */
+        .cyber-cylinder-inner {
+            --w: 235px;
+            --h: 335px;
+            --translateZ: 420px;
+            --rotateX: -9deg;
+            --perspective: 1400px;
+            position: absolute;
+            width: var(--w);
+            height: var(--h);
+            top: 50%;
+            left: 50%;
+            margin-top: calc(-1 * (var(--h) / 2));
+            margin-left: calc(-1 * (var(--w) / 2));
+            z-index: 2;
+            transform-style: preserve-3d;
+            transform: perspective(var(--perspective)) rotateX(var(--rotateX)) rotateY(0deg);
+            animation: cylinderRotating 26s linear infinite;
+            transition: animation-play-state 0.3s ease;
+        }
+
+        @keyframes cylinderRotating {
+            from {
+                transform: perspective(var(--perspective)) rotateX(var(--rotateX)) rotateY(0deg);
+            }
+            to {
+                transform: perspective(var(--perspective)) rotateX(var(--rotateX)) rotateY(360deg);
+            }
+        }
+
+        /* إيقاف الدوران عند مرور الماوس على المسرح */
+        .cyber-cylinder-wrapper:hover .cyber-cylinder-inner,
+        .cyber-cylinder-inner.is-paused {
+            animation-play-state: paused !important;
+        }
+
+        /* بطاقة الشركة ثلاثية الأبعاد */
+        .cyber-cylinder-card {
+            position: absolute;
+            inset: 0;
+            border: 2px solid rgba(var(--color-card, 56, 189, 248), 0.75);
+            border-radius: 20px;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            transform: rotateY(calc((360deg / var(--quantity)) * var(--index))) translateZ(var(--translateZ));
+            background: radial-gradient(
+                circle at 50% 25%,
+                rgba(var(--color-card, 56, 189, 248), 0.26) 0%,
+                rgba(4, 38, 77, 0.88) 60%,
+                rgba(2, 18, 42, 0.98) 100%
+            );
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 25px rgba(var(--color-card, 56, 189, 248), 0.28), inset 0 0 20px rgba(var(--color-card, 56, 189, 248), 0.12);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1.15rem 1.05rem 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            text-align: center;
+            backface-visibility: hidden;
+        }
+
+        .cyber-cylinder-card:hover {
+            border-color: rgba(var(--color-card, 56, 189, 248), 1);
+            box-shadow: 0 0 45px rgba(var(--color-card, 56, 189, 248), 0.8), inset 0 0 30px rgba(var(--color-card, 56, 189, 248), 0.35), 0 24px 50px rgba(0, 0, 0, 0.85);
+            transform: rotateY(calc((360deg / var(--quantity)) * var(--index))) translateZ(calc(var(--translateZ) + 28px)) scale(1.06);
+            z-index: 20;
+        }
+
+        /* تفاصيل بطاقة الأسطوانة */
+        .cylinder-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            width: 100%;
+            margin-bottom: 0.6rem;
+        }
+
+        .cylinder-tag-number {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(var(--color-card, 56, 189, 248), 0.15);
+            color: #ffffff;
+            border: 1px solid rgba(var(--color-card, 56, 189, 248), 0.45);
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
+        .cylinder-tag-jobs {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
+        .cylinder-tag-jobs.is-hiring {
+            background: rgba(16, 185, 129, 0.18);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.45);
+        }
+
+        .cylinder-tag-jobs.is-intro {
+            background: rgba(var(--color-card, 56, 189, 248), 0.15);
+            color: rgba(var(--color-card, 56, 189, 248), 1);
+            border: 1px solid rgba(var(--color-card, 56, 189, 248), 0.35);
+        }
+
+        .cylinder-identity-hub {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            margin: 0.2rem auto 0.6rem;
+            min-height: 78px;
+        }
+
+        .cylinder-logo-dock {
+            width: 125px;
+            height: 72px;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 6px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+            border: 1.5px solid rgba(255, 255, 255, 0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .cyber-cylinder-card:hover .cylinder-logo-dock {
+            transform: scale(1.05);
+        }
+
+        .cylinder-logo-dock img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .cylinder-crest-emblem {
+            width: 76px;
+            height: 76px;
+            border-radius: 18px;
+            background: radial-gradient(circle at 35% 30%, rgba(var(--color-card, 56, 189, 248), 0.3) 0%, rgba(5, 22, 50, 0.98) 100%);
+            border: 2px solid rgba(var(--color-card, 56, 189, 248), 0.65);
+            box-shadow: 0 0 20px rgba(var(--color-card, 56, 189, 248), 0.35);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+        }
+
+        .cylinder-crest-emblem .crest-monogram-label {
+            font-size: 1.1rem;
+            font-weight: 900;
+            line-height: 1.1;
+            color: #fbbf24;
+            max-width: 68px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .cylinder-crest-emblem .crest-sub-icon {
+            font-size: 0.8rem;
+            color: #38bdf8;
+            margin-top: 3px;
+        }
+
+        .cylinder-content-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .cylinder-company-title {
+            color: #ffffff;
+            font-size: 1.05rem;
+            font-weight: 800;
+            line-height: 1.35;
+            margin-bottom: 0.35rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-align: center;
+            width: 100%;
+            min-height: 2.7rem;
+        }
+
+        .cylinder-sector-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 50px;
+            max-width: 92%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 0.4rem;
+        }
+
+        .cylinder-action-cta {
+            width: 100%;
+            margin-top: auto;
+            padding: 7px 14px;
+            border-radius: 10px;
+            background: rgba(var(--color-card, 56, 189, 248), 0.12);
+            border: 1px solid rgba(var(--color-card, 56, 189, 248), 0.35);
+            color: #ffffff;
+            font-size: 0.78rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+
+        .cyber-cylinder-card:hover .cylinder-action-cta {
+            background: rgba(var(--color-card, 56, 189, 248), 0.28);
+            border-color: rgba(var(--color-card, 56, 189, 248), 0.8);
+            box-shadow: 0 4px 14px rgba(var(--color-card, 56, 189, 248), 0.3);
+        }
+
+        .cylinder-action-arrow {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            transition: transform 0.3s ease;
+        }
+
+        .cyber-cylinder-card:hover .cylinder-action-arrow {
+            transform: translateX(-3px);
+            background: #ffffff;
+            color: #041224;
+        }
+
+        /* استجابة الشاشات الصغيرة للمسرح ثلاثي الأبعاد */
+        @media (max-width: 991px) {
+            .cyber-cylinder-inner {
+                --w: 200px;
+                --h: 295px;
+                --translateZ: 330px;
+                --rotateX: -7deg;
+                --perspective: 1100px;
+            }
+            .cyber-cylinder-wrapper {
+                height: 460px;
+            }
+            .cylinder-floor-glow {
+                width: 600px;
+                height: 600px;
+                bottom: -120px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .cyber-cylinder-inner {
+                --w: 165px;
+                --h: 250px;
+                --translateZ: 255px;
+                --rotateX: -5deg;
+                --perspective: 900px;
+            }
+            .cyber-cylinder-wrapper {
+                height: 400px;
+            }
+            .cylinder-logo-dock {
+                width: 95px;
+                height: 56px;
+                padding: 4px 8px;
+            }
+            .cylinder-company-title {
+                font-size: 0.9rem;
+                min-height: 2.4rem;
+            }
+            .cylinder-floor-glow {
+                width: 440px;
+                height: 440px;
+                bottom: -90px;
+            }
+            .cylinder-controls-bar {
+                justify-content: center;
+            }
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           LUXURY CYBER BOOTH CARD (معرض الشركات والمؤسسات المشاركة - شبكة)
         ══════════════════════════════════════════════════════════ */
         .companies-booth-grid {
             display: grid;
@@ -2071,8 +2523,8 @@
         }
 
         .company-booth-card {
-            background: linear-gradient(160deg, rgba(15, 38, 78, 0.92) 0%, rgba(5, 20, 48, 0.98) 100%);
-            border: 1.5px solid rgba(56, 189, 248, 0.3);
+            background: radial-gradient(circle at 50% 15%, rgba(56, 189, 248, 0.22) 0%, rgba(4, 38, 77, 0.92) 65%, rgba(2, 18, 42, 0.98) 100%);
+            border: 1.5px solid rgba(56, 189, 248, 0.45);
             border-radius: 24px;
             padding: 1.4rem 1.35rem 1.25rem;
             text-align: center;
@@ -2084,7 +2536,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             cursor: pointer;
             overflow: hidden;
             min-height: 380px;
@@ -3806,16 +4258,11 @@
                             }
                         @endphp
 
-                        {{-- Title with Scramble Text Animation --}}
-                        <h1 class="hero-title" id="heroTitleWrap" title="انقر لإعادة تشغيل تأثير فك التشفير">
-                            <span class="hero-title-main">
-                                <span id="scrambleTitleMain" data-text="{{ $mainFairTitle }}">{{ $mainFairTitle }}</span>
-                                <span class="scramble-cursor" id="scrambleCursor"></span>
-                            </span>
+                        {{-- Title (Solid & Clean without scramble) --}}
+                        <h1 class="hero-title">
+                            <span class="hero-title-main">{{ $mainFairTitle }}</span>
                             @if(!empty($subFairTitle))
-                                <span class="hero-title-sub">
-                                    <span id="scrambleTitleSub" data-text="{{ $subFairTitle }}">{{ $subFairTitle }}</span>
-                                </span>
+                                <span class="hero-title-sub">{{ $subFairTitle }}</span>
                             @endif
                         </h1>
 
@@ -3823,7 +4270,8 @@
                             $heroSubtitleText = $fair->subtitle ?: 'انطلق نحو مستقبلك المهني — فرصتك الذهبية تبدأ هنا';
                         @endphp
                         <p class="hero-subtitle">
-                            <span id="scrambleSubtitle" data-text="{{ $heroSubtitleText }}">{{ $heroSubtitleText }}</span>
+                            <span id="scrambleSubtitle" data-text="{{ $heroSubtitleText }}" style="cursor: pointer;" title="انقر لإعادة فك التشفير">{{ $heroSubtitleText }}</span>
+                            <span class="scramble-cursor" id="scrambleCursor"></span>
                         </p>
 
                         {{-- Event Pills --}}
@@ -4064,7 +4512,7 @@
                         <i class="fas fa-crown text-warning"></i>
                         <span>شركاء النجاح والرعاية</span>
                     </div>
-                    <h2 class="cyber-section-title">الشركاء والرعاة</h2>
+                    <h2 class="cyber-section-title scramble-on-scroll" data-scramble="الشركاء والرعاة" title="انقر لإعادة فك التشفير">الشركاء والرعاة</h2>
                     <p class="cyber-section-subtitle">
                         نفتخر برعاية ودعم نخبة المؤسسات الوطنية الرائدة لمسيرة تمكين وتوظيف الكفاءات الوطنية الشابة
                     </p>
@@ -4222,19 +4670,198 @@
                 } else {
                     $countText = "{$totalComp} شركة رائدة تتواجد";
                 }
+                // تحضير ألوان الهوية الخاصة ببطاقات المعرض المستوحاة من الطابع السيبراني الملكي
+                $cardColors = [
+                    '56, 189, 248',   // Cyber Cyan (#38bdf8)
+                    '238, 202, 62',   // Royal Gold (#eeca3e)
+                    '16, 185, 129',   // Emerald Green (#10b981)
+                    '129, 140, 248',  // Electric Indigo (#818cf8)
+                    '245, 158, 11',   // Warm Amber (#f59e0b)
+                    '45, 212, 191',   // Neon Teal (#2dd4bf)
+                    '168, 85, 247',   // Vivid Purple (#a855f7)
+                    '244, 114, 182',  // Cyber Rose (#f472b6)
+                ];
+
+                // للأسطوانة ثلاثية الأبعاد: ضمان اكتمال الدائرة بحد أدنى 8 بطاقات لتعطي انطباعاً أسطوانياً مكتملاً
+                $cylinderCompanies = collect();
+                $baseCompCount = $companies->count();
+                if ($baseCompCount > 0) {
+                    $targetCylinderQty = ($baseCompCount >= 8) ? min($baseCompCount, 12) : 8;
+                    for ($ci = 0; $ci < $targetCylinderQty; $ci++) {
+                        $cylinderCompanies->push($companies[$ci % $baseCompCount]);
+                    }
+                }
+                $cylinderQty = $cylinderCompanies->count();
+
                 // عرض معاينة لأول 12 شركة لإبقاء الصفحة الرئيسية خفيفة وسريعة التصفح
                 $previewCompanies = $companies->take(12);
             @endphp
             <section class="companies-section cyber-matrix-wrap" id="companies">
                 <div class="container position-relative z-2">
-                    <div class="text-center mb-5">
+                    <div class="text-center mb-4">
                         <div class="cyber-section-badge"><i class="fas fa-building me-1"></i>الشركات والمؤسسات المشاركة</div>
-                        <h2 class="cyber-section-title">أجنحة الشركات المشاركة</h2>
+                        <h2 class="cyber-section-title scramble-on-scroll" data-scramble="أجنحة الشركات المشاركة" title="انقر لإعادة فك التشفير">أجنحة الشركات المشاركة</h2>
                         <p class="cyber-section-subtitle">{{ $countText }} في المعرض — انقر على أي جناح للتعرف على فرصه وتفاصيله
                         </p>
                     </div>
 
-                    <div class="companies-booth-grid">
+                    {{-- مشهد الأسطوانة ثلاثية الأبعاد (3D Cylinder Showcase) --}}
+                    <div class="cyber-cylinder-scene" id="companiesCylinderScene">
+                        {{-- شريط التحكم الذكي والتبديل بين العرض الأسطواني 3D وعرض الشبكة --}}
+                        <div class="cylinder-controls-bar">
+                            <div class="cylinder-view-switch">
+                                <button type="button" class="view-switch-btn active" id="btnView3d" title="عرض أسطواني ثلاثي الأبعاد">
+                                    <i class="fas fa-cube me-1"></i> استعراض ثلاثي الأبعاد (3D)
+                                </button>
+                                <button type="button" class="view-switch-btn" id="btnViewGrid" title="عرض الشبكة المنظمة">
+                                    <i class="fas fa-th-large me-1"></i> عرض الشبكة
+                                </button>
+                            </div>
+
+                            <div class="cylinder-playback-controls" id="cylinderPlaybackControls">
+                                <button type="button" class="cylinder-step-btn" id="btnCylinderPrev" title="تدوير لليمين">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                                <button type="button" class="cylinder-play-btn" id="btnCylinderPause" title="إيقاف / تشغيل الدوران">
+                                    <i class="fas fa-pause" id="cylinderPlayIcon"></i>
+                                    <span id="cylinderPlayText">إيقاف مؤقت</span>
+                                </button>
+                                <button type="button" class="cylinder-step-btn" id="btnCylinderNext" title="تدوير لليسار">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- مسرح الأسطوانة ثلاثية الأبعاد 3D --}}
+                        <div class="cyber-cylinder-wrapper" id="companiesCylinderWrapper">
+                            <div class="cylinder-floor-glow"></div>
+                            <div class="cyber-cylinder-inner" id="companiesCylinderInner" style="--quantity: {{ $cylinderQty }};">
+                                @foreach($cylinderCompanies as $cIndex => $fc)
+                                    @php
+                                        $colorCard = $cardColors[$cIndex % count($cardColors)];
+                                        $companyLogo = $fc->company->logo_path ? Storage::url($fc->company->logo_path) : ($fc->company->logo ? Storage::url($fc->company->logo) : '');
+                                        $companyName = $fc->company->name ?? 'شركة مشاركة';
+                                        $companyDesc = $fc->company->description ?: ('جهة رائدة مشاركة في فعاليات ' . ($fair->title ?? 'المعرض والملتقى') . ' لتوفير أفضل الفرص المهنية والتدريبية للكفاءات الوطنية.');
+                                        $pos = (int) ($fc->available_positions ?? 0);
+                                        $industry = $fc->company->industry ?? 'قطاع الأعمال والخدمات';
+
+                                        if (!$companyLogo && (str_contains(mb_strtolower($companyName, 'UTF-8'), 'ليبيانا') || str_contains(mb_strtolower($companyName, 'UTF-8'), 'libyana'))) {
+                                            $companyLogo = asset('images/libyana_logo.png');
+                                        }
+
+                                        $cleanName = preg_replace('/^(شركة|مؤسسة|مجموعة|مصرف|هيئة|منظمة)\s+/u', '', trim($companyName));
+                                        if (preg_match('/([A-Za-z0-9]{2,6})/u', $companyName, $matches)) {
+                                            $crestText = strtoupper($matches[1]);
+                                        } else {
+                                            $words = preg_split('/\s+/u', $cleanName, -1, PREG_SPLIT_NO_EMPTY);
+                                            if (!empty($words) && mb_strlen($words[0], 'UTF-8') <= 7) {
+                                                $crestText = $words[0];
+                                            } else {
+                                                $crestText = mb_substr($cleanName, 0, 3, 'UTF-8');
+                                            }
+                                        }
+
+                                        $indLower = mb_strtolower($industry . ' ' . $companyName, 'UTF-8');
+                                        $crestIcon = 'fa-building';
+                                        if (str_contains($indLower, 'اتصالات') || str_contains($indLower, 'شبكات') || str_contains($indLower, 'هاتف') || str_contains($indLower, 'مدار') || str_contains($indLower, 'ليبيانا') || str_contains($indLower, 'ltt')) {
+                                            $crestIcon = 'fa-tower-broadcast';
+                                        } elseif (str_contains($indLower, 'تقني') || str_contains($indLower, 'برمج') || str_contains($indLower, 'ذكاء') || str_contains($indLower, 'معلومات') || str_contains($indLower, 'حاسوب')) {
+                                            $crestIcon = 'fa-microchip';
+                                        } elseif (str_contains($indLower, 'نفط') || str_contains($indLower, 'طاقة') || str_contains($indLower, 'غاز')) {
+                                            $crestIcon = 'fa-gas-pump';
+                                        } elseif (str_contains($indLower, 'مال') || str_contains($indLower, 'مصرف') || str_contains($indLower, 'بنك') || str_contains($indLower, 'استثمار')) {
+                                            $crestIcon = 'fa-landmark';
+                                        } elseif (str_contains($indLower, 'تعليم') || str_contains($indLower, 'تدريب') || str_contains($indLower, 'أكاديم')) {
+                                            $crestIcon = 'fa-graduation-cap';
+                                        }
+                                    @endphp
+                                    <div role="button" tabindex="0" class="cyber-cylinder-card"
+                                        style="--index: {{ $cIndex }}; --color-card: {{ $colorCard }};"
+                                        data-bs-toggle="modal" data-bs-target="#companyDetailModal"
+                                        data-name="{{ $companyName }}" data-logo="{{ $companyLogo }}"
+                                        data-industry="{{ $industry }}"
+                                        data-booth="{{ $fc->booth_number ? strtoupper($fc->booth_number) : '' }}"
+                                        data-jobs="{{ $pos }}" data-desc="{{ $companyDesc }}"
+                                        data-website="{{ $fc->company->website ?? '' }}"
+                                        data-email="{{ $fc->company->email ?? '' }}"
+                                        data-phone="{{ $fc->company->phone ?? '' }}"
+                                        title="انقر للاطلاع على تفاصيل جناح {{ $companyName }}">
+
+                                        {{-- شريط الشارات العلوي --}}
+                                        <div class="cylinder-card-header">
+                                            @if($fc->booth_number)
+                                                <span class="cylinder-tag-number">
+                                                    <i class="fas fa-store"></i>
+                                                    <span>جناح {{ strtoupper($fc->booth_number) }}</span>
+                                                </span>
+                                            @else
+                                                <span class="cylinder-tag-number">
+                                                    <i class="fas fa-store"></i>
+                                                    <span>جناح بالمعرض</span>
+                                                </span>
+                                            @endif
+
+                                            @if($pos > 0)
+                                                @php
+                                                    $posText = ($pos == 1 ? 'فرصة واحدة' : ($pos == 2 ? 'فرصتان' : ($pos <= 10 ? $pos . ' فرص' : $pos . ' فرصة')));
+                                                @endphp
+                                                <span class="cylinder-tag-jobs is-hiring">
+                                                    <span class="pulse-glow-dot"></span>
+                                                    <span>{{ $posText }}</span>
+                                                </span>
+                                            @else
+                                                <span class="cylinder-tag-jobs is-intro">
+                                                    <i class="fas fa-handshake"></i>
+                                                    <span>تعريفي</span>
+                                                </span>
+                                            @endif
+                                        </div>
+
+                                        {{-- مساحة الشعار أو الوسام --}}
+                                        <div class="cylinder-identity-hub">
+                                            @if($companyLogo)
+                                                <div class="cylinder-logo-dock">
+                                                    <img src="{{ $companyLogo }}" alt="{{ $companyName }}" loading="lazy"
+                                                        onerror="this.parentElement.style.display='none'; this.parentElement.nextElementSibling.style.display='flex';">
+                                                </div>
+                                                <div class="cylinder-crest-emblem" style="display:none;">
+                                                    <span class="crest-monogram-label">{{ $crestText }}</span>
+                                                    <i class="fas {{ $crestIcon }} crest-sub-icon"></i>
+                                                </div>
+                                            @else
+                                                <div class="cylinder-crest-emblem">
+                                                    <span class="crest-monogram-label">{{ $crestText }}</span>
+                                                    <i class="fas {{ $crestIcon }} crest-sub-icon"></i>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        {{-- تفاصيل الشركة --}}
+                                        <div class="cylinder-content-body">
+                                            <h4 class="cylinder-company-title" title="{{ $companyName }}">
+                                                {{ $companyName }}
+                                            </h4>
+                                            <div class="cylinder-sector-badge" title="{{ $industry }}">
+                                                <i class="fas {{ $crestIcon }} me-1"></i>
+                                                <span>{{ $industry }}</span>
+                                            </div>
+                                        </div>
+
+                                        {{-- زر الاستكشاف السفلي --}}
+                                        <div class="cylinder-action-cta">
+                                            <span>استكشاف الجناح</span>
+                                            <div class="cylinder-action-arrow">
+                                                <i class="fas fa-arrow-left"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- شبكة البطاقات المنظمة (يمكن التبديل إليها بنقرة واحدة) --}}
+                    <div class="companies-booth-grid d-none" id="companiesGridWrapper">
                         @foreach($previewCompanies as $fc)
                             @php
                                 $companyLogo = $fc->company->logo_path ? Storage::url($fc->company->logo_path) : ($fc->company->logo ? Storage::url($fc->company->logo) : '');
@@ -4385,7 +5012,7 @@
                             <i class="fas fa-graduation-cap text-warning"></i>
                             <span>رحلة الجاهزية المهنية</span>
                         </div>
-                        <h2 class="cyber-section-title">البرنامج العلمي والتدريبي المصاحب</h2>
+                        <h2 class="cyber-section-title scramble-on-scroll" data-scramble="البرنامج العلمي والتدريبي المصاحب" title="انقر لإعادة فك التشفير">البرنامج العلمي والتدريبي المصاحب</h2>
                         <p class="cyber-section-subtitle">
                             سلسلة متكاملة من ورش العمل التطبيقية، الماستر كلاس، والجلسات الحوارية الاستراتيجية لتأهيلك لسوق
                             العمل
@@ -4510,7 +5137,7 @@
                             <i class="fas fa-lightbulb text-warning"></i>
                             <span>ابتكارات كفاءات المستقبل</span>
                         </div>
-                        <h2 class="cyber-section-title">معرض مشاريع التخرج المتميزة</h2>
+                        <h2 class="cyber-section-title scramble-on-scroll" data-scramble="معرض مشاريع التخرج المتميزة" title="انقر لإعادة فك التشفير">معرض مشاريع التخرج المتميزة</h2>
                         <p class="cyber-section-subtitle">
                             نافذة حية تبرز نتاج إبداعات خريجي كليات جامعة طرابلس، وفرصة استثمارية مباشرة لأصحاب الأعمال لتبني
                             العقول الواعدة
@@ -4991,25 +5618,19 @@
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrambleTextPlugin.min.js"></script>
 
     <script>
-        // ─── Scramble Text Animation for Hero Title & Subtitle ───
-        (function initHeroScramble() {
-            function runScramble() {
-                if (typeof gsap === 'undefined' || typeof ScrambleTextPlugin === 'undefined') return;
+        // ─── Scramble Text Animation (GSAP ScrambleTextPlugin) ───
+        (function initScrambleEffects() {
+            if (typeof gsap === 'undefined' || typeof ScrambleTextPlugin === 'undefined') return;
 
-                gsap.registerPlugin(ScrambleTextPlugin);
+            gsap.registerPlugin(ScrambleTextPlugin);
 
-                const mainEl = document.getElementById('scrambleTitleMain');
-                const subEl = document.getElementById('scrambleTitleSub');
+            // 1. تأثير فك التشفير على السطر الوصفي في الهيرو ("من الجامعة إلى سوق العمل")
+            function runSubtitleScramble() {
                 const descEl = document.getElementById('scrambleSubtitle');
                 const cursorEl = document.getElementById('scrambleCursor');
-                const titleWrap = document.getElementById('heroTitleWrap');
+                if (!descEl) return;
 
-                if (!mainEl) return;
-
-                const targetMain = mainEl.getAttribute('data-text') || mainEl.textContent.trim();
-                const targetSub = subEl ? (subEl.getAttribute('data-text') || subEl.textContent.trim()) : '';
-                const targetDesc = descEl ? (descEl.getAttribute('data-text') || descEl.textContent.trim()) : '';
-
+                const targetDesc = descEl.getAttribute('data-text') || descEl.textContent.trim();
                 const tl = gsap.timeline({ defaults: { ease: "none" } });
 
                 if (cursorEl) {
@@ -5017,46 +5638,20 @@
                     gsap.set(cursorEl, { opacity: 1 });
                 }
 
-                // 1. Scramble Main Title (معرض التوظيف 2026)
-                tl.to(mainEl, {
+                tl.to(descEl, {
                     duration: 1.4,
                     scrambleText: {
-                        text: targetMain,
-                        chars: "010123456789معرضالتوظيفجامعةطرابلس",
+                        text: targetDesc,
+                        chars: "010123456789ابجدهوزحطيكلمنسعفصقرشت",
                         speed: 0.35
                     }
                 });
 
-                // 2. Scramble Sub Title (جامعة طرابلس)
-                if (subEl && targetSub) {
-                    tl.to(subEl, {
-                        duration: 1.0,
-                        scrambleText: {
-                            text: targetSub,
-                            chars: "010123456789جامعةطرابلس",
-                            speed: 0.35
-                        }
-                    }, "-=0.35");
-                }
-
-                // 3. Scramble Subtitle Description
-                if (descEl && targetDesc) {
-                    tl.to(descEl, {
-                        duration: 1.2,
-                        scrambleText: {
-                            text: targetDesc,
-                            chars: "010123456789انطلقنحومستقبلكالمهنيفرصتكالذهبية",
-                            speed: 0.35
-                        }
-                    }, "-=0.25");
-                }
-
-                // Smoothly fade out cursor after decoding completes
                 if (cursorEl) {
                     tl.to(cursorEl, {
                         opacity: 0,
                         duration: 0.5,
-                        delay: 1.2,
+                        delay: 1.0,
                         onComplete: function() {
                             cursorEl.style.display = 'none';
                         }
@@ -5065,15 +5660,49 @@
             }
 
             if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', runScramble);
+                document.addEventListener('DOMContentLoaded', runSubtitleScramble);
             } else {
-                runScramble();
+                runSubtitleScramble();
             }
 
-            // Click to replay animation anytime
-            const titleWrap = document.getElementById('heroTitleWrap');
-            if (titleWrap) {
-                titleWrap.addEventListener('click', runScramble);
+            const subtitleEl = document.getElementById('scrambleSubtitle');
+            if (subtitleEl) {
+                subtitleEl.addEventListener('click', runSubtitleScramble);
+            }
+
+            // 2. تأثير فك التشفير عند التمرير لكل قسم (الشركاء والرعاة، الشركات، البرنامج، المشاريع)
+            function scrambleElement(el) {
+                const targetText = el.getAttribute('data-scramble') || el.textContent.trim();
+                gsap.to(el, {
+                    duration: 1.2,
+                    scrambleText: {
+                        text: targetText,
+                        chars: "010123456789ابجدهوزحطيكلمنسعفصقرشت",
+                        speed: 0.38
+                    },
+                    ease: "none"
+                });
+            }
+
+            if ('IntersectionObserver' in window) {
+                const scrollElements = document.querySelectorAll('.scramble-on-scroll');
+                const observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting && !entry.target.dataset.scrambled) {
+                            entry.target.dataset.scrambled = "true";
+                            scrambleElement(entry.target);
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.3, rootMargin: '0px 0px -40px 0px' });
+
+                scrollElements.forEach(function(el) {
+                    observer.observe(el);
+                    // النقر على العنوان يعيد تشغيل التأثير في أي وقت
+                    el.addEventListener('click', function() {
+                        scrambleElement(el);
+                    });
+                });
             }
         })();
     </script>
@@ -5191,16 +5820,92 @@
                 }
             });
 
-            // Keyboard accessibility for booth cards
+            // Keyboard accessibility for booth cards and 3D cylinder cards
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter' || e.key === ' ') {
-                    const card = e.target.closest && e.target.closest('.company-booth-card');
+                    const card = e.target.closest && (e.target.closest('.company-booth-card') || e.target.closest('.cyber-cylinder-card'));
                     if (card && document.activeElement === card) {
                         e.preventDefault();
                         card.click();
                     }
                 }
             });
+        })();
+
+        // ── 3D Cylinder Carousel Controller
+        (function () {
+            const inner = document.getElementById('companiesCylinderInner');
+            const playPauseBtn = document.getElementById('btnCylinderPause');
+            const playIcon = document.getElementById('cylinderPlayIcon');
+            const playText = document.getElementById('cylinderPlayText');
+            const prevBtn = document.getElementById('btnCylinderPrev');
+            const nextBtn = document.getElementById('btnCylinderNext');
+            const btnView3d = document.getElementById('btnView3d');
+            const btnViewGrid = document.getElementById('btnViewGrid');
+            const cylinderWrapper = document.getElementById('companiesCylinderWrapper');
+            const gridWrapper = document.getElementById('companiesGridWrapper');
+            const playbackControls = document.getElementById('cylinderPlaybackControls');
+
+            if (!inner) return;
+
+            let isPaused = false;
+            let currentAngle = 0;
+
+            // View Switcher (3D vs Grid)
+            if (btnView3d && btnViewGrid && cylinderWrapper && gridWrapper) {
+                btnView3d.addEventListener('click', function () {
+                    btnView3d.classList.add('active');
+                    btnViewGrid.classList.remove('active');
+                    cylinderWrapper.classList.remove('d-none');
+                    if (playbackControls) playbackControls.classList.remove('d-none');
+                    gridWrapper.classList.add('d-none');
+                });
+
+                btnViewGrid.addEventListener('click', function () {
+                    btnViewGrid.classList.add('active');
+                    btnView3d.classList.remove('active');
+                    cylinderWrapper.classList.add('d-none');
+                    if (playbackControls) playbackControls.classList.add('d-none');
+                    gridWrapper.classList.remove('d-none');
+                });
+            }
+
+            // Play / Pause Toggle
+            if (playPauseBtn) {
+                playPauseBtn.addEventListener('click', function () {
+                    isPaused = !isPaused;
+                    if (isPaused) {
+                        inner.classList.add('is-paused');
+                        if (playIcon) playIcon.className = 'fas fa-play';
+                        if (playText) playText.textContent = 'تشغيل';
+                    } else {
+                        inner.style.animation = '';
+                        inner.style.transition = '';
+                        inner.classList.remove('is-paused');
+                        if (playIcon) playIcon.className = 'fas fa-pause';
+                        if (playText) playText.textContent = 'إيقاف مؤقت';
+                    }
+                });
+            }
+
+            // Manual Stepping (Prev / Next)
+            const qty = parseInt(inner.style.getPropertyValue('--quantity') || '8', 10);
+            const stepDeg = 360 / Math.max(qty, 1);
+
+            function stepCylinder(dir) {
+                inner.classList.add('is-paused');
+                isPaused = true;
+                if (playIcon) playIcon.className = 'fas fa-play';
+                if (playText) playText.textContent = 'تشغيل';
+
+                currentAngle += (dir * stepDeg);
+                inner.style.animation = 'none';
+                inner.style.transition = 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)';
+                inner.style.transform = 'perspective(var(--perspective, 1400px)) rotateX(var(--rotateX, -9deg)) rotateY(' + currentAngle + 'deg)';
+            }
+
+            if (prevBtn) prevBtn.addEventListener('click', () => stepCylinder(1));
+            if (nextBtn) nextBtn.addEventListener('click', () => stepCylinder(-1));
         })();
 
         // ── Visitor Registration Form Handling

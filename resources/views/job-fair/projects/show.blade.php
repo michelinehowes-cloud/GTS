@@ -1068,20 +1068,6 @@
                                 </div>
                                 @endif
 
-                                @if($project->project_url)
-                                <div class="meta-row">
-                                    <div class="meta-icon-bubble">
-                                        <i class="fas fa-code-branch"></i>
-                                    </div>
-                                    <div>
-                                        <span class="meta-label">رابط المشروع البرمجي</span>
-                                        <span class="meta-value">
-                                            <a href="{{ $project->project_url }}" target="_blank" class="text-warning text-decoration-underline">GitHub / Live Demo</a>
-                                        </span>
-                                    </div>
-                                </div>
-                                @endif
-
                                 @if($project->contact_email)
                                 <div class="meta-row">
                                     <div class="meta-icon-bubble">
@@ -1096,19 +1082,6 @@
                                 </div>
                                 @endif
                             </div>
-
-                            <!-- Hire / Contact Button -->
-                            <button type="button" class="btn-hire-cta" data-bs-toggle="modal" data-bs-target="#contactTeamModal">
-                                <i class="fas fa-briefcase"></i>
-                                <span>تواصل مع الفريق / طلب توظيف</span>
-                            </button>
-
-                            @if($project->user_id && auth()->check() && auth()->id() !== $project->user_id && auth()->user()->role !== 'company')
-                            <a href="{{ route('messages.show', $project->user_id) }}" class="btn btn-outline-warning w-100 rounded-pill py-2 mt-2 fw-bold d-flex align-items-center justify-content-center gap-2" style="font-size: 0.88rem; border-width: 1.5px; text-decoration: none;">
-                                <i class="fas fa-comments"></i>
-                                <span>محادثة فورية مع صاحب المشروع</span>
-                            </a>
-                            @endif
                         </div>
 
                         <!-- Dynamic QR Code Card -->
@@ -1228,49 +1201,7 @@
 
     </div>
 
-    <!-- Modal: Contact/Hire Team -->
-    <div class="modal fade" id="contactTeamModal" tabindex="-1" aria-labelledby="contactTeamModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content text-dark border-0 rounded-4 shadow-lg">
-                <div class="modal-header bg-primary text-white border-0">
-                    <h5 class="modal-title font-weight-bold" id="contactTeamModalLabel">
-                        <i class="fas fa-handshake me-2"></i>تواصل مع فريق المشروع
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <p class="small text-muted mb-3">
-                        يمكن للشركات وأصحاب الأعمال إرسال استفسار مباشر أو طلب مقابلة توظيف لأعضاء فريق مشروع <strong>«{{ $project->title }}»</strong>:
-                    </p>
 
-                    <div class="mb-3">
-                        <label class="form-label font-weight-bold small">اسم الجهة أو الشركة</label>
-                        <input type="text" id="senderCompany" class="form-control" placeholder="اسم شركتك أو المؤسسة...">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label font-weight-bold small">البريد الإلكتروني للتواصل</label>
-                        <input type="email" id="senderEmail" class="form-control" placeholder="name@company.com">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label font-weight-bold small">الرسالة أو الفرصة المقترحة</label>
-                        <textarea id="senderMsg" class="form-control" rows="3" placeholder="نود مقابلتكم لمناقشة فرصة تدريب/توظيف أو تبني فكرة المشروع..."></textarea>
-                    </div>
-
-                    <div class="alert alert-info py-2 small mb-0">
-                        <i class="fas fa-info-circle me-1"></i> سيتم توجيه رسالتكم ومشاركتها مع كافة أعضاء الفريق والمشرف الأكاديمي.
-                    </div>
-                </div>
-                <div class="modal-footer bg-light border-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="button" class="btn btn-success fw-bold" onclick="alert('شكراً لتواصلكم! تم استلام رسالتكم بنجاح وسيتواصل معكم فريق المشروع في أقرب وقت.'); bootstrap.Modal.getInstance(document.getElementById('contactTeamModal')).hide();">
-                        <i class="fas fa-paper-plane me-1"></i>إرسال الرسالة
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Toast Notification -->
     <div class="toast-copied" id="copyToast">

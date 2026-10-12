@@ -92,6 +92,9 @@ class MessageController extends Controller
 
     /**
      * جلب جهات الاتصال المسموح بمراسلتها للمستخدم الحالي
+     *
+     * @param User $currentUser
+     * @return \Illuminate\Database\Eloquent\Collection<int, User>
      */
     protected function getAvailableContacts(User $currentUser)
     {

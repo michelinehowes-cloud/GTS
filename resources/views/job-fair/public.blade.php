@@ -623,29 +623,41 @@
         }
 
         .shape-1 {
-            width: 60px;
-            height: 60px;
-            top: 10%;
-            right: 10%;
-            font-size: 1.5rem;
+            width: 62px;
+            height: 62px;
+            top: 26%;
+            right: 8%;
+            font-size: 1.55rem;
             color: var(--gold);
             animation: floatElement 6s ease-in-out infinite 1s;
         }
 
+        .shape-4 {
+            width: 64px;
+            height: 64px;
+            bottom: 10%;
+            right: 8%;
+            font-size: 1.6rem;
+            color: var(--teal);
+            animation: floatElement 6.5s ease-in-out infinite 1.5s;
+        }
+
         .shape-2 {
-            width: 70px;
-            height: 70px;
+            width: 68px;
+            height: 68px;
             bottom: 10%;
             left: 5%;
-            font-size: 1.8rem;
+            font-size: 1.75rem;
             color: var(--teal);
             animation: floatElement 7s ease-in-out infinite 0.5s;
         }
 
         .shape-3 {
-            padding: 10px 20px;
-            top: 50%;
+            padding: 10px 22px;
+            top: 26%;
             left: -20px;
+            font-size: 0.95rem;
+            font-weight: 800;
             color: white;
             animation: floatElement 5s ease-in-out infinite 2s;
         }
@@ -3209,7 +3221,8 @@
 
             .float-element.shape-1,
             .float-element.shape-2,
-            .float-element.shape-3 {
+            .float-element.shape-3,
+            .float-element.shape-4 {
                 display: none !important;
             }
 
@@ -3520,9 +3533,10 @@
                             </div>
 
                             {{-- Floating Depth Elements --}}
-                            <div class="float-element shape-1"><i class="fas fa-briefcase"></i></div>
-                            <div class="float-element shape-2"><i class="fas fa-user-graduate"></i></div>
+                            <div class="float-element shape-1" title="وظائف وفرص عمل"><i class="fas fa-briefcase"></i></div>
+                            <div class="float-element shape-4" title="شركات ومؤسسات رائدة"><i class="fas fa-building"></i></div>
                             <div class="float-element shape-3">1000+ فرصة</div>
+                            <div class="float-element shape-2" title="خريجون وكفاءات"><i class="fas fa-user-graduate"></i></div>
                         </div>
                     </div>
                 </div>

@@ -1323,7 +1323,833 @@
             margin: 0 auto;
         }
 
+        
         /* ══════════════════════════════════════════════════════
+           SECTION: STRATEGIC HERO PALETTE + SPONSORS UIVERSE CARDS
+           Adapted from Uiverse.io by arshshaikh06
+           Exclusively using Exhibition Brand Colors:
+           1. #02142B (Midnight Navy)
+           2. #043C73 (Royal Blue)
+           3. #0284C7 (Electric Azure)
+           4. #38BDF8 (Cyber Cyan)
+           5. #EECA3E (Royal Gold)
+           ══════════════════════════════════════════════════════ */
+        .strategic-palette-hero {
+            max-width: 920px;
+            margin: 0 auto 2.5rem;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            background: #02142B;
+            border: 2px solid rgba(238, 202, 62, 0.6);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75), 0 0 45px rgba(238, 202, 62, 0.22);
+            transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+            position: relative;
+        }
+
+        .strategic-palette-hero:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 28px 75px rgba(0, 0, 0, 0.85), 0 0 60px rgba(238, 202, 62, 0.45);
+            border-color: #EECA3E;
+        }
+
+        .strategic-palette-hero .palette {
+            height: 190px;
+            display: flex;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .strategic-palette-hero .palette .color {
+            height: 100%;
+            flex: 1;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 14px;
+            font-weight: 800;
+            transition: flex 0.22s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.22s ease;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .strategic-palette-hero .palette .color span {
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 0.22s ease, transform 0.22s ease;
+            font-family: monospace;
+            font-size: 0.82rem;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.85);
+            pointer-events: none;
+        }
+
+        .strategic-palette-hero .palette .color:hover {
+            flex: 2.3;
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.25), 0 0 25px rgba(0, 0, 0, 0.6);
+            z-index: 2;
+        }
+
+        .strategic-palette-hero .palette .color:hover span {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .strategic-palette-hero .palette-stats-bar {
+            padding: 1.1rem 1.8rem;
+            background: #02142B;
+            border-top: 1px solid rgba(238, 202, 62, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: relative;
+            z-index: 6;
+        }
+
+        /* ══════════════════════════════════════════════════════
+           SPONSORS SECTION: UIVERSE SMIT-PRAJAPATI LUXURY CARDS
+           (Adapted to University of Tripoli Exhibition Brand Colors)
+           ══════════════════════════════════════════════════════ */
+        .sponsors-uiverse-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 320px));
+            gap: 2.2rem;
+            justify-content: center;
+            max-width: 1140px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sponsor-uiverse-card {
+            width: 235px;
+            height: 235px;
+            background: linear-gradient(145deg, #021226 0%, #06264c 100%);
+            position: relative;
+            display: grid;
+            place-content: center;
+            border-radius: 14px;
+            overflow: hidden;
+            transition: all 0.5s ease-in-out;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65), 0 0 20px rgba(4, 93, 176, 0.2);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            text-decoration: none;
+            cursor: pointer;
+            margin: 0 auto;
+        }
+
+        .sponsor-uiverse-card .uiverse-border {
+            position: absolute;
+            inset: 0px;
+            border: 2px solid #EECA3E;
+            opacity: 0;
+            transform: rotate(10deg);
+            transition: all 0.5s ease-in-out;
+            pointer-events: none;
+            z-index: 1;
+            box-shadow: inset 0 0 14px rgba(238, 202, 62, 0.28);
+        }
+
+        .sponsor-uiverse-card .bottom-text {
+            position: absolute;
+            left: 50%;
+            bottom: 8px;
+            transform: translateX(-50%);
+            font-size: 9px;
+            text-transform: uppercase;
+            padding: 2px 10px;
+            color: #EECA3E;
+            background: #02142B;
+            opacity: 0.85;
+            letter-spacing: 2px;
+            transition: all 0.5s ease-in-out;
+            font-weight: 800;
+            white-space: nowrap;
+            border-radius: 4px;
+            z-index: 3;
+            border: 1px solid rgba(238, 202, 62, 0.25);
+        }
+
+        .sponsor-uiverse-card .content {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 3;
+            opacity: 1;
+        }
+
+        .sponsor-uiverse-card .content .logo {
+            height: 110px;
+            position: relative;
+            width: 110px;
+            overflow: hidden;
+            transition: all 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            direction: ltr;
+        }
+
+        .sponsor-uiverse-card .content .logo .logo1 {
+            height: 110px;
+            width: 110px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .sponsor-uiverse-card .content .logo .logo1 img {
+            max-height: 98px;
+            max-width: 98px;
+            object-fit: contain;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 6px;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.5);
+            display: block;
+        }
+
+        .sponsor-uiverse-card .content .logo .logo1 svg {
+            width: 92px;
+            height: 92px;
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5));
+        }
+
+        .sponsor-uiverse-card .content .logo .logo2 {
+            height: 110px;
+            position: absolute;
+            left: 110px;
+            top: 0;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            padding-left: 12px;
+            padding-right: 14px;
+            z-index: 2;
+        }
+
+        .sponsor-uiverse-card .content .logo .logo2 .sponsor-brand-text {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1.15rem;
+            letter-spacing: 0.2px;
+            direction: rtl;
+            unicode-bidi: embed;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+        }
+
+        .sponsor-uiverse-card .content .logo .trail {
+            position: absolute;
+            right: 0;
+            height: 100%;
+            width: 100%;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .sponsor-uiverse-card .content .logo-bottom-text {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            margin-top: 76px;
+            color: #EECA3E;
+            background: rgba(2, 20, 43, 0.95);
+            border: 1px solid rgba(238, 202, 62, 0.5);
+            padding: 4px 14px;
+            border-radius: 50px;
+            font-size: 11.5px;
+            font-weight: 800;
+            opacity: 1;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            transition: all 0.4s ease-in-out;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.55);
+        }
+
+        .sponsor-uiverse-card:hover {
+            border-radius: 4px;
+            transform: scale(1.06);
+            box-shadow: 0 22px 50px rgba(0, 0, 0, 0.85), 0 0 35px rgba(238, 202, 62, 0.35);
+            border-color: rgba(238, 202, 62, 0.7);
+        }
+
+        .sponsor-uiverse-card:hover .logo {
+            width: 295px;
+            animation: uiverse-opacity 1s ease-in-out;
+        }
+
+        .sponsor-uiverse-card:hover .uiverse-border {
+            inset: 14px;
+            opacity: 1;
+            transform: rotate(0);
+        }
+
+        .sponsor-uiverse-card:hover .bottom-text {
+            letter-spacing: 3px;
+            opacity: 1;
+            transform: translateX(-50%);
+        }
+
+        .sponsor-uiverse-card:hover .content .logo-bottom-text {
+            opacity: 1;
+            letter-spacing: 1px;
+            transform: translate(-50%, -50%) scale(1.06);
+            box-shadow: 0 6px 20px rgba(238, 202, 62, 0.35);
+        }
+
+        .sponsor-uiverse-card:hover .trail {
+            animation: uiverse-trail 1s ease-in-out;
+        }
+
+        /* Tier Styling */
+        .sponsor-uiverse-card.tier-diamond .uiverse-border {
+            border-color: #38BDF8;
+            box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+        .sponsor-uiverse-card.tier-diamond .bottom-text {
+            color: #38BDF8;
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+        .sponsor-uiverse-card.tier-diamond .content .logo-bottom-text {
+            color: #38BDF8;
+            border-color: rgba(56, 189, 248, 0.6);
+        }
+        .sponsor-uiverse-card.tier-diamond:hover {
+            box-shadow: 0 22px 50px rgba(0, 0, 0, 0.85), 0 0 35px rgba(56, 189, 248, 0.4);
+            border-color: rgba(56, 189, 248, 0.8);
+        }
+        .sponsor-uiverse-card.tier-diamond:hover .content .logo-bottom-text {
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+        }
+
+        .sponsor-uiverse-card.tier-gold .uiverse-border {
+            border-color: #EECA3E;
+            box-shadow: inset 0 0 15px rgba(238, 202, 62, 0.3);
+        }
+        .sponsor-uiverse-card.tier-gold .bottom-text {
+            color: #EECA3E;
+            border-color: rgba(238, 202, 62, 0.3);
+        }
+
+        .sponsor-uiverse-card.tier-silver .uiverse-border {
+            border-color: #CBD5E1;
+            box-shadow: inset 0 0 15px rgba(203, 213, 225, 0.25);
+        }
+        .sponsor-uiverse-card.tier-silver .bottom-text {
+            color: #CBD5E1;
+            border-color: rgba(203, 213, 225, 0.3);
+        }
+        .sponsor-uiverse-card.tier-silver .content .logo-bottom-text {
+            color: #CBD5E1;
+            border-color: rgba(203, 213, 225, 0.5);
+        }
+        .sponsor-uiverse-card.tier-silver:hover .content .logo-bottom-text {
+            box-shadow: 0 6px 20px rgba(203, 213, 225, 0.3);
+        }
+
+        @keyframes uiverse-opacity {
+            0% {
+                border-right: 1.5px solid transparent;
+            }
+            10% {
+                border-right: 1.5px solid #EECA3E;
+            }
+            80% {
+                border-right: 1.5px solid #EECA3E;
+            }
+            100% {
+                border-right: 1.5px solid transparent;
+            }
+        }
+
+        @keyframes uiverse-trail {
+            0% {
+                background: linear-gradient(90deg, rgba(238, 202, 62, 0) 90%, rgb(238, 202, 62) 100%);
+                opacity: 0;
+            }
+            30% {
+                background: linear-gradient(90deg, rgba(238, 202, 62, 0) 70%, rgb(238, 202, 62) 100%);
+                opacity: 1;
+            }
+            70% {
+                background: linear-gradient(90deg, rgba(238, 202, 62, 0) 70%, rgb(238, 202, 62) 100%);
+                opacity: 1;
+            }
+            95% {
+                background: linear-gradient(90deg, rgba(238, 202, 62, 0) 90%, rgb(238, 202, 62) 100%);
+                opacity: 0;
+            }
+        }
+
+        /* ── Strategic Hero Partner Banner (Grand Uiverse Aesthetic) ── */
+        .strategic-uiverse-hero {
+            position: relative;
+            background: linear-gradient(135deg, rgba(2, 20, 43, 0.96) 0%, rgba(6, 38, 76, 0.94) 50%, rgba(2, 14, 30, 0.98) 100%);
+            border: 1.5px solid rgba(238, 202, 62, 0.55);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 35px rgba(238, 202, 62, 0.18);
+            margin-bottom: 3.2rem;
+            transition: all 0.5s ease-in-out;
+        }
+
+        .strategic-uiverse-hero .uiverse-border {
+            position: absolute;
+            inset: 0px;
+            border: 2px solid #EECA3E;
+            opacity: 0;
+            transform: rotate(4deg);
+            transition: all 0.5s ease-in-out;
+            pointer-events: none;
+            z-index: 1;
+            box-shadow: inset 0 0 25px rgba(238, 202, 62, 0.25);
+        }
+
+        .strategic-uiverse-hero:hover {
+            border-radius: 4px;
+            border-color: #EECA3E;
+            box-shadow: 0 26px 65px rgba(0, 0, 0, 0.85), 0 0 45px rgba(238, 202, 62, 0.35);
+        }
+
+        .strategic-uiverse-hero:hover .uiverse-border {
+            inset: 12px;
+            opacity: 1;
+            transform: rotate(0);
+        }
+
+        .strategic-uiverse-hero .bottom-text {
+            position: absolute;
+            left: 50%;
+            bottom: 8px;
+            transform: translateX(-50%);
+            font-size: 8px;
+            text-transform: uppercase;
+            padding: 2px 10px;
+            color: #EECA3E;
+            background: #02142B;
+            opacity: 0;
+            letter-spacing: 7px;
+            transition: all 0.5s ease-in-out;
+            font-weight: 800;
+            border-radius: 4px;
+            z-index: 3;
+            border: 1px solid rgba(238, 202, 62, 0.3);
+            white-space: nowrap;
+        }
+
+        .strategic-uiverse-hero:hover .bottom-text {
+            letter-spacing: 3px;
+            opacity: 1;
+            transform: translateX(-50%);
+        }
+
+        .strategic-logo-frame {
+            background: rgba(2, 20, 43, 0.75);
+            padding: 10px 20px;
+            border-radius: 14px;
+            border: 1px solid rgba(238, 202, 62, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .sponsor-tier-chip.tier-strategic {
+            background: linear-gradient(135deg, rgba(238, 202, 62, 0.25), rgba(4, 60, 115, 0.65));
+            color: #EECA3E;
+            border: 1px solid rgba(238, 202, 62, 0.7);
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 3px 12px;
+            border-radius: 50px;
+        }
+
+        /* ══════════════════════════════════════════════════════
+           SCIENTIFIC PROGRAM: INTERACTIVE PALETTE SLICES CARDS
+           (Hover over each slice to reveal speaker, timing, details...)
+           ══════════════════════════════════════════════════════ */
+        .program-slides-card {
+            background: linear-gradient(180deg, rgba(6, 20, 44, 0.96) 0%, rgba(2, 10, 24, 0.98) 100%);
+            border: 1.5px solid rgba(56, 189, 248, 0.35);
+            border-radius: 20px;
+            padding: 1.35rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            color: #ffffff;
+            height: 100%;
+        }
+
+        .program-slides-card:hover {
+            border-color: rgba(56, 189, 248, 0.7);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 35px rgba(56, 189, 248, 0.3);
+            transform: translateY(-6px);
+        }
+
+        .program-slides-card.is-featured {
+            border-color: rgba(238, 202, 62, 0.55);
+            background: linear-gradient(180deg, rgba(16, 32, 58, 0.96) 0%, rgba(4, 14, 30, 0.98) 100%);
+            box-shadow: 0 16px 38px rgba(0, 0, 0, 0.6), 0 0 28px rgba(238, 202, 62, 0.2);
+        }
+
+        .program-slides-card.is-featured:hover {
+            border-color: rgba(238, 202, 62, 0.9);
+            box-shadow: 0 22px 55px rgba(0, 0, 0, 0.75), 0 0 42px rgba(238, 202, 62, 0.4);
+        }
+
+        .psc-header {
+            margin-bottom: 1rem;
+        }
+
+        .psc-time-badge {
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 3px 10px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .psc-title {
+            color: #ffffff;
+            font-size: 1.08rem;
+            font-weight: 800;
+            line-height: 1.45;
+            margin-bottom: 0;
+            text-align: right;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 3.1rem;
+        }
+
+        /* ── Interactive 5 Slices Container ── */
+        .psc-slices-wrapper {
+            display: flex;
+            height: 335px;
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.45);
+            margin-bottom: 1rem;
+        }
+
+        .psc-slice {
+            height: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 6px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            user-select: none;
+            transition: flex 0.42s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .psc-slice:last-child {
+            border-right: none;
+        }
+
+        /* Slices Color Palette (5 Exhibition Colors) */
+        .psc-slice.slice-time {
+            background: linear-gradient(180deg, #02142B 0%, #062347 100%);
+            color: #ffffff;
+        }
+        .psc-slice.slice-speaker {
+            background: linear-gradient(180deg, #043C73 0%, #02264d 100%);
+            color: #ffffff;
+        }
+        .psc-slice.slice-track {
+            background: linear-gradient(180deg, #0284C7 0%, #03527d 100%);
+            color: #ffffff;
+        }
+        .psc-slice.slice-details {
+            background: linear-gradient(180deg, #38BDF8 0%, #0ea5e9 100%);
+            color: #02142B;
+        }
+        .psc-slice.slice-venue {
+            background: linear-gradient(180deg, #EECA3E 0%, #d97706 100%);
+            color: #02142B;
+        }
+
+        /* Compact view (when slice is NOT hovered) */
+        .psc-slice .slice-compact {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.2s ease;
+        }
+
+        .psc-slice .slice-compact .slice-icon {
+            font-size: 1.25rem;
+            opacity: 0.92;
+        }
+
+        .psc-slice .slice-compact .slice-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+        }
+
+        .psc-slice .slice-compact .slice-micro-val {
+            font-size: 0.65rem;
+            font-weight: 700;
+            opacity: 0.8;
+        }
+
+        .psc-slice .slice-compact .slice-mini-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid #EECA3E;
+        }
+
+        /* Expanded view (when slice IS hovered) */
+        .psc-slice .slice-expanded {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            padding: 12px 10px;
+            opacity: 0;
+            transform: scale(0.92);
+            transition: opacity 0.35s ease 0.1s, transform 0.35s ease 0.1s;
+        }
+
+        .psc-slice:hover {
+            flex: 5.6;
+            box-shadow: inset 0 0 25px rgba(255, 255, 255, 0.22), 0 0 25px rgba(0, 0, 0, 0.6);
+            z-index: 5;
+        }
+
+        .psc-slice.slice-speaker:hover {
+            flex: 7.8;
+        }
+
+        .psc-slice:hover .slice-compact {
+            display: none;
+        }
+
+        .psc-slice:hover .slice-expanded {
+            display: flex;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Slice Details Elements */
+        .slice-badge {
+            font-size: 0.74rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .slice-highlight-val {
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: #EECA3E;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .slice-sub-info {
+            font-size: 0.78rem;
+            opacity: 0.88;
+            margin-bottom: 8px;
+        }
+
+        .slice-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .slice-tag-dark {
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 50px;
+            background: rgba(2, 20, 43, 0.22);
+            border: 1px solid rgba(2, 20, 43, 0.35);
+            color: #02142B;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* Speaker Slice Elements (Large Rectangular Portrait filling ~2/3 of space) */
+        .slice-speaker-portrait {
+            width: 90%;
+            max-width: 220px;
+            height: 185px;
+            border-radius: 14px;
+            margin-bottom: 8px;
+            overflow: hidden;
+            border: 2.5px solid #EECA3E;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.75), 0 0 24px rgba(238, 202, 62, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(2, 20, 43, 0.85);
+            flex-shrink: 0;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .psc-slice.slice-speaker:hover .slice-speaker-portrait {
+            transform: scale(1.03);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85), 0 0 30px rgba(238, 202, 62, 0.6);
+        }
+
+        .slice-avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            display: block;
+        }
+
+        .slice-avatar-placeholder {
+            font-size: 3.5rem;
+            color: #EECA3E;
+        }
+
+        .slice-speaker-name {
+            font-size: 1.08rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin-top: 4px;
+            margin-bottom: 2px;
+            line-height: 1.3;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+        }
+
+        .slice-speaker-role {
+            font-size: 0.78rem;
+            color: #93c5fd;
+            margin-bottom: 6px;
+            line-height: 1.35;
+        }
+
+        /* Track Slice Elements */
+        .slice-track-name {
+            font-size: 1.05rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        /* Details Slice Elements */
+        .slice-desc-text {
+            font-size: 0.78rem;
+            line-height: 1.5;
+            margin-bottom: 8px;
+            color: #02142B;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Venue Slice Elements */
+        .slice-hall-name {
+            font-size: 1.05rem;
+            font-weight: 900;
+            color: #02142B;
+            margin-bottom: 4px;
+        }
+
+        .slice-cta-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 50px;
+            background: #02142B;
+            color: #EECA3E;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .slice-cta-action:hover {
+            background: #043C73;
+            color: #ffffff;
+            transform: scale(1.05);
+        }
+
+        /* Card Footer Strip */
+        .psc-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 0.85rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.82rem;
+        }
+
+        .psc-hint {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.74rem;
+            font-weight: 600;
+        }
+
+        .psc-link {
+            color: #38BDF8;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .psc-link:hover {
+            color: #EECA3E;
+            transform: translateX(-4px);
+        }
+
+/* ══════════════════════════════════════════════════════
            SECTION: STRATEGIC HERO SHOWCASE + SPONSORS PODIUM
            ══════════════════════════════════════════════════════ */
         .sponsors-showcase-wrap {
@@ -2076,7 +2902,7 @@
         /* مسرح الأسطوانة */
         .cyber-cylinder-wrapper {
             width: 100%;
-            height: 480px;
+            height: 490px;
             position: relative;
             display: flex;
             align-items: center;
@@ -2084,7 +2910,7 @@
             overflow: visible;
             user-select: none;
             padding: 0;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
         }
 
         /* حلقة الأرضية الهولوجرافية */
@@ -2133,8 +2959,9 @@
             }
         }
 
-        /* إيقاف الدوران عند مرور الماوس على المسرح */
-        .cyber-cylinder-wrapper:hover .cyber-cylinder-inner,
+        /* إيقاف الدوران فقط وحصرياً عند وضع المؤشر مباشرة فوق إحدى البطاقات وليس من مسافة بعيدة */
+        .cyber-cylinder-inner:has(.cyber-cylinder-card:hover),
+        .cyber-cylinder-inner.is-card-hovered,
         .cyber-cylinder-inner.is-paused {
             animation-play-state: paused !important;
         }
@@ -2170,14 +2997,72 @@
 
         .cyber-cylinder-card:hover {
             border-color: rgba(var(--color-card, 56, 189, 248), 1);
-            box-shadow: 0 0 50px rgba(var(--color-card, 56, 189, 248), 0.85), inset 0 0 35px rgba(var(--color-card, 56, 189, 248), 0.35), 0 20px 45px rgba(0, 0, 0, 0.8);
+            border-top-color: #ffffff;
+            box-shadow: 
+                0 32px 75px rgba(0, 0, 0, 0.9), 
+                0 0 50px rgba(var(--color-card, 56, 189, 248), 0.85), 
+                inset 0 0 30px rgba(var(--color-card, 56, 189, 248), 0.35),
+                inset 0 2px 5px rgba(255, 255, 255, 0.6);
             background: radial-gradient(
-                circle at 50% 25%,
-                rgba(var(--color-card, 56, 189, 248), 0.4) 0%,
-                rgba(4, 45, 90, 0.92) 60%,
-                rgba(2, 18, 42, 0.99) 100%
+                circle at 50% 15%,
+                rgba(var(--color-card, 56, 189, 248), 0.45) 0%,
+                rgba(4, 45, 95, 0.96) 55%,
+                rgba(2, 16, 38, 1) 100%
             );
-            z-index: 20;
+            transform: rotateY(calc((360deg / var(--quantity)) * var(--index))) translateZ(calc(var(--translateZ) + 24px)) scale(1.05);
+            z-index: 25;
+        }
+
+        .cyber-cylinder-card:hover .cylinder-identity-hub {
+            transform: translateZ(52px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 94px;
+            margin: 0.15rem auto 0.45rem;
+            position: relative;
+            z-index: 6;
+        }
+
+        .cyber-cylinder-card:hover .cylinder-content-body {
+            transform: translateZ(36px);
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            position: relative;
+            z-index: 5;
+        }
+
+        .cyber-cylinder-card:hover .cylinder-action-cta {
+            transform: translateZ(42px);
+            width: 100%;
+            margin-top: auto;
+            padding: 7px 12px;
+            border-radius: 10px;
+            background: transparent !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+            color: #ffffff !important;
+            font-size: 0.74rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.28s ease;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            box-shadow: none !important;
+            position: relative;
+            z-index: 6;
+        }
+
+        .cyber-cylinder-card:hover .cylinder-action-cta {
+            background: rgba(var(--color-card, 56, 189, 248), 0.2) !important;
+            border-color: rgba(var(--color-card, 56, 189, 248), 0.95) !important;
+            box-shadow: 0 0 20px rgba(var(--color-card, 56, 189, 248), 0.4) !important;
+            color: #ffffff !important;
         }
 
         /* تفاصيل بطاقة الأسطوانة */
@@ -2235,17 +3120,17 @@
         }
 
         .cylinder-logo-dock {
-            width: 125px;
-            height: 72px;
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 6px 14px;
+            width: 100%;
+            height: 94px;
+            background: transparent !important;
+            border-radius: 14px;
+            padding: 4px 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
-            border: 1.5px solid rgba(255, 255, 255, 0.8);
-            transition: transform 0.3s ease;
+            box-shadow: none !important;
+            border: none !important;
+            transition: transform 0.35s ease;
         }
 
         .cyber-cylinder-card:hover .cylinder-logo-dock {
@@ -2253,9 +3138,16 @@
         }
 
         .cylinder-logo-dock img {
-            max-width: 100%;
-            max-height: 100%;
+            max-width: 92%;
+            max-height: 84px;
             object-fit: contain;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 16px rgba(var(--color-card, 56, 189, 248), 0.4));
+            transition: filter 0.35s ease, transform 0.35s ease;
+        }
+
+        .cyber-cylinder-card:hover .cylinder-logo-dock img {
+            filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 25px rgba(var(--color-card, 56, 189, 248), 0.75));
+            transform: scale(1.08);
         }
 
         .cylinder-crest-emblem {
@@ -2551,14 +3443,14 @@
         .booth-logo-dock {
             width: 140px;
             height: 76px;
-            background: #ffffff;
+            background: transparent !important;
             border-radius: 18px;
-            padding: 8px 16px;
+            padding: 4px 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
-            border: 1.5px solid rgba(255, 255, 255, 0.6);
+            box-shadow: none !important;
+            border: none !important;
             transition: transform 0.3s ease;
         }
 
@@ -2755,8 +3647,8 @@
         .companies-dir-cta-wrap {
             position: relative;
             z-index: 10;
-            margin-top: 3.2rem;
-            padding-top: 1rem;
+            margin-top: 5rem;
+            padding-top: 1.5rem;
             clear: both;
         }
 
@@ -3032,22 +3924,67 @@
         }
 
         .company-modal-logo-wrapper {
-            width: 100px;
-            height: 100px;
-            background: #ffffff;
-            border-radius: 22px;
-            padding: 12px;
+            width: 120px;
+            height: 95px;
+            background: transparent !important;
+            border: none !important;
+            padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 1.2rem;
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+            box-shadow: none !important;
         }
 
         .company-modal-logo-wrapper img {
             max-width: 100%;
-            max-height: 100%;
+            max-height: 90px;
             object-fit: contain;
+            filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 20px rgba(56, 189, 248, 0.45));
+        }
+
+        #modalCompanyLogoFallback {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(4, 60, 115, 0.9) 0%, rgba(2, 20, 43, 0.95) 100%);
+            border: 1.5px solid rgba(56, 189, 248, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: #38bdf8;
+            font-size: 1.8rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.3);
+        }
+
+        /* شارات المسمى الوظيفي فقط - مظهر فائق الأناقة والجاذبية */
+        .company-job-title-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(4, 60, 115, 0.55) 0%, rgba(2, 20, 43, 0.8) 100%);
+            border: 1.2px solid rgba(56, 189, 248, 0.45);
+            color: #f0f9ff;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .company-job-title-pill i {
+            color: #38bdf8;
+            font-size: 0.85rem;
+        }
+
+        .company-job-title-pill:hover {
+            background: linear-gradient(135deg, rgba(2, 132, 199, 0.45) 0%, rgba(238, 202, 62, 0.25) 100%);
+            border-color: rgba(238, 202, 62, 0.8);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(56, 189, 248, 0.3);
         }
 
         .company-modal-badge {
@@ -4459,43 +5396,41 @@
                         $stratLogo = $strategicSponsor && $strategicSponsor->logo_path ? Storage::url($strategicSponsor->logo_path) : asset('images/wahaexpo_horizontal_white.png');
                     @endphp
 
-                    {{-- 1. البانر الرئيسي للراعي الاستراتيجي (Strategic Hero Showcase) --}}
-                    <div class="strategic-hero-showcase">
-                        <div class="strategic-hero-badge-strip">
-                            <i class="fas fa-crown text-warning"></i>
-                            <span>الراعي والشريك الاستراتيجي</span>
-                        </div>
-
-                        <div class="strategic-hero-grid">
-                            <div class="strategic-logo-pod">
-                                <img src="{{ $stratLogo }}"
-                                     alt="{{ $stratName }}"
-                                     onerror="this.src='{{ asset('images/wahaexpo_horizontal_white.png') }}';">
-                            </div>
-
-                            <div>
-                                <h3 class="strategic-hero-title">{{ $stratName }}</h3>
-                                <p class="strategic-hero-desc">
-                                    {{ $stratDesc }}
-                                </p>
-                                <div class="strategic-hero-actions-row">
-                                    <a href="{{ $stratWebsite }}" target="_blank" rel="noopener noreferrer"
-                                       class="strategic-gold-btn">
-                                        <span>زيارة منصة الشركة الرسمية</span>
-                                        <i class="fas fa-external-link-alt"></i>
-                                    </a>
-                                    <span class="strategic-status-pill">
-                                        <i class="fas fa-handshake text-info"></i>
-                                        <span>شراكة رائدة لتنظيم كبرى الفعاليات المهنية</span>
+                    {{-- 1. البانر الرئيسي للراعي الاستراتيجي (Strategic Hero Banner - Uiverse Luxury Aesthetic) --}}
+                    <div class="strategic-uiverse-hero">
+                        <div class="uiverse-border"></div>
+                        <div class="d-flex flex-column flex-lg-row align-items-center justify-content-between gap-4 p-4 p-lg-5 position-relative z-2">
+                            <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start gap-4 text-center text-md-end">
+                                <div class="strategic-logo-frame">
+                                    <img src="{{ $stratLogo }}" alt="{{ $stratName }}" style="max-height: 68px; max-width: 240px; object-fit: contain;"
+                                         onerror="this.src='{{ asset('images/wahaexpo_horizontal_white.png') }}';">
+                                </div>
+                                <div>
+                                    <span class="sponsor-tier-chip tier-strategic mb-2 d-inline-flex">
+                                        <i class="fas fa-crown text-warning me-1"></i>
+                                        <span>الراعي والشريك الاستراتيجي</span>
                                     </span>
+                                    <h3 class="mb-1 fw-bold text-white fs-4">{{ $stratName }}</h3>
+                                    <p class="text-white-50 mb-0 d-none d-md-block" style="max-width: 580px; font-size: 0.92rem; line-height: 1.6;">
+                                        {{ $stratDesc }}
+                                    </p>
                                 </div>
                             </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <a href="{{ $stratWebsite }}" target="_blank" rel="noopener noreferrer"
+                                   class="btn text-decoration-none rounded-pill px-4 py-2 fw-bold d-inline-flex align-items-center gap-2"
+                                   style="background: linear-gradient(135deg, #EECA3E, #f59e0b); color: #02142B; box-shadow: 0 6px 20px rgba(238, 202, 62, 0.4);">
+                                    <span>زيارة المنصة الرسمية</span>
+                                    <i class="fas fa-external-link-alt" style="font-size:0.8rem;"></i>
+                                </a>
+                            </div>
                         </div>
+                        <span class="bottom-text">الراعي الاستراتيجي • معرض جامعة طرابلس</span>
                     </div>
 
-                    {{-- 2. بوديوم الرعاة المعتمدين (Diamond / Gold / Silver) --}}
+                    {{-- 2. بطاقات الرعاة المعتمدين بنظام Uiverse Smit-Prajapati بألوان هوية المعرض --}}
                     @if($otherSponsors->count() > 0)
-                        <div class="podium-divider-wrap">
+                        <div class="podium-divider-wrap mb-4">
                             <div class="podium-divider-line"></div>
                             <div class="podium-divider-pill">
                                 <i class="fas fa-layer-group text-info"></i>
@@ -4504,7 +5439,7 @@
                             <div class="podium-divider-line"></div>
                         </div>
 
-                        <div class="sponsors-podium-grid">
+                        <div class="sponsors-uiverse-grid">
                             @foreach($otherSponsors as $sponsor)
                                 @php
                                     $tKey = strtolower(trim((string)$sponsor->tier));
@@ -4518,61 +5453,49 @@
                                         'gold', 'الراعي الذهبي' => 'fas fa-award',
                                         default => 'fas fa-star',
                                     };
-                                    $tierLbl = $sponsor->tier_label ?: match($tKey) {
+                                    $tierRawLbl = $sponsor->tier_label ?: match($tKey) {
                                         'diamond', 'الراعي الماسي' => 'الراعي الماسي',
                                         'platinum', 'الراعي البلاتيني' => 'الراعي البلاتيني',
                                         'gold', 'الراعي الذهبي' => 'الراعي الذهبي',
                                         'bronze', 'الراعي البرونزي' => 'الراعي البرونزي',
                                         default => 'الراعي الفضي',
                                     };
+                                    $tierPackageName = Str::startsWith($tierRawLbl, 'باقة') ? $tierRawLbl : ('باقة ' . $tierRawLbl);
                                     $monogramLetter = mb_substr(trim($sponsor->name), 0, 1, 'UTF-8');
+                                    $sponsorUrl = $sponsor->website ? (Str::startsWith($sponsor->website, 'http') ? $sponsor->website : 'https://' . $sponsor->website) : '#';
                                 @endphp
 
-                                <div class="podium-sponsor-card {{ $tierClass }}">
-                                    <div class="sponsor-tier-badge {{ $tierClass }}">
-                                        <i class="{{ $tierIcon }}"></i>
-                                        <span>{{ $tierLbl }}</span>
+                                <a href="{{ $sponsorUrl }}" target="{{ $sponsor->website ? '_blank' : '_self' }}" rel="noopener noreferrer"
+                                   class="sponsor-uiverse-card {{ $tierClass }}" title="{{ $sponsor->name }} — {{ $tierPackageName }}">
+                                    <div class="uiverse-border"></div>
+                                    <div class="content">
+                                        <div class="logo">
+                                            <div class="logo1">
+                                                @if($sponsor->logo_path)
+                                                    <img src="{{ Storage::url($sponsor->logo_path) }}" alt="{{ $sponsor->name }}" loading="lazy"
+                                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                                    <svg viewBox="0 0 32 32" style="display:none;">
+                                                        <polygon points="16,2 30,9 30,23 16,30 2,23 2,9" fill="#043C73" stroke="#EECA3E" stroke-width="2"/>
+                                                        <text x="16" y="21" font-size="14" font-weight="900" fill="#EECA3E" text-anchor="middle" font-family="'Cairo', sans-serif">{{ $monogramLetter }}</text>
+                                                    </svg>
+                                                @else
+                                                    <svg viewBox="0 0 32 32">
+                                                        <polygon points="16,2 30,9 30,23 16,30 2,23 2,9" fill="#043C73" stroke="#EECA3E" stroke-width="2"/>
+                                                        <text x="16" y="21" font-size="14" font-weight="900" fill="#EECA3E" text-anchor="middle" font-family="'Cairo', sans-serif">{{ $monogramLetter }}</text>
+                                                    </svg>
+                                                @endif
+                                            </div>
+                                            <div class="logo2">
+                                                <span class="sponsor-brand-text">{{ $sponsor->name }}</span>
+                                            </div>
+                                            <span class="trail"></span>
+                                        </div>
+                                        <span class="logo-bottom-text">
+                                            <i class="{{ $tierIcon }} me-1"></i>{{ $tierPackageName }}
+                                        </span>
                                     </div>
-
-                                    <div class="sponsor-identity-hub">
-                                        @if($sponsor->logo_path)
-                                            <div class="sponsor-image-dock">
-                                                <img src="{{ Storage::url($sponsor->logo_path) }}" alt="{{ $sponsor->name }}" loading="lazy"
-                                                     onerror="this.parentElement.style.display='none'; this.parentElement.nextElementSibling.style.display='flex';">
-                                            </div>
-                                            <div class="sponsor-crest-emblem {{ $tierClass }}" style="display:none;">
-                                                <span class="crest-monogram">{{ $monogramLetter }}</span>
-                                                <i class="{{ $tierIcon }} crest-subicon"></i>
-                                            </div>
-                                        @else
-                                            <div class="sponsor-crest-emblem {{ $tierClass }}">
-                                                <span class="crest-monogram">{{ $monogramLetter }}</span>
-                                                <i class="{{ $tierIcon }} crest-subicon"></i>
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <h3 class="podium-sponsor-name">{{ $sponsor->name }}</h3>
-                                    <p class="podium-sponsor-desc">
-                                        {{ $sponsor->description ?: 'شريك رعاية متميز داعم لمسارات التوظيف وتمكين الكفاءات الوطنية الشابة.' }}
-                                    </p>
-
-                                    <div class="podium-sponsor-action">
-                                        @if($sponsor->website)
-                                            <a href="{{ Str::startsWith($sponsor->website, 'http') ? $sponsor->website : 'https://' . $sponsor->website }}"
-                                               target="_blank" rel="noopener noreferrer"
-                                               class="podium-card-btn">
-                                                <span>زيارة المنصة</span>
-                                                <i class="fas fa-external-link-alt"></i>
-                                            </a>
-                                        @else
-                                            <div class="podium-verified-pill">
-                                                <i class="fas fa-check-circle text-success"></i>
-                                                <span>شريك رعاية معتمد</span>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
+                                    <span class="bottom-text">{{ $sponsor->website ? 'زيارة الموقع الرسمي' : 'شريك معتمد' }}</span>
+                                </a>
                             @endforeach
                         </div>
                     @endif
@@ -4599,19 +5522,31 @@
                     '238, 202, 62',   // ذهبي ملكي فاخر للمعرض (#eeca3e)
                 ];
 
-                // للأسطوانة ثلاثية الأبعاد: ضمان اكتمال الدائرة بحد أدنى 8 بطاقات لتعطي انطباعاً أسطوانياً مكتملاً
+                // للأسطوانة ثلاثية الأبعاد: إدراج كافة الشركات المشاركة في المعرض بالكامل
                 $cylinderCompanies = collect();
                 $baseCompCount = $companies->count();
                 if ($baseCompCount > 0) {
-                    $targetCylinderQty = ($baseCompCount >= 8) ? min($baseCompCount, 12) : 8;
-                    for ($ci = 0; $ci < $targetCylinderQty; $ci++) {
-                        $cylinderCompanies->push($companies[$ci % $baseCompCount]);
+                    if ($baseCompCount >= 6) {
+                        // إدراج كافة الشركات المشاركة دون استثناء
+                        $cylinderCompanies = $companies;
+                    } else {
+                        // في حال كان عدد الشركات قليلاً (أقل من 6)، نكررها حتى تكتمل الدائرة الهندسية للأسطوانة 3D
+                        $minCylinderQty = 8;
+                        for ($ci = 0; $ci < $minCylinderQty; $ci++) {
+                            $cylinderCompanies->push($companies[$ci % $baseCompCount]);
+                        }
                     }
                 }
                 $cylinderQty = $cylinderCompanies->count();
 
-                // عرض معاينة لأول 12 شركة لإبقاء الصفحة الرئيسية خفيفة وسريعة التصفح
-                $previewCompanies = $companies->take(12);
+                // حساب نصف القطر المناسب 3D هندسياً حسب عدد الشركات لضمان التباعد المثالي وعدم تداخل البطاقات
+                $cardW = 235;
+                $calcRadius = (int) round(($cardW / (2 * tan(M_PI / max($cylinderQty, 3))))) + 25;
+                $cylinderTranslateZ = max(420, $calcRadius);
+                $cylinderSpeed = max(26, (int) round($cylinderQty * 2.8));
+
+                // عرض معاينة الشركات في الشبكة
+                $previewCompanies = $companies;
             @endphp
             <section class="companies-section cyber-matrix-wrap" id="companies">
                 <div class="container position-relative z-2">
@@ -4627,7 +5562,7 @@
                         {{-- مسرح الأسطوانة ثلاثية الأبعاد 3D --}}
                         <div class="cyber-cylinder-wrapper" id="companiesCylinderWrapper">
                             <div class="cylinder-floor-glow"></div>
-                            <div class="cyber-cylinder-inner" id="companiesCylinderInner" style="--quantity: {{ $cylinderQty }};">
+                            <div class="cyber-cylinder-inner" id="companiesCylinderInner" style="--quantity: {{ $cylinderQty }}; --translateZ: {{ $cylinderTranslateZ }}px; animation-duration: {{ $cylinderSpeed }}s;">
                                 @foreach($cylinderCompanies as $cIndex => $fc)
                                     @php
                                         $colorCard = $cardColors[$cIndex % count($cardColors)];
@@ -4667,6 +5602,9 @@
                                             $crestIcon = 'fa-graduation-cap';
                                         }
                                     @endphp
+                                    @php
+                                        $jobTitles = ($fc->company && $fc->company->jobOpportunities) ? $fc->company->jobOpportunities->where('status', 'open')->pluck('title')->values()->all() : [];
+                                    @endphp
                                     <div role="button" tabindex="0" class="cyber-cylinder-card"
                                         style="--index: {{ $cIndex }}; --color-card: {{ $colorCard }};"
                                         data-bs-toggle="modal" data-bs-target="#companyDetailModal"
@@ -4674,6 +5612,7 @@
                                         data-industry="{{ $industry }}"
                                         data-booth="{{ $fc->booth_number ? strtoupper($fc->booth_number) : '' }}"
                                         data-jobs="{{ $pos }}" data-desc="{{ $companyDesc }}"
+                                        data-job-titles="{{ json_encode($jobTitles) }}"
                                         data-website="{{ $fc->company->website ?? '' }}"
                                         data-email="{{ $fc->company->email ?? '' }}"
                                         data-phone="{{ $fc->company->phone ?? '' }}"
@@ -4795,11 +5734,16 @@
                                     $crestIcon = 'fa-graduation-cap';
                                 }
                             @endphp
+                            @php
+                                $gridJobTitles = ($fc->company && $fc->company->jobOpportunities) ? $fc->company->jobOpportunities->where('status', 'open')->pluck('title')->values()->all() : [];
+                            @endphp
                             <div role="button" tabindex="0" class="company-booth-card" data-bs-toggle="modal"
                                 data-bs-target="#companyDetailModal" data-name="{{ $companyName }}" data-logo="{{ $companyLogo }}"
                                 data-industry="{{ $industry }}"
                                 data-booth="{{ $fc->booth_number ? strtoupper($fc->booth_number) : '' }}" data-jobs="{{ $pos }}"
-                                data-desc="{{ $companyDesc }}" data-website="{{ $fc->company->website ?? '' }}"
+                                data-desc="{{ $companyDesc }}"
+                                data-job-titles="{{ json_encode($gridJobTitles) }}"
+                                data-website="{{ $fc->company->website ?? '' }}"
                                 data-email="{{ $fc->company->email ?? '' }}" data-phone="{{ $fc->company->phone ?? '' }}"
                                 title="انقر للاطلاع على تفاصيل جناح {{ $companyName }}">
 
@@ -4946,53 +5890,127 @@
                                         'panel_discussion' => 'badge-type-panel',
                                         default => 'badge-type-workshop',
                                     };
-                                    $isCenterCard = ($idx === 1); // Center card gets gold accent like reference image
+                                    $isCenterCard = ($idx === 1);
+                                    $speakerImg = $event->speaker_image_url ?: '';
+                                    $startTimeStr = $event->start_time ? $event->start_time->format('H:i') : '10:00';
+                                    $endTimeStr = $event->end_time ? $event->end_time->format('H:i') : '12:30';
+                                    $dateStr = $event->start_time ? $event->start_time->format('Y-m-d') : 'اليوم الأول';
+                                    $locationStr = $event->location ?: 'المدرج الرئيسي';
                                 @endphp
                                 <div class="col-lg-4 col-md-6">
-                                    <div class="cyber-chamfer-card h-100 {{ $isCenterCard ? 'is-featured' : '' }}"
-                                        onclick="window.location.href='{{ route('job-fair.public.events.show', $event->id) }}'">
-
-                                        {{-- شريط الوقت ونوع الورشة --}}
-                                        <div class="cyber-card-top-bar">
-                                            <span class="cyber-time-pill">
-                                                <i
-                                                    class="far fa-clock text-warning me-1"></i>{{ $event->start_time ? $event->start_time->format('H:i') : '10:00' }}
-                                                - {{ $event->end_time ? $event->end_time->format('H:i') : '12:30' }}
-                                            </span>
-                                            <span class="cyber-track-pill {{ $isCenterCard ? 'badge-gold-featured' : $typeClass }}">
-                                                <i
-                                                    class="{{ $event->type_icon }} me-1"></i>{{ $event->type_short_label ?: 'ورشة تدريبية' }}
-                                            </span>
+                                    <div class="program-slides-card {{ $isCenterCard ? 'is-featured' : '' }}">
+                                        {{-- Header bar --}}
+                                        <div class="psc-header">
+                                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                                <span class="cyber-track-pill {{ $typeClass }}">
+                                                    <i class="{{ $event->type_icon }} me-1"></i>{{ $event->type_short_label ?: 'ورشة تدريبية' }}
+                                                </span>
+                                                <span class="psc-time-badge">
+                                                    <i class="far fa-clock text-warning me-1"></i>{{ $startTimeStr }} - {{ $endTimeStr }}
+                                                </span>
+                                            </div>
+                                            <h3 class="psc-title" title="{{ $event->title }}">
+                                                {{ $event->title }}
+                                            </h3>
                                         </div>
 
-                                        {{-- عنوان الفعالية / الورشة --}}
-                                        <h3 class="cyber-card-title" title="{{ $event->title }}">
-                                            {{ $event->title }}
-                                        </h3>
-
-                                        @if($event->speaker_name)
-                                            <div class="cyber-card-speaker">
-                                                @if($event->speaker_image_url)
-                                                    <img src="{{ $event->speaker_image_url }}" alt="{{ $event->speaker_name }}"
-                                                        class="speaker-avatar-sm">
-                                                @else
-                                                    <div class="speaker-avatar-sm-fallback">
-                                                        <i class="fas fa-user-tie"></i>
-                                                    </div>
-                                                @endif
-                                                <span>{{ $event->speaker_name }}</span>
+                                        {{-- Interactive 5 Slices (الشرائح التفاعلية الخمسة بألوان هوية المعرض) --}}
+                                        <div class="psc-slices-wrapper">
+                                            {{-- 1. شريحة التوقيت والجدول --}}
+                                            <div class="psc-slice slice-time">
+                                                <div class="slice-compact">
+                                                    <i class="far fa-clock slice-icon text-warning"></i>
+                                                    <span class="slice-label">التوقيت</span>
+                                                    <span class="slice-micro-val">{{ $startTimeStr }}</span>
+                                                </div>
+                                                <div class="slice-expanded">
+                                                    <div class="slice-badge"><i class="far fa-clock me-1 text-warning"></i> التوقيت والجدول</div>
+                                                    <div class="slice-highlight-val">{{ $startTimeStr }} — {{ $endTimeStr }}</div>
+                                                    <div class="slice-sub-info"><i class="far fa-calendar-alt me-1"></i> {{ $dateStr }}</div>
+                                                    <span class="slice-tag">تأكيد الموعد</span>
+                                                </div>
                                             </div>
-                                        @endif
 
-                                        <p class="cyber-card-desc" title="{{ $event->description }}">
-                                            {{ Str::limit($event->description ?: 'جلسة تدريبية نوعية تستهدف رفع كفاءة الخريجين وإكسابهم المهارات التطبيقية التي يتطلبها سوق العمل المعاصر.', 130) }}
-                                        </p>
+                                            {{-- 2. شريحة المحاضر والمدرب --}}
+                                            <div class="psc-slice slice-speaker">
+                                                <div class="slice-compact">
+                                                    @if($speakerImg)
+                                                        <img src="{{ $speakerImg }}" alt="{{ $event->speaker_name }}" class="slice-mini-avatar">
+                                                    @else
+                                                        <i class="fas fa-user-tie slice-icon text-info"></i>
+                                                    @endif
+                                                    <span class="slice-label">المحاضر</span>
+                                                    <span class="slice-micro-val text-truncate" style="max-width:45px;">{{ Str::limit($event->speaker_name ?: 'المدرب', 6) }}</span>
+                                                </div>
+                                                <div class="slice-expanded">
+                                                    <div class="slice-speaker-portrait">
+                                                        @if($speakerImg)
+                                                            <img src="{{ $speakerImg }}" alt="{{ $event->speaker_name }}" class="slice-avatar-img">
+                                                        @else
+                                                            <div class="slice-avatar-placeholder"><i class="fas fa-user-tie"></i></div>
+                                                        @endif
+                                                    </div>
+                                                    <div class="slice-speaker-name">{{ $event->speaker_name ?: 'نخبة من المدربين والخبراء' }}</div>
+                                                    <div class="slice-speaker-role">{{ $event->speaker_title ?: 'خبير ومحاضر معتمد' }}</div>
+                                                    <span class="slice-tag"><i class="fas fa-certificate text-warning me-1"></i> مدرب معتمد</span>
+                                                </div>
+                                            </div>
+
+                                            {{-- 3. شريحة المحور ونوع الجلسة --}}
+                                            <div class="psc-slice slice-track">
+                                                <div class="slice-compact">
+                                                    <i class="{{ $event->type_icon ?: 'fas fa-layer-group' }} slice-icon text-white"></i>
+                                                    <span class="slice-label">المحور</span>
+                                                    <span class="slice-micro-val">المجال</span>
+                                                </div>
+                                                <div class="slice-expanded">
+                                                    <div class="slice-badge"><i class="fas fa-compass me-1 text-warning"></i> مسار البرنامج</div>
+                                                    <div class="slice-track-name">{{ $event->type_short_label ?: 'ورشة تطبيقية' }}</div>
+                                                    <div class="slice-sub-info"><i class="fas fa-users me-1"></i> {{ $event->target_audience ?: 'الخريجون والباحثون عن عمل' }}</div>
+                                                    <span class="slice-tag">شهادة حضور معتمدة</span>
+                                                </div>
+                                            </div>
+
+                                            {{-- 4. شريحة تفاصيل ومحاور الورشة --}}
+                                            <div class="psc-slice slice-details">
+                                                <div class="slice-compact">
+                                                    <i class="fas fa-file-alt slice-icon text-dark"></i>
+                                                    <span class="slice-label">المحاور</span>
+                                                    <span class="slice-micro-val">التفاصيل</span>
+                                                </div>
+                                                <div class="slice-expanded">
+                                                    <div class="slice-badge text-dark"><i class="fas fa-bullseye me-1"></i> نبذة وأهداف</div>
+                                                    <p class="slice-desc-text">
+                                                        {{ Str::limit($event->description ?: 'جلسة تدريبية تطبيقية مكثفة تؤهلك لمتطلبات سوق العمل وتمكّنك من اكتساب مهارات احترافية.', 115) }}
+                                                    </p>
+                                                    <span class="slice-tag-dark">تطبيق عملي وتفاعلي</span>
+                                                </div>
+                                            </div>
+
+                                            {{-- 5. شريحة القاعة والتسجيل --}}
+                                            <div class="psc-slice slice-venue">
+                                                <div class="slice-compact">
+                                                    <i class="fas fa-map-marker-alt slice-icon text-dark"></i>
+                                                    <span class="slice-label">القاعة</span>
+                                                    <span class="slice-micro-val">الموقع</span>
+                                                </div>
+                                                <div class="slice-expanded">
+                                                    <div class="slice-badge text-dark"><i class="fas fa-door-open me-1"></i> الموقع والقاعة</div>
+                                                    <div class="slice-hall-name">{{ $locationStr }}</div>
+                                                    <span class="slice-tag-dark">المقاعد محدودة</span>
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         {{-- الشريط السفلي التفاعلي --}}
-                                        <div class="cyber-action-strip">
-                                            <i class="fas fa-plus-circle me-1"></i>
-                                            <span>عرض التفاصيل الكاملة والجدول</span>
-                                            <i class="fas fa-arrow-left ms-auto"></i>
+                                        <div class="psc-footer">
+                                            <span class="psc-hint">
+                                                <i class="fas fa-hand-pointer text-warning me-1"></i> مرر الماوس على الشرائح
+                                            </span>
+                                            <a href="{{ route('job-fair.public.events.show', $event->id) }}" class="psc-link">
+                                                <span>عرض التفاصيل</span>
+                                                <i class="fas fa-arrow-left ms-1"></i>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -5225,6 +6243,17 @@
                     </div>
 
                     <div class="company-modal-body">
+                        {{-- قسم الوظائف المتاحة بالجناح (المسمى الوظيفي فقط - مختصر جداً) --}}
+                        <div class="mb-4" id="modalCompanyJobsListWrap" style="display:none;">
+                            <h6 class="fw-bold mb-2 d-flex align-items-center justify-content-between" style="font-size: 0.9rem; color: #38bdf8;">
+                                <span><i class="fas fa-briefcase me-2 text-warning"></i>الوظائف المتاحة بالجناح:</span>
+                                <span class="badge rounded-pill" id="modalJobsCountBadge" style="font-size:0.75rem; background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);"></span>
+                            </h6>
+                            <div class="d-flex flex-wrap gap-2 pt-1" id="modalCompanyJobsList">
+                                {{-- تُملأ ديناميكياً بالمسميات الوظيفية فقط --}}
+                            </div>
+                        </div>
+
                         <div class="mb-4">
                             <h6 class="fw-bold mb-2" style="font-size: 0.88rem; color: #fbbf24;">
                                 <i class="fas fa-info-circle me-1"></i>نبذة تعريفية عن الشركة:
@@ -5631,9 +6660,7 @@
             const companyModal = document.getElementById('companyDetailModal');
             if (!companyModal) return;
 
-            companyModal.addEventListener('show.bs.modal', function (event) {
-                const rawTrigger = event.relatedTarget;
-                const button = rawTrigger ? (rawTrigger.closest('[data-name]') || rawTrigger) : null;
+            function populateCompanyModalData(button) {
                 if (!button) return;
 
                 const name = button.getAttribute('data-name') || 'شركة مشاركة';
@@ -5655,15 +6682,46 @@
                 const descEl = document.getElementById('modalCompanyDesc');
                 if (descEl) descEl.textContent = desc || 'جهة رائدة مشاركة في فعاليات المعرض لتوفير أفضل الفرص للخرجين.';
 
+                // عرض الوظائف المتاحة بشكل مختصر جداً (المسمى الوظيفي فقط)
+                const rawJobs = button.getAttribute('data-job-titles');
+                let jobTitles = [];
+                try {
+                    if (rawJobs) jobTitles = JSON.parse(rawJobs);
+                } catch (e) {
+                    jobTitles = [];
+                }
+
+                const jobsWrap = document.getElementById('modalCompanyJobsListWrap');
+                const jobsContainer = document.getElementById('modalCompanyJobsList');
+                const jobsBadge = document.getElementById('modalJobsCountBadge');
+
+                if (jobsWrap && jobsContainer) {
+                    jobsContainer.innerHTML = '';
+                    if (Array.isArray(jobTitles) && jobTitles.length > 0) {
+                        jobTitles.forEach(function(title) {
+                            const pill = document.createElement('span');
+                            pill.className = 'company-job-title-pill';
+                            pill.innerHTML = '<i class="fas fa-briefcase"></i><span>' + title + '</span>';
+                            jobsContainer.appendChild(pill);
+                        });
+                        if (jobsBadge) {
+                            jobsBadge.textContent = jobTitles.length + ' فرصة متاحة';
+                        }
+                        jobsWrap.style.display = 'block';
+                    } else {
+                        jobsWrap.style.display = 'none';
+                    }
+                }
+
                 const logoImg = document.getElementById('modalCompanyLogo');
                 const logoFallback = document.getElementById('modalCompanyLogoFallback');
                 if (logo) {
                     logoImg.src = logo;
                     logoImg.style.display = 'block';
-                    logoFallback.style.display = 'none';
+                    if (logoFallback) logoFallback.style.display = 'none';
                 } else {
                     logoImg.style.display = 'none';
-                    logoFallback.style.display = 'block';
+                    if (logoFallback) logoFallback.style.display = 'inline-flex';
                 }
 
                 const boothBadge = document.getElementById('modalCompanyBoothBadge');
@@ -5674,12 +6732,12 @@
                     boothBadge.style.display = 'none';
                 }
 
-                const jobsBadge = document.getElementById('modalCompanyJobsBadge');
+                const jobsBadgeEl = document.getElementById('modalCompanyJobsBadge');
                 if (jobs > 0) {
                     document.getElementById('modalCompanyJobs').textContent = jobs;
-                    jobsBadge.style.display = 'inline-flex';
+                    jobsBadgeEl.style.display = 'inline-flex';
                 } else {
-                    jobsBadge.style.display = 'none';
+                    jobsBadgeEl.style.display = 'none';
                 }
 
                 const webChip = document.getElementById('modalWebsiteChip');
@@ -5709,6 +6767,26 @@
                     phoneChip.style.display = 'flex';
                 } else {
                     phoneChip.style.display = 'none';
+                }
+            }
+
+            companyModal.addEventListener('show.bs.modal', function (event) {
+                const rawTrigger = event.relatedTarget;
+                const button = rawTrigger ? (rawTrigger.closest('[data-name]') || rawTrigger) : null;
+                if (button && button.hasAttribute('data-name')) {
+                    populateCompanyModalData(button);
+                }
+            });
+
+            // ضمان فتح النافذة وملء البيانات فور النقر المباشر على البطاقة أو أي زر بداخلها
+            document.addEventListener('click', function (e) {
+                const card = e.target.closest && (e.target.closest('.cyber-cylinder-card') || e.target.closest('.company-booth-card'));
+                if (card && card.hasAttribute('data-name')) {
+                    populateCompanyModalData(card);
+                    if (window.bootstrap && bootstrap.Modal) {
+                        const modalInstance = bootstrap.Modal.getOrCreateInstance(companyModal);
+                        modalInstance.show(card);
+                    }
                 }
             });
 
@@ -5742,6 +6820,17 @@
 
             let isPaused = false;
             let currentAngle = 0;
+
+            // إيقاف الدوران فقط وحصرياً عند وضع المؤشر مباشرة على إحدى البطاقات
+            const cylinderCards = inner.querySelectorAll('.cyber-cylinder-card');
+            cylinderCards.forEach(function (card) {
+                card.addEventListener('mouseenter', function () {
+                    inner.classList.add('is-card-hovered');
+                });
+                card.addEventListener('mouseleave', function () {
+                    inner.classList.remove('is-card-hovered');
+                });
+            });
 
             // View Switcher (3D vs Grid)
             if (btnView3d && btnViewGrid && cylinderWrapper && gridWrapper) {

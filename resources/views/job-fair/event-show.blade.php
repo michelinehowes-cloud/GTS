@@ -543,9 +543,99 @@
             background: linear-gradient(145deg, rgba(8, 34, 69, 0.9) 0%, rgba(4, 93, 176, 0.75) 100%);
             border: 2px solid rgba(238, 202, 62, 0.4);
             border-radius: 22px;
-            padding: 28px;
+            padding: 24px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.4);
             margin-bottom: 24px;
+        }
+
+        /* ── Sidebar Speaker Spotlight Box ── */
+        .sidebar-speaker-spotlight {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .sidebar-speaker-portrait-wrap {
+            width: 100%;
+            height: 330px;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 2.5px solid var(--gold);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65), 0 0 24px rgba(238, 202, 62, 0.35);
+            background: rgba(2, 20, 43, 0.85);
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .sidebar-speaker-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 20%;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .sidebar-speaker-portrait-wrap:hover .sidebar-speaker-img {
+            transform: scale(1.04);
+        }
+
+        .sidebar-speaker-avatar-fallback {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4.5rem;
+            color: var(--gold);
+            background: linear-gradient(135deg, #043c73, #02142b);
+        }
+
+        .sidebar-speaker-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(238, 202, 62, 0.15);
+            border: 1px solid rgba(238, 202, 62, 0.45);
+            color: var(--gold);
+            font-size: 0.82rem;
+            font-weight: 800;
+            padding: 4px 14px;
+            border-radius: 50px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar-speaker-title {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin-bottom: 4px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        .sidebar-speaker-role {
+            font-size: 0.88rem;
+            color: #93c5fd;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .sidebar-speaker-session-banner {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 0.84rem;
+            color: rgba(255, 255, 255, 0.92);
+            line-height: 1.5;
+            font-weight: 600;
+            width: 100%;
         }
 
         .capacity-bar-wrap {
@@ -1016,64 +1106,6 @@
                     </div>
                     @endif
 
-                    <!-- Speakers Profile Box -->
-                    <div class="glass-box">
-                        <div class="box-title-row">
-                            <div class="box-icon-wrap">
-                                <i class="fas fa-chalkboard-teacher"></i>
-                            </div>
-                            <h3>{{ $event->type === 'panel_discussion' ? 'المتحدثون والخبراء المشاركون' : 'المدرب / المتحدث الرئيسي' }}</h3>
-                        </div>
-
-                        @if($event->type === 'panel_discussion')
-                            <!-- Panelists Breakdown -->
-                            <div class="speaker-profile-card">
-                                <div class="speaker-avatar-wrap">
-                                    @if($event->speaker_image_url)
-                                        <img src="{{ $event->speaker_image_url }}" alt="{{ $event->speaker_name }}">
-                                    @else
-                                        <i class="fas fa-users-cog avatar-fallback"></i>
-                                    @endif
-                                </div>
-                                <div class="speaker-info-col">
-                                    <div class="speaker-name-badge">
-                                        <h4>{{ $event->speaker_name }}</h4>
-                                    </div>
-                                    <div class="speaker-job-title">
-                                        <i class="fas fa-id-badge"></i>
-                                        <span>{{ $event->speaker_title ?: 'نخبة من القيادات التنفيذية والخبراء' }}</span>
-                                    </div>
-                                    <p class="speaker-bio-text">
-                                        {{ $event->speaker_bio ?: 'جلسة حوارية رفيعة المستوى تجمع شخصيات قيادية وخبراء دوليين لنقل خبراتهم الميدانية وتقديم توصيات عملية ملموسة للطلبة والخريجين.' }}
-                                    </p>
-                                </div>
-                            </div>
-                        @else
-                            <!-- Solo Speaker -->
-                            <div class="speaker-profile-card">
-                                <div class="speaker-avatar-wrap">
-                                    @if($event->speaker_image_url)
-                                        <img src="{{ $event->speaker_image_url }}" alt="{{ $event->speaker_name }}">
-                                    @else
-                                        <i class="fas fa-user-tie avatar-fallback"></i>
-                                    @endif
-                                </div>
-                                <div class="speaker-info-col">
-                                    <div class="speaker-name-badge">
-                                        <h4>{{ $event->speaker_name }}</h4>
-                                        <i class="fas fa-check-circle speaker-verified-icon" title="متحدث معتمد"></i>
-                                    </div>
-                                    <div class="speaker-job-title">
-                                        <i class="fas fa-briefcase"></i>
-                                        <span>{{ $event->speaker_title ?: 'خبير ومدرب معتمد' }}</span>
-                                    </div>
-                                    <p class="speaker-bio-text">
-                                        {{ $event->speaker_bio ?: 'يمتلك خبرة عملية واسعة في تدريب وتأهيل الكفاءات وتطوير المهارات المطلوبة في بيئات الأعمال التنافسية وسوق العمل الحديث.' }}
-                                    </p>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
 
                     <!-- Target Audience & Prerequisites -->
                     <div class="glass-box">
@@ -1102,72 +1134,38 @@
                 <div class="col-lg-4">
                     <div class="sidebar-sticky">
 
-                        <!-- Registration Action Box -->
+                        <!-- Speaker & Event Information Box -->
                         <div class="reg-action-box">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <h4 style="font-size: 1.15rem; font-weight: 800; margin: 0; color: #fff;">
-                                    <i class="fas fa-ticket-alt text-warning me-1"></i>
-                                    التسجيل في الفعالية
-                                </h4>
-                                <span class="badge-status-pill badge-status-{{ $event->effective_status }}">
-                                    {{ $event->status_label }}
-                                </span>
-                            </div>
-
-                            <!-- Registration Buttons based on Auth & Status -->
-                            @auth
-                                @if(Auth::user()->role === 'graduate')
-                                    @if($isRegistered)
-                                        <form method="POST" action="{{ route('job-fair.event.toggle', $event->id) }}" id="toggleRegForm">
-                                            @csrf
-                                            <button type="submit" class="btn-register-action btn-reg-registered" onclick="return confirm('هل أنت متأكد من رغبتك في إلغاء تسجيلك في هذه الفعالية؟');">
-                                                <i class="fas fa-check-circle"></i>
-                                                <span>أنت مسجل بالفعل (إلغاء التسجيل)</span>
-                                            </button>
-                                        </form>
-                                        <small class="d-block text-center mt-2" style="font-size: 0.76rem; color: rgba(255,255,255,0.7);">
-                                            <i class="fas fa-info-circle text-info"></i> تم تسجيلك بنجاح، يرجى الحضور قبل الموعد بـ 15 دقيقة.
-                                        </small>
-                                    @elseif($event->effective_status === 'completed')
-                                        <button class="btn-register-action btn-reg-disabled" disabled>
-                                            <i class="fas fa-ban"></i>
-                                            <span>نعتذر، اكتمل التسجيل في هذه الفعالية</span>
-                                        </button>
-                                        <small class="d-block text-center mt-2" style="font-size: 0.76rem; color: #fca5a5;">
-                                            يمكنك متابعة الملخص أو مراجعة منصة الاستقبال في يوم المعرض في حال توفر أماكن شاغرة.
-                                        </small>
-                                    @elseif($event->effective_status === 'ended')
-                                        <button class="btn-register-action btn-reg-disabled" disabled>
-                                            <i class="fas fa-hourglass-end"></i>
-                                            <span>انتهت هذه الفعالية</span>
-                                        </button>
+                            <div class="sidebar-speaker-spotlight">
+                                <div class="sidebar-speaker-portrait-wrap">
+                                    @if($event->speaker_image_url)
+                                        <img src="{{ $event->speaker_image_url }}" alt="{{ $event->speaker_name }}" class="sidebar-speaker-img">
                                     @else
-                                        <form method="POST" action="{{ route('job-fair.event.toggle', $event->id) }}" id="toggleRegForm">
-                                            @csrf
-                                            <button type="submit" class="btn-register-action btn-reg-primary">
-                                                <i class="fas fa-user-plus"></i>
-                                                <span>سجّل الآن في الفعالية</span>
-                                            </button>
-                                        </form>
-                                        <small class="d-block text-center mt-2 text-warning" style="font-size: 0.76rem;">
-                                            <i class="fas fa-shield-alt"></i> التسجيل مجاني لجميع خريجي وطلبة جامعة طرابلس.
-                                        </small>
+                                        <div class="sidebar-speaker-avatar-fallback">
+                                            <i class="fas fa-user-tie"></i>
+                                        </div>
                                     @endif
-                                @else
-                                    <div class="p-3 text-center rounded-3" style="background: rgba(255,255,255,0.06); font-size: 0.85rem;">
-                                        <i class="fas fa-user-shield text-warning mb-1 d-block" style="font-size: 1.2rem;"></i>
-                                        التسجيل مخصص لحسابات الخريجين والطلبة.
-                                    </div>
-                                @endif
-                            @else
-                                <a href="{{ route('login') }}?redirect={{ urlencode(url()->current()) }}" class="btn-register-action btn-reg-primary">
-                                    <i class="fas fa-sign-in-alt"></i>
-                                    <span>تسجيل الدخول للتسجيل في الفعالية</span>
-                                </a>
-                                <small class="d-block text-center mt-2" style="font-size: 0.76rem; color: rgba(255,255,255,0.75);">
-                                    التسجيل يتطلب حساب خريج مسجل في النظام
-                                </small>
-                            @endauth
+                                </div>
+
+                                <div class="sidebar-speaker-badge">
+                                    <i class="fas fa-microphone-alt text-warning me-1"></i>
+                                    <span>المدرب / المتحدث الرئيسي</span>
+                                </div>
+
+                                <h3 class="sidebar-speaker-title">
+                                    {{ $event->speaker_name ?: 'المنيب محمد الشريف' }}
+                                </h3>
+
+                                <div class="sidebar-speaker-role">
+                                    <i class="fas fa-id-badge text-info me-1"></i>
+                                    <span>{{ $event->speaker_title ?: 'موظف بوحدة الدعم التقني' }}</span>
+                                </div>
+
+                                <div class="sidebar-speaker-session-banner">
+                                    <i class="fas fa-calendar-check text-warning me-1"></i>
+                                    <span>{{ $event->title ?: 'افتتاح وتدشين فعاليات البرنامج العلمي المصاحب لمعرض التوظيف 2026' }}</span>
+                                </div>
+                            </div>
 
                             <!-- Metadata List -->
                             <div class="meta-list">
@@ -1230,7 +1228,7 @@
                                 رمز الاستجابة السريعة (QR Code)
                             </h4>
                             <p class="qr-caption">
-                                امسح الرمز من هاتفك للتسجيل الفوري أو مشاركة الفعالية عبر وسائل التواصل
+                                امسح الرمز من هاتفك للاطلاع المباشر على تفاصيل الفعالية ومشاركتها عبر وسائل التواصل
                             </p>
 
                             <div class="qr-image-frame">

@@ -2870,6 +2870,453 @@
             transform: translateX(-5px);
         }
 
+        /* ══════════════════════════════════════════════════
+           GRADUATION PROJECTS UIVERSE WALLET SYSTEM (byllzz)
+           Adapted to Fair Identity (#043C73, #EECA3E, #38BDF8)
+        ══════════════════════════════════════════════════ */
+        .project-wallet-col {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .project-wallet {
+            position: relative;
+            width: 310px;
+            height: 270px;
+            cursor: pointer;
+            perspective: 1000px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            transition: transform 0.4s ease;
+            margin: 55px auto 60px auto;
+        }
+
+        .project-wallet::after {
+            content: "مرّر المؤشر لتصفح بطاقات المشروع ✦";
+            position: absolute;
+            bottom: -32px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #EECA3E;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            opacity: 0.9;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            pointer-events: none;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+        }
+
+        .project-wallet:hover::after {
+            color: #38BDF8;
+            transform: translateY(2px);
+        }
+
+        @keyframes walletSlideIntoPocket {
+            0% {
+                transform: translateY(-90px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Wallet Back */
+        .project-wallet .wallet-back {
+            position: absolute;
+            bottom: 0;
+            width: 310px;
+            height: 220px;
+            background: linear-gradient(160deg, #021226 0%, #043c73 100%);
+            border-radius: 22px 22px 60px 60px;
+            border: 1.5px solid rgba(56, 189, 248, 0.3);
+            z-index: 5;
+            box-shadow: inset 0 25px 35px rgba(0, 0, 0, 0.65), inset 0 5px 15px rgba(0, 0, 0, 0.7), 0 15px 35px rgba(0, 0, 0, 0.45);
+        }
+
+        /* Project Cards */
+        .project-wallet .p-card {
+            position: absolute;
+            width: 286px;
+            height: 155px;
+            left: 12px;
+            border-radius: 18px;
+            padding: 13px 16px;
+            color: #ffffff;
+            text-decoration: none;
+            direction: rtl;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 -4px 18px rgba(0, 0, 0, 0.3);
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, z-index 0s;
+            animation: walletSlideIntoPocket 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .project-wallet .p-card-inner {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .project-wallet .p-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .project-wallet .p-card-top .p-card-type {
+            letter-spacing: 0.3px;
+        }
+
+        .project-wallet .p-chip {
+            width: 28px;
+            height: 22px;
+            background: rgba(255, 255, 255, 0.18);
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+        }
+
+        .project-wallet .p-card-body {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            margin: 4px 0;
+        }
+
+        .project-wallet .p-card-summary {
+            font-size: 11px;
+            line-height: 1.45;
+            margin: 0;
+            color: rgba(255, 255, 255, 0.95);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-align: right;
+        }
+
+        .project-wallet .p-team-lead {
+            font-size: 12px;
+            font-weight: 800;
+            color: #02142B;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .project-wallet .p-team-badge {
+            font-size: 10px;
+            background: rgba(2, 20, 43, 0.15);
+            padding: 2px 7px;
+            border-radius: 50px;
+            font-weight: 700;
+        }
+
+        .project-wallet .p-project-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: #043C73;
+            margin: 0;
+            line-height: 1.45;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-align: right;
+        }
+
+        .project-wallet .p-card-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .project-wallet .p-label {
+            font-size: 9px;
+            opacity: 0.8;
+            margin-bottom: 1px;
+            display: block;
+            font-weight: 700;
+        }
+
+        .project-wallet .p-value {
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .project-wallet .p-visible-badge {
+            font-size: 10px;
+            font-weight: 800;
+            color: #043C73;
+            background: rgba(4, 60, 115, 0.08);
+            padding: 2px 8px;
+            border-radius: 50px;
+            border: 1px solid rgba(4, 60, 115, 0.15);
+        }
+
+        .project-wallet .p-hidden-cta {
+            display: none;
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #ffffff;
+            background: linear-gradient(135deg, #043C73, #0284c7);
+            padding: 3px 10px;
+            border-radius: 50px;
+            box-shadow: 0 4px 10px rgba(4, 60, 115, 0.35);
+        }
+
+        /* Card Variants */
+        /* 1. Deepest Card: Cyan / Innovation Summary */
+        .project-wallet .card-cyan {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 40%, #043c73 100%);
+            border: 1px solid rgba(56, 189, 248, 0.55);
+            bottom: 95px;
+            z-index: 10;
+            animation-delay: 0.1s;
+        }
+
+        /* 2. Middle Card: Gold / Researchers Team */
+        .project-wallet .card-gold {
+            background: linear-gradient(135deg, #EECA3E 0%, #f59e0b 50%, #d97706 100%);
+            border: 1px solid rgba(254, 240, 138, 0.7);
+            color: #02142B;
+            bottom: 68px;
+            z-index: 20;
+            animation-delay: 0.2s;
+        }
+        .project-wallet .card-gold .p-chip {
+            background: rgba(0, 0, 0, 0.1);
+            border-color: rgba(0, 0, 0, 0.2);
+            color: #02142B;
+        }
+        .project-wallet .card-gold .p-label {
+            color: rgba(2, 20, 43, 0.75);
+        }
+
+        /* 3. Front Card: White / Title & Accreditation */
+        .project-wallet .card-white {
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            border: 1.5px solid rgba(255, 255, 255, 0.95);
+            color: #043C73;
+            bottom: 40px;
+            z-index: 30;
+            animation-delay: 0.3s;
+        }
+        .project-wallet .card-white .p-chip {
+            background: rgba(4, 60, 115, 0.08);
+            border-color: rgba(4, 60, 115, 0.2);
+            color: #043C73;
+        }
+        .project-wallet .card-white .p-label {
+            color: #64748b;
+        }
+
+        /* The Pocket */
+        .project-wallet .pocket {
+            position: absolute;
+            bottom: 0;
+            width: 310px;
+            height: 170px;
+            z-index: 40;
+            filter: drop-shadow(0 15px 30px rgba(0, 10, 25, 0.85));
+            pointer-events: none;
+        }
+
+        .project-wallet .pocket-svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .project-wallet .pocket-content {
+            position: absolute;
+            top: 36px;
+            width: 100%;
+            text-align: center;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            padding: 0 16px;
+        }
+
+        .project-wallet .pocket-meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .project-wallet .pocket-booth-tag {
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #EECA3E;
+            background: rgba(238, 202, 62, 0.15);
+            border: 1px solid rgba(238, 202, 62, 0.4);
+            padding: 1px 9px;
+            border-radius: 50px;
+        }
+
+        .project-wallet .pocket-year-tag {
+            font-size: 10px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.08);
+            padding: 1px 7px;
+            border-radius: 50px;
+        }
+
+        .project-wallet .pocket-title-box {
+            position: relative;
+            height: 24px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .project-wallet .pocket-stars {
+            color: #EECA3E;
+            font-size: 18px;
+            letter-spacing: 5px;
+            transition: 0.3s;
+        }
+
+        .project-wallet .pocket-real-title {
+            color: #ffffff;
+            font-size: 12.5px;
+            font-weight: 800;
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, 8px);
+            transition: 0.3s;
+            width: 90%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .project-wallet .pocket-faculty-label {
+            color: #38BDF8;
+            font-size: 11.5px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 90%;
+        }
+
+        /* Eye Icon Logic */
+        .project-wallet .eye-icon-wrapper {
+            margin-top: 2px;
+            height: 20px;
+            width: 20px;
+            position: relative;
+            opacity: 0.4;
+            transition: 0.3s;
+        }
+
+        .project-wallet .eye-icon {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: 0.3s;
+        }
+
+        .project-wallet .eye-open {
+            opacity: 0;
+        }
+
+        /* ── Hover Effects (Uiverse Mechanics) ── */
+        .project-wallet:hover {
+            transform: translateY(-8px);
+        }
+
+        .project-wallet:hover .eye-icon-wrapper {
+            opacity: 1;
+        }
+
+        .project-wallet:hover .eye-slash {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+
+        .project-wallet:hover .eye-open {
+            opacity: 1;
+            transform: scale(1.15);
+        }
+
+        .project-wallet:hover .pocket-stars {
+            opacity: 0;
+        }
+
+        .project-wallet:hover .pocket-real-title {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        /* Hover on wallet pushes cards out */
+        .project-wallet:hover .card-cyan {
+            transform: translateY(-85px) rotate(-4deg);
+        }
+
+        .project-wallet:hover .card-gold {
+            transform: translateY(-52px) rotate(3deg);
+        }
+
+        .project-wallet:hover .card-white {
+            transform: translateY(-18px);
+        }
+
+        /* Individual Card Hover (Super Focus) */
+        .project-wallet .p-card:hover {
+            z-index: 100 !important;
+            transition-delay: 0s !important;
+        }
+
+        .project-wallet:hover .card-cyan:hover {
+            transform: translateY(-92px) scale(1.06) rotate(0) !important;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7), 0 0 28px rgba(56, 189, 248, 0.55);
+            border-color: #38BDF8;
+        }
+
+        .project-wallet:hover .card-gold:hover {
+            transform: translateY(-78px) scale(1.06) rotate(0) !important;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7), 0 0 28px rgba(238, 202, 62, 0.65);
+            border-color: #EECA3E;
+        }
+
+        .project-wallet:hover .card-white:hover {
+            transform: translateY(-68px) scale(1.06) rotate(0) !important;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7), 0 0 28px rgba(255, 255, 255, 0.7);
+            border-color: #ffffff;
+        }
+
+        .project-wallet:hover .card-white:hover .p-visible-badge {
+            display: none;
+        }
+
+        .project-wallet:hover .card-white:hover .p-hidden-cta {
+            display: inline-flex;
+            align-items: center;
+        }
+
         /* ══════════════════════════════════
            COMPANIES SECTION (Interactive Expo Booths)
         ══════════════════════════════════ */
@@ -6077,48 +6524,143 @@
                             </a>
                         </div>
                     @else
-                        <div class="row g-4 mb-5">
+                        <div class="row g-4 mb-5 justify-content-center">
                             @foreach($previewProjects as $idx => $project)
                                 @php
-                                    $isCenterProject = ($idx === 1); // Center card gets gold accent like reference image
+                                    $firstMember = (is_array($project->team_members) && count($project->team_members) > 0) ? $project->team_members[0]['name'] : 'نخبة من خريجي الكلية';
+                                    $otherMembersCount = (is_array($project->team_members) && count($project->team_members) > 1) ? count($project->team_members) - 1 : 0;
+                                    $projUrl = route('job-fair.public.projects.show', $project->id);
                                 @endphp
-                                <div class="col-lg-4 col-md-6">
-                                    <div class="cyber-chamfer-card h-100 {{ $isCenterProject ? 'is-featured' : '' }}"
-                                        onclick="window.location.href='{{ route('job-fair.public.projects.show', $project->id) }}'">
+                                <div class="col-lg-4 col-md-6 project-wallet-col">
+                                    <div class="project-wallet" onclick="if(!event.target.closest('.p-card')){ window.location.href='{{ $projUrl }}'; }">
+                                        <div class="wallet-back"></div>
 
-                                        {{-- شريط الكلية والسنة / الجناح --}}
-                                        <div class="cyber-card-top-bar">
-                                            <span class="cyber-time-pill">
-                                                <i class="fas fa-calendar-alt text-warning me-1"></i>سنة {{ $project->graduation_year }}
-                                                @if($project->booth_number)
-                                                    &bull; جناح {{ $project->booth_number }}
-                                                @endif
-                                            </span>
-                                            <span
-                                                class="cyber-track-pill {{ $isCenterProject ? 'badge-gold-featured' : 'badge-workshop' }}">
-                                                <i
-                                                    class="{{ $project->faculty_icon ?: 'fas fa-graduation-cap' }} me-1"></i>{{ $project->faculty }}
-                                            </span>
-                                        </div>
+                                        {{-- 1. البطاقة الأولى (Cyan): ملخص الابتكار والأهداف --}}
+                                        <a href="{{ $projUrl }}" class="p-card card-cyan" title="ملخص الابتكار وقيمة المشروع">
+                                            <div class="p-card-inner">
+                                                <div class="p-card-top">
+                                                    <span class="p-card-type"><i class="fas fa-lightbulb text-warning me-1"></i> ملخص الابتكار</span>
+                                                    <div class="p-chip"><i class="fas fa-microchip"></i></div>
+                                                </div>
+                                                <div class="p-card-body">
+                                                    <p class="p-card-summary">
+                                                        {{ Str::limit($project->summary ?: $project->title, 75) }}
+                                                    </p>
+                                                </div>
+                                                <div class="p-card-bottom">
+                                                    <div>
+                                                        <span class="p-label">سنة التخرج</span>
+                                                        <span class="p-value">{{ $project->graduation_year }}</span>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <span class="p-label">المشاهدات</span>
+                                                        <span class="p-value"><i class="far fa-eye text-warning"></i> {{ $project->views_count ?: 120 }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
 
-                                        {{-- عنوان مشروع التخرج --}}
-                                        <h3 class="cyber-card-title" title="{{ $project->title }}">
-                                            {{ $project->title }}
-                                        </h3>
+                                        {{-- 2. البطاقة الثانية (Gold): فريق العمل والطلبة --}}
+                                        <a href="{{ $projUrl }}" class="p-card card-gold" title="فريق الباحثين والطلبة المشرفين">
+                                            <div class="p-card-inner">
+                                                <div class="p-card-top">
+                                                    <span class="p-card-type"><i class="fas fa-users text-dark me-1"></i> فريق الباحثين</span>
+                                                    <div class="p-chip"><i class="fas fa-user-graduate"></i></div>
+                                                </div>
+                                                <div class="p-card-body">
+                                                    <div class="p-team-lead">
+                                                        <span><i class="fas fa-user-check me-1"></i>{{ Str::limit($firstMember, 20) }}</span>
+                                                        @if($otherMembersCount > 0)
+                                                            <span class="p-team-badge">+ {{ $otherMembersCount }} زملاء</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="p-card-bottom">
+                                                    <div>
+                                                        <span class="p-label">القسم الأكاديمي</span>
+                                                        <span class="p-value">{{ Str::limit($project->department, 22) }}</span>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <span class="p-label">الإشراف</span>
+                                                        <span class="p-value">{{ Str::limit($project->supervisor_name ?: 'إشراف معتمد', 18) }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
 
-                                        <div class="text-info small mb-3 text-truncate" style="font-size: 0.8rem;"
-                                            title="{{ $project->department }} @if($project->supervisor_name) • إشراف: {{ $project->supervisor_name }} @endif">
-                                            <i class="fas fa-code-branch me-1"></i>{{ $project->department }}
-                                            @if($project->supervisor_name)
-                                                &bull; إشراف: {{ $project->supervisor_name }}
-                                            @endif
-                                        </div>
+                                        {{-- 3. البطاقة الثالثة (White): عنوان المشروع والرمز الرقمي --}}
+                                        <a href="{{ $projUrl }}" class="p-card card-white" title="عنوان المشروع والرمز الرقمي">
+                                            <div class="p-card-inner">
+                                                <div class="p-card-top">
+                                                    <span class="p-card-type"><i class="fas fa-award text-primary me-1"></i> {{ Str::limit($project->faculty, 24) }}</span>
+                                                    <div class="p-chip"><i class="fas fa-qrcode text-warning"></i></div>
+                                                </div>
+                                                <div class="p-card-body">
+                                                    <h4 class="p-project-title" title="{{ $project->title }}">
+                                                        {{ Str::limit($project->title, 48) }}
+                                                    </h4>
+                                                </div>
+                                                <div class="p-card-bottom">
+                                                    <div>
+                                                        <span class="p-label">الجناح بالمعرض</span>
+                                                        <span class="p-value">{{ $project->booth_number ?: 'الجناح الرئيسي' }}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="p-visible-badge">مشروع تخرج معتمد</span>
+                                                        <span class="p-hidden-cta"><i class="fas fa-arrow-left me-1"></i> عرض التفاصيل</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
 
-                                        {{-- شريط تفاصيل المشروع ورمز QR المطابق للصورة تماماً --}}
-                                        <div class="cyber-action-strip">
-                                            <i class="fas fa-plus text-warning me-1"></i>
-                                            <span>عرض تفاصيل المشروع كاملة ورمز QR</span>
-                                            <i class="fas fa-qrcode ms-auto text-warning fs-6"></i>
+                                        {{-- 4. الجيب الأمامي الفاخر (The Pocket) --}}
+                                        <div class="pocket">
+                                            <svg class="pocket-svg" viewBox="0 0 310 170" fill="none">
+                                                <defs>
+                                                    <linearGradient id="pocketGrad{{ $project->id }}" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                        <stop offset="0%" stop-color="#02142B" />
+                                                        <stop offset="50%" stop-color="#043C73" />
+                                                        <stop offset="100%" stop-color="#021024" />
+                                                    </linearGradient>
+                                                </defs>
+                                                <path
+                                                    d="M 0 20 C 0 10, 6 10, 12 10 C 24 10, 30 25, 48 25 L 262 25 C 280 25, 286 10, 298 10 C 304 10, 310 10, 310 20 L 310 128 C 310 162, 288 170, 262 170 L 48 170 C 22 170, 0 162, 0 128 Z"
+                                                    fill="url(#pocketGrad{{ $project->id }})"
+                                                ></path>
+                                                <path
+                                                    d="M 9 22 C 9 16, 14 16, 18 16 C 27 16, 32 29, 48 29 L 262 29 C 278 29, 283 16, 292 16 C 296 16, 301 16, 301 22 L 301 128 C 301 158, 282 161, 262 161 L 48 161 C 28 161, 9 158, 9 128 Z"
+                                                    stroke="#EECA3E"
+                                                    stroke-width="1.6"
+                                                    stroke-dasharray="6 4"
+                                                ></path>
+                                            </svg>
+                                            <div class="pocket-content">
+                                                <div class="pocket-meta-row">
+                                                    <span class="pocket-booth-tag">
+                                                        <i class="fas fa-map-pin me-1"></i>جناح {{ $project->booth_number ?: 'A-0' . ($idx + 1) }}
+                                                    </span>
+                                                    <span class="pocket-year-tag">سنة {{ $project->graduation_year }}</span>
+                                                </div>
+                                                <div class="pocket-title-box">
+                                                    <div class="pocket-stars">✦ ✦ ✦ ✦ ✦</div>
+                                                    <div class="pocket-real-title">{{ Str::limit($project->title, 34) }}</div>
+                                                </div>
+                                                <div class="pocket-faculty-label">
+                                                    <i class="{{ $project->faculty_icon ?: 'fas fa-graduation-cap' }} text-warning me-1"></i>
+                                                    {{ Str::limit($project->faculty, 26) }}
+                                                </div>
+                                                <div class="eye-icon-wrapper">
+                                                    <svg class="eye-icon eye-slash" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                        <circle cx="12" cy="12" r="3"></circle>
+                                                        <line x1="3" y1="3" x2="21" y2="21"></line>
+                                                    </svg>
+                                                    <svg class="eye-icon eye-open" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EECA3E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"></path>
+                                                        <circle cx="12" cy="12" r="3"></circle>
+                                                    </svg>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

@@ -81,7 +81,7 @@ class JobFairController extends Controller
 
             if ($fair) {
                 try {
-                    $companies = $fair->companies()->with('company')->where('status', 'confirmed')->get();
+                    $companies = $fair->companies()->with(['company.jobOpportunities'])->where('status', 'confirmed')->get();
                 } catch (\Throwable $e) {}
 
                 try {

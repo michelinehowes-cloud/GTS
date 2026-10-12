@@ -973,20 +973,29 @@
         }
 
         .footer-brand-logo-frame {
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
-            background: #ffffff;
-            padding: 2px;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: transparent;
+            padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-            border: 1.5px solid rgba(245, 158, 11, 0.4);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+            border: 2px solid var(--gold-accent, #f59e0b);
+            overflow: hidden;
         }
 
-        .footer-brand-logo-img,
+        .footer-brand-logo-img {
+            width: 100%;
+            height: 100%;
+            max-width: 46px;
+            max-height: 46px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
         .navbar-brand-logo {
             width: 100%;
             height: 100%;
@@ -994,6 +1003,40 @@
             max-height: 44px;
             object-fit: contain;
             border-radius: 8px;
+        }
+
+        .footer-social-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            transition: all 0.25s ease;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .footer-social-btn:hover {
+            background: var(--gold-accent, #f59e0b);
+            border-color: var(--gold-accent, #f59e0b);
+            color: #0b1f3a !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+        }
+
+        .footer-contact-icon {
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #f59e0b;
+            font-size: 0.95rem;
         }
 
         .footer-link {
@@ -2022,7 +2065,7 @@
             <div class="row g-4 pb-4">
                 <!-- Column 1: عن المنصة -->
                 <div class="col-lg-4 col-md-6">
-                    <div class="d-flex align-items-center gap-2.5 mb-3">
+                    <div class="d-flex align-items-center gap-3 mb-3">
                         <div class="footer-brand-logo-frame">
                             <img src="{{ asset('images/logo.jpg') }}" alt="جامعة طرابلس" class="footer-brand-logo-img" onerror="this.onerror=null;">
                         </div>
@@ -2035,16 +2078,16 @@
                         المنصة الإلكترونية الموحدة لربط خريجي جامعة طرابلس بسوق العمل، وتقديم البرامج التدريبية المعتمدة وتنظيم معارض التوظيف السنوية.
                     </p>
                     <div class="d-flex gap-2 flex-wrap">
-                        <a href="https://uot.edu.ly/gto/" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="الموقع الرسمي لمكتب تدريب الخريجين">
+                        <a href="https://uot.edu.ly/gto/" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="الموقع الرسمي لمكتب تدريب الخريجين">
                             <i class="fas fa-globe"></i>
                         </a>
-                        <a href="https://www.facebook.com/p/%D9%85%D9%83%D8%AA%D8%A8-%D8%AA%D8%AF%D8%B1%D9%8A%D8%A8-%D8%A7%D9%84%D8%AE%D8%B1%D9%8A%D8%AC%D9%8A%D9%86-%D8%AC%D8%A7%D9%85%D8%B9%D8%A9-%D8%B7%D8%B1%D8%A8%D9%84%D8%B3-61554996546918/" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="صفحة فيسبوك الرسمية">
+                        <a href="https://www.facebook.com/p/%D9%85%D9%83%D8%AA%D8%A8-%D8%AA%D8%AF%D8%B1%D9%8A%D8%A8-%D8%A7%D9%84%D8%AE%D8%B1%D9%8A%D8%AC%D9%8A%D9%86-%D8%AC%D8%A7%D9%85%D8%B9%D8%A9-%D8%B7%D8%B1%D8%A8%D9%84%D8%B3-61554996546918/" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="صفحة فيسبوك الرسمية">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="https://www.linkedin.com/company/traning2024office/" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="صفحة لينكد إن الرسمية">
+                        <a href="https://www.linkedin.com/company/traning2024office/" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="صفحة لينكد إن الرسمية">
                             <i class="fab fa-linkedin-in"></i>
                         </a>
-                        <a href="https://www.tiktok.com/@graduate_training_office" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;" title="حساب تيك توك الرسمي">
+                        <a href="https://www.tiktok.com/@graduate_training_office" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="حساب تيك توك الرسمي">
                             <i class="fab fa-tiktok"></i>
                         </a>
                     </div>
@@ -2082,22 +2125,22 @@
                     <h6 class="text-white fw-bold mb-3 fs-6">بيانات التواصل</h6>
                     <ul class="list-unstyled text-white-50 small mb-0">
                         <li class="d-flex align-items-start gap-2 mb-2">
-                            <i class="fas fa-map-marker-alt text-warning mt-1"></i>
+                            <span class="footer-contact-icon mt-1"><i class="fas fa-map-marker-alt"></i></span>
                             <a href="https://maps.app.goo.gl/U8z9xwycDn9qAYz47" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none text-hover-warning" title="عرض موقع مكتب تدريب الخريجين على خرائط جوجل">
                                 جامعة طرابلس، سيدي المصري، طرابلس — ليبيا
                                 <i class="fas fa-external-link-alt ms-1 text-warning" style="font-size: 0.7rem;"></i>
                             </a>
                         </li>
                         <li class="d-flex align-items-center gap-2 mb-2">
-                            <i class="fas fa-envelope text-warning"></i>
+                            <span class="footer-contact-icon"><i class="fas fa-envelope"></i></span>
                             <a href="mailto:officetraining@uot.edu.ly" class="text-white-50 text-decoration-none text-hover-warning">officetraining@uot.edu.ly</a>
                         </li>
                         <li class="d-flex align-items-center gap-2 mb-2">
-                            <i class="fas fa-phone-alt text-warning"></i>
+                            <span class="footer-contact-icon"><i class="fas fa-phone-alt"></i></span>
                             <a href="tel:0930822581" class="text-white-50 text-decoration-none text-hover-warning" dir="ltr">093-0822581</a>
                         </li>
                         <li class="d-flex align-items-center gap-2">
-                            <i class="fas fa-clock text-warning"></i>
+                            <span class="footer-contact-icon"><i class="fas fa-clock"></i></span>
                             <span>الأحد – الخميس: 8:30 ص – 2:30 م</span>
                         </li>
                     </ul>

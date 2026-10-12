@@ -377,21 +377,16 @@
                                 data-bs-toggle="modal"
                                 data-bs-target="#leadModal{{ $visit->id }}">
                             <i class="fas fa-id-card"></i>
-                            <span>السيرة الذاتية</span>
+                            <span>عرض السيرة الذاتية</span>
                         </button>
-                        <a href="{{ route('messages.show', $grad->id) }}"
-                           class="btn btn-sm flex-fill fw-bold rounded-pill py-2.5 shadow-sm d-flex align-items-center justify-content-center gap-2"
-                           style="background: #f0fdf4; color: #166534; border: 1px solid #86efac; font-size: 0.84rem;">
-                            <i class="fas fa-envelope"></i>
-                            <span>مراسلة</span>
-                        </a>
                         @if($gData?->cv_path)
                         <a href="{{ Storage::url($gData->cv_path) }}"
                            target="_blank"
-                           class="btn btn-sm rounded-circle flex-shrink-0 d-flex align-items-center justify-content-center shadow-sm"
-                           style="background: #fdf4ff; color: #7c3aed; border: 1px solid #f0abfc; width: 36px; height: 36px;"
+                           class="btn btn-sm rounded-pill px-3 py-2.5 fw-bold d-flex align-items-center justify-content-center gap-1.5 shadow-sm"
+                           style="background: #fdf4ff; color: #7c3aed; border: 1px solid #f0abfc; font-size: 0.84rem;"
                            title="تحميل ملف السيرة الذاتية PDF الأصلي">
                             <i class="fas fa-file-pdf"></i>
+                            <span>ملف PDF</span>
                         </a>
                         @endif
                     </div>
@@ -546,11 +541,6 @@
                         <span>PDF الأصلي</span>
                     </a>
                     @endif
-                    <a href="{{ route('messages.show', $grad->id) }}"
-                       class="btn btn-sm btn-success rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 shadow-sm">
-                        <i class="fas fa-envelope"></i>
-                        <span>مراسلة</span>
-                    </a>
                     <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold" data-bs-dismiss="modal">
                         <i class="fas fa-times me-1"></i>إغلاق
                     </button>

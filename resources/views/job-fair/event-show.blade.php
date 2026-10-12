@@ -161,42 +161,95 @@
         }
 
         .nav-links { display: flex; align-items: center; gap: 0.65rem; }
+        /* ══════════════════════════════════════════════════════════
+           UIVERSE.IO by adamgiebl: Dynamic Bottom-Up Fill Buttons
+        ══════════════════════════════════════════════════════════ */
         .nav-btn {
+            position: relative;
             padding: 8px 18px;
-            border-radius: 50px;
+            border-radius: 10px;
             font-family: 'Cairo', sans-serif;
-            font-weight: 600;
-            font-size: 0.86rem;
+            font-weight: 700;
+            font-size: 0.88rem;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.25s;
-            border: none;
+            background: transparent;
+            transition: ease-out 0.5s;
             display: inline-flex;
             align-items: center;
             gap: 6px;
             line-height: 1.4;
+            border: 2px solid transparent;
+            box-shadow: inset 0 0 0 0 transparent;
+            outline: none;
         }
+
+        .nav-btn:active {
+            transform: scale(0.9) !important;
+        }
+
+        .nav-btn i {
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .nav-btn:hover i {
+            transform: scale(1.15);
+        }
+
+        /* 1. تسجيل الدخول */
+        .nav-btn-login {
+            color: #38BDF8 !important;
+            border: 2px solid #38BDF8 !important;
+            box-shadow: inset 0 0 0 0 #38BDF8 !important;
+            background: transparent !important;
+        }
+
+        .nav-btn-login:hover {
+            color: #042444 !important;
+            border-color: #38BDF8 !important;
+            box-shadow: inset 0 -100px 0 0 #38BDF8 !important;
+        }
+
+        /* 2. سجّل كخريج */
+        .nav-btn-gold {
+            color: #EECA3E !important;
+            border: 2px solid #EECA3E !important;
+            box-shadow: inset 0 0 0 0 #EECA3E !important;
+            background: transparent !important;
+        }
+
+        .nav-btn-gold:hover {
+            color: #042444 !important;
+            border-color: #EECA3E !important;
+            box-shadow: inset 0 -100px 0 0 #EECA3E !important;
+        }
+
+        /* 3. تسجيل زائر */
+        .nav-btn-visitor {
+            color: #10B981 !important;
+            border: 2px solid #10B981 !important;
+            box-shadow: inset 0 0 0 0 #10B981 !important;
+            background: transparent !important;
+        }
+
+        .nav-btn-visitor:hover {
+            color: #ffffff !important;
+            border-color: #10B981 !important;
+            box-shadow: inset 0 -100px 0 0 #10B981 !important;
+        }
+
         .nav-btn-outline {
             background: rgba(255, 255, 255, 0.08);
-            border: 1.5px solid rgba(255, 255, 255, 0.28);
+            border: 2px solid rgba(255, 255, 255, 0.28);
             color: white;
             backdrop-filter: blur(8px);
+            box-shadow: inset 0 0 0 0 #043C73;
         }
+
         .nav-btn-outline:hover {
-            background: rgba(255, 255, 255, 0.18);
             border-color: var(--gold);
             color: var(--gold);
-        }
-        .nav-btn-gold {
-            background: linear-gradient(135deg, var(--gold), #F97316);
-            color: white;
-            font-weight: 700;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
-        }
-        .nav-btn-gold:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 22px rgba(245, 158, 11, 0.55);
-            color: white;
+            box-shadow: inset 0 -100px 0 0 #043C73;
         }
 
         /* ══════════════════════════════════
@@ -995,17 +1048,17 @@
                 @endif
 
                 @auth
-                    <a href="{{ route('dashboard') }}" class="nav-btn nav-btn-outline">
+                    <a href="{{ route('dashboard') }}" class="nav-btn nav-btn-login">
                         <i class="fas fa-th-large"></i>لوحة التحكم
                     </a>
                 @else
-                    <a href="{{ route('login') }}" class="nav-btn nav-btn-outline">تسجيل الدخول</a>
+                    <a href="{{ route('login') }}" class="nav-btn nav-btn-login">تسجيل الدخول</a>
                     <a href="{{ route('graduate.register') }}" class="nav-btn nav-btn-gold">
                         <i class="fas fa-user-plus"></i>سجّل كخريج
                     </a>
                     @if($fair)
-                        <a href="{{ route('job-fair.public', $fair->id) }}#visitor-register" class="nav-btn nav-btn-outline">
-                            <i class="fas fa-id-badge" style="color:var(--gold)"></i>سجّل كزائر
+                        <a href="{{ route('job-fair.public', $fair->id) }}#visitor-register" class="nav-btn nav-btn-visitor">
+                            <i class="fas fa-id-badge"></i>سجّل كزائر
                         </a>
                     @endif
                 @endauth

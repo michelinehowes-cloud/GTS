@@ -188,57 +188,148 @@
             gap: 0.5rem;
         }
 
+        /* ══════════════════════════════════════════════════════════
+           UIVERSE.IO by adamgiebl: Dynamic Bottom-Up Fill Buttons
+           تسجيل الدخول / سجّل كخريج / تسجيل زائر
+        ══════════════════════════════════════════════════════════ */
+        .btn-adam,
         .nav-btn {
+            position: relative;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             white-space: nowrap;
             padding: 9px 20px;
-            border-radius: 50px;
+            border-radius: 10px;
             font-family: 'Cairo', sans-serif;
             font-weight: 700;
             font-size: 0.92rem;
+            letter-spacing: 0.5px;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.25s;
-            border: none;
-            line-height: 1.4;
+            background: transparent;
+            transition: ease-out 0.5s;
+            line-height: 1.3;
+            outline: none;
+            border: 2px solid transparent;
+            box-shadow: inset 0 0 0 0 transparent;
         }
 
+        .btn-adam:active,
+        .nav-btn:active {
+            transform: scale(0.9) !important;
+        }
+
+        .btn-adam i,
+        .nav-btn i {
+            transition: transform 0.3s ease, color 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-adam:hover i,
+        .nav-btn:hover i {
+            transform: scale(1.15);
+        }
+
+        /* 1. تسجيل الدخول (Login) - Cyber Ice / Cyan */
+        .btn-adam-login,
+        .nav-btn-login {
+            color: #38BDF8 !important;
+            border: 2px solid #38BDF8 !important;
+            box-shadow: inset 0 0 0 0 #38BDF8 !important;
+            background: transparent !important;
+        }
+
+        .btn-adam-login:hover,
+        .nav-btn-login:hover {
+            color: #042444 !important;
+            border-color: #38BDF8 !important;
+            box-shadow: inset 0 -100px 0 0 #38BDF8 !important;
+        }
+
+        .btn-adam-login:hover i,
+        .nav-btn-login:hover i {
+            color: #042444 !important;
+        }
+
+        /* 2. سجّل كخريج (Graduate Registration) - Luxury Gold */
+        .btn-adam-graduate,
+        .nav-btn-gold {
+            color: #EECA3E !important;
+            border: 2px solid #EECA3E !important;
+            box-shadow: inset 0 0 0 0 #EECA3E !important;
+            background: transparent !important;
+        }
+
+        .btn-adam-graduate::before,
+        .nav-btn-gold::before {
+            display: none !important;
+        }
+
+        .btn-adam-graduate:hover,
+        .nav-btn-gold:hover {
+            color: #042444 !important;
+            border-color: #EECA3E !important;
+            box-shadow: inset 0 -100px 0 0 #EECA3E !important;
+        }
+
+        .btn-adam-graduate:hover i,
+        .nav-btn-gold:hover i {
+            color: #042444 !important;
+        }
+
+        /* 3. تسجيل زائر (Visitor Badge) - هوية المعرض الرسمية: الأخضر الزمردي (#10B981) */
+        .btn-adam-visitor,
+        .nav-btn-visitor {
+            color: #10B981 !important;
+            border: 2px solid #10B981 !important;
+            box-shadow: inset 0 0 0 0 #10B981 !important;
+            background: transparent !important;
+        }
+
+        .btn-adam-visitor i,
+        .nav-btn-visitor i {
+            color: #10B981 !important;
+        }
+
+        .btn-adam-visitor:hover,
+        .nav-btn-visitor:hover {
+            color: #ffffff !important;
+            border-color: #10B981 !important;
+            box-shadow: inset 0 -100px 0 0 #10B981 !important;
+        }
+
+        .btn-adam-visitor:hover i,
+        .nav-btn-visitor:hover i {
+            color: #ffffff !important;
+        }
+
+        /* الأزرار العادية nav-btn-outline */
         .nav-btn-outline {
             background: transparent;
-            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.35);
             color: white;
+            box-shadow: inset 0 0 0 0 rgba(255, 255, 255, 0.2);
         }
 
         .nav-btn-outline:hover {
             border-color: var(--gold);
             color: var(--gold);
-        }
-
-        .nav-btn-gold {
-            background: linear-gradient(135deg, var(--gold), #F97316);
-            color: white;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
-        }
-
-        .nav-btn-gold:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 22px rgba(245, 158, 11, 0.5);
-            color: white;
+            box-shadow: inset 0 -100px 0 0 rgba(238, 202, 62, 0.15);
         }
 
         .nav-btn-emerald {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+            color: #10b981;
+            border: 2px solid #10b981;
+            box-shadow: inset 0 0 0 0 #10b981;
+            background: transparent;
         }
 
         .nav-btn-emerald:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 22px rgba(16, 185, 129, 0.5);
             color: white;
+            border-color: #10b981;
+            box-shadow: inset 0 -100px 0 0 #10b981;
         }
 
         .nav-link-pill {
@@ -272,22 +363,31 @@
             margin-top: 1.25rem;
         }
 
+        .hero-action-buttons .btn-adam,
         .hero-action-buttons .nav-btn {
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
             gap: 8px !important;
             white-space: nowrap !important;
-            padding: 10px 20px !important;
-            font-size: 0.92rem !important;
+            padding: 11px 24px !important;
+            font-size: 0.96rem !important;
             font-weight: 700 !important;
             line-height: 1.2 !important;
-            border-radius: 50px !important;
+            border-radius: 10px !important;
             text-decoration: none !important;
-            transition: all 0.25s ease !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+            background: transparent !important;
+            cursor: pointer !important;
+            transition: ease-out 0.5s !important;
+            outline: none !important;
         }
 
+        .hero-action-buttons .btn-adam:active,
+        .hero-action-buttons .nav-btn:active {
+            transform: scale(0.9) !important;
+        }
+
+        .hero-action-buttons .btn-adam i,
         .hero-action-buttons .nav-btn i {
             display: inline-flex;
             align-items: center;
@@ -295,41 +395,85 @@
             font-size: 1rem;
             line-height: 1;
             margin: 0 !important;
+            transition: transform 0.3s ease, color 0.3s ease !important;
         }
 
+        .hero-action-buttons .btn-adam:hover i,
+        .hero-action-buttons .nav-btn:hover i {
+            transform: scale(1.18) !important;
+        }
+
+        .hero-action-buttons .btn-adam span,
         .hero-action-buttons .nav-btn span {
             display: inline-block;
             white-space: nowrap;
             line-height: 1.2;
         }
 
+        /* زر سجّل كخريج بالهيرو - adamgiebl Gold Fill */
+        .hero-action-buttons .btn-adam-graduate,
         .hero-action-buttons .nav-btn-gold {
             font-size: 0.98rem !important;
             padding: 11px 24px !important;
-            background: linear-gradient(135deg, var(--gold) 0%, #f59e0b 50%, #ea580c 100%) !important;
-            color: #0b1f3a !important;
+            background: transparent !important;
+            border: 2px solid #EECA3E !important;
+            color: #EECA3E !important;
             font-weight: 800 !important;
-            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.45) !important;
+            box-shadow: inset 0 0 0 0 #EECA3E !important;
         }
 
+        .hero-action-buttons .btn-adam-graduate:hover,
         .hero-action-buttons .nav-btn-gold:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 6px 24px rgba(245, 158, 11, 0.6) !important;
-            color: #0b1f3a !important;
+            color: #042444 !important;
+            border-color: #EECA3E !important;
+            box-shadow: inset 0 -100px 0 0 #EECA3E !important;
         }
 
+        .hero-action-buttons .btn-adam-graduate:hover i,
+        .hero-action-buttons .nav-btn-gold:hover i {
+            color: #042444 !important;
+        }
+
+        /* زر تسجيل زائر بالهيرو - هوية المعرض الرسمية: الأخضر الزمردي (#10B981) */
+        .hero-action-buttons .btn-adam-visitor,
+        .hero-action-buttons .nav-btn-visitor {
+            background: transparent !important;
+            border: 2px solid #10B981 !important;
+            color: #10B981 !important;
+            font-weight: 800 !important;
+            box-shadow: inset 0 0 0 0 #10B981 !important;
+        }
+
+        .hero-action-buttons .btn-adam-visitor i,
+        .hero-action-buttons .nav-btn-visitor i {
+            color: #10B981 !important;
+        }
+
+        .hero-action-buttons .btn-adam-visitor:hover,
+        .hero-action-buttons .nav-btn-visitor:hover {
+            color: #ffffff !important;
+            border-color: #10B981 !important;
+            box-shadow: inset 0 -100px 0 0 #10B981 !important;
+        }
+
+        .hero-action-buttons .btn-adam-visitor:hover i,
+        .hero-action-buttons .nav-btn-visitor:hover i {
+            color: #ffffff !important;
+        }
+
+        /* الأزرار الفرعية (دليل الشركات، البرنامج، المشاريع) */
         .hero-action-buttons .nav-btn-outline {
-            background: rgba(255, 255, 255, 0.08) !important;
-            border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
+            background: rgba(255, 255, 255, 0.06) !important;
+            border: 2px solid rgba(255, 255, 255, 0.28) !important;
             color: #ffffff !important;
             backdrop-filter: blur(8px) !important;
+            box-shadow: inset 0 0 0 0 #043C73 !important;
         }
 
         .hero-action-buttons .nav-btn-outline:hover {
-            background: rgba(255, 255, 255, 0.16) !important;
-            border-color: var(--gold) !important;
-            color: var(--gold) !important;
-            transform: translateY(-2px) !important;
+            border-color: #EECA3E !important;
+            color: #EECA3E !important;
+            box-shadow: inset 0 -100px 0 0 #043C73 !important;
         }
 
         /* ══════════════════════════════════
@@ -5242,48 +5386,57 @@
         /* ── 4. Omnix Smooth Magnetic Buttons with Ambient Aura ── */
         .hero-action-buttons .nav-btn-gold {
             position: relative;
-            overflow: hidden;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
-            box-shadow: 0 6px 24px rgba(245, 158, 11, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+            background: transparent !important;
+            border: 2px solid #EECA3E !important;
+            color: #EECA3E !important;
+            box-shadow: inset 0 0 0 0 #EECA3E !important;
+            transition: ease-out 0.5s !important;
         }
 
         .hero-action-buttons .nav-btn-gold::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -120%;
-            width: 80%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            transform: skewX(-20deg);
-            transition: left 0.75s ease;
-        }
-
-        .hero-action-buttons .nav-btn-gold:hover::before {
-            left: 140%;
+            display: none !important;
         }
 
         .hero-action-buttons .nav-btn-gold:hover {
-            transform: translateY(-3px) scale(1.03) !important;
-            box-shadow: 0 12px 35px rgba(245, 158, 11, 0.65), 0 0 25px rgba(245, 158, 11, 0.4) !important;
+            color: #042444 !important;
+            border-color: #EECA3E !important;
+            box-shadow: inset 0 -100px 0 0 #EECA3E !important;
+            transform: none !important;
+        }
+
+        .hero-action-buttons .nav-btn-visitor {
+            position: relative;
+            background: transparent !important;
+            border: 2px solid #10B981 !important;
+            color: #10B981 !important;
+            box-shadow: inset 0 0 0 0 #10B981 !important;
+            transition: ease-out 0.5s !important;
+        }
+
+        .hero-action-buttons .nav-btn-visitor:hover {
+            color: #ffffff !important;
+            border-color: #10B981 !important;
+            box-shadow: inset 0 -100px 0 0 #10B981 !important;
+            transform: none !important;
         }
 
         .hero-action-buttons .nav-btn-outline {
             position: relative;
-            overflow: hidden;
             background: rgba(255, 255, 255, 0.05) !important;
-            border: 1.5px solid rgba(255, 255, 255, 0.18) !important;
+            border: 2px solid rgba(255, 255, 255, 0.28) !important;
             backdrop-filter: blur(12px) !important;
             -webkit-backdrop-filter: blur(12px) !important;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            transition: ease-out 0.5s !important;
+            color: #ffffff !important;
+            box-shadow: inset 0 0 0 0 #043C73 !important;
         }
 
         .hero-action-buttons .nav-btn-outline:hover {
-            background: rgba(245, 158, 11, 0.14) !important;
-            border-color: #f59e0b !important;
-            color: #fbbf24 !important;
-            transform: translateY(-3px) scale(1.02) !important;
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3) !important;
+            background: transparent !important;
+            border-color: #EECA3E !important;
+            color: #EECA3E !important;
+            box-shadow: inset 0 -100px 0 0 #043C73 !important;
+            transform: none !important;
         }
 
         .hero-action-buttons .nav-btn i {
@@ -5641,7 +5794,7 @@
 
         <div class="nav-links">
             @auth
-                <a href="{{ route('dashboard') }}" class="nav-btn nav-btn-outline">
+                <a href="{{ route('dashboard') }}" class="nav-btn nav-btn-login">
                     <i class="fas fa-th-large me-1"></i>لوحة التحكم
                 </a>
                 @if(auth()->user()->role === 'admin' || auth()->user()->role === 'partnership_officer')
@@ -5650,14 +5803,14 @@
                     </a>
                 @endif
             @else
-                <a href="{{ route('login') }}" class="nav-btn nav-btn-outline">تسجيل الدخول</a>
+                <a href="{{ route('login') }}" class="nav-btn nav-btn-login">تسجيل الدخول</a>
                 <a href="{{ route('graduate.register') }}" class="nav-btn nav-btn-gold d-none d-sm-inline-flex">
                     <i class="fas fa-user-plus me-1"></i>سجّل كخريج
                 </a>
                 @if(isset($fair) && $fair)
-                    <button type="button" class="nav-btn nav-btn-outline d-none d-md-inline-flex" data-bs-toggle="modal"
+                    <button type="button" class="nav-btn nav-btn-visitor d-none d-md-inline-flex" data-bs-toggle="modal"
                         data-bs-target="#visitorRegisterModal">
-                        <i class="fas fa-id-badge" style="color:var(--gold)"></i>
+                        <i class="fas fa-id-badge"></i>
                         <span>تسجيل زائر</span>
                     </button>
                 @endif
@@ -5852,9 +6005,9 @@
                             @endauth
 
                             @if(isset($fair) && $fair)
-                                <button type="button" class="nav-btn nav-btn-outline" data-bs-toggle="modal"
+                                <button type="button" class="nav-btn nav-btn-visitor" data-bs-toggle="modal"
                                     data-bs-target="#visitorRegisterModal">
-                                    <i class="fas fa-id-badge" style="color:var(--gold)"></i>
+                                    <i class="fas fa-id-badge"></i>
                                     <span>تسجيل زائر / ضيف</span>
                                 </button>
                             @endif
@@ -7213,6 +7366,8 @@
                 </div>
             </div>
         </div>
+
+    @else
 
         {{-- NO FAIR STATE --}}
         <div class="empty-hero">

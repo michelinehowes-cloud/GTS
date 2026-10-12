@@ -59,12 +59,13 @@
         @else
             @foreach($conversations as $cUserId => $conv)
                 @php
+                    $activeId = $activeUserId ?? ($activeId ?? null);
                     $other = $conv['user'];
                     $isCompany = $other && $other->role === 'company';
                     $isGraduate = $other && $other->role === 'graduate';
                     $displayName = ($isCompany && $other->company) ? $other->company->name : ($other ? $other->name : 'مستخدم');
                     $hasUnread = $conv['unread_count'] > 0;
-                    $isActive = $activeId && $activeId == $cUserId;
+                    $isActive = !empty($activeId) && (string)$activeId === (string)$cUserId;
                     $initial = mb_substr($displayName, 0, 1, 'UTF-8');
                 @endphp
 

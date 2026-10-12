@@ -1,6 +1,11 @@
 {{-- ══════════════════════════════════════════════════════════════════
      نافذة منبثقة: بدء محادثة جديدة
      ══════════════════════════════════════════════════════════════════ --}}
+@php
+    /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\User>|\App\Models\User[] $availableContacts */
+    $contactsList = $availableContacts ?? [];
+@endphp
+
 <div class="modal fade" id="newConversationModal" tabindex="-1" aria-labelledby="newConversationModalLabel" aria-hidden="true" dir="rtl">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 540px;">
         <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
@@ -39,7 +44,7 @@
                 @if(auth()->user()->role !== 'graduate')
                 <div class="d-flex gap-1.5 flex-wrap" id="contactFilterGroup">
                     <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 py-1 filter-pill active" data-filter="all" style="font-size: 0.74rem;">
-                        الكل ({{ count($availableContacts ?? []) }})
+                        الكل ({{ count($contactsList) }})
                     </button>
                     @if(auth()->user()->role !== 'company')
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 filter-pill" data-filter="graduate" style="font-size: 0.74rem;">
@@ -60,8 +65,9 @@
             <!-- قائمة جهات الاتصال المتاحة -->
             <div class="modal-body p-0" style="max-height: 380px; overflow-y: auto;">
                 <div class="list-group list-group-flush" id="contactsListContainer">
-                    @forelse($availableContacts ?? [] as $contact)
+                    @forelse($contactsList as $contact)
                         @php
+                            /** @var \App\Models\User $contact */
                             $isContactCompany = $contact->role === 'company';
                             $isContactGrad = $contact->role === 'graduate';
                             $contactName = ($isContactCompany && $contact->company) ? $contact->company->name : $contact->name;

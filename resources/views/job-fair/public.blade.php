@@ -2070,7 +2070,7 @@
         .cyber-cylinder-scene {
             width: 100%;
             position: relative;
-            margin: 1.5rem 0 2.5rem;
+            margin: 1.5rem 0 3.5rem;
         }
 
         /* شريط التحكم والتبديل العلوي */
@@ -2183,6 +2183,7 @@
             overflow: visible;
             user-select: none;
             padding: 2rem 0;
+            margin-bottom: 3.5rem;
         }
 
         /* حلقة الأرضية الهولوجرافية */
@@ -2842,6 +2843,21 @@
 
         .companies-dir-btn:hover i {
             transform: translateX(-5px);
+        }
+
+        .companies-dir-cta-wrap {
+            position: relative;
+            z-index: 10;
+            margin-top: 5.5rem;
+            padding-top: 1.5rem;
+            clear: both;
+        }
+
+        @media (max-width: 991px) {
+            .companies-dir-cta-wrap {
+                margin-top: 3.5rem;
+                padding-top: 1rem;
+            }
         }
 
 
@@ -4980,7 +4996,7 @@
                     </div>
 
                     {{-- زر استعراض الدليل الكامل المخصص لجميع الشركات --}}
-                    <div class="text-center mt-5">
+                    <div class="companies-dir-cta-wrap text-center">
                         <a href="{{ route('job-fair.public.companies', $fair->id) }}" class="companies-dir-btn">
                             <span>استعراض الدليل الكامل لجميع الشركات المشاركة ({{ $totalComp }} شركة)</span>
                             <i class="fas fa-arrow-left ms-2"></i>

@@ -966,15 +966,16 @@
 
         /* 8. تذييل الصفحة الشامل (Modern Mega Footer) */
         .main-footer {
-            background: var(--dark-navy);
+            background: linear-gradient(180deg, #07172c 0%, #030d1a 100%);
             color: #cbd5e1;
-            padding: 70px 0 30px;
-            border-top: 4px solid var(--gold-accent);
+            padding: 65px 0 25px;
+            border-top: 3px solid var(--gold-accent, #f59e0b);
+            position: relative;
         }
 
         .footer-brand-logo-frame {
-            width: 46px;
-            height: 46px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             background: transparent;
             padding: 0;
@@ -982,7 +983,7 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.25);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
             border: 2px solid var(--gold-accent, #f59e0b);
             overflow: hidden;
         }
@@ -990,8 +991,8 @@
         .footer-brand-logo-img {
             width: 100%;
             height: 100%;
-            max-width: 46px;
-            max-height: 46px;
+            max-width: 48px;
+            max-height: 48px;
             object-fit: cover;
             border-radius: 50%;
         }
@@ -1012,12 +1013,12 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.16);
             color: #ffffff;
             transition: all 0.25s ease;
             text-decoration: none;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
         }
 
         .footer-social-btn:hover {
@@ -1025,31 +1026,67 @@
             border-color: var(--gold-accent, #f59e0b);
             color: #0b1f3a !important;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
         }
 
-        .footer-contact-icon {
-            width: 24px;
-            height: 24px;
+        .footer-column-title {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.98rem;
+            margin-bottom: 1.15rem;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 8px;
+        }
+
+        .footer-column-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 28px;
+            height: 2px;
+            background: var(--gold-accent, #f59e0b);
+            border-radius: 2px;
+        }
+
+        .footer-contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 0.88rem;
+        }
+
+        .footer-contact-bubble {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.25);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
             color: #f59e0b;
-            font-size: 0.95rem;
+            flex-shrink: 0;
+            font-size: 0.82rem;
         }
 
         .footer-link {
             color: #94a3b8;
             text-decoration: none;
             transition: all 0.2s ease;
-            display: inline-block;
-            margin-bottom: 0.6rem;
-            font-size: 0.92rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 0.65rem;
+            font-size: 0.9rem;
         }
 
         .footer-link:hover {
-            color: #ffffff;
+            color: var(--gold-accent, #f59e0b);
             transform: translateX(-4px);
         }
 
@@ -2062,20 +2099,20 @@
     <!-- ==================== 10. تذييل الصفحة الجامعي الشامل (Mega Footer) ==================== -->
     <footer class="main-footer" id="contact">
         <div class="container">
-            <div class="row g-4 pb-4">
+            <div class="row g-4 pb-4 justify-content-between">
                 <!-- Column 1: عن المنصة -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
                     <div class="d-flex align-items-center gap-3 mb-3">
                         <div class="footer-brand-logo-frame">
-                            <img src="{{ asset('images/logo.jpg') }}" alt="جامعة طرابلس" class="footer-brand-logo-img" onerror="this.onerror=null;">
+                            <img src="{{ asset('images/logo.jpg') }}" alt="مكتب تدريب الخريجين" class="footer-brand-logo-img" onerror="this.onerror=null;">
                         </div>
                         <div>
-                            <h5 class="text-white fw-bold mb-0 fs-6">جامعة طرابلس</h5>
-                            <small class="text-white-50" style="font-size: 0.78rem;">مكتب تدريب الخريجين</small>
+                            <h5 class="text-white fw-bold mb-0 fs-6">مكتب تدريب الخريجين</h5>
+                            <div class="text-warning fw-bold" style="font-size: 0.8rem;">جامعة طرابلس — المنصة الرسمية الموحدة</div>
                         </div>
                     </div>
-                    <p class="text-white-50 small mb-3" style="line-height: 1.8;">
-                        المنصة الإلكترونية الموحدة لربط خريجي جامعة طرابلس بسوق العمل، وتقديم البرامج التدريبية المعتمدة وتنظيم معارض التوظيف السنوية.
+                    <p class="text-white-50 small mb-3" style="line-height: 1.85;">
+                        المنصة الإلكترونية المعتمدة لمكتب تدريب الخريجين بجامعة طرابلس لربط الكفاءات الوطنية بسوق العمل، وتقديم البرامج التدريبية الاحترافية وتنظيم معارض التوظيف السنوية.
                     </p>
                     <div class="d-flex gap-2 flex-wrap">
                         <a href="https://uot.edu.ly/gto/" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="الموقع الرسمي لمكتب تدريب الخريجين">
@@ -2094,62 +2131,74 @@
                 </div>
 
                 <!-- Column 2: روابط سريعة -->
-                <div class="col-lg-2 col-md-6 col-6">
-                    <h6 class="text-white fw-bold mb-3 fs-6">روابط سريعة</h6>
+                <div class="col-lg-2 col-md-4 col-6 mb-4 mb-lg-0 ps-lg-3">
+                    <h6 class="footer-column-title">
+                        <i class="fas fa-link text-warning" style="font-size: 0.8rem;"></i>
+                        روابط سريعة
+                    </h6>
                     <ul class="list-unstyled mb-0">
-                        <li><a href="#hero" class="footer-link">الرئيسية</a></li>
+                        <li><a href="#hero" class="footer-link"><i class="fas fa-chevron-left text-warning opacity-50" style="font-size: 0.7rem;"></i>الرئيسية</a></li>
                         @if(isset($activeFair) && $activeFair && !$activeFair->is_ended)
-                            <li><a href="#jobfair" class="footer-link">الفعاليات والمعارض</a></li>
+                            <li><a href="#jobfair" class="footer-link"><i class="fas fa-chevron-left text-warning opacity-50" style="font-size: 0.7rem;"></i>الفعاليات والمعارض</a></li>
                         @endif
-                        <li><a href="#journey" class="footer-link">رحلة الخريج</a></li>
-                        <li><a href="#news" class="footer-link">الأخبار والإعلانات</a></li>
+                        <li><a href="#journey" class="footer-link"><i class="fas fa-chevron-left text-warning opacity-50" style="font-size: 0.7rem;"></i>رحلة الخريج</a></li>
+                        <li><a href="#news" class="footer-link"><i class="fas fa-chevron-left text-warning opacity-50" style="font-size: 0.7rem;"></i>الأخبار والإعلانات</a></li>
                     </ul>
                 </div>
 
                 <!-- Column 3: البوابات والخدمات -->
-                <div class="col-lg-3 col-md-6 col-6">
-                    <h6 class="text-white fw-bold mb-3 fs-6">البوابات والخدمات</h6>
+                <div class="col-lg-3 col-md-4 col-6 mb-4 mb-lg-0">
+                    <h6 class="footer-column-title">
+                        <i class="fas fa-th-large text-warning" style="font-size: 0.8rem;"></i>
+                        البوابات والخدمات
+                    </h6>
                     <ul class="list-unstyled mb-0">
-                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal" class="footer-link">تسجيل خريج جديد</a></li>
-                        <li><a href="{{ route('company.register') }}" class="footer-link"><i class="fas fa-building me-1 text-warning"></i>تسجيل شركة أو مؤسسة جديدة</a></li>
-                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#loginModal" class="footer-link">تسجيل الدخول للنظام</a></li>
+                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal" class="footer-link"><i class="fas fa-user-graduate text-warning opacity-75" style="font-size: 0.75rem;"></i>تسجيل خريج جديد</a></li>
+                        <li><a href="{{ route('company.register') }}" class="footer-link"><i class="fas fa-building text-warning opacity-75" style="font-size: 0.75rem;"></i>تسجيل جهة توظيف جديدة</a></li>
+                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#loginModal" class="footer-link"><i class="fas fa-sign-in-alt text-warning opacity-75" style="font-size: 0.75rem;"></i>تسجيل الدخول للنظام</a></li>
                         @if(isset($activeFair) && $activeFair && !$activeFair->is_ended)
-                            <li><a href="{{ route('job-fair.public', $activeFair->id) }}" class="footer-link">بوابة {{ $activeFair->title }}</a></li>
+                            <li><a href="{{ route('job-fair.public', $activeFair->id) }}" class="footer-link"><i class="fas fa-store-alt text-warning opacity-75" style="font-size: 0.75rem;"></i>بوابة {{ $activeFair->title }}</a></li>
                         @endif
-                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" class="footer-link">استعادة كلمة المرور</a></li>
+                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" class="footer-link"><i class="fas fa-key text-warning opacity-75" style="font-size: 0.75rem;"></i>استعادة كلمة المرور</a></li>
                     </ul>
                 </div>
 
                 <!-- Column 4: بيانات التواصل -->
-                <div class="col-lg-3 col-md-6">
-                    <h6 class="text-white fw-bold mb-3 fs-6">بيانات التواصل</h6>
+                <div class="col-lg-3 col-md-4 col-12 mb-4 mb-lg-0">
+                    <h6 class="footer-column-title">
+                        <i class="fas fa-headset text-warning" style="font-size: 0.8rem;"></i>
+                        تواصل مع المكتب
+                    </h6>
                     <ul class="list-unstyled text-white-50 small mb-0">
-                        <li class="d-flex align-items-start gap-2 mb-2">
-                            <span class="footer-contact-icon mt-1"><i class="fas fa-map-marker-alt"></i></span>
+                        <li class="footer-contact-item">
+                            <span class="footer-contact-bubble"><i class="fas fa-map-marker-alt"></i></span>
                             <a href="https://maps.app.goo.gl/U8z9xwycDn9qAYz47" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none text-hover-warning" title="عرض موقع مكتب تدريب الخريجين على خرائط جوجل">
-                                جامعة طرابلس، سيدي المصري، طرابلس — ليبيا
+                                جامعة طرابلس، سيدي المصري — ليبيا
                                 <i class="fas fa-external-link-alt ms-1 text-warning" style="font-size: 0.7rem;"></i>
                             </a>
                         </li>
-                        <li class="d-flex align-items-center gap-2 mb-2">
-                            <span class="footer-contact-icon"><i class="fas fa-envelope"></i></span>
+                        <li class="footer-contact-item">
+                            <span class="footer-contact-bubble"><i class="fas fa-envelope"></i></span>
                             <a href="mailto:officetraining@uot.edu.ly" class="text-white-50 text-decoration-none text-hover-warning">officetraining@uot.edu.ly</a>
                         </li>
-                        <li class="d-flex align-items-center gap-2 mb-2">
-                            <span class="footer-contact-icon"><i class="fas fa-phone-alt"></i></span>
+                        <li class="footer-contact-item">
+                            <span class="footer-contact-bubble"><i class="fas fa-phone-alt"></i></span>
                             <a href="tel:0930822581" class="text-white-50 text-decoration-none text-hover-warning" dir="ltr">093-0822581</a>
                         </li>
-                        <li class="d-flex align-items-center gap-2">
-                            <span class="footer-contact-icon"><i class="fas fa-clock"></i></span>
+                        <li class="footer-contact-item">
+                            <span class="footer-contact-bubble"><i class="fas fa-clock"></i></span>
                             <span>الأحد – الخميس: 8:30 ص – 2:30 م</span>
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <div class="border-top border-secondary pt-4 mt-2 text-center text-white-50 small d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <span>© {{ date('Y') }} جامعة طرابلس — جميع الحقوق محفوظة لمكتب تدريب الخريجين.</span>
-                <span class="text-warning">منصة الخريجين وسوق العمل</span>
+            <div class="border-top pt-3 mt-2 text-center text-white-50 small d-flex justify-content-between align-items-center flex-wrap gap-2" style="border-color: rgba(255,255,255,0.08) !important;">
+                <span>© {{ date('Y') }} مكتب تدريب وتوظيف الخريجين — جامعة طرابلس &bull; جميع الحقوق محفوظة.</span>
+                <span class="text-warning fw-bold d-inline-flex align-items-center gap-1">
+                    <i class="fas fa-graduation-cap"></i>
+                    منصة مكتب تدريب الخريجين وسوق العمل
+                </span>
             </div>
         </div>
     </footer>

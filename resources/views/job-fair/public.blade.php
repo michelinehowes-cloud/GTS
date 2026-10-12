@@ -497,6 +497,25 @@
             margin-bottom: 0.85rem;
             line-height: 1.15;
             filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
+            user-select: none;
+            cursor: pointer;
+        }
+
+        .scramble-cursor {
+            display: inline-block;
+            width: 3.5px;
+            height: 0.82em;
+            background: var(--gold);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.9);
+            margin-inline-start: 6px;
+            vertical-align: middle;
+            border-radius: 2px;
+            animation: scrambleBlink 0.7s infinite;
+        }
+
+        @keyframes scrambleBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
         }
 
         .hero-title-main {
@@ -3787,19 +3806,25 @@
                             }
                         @endphp
 
-                        {{-- Title --}}
-                        <h1 class="hero-title">
-                            <span class="hero-title-main">{{ $mainFairTitle }}</span>
+                        {{-- Title with Scramble Text Animation --}}
+                        <h1 class="hero-title" id="heroTitleWrap" title="انقر لإعادة تشغيل تأثير فك التشفير">
+                            <span class="hero-title-main">
+                                <span id="scrambleTitleMain" data-text="{{ $mainFairTitle }}">{{ $mainFairTitle }}</span>
+                                <span class="scramble-cursor" id="scrambleCursor"></span>
+                            </span>
                             @if(!empty($subFairTitle))
-                                <span class="hero-title-sub">{{ $subFairTitle }}</span>
+                                <span class="hero-title-sub">
+                                    <span id="scrambleTitleSub" data-text="{{ $subFairTitle }}">{{ $subFairTitle }}</span>
+                                </span>
                             @endif
                         </h1>
 
-                        @if($fair->subtitle)
-                            <p class="hero-subtitle">{{ $fair->subtitle }}</p>
-                        @else
-                            <p class="hero-subtitle">انطلق نحو مستقبلك المهني — فرصتك الذهبية تبدأ هنا</p>
-                        @endif
+                        @php
+                            $heroSubtitleText = $fair->subtitle ?: 'انطلق نحو مستقبلك المهني — فرصتك الذهبية تبدأ هنا';
+                        @endphp
+                        <p class="hero-subtitle">
+                            <span id="scrambleSubtitle" data-text="{{ $heroSubtitleText }}">{{ $heroSubtitleText }}</span>
+                        </p>
 
                         {{-- Event Pills --}}
                         <div class="event-pills justify-content-lg-start justify-content-center">
@@ -4962,6 +4987,96 @@
     SCRIPTS
     ══════════════════════════════════ --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrambleTextPlugin.min.js"></script>
+
+    <script>
+        // ─── Scramble Text Animation for Hero Title & Subtitle ───
+        (function initHeroScramble() {
+            function runScramble() {
+                if (typeof gsap === 'undefined' || typeof ScrambleTextPlugin === 'undefined') return;
+
+                gsap.registerPlugin(ScrambleTextPlugin);
+
+                const mainEl = document.getElementById('scrambleTitleMain');
+                const subEl = document.getElementById('scrambleTitleSub');
+                const descEl = document.getElementById('scrambleSubtitle');
+                const cursorEl = document.getElementById('scrambleCursor');
+                const titleWrap = document.getElementById('heroTitleWrap');
+
+                if (!mainEl) return;
+
+                const targetMain = mainEl.getAttribute('data-text') || mainEl.textContent.trim();
+                const targetSub = subEl ? (subEl.getAttribute('data-text') || subEl.textContent.trim()) : '';
+                const targetDesc = descEl ? (descEl.getAttribute('data-text') || descEl.textContent.trim()) : '';
+
+                const tl = gsap.timeline({ defaults: { ease: "none" } });
+
+                if (cursorEl) {
+                    cursorEl.style.display = 'inline-block';
+                    gsap.set(cursorEl, { opacity: 1 });
+                }
+
+                // 1. Scramble Main Title (معرض التوظيف 2026)
+                tl.to(mainEl, {
+                    duration: 1.4,
+                    scrambleText: {
+                        text: targetMain,
+                        chars: "010123456789معرضالتوظيفجامعةطرابلس",
+                        speed: 0.35
+                    }
+                });
+
+                // 2. Scramble Sub Title (جامعة طرابلس)
+                if (subEl && targetSub) {
+                    tl.to(subEl, {
+                        duration: 1.0,
+                        scrambleText: {
+                            text: targetSub,
+                            chars: "010123456789جامعةطرابلس",
+                            speed: 0.35
+                        }
+                    }, "-=0.35");
+                }
+
+                // 3. Scramble Subtitle Description
+                if (descEl && targetDesc) {
+                    tl.to(descEl, {
+                        duration: 1.2,
+                        scrambleText: {
+                            text: targetDesc,
+                            chars: "010123456789انطلقنحومستقبلكالمهنيفرصتكالذهبية",
+                            speed: 0.35
+                        }
+                    }, "-=0.25");
+                }
+
+                // Smoothly fade out cursor after decoding completes
+                if (cursorEl) {
+                    tl.to(cursorEl, {
+                        opacity: 0,
+                        duration: 0.5,
+                        delay: 1.2,
+                        onComplete: function() {
+                            cursorEl.style.display = 'none';
+                        }
+                    });
+                }
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', runScramble);
+            } else {
+                runScramble();
+            }
+
+            // Click to replay animation anytime
+            const titleWrap = document.getElementById('heroTitleWrap');
+            if (titleWrap) {
+                titleWrap.addEventListener('click', runScramble);
+            }
+        })();
+    </script>
 
     <script>
         // ── Scroll nav style

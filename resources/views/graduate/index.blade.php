@@ -140,28 +140,28 @@
 </div>
 
 <style>
-/* 🌟 بطاقات التدريب بنمط Uiverse المتناسقة تماماً مع صفحة الترحيب 🌟 */
+/* 🌟 بطاقات التدريب بنمط Uiverse المتناسقة مع الهوية الداخلية الفاتحة للمنصة 🌟 */
 .uiverse-train-card {
     width: 100%;
     height: 100%;
     background: linear-gradient(135deg,
             #0d3882 0%,
             #1565c0 30%,
-            #1e88e5 55%,
-            #f59e0b 85%,
+            #1e88e5 60%,
+            #f59e0b 90%,
             #d97706 100%);
     padding: 3.5px;
-    border-radius: 30px;
+    border-radius: 28px;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 14px 34px -8px rgba(11, 31, 58, 0.18), 0 0 16px rgba(245, 158, 11, 0.12);
+    box-shadow: 0 10px 30px -6px rgba(13, 56, 130, 0.15), 0 4px 12px rgba(0, 0, 0, 0.05);
     transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
 }
 
 .uiverse-train-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 22px 48px -10px rgba(13, 56, 130, 0.28), 0 0 28px rgba(245, 158, 11, 0.35);
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px -8px rgba(13, 56, 130, 0.25), 0 8px 20px rgba(245, 158, 11, 0.2);
 }
 
 .uiverse-train-card .title-card {
@@ -174,13 +174,13 @@
 
 .uiverse-train-card .title-card p {
     margin: 0;
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     font-weight: 800;
-    letter-spacing: 0.5px;
-    text-shadow: 0 2px 8px rgba(13, 56, 130, 0.8);
+    letter-spacing: 0.3px;
+    text-shadow: 0 2px 6px rgba(13, 56, 130, 0.6);
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
 }
 
 .uiverse-train-card .title-card svg {
@@ -191,10 +191,10 @@
 .uiverse-train-card .card-content {
     width: 100%;
     height: 100%;
-    background: linear-gradient(180deg, #091e3e 0%, #06152c 100%);
-    border-radius: 27px;
-    color: #94a3b8;
-    font-size: 0.85rem;
+    background: #ffffff;
+    border-radius: 25px;
+    color: #475569;
+    font-size: 0.88rem;
     padding: 22px 20px 20px;
     display: flex;
     flex-direction: column;
@@ -202,22 +202,27 @@
     gap: 14px;
     position: relative;
     flex-grow: 1;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .uiverse-train-card .card-content .card-category {
-    font-size: 0.76rem;
+    font-size: 0.78rem;
     font-weight: 800;
-    color: #38bdf8;
+    color: #0d3882;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    padding: 4px 10px;
+    border-radius: 8px;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    letter-spacing: 0.3px;
+    width: fit-content;
 }
 
 .uiverse-train-card .card-content .card-title-main {
-    font-size: 1.12rem;
+    font-size: 1.15rem;
     font-weight: 800;
-    color: #ffffff;
+    color: #0f172a;
     line-height: 1.45;
     margin: 0;
     min-height: 48px;
@@ -230,31 +235,34 @@
 .uiverse-train-card .card-content .plain {
     display: flex;
     align-items: baseline;
-    gap: 6px;
+    gap: 8px;
     margin: 0;
-    padding-bottom: 4px;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
+    padding-bottom: 6px;
+    border-bottom: 1px dashed #e2e8f0;
 }
 
 .uiverse-train-card .card-content .plain :nth-child(1) {
     font-size: 1.85rem;
     font-weight: 900;
-    color: #ffffff;
+    color: #0d3882;
     font-family: monospace;
     line-height: 1;
-    text-shadow: 0 2px 10px rgba(245, 158, 11, 0.35);
 }
 
 .uiverse-train-card .card-content .plain :nth-child(2) {
-    font-size: 0.84rem;
+    font-size: 0.82rem;
     font-weight: 700;
-    color: #fbbf24;
+    color: #b45309;
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    padding: 2px 8px;
+    border-radius: 6px;
 }
 
 .uiverse-train-card .card-content .description {
-    font-size: 0.84rem;
-    color: #94a3b8;
-    line-height: 1.6;
+    font-size: 0.86rem;
+    color: #64748b;
+    line-height: 1.65;
     margin: 0;
     flex-grow: 1;
     min-height: 42px;
@@ -265,30 +273,28 @@
 }
 
 .uiverse-train-card .card-meta-pill {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     border-radius: 12px;
-    padding: 8px 12px;
+    padding: 9px 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 0.78rem;
-    color: #cbd5e1;
+    font-size: 0.8rem;
+    color: #334155;
+    font-weight: 600;
 }
 
 .uiverse-train-card .card-btn {
-    background: rgba(245, 158, 11, 0.12) !important;
-    border: 2px solid #f59e0b !important;
+    background: linear-gradient(135deg, #0d3882 0%, #1565c0 100%) !important;
+    border: 1.5px solid #0d3882 !important;
     color: #ffffff !important;
     font-weight: 800;
-    font-size: 0.88rem;
-    padding: 0.65rem 1.2rem;
+    font-size: 0.9rem;
+    padding: 0.68rem 1.3rem;
     border-radius: 50px;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
     transition: all 0.28s ease;
-    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.2), inset 0 0 10px rgba(245, 158, 11, 0.08);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 14px rgba(13, 56, 130, 0.25);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -308,8 +314,7 @@
     border-color: #f59e0b !important;
     color: #0b1f3a !important;
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45);
-    text-shadow: none;
+    box-shadow: 0 8px 22px rgba(245, 158, 11, 0.4);
 }
 
 .uiverse-train-card .card-btn:hover i {
@@ -318,8 +323,29 @@
 
 .uiverse-train-card .card-btn-icon {
     width: 44px;
-    padding: 0.65rem 0;
+    padding: 0.68rem 0;
     flex-shrink: 0;
+}
+
+/* دعم الوضع الليلي للمنصة إن تم تفعيله */
+[data-theme="dark"] .uiverse-train-card .card-content,
+.dark-mode .uiverse-train-card .card-content {
+    background: #0f172a;
+    color: #cbd5e1;
+}
+[data-theme="dark"] .uiverse-train-card .card-title-main,
+.dark-mode .uiverse-train-card .card-title-main {
+    color: #ffffff;
+}
+[data-theme="dark"] .uiverse-train-card .plain :nth-child(1),
+.dark-mode .uiverse-train-card .plain :nth-child(1) {
+    color: #60a5fa;
+}
+[data-theme="dark"] .uiverse-train-card .card-meta-pill,
+.dark-mode .uiverse-train-card .card-meta-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
 }
 </style>
 @endsection

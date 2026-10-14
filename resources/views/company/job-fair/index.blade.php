@@ -10,7 +10,7 @@
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
                 <div class="card-body p-4 text-white position-relative">
                     <h1 class="h3 fw-bold mb-2 position-relative z-index-1">
-                        <i class="fas fa-calendar-star me-2" style="color: #fef08a;"></i> المعارض والفعاليات المشارك بها
+                        <i class="fas fa-calendar-alt me-2" style="color: #fef08a;"></i> المعارض والفعاليات المشارك بها
                     </h1>
                     <p class="mb-0 text-white-50 position-relative z-index-1">
                         إدارة تواجد شركتك في المعارض والملتقيات والفعاليات ومتابعة المتقدمين بفعالية

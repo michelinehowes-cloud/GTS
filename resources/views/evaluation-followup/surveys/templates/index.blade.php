@@ -163,7 +163,7 @@
         <span>التوظيف والشراكات ({{ $stats['employment'] }})</span>
     </a>
     <a href="{{ route('evaluation-followup.surveys.templates.index', ['category' => 'events']) }}" class="filter-btn {{ $category === 'events' ? 'active' : '' }}">
-        <i class="fas fa-calendar-star text-warning"></i>
+        <i class="fas fa-calendar-alt text-warning"></i>
         <span>المعارض والفعاليات ({{ $stats['events'] }})</span>
     </a>
     <a href="{{ route('evaluation-followup.surveys.templates.index', ['category' => 'custom']) }}" class="filter-btn {{ $category === 'custom' ? 'active' : '' }}">

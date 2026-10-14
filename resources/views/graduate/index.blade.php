@@ -242,10 +242,10 @@
 }
 
 .uiverse-train-card .card-content .plain :nth-child(1) {
-    font-size: 1.85rem;
+    font-size: 1.65rem;
     font-weight: 900;
     color: #0d3882;
-    font-family: monospace;
+    font-family: 'Tajawal', sans-serif;
     line-height: 1;
 }
 
@@ -255,8 +255,9 @@
     color: #b45309;
     background: #fef3c7;
     border: 1px solid #fde68a;
-    padding: 2px 8px;
+    padding: 3px 8px;
     border-radius: 6px;
+    font-family: 'Tajawal', sans-serif;
 }
 
 .uiverse-train-card .card-content .description {

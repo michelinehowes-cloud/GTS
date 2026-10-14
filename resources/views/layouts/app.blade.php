@@ -1211,6 +1211,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('graduate.job-fairs*') || request()->routeIs('job-fair.*') ? 'active' : '' }}"
+                                href="{{ route('graduate.job-fairs.index') }}">
+                                <i class="fas fa-calendar-alt"></i>
+                                الفعاليات و المعارض
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('graduate.my-applications') ? 'active' : '' }}"
                                 href="{{ route('graduate.my-applications') }}">
                                 <i class="fas fa-clipboard-list"></i>
@@ -1474,7 +1481,7 @@
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('company.job-fairs*') ? 'active' : '' }}"
                                 href="{{ route('company.job-fairs.index') }}">
-                                <i class="fas fa-calendar-star"></i>
+                                <i class="fas fa-calendar-alt"></i>
                                 المعارض والفعاليات
                             </a>
                         </li>

@@ -1272,6 +1272,42 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Graduate Event Registration Action -->
+                            @auth
+                                @if(auth()->user()->role === 'graduate')
+                                    <div class="mt-4 pt-3 border-top border-white border-opacity-15">
+                                        <form action="{{ route('job-fair.event.toggle', $event->id) }}" method="POST">
+                                            @csrf
+                                            @if($isRegistered)
+                                                <div class="p-2.5 rounded-3 mb-2 text-center" style="background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.45);">
+                                                    <i class="fas fa-check-circle text-success fs-5 me-1"></i>
+                                                    <strong class="text-white">أنت مسجل في هذه الفعالية</strong>
+                                                </div>
+                                                <button type="submit" class="btn btn-outline-danger w-100 rounded-pill py-2 fw-bold" onclick="return confirm('هل تريد بالتأكيد إلغاء التسجيل في هذه الفعالية؟');">
+                                                    <i class="fas fa-times me-1"></i> إلغاء التسجيل
+                                                </button>
+                                            @else
+                                                @if($event->is_full)
+                                                    <button type="button" class="btn btn-secondary w-100 rounded-pill py-2 fw-bold" disabled>
+                                                        <i class="fas fa-ban me-1"></i> المقاعد مكتملة
+                                                    </button>
+                                                @else
+                                                    <button type="submit" class="btn btn-warning text-dark w-100 rounded-pill py-2.5 fw-bold shadow">
+                                                        <i class="fas fa-user-plus me-1"></i> سجّل حضورك في هذه الفعالية الآن
+                                                    </button>
+                                                @endif
+                                            @endif
+                                        </form>
+                                    </div>
+                                @endif
+                            @else
+                                <div class="mt-4 pt-3 border-top border-white border-opacity-15 text-center">
+                                    <a href="{{ route('login') }}" class="btn btn-warning text-dark w-100 rounded-pill py-2.5 fw-bold shadow">
+                                        <i class="fas fa-sign-in-alt me-1"></i> سجل دخولك كخريج لحجز مقعدك
+                                    </a>
+                                </div>
+                            @endauth
                         </div>
 
                         <!-- Dynamic QR Code Card -->

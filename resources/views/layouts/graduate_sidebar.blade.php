@@ -42,10 +42,10 @@
 </li>
 
 <li class="nav-item">
-    <a class="nav-link {{ request()->routeIs('job-fair.*') ? 'active' : '' }}"
-        href="{{ route('job-fair.public') }}">
-        <i class="fas fa-fw fa-calendar-star" style="color: #eeca3e;"></i>
-        <span>المعارض والفعاليات</span>
+    <a class="nav-link {{ request()->routeIs('graduate.job-fairs*') || request()->routeIs('job-fair.*') ? 'active' : '' }}"
+        href="{{ route('graduate.job-fairs.index') }}">
+        <i class="fas fa-fw fa-calendar-alt"></i>
+        <span>الفعاليات و المعارض</span>
     </a>
 </li>
 

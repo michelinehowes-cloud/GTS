@@ -731,6 +731,51 @@ class JobFairController extends Controller
     }
 
     /**
+     * حذف تسجيل خريج من المعرض (للإدارة)
+     */
+    public function destroyRegistration(JobFair $fair, JobFairRegistration $registration)
+    {
+        if (auth()->check()) {
+            $u = auth()->user();
+            if (!$u->isAdmin() && !$u->hasAnyPermission(['job_fair.registrations', 'job_fair.delete', 'job_fair.manage']) && !in_array($u->role, ['partnership_officer'])) {
+                abort(403, 'غير مصرح لك بحذف تسجيلات المعرض.');
+            }
+        }
+
+        if ($registration->job_fair_id !== $fair->id) {
+            abort(404, 'التسجيل لا ينتمي لهذا المعرض.');
+        }
+
+        $gradName = $registration->graduate?->name ?? 'خريج';
+
+        // إلغاء تسجيل الخريج أيضاً من أي فعاليات أو ورش عمل تابعة لهذا المعرض
+        $eventIds = $fair->events()->pluck('id');
+        if ($eventIds->isNotEmpty()) {
+            JobFairEventAttendee::whereIn('job_fair_event_id', $eventIds)
+                ->where('graduate_id', $registration->user_id)
+                ->delete();
+        }
+
+        \App\Models\AuditLog::logAction(
+            'job_fair_registration_deleted',
+            "تم حذف تسجيل الخريج ({$gradName}) من المعرض [{$fair->title}]",
+            'JobFair',
+            auth()->id(),
+            $fair->id,
+            [
+                'registration_id' => $registration->id,
+                'user_id' => $registration->user_id,
+                'registration_number' => $registration->registration_number
+            ]
+        );
+
+        $registration->delete();
+
+        return back()->with('success', "تم حذف تسجيل الخريج «{$gradName}» من المعرض بنجاح.");
+    }
+
+
+    /**
      * تصدير قائمة الخريجين PDF أو Excel
      */
     public function exportRegistrations(JobFair $fair)

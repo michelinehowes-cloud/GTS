@@ -30,7 +30,7 @@
             <span>المرشحون للوظائف</span>
         </a>
         <a href="{{ route('company.job-fairs.index') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
-            <i class="fas fa-calendar-star fs-6 text-warning"></i>
+            <i class="fas fa-calendar-alt fs-6 text-warning"></i>
             <span>المعارض والفعاليات</span>
         </a>
         <a href="{{ route('company.profile') }}" class="btn btn-outline-light text-white fw-bold py-2.5 px-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">

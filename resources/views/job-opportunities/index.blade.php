@@ -268,7 +268,7 @@
                                         <div class="d-flex flex-wrap align-items-center gap-2">
                                             @if($opportunity->jobFair)
                                                 <span class="badge rounded-pill" style="background: rgba(238, 202, 62, 0.2); color: #b45309; border: 1px solid rgba(238, 202, 62, 0.5); font-size: 0.72rem; font-weight: 600;" title="مخصصة لمعرض: {{ $opportunity->jobFair->title }}">
-                                                    <i class="fas fa-calendar-star me-1 text-warning"></i>{{ Str::limit($opportunity->jobFair->title, 22) }}
+                                                    <i class="fas fa-calendar-alt me-1 text-warning"></i>{{ Str::limit($opportunity->jobFair->title, 22) }}
                                                 </span>
                                             @endif
                                             @if($opportunity->salary)
@@ -485,7 +485,7 @@
                         <div class="d-flex flex-wrap gap-2 my-2">
                             @if($opportunity->jobFair)
                                 <span class="badge rounded-pill" style="background: rgba(238, 202, 62, 0.2); color: #b45309; border: 1px solid rgba(238, 202, 62, 0.5); font-size: 0.72rem; font-weight: 600;">
-                                    <i class="fas fa-calendar-star me-1 text-warning"></i>{{ Str::limit($opportunity->jobFair->title, 22) }}
+                                    <i class="fas fa-calendar-alt me-1 text-warning"></i>{{ Str::limit($opportunity->jobFair->title, 22) }}
                                 </span>
                             @endif
                             <span class="badge bg-light text-primary border" style="font-size: 0.72rem;">

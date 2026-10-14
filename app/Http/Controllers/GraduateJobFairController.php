@@ -7,10 +7,67 @@ use App\Models\JobFairCompany;
 use App\Models\JobFairWishlist;
 use App\Models\JobFairEvent;
 use App\Models\JobFairEventAttendee;
+use App\Models\JobFairRegistration;
 use Illuminate\Http\Request;
 
 class GraduateJobFairController extends Controller
 {
+    /**
+     * عرض صفحة الفعاليات والمعارض للخريج
+     */
+    public function index(Request $request)
+    {
+        $graduate = auth()->user();
+
+        // 1. جلب المعارض المنشورة أو الجارية
+        $fairs = JobFair::whereIn('status', ['published', 'ongoing'])
+            ->with(['companies.company', 'events', 'sponsors'])
+            ->withCount(['companies', 'events', 'projects'])
+            ->orderBy('event_date', 'asc')
+            ->get();
+
+        if ($fairs->isEmpty()) {
+            $fairs = JobFair::with(['companies.company', 'events', 'sponsors'])
+                ->withCount(['companies', 'events', 'projects'])
+                ->latest()
+                ->take(3)
+                ->get();
+        }
+
+        // 2. تسجيلات الخريج في المعارض
+        $myRegistrations = JobFairRegistration::where('user_id', $graduate->id)
+            ->with('jobFair')
+            ->get()
+            ->keyBy('job_fair_id');
+
+        // 3. معرفات الفعاليات المسجل بها الخريج
+        $registeredEventIds = JobFairEventAttendee::where('graduate_id', $graduate->id)
+            ->pluck('job_fair_event_id')
+            ->toArray();
+
+        // 4. الفعاليات المصاحبة المتاحة
+        $fairIds = $fairs->pluck('id')->toArray();
+        $events = JobFairEvent::whereIn('job_fair_id', $fairIds)
+            ->with('jobFair')
+            ->withCount('attendees')
+            ->orderBy('start_time', 'asc')
+            ->get();
+
+        // 5. الفعاليات التي سجل فيها الخريج
+        $myEvents = JobFairEvent::whereIn('id', $registeredEventIds)
+            ->with('jobFair')
+            ->orderBy('start_time', 'asc')
+            ->get();
+
+        return view('graduate.job-fairs.index', compact(
+            'fairs',
+            'myRegistrations',
+            'registeredEventIds',
+            'events',
+            'myEvents'
+        ));
+    }
+
     /**
      * View the interactive digital catalog for a specific job fair
      */
@@ -149,4 +206,46 @@ class GraduateJobFairController extends Controller
 
         return view('graduate.job-fairs.scan-success', compact('fair', 'company', 'already_visited'));
     }
+
+    /**
+     * إلغاء تسجيل الخريج في المعرض ذاتياً
+     */
+    public function cancelRegistration(JobFair $fair)
+    {
+        $graduate = auth()->user();
+
+        $registration = JobFairRegistration::where('job_fair_id', $fair->id)
+            ->where('user_id', $graduate->id)
+            ->first();
+
+        if (!$registration) {
+            return back()->with('error', 'أنت غير مسجل في هذا المعرض.');
+        }
+
+        if ($registration->attended) {
+            return back()->with('error', 'لا يمكن إلغاء التسجيل نظراً لتسجيل حضورك الفعلي في المعرض مسبقاً.');
+        }
+
+        // إلغاء ورش العمل والفعاليات المصاحبة لهذا المعرض
+        $eventIds = $fair->events()->pluck('id');
+        if ($eventIds->isNotEmpty()) {
+            JobFairEventAttendee::whereIn('job_fair_event_id', $eventIds)
+                ->where('graduate_id', $graduate->id)
+                ->delete();
+        }
+
+        \App\Models\AuditLog::logAction(
+            'job_fair_registration_cancelled_by_graduate',
+            "قام الخريج ({$graduate->name}) بإلغاء تسجيله ذاتياً في المعرض [{$fair->title}]",
+            'JobFair',
+            $graduate->id,
+            $fair->id,
+            ['registration_id' => $registration->id]
+        );
+
+        $registration->delete();
+
+        return back()->with('success', 'تم إلغاء تسجيلك في المعرض والفعاليات المرتبطة به بنجاح.');
+    }
 }
+

@@ -718,20 +718,30 @@
                                                 </small>
                                             </div>
                                         </div>
-                                        <div class="text-end ps-2 flex-shrink-0" id="reg-action-container-{{ $reg->user_id }}">
-                                            @if($reg->attended)
-                                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 small">
-                                                    <i class="fas fa-check-circle me-1"></i> حاضر
-                                                </span>
-                                            @else
-                                                <button type="button" 
-                                                        class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 quick-checkin-btn"
-                                                        data-graduate-id="{{ $reg->user_id }}"
-                                                        data-name="{{ $reg->graduate?->name }}">
-                                                    <i class="fas fa-user-check me-1"></i> تسجيل يدوي
+                                        <div class="d-flex align-items-center gap-1.5 justify-content-end">
+                                            <div class="text-end ps-2 flex-shrink-0" id="reg-action-container-{{ $reg->user_id }}">
+                                                @if($reg->attended)
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-1 small">
+                                                        <i class="fas fa-check-circle me-1"></i> حاضر
+                                                    </span>
+                                                @else
+                                                    <button type="button" 
+                                                            class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 quick-checkin-btn"
+                                                            data-graduate-id="{{ $reg->user_id }}"
+                                                            data-name="{{ $reg->graduate?->name }}">
+                                                        <i class="fas fa-user-check me-1"></i> تسجيل يدوي
+                                                    </button>
+                                                @endif
+                                            </div>
+                                            <form action="{{ route('job-fair.admin.registrations.destroy', [$fair->id, $reg->id]) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف تسجيل الخريج «{{ $reg->graduate?->name }}» من المعرض نهائياً؟');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle p-0 d-inline-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" title="حذف تسجيل الخريج">
+                                                    <i class="fas fa-trash-alt" style="font-size: 0.72rem;"></i>
                                                 </button>
-                                            @endif
+                                            </form>
                                         </div>
+
                                     </div>
                                 @empty
                                     <div class="text-center py-5">

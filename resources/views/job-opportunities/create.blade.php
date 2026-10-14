@@ -59,7 +59,7 @@
                                         <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
                                             <input class="form-check-input" type="checkbox" role="switch" id="is_for_job_fair" name="is_for_job_fair" value="1" {{ old('is_for_job_fair') ? 'checked' : '' }} style="cursor: pointer; width: 2.5rem; height: 1.3rem;">
                                             <label class="form-check-label fw-bold text-dark mb-0 fs-6" for="is_for_job_fair" style="cursor: pointer;">
-                                                <i class="fas fa-calendar-star text-warning me-1"></i>
+                                                <i class="fas fa-calendar-alt text-warning me-1"></i>
                                                 تخصيص هذه الوظيفة لمعرض التوظيف
                                             </label>
                                         </div>

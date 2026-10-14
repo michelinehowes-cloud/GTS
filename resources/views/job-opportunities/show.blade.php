@@ -27,7 +27,7 @@
                                         @if($opportunity->jobFair)
                                         <a href="{{ route('job-fair.public') }}" class="text-decoration-none">
                                             <span class="badge rounded-pill shadow-xs" style="background: rgba(238, 202, 62, 0.28); color: #fff; border: 1px solid rgba(238, 202, 62, 0.6); padding: 8px 16px; font-size: 0.9rem; font-weight: 600;">
-                                                <i class="fas fa-calendar-star me-1 text-warning"></i>
+                                                <i class="fas fa-calendar-alt me-1 text-warning"></i>
                                                 معرض التوظيف: {{ $opportunity->jobFair->title }}
                                             </span>
                                         </a>
@@ -306,7 +306,7 @@
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center mb-2">
                             <div class="rounded-circle bg-warning text-white d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 44px; height: 44px;">
-                                <i class="fas fa-calendar-star fs-5"></i>
+                                <i class="fas fa-calendar-alt fs-5"></i>
                             </div>
                             <div>
                                 <div class="text-warning-emphasis fw-bold small mb-0">مخصصة لمعرض التوظيف</div>

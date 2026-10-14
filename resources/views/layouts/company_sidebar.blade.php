@@ -19,7 +19,7 @@
 <li class="nav-item">
     <a class="nav-link {{ request()->routeIs('company.job-fairs*') ? 'active' : '' }}" 
        href="{{ route('company.job-fairs.index') }}">
-        <i class="fas fa-calendar-star" style="color: #eeca3e;"></i>
+        <i class="fas fa-calendar-alt"></i>
         المعارض والفعاليات
     </a>
 </li>

@@ -24,17 +24,42 @@ class CompanyJobFairController extends Controller
         $user = auth()->user();
         $company = $user->company;
         
+        if (!$company && $user->role === 'company') {
+            $company = \App\Models\Company::where('user_id', $user->id)->first();
+        }
+
+        // للمدير العام في حال تصفح واجهة الشركة للمعاينة
+        if (!$company && method_exists($user, 'isAdmin') && $user->isAdmin()) {
+            $company = \App\Models\Company::first();
+        }
+        
         if (!$company) {
             $fairs = collect();
         } else {
             $fairs = JobFair::whereHas('companies', function($query) use ($company) {
                 $query->where('company_id', $company->id);
             })
+            ->with(['companies' => function($query) use ($company) {
+                $query->where('company_id', $company->id);
+            }, 'sponsors'])
             ->orderBy('event_date', 'desc')
             ->get();
+
+            // إلحاق بيانات الجناح وإحصائيات الزيارات الخاصة بالشركة
+            foreach ($fairs as $fair) {
+                $fairCompany = $fair->companies->first();
+                $fair->my_booth = $fairCompany?->booth_number;
+                $fair->my_booth_location = $fairCompany?->booth_location;
+                $fair->my_leads_count = JobFairVisit::where('job_fair_id', $fair->id)
+                    ->where(function($q) use ($user, $company) {
+                        $q->where('company_id', $user->id)
+                          ->orWhere('company_id', $company->id);
+                    })
+                    ->count();
+            }
         }
 
-        return view('company.job-fair.index', compact('fairs'));
+        return view('company.job-fair.index', compact('fairs', 'company'));
     }
 
     /**

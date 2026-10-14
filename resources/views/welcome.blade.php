@@ -459,242 +459,209 @@
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
         }
 
-        /* 3. شريط الإحصائيات الحية (Live Stats Ribbon - Cobp Animated Charts) */
+        /* 3. شريط الإحصائيات الحية (Live Stats Ribbon - From Uiverse.io by mrhyddenn) */
         .stats-ribbon {
             margin-top: -60px;
             position: relative;
             z-index: 10;
         }
 
-        .container-card-charts {
+        .card_box {
+            width: 100%;
+            min-height: 240px;
+            border-radius: 20px;
+            background: linear-gradient(165deg, #0e274d 0%, #06152b 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             position: relative;
-            width: 100%;
-            height: 255px;
-            background: linear-gradient(135deg, rgba(21, 101, 192, 0.8) 0%, rgba(245, 158, 11, 0.4) 50%, rgba(255, 255, 255, 0.15) 100%);
-            border-radius: 28px;
-            padding: 1.6px;
-            box-shadow: 0 15px 35px -8px rgba(11, 31, 58, 0.3);
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
-        }
-
-        .container-card-charts:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 45px -5px rgba(21, 101, 192, 0.45);
-        }
-
-        .container-card-charts::before {
-            position: absolute;
-            content: "";
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 50px;
-            background-color: rgba(21, 101, 192, 0.45);
-            z-index: -1;
-            filter: blur(40px);
-            border-radius: 50%;
-            pointer-events: none;
-            transition: background-color 0.35s ease;
-        }
-
-        .container-card-charts:hover::before {
-            background-color: rgba(245, 158, 11, 0.55);
-        }
-
-        .card-charts {
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at 50% 10%, #0d2a54 0%, #071936 50%, #030e1e 100%);
-            border-radius: 26px;
+            box-shadow: 0 20px 45px rgba(5, 18, 38, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: visible;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            position: relative;
-            z-index: 1;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.8rem 1.2rem 1.4rem;
         }
 
-        .tags-card {
+        .card_box:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 28px 55px rgba(5, 18, 38, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        }
+
+        /* Diagonal Corner Ribbon */
+        .card_box .card_ribbon {
+            position: absolute;
+            overflow: hidden;
+            width: 130px;
+            height: 130px;
+            top: -8px;
+            left: -8px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 16px 18px 8px;
-            z-index: 2;
-            position: relative;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 5;
+            border-top-left-radius: 20px;
         }
 
-        .stat-chart-icon-wrap {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: inline-flex;
+        .card_box .card_ribbon::before {
+            content: attr(data-ribbon);
+            position: absolute;
+            width: 160%;
+            height: 34px;
+            transform: rotate(-45deg) translateY(-18px);
+            display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(8px);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.76rem;
+            letter-spacing: 0.05em;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        .card_box .card_ribbon::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            bottom: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        /* 1. Graduates - Platform Royal Blue */
+        .card_box.ribbon-blue .card_ribbon::before {
+            background-image: linear-gradient(45deg, #1d4ed8 0%, #38bdf8 51%, #1e40af 100%);
+        }
+        .card_box.ribbon-blue .card_ribbon::after {
+            background-image: linear-gradient(45deg, #1e40af 0%, #38bdf8 51%, #1e40af 100%);
+            box-shadow: 122px -122px #1e3a8a;
+        }
+        .card_box.ribbon-blue:hover {
+            border-color: rgba(56, 189, 248, 0.5);
+            box-shadow: 0 28px 55px rgba(29, 78, 216, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        }
+
+        /* 2. Partner Companies - Platform Emerald */
+        .card_box.ribbon-emerald .card_ribbon::before {
+            background-image: linear-gradient(45deg, #059669 0%, #34d399 51%, #047857 100%);
+        }
+        .card_box.ribbon-emerald .card_ribbon::after {
+            background-image: linear-gradient(45deg, #047857 0%, #34d399 51%, #047857 100%);
+            box-shadow: 122px -122px #064e3b;
+        }
+        .card_box.ribbon-emerald:hover {
+            border-color: rgba(52, 211, 153, 0.5);
+            box-shadow: 0 28px 55px rgba(5, 150, 105, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        }
+
+        /* 3. Training Programs - Platform Tripoli Academic Gold */
+        .card_box.ribbon-gold .card_ribbon::before {
+            background-image: linear-gradient(45deg, #d97706 0%, #fbbf24 51%, #b45309 100%);
+        }
+        .card_box.ribbon-gold .card_ribbon::after {
+            background-image: linear-gradient(45deg, #b45309 0%, #fbbf24 51%, #b45309 100%);
+            box-shadow: 122px -122px #78350f;
+        }
+        .card_box.ribbon-gold:hover {
+            border-color: rgba(251, 191, 36, 0.55);
+            box-shadow: 0 28px 55px rgba(217, 119, 6, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        }
+
+        /* 4. Job Opportunities - Platform Royal Purple */
+        .card_box.ribbon-purple .card_ribbon::before {
+            background-image: linear-gradient(45deg, #7c3aed 0%, #c084fc 51%, #6d28d9 100%);
+        }
+        .card_box.ribbon-purple .card_ribbon::after {
+            background-image: linear-gradient(45deg, #6d28d9 0%, #c084fc 51%, #6d28d9 100%);
+            box-shadow: 122px -122px #4c1d95;
+        }
+        .card_box.ribbon-purple:hover {
+            border-color: rgba(192, 132, 252, 0.55);
+            box-shadow: 0 28px 55px rgba(124, 58, 237, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        }
+
+        /* Card Content Inner Elements */
+        .card_box .stat-icon-wrap {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+            margin-bottom: 10px;
             transition: transform 0.35s ease;
         }
 
-        .container-card-charts:hover .stat-chart-icon-wrap {
-            transform: scale(1.1) rotate(-5deg);
+        .card_box:hover .stat-icon-wrap {
+            transform: scale(1.1) rotate(-3deg);
         }
 
-        .stat-chart-badge-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #94a3b8;
-            font-size: 0.72rem;
-            font-weight: 700;
-            padding: 4px 10px;
-            border-radius: 20px;
-        }
-
-        .stat-chart-badge-pill .pulse-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: #10b981;
-            box-shadow: 0 0 6px #10b981;
-        }
-
-        .main-texts {
-            display: flex;
-            flex-direction: column;
-            padding: 0 18px;
-            font-weight: 500;
-            z-index: 2;
-            position: relative;
-        }
-
-        .main-texts .stat-number-title {
-            background-image: linear-gradient(135deg, #ffffff 0%, #fde68a 40%, #f59e0b 100%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            font-size: 1.9rem;
+        .card_box .stat-box-num {
+            font-size: 2.75rem;
             font-weight: 900;
-            font-family: monospace, 'Tajawal', sans-serif;
+            line-height: 1.05;
             margin: 0;
-            line-height: 1.2;
             letter-spacing: -0.5px;
+            color: #ffffff;
+            font-family: 'Tajawal', sans-serif;
+            text-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease;
         }
 
-        .main-texts .stat-label-text {
-            color: #cbd5e1;
-            font-size: 0.85rem;
-            font-weight: 700;
-            margin: 4px 0 0;
+        .card_box:hover .stat-box-num {
+            transform: scale(1.05);
+        }
+
+        .card_box .stat-box-title {
+            font-size: 0.96rem;
+            font-weight: 800;
+            color: #f1f5f9;
+            margin: 6px 0 4px;
             line-height: 1.35;
         }
 
-        .main-texts .stat-trend-change {
+        .card_box .stat-box-sub {
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: #94a3b8;
+            margin: 0;
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            margin-top: 5px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: #38bdf8;
-        }
-
-        .charts-lines {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            min-height: 90px;
-            margin-top: auto;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .charts-lines i {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            width: 100%;
-            height: 100%;
-            align-items: flex-end;
-        }
-
-        .charts-lines svg {
-            width: 100%;
-            height: 100%;
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow: visible;
-        }
-
-        .container-card-charts:hover .charts-lines svg {
-            transform: scale(1.15) translateY(-4px);
-        }
-
-        .lines {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            justify-content: space-between;
-            pointer-events: none;
-        }
-
-        .lines span {
-            width: 1px;
-            height: 100%;
-            margin: 0 12px;
-            background: linear-gradient(to top, rgba(255, 255, 255, 0) 0%, rgba(21, 101, 192, 0.12) 50%, rgba(255, 255, 255, 0) 100%);
-        }
-
-        .charts-lines path {
-            opacity: 0;
-        }
-
-        .icon-week path {
-            animation: chart_draw 7s ease infinite;
-        }
-
-        .icon-month path {
-            animation: chart_draw 7s 2.5s ease infinite;
-        }
-
-        @keyframes chart_draw {
-            0% {
-                stroke-dashoffset: 1500;
-                opacity: 0.85;
-            }
-
-            50% {
-                stroke-dashoffset: 0;
-                opacity: 1;
-            }
-
-            100% {
-                stroke-dashoffset: -1500;
-                opacity: 0.85;
-            }
         }
 
         @media (max-width: 768px) {
-            .container-card-charts {
-                height: 235px;
+            .card_box {
+                min-height: 200px;
+                padding: 1.4rem 0.8rem 1rem;
             }
-
-            .main-texts .stat-number-title {
-                font-size: 1.55rem;
+            .card_box .stat-box-num {
+                font-size: 2.1rem;
             }
-
-            .main-texts .stat-label-text {
-                font-size: 0.78rem;
+            .card_box .stat-box-title {
+                font-size: 0.84rem;
             }
-
-            .tags-card {
-                padding: 12px 14px 6px;
+            .card_box .stat-box-sub {
+                font-size: 0.7rem;
             }
-
-            .main-texts {
-                padding: 0 14px;
+            .card_box .card_ribbon {
+                width: 105px;
+                height: 105px;
+            }
+            .card_box .card_ribbon::before {
+                height: 28px;
+                font-size: 0.68rem;
+                transform: rotate(-45deg) translateY(-14px);
+            }
+            .card_box .card_ribbon::after {
+                box-shadow: 98px -98px #1e3a8a;
             }
         }
 
@@ -2848,130 +2815,81 @@
     <!-- ==================== 3. شريط الإحصائيات الحية (Live Stats Ribbon) ==================== -->
     @if(!isset($statsSettings['is_ribbon_visible']) || $statsSettings['is_ribbon_visible'])
         <div class="container stats-ribbon">
-            <!-- تعريف التدرجات اللونية الخاصة بالرسوم البيانية الحية -->
-            <svg width="0" height="0" style="position: absolute;">
-                <defs>
-                    <linearGradient id="paint_stat_gold" x1="0" y1="0" x2="460" y2="200" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#38bdf8" stop-opacity="0.3"></stop>
-                        <stop offset="0.5" stop-color="#ffffff"></stop>
-                        <stop offset="1" stop-color="#f59e0b" stop-opacity="0.9"></stop>
-                    </linearGradient>
-                    <linearGradient id="paint_stat_blue" x1="0" y1="0" x2="460" y2="200" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#1565c0" stop-opacity="0.3"></stop>
-                        <stop offset="0.5" stop-color="#38bdf8"></stop>
-                        <stop offset="1" stop-color="#ffffff" stop-opacity="0.85"></stop>
-                    </linearGradient>
-                    <linearGradient id="paint_stat_emerald" x1="0" y1="0" x2="460" y2="200" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#059669" stop-opacity="0.3"></stop>
-                        <stop offset="0.5" stop-color="#34d399"></stop>
-                        <stop offset="1" stop-color="#ffffff" stop-opacity="0.85"></stop>
-                    </linearGradient>
-                    <linearGradient id="paint_stat_purple" x1="0" y1="0" x2="460" y2="200" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#7c3aed" stop-opacity="0.3"></stop>
-                        <stop offset="0.5" stop-color="#a78bfa"></stop>
-                        <stop offset="1" stop-color="#f59e0b" stop-opacity="0.85"></stop>
-                    </linearGradient>
-                </defs>
-            </svg>
-
             <div class="row g-3 justify-content-center">
                 @if(isset($statsSettings['cards']))
                     @foreach($statsSettings['cards'] as $key => $card)
                         @if($card['is_visible'])
                             @php
-                                $badgeLabel = match($key) {
+                                $ribbonTheme = match ($key) {
+                                    'graduates' => 'ribbon-blue',
+                                    'companies' => 'ribbon-emerald',
+                                    'trainings' => 'ribbon-gold',
+                                    'opportunities' => 'ribbon-purple',
+                                    default => 'ribbon-blue',
+                                };
+                                $ribbonText = match ($key) {
                                     'graduates' => 'معتمد',
                                     'companies' => 'شريك فعال',
                                     'trainings' => 'برنامج مكثف',
                                     'opportunities' => 'نشط الآن',
                                     default => 'مباشر',
                                 };
-                                $trendText = match($key) {
+                                $trendText = match ($key) {
                                     'graduates' => 'كفاءات وطنية واعدة',
                                     'companies' => 'شراكات عمل مستدامة',
                                     'trainings' => 'تأهيل احترافي مستمر',
                                     'opportunities' => 'ربط مباشر بسوق العمل',
                                     default => 'مؤشر أداء معتمد',
                                 };
-                                $trendIcon = match($key) {
-                                    'graduates' => 'fas fa-arrow-trend-up text-info',
-                                    'companies' => 'fas fa-handshake text-success',
-                                    'trainings' => 'fas fa-chart-line text-warning',
-                                    'opportunities' => 'fas fa-bullseye text-primary',
-                                    default => 'fas fa-arrow-trend-up text-warning',
+                                $trendIcon = match ($key) {
+                                    'graduates' => 'fas fa-arrow-trend-up',
+                                    'companies' => 'fas fa-handshake',
+                                    'trainings' => 'fas fa-chart-line',
+                                    'opportunities' => 'fas fa-bullseye',
+                                    default => 'fas fa-arrow-trend-up',
                                 };
-                                $pulseColor = match($key) {
+                                $accentColor = match ($key) {
                                     'graduates' => '#38bdf8',
-                                    'companies' => '#10b981',
-                                    'trainings' => '#f59e0b',
-                                    'opportunities' => '#a78bfa',
-                                    default => '#10b981',
+                                    'companies' => '#34d399',
+                                    'trainings' => '#fbbf24',
+                                    'opportunities' => '#c084fc',
+                                    default => '#38bdf8',
                                 };
-                                $borderGradient = match($key) {
-                                    'graduates' => 'linear-gradient(135deg, rgba(37, 99, 235, 0.8) 0%, rgba(56, 189, 248, 0.35) 50%, rgba(255, 255, 255, 0.15) 100%)',
-                                    'companies' => 'linear-gradient(135deg, rgba(16, 185, 129, 0.8) 0%, rgba(52, 211, 153, 0.35) 50%, rgba(255, 255, 255, 0.15) 100%)',
-                                    'trainings' => 'linear-gradient(135deg, rgba(245, 158, 11, 0.8) 0%, rgba(251, 191, 36, 0.35) 50%, rgba(255, 255, 255, 0.15) 100%)',
-                                    'opportunities' => 'linear-gradient(135deg, rgba(139, 92, 246, 0.8) 0%, rgba(167, 139, 250, 0.35) 50%, rgba(255, 255, 255, 0.15) 100%)',
-                                    default => 'linear-gradient(135deg, rgba(21, 101, 192, 0.8) 0%, rgba(245, 158, 11, 0.4) 50%, rgba(255, 255, 255, 0.15) 100%)',
+                                $iconBg = match ($key) {
+                                    'graduates' => 'rgba(37, 99, 235, 0.22)',
+                                    'companies' => 'rgba(16, 185, 129, 0.22)',
+                                    'trainings' => 'rgba(245, 158, 11, 0.22)',
+                                    'opportunities' => 'rgba(139, 92, 246, 0.22)',
+                                    default => 'rgba(37, 99, 235, 0.22)',
                                 };
-                                $stroke1 = match($key) {
-                                    'companies' => 'url(#paint_stat_emerald)',
-                                    'trainings' => 'url(#paint_stat_gold)',
-                                    'opportunities' => 'url(#paint_stat_purple)',
-                                    default => 'url(#paint_stat_blue)',
+                                $cardIcon = $card['icon'] ?? match ($key) {
+                                    'graduates' => 'fas fa-user-graduate',
+                                    'companies' => 'fas fa-building',
+                                    'trainings' => 'fas fa-chalkboard-teacher',
+                                    'opportunities' => 'fas fa-briefcase',
+                                    default => 'fas fa-chart-pie',
                                 };
-                                $stroke2 = match($key) {
-                                    'companies' => 'url(#paint_stat_blue)',
-                                    'trainings' => 'url(#paint_stat_emerald)',
-                                    'opportunities' => 'url(#paint_stat_gold)',
-                                    default => 'url(#paint_stat_gold)',
+                                $val = $card['value'] ?? null;
+                                $displayVal = ($val !== null && $val > 0) ? number_format($val) : match ($key) {
+                                    'graduates' => '69',
+                                    'companies' => '4',
+                                    'trainings' => '35',
+                                    'opportunities' => '10',
+                                    default => '0',
                                 };
+                                $prefix = $card['prefix'] ?? '+';
                             @endphp
                             <div class="col-6 col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="{{ $loop->iteration * 100 }}">
-                                <div class="container-card-charts" style="background: {{ $borderGradient }};">
-                                    <div class="card-charts">
-                                        <div class="tags-card">
-                                            <div class="stat-chart-icon-wrap"
-                                                style="background: {{ $card['bg_color'] ?? 'rgba(21, 101, 192, 0.2)' }}; color: {{ $card['color'] ?? '#38bdf8' }};">
-                                                <i class="{{ $card['icon'] }}"></i>
-                                            </div>
-                                            <span class="stat-chart-badge-pill">
-                                                <span class="pulse-dot" style="background-color: {{ $pulseColor }}; box-shadow: 0 0 6px {{ $pulseColor }};"></span>
-                                                <span>{{ $badgeLabel }}</span>
-                                            </span>
-                                        </div>
-                                        <div class="main-texts">
-                                            <p class="stat-number-title">{{ $card['prefix'] }}{{ number_format($card['value']) }}</p>
-                                            <p class="stat-label-text">{{ $card['label'] }}</p>
-                                            <span class="stat-trend-change">
-                                                <i class="{{ $trendIcon }}"></i>
-                                                <span>{{ $trendText }}</span>
-                                            </span>
-                                        </div>
-                                        <div class="charts-lines">
-                                            <i class="icon-week">
-                                                <svg viewBox="0 0 469 262" fill="none">
-                                                    <path
-                                                        d="M2.5 261L6.42112 216.887C6.4726 216.308 6.69121 215.757 7.05039 215.3L11.359 209.816C11.7743 209.287 12 208.635 12 207.962V202.987C12 202.346 12.2055 201.722 12.5863 201.206L27.2479 181.342C27.4151 181.115 27.5496 180.866 27.6474 180.602L31.7748 169.458C32.2107 168.281 33.333 167.5 34.588 167.5H35.5756C37.8226 167.5 39.292 169.89 38.4086 171.956C36.1137 177.322 34.0615 183.976 36.5 185.5C39.338 187.274 43.1722 202.55 45.2823 212.494C45.6701 214.321 47.5992 215.378 49.3403 214.701L53.6761 213.015C54.5141 212.689 55.1618 212.004 55.4407 211.15L78.3519 140.954C78.45 140.653 78.5 140.339 78.5 140.023V114.385C78.5 114.129 78.5327 113.875 78.5974 113.627L95.9026 47.3728C95.9673 47.1253 96 46.8705 96 46.6147V27L102.483 117.259C102.494 117.42 102.519 117.578 102.555 117.735L108.878 144.485C108.959 144.826 109.098 145.15 109.291 145.442L117.591 158.073C118.871 160.022 121.788 159.829 122.8 157.729L131.594 139.49C132.629 137.343 135.632 137.202 136.864 139.241L147.401 156.681C148.059 157.771 149.334 158.326 150.581 158.067L170.757 153.863C171.832 153.639 172.942 154.02 173.654 154.856L187.803 171.481C189.536 173.517 192.865 172.441 193.078 169.776L199.81 85.6203C200.037 82.7832 203.718 81.8273 205.297 84.1955L227.5 117.5L230.279 122.299C231.461 124.342 234.43 124.282 235.53 122.194L237.842 117.801C237.947 117.601 238.074 117.414 238.222 117.242L261.286 90.4123C262.029 89.5473 263.199 89.1789 264.304 89.4616L280.695 93.6546C282.448 94.1029 284.196 92.9099 284.416 91.1144L294.882 6.02633C295.16 3.76377 297.761 2.62601 299.611 3.95714L322.945 20.7414C323.618 21.2254 324.061 21.9662 324.168 22.7881L335.097 106.419C335.317 108.103 336.89 109.268 338.565 108.989L365.007 104.582C366.835 104.277 368.5 105.688 368.5 107.541V116.792C368.5 117.258 368.608 117.717 368.817 118.133L385.671 151.842C386.179 152.858 387.218 153.5 388.354 153.5H393.231C393.736 153.5 394.232 153.373 394.674 153.13L406.191 146.814C407.884 145.886 409.999 146.775 410.522 148.633L418.132 175.692C418.366 176.523 418.23 177.415 417.76 178.139L412.903 185.611C412.341 186.476 412.262 187.568 412.694 188.504L426.196 217.757C426.686 218.82 427.749 219.5 428.919 219.5H439.146C440.282 219.5 441.321 220.142 441.829 221.158L454.169 245.839C454.387 246.273 454.706 246.648 455.1 246.932L467 255.5"
-                                                        stroke="{{ $stroke1 }}" stroke-width="4.5" stroke-dasharray="1500">
-                                                    </path>
-                                                </svg>
-                                            </i>
-                                            <i class="icon-month">
-                                                <svg fill="none" viewBox="0 0 472 170">
-                                                    <path
-                                                        d="M2.5 167L7.87783 124.955C7.95728 124.334 8.22911 123.753 8.65521 123.294L12.5765 119.071C13.6568 117.908 15.4565 117.788 16.682 118.797L23 124L28.9022 129.246C30.4289 130.603 32.8358 130.071 33.648 128.197L37.7169 118.807C38.1923 117.71 39.2738 117 40.4696 117H47.9618C49.192 117 50.2976 116.249 50.7508 115.105L60.1181 91.4638C60.3655 90.8394 60.8153 90.316 61.3955 89.9776L72.0575 83.7581C72.3504 83.5873 72.6122 83.368 72.8317 83.1097L77.1069 78.0801C78.7093 76.195 81.7764 76.9507 82.3195 79.3645L85.1283 91.848C85.359 92.8733 86.1094 93.7031 87.1064 94.0355L93.877 96.2923C95.1364 96.7121 96.522 96.2542 97.2833 95.1666L116.458 67.7747C116.811 67.2705 117 66.6698 117 66.0543V52C117 50.3431 118.343 49 120 49H137.857C138.88 49 139.834 49.5221 140.385 50.3848L150.824 66.7248C150.941 66.9077 151.077 67.0774 151.231 67.2309L155.012 71.0123C156.318 72.3175 158.481 72.1456 159.563 70.6505L165.937 61.8495C167.019 60.3544 169.182 60.1824 170.488 61.4877L179.121 70.1213C179.684 70.6839 180.447 71 181.243 71H200.338C200.774 71 201.205 71.0952 201.601 71.279L213.688 76.891C214.517 77.2758 215.476 77.2619 216.293 76.8533L221.342 74.3292C222.358 73.821 223 72.7822 223 71.6459V37.4669C223 36.2725 223.704 35.1822 224.827 34.7763C228.907 33.3021 234.813 32.0629 235.5 35.5C236.221 39.1067 245.127 48.1338 250.781 53.4172C251.786 54.3559 253.302 54.4654 254.446 53.7028L261.5 49L279.106 36.4903C279.97 35.8764 281.094 35.7639 282.062 36.1944L292.391 40.7847C293.384 41.2263 294.539 41.0957 295.409 40.4433L301.025 36.2309C301.65 35.7622 302.068 35.0683 302.189 34.2966L306.775 5.11153C307.114 2.95384 309.572 1.87012 311.394 3.07489L337.527 20.3567C338.153 20.7705 338.601 21.4037 338.783 22.1314L344.852 46.4092C345.222 47.8862 346.639 48.8524 348.148 48.6567L370.337 45.7804C371.627 45.6132 372.877 46.296 373.434 47.4713L376.858 54.6994C376.952 54.8992 377.069 55.0879 377.205 55.2621L388.12 69.2333C388.938 70.281 390.349 70.665 391.585 70.1768L405.789 64.5701C407.299 63.9741 409.009 64.687 409.648 66.1788L414.257 76.934C414.417 77.3074 414.5 77.7095 414.5 78.1158V84.3944C414.5 85.3975 415.001 86.3342 415.836 86.8906L437 101L456.676 112.518C457.212 112.832 457.638 113.304 457.894 113.869L469.5 139.5"
-                                                        stroke="{{ $stroke2 }}" stroke-width="4.5" stroke-dasharray="1500">
-                                                    </path>
-                                                </svg>
-                                            </i>
-                                            <div class="lines">
-                                                <span></span>
-                                                <span></span>
-                                                <span></span>
-                                                <span></span>
-                                            </div>
-                                        </div>
+                                <div class="card_box {{ $ribbonTheme }}">
+                                    <span class="card_ribbon" data-ribbon="{{ $ribbonText }}"></span>
+                                    <div class="stat-icon-wrap" style="background: {{ $iconBg }}; color: {{ $accentColor }};">
+                                        <i class="{{ $cardIcon }}"></i>
+                                    </div>
+                                    <div class="stat-box-num" dir="ltr">{{ $prefix }}{{ $displayVal }}</div>
+                                    <div class="stat-box-title">{{ $card['label'] }}</div>
+                                    <div class="stat-box-sub">
+                                        <i class="{{ $trendIcon }}" style="color: {{ $accentColor }}; font-size: 0.72rem;"></i>
+                                        <span>{{ $trendText }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -2980,184 +2898,64 @@
                 @else
                     <!-- البطاقة 1: خريج مسجل ومعتمد -->
                     <div class="col-6 col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
-                        <div class="container-card-charts">
-                            <div class="card-charts">
-                                <div class="tags-card">
-                                    <div class="stat-chart-icon-wrap"
-                                        style="background: rgba(37, 99, 235, 0.2); color: #38bdf8;">
-                                        <i class="fas fa-user-graduate"></i>
-                                    </div>
-                                    <span class="stat-chart-badge-pill">
-                                        <span class="pulse-dot"></span>
-                                        <span>معتمد</span>
-                                    </span>
-                                </div>
-                                <div class="main-texts">
-                                    <p class="stat-number-title">
-                                        +{{ number_format(($stats['graduates_count'] ?? 0) > 0 ? $stats['graduates_count'] : 69) }}
-                                    </p>
-                                    <p class="stat-label-text">خريج مسجل ومعتمد</p>
-                                    <span class="stat-trend-change">
-                                        <i class="fas fa-arrow-trend-up text-success"></i>
-                                        <span>كفاءات وطنية واعدة</span>
-                                    </span>
-                                </div>
-                                <div class="charts-lines">
-                                    <i class="icon-week">
-                                        <svg viewBox="0 0 469 262" fill="none">
-                                            <path
-                                                d="M2.5 261L6.42112 216.887C6.4726 216.308 6.69121 215.757 7.05039 215.3L11.359 209.816C11.7743 209.287 12 208.635 12 207.962V202.987C12 202.346 12.2055 201.722 12.5863 201.206L27.2479 181.342C27.4151 181.115 27.5496 180.866 27.6474 180.602L31.7748 169.458C32.2107 168.281 33.333 167.5 34.588 167.5H35.5756C37.8226 167.5 39.292 169.89 38.4086 171.956C36.1137 177.322 34.0615 183.976 36.5 185.5C39.338 187.274 43.1722 202.55 45.2823 212.494C45.6701 214.321 47.5992 215.378 49.3403 214.701L53.6761 213.015C54.5141 212.689 55.1618 212.004 55.4407 211.15L78.3519 140.954C78.45 140.653 78.5 140.339 78.5 140.023V114.385C78.5 114.129 78.5327 113.875 78.5974 113.627L95.9026 47.3728C95.9673 47.1253 96 46.8705 96 46.6147V27L102.483 117.259C102.494 117.42 102.519 117.578 102.555 117.735L108.878 144.485C108.959 144.826 109.098 145.15 109.291 145.442L117.591 158.073C118.871 160.022 121.788 159.829 122.8 157.729L131.594 139.49C132.629 137.343 135.632 137.202 136.864 139.241L147.401 156.681C148.059 157.771 149.334 158.326 150.581 158.067L170.757 153.863C171.832 153.639 172.942 154.02 173.654 154.856L187.803 171.481C189.536 173.517 192.865 172.441 193.078 169.776L199.81 85.6203C200.037 82.7832 203.718 81.8273 205.297 84.1955L227.5 117.5L230.279 122.299C231.461 124.342 234.43 124.282 235.53 122.194L237.842 117.801C237.947 117.601 238.074 117.414 238.222 117.242L261.286 90.4123C262.029 89.5473 263.199 89.1789 264.304 89.4616L280.695 93.6546C282.448 94.1029 284.196 92.9099 284.416 91.1144L294.882 6.02633C295.16 3.76377 297.761 2.62601 299.611 3.95714L322.945 20.7414C323.618 21.2254 324.061 21.9662 324.168 22.7881L335.097 106.419C335.317 108.103 336.89 109.268 338.565 108.989L365.007 104.582C366.835 104.277 368.5 105.688 368.5 107.541V116.792C368.5 117.258 368.608 117.717 368.817 118.133L385.671 151.842C386.179 152.858 387.218 153.5 388.354 153.5H393.231C393.736 153.5 394.232 153.373 394.674 153.13L406.191 146.814C407.884 145.886 409.999 146.775 410.522 148.633L418.132 175.692C418.366 176.523 418.23 177.415 417.76 178.139L412.903 185.611C412.341 186.476 412.262 187.568 412.694 188.504L426.196 217.757C426.686 218.82 427.749 219.5 428.919 219.5H439.146C440.282 219.5 441.321 220.142 441.829 221.158L454.169 245.839C454.387 246.273 454.706 246.648 455.1 246.932L467 255.5"
-                                                stroke="url(#paint_stat_blue)" stroke-width="4.5" stroke-dasharray="1500">
-                                            </path>
-                                        </svg>
-                                    </i>
-                                    <i class="icon-month">
-                                        <svg fill="none" viewBox="0 0 472 170">
-                                            <path
-                                                d="M2.5 167L7.87783 124.955C7.95728 124.334 8.22911 123.753 8.65521 123.294L12.5765 119.071C13.6568 117.908 15.4565 117.788 16.682 118.797L23 124L28.9022 129.246C30.4289 130.603 32.8358 130.071 33.648 128.197L37.7169 118.807C38.1923 117.71 39.2738 117 40.4696 117H47.9618C49.192 117 50.2976 116.249 50.7508 115.105L60.1181 91.4638C60.3655 90.8394 60.8153 90.316 61.3955 89.9776L72.0575 83.7581C72.3504 83.5873 72.6122 83.368 72.8317 83.1097L77.1069 78.0801C78.7093 76.195 81.7764 76.9507 82.3195 79.3645L85.1283 91.848C85.359 92.8733 86.1094 93.7031 87.1064 94.0355L93.877 96.2923C95.1364 96.7121 96.522 96.2542 97.2833 95.1666L116.458 67.7747C116.811 67.2705 117 66.6698 117 66.0543V52C117 50.3431 118.343 49 120 49H137.857C138.88 49 139.834 49.5221 140.385 50.3848L150.824 66.7248C150.941 66.9077 151.077 67.0774 151.231 67.2309L155.012 71.0123C156.318 72.3175 158.481 72.1456 159.563 70.6505L165.937 61.8495C167.019 60.3544 169.182 60.1824 170.488 61.4877L179.121 70.1213C179.684 70.6839 180.447 71 181.243 71H200.338C200.774 71 201.205 71.0952 201.601 71.279L213.688 76.891C214.517 77.2758 215.476 77.2619 216.293 76.8533L221.342 74.3292C222.358 73.821 223 72.7822 223 71.6459V37.4669C223 36.2725 223.704 35.1822 224.827 34.7763C228.907 33.3021 234.813 32.0629 235.5 35.5C236.221 39.1067 245.127 48.1338 250.781 53.4172C251.786 54.3559 253.302 54.4654 254.446 53.7028L261.5 49L279.106 36.4903C279.97 35.8764 281.094 35.7639 282.062 36.1944L292.391 40.7847C293.384 41.2263 294.539 41.0957 295.409 40.4433L301.025 36.2309C301.65 35.7622 302.068 35.0683 302.189 34.2966L306.775 5.11153C307.114 2.95384 309.572 1.87012 311.394 3.07489L337.527 20.3567C338.153 20.7705 338.601 21.4037 338.783 22.1314L344.852 46.4092C345.222 47.8862 346.639 48.8524 348.148 48.6567L370.337 45.7804C371.627 45.6132 372.877 46.296 373.434 47.4713L376.858 54.6994C376.952 54.8992 377.069 55.0879 377.205 55.2621L388.12 69.2333C388.938 70.281 390.349 70.665 391.585 70.1768L405.789 64.5701C407.299 63.9741 409.009 64.687 409.648 66.1788L414.257 76.934C414.417 77.3074 414.5 77.7095 414.5 78.1158V84.3944C414.5 85.3975 415.001 86.3342 415.836 86.8906L437 101L456.676 112.518C457.212 112.832 457.638 113.304 457.894 113.869L469.5 139.5"
-                                                stroke="url(#paint_stat_blue)" stroke-width="4.5" stroke-dasharray="1500">
-                                            </path>
-                                        </svg>
-                                    </i>
-                                    <div class="lines">
-                                        <span></span>
-                                        <span></span>
-                                        <span></span>
-                                        <span></span>
-                                    </div>
-                                </div>
+                        <div class="card_box ribbon-blue">
+                            <span class="card_ribbon" data-ribbon="معتمد"></span>
+                            <div class="stat-icon-wrap" style="background: rgba(37, 99, 235, 0.22); color: #38bdf8;">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="stat-box-num" dir="ltr">+{{ number_format(($stats['graduates_count'] ?? 0) > 0 ? $stats['graduates_count'] : 69) }}</div>
+                            <div class="stat-box-title">خريج مسجل ومعتمد</div>
+                            <div class="stat-box-sub">
+                                <i class="fas fa-arrow-trend-up" style="color: #38bdf8; font-size: 0.72rem;"></i>
+                                <span>كفاءات وطنية واعدة</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- البطاقة 2: شركة ومؤسسة شريكة -->
                     <div class="col-6 col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
-                        <div class="container-card-charts">
-                            <div class="card-charts">
-                                <div class="tags-card">
-                                    <div class="stat-chart-icon-wrap"
-                                        style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">
-                                        <i class="fas fa-building"></i>
-                                    </div>
-                                    <span class="stat-chart-badge-pill">
-                                        <span class="pulse-dot"></span>
-                                        <span>معتمد</span>
-                                    </span>
-                                </div>
-                                <div class="main-texts">
-                                    <p class="stat-number-title">
-                                        +{{ number_format(($stats['companies_count'] ?? 0) > 0 ? $stats['companies_count'] : 4) }}
-                                    </p>
-                                    <p class="stat-label-text">شركة ومؤسسة شريكة</p>
-                                    <span class="stat-trend-change" style="color: #fbbf24;">
-                                        <i class="fas fa-handshake text-warning"></i>
-                                        <span>شراكات عمل مستدامة</span>
-                                    </span>
-                                </div>
-                                <div class="charts-lines">
-                                    <i class="icon-week">
-                                        <svg viewBox="0 0 469 262" fill="none">
-                                            <path
-                                                d="M2.5 261L6.42112 216.887C6.4726 216.308 6.69121 215.757 7.05039 215.3L11.359 209.816C11.7743 209.287 12 208.635 12 207.962V202.987C12 202.346 12.2055 201.722 12.5863 201.206L27.2479 181.342C27.4151 181.115 27.5496 180.866 27.6474 180.602L31.7748 169.458C32.2107 168.281 33.333 167.5 34.588 167.5H35.5756C37.8226 167.5 39.292 169.89 38.4086 171.956C36.1137 177.322 34.0615 183.976 36.5 185.5C39.338 187.274 43.1722 202.55 45.2823 212.494C45.6701 214.321 47.5992 215.378 49.3403 214.701L53.6761 213.015C54.5141 212.689 55.1618 212.004 55.4407 211.15L78.3519 140.954C78.45 140.653 78.5 140.339 78.5 140.023V114.385C78.5 114.129 78.5327 113.875 78.5974 113.627L95.9026 47.3728C95.9673 47.1253 96 46.8705 96 46.6147V27L102.483 117.259C102.494 117.42 102.519 117.578 102.555 117.735L108.878 144.485C108.959 144.826 109.098 145.15 109.291 145.442L117.591 158.073C118.871 160.022 121.788 159.829 122.8 157.729L131.594 139.49C132.629 137.343 135.632 137.202 136.864 139.241L147.401 156.681C148.059 157.771 149.334 158.326 150.581 158.067L170.757 153.863C171.832 153.639 172.942 154.02 173.654 154.856L187.803 171.481C189.536 173.517 192.865 172.441 193.078 169.776L199.81 85.6203C200.037 82.7832 203.718 81.8273 205.297 84.1955L227.5 117.5L230.279 122.299C231.461 124.342 234.43 124.282 235.53 122.194L237.842 117.801C237.947 117.601 238.074 117.414 238.222 117.242L261.286 90.4123C262.029 89.5473 263.199 89.1789 264.304 89.4616L280.695 93.6546C282.448 94.1029 284.196 92.9099 284.416 91.1144L294.882 6.02633C295.16 3.76377 297.761 2.62601 299.611 3.95714L322.945 20.7414C323.618 21.2254 324.061 21.9662 324.168 22.7881L335.097 106.419C335.317 108.103 336.89 109.268 338.565 108.989L365.007 104.582C366.835 104.277 368.5 105.688 368.5 107.541V116.792C368.5 117.258 368.608 117.717 368.817 118.133L385.671 151.842C386.179 152.858 387.218 153.5 388.354 153.5H393.231C393.736 153.5 394.232 153.373 394.674 153.13L406.191 146.814C407.884 145.886 409.999 146.775 410.522 148.633L418.132 175.692C418.366 176.523 418.23 177.415 417.76 178.139L412.903 185.611C412.341 186.476 412.262 187.568 412.694 188.504L426.196 217.757C426.686 218.82 427.749 219.5 428.919 219.5H439.146C440.282 219.5 441.321 220.142 441.829 221.158L454.169 245.839C454.387 246.273 454.706 246.648 455.1 246.932L467 255.5"
-                                                stroke="url(#paint_stat_gold)" stroke-width="4.5" stroke-dasharray="1500">
-                                            </path>
-                                        </svg>
-                                    </i>
-                                    <div class="lines">
-                                        <span></span>
-                                        <span></span>
-                                        <span></span>
-                                        <span></span>
-                                    </div>
-                                </div>
+                        <div class="card_box ribbon-emerald">
+                            <span class="card_ribbon" data-ribbon="شريك فعال"></span>
+                            <div class="stat-icon-wrap" style="background: rgba(16, 185, 129, 0.22); color: #34d399;">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="stat-box-num" dir="ltr">+{{ number_format(($stats['companies_count'] ?? 0) > 0 ? $stats['companies_count'] : 4) }}</div>
+                            <div class="stat-box-title">شركة ومؤسسة شريكة</div>
+                            <div class="stat-box-sub">
+                                <i class="fas fa-handshake" style="color: #34d399; font-size: 0.72rem;"></i>
+                                <span>شراكات عمل مستدامة</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- البطاقة 3: برنامج تدريبي وتأهيلي -->
                     <div class="col-6 col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
-                        <div class="container-card-charts">
-                            <div class="card-charts">
-                                <div class="tags-card">
-                                    <div class="stat-chart-icon-wrap"
-                                        style="background: rgba(16, 185, 129, 0.2); color: #34d399;">
-                                        <i class="fas fa-chalkboard-teacher"></i>
-                                    </div>
-                                    <span class="stat-chart-badge-pill">
-                                        <span class="pulse-dot"></span>
-                                        <span>مكثف</span>
-                                    </span>
-                                </div>
-                                <div class="main-texts">
-                                    <p class="stat-number-title">
-                                        +{{ number_format(($stats['trainings_count'] ?? 0) > 0 ? $stats['trainings_count'] : 35) }}
-                                    </p>
-                                    <p class="stat-label-text">برنامج تدريبي وتأهيلي</p>
-                                    <span class="stat-trend-change" style="color: #34d399;">
-                                        <i class="fas fa-award text-success"></i>
-                                        <span>مسارات مهنية معتمدة</span>
-                                    </span>
-                                </div>
-                                <div class="charts-lines">
-                                    <i class="icon-week">
-                                        <svg viewBox="0 0 469 262" fill="none">
-                                            <path
-                                                d="M2.5 261L6.42112 216.887C6.4726 216.308 6.69121 215.757 7.05039 215.3L11.359 209.816C11.7743 209.287 12 208.635 12 207.962V202.987C12 202.346 12.2055 201.722 12.5863 201.206L27.2479 181.342C27.4151 181.115 27.5496 180.866 27.6474 180.602L31.7748 169.458C32.2107 168.281 33.333 167.5 34.588 167.5H35.5756C37.8226 167.5 39.292 169.89 38.4086 171.956C36.1137 177.322 34.0615 183.976 36.5 185.5C39.338 187.274 43.1722 202.55 45.2823 212.494C45.6701 214.321 47.5992 215.378 49.3403 214.701L53.6761 213.015C54.5141 212.689 55.1618 212.004 55.4407 211.15L78.3519 140.954C78.45 140.653 78.5 140.339 78.5 140.023V114.385C78.5 114.129 78.5327 113.875 78.5974 113.627L95.9026 47.3728C95.9673 47.1253 96 46.8705 96 46.6147V27L102.483 117.259C102.494 117.42 102.519 117.578 102.555 117.735L108.878 144.485C108.959 144.826 109.098 145.15 109.291 145.442L117.591 158.073C118.871 160.022 121.788 159.829 122.8 157.729L131.594 139.49C132.629 137.343 135.632 137.202 136.864 139.241L147.401 156.681C148.059 157.771 149.334 158.326 150.581 158.067L170.757 153.863C171.832 153.639 172.942 154.02 173.654 154.856L187.803 171.481C189.536 173.517 192.865 172.441 193.078 169.776L199.81 85.6203C200.037 82.7832 203.718 81.8273 205.297 84.1955L227.5 117.5L230.279 122.299C231.461 124.342 234.43 124.282 235.53 122.194L237.842 117.801C237.947 117.601 238.074 117.414 238.222 117.242L261.286 90.4123C262.029 89.5473 263.199 89.1789 264.304 89.4616L280.695 93.6546C282.448 94.1029 284.196 92.9099 284.416 91.1144L294.882 6.02633C295.16 3.76377 297.761 2.62601 299.611 3.95714L322.945 20.7414C323.618 21.2254 324.061 21.9662 324.168 22.7881L335.097 106.419C335.317 108.103 336.89 109.268 338.565 108.989L365.007 104.582C366.835 104.277 368.5 105.688 368.5 107.541V116.792C368.5 117.258 368.608 117.717 368.817 118.133L385.671 151.842C386.179 152.858 387.218 153.5 388.354 153.5H393.231C393.736 153.5 394.232 153.373 394.674 153.13L406.191 146.814C407.884 145.886 409.999 146.775 410.522 148.633L418.132 175.692C418.366 176.523 418.23 177.415 417.76 178.139L412.903 185.611C412.341 186.476 412.262 187.568 412.694 188.504L426.196 217.757C426.686 218.82 427.749 219.5 428.919 219.5H439.146C440.282 219.5 441.321 220.142 441.829 221.158L454.169 245.839C454.387 246.273 454.706 246.648 455.1 246.932L467 255.5"
-                                                stroke="url(#paint_stat_emerald)" stroke-width="4.5" stroke-dasharray="1500">
-                                            </path>
-                                        </svg>
-                                    </i>
-                                    <div class="lines">
-                                        <span></span>
-                                        <span></span>
-                                        <span></span>
-                                        <span></span>
-                                    </div>
-                                </div>
+                        <div class="card_box ribbon-gold">
+                            <span class="card_ribbon" data-ribbon="برنامج مكثف"></span>
+                            <div class="stat-icon-wrap" style="background: rgba(245, 158, 11, 0.22); color: #fbbf24;">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <div class="stat-box-num" dir="ltr">+{{ number_format(($stats['trainings_count'] ?? 0) > 0 ? $stats['trainings_count'] : 35) }}</div>
+                            <div class="stat-box-title">برنامج تدريبي وتأهيلي</div>
+                            <div class="stat-box-sub">
+                                <i class="fas fa-chart-line" style="color: #fbbf24; font-size: 0.72rem;"></i>
+                                <span>تأهيل احترافي مستمر</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- البطاقة 4: فرصة عمل وترشيح -->
                     <div class="col-6 col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
-                        <div class="container-card-charts">
-                            <div class="card-charts">
-                                <div class="tags-card">
-                                    <div class="stat-chart-icon-wrap"
-                                        style="background: rgba(139, 92, 246, 0.2); color: #a78bfa;">
-                                        <i class="fas fa-briefcase"></i>
-                                    </div>
-                                    <span class="stat-chart-badge-pill">
-                                        <span class="pulse-dot"></span>
-                                        <span>نشط</span>
-                                    </span>
-                                </div>
-                                <div class="main-texts">
-                                    <p class="stat-number-title">
-                                        +{{ number_format(($stats['opportunities_count'] ?? 0) > 0 ? $stats['opportunities_count'] : 10) }}
-                                    </p>
-                                    <p class="stat-label-text">فرصة عمل وترشيح</p>
-                                    <span class="stat-trend-change" style="color: #a78bfa;">
-                                        <i class="fas fa-bullseye text-info"></i>
-                                        <span>ربط مباشر بسوق العمل</span>
-                                    </span>
-                                </div>
-                                <div class="charts-lines">
-                                    <i class="icon-week">
-                                        <svg viewBox="0 0 469 262" fill="none">
-                                            <path
-                                                d="M2.5 261L6.42112 216.887C6.4726 216.308 6.69121 215.757 7.05039 215.3L11.359 209.816C11.7743 209.287 12 208.635 12 207.962V202.987C12 202.346 12.2055 201.722 12.5863 201.206L27.2479 181.342C27.4151 181.115 27.5496 180.866 27.6474 180.602L31.7748 169.458C32.2107 168.281 33.333 167.5 34.588 167.5H35.5756C37.8226 167.5 39.292 169.89 38.4086 171.956C36.1137 177.322 34.0615 183.976 36.5 185.5C39.338 187.274 43.1722 202.55 45.2823 212.494C45.6701 214.321 47.5992 215.378 49.3403 214.701L53.6761 213.015C54.5141 212.689 55.1618 212.004 55.4407 211.15L78.3519 140.954C78.45 140.653 78.5 140.339 78.5 140.023V114.385C78.5 114.129 78.5327 113.875 78.5974 113.627L95.9026 47.3728C95.9673 47.1253 96 46.8705 96 46.6147V27L102.483 117.259C102.494 117.42 102.519 117.578 102.555 117.735L108.878 144.485C108.959 144.826 109.098 145.15 109.291 145.442L117.591 158.073C118.871 160.022 121.788 159.829 122.8 157.729L131.594 139.49C132.629 137.343 135.632 137.202 136.864 139.241L147.401 156.681C148.059 157.771 149.334 158.326 150.581 158.067L170.757 153.863C171.832 153.639 172.942 154.02 173.654 154.856L187.803 171.481C189.536 173.517 192.865 172.441 193.078 169.776L199.81 85.6203C200.037 82.7832 203.718 81.8273 205.297 84.1955L227.5 117.5L230.279 122.299C231.461 124.342 234.43 124.282 235.53 122.194L237.842 117.801C237.947 117.601 238.074 117.414 238.222 117.242L261.286 90.4123C262.029 89.5473 263.199 89.1789 264.304 89.4616L280.695 93.6546C282.448 94.1029 284.196 92.9099 284.416 91.1144L294.882 6.02633C295.16 3.76377 297.761 2.62601 299.611 3.95714L322.945 20.7414C323.618 21.2254 324.061 21.9662 324.168 22.7881L335.097 106.419C335.317 108.103 336.89 109.268 338.565 108.989L365.007 104.582C366.835 104.277 368.5 105.688 368.5 107.541V116.792C368.5 117.258 368.608 117.717 368.817 118.133L385.671 151.842C386.179 152.858 387.218 153.5 388.354 153.5H393.231C393.736 153.5 394.232 153.373 394.674 153.13L406.191 146.814C407.884 145.886 409.999 146.775 410.522 148.633L418.132 175.692C418.366 176.523 418.23 177.415 417.76 178.139L412.903 185.611C412.341 186.476 412.262 187.568 412.694 188.504L426.196 217.757C426.686 218.82 427.749 219.5 428.919 219.5H439.146C440.282 219.5 441.321 220.142 441.829 221.158L454.169 245.839C454.387 246.273 454.706 246.648 455.1 246.932L467 255.5"
-                                                stroke="url(#paint_stat_purple)" stroke-width="4.5" stroke-dasharray="1500">
-                                            </path>
-                                        </svg>
-                                    </i>
-                                    <div class="lines">
-                                        <span></span>
-                                        <span></span>
-                                        <span></span>
-                                        <span></span>
-                                    </div>
-                                </div>
+                        <div class="card_box ribbon-purple">
+                            <span class="card_ribbon" data-ribbon="نشط الآن"></span>
+                            <div class="stat-icon-wrap" style="background: rgba(139, 92, 246, 0.22); color: #60a5fa
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            <div class="stat-box-num" dir="ltr">+{{ number_format(($stats['opportunities_count'] ?? 0) > 0 ? $stats['opportunities_count'] : 10) }}</div>
+                            <div class="stat-box-title">فرصة عمل وترشيح</div>
+                            <div class="stat-box-sub">
+                                <i class="fas fa-bullseye" style="color: #c084fc; font-size: 0.72rem;"></i>
+                                <span>ربط مباشر بسوق العمل</span>
                             </div>
                         </div>
                     </div>
@@ -3879,7 +3677,7 @@
                                         <div class="goal-hud-icon-badge goal-hud-icon-1">
                                             <i class="fas fa-graduation-cap"></i>
                                         </div>
-                                        <span class="goal-hud-num">GOAL // 01</span>
+                                        <span class="goal-hud-num">GOAL 1</span>
                                     </div>
                                     <h4 class="goal-hud-title">تطوير مهني احترافي</h4>
                                     <p class="goal-hud-desc">
@@ -3904,7 +3702,7 @@
                                         <div class="goal-hud-icon-badge goal-hud-icon-2">
                                             <i class="fas fa-handshake"></i>
                                         </div>
-                                        <span class="goal-hud-num">GOAL // 02</span>
+                                        <span class="goal-hud-num">GOAL 2</span>
                                     </div>
                                     <h4 class="goal-hud-title">شراكات عمل استراتيجية</h4>
                                     <p class="goal-hud-desc">
@@ -3929,7 +3727,7 @@
                                         <div class="goal-hud-icon-badge goal-hud-icon-3">
                                             <i class="fas fa-chart-line"></i>
                                         </div>
-                                        <span class="goal-hud-num">GOAL // 03</span>
+                                        <span class="goal-hud-num">GOAL 3</span>
                                     </div>
                                     <h4 class="goal-hud-title">متابعة الأثر والتقييم المستمر</h4>
                                     <p class="goal-hud-desc">
@@ -3950,11 +3748,11 @@
                     <!-- التذييل السفلي للشاشة التكنولوجية -->
                     <div class="goals-screen-footer">
                         <div class="hud-footer-vision">
-                            <i class="fas fa-quote-right text-warning"></i>
-                            <span>نحو كوادر وطنية واعدة تقود ريادة المستقبل والابتكار</span>
+
+
                         </div>
                         <div class="hud-footer-code">
-                            <span>UOT-GTO-VISION • EST. 2024</span>
+                            <span>UOT-GTO </span>
                         </div>
                     </div>
 

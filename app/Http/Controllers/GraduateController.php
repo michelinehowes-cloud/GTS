@@ -45,74 +45,147 @@ class GraduateController extends Controller
             'seminar'    => ['bg' => '#d97706', 'border' => '#b45309', 'prefix' => 'ندوة: '],
         ];
 
+        // تسجيلات الخريج في البرامج التدريبية لتحديد تدريباته الخاصة
+        $myApplicationsMap = TrainingApplication::where('user_id', $user->id)
+            ->get(['training_id', 'status'])
+            ->keyBy('training_id');
+
         $trainingsForCalendar = Training::where('status', 'active')
             ->with(['trainer'])
             ->orderBy('start_date', 'asc')
             ->get();
 
-        $calendarTrainings = collect();
+        // تصفية التكرارات المتطابقة الناتجة عن البيانات الاختبارية المتكررة، مع إعطاء الأولوية القصوى للتدريبات التي سجل بها الخريج
+        $uniqueTrainings = collect();
+        $seenKeys = [];
 
         foreach ($trainingsForCalendar as $t) {
-            $cfg = $typeColors[$t->type] ?? ['bg' => '#0d3882', 'border' => '#1e40af', 'prefix' => ''];
-            $extendedProps = [
-                'type'       => $t->type,
-                'location'   => $t->location ?? 'جامعة طرابلس',
-                'rawTitle'   => $t->title,
-                'instructor' => $t->instructor_name ?? ($t->trainer->name ?? 'غير محدد'),
-                'seats'      => $t->seats ?? '—',
-                'status'     => $t->status,
-                'duration'   => $t->duration ?? '—',
-                'startDate'  => $t->start_date ? $t->start_date->format('Y-m-d') : '—',
-                'endDate'    => $t->end_date ? $t->end_date->format('Y-m-d') : '—',
-                'showUrl'    => route('graduate.trainings.show', $t->id),
-            ];
+            $isMy = isset($myApplicationsMap[$t->id]);
+            $key = trim($t->title) . '|' . ($t->start_date ? $t->start_date->format('Y-m-d') : '') . '|' . ($t->end_date ? $t->end_date->format('Y-m-d') : '');
 
+            if ($isMy) {
+                $uniqueTrainings->put($t->id, $t);
+                $seenKeys[$key] = true;
+            } elseif (!isset($seenKeys[$key])) {
+                $uniqueTrainings->put($t->id, $t);
+                $seenKeys[$key] = true;
+            }
+        }
+
+        $calendarTrainings = collect();
+
+        foreach ($uniqueTrainings as $t) {
             if (!$t->start_date) continue;
+
+            $cfg = $typeColors[$t->type] ?? ['bg' => '#0d3882', 'border' => '#1e40af', 'prefix' => ''];
+            $isMy = isset($myApplicationsMap[$t->id]);
+            $appStatus = $isMy ? $myApplicationsMap[$t->id]->status : null;
+
+            $startDate = \Carbon\Carbon::parse($t->start_date);
+            $endDate = $t->end_date ? \Carbon\Carbon::parse($t->end_date) : null;
+            $durationDays = $endDate ? $startDate->diffInDays($endDate) : 0;
 
             $allowedDays = $t->training_days_of_week;
             $hasSpecificDays = is_array($allowedDays) && count($allowedDays) > 0 && count($allowedDays) < 7;
 
-            if (!$hasSpecificDays) {
-                // لا توجد أيام مستثناة: استخدم حدث نطاق واحد
+            $extendedProps = [
+                'type'         => $t->type,
+                'location'     => $t->location ?? 'جامعة طرابلس',
+                'rawTitle'     => $t->title,
+                'instructor'   => $t->instructor_name ?? ($t->trainer->name ?? 'غير محدد'),
+                'seats'        => $t->seats ?? '—',
+                'status'       => $t->status,
+                'duration'     => $t->duration ?? '—',
+                'startDate'    => $startDate->format('Y-m-d'),
+                'endDate'      => $endDate ? $endDate->format('Y-m-d') : '—',
+                'showUrl'      => route('graduate.trainings.show', $t->id),
+                'isMyTraining' => $isMy,
+                'myAppStatus'  => $appStatus,
+            ];
+
+            $myBadge = $isMy ? '⭐ ' : '';
+            $bgColor = $isMy ? '#0d3882' : $cfg['bg'];
+            $borderColor = $isMy ? '#f59e0b' : $cfg['border'];
+            $myClass = $isMy ? ' fc-event-my-training' : '';
+
+            // الحالة الأولى: الفعاليات القصيرة (يوم إلى يومين)
+            if ($durationDays <= 2 || !$endDate || $startDate->isSameDay($endDate)) {
                 $calendarTrainings->push([
-                    'id'              => $t->id,
-                    'title'           => $cfg['prefix'] . $t->title,
-                    'start'           => $t->start_date->format('Y-m-d'),
-                    'end'             => $t->end_date ? $t->end_date->copy()->addDay()->format('Y-m-d') : null,
+                    'id'              => 'tr_' . $t->id,
+                    'title'           => $myBadge . $cfg['prefix'] . $t->title,
+                    'start'           => $startDate->format('Y-m-d'),
+                    'end'             => ($endDate && !$startDate->isSameDay($endDate)) ? $endDate->copy()->addDay()->format('Y-m-d') : null,
+                    'allDay'          => true,
                     'url'             => route('graduate.trainings.show', $t->id),
-                    'backgroundColor' => $cfg['bg'],
-                    'borderColor'     => $cfg['border'],
+                    'backgroundColor' => $bgColor,
+                    'borderColor'     => $borderColor,
                     'textColor'       => '#ffffff',
-                    'extendedProps'   => $extendedProps,
-                    'className'       => 'fc-event-custom fc-event-' . $t->type,
+                    'extendedProps'   => array_merge($extendedProps, ['eventRole' => 'event']),
+                    'className'       => 'fc-event-custom fc-event-' . $t->type . $myClass,
                 ]);
             } else {
-                // توجد أيام مستثناة: نُولّد أحداثاً يومية للأيام الفعلية فقط
-                $allowedDays = array_map('intval', $allowedDays);
-                $current = \Carbon\Carbon::parse($t->start_date);
-                $endDate = $t->end_date ? \Carbon\Carbon::parse($t->end_date) : $current->copy();
+                // الحالة الثانية: البرامج التدريبية الممتدة (أكثر من يومين)
+                // لمنع تغطية أسابيع كاملة بشرائط صلبة متراكمة تسبب فوضى، نحدد حدث انطلاق البرنامج وحدث ختامه
+                // 1. حدث انطلاق / بدء التدريب
+                $calendarTrainings->push([
+                    'id'              => 'tr_' . $t->id . '_start',
+                    'title'           => $myBadge . ($isMy ? 'بدء: ' : '🚀 انطلاق: ') . $t->title,
+                    'start'           => $startDate->format('Y-m-d'),
+                    'end'             => null,
+                    'allDay'          => true,
+                    'url'             => route('graduate.trainings.show', $t->id),
+                    'backgroundColor' => $bgColor,
+                    'borderColor'     => $borderColor,
+                    'textColor'       => '#ffffff',
+                    'extendedProps'   => array_merge($extendedProps, ['eventRole' => 'start']),
+                    'className'       => 'fc-event-custom fc-event-start fc-event-' . $t->type . $myClass,
+                ]);
 
-                while ($current->lte($endDate)) {
-                    if (in_array($current->dayOfWeek, $allowedDays, true)) {
-                        $calendarTrainings->push([
-                            'id'              => $t->id . '_' . $current->format('Ymd'),
-                            'title'           => $cfg['prefix'] . $t->title,
-                            'start'           => $current->format('Y-m-d'),
-                            'end'             => $current->copy()->addDay()->format('Y-m-d'),
-                            'url'             => route('graduate.trainings.show', $t->id),
-                            'backgroundColor' => $cfg['bg'],
-                            'borderColor'     => $cfg['border'],
-                            'textColor'       => '#ffffff',
-                            'extendedProps'   => $extendedProps,
-                            'className'       => 'fc-event-custom fc-event-' . $t->type,
-                        ]);
+                // 2. حدث ختام / نهاية التدريب
+                if ($endDate) {
+                    $calendarTrainings->push([
+                        'id'              => 'tr_' . $t->id . '_end',
+                        'title'           => $myBadge . ($isMy ? 'ختام: ' : '🏁 ختام: ') . $t->title,
+                        'start'           => $endDate->format('Y-m-d'),
+                        'end'             => null,
+                        'allDay'          => true,
+                        'url'             => route('graduate.trainings.show', $t->id),
+                        'backgroundColor' => $isMy ? '#1e3a8a' : '#475569',
+                        'borderColor'     => $isMy ? '#f59e0b' : '#334155',
+                        'textColor'       => '#ffffff',
+                        'extendedProps'   => array_merge($extendedProps, ['eventRole' => 'end']),
+                        'className'       => 'fc-event-custom fc-event-end fc-event-' . $t->type . $myClass,
+                    ]);
+                }
+
+                // 3. إذا كان الخريج مسجلاً بالتدريب وله أيام تدريب محددة أسبوعياً، نُدرج جلساته المباشرة
+                if ($isMy && $hasSpecificDays) {
+                    $allowedDays = array_map('intval', $allowedDays);
+                    $current = $startDate->copy();
+                    while ($current->lte($endDate)) {
+                        if (in_array($current->dayOfWeek, $allowedDays, true)) {
+                            $calendarTrainings->push([
+                                'id'              => 'tr_' . $t->id . '_' . $current->format('Ymd'),
+                                'title'           => '⭐ جلسة: ' . $t->title,
+                                'start'           => $current->format('Y-m-d'),
+                                'end'             => null,
+                                'allDay'          => true,
+                                'url'             => route('graduate.trainings.show', $t->id),
+                                'backgroundColor' => '#0d3882',
+                                'borderColor'     => '#f59e0b',
+                                'textColor'       => '#ffffff',
+                                'extendedProps'   => array_merge($extendedProps, ['eventRole' => 'session']),
+                                'className'       => 'fc-event-custom fc-event-session fc-event-my-training',
+                            ]);
+                        }
+                        $current->addDay();
                     }
-                    $current->addDay();
                 }
             }
         }
 
-        $calendarLocations = $trainingsForCalendar->pluck('location')->filter()->unique()->values();
+        $calendarLocations = $uniqueTrainings->pluck('location')->filter()->unique()->values();
+        $myCalendarCount = $calendarTrainings->where('extendedProps.isMyTraining', true)->count();
 
 
         // الترشيحات (مطابقة عبر البريد الإلكتروني)
@@ -183,6 +256,7 @@ class GraduateController extends Controller
             'applicationStats',
             'calendarTrainings',
             'calendarLocations',
+            'myCalendarCount',
             'nominations',
             'notifications',
             'activeTrainings'

@@ -241,7 +241,7 @@
     border-bottom: 1px dashed #e2e8f0;
 }
 
-.uiverse-train-card .card-content .plain :nth-child(1) {
+.uiverse-train-card .card-content .plain > :nth-child(1) {
     font-size: 1.65rem;
     font-weight: 900;
     color: #0d3882;
@@ -249,7 +249,7 @@
     line-height: 1;
 }
 
-.uiverse-train-card .card-content .plain :nth-child(2) {
+.uiverse-train-card .card-content .plain > :nth-child(2) {
     font-size: 0.82rem;
     font-weight: 700;
     color: #b45309;
@@ -338,8 +338,8 @@
 .dark-mode .uiverse-train-card .card-title-main {
     color: #ffffff;
 }
-[data-theme="dark"] .uiverse-train-card .plain :nth-child(1),
-.dark-mode .uiverse-train-card .plain :nth-child(1) {
+[data-theme="dark"] .uiverse-train-card .plain > :nth-child(1),
+.dark-mode .uiverse-train-card .plain > :nth-child(1) {
     color: #60a5fa;
 }
 [data-theme="dark"] .uiverse-train-card .card-meta-pill,

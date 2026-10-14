@@ -376,14 +376,14 @@
             }
         }
 
-        /* 2. قسم البطل (Hero Section) */
+        /* 2. قسم البطل (Hero Section) - تصميم منقسم هادئ وفاخر بهوية المنصة وألوانها الأصلية */
         .hero-section {
-            background: linear-gradient(135deg, #0d3882 0%, #1565c0 50%, #1e88e5 100%);
+            background: linear-gradient(135deg, #09255a 0%, #0d3882 45%, #1565c0 85%, #1976d2 100%);
             color: white;
-            padding: 155px 0 120px;
+            padding: 145px 0 115px;
             position: relative;
             overflow: hidden;
-            text-align: center;
+            text-align: right;
         }
 
         .hero-section::before {
@@ -393,70 +393,294 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.15) 0%, transparent 60%),
-                radial-gradient(circle at 15% 85%, rgba(245, 158, 11, 0.12) 0%, transparent 50%);
+            background: 
+                radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.15) 0%, transparent 55%),
+                radial-gradient(circle at 15% 85%, rgba(245, 158, 11, 0.14) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(30, 136, 229, 0.12) 0%, transparent 60%);
             pointer-events: none;
+            z-index: 1;
         }
 
-        .university-logo-img {
-            width: 125px;
-            height: 125px;
-            border: 4px solid var(--gold-accent);
-            border-radius: 50%;
-            object-fit: cover;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-            background: white;
-            padding: 4px;
+        .hero-container-relative {
+            position: relative;
+            z-index: 2;
         }
 
-        .btn-gold {
-            background: rgba(245, 158, 11, 0.12) !important;
-            border: 2px solid #f59e0b !important;
-            color: #ffffff !important;
-            font-weight: 800;
-            padding: 0.72rem 2rem;
+        /* الكبسولة الترحيبية الهادئة */
+        .hero-capsule {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.45rem 1.2rem;
             border-radius: 50px;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
             transition: all 0.25s ease;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.22), inset 0 0 12px rgba(245, 158, 11, 0.1);
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-capsule:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(245, 158, 11, 0.5);
+        }
+
+        .hero-live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+            display: inline-block;
+        }
+
+        /* نصوص العنوان الرئيسي */
+        .hero-main-title {
+            font-size: clamp(2.3rem, 4.2vw, 3.3rem);
+            font-weight: 900;
+            line-height: 1.25;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.6rem;
+            color: #ffffff;
+            text-shadow: 0 2px 14px rgba(0, 0, 0, 0.28);
+        }
+
+        .hero-subline {
+            display: block;
+            font-size: clamp(1.2rem, 2.2vw, 1.65rem);
+            font-weight: 800;
+            color: #fbbf24 !important;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+            margin-top: 0.35rem;
+        }
+
+        .hero-description {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.12rem;
+            line-height: 1.85;
+            max-width: 620px;
+            margin-bottom: 1.8rem;
+            font-weight: 500;
+        }
+
+        /* أزرار الإجراءات */
+        .btn-gold {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+            border: 1.5px solid #fbbf24 !important;
+            color: #07162c !important;
+            font-weight: 800;
+            padding: 0.75rem 1.8rem;
+            font-size: 0.98rem;
+            border-radius: 50px;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
         }
 
         .btn-gold i {
-            color: #fbbf24 !important;
-            transition: all 0.25s ease;
+            color: #07162c !important;
         }
 
         .btn-gold:hover {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
-            border-color: #f59e0b !important;
-            color: #0b1f3a !important;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+            border-color: #fef08a !important;
+            color: #051329 !important;
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45);
-            text-shadow: none;
-        }
-
-        .btn-gold:hover i {
-            color: #0b1f3a !important;
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.45);
         }
 
         .btn-outline-hero {
             background: rgba(255, 255, 255, 0.12);
-            border: 1.5px solid rgba(255, 255, 255, 0.4);
-            color: white !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.32);
+            color: #ffffff !important;
             font-weight: 700;
-            padding: 0.75rem 1.8rem;
+            padding: 0.75rem 1.7rem;
+            font-size: 0.98rem;
             border-radius: 50px;
-            backdrop-filter: blur(8px);
-            transition: all 0.25s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
         }
 
         .btn-outline-hero:hover {
-            background: white;
-            color: var(--primary-blue) !important;
+            background: #ffffff;
+            color: #0d3882 !important;
+            border-color: #ffffff;
             transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 22px rgba(255, 255, 255, 0.3);
+        }
+
+        /* سطر مؤشرات الثقة تحت الأزرار */
+        .hero-trust-bar {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            font-size: 0.88rem;
+            color: rgba(255, 255, 255, 0.92);
+            font-weight: 600;
+        }
+
+        .hero-trust-bar span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        /* بطاقة الهوية الأكاديمية الهادئة على اليسار */
+        .hero-showcase-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 24px;
+            padding: 2.2rem 2rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hero-showcase-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+        }
+
+        .showcase-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            margin-bottom: 1.3rem;
+        }
+
+        .showcase-logo {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2.5px solid #f59e0b;
+            background: #ffffff;
+            padding: 3px;
+            object-fit: cover;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            flex-shrink: 0;
+        }
+
+        .showcase-titles h4 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.2rem;
+        }
+
+        .showcase-titles p {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.35rem;
+            font-weight: 500;
+        }
+
+        .showcase-badge-verified {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.16);
+            border: 1px solid rgba(16, 185, 129, 0.38);
+            padding: 0.2rem 0.65rem;
+            border-radius: 50px;
+        }
+
+        .showcase-feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1.3rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .showcase-feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 0.8rem 1rem;
+            border-radius: 14px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            transition: background 0.2s ease;
+        }
+
+        .showcase-feature-item:hover {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .showcase-feature-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .showcase-card-footer {
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 600;
+        }
+
+        @media (max-width: 991px) {
+            .hero-section {
+                padding: 125px 0 90px;
+                text-align: center;
+            }
+            .hero-description {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .hero-trust-bar {
+                justify-content: center;
+                gap: 1rem;
+                font-size: 0.82rem;
+            }
+            .hero-showcase-card {
+                max-width: 480px;
+                margin: 2.5rem auto 0;
+                text-align: right;
+            }
+        }
+
+        @media (max-width: 991px) {
+            .hero-section {
+                padding: 120px 0 80px;
+            }
+            .hero-spotlight-desc {
+                font-size: 1rem;
+                margin-bottom: 1.6rem;
+            }
+            .hero-spotlight-trust {
+                gap: 0.8rem;
+                font-size: 0.78rem;
+            }
         }
 
         /* 3. شريط الإحصائيات الحية (Live Stats Ribbon - From Uiverse.io by mrhyddenn) */
@@ -2776,55 +3000,118 @@
         </nav>
     </header>
 
-    <!-- ==================== 2. قسم البطل الرئيسي (Hero Section) ==================== -->
+    <!-- ==================== 2. قسم البطل الرئيسي (Split Hero Section) ==================== -->
     <section class="hero-section" id="hero">
-        <div class="container">
-            <div class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill mb-4"
-                style="background: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255, 255, 255, 0.32); backdrop-filter: blur(8px);">
-                <i class="fas fa-university text-warning"></i>
-                <span class="fw-bold" style="font-size: 0.85rem;">جامعة طرابلس — المنصة لتدريب وتأهيل الخريجين</span>
-            </div>
+        <div class="container hero-container-relative">
+            <div class="row align-items-center g-4 g-xl-5">
 
-            <div class="mb-4" data-aos="zoom-in">
-                <img src="{{ asset('images/logo.jpg') }}" alt="شعار جامعة طرابلس" class="university-logo-img"
-                    onerror="this.onerror=null;">
-            </div>
+                <!-- العمود الأيمن: العناوين، النبذة، وأزرار الإجراءات -->
+                <div class="col-lg-7 col-xl-7">
+                    
+                    <!-- الكبسولة الترحيبية -->
+                    <div class="mb-3" data-aos="fade-down" data-aos-delay="100">
+                        <div class="hero-capsule">
+                            <span class="hero-live-dot"></span>
+                            <i class="fas fa-university text-warning"></i>
+                            <span>جامعة طرابلس — المنصة المعتمدة لتدريب وتأهيل الخريجين</span>
+                        </div>
+                    </div>
 
-            <h1 class="display-4 fw-bolder mb-3 text-white" data-aos="fade-up" data-aos-delay="150"
-                style="letter-spacing: -0.5px;">
-                مكتب تدريب الخريجين
-            </h1>
+                    <!-- العنوان الرئيسي مع السطر الفرعي الذهبي -->
+                    <h1 class="hero-main-title" data-aos="fade-up" data-aos-delay="150">
+                        مكتب تدريب الخريجين
+                        <span class="hero-subline">بوابتكم الأكاديمية نحو التميز وسوق العمل</span>
+                    </h1>
 
-            <p class="lead text-white-50 mx-auto mb-4 px-3"
-                style="max-width: 720px; font-size: 1.15rem; line-height: 1.8;" data-aos="fade-up" data-aos-delay="250">
-                جسركم الموثوق من مقاعد الدراسة إلى آفاق سوق العمل، عبر مسارات تدريبية احترافية معتمدة، شراكات استراتيجية
-                مع كبرى الشركات، ومعارض توظيف سنوية رائدة.
-            </p>
+                    <!-- نبذة تعريفية واضحة وهادئة -->
+                    <p class="hero-description" data-aos="fade-up" data-aos-delay="200">
+                        المنظومة الرسمية المعتمدة لتمكين وتأهيل خريجي جامعة طرابلس، وتطوير المهارات الاحترافية، وربط الكفاءات الوطنية مباشرةً بمسارات التوظيف والشراكات الواعدة مع كبرى المؤسسات.
+                    </p>
 
-            <div class="d-flex justify-content-center gap-3 flex-wrap" data-aos="fade-up" data-aos-delay="350">
-                @auth
-                    <a href="{{ route('dashboard') }}"
-                        class="btn btn-gold btn-lg shadow-sm d-flex align-items-center gap-2">
-                        <i class="fas fa-th-large"></i>
-                        <span>الانتقال للوحة التحكم</span>
-                        <i class="fas fa-arrow-left ms-1 small"></i>
-                    </a>
-                @else
-                    <button type="button" class="btn btn-gold btn-lg shadow-sm d-flex align-items-center gap-2"
-                        data-bs-toggle="modal" data-bs-target="#loginModal">
-                        <i class="fas fa-sign-in-alt"></i>
-                        <span>تسجيل الدخول</span>
-                    </button>
-                    <button type="button" class="btn btn-outline-hero btn-lg d-flex align-items-center gap-2"
-                        data-bs-toggle="modal" data-bs-target="#graduateRegisterModal">
-                        <i class="fas fa-user-plus"></i>
-                        <span>إنشاء حساب خريج جديد</span>
-                    </button>
-                @endauth
-                <a href="#trainings" class="btn btn-outline-hero btn-lg d-flex align-items-center gap-2">
-                    <i class="fas fa-graduation-cap"></i>
-                    <span>تصفح التدريبات</span>
-                </a>
+                    <!-- أزرار الإجراءات -->
+                    <div class="d-flex align-items-center gap-3 flex-wrap mb-4" data-aos="fade-up" data-aos-delay="250">
+                        @auth
+                            <a href="{{ route('dashboard') }}"
+                                class="btn btn-gold btn-lg d-flex align-items-center gap-2">
+                                <i class="fas fa-th-large"></i>
+                                <span>الانتقال للوحة التحكم</span>
+                                <i class="fas fa-arrow-left ms-1 small"></i>
+                            </a>
+                        @else
+                            <button type="button" class="btn btn-gold btn-lg d-flex align-items-center gap-2"
+                                data-bs-toggle="modal" data-bs-target="#loginModal">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>تسجيل الدخول</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-hero btn-lg d-flex align-items-center gap-2"
+                                data-bs-toggle="modal" data-bs-target="#graduateRegisterModal">
+                                <i class="fas fa-user-plus"></i>
+                                <span>تسجيل خريج جديد</span>
+                            </button>
+                        @endauth
+                        <a href="#trainings" class="btn btn-outline-hero btn-lg d-flex align-items-center gap-2">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>تصفح التدريبات</span>
+                        </a>
+                    </div>
+
+                    <!-- سطر مؤشرات الثقة تحت الأزرار -->
+                    <div class="hero-trust-bar" data-aos="fade-up" data-aos-delay="300">
+                        <span><i class="fas fa-check-circle text-warning"></i> شهادات معتمدة برمز QR</span>
+                        <span><i class="fas fa-shield-alt text-info"></i> إشراف أكاديمي مباشر</span>
+                        <span><i class="fas fa-handshake text-success"></i> شراكات توظيف مستدامة</span>
+                    </div>
+
+                </div>
+
+                <!-- العمود الأيسر: بطاقة الهوية الأكاديمية الهادئة والمميزة -->
+                <div class="col-lg-5 col-xl-5" data-aos="fade-left" data-aos-delay="200">
+                    <div class="hero-showcase-card">
+
+                        <!-- رأس البطاقة: الشعار والعناوين الرسمية -->
+                        <div class="showcase-card-header">
+                            <img src="{{ asset('images/logo.jpg') }}" alt="شعار جامعة طرابلس" class="showcase-logo" onerror="this.onerror=null;">
+                            <div class="showcase-titles">
+                                <h4>جامعة طرابلس</h4>
+                                <p>مكتب تدريب وتأهيل الخريجين</p>
+                                <span class="showcase-badge-verified">
+                                    <i class="fas fa-check-circle"></i>
+                                    منظومة رسمية معتمدة
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- قائمة الخدمات والمزايا الأكاديمية (هادئة وبدون أي دوشة) -->
+                        <ul class="showcase-feature-list">
+                            <li class="showcase-feature-item">
+                                <div class="showcase-feature-icon" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                                <span>مسارات تدريب وتأهيل مهني معتمدة</span>
+                            </li>
+                            <li class="showcase-feature-item">
+                                <div class="showcase-feature-icon" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd;">
+                                    <i class="fas fa-certificate"></i>
+                                </div>
+                                <span>إصدار شهادات رقمية موثقة برمز QR</span>
+                            </li>
+                            <li class="showcase-feature-item">
+                                <div class="showcase-feature-icon" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7;">
+                                    <i class="fas fa-briefcase"></i>
+                                </div>
+                                <span>تشبيك مباشر مع كبرى الشركات والمؤسسات</span>
+                            </li>
+                        </ul>
+
+                        <!-- تذييل البطاقة الهادئ -->
+                        <div class="showcase-card-footer">
+                            <span><i class="fas fa-university text-warning me-1"></i> الإدارة العامة لجامعة طرابلس</span>
+                            <span class="text-white-50">بوابة الخريج الموحدة</span>
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>

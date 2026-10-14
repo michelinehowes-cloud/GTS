@@ -515,6 +515,336 @@
             pointer-events: none;
         }
 
+        /* 4.1 بطاقة المعرض ثلاثية الأبعاد التفاعلية (3D Interactive Fair Book Card) */
+        .fair-book-stage {
+            perspective: 1200px;
+            -webkit-perspective: 1200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .fair-book {
+            position: relative;
+            border-radius: 14px;
+            width: 242px;
+            height: 334px;
+            transform-style: preserve-3d;
+            -webkit-transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s ease;
+            box-shadow: 0 18px 40px -10px rgba(0, 0, 0, 0.55), 0 0 25px rgba(245, 158, 11, 0.15);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .fair-book:hover {
+            transform: translateY(-4px) rotateZ(-1deg);
+        }
+
+        /* الطبقات الورقية الجانبية للكتاب (Paper Pages Stack) */
+        .fair-book-pages {
+            position: absolute;
+            top: 6px;
+            left: -5px;
+            width: 7px;
+            height: calc(100% - 12px);
+            background: repeating-linear-gradient(
+                to bottom,
+                #f8fafc 0px,
+                #f8fafc 2px,
+                #94a3b8 3px,
+                #94a3b8 4px
+            );
+            border-radius: 4px 0 0 4px;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.35);
+            z-index: 1;
+        }
+
+        /* داخل الكتاب: بطاقة المعرض الذكية مع رمز QR */
+        .fair-book-inner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border: 1.5px solid rgba(226, 232, 240, 0.95);
+            box-shadow: inset 14px 0 24px -12px rgba(0, 0, 0, 0.18), 0 10px 25px rgba(0, 0, 0, 0.25);
+            padding: 1.15rem 1rem 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        .fair-card-chip-bar {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            color: #64748b;
+            font-weight: 700;
+            border-bottom: 1px dashed #e2e8f0;
+            padding-bottom: 6px;
+        }
+
+        .fair-card-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #d97706;
+            font-weight: 800;
+            font-size: 0.75rem;
+        }
+
+        .fair-card-header {
+            margin: 6px 0 4px;
+            width: 100%;
+        }
+
+        .fair-card-title {
+            font-size: 0.88rem;
+            font-weight: 800;
+            color: #0b1f3a;
+            line-height: 1.3;
+            margin: 0;
+        }
+
+        .fair-card-subtitle {
+            font-size: 0.72rem;
+            color: #1565c0;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        /* إطار رمز الـ QR التفاعلي */
+        .fair-card-qr-box {
+            position: relative;
+            width: 116px;
+            height: 116px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(13, 56, 130, 0.08);
+            border: 1px solid #e2e8f0;
+            margin: 3px auto;
+        }
+
+        .fair-card-qr-box .qr-corner {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-color: #0d3882;
+            border-style: solid;
+        }
+
+        .fair-card-qr-box .qr-tl { top: -2px; right: -2px; border-width: 2px 2px 0 0; border-top-right-radius: 4px; }
+        .fair-card-qr-box .qr-tr { top: -2px; left: -2px; border-width: 2px 0 0 2px; border-top-left-radius: 4px; }
+        .fair-card-qr-box .qr-bl { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; border-bottom-right-radius: 4px; }
+        .fair-card-qr-box .qr-br { bottom: -2px; left: -2px; border-width: 0 0 2px 2px; border-bottom-left-radius: 4px; }
+
+        .fair-card-qr-svg {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* خط ليزر المسح الضوئي المتحرك الخفيف */
+        .fair-card-laser {
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+            box-shadow: 0 0 6px #f59e0b;
+            animation: qrLaserScan 2.6s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes qrLaserScan {
+            0%, 100% { top: 10px; opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            50% { top: 102px; }
+        }
+
+        .fair-card-meta {
+            font-size: 0.72rem;
+            color: #475569;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            font-weight: 600;
+        }
+
+        .fair-card-meta-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .fair-card-status-badge {
+            background: linear-gradient(135deg, rgba(13, 56, 130, 0.06) 0%, rgba(21, 101, 192, 0.08) 100%);
+            border: 1px solid rgba(13, 56, 130, 0.15);
+            color: #0d3882;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.42rem 0.8rem;
+            border-radius: 50px;
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* غلاف الكتاب ثلاثي الأبعاد (The 3D Book Cover) */
+        .fair-book-cover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 14px;
+            cursor: pointer;
+            z-index: 5;
+            transform-origin: right center;
+            -webkit-transform-origin: right center;
+            transform-style: preserve-3d;
+            -webkit-transform-style: preserve-3d;
+            transition: transform 0.65s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.65s ease;
+            background: linear-gradient(150deg, #071938 0%, #0d2f66 45%, #05142b 100%);
+            border: 1.5px solid rgba(245, 158, 11, 0.65);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), inset -8px 0 16px rgba(0, 0, 0, 0.55), inset 0 0 0 2px rgba(245, 158, 11, 0.15);
+            padding: 1.25rem 1rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        /* شريط الكعب / الخياطة الفاخر في طرف الكتاب الأيمن (Spine) */
+        .fair-book-spine-line {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 12px;
+            height: 100%;
+            background: linear-gradient(180deg, #d97706 0%, #f59e0b 50%, #92400e 100%);
+            border-top-right-radius: 13px;
+            border-bottom-right-radius: 13px;
+            box-shadow: -2px 0 6px rgba(0, 0, 0, 0.35);
+        }
+
+        .fair-book-spine-line::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            bottom: 8px;
+            right: 4px;
+            width: 1.5px;
+            background: repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.6) 0px, rgba(255, 255, 255, 0.6) 4px, transparent 4px, transparent 8px);
+        }
+
+        .fair-cover-crest-wrap {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid #f59e0b;
+            padding: 3px;
+            margin: 0 auto 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fair-cover-crest-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .fair-cover-title {
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 800;
+            line-height: 1.35;
+            margin: 4px 0 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .fair-cover-badge {
+            background: rgba(245, 158, 11, 0.18);
+            border: 1px solid rgba(245, 158, 11, 0.45);
+            color: #fbbf24;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 2px 10px;
+            border-radius: 50px;
+            margin-bottom: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .fair-cover-hint {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px dashed rgba(245, 158, 11, 0.5);
+            color: #fef08a;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(4px);
+            transition: all 0.25s ease;
+        }
+
+        .fair-cover-hint i {
+            color: #f59e0b;
+            animation: hintWiggle 1.8s infinite ease-in-out;
+        }
+
+        @keyframes hintWiggle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        /* 🌟 حركة فتح الغلاف ثلاثية الأبعاد (3D Flip Open) 🌟 */
+        .fair-book:hover .fair-book-cover,
+        .fair-book.book-opened .fair-book-cover {
+            transform: rotateY(84deg);
+            -webkit-transform: rotateY(84deg);
+            box-shadow: -18px 16px 36px rgba(0, 0, 0, 0.45);
+            pointer-events: none;
+        }
+
+        .fair-book:hover .fair-book-inner,
+        .fair-book.book-opened .fair-book-inner {
+            z-index: 6;
+        }
+
         /* 5. بطاقات التدريبات المميزة (Bento Training Cards) */
         .bento-training-card {
             background: #ffffff;
@@ -1780,39 +2110,139 @@
                                     </div>
                                 </div>
                                 <div class="col-lg-4 text-center">
-                                    <div class="p-4 rounded-4"
-                                        style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px);">
-                                        @if($fair->white_logo_url)
-                                            <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" class="img-fluid mb-3"
-                                                style="max-height: 85px; max-width: 180px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25));"
-                                                onerror="this.onerror=null;this.src='{{ $fair->logo_url }}';">
-                                        @elseif($fair->logo_url)
-                                            <div class="d-inline-block bg-white rounded-3 p-2 mb-3 shadow-sm">
-                                                <img src="{{ $fair->logo_url }}" alt="{{ $fair->title }}" class="img-fluid"
-                                                    style="max-height: 70px; max-width: 140px; object-fit: contain;"
-                                                    onerror="this.onerror=null;this.style.display='none'">
+                                    <div class="fair-book-stage">
+                                        <div class="fair-book" id="fairBook_{{ $fair->id }}" onclick="this.classList.toggle('book-opened')" title="انقر أو مرر لفتح البطاقة">
+                                            <!-- الطبقات الورقية السميكة لدفتر/بطاقة المعرض -->
+                                            <div class="fair-book-pages"></div>
+
+                                            <!-- داخل البطاقة: تصريح المعرض الذكي مع رمز QR -->
+                                            <div class="fair-book-inner">
+                                                <div class="fair-card-chip-bar">
+                                                    <span class="fair-card-chip">
+                                                        <i class="fas fa-microchip"></i>
+                                                        <span>UOT PASS</span>
+                                                    </span>
+                                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-2 py-0.5" style="font-size: 0.68rem;">
+                                                        <i class="fas fa-check-circle me-1"></i>معتمدة رقمياً
+                                                    </span>
+                                                </div>
+
+                                                <div class="fair-card-header">
+                                                    <h6 class="fair-card-title">{{ $fair->title }}</h6>
+                                                    <div class="fair-card-subtitle">
+                                                        <i class="fas fa-university me-1 text-primary"></i>جامعة طرابلس
+                                                    </div>
+                                                </div>
+
+                                                <!-- إطار رمز الـ QR مع تأثير الليزر المتحرك -->
+                                                <div class="fair-card-qr-box">
+                                                    <div class="qr-corner qr-tl"></div>
+                                                    <div class="qr-corner qr-tr"></div>
+                                                    <div class="qr-corner qr-bl"></div>
+                                                    <div class="qr-corner qr-br"></div>
+                                                    <div class="fair-card-laser"></div>
+                                                    <svg class="fair-card-qr-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                                        <!-- QR Pattern Elements -->
+                                                        <rect x="8" y="8" width="26" height="26" rx="4" fill="#0d3882"/>
+                                                        <rect x="13" y="13" width="16" height="16" rx="2" fill="#ffffff"/>
+                                                        <rect x="17" y="17" width="8" height="8" rx="1" fill="#0d3882"/>
+
+                                                        <rect x="66" y="8" width="26" height="26" rx="4" fill="#0d3882"/>
+                                                        <rect x="71" y="13" width="16" height="16" rx="2" fill="#ffffff"/>
+                                                        <rect x="75" y="17" width="8" height="8" rx="1" fill="#0d3882"/>
+
+                                                        <rect x="8" y="66" width="26" height="26" rx="4" fill="#0d3882"/>
+                                                        <rect x="13" y="71" width="16" height="16" rx="2" fill="#ffffff"/>
+                                                        <rect x="17" y="75" width="8" height="8" rx="1" fill="#0d3882"/>
+
+                                                        <!-- Data Bits with Gold Accent -->
+                                                        <rect x="40" y="10" width="7" height="7" rx="1.5" fill="#0d3882"/>
+                                                        <rect x="52" y="10" width="7" height="7" rx="1.5" fill="#f59e0b"/>
+                                                        <rect x="40" y="22" width="7" height="14" rx="1.5" fill="#0d3882"/>
+                                                        <rect x="52" y="22" width="7" height="7" rx="1.5" fill="#0d3882"/>
+
+                                                        <rect x="10" y="42" width="14" height="7" rx="1.5" fill="#0d3882"/>
+                                                        <rect x="29" y="42" width="7" height="7" rx="1.5" fill="#f59e0b"/>
+                                                        <rect x="41" y="42" width="18" height="7" rx="1.5" fill="#0d3882"/>
+                                                        <rect x="64" y="42" width="7" height="7" rx="1.5" fill="#0d3882"/>
+                                                        <rect x="76" y="42" width="14" height="7" rx="1.5" fill="#0d3882"/>
+
+                                                        <rect x="41" y="54" width="7" height="7" rx="1.5" fill="#f59e0b"/>
+                                                        <rect x="53" y="54" width="18" height="7" rx="1.5" fill="#0d3882"/>
+                                                        <rect x="76" y="54" width="14" height="7" rx="1.5" fill="#0d3882"/>
+
+                                                        <rect x="41" y="66" width="7" height="16" rx="1.5" fill="#0d3882"/>
+                                                        <rect x="53" y="66" width="14" height="7" rx="1.5" fill="#0d3882"/>
+                                                        <rect x="72" y="66" width="7" height="7" rx="1.5" fill="#f59e0b"/>
+                                                        <rect x="84" y="66" width="7" height="16" rx="1.5" fill="#0d3882"/>
+
+                                                        <rect x="53" y="78" width="22" height="10" rx="1.5" fill="#0d3882"/>
+                                                        <rect x="41" y="87" width="7" height="7" rx="1.5" fill="#0d3882"/>
+                                                    </svg>
+                                                </div>
+
+                                                <div class="fair-card-meta">
+                                                    <div class="fair-card-meta-item">
+                                                        <i class="fas fa-map-marker-alt text-warning small"></i>
+                                                        <span>{{ Str::limit($fair->location ?? 'الحرم الجامعي', 24) }}</span>
+                                                    </div>
+                                                    <div class="fair-card-meta-item">
+                                                        <i class="fas fa-calendar-alt text-warning small"></i>
+                                                        <span>{{ $fair->event_date ? \Carbon\Carbon::parse($fair->event_date)->translatedFormat('d F Y') : 'قريباً' }}</span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="w-100 pt-1">
+                                                    <div class="fair-card-status-badge">
+                                                        <i class="fas fa-shield-check text-success"></i>
+                                                        <span>تصريح دخول رسمي معتمد</span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        @elseif($fair->banner_image)
-                                            <img src="{{ asset('storage/' . $fair->banner_image) }}" alt="{{ $fair->title }}"
-                                                class="img-fluid mb-3 rounded-3" style="max-height: 70px; object-fit: contain;"
-                                                onerror="this.onerror=null;this.style.display='none'">
-                                        @else
-                                            <i class="fas fa-id-card fa-4x text-warning mb-3"></i>
-                                        @endif
-                                        <h5 class="text-white fw-bold mb-1">بطاقتك الرقمية للفعالية</h5>
-                                        <p class="text-white-50 small mb-3">رمز QR موحد لتسجيل الحضور وتسهيل التواصل مع أجنحة
-                                            الشركات</p>
-                                        @if($fair->registration_open)
-                                            <span class="badge rounded-pill px-3 py-1.5 text-white"
-                                                style="background: rgba(16, 185, 129, 0.25); border: 1px solid rgba(16, 185, 129, 0.4);">
-                                                <i class="fas fa-check-circle me-1 text-success"></i>التسجيل متاح لجميع الخريجين
-                                            </span>
-                                        @else
-                                            <span class="badge rounded-pill px-3 py-1.5 text-white-50"
-                                                style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
-                                                <i class="fas fa-info-circle me-1 text-warning"></i>تصدر البطاقة آلياً فور التسجيل
-                                            </span>
-                                        @endif
+
+                                            <!-- غلاف الكتاب ثلاثي الأبعاد بتدرج كحلي وذهبي وتفاصيل راقية -->
+                                            <div class="fair-book-cover">
+                                                <div class="fair-book-spine-line"></div>
+
+                                                <div class="fair-cover-crest-wrap">
+                                                    <img src="{{ asset('images/logo.jpg') }}" alt="جامعة طرابلس" class="fair-cover-crest-img" onerror="this.onerror=null;">
+                                                </div>
+
+                                                @if($fair->white_logo_url)
+                                                    <div class="my-1">
+                                                        <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" class="img-fluid"
+                                                            style="max-height: 52px; max-width: 155px; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));"
+                                                            onerror="this.onerror=null;this.src='{{ $fair->logo_url }}';">
+                                                    </div>
+                                                @elseif($fair->logo_url)
+                                                    <div class="my-1 bg-white rounded-3 p-1.5 shadow-sm d-inline-block">
+                                                        <img src="{{ $fair->logo_url }}" alt="{{ $fair->title }}" class="img-fluid"
+                                                            style="max-height: 44px; max-width: 130px; object-fit: contain;"
+                                                            onerror="this.onerror=null;this.style.display='none'">
+                                                    </div>
+                                                @else
+                                                    <div class="my-1 text-warning">
+                                                        <i class="fas fa-id-card-clip fa-3x"></i>
+                                                    </div>
+                                                @endif
+
+                                                <div>
+                                                    <div class="fair-cover-badge">
+                                                        <i class="fas fa-star text-warning"></i>
+                                                        <span>بطاقة المعرض الرقمية</span>
+                                                    </div>
+                                                    <h5 class="fair-cover-title">
+                                                        {{ $fair->title }}
+                                                    </h5>
+                                                    <small class="text-white-50" style="font-size: 0.7rem;">جامعة طرابلس • تصريح رسمي</small>
+                                                </div>
+
+                                                <div class="fair-cover-hint">
+                                                    <i class="fas fa-hand-pointer"></i>
+                                                    <span>مرر أو انقر لفتح البطاقة</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

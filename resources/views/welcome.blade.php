@@ -1401,7 +1401,7 @@
             border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
         }
 
-        .uiverse-train-card .card-content .plain :nth-child(1) {
+        .uiverse-train-card .card-content .plain > :nth-child(1) {
             font-size: 2.1rem;
             font-weight: 900;
             color: #ffffff;
@@ -1410,7 +1410,7 @@
             text-shadow: 0 2px 10px rgba(245, 158, 11, 0.35);
         }
 
-        .uiverse-train-card .card-content .plain :nth-child(2) {
+        .uiverse-train-card .card-content .plain > :nth-child(2) {
             font-size: 0.84rem;
             font-weight: 700;
             color: #fbbf24;

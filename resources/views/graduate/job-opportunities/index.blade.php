@@ -102,16 +102,18 @@
                             <h5 class="card-title-main" title="{{ $job->title }}">{{ $job->title }}</h5>
                             <div class="plain">
                                 <span class="badge-contract">
-                                    <i class="fas fa-clock text-primary me-1"></i> {{ $contractLabel }}
+                                    <i class="fas fa-clock text-primary"></i>
+                                    <span>{{ $contractLabel }}</span>
                                 </span>
                                 @if($job->seats)
                                     <span class="badge-seats">
-                                        <i class="fas fa-users text-success me-1"></i> {{ $job->seats }} {{ $job->seats > 2 && $job->seats < 11 ? 'شواغر' : 'شاغر' }}
+                                        <i class="fas fa-users text-success"></i>
+                                        <span>{{ $job->seats }} {{ $job->seats > 2 && $job->seats < 11 ? 'شواغر' : 'شاغر' }}</span>
                                     </span>
                                 @else
                                     <span class="badge-source">
-                                        <i class="fas {{ $job->jobFair ? 'fa-handshake text-warning' : 'fa-check-circle text-info' }} me-1"></i>
-                                        {{ $job->jobFair ? 'ملتقى التوظيف' : 'شراكات سوق العمل' }}
+                                        <i class="fas {{ $job->jobFair ? 'fa-handshake text-warning' : 'fa-check-circle text-info' }}"></i>
+                                        <span>{{ $job->jobFair ? 'ملتقى التوظيف' : 'شراكات سوق العمل' }}</span>
                                     </span>
                                 @endif
                             </div>
@@ -253,48 +255,64 @@
     flex-wrap: wrap;
 }
 
-.uiverse-train-card .card-content .plain .badge-contract,
-.uiverse-train-card .card-content .plain :nth-child(1) {
+.uiverse-train-card .card-content .plain > .badge-contract {
     font-size: 0.86rem;
     font-weight: 800;
     color: #0d3882;
     background: #eff6ff;
     border: 1px solid #bfdbfe;
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 8px;
     display: inline-flex;
     align-items: center;
+    gap: 6px;
     font-family: 'Tajawal', sans-serif;
     line-height: 1.3;
 }
 
-.uiverse-train-card .card-content .plain .badge-source,
-.uiverse-train-card .card-content .plain :nth-child(2) {
+.uiverse-train-card .card-content .plain > .badge-source {
     font-size: 0.82rem;
     font-weight: 700;
     color: #b45309;
     background: #fef3c7;
     border: 1px solid #fde68a;
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 8px;
     display: inline-flex;
     align-items: center;
+    gap: 6px;
     font-family: 'Tajawal', sans-serif;
     line-height: 1.3;
 }
 
-.uiverse-train-card .card-content .plain .badge-seats {
+.uiverse-train-card .card-content .plain > .badge-seats {
     font-size: 0.82rem;
     font-weight: 700;
     color: #065f46;
     background: #ecfdf5;
     border: 1px solid #a7f3d0;
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 8px;
     display: inline-flex;
     align-items: center;
+    gap: 6px;
     font-family: 'Tajawal', sans-serif;
     line-height: 1.3;
+}
+
+/* ضمان عدم تأثر أيقونات FontAwesome بأي خط أو حدود */
+.uiverse-train-card .card-content .plain i {
+    font-family: 'Font Awesome 6 Free', 'Font Awesome 5 Free', 'FontAwesome' !important;
+    font-weight: 900 !important;
+    font-style: normal !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    line-height: 1 !important;
+    display: inline-block !important;
+    font-size: 0.85rem !important;
 }
 
 .uiverse-train-card .card-content .description {
@@ -375,24 +393,20 @@
 .dark-mode .uiverse-train-card .card-title-main {
     color: #ffffff;
 }
-[data-theme="dark"] .uiverse-train-card .plain .badge-contract,
-.dark-mode .uiverse-train-card .plain .badge-contract,
-[data-theme="dark"] .uiverse-train-card .plain :nth-child(1),
-.dark-mode .uiverse-train-card .plain :nth-child(1) {
+[data-theme="dark"] .uiverse-train-card .plain > .badge-contract,
+.dark-mode .uiverse-train-card .plain > .badge-contract {
     color: #93c5fd;
     background: rgba(30, 58, 138, 0.4);
     border-color: rgba(147, 197, 253, 0.3);
 }
-[data-theme="dark"] .uiverse-train-card .plain .badge-source,
-.dark-mode .uiverse-train-card .plain .badge-source,
-[data-theme="dark"] .uiverse-train-card .plain :nth-child(2),
-.dark-mode .uiverse-train-card .plain :nth-child(2) {
+[data-theme="dark"] .uiverse-train-card .plain > .badge-source,
+.dark-mode .uiverse-train-card .plain > .badge-source {
     color: #fcd34d;
     background: rgba(180, 83, 9, 0.25);
     border-color: rgba(251, 191, 36, 0.3);
 }
-[data-theme="dark"] .uiverse-train-card .plain .badge-seats,
-.dark-mode .uiverse-train-card .plain .badge-seats {
+[data-theme="dark"] .uiverse-train-card .plain > .badge-seats,
+.dark-mode .uiverse-train-card .plain > .badge-seats {
     color: #6ee7b7;
     background: rgba(6, 95, 70, 0.3);
     border-color: rgba(110, 231, 183, 0.3);

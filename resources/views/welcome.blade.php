@@ -5640,6 +5640,8 @@
             });
         });
     </script>
+
+    @include('partials.loading-wave-overlay')
 </body>
 
 </html>

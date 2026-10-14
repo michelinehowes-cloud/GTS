@@ -341,27 +341,99 @@
 
         @media (max-width: 991.98px) {
             .home-navbar-wrapper {
-                padding: 0.75rem 1.25rem;
+                padding: 0.65rem 1rem;
             }
 
             .home-navbar-wrapper.scrolled {
-                padding: 0.6rem 1.25rem;
+                padding: 0.55rem 1rem;
+            }
+
+            .home-navbar-wrapper.menu-open,
+            .home-navbar-wrapper:has(.navbar-collapse.show),
+            .home-navbar-wrapper:has(.navbar-collapse.collapsing) {
+                background: rgba(255, 255, 255, 0.98) !important;
+                backdrop-filter: blur(20px) !important;
+                -webkit-backdrop-filter: blur(20px) !important;
+                border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
+                box-shadow: 0 10px 30px rgba(11, 31, 58, 0.08) !important;
+            }
+
+            .home-navbar-wrapper.menu-open .brand-text-title,
+            .home-navbar-wrapper:has(.navbar-collapse.show) .brand-text-title,
+            .home-navbar-wrapper:has(.navbar-collapse.collapsing) .brand-text-title {
+                color: #0b1f3a !important;
+                text-shadow: none !important;
+            }
+
+            .home-navbar-wrapper.menu-open .brand-text-subtitle,
+            .home-navbar-wrapper:has(.navbar-collapse.show) .brand-text-subtitle,
+            .home-navbar-wrapper:has(.navbar-collapse.collapsing) .brand-text-subtitle {
+                color: #64748b !important;
+                text-shadow: none !important;
+            }
+
+            .home-navbar-wrapper.menu-open .navbar-toggler-custom,
+            .home-navbar-wrapper:has(.navbar-collapse.show) .navbar-toggler-custom,
+            .home-navbar-wrapper:has(.navbar-collapse.collapsing) .navbar-toggler-custom {
+                background: #0d3882 !important;
+                color: #ffffff !important;
+                border-color: #0d3882 !important;
+            }
+
+            .navbar-brand-logo-frame {
+                width: 38px;
+                height: 38px;
+                border-radius: 11px;
+            }
+
+            .brand-text-title {
+                font-size: 0.94rem;
+            }
+
+            .brand-text-subtitle {
+                font-size: 0.7rem;
+            }
+
+            .navbar-toggler-custom {
+                width: 38px;
+                height: 38px;
+                border-radius: 10px;
             }
 
             .home-navbar .navbar-collapse {
-                background: rgba(255, 255, 255, 0.98);
-                backdrop-filter: blur(20px);
-                border-radius: 20px;
-                padding: 1.25rem 1.5rem;
-                margin-top: 0.75rem;
-                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-                border: 1px solid rgba(226, 232, 240, 0.85);
+                background: #ffffff;
+                backdrop-filter: blur(24px);
+                -webkit-backdrop-filter: blur(24px);
+                border-radius: 18px;
+                padding: 1.15rem 1.15rem;
+                margin-top: 0.65rem;
+                box-shadow: 0 16px 40px -10px rgba(11, 31, 58, 0.16), 0 0 0 1px rgba(226, 232, 240, 0.85);
+                border: 1px solid rgba(226, 232, 240, 0.9);
+                max-height: 82vh;
+                overflow-y: auto;
+            }
+
+            .home-navbar .navbar-collapse .navbar-nav {
+                gap: 4px;
             }
 
             .home-navbar .navbar-collapse .nav-link-custom {
                 color: #1e293b !important;
-                padding: 0.7rem 1rem !important;
+                padding: 0.62rem 1rem !important;
                 border-radius: 10px;
+                font-size: 0.92rem;
+                font-weight: 700;
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 8px !important;
+                text-shadow: none !important;
+                transition: all 0.2s ease;
+            }
+
+            .home-navbar .navbar-collapse .nav-link-custom::after {
+                display: none !important;
             }
 
             .home-navbar .navbar-collapse .nav-link-custom:hover {
@@ -369,10 +441,87 @@
                 color: #0d3882 !important;
             }
 
+            .home-navbar .navbar-collapse .nav-link-custom.active {
+                background: rgba(13, 56, 130, 0.08) !important;
+                color: #0d3882 !important;
+                font-weight: 800;
+            }
+
+            .home-navbar .navbar-collapse .nav-badge-pill {
+                margin-right: 0;
+                margin-left: 4px;
+                font-size: 0.68rem;
+                padding: 2px 7px;
+            }
+
+            /* أزرار الإجراءات في الموبايل */
+            .home-navbar .navbar-collapse .d-flex {
+                display: flex !important;
+                gap: 8px !important;
+                margin-top: 0.75rem;
+                padding-top: 0.9rem !important;
+                border-top: 1px solid #e2e8f0;
+            }
+
+            .home-navbar .navbar-collapse .nav-btn-login,
+            .home-navbar .navbar-collapse .nav-btn-register,
+            .home-navbar .navbar-collapse .nav-btn-dashboard {
+                flex: 1 1 0;
+                width: 50%;
+                justify-content: center;
+                text-align: center;
+                padding: 0.6rem 0.8rem !important;
+                font-size: 0.85rem !important;
+                white-space: nowrap;
+                text-shadow: none !important;
+                border-radius: 50px;
+            }
+
             .home-navbar .navbar-collapse .nav-btn-login {
                 color: #0d3882 !important;
-                background: rgba(13, 56, 130, 0.06);
-                border-color: rgba(13, 56, 130, 0.2);
+                background: #eff6ff !important;
+                border: 1.5px solid #bfdbfe !important;
+                font-weight: 800;
+            }
+
+            .home-navbar .navbar-collapse .nav-btn-login i {
+                color: #0d3882 !important;
+            }
+
+            .home-navbar .navbar-collapse .nav-btn-login:hover {
+                background: #0d3882 !important;
+                color: #ffffff !important;
+                border-color: #0d3882 !important;
+            }
+
+            .home-navbar .navbar-collapse .nav-btn-login:hover i {
+                color: #ffffff !important;
+            }
+
+            .home-navbar .navbar-collapse .nav-btn-register {
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+                color: #07162c !important;
+                border: 1.5px solid #f59e0b !important;
+                font-weight: 800;
+                box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3) !important;
+            }
+
+            .home-navbar .navbar-collapse .nav-btn-register i {
+                color: #07162c !important;
+            }
+
+            .home-navbar .navbar-collapse .nav-btn-register:hover {
+                background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+                color: #07162c !important;
+                box-shadow: 0 6px 16px rgba(245, 158, 11, 0.45) !important;
+            }
+
+            .home-navbar .navbar-collapse .nav-btn-dashboard {
+                background: linear-gradient(135deg, #0d3882 0%, #1565c0 100%) !important;
+                color: #ffffff !important;
+                font-weight: 800;
+                width: 100%;
+                flex: 1 1 100%;
             }
         }
 
@@ -5456,6 +5605,25 @@
             }, { passive: true });
 
             updateNavbar();
+
+            // تزامن حالة فتح قائمة الموبايل وإغلاقها تلقائياً عند النقر على رابط داخلي
+            const navCollapse = document.getElementById('homeNavContent');
+            if (navCollapse && wrapper) {
+                navCollapse.addEventListener('show.bs.collapse', function () {
+                    wrapper.classList.add('menu-open');
+                });
+                navCollapse.addEventListener('hide.bs.collapse', function () {
+                    wrapper.classList.remove('menu-open');
+                });
+                navCollapse.querySelectorAll('.nav-link-custom').forEach(function (link) {
+                    link.addEventListener('click', function () {
+                        if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+                            const bsCollapse = bootstrap.Collapse.getInstance(navCollapse);
+                            if (bsCollapse) bsCollapse.hide();
+                        }
+                    });
+                });
+            }
         })();
 
         // التمرير السلس للروابط الداخلية فقط دون التأثير على سلاسة تمرير الماوس

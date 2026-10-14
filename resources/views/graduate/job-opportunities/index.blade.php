@@ -79,9 +79,9 @@
                 <div class="col-12 col-md-6 col-lg-4 d-flex">
                     <div class="uiverse-train-card">
                         <div class="title-card">
-                            <p>
-                                <i class="fas fa-briefcase text-warning"></i>
-                                <span>فرصة عمل معتمدة</span>
+                            <p title="{{ $companyName }}">
+                                <i class="fas fa-building text-warning"></i>
+                                <span>{{ Str::limit($companyName, 24) }}</span>
                             </p>
                             @if($isNominated)
                                 <span class="badge rounded-pill bg-success text-white px-2.5 py-1" style="font-size: 0.72rem;">
@@ -96,13 +96,13 @@
 
                         <div class="card-content">
                             <span class="card-category">
-                                <i class="fas fa-building text-warning"></i>
-                                <span>{{ $companyName }}</span>
+                                <i class="fas fa-briefcase text-warning"></i>
+                                <span>{{ $job->jobFair ? Str::limit($job->jobFair->title, 26) : 'فرصة وظيفية معتمدة' }}</span>
                             </span>
                             <h5 class="card-title-main" title="{{ $job->title }}">{{ $job->title }}</h5>
                             <div class="plain">
                                 <span>{{ $contractLabel }}</span>
-                                <span>{{ $job->jobFair ? Str::limit($job->jobFair->title, 20) : 'شراكات سوق العمل' }}</span>
+                                <span>{{ $job->jobFair ? 'ملتقى التوظيف' : 'شراكات سوق العمل' }}</span>
                             </div>
                             <p class="description">
                                 {{ Str::limit(strip_tags($job->description ?: 'فرصة عمل وتدريب وظيفي مميزة مقدمة من شركاء مكتب تدريب الخريجين.'), 115) }}

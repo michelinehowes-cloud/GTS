@@ -2096,12 +2096,7 @@
                                             <span>استكشف المعرض والشركات</span>
                                             <i class="fas fa-arrow-left small"></i>
                                         </a>
-                                        @if($fair->registration_open)
-                                            <a href="{{ route('job-fair.public', $fair->id) }}#register"
-                                                class="btn btn-outline-hero rounded-pill px-4 py-2.5">
-                                                <i class="fas fa-ticket-alt me-1.5"></i>حجز بطاقة المعرض
-                                            </a>
-                                        @else
+                                        @if(!$fair->registration_open)
                                             <span class="badge rounded-pill px-3 py-2 text-white-50"
                                                 style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.25);">
                                                 <i class="fas fa-clock me-1 text-warning"></i>التسجيل متاح قريباً

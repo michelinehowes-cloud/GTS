@@ -393,7 +393,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: 
+            background:
                 radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.15) 0%, transparent 55%),
                 radial-gradient(circle at 15% 85%, rgba(245, 158, 11, 0.14) 0%, transparent 50%),
                 radial-gradient(circle at 50% 50%, rgba(30, 136, 229, 0.12) 0%, transparent 60%);
@@ -653,15 +653,18 @@
                 padding: 125px 0 90px;
                 text-align: center;
             }
+
             .hero-description {
                 margin-left: auto;
                 margin-right: auto;
             }
+
             .hero-trust-bar {
                 justify-content: center;
                 gap: 1rem;
                 font-size: 0.82rem;
             }
+
             .hero-showcase-card {
                 max-width: 480px;
                 margin: 2.5rem auto 0;
@@ -673,10 +676,12 @@
             .hero-section {
                 padding: 120px 0 80px;
             }
+
             .hero-spotlight-desc {
                 font-size: 1rem;
                 margin-bottom: 1.6rem;
             }
+
             .hero-spotlight-trust {
                 gap: 0.8rem;
                 font-size: 0.78rem;
@@ -3007,32 +3012,18 @@
 
                 <!-- العمود الأيمن: العناوين، النبذة، وأزرار الإجراءات -->
                 <div class="col-lg-7 col-xl-7">
-                    
-                    <!-- الكبسولة الترحيبية -->
-                    <div class="mb-3" data-aos="fade-down" data-aos-delay="100">
-                        <div class="hero-capsule">
-                            <span class="hero-live-dot"></span>
-                            <i class="fas fa-university text-warning"></i>
-                            <span>جامعة طرابلس — المنصة المعتمدة لتدريب وتأهيل الخريجين</span>
-                        </div>
-                    </div>
 
-                    <!-- العنوان الرئيسي مع السطر الفرعي الذهبي -->
-                    <h1 class="hero-main-title" data-aos="fade-up" data-aos-delay="150">
-                        مكتب تدريب الخريجين
-                        <span class="hero-subline">بوابتكم الأكاديمية نحو التميز وسوق العمل</span>
+                    <!-- العنوان الرئيسي -->
+                    <h1 class="hero-main-title mb-4" data-aos="fade-up" data-aos-delay="150">
+                        منصة مكتب تدريب الخريجين
                     </h1>
 
-                    <!-- نبذة تعريفية واضحة وهادئة -->
-                    <p class="hero-description" data-aos="fade-up" data-aos-delay="200">
-                        المنظومة الرسمية المعتمدة لتمكين وتأهيل خريجي جامعة طرابلس، وتطوير المهارات الاحترافية، وربط الكفاءات الوطنية مباشرةً بمسارات التوظيف والشراكات الواعدة مع كبرى المؤسسات.
-                    </p>
+
 
                     <!-- أزرار الإجراءات -->
                     <div class="d-flex align-items-center gap-3 flex-wrap mb-4" data-aos="fade-up" data-aos-delay="250">
                         @auth
-                            <a href="{{ route('dashboard') }}"
-                                class="btn btn-gold btn-lg d-flex align-items-center gap-2">
+                            <a href="{{ route('dashboard') }}" class="btn btn-gold btn-lg d-flex align-items-center gap-2">
                                 <i class="fas fa-th-large"></i>
                                 <span>الانتقال للوحة التحكم</span>
                                 <i class="fas fa-arrow-left ms-1 small"></i>
@@ -3056,11 +3047,6 @@
                     </div>
 
                     <!-- سطر مؤشرات الثقة تحت الأزرار -->
-                    <div class="hero-trust-bar" data-aos="fade-up" data-aos-delay="300">
-                        <span><i class="fas fa-check-circle text-warning"></i> شهادات معتمدة برمز QR</span>
-                        <span><i class="fas fa-shield-alt text-info"></i> إشراف أكاديمي مباشر</span>
-                        <span><i class="fas fa-handshake text-success"></i> شراكات توظيف مستدامة</span>
-                    </div>
 
                 </div>
 
@@ -3070,44 +3056,41 @@
 
                         <!-- رأس البطاقة: الشعار والعناوين الرسمية -->
                         <div class="showcase-card-header">
-                            <img src="{{ asset('images/logo.jpg') }}" alt="شعار جامعة طرابلس" class="showcase-logo" onerror="this.onerror=null;">
+                            <img src="{{ asset('images/logo.jpg') }}" alt="شعار جامعة طرابلس" class="showcase-logo"
+                                onerror="this.onerror=null;">
                             <div class="showcase-titles">
-                                <h4>جامعة طرابلس</h4>
-                                <p>مكتب تدريب وتأهيل الخريجين</p>
-                                <span class="showcase-badge-verified">
-                                    <i class="fas fa-check-circle"></i>
-                                    منظومة رسمية معتمدة
-                                </span>
+                                <h4>مكتب تدريب وتأهيل الخريجين
+                                </h4>
+
                             </div>
                         </div>
 
-                        <!-- قائمة الخدمات والمزايا الأكاديمية (هادئة وبدون أي دوشة) -->
+                        <!-- قائمة الخدمات والمزايا الأكاديمية  -->
                         <ul class="showcase-feature-list">
                             <li class="showcase-feature-item">
-                                <div class="showcase-feature-icon" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">
+                                <div class="showcase-feature-icon"
+                                    style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">
                                     <i class="fas fa-user-graduate"></i>
                                 </div>
-                                <span>مسارات تدريب وتأهيل مهني معتمدة</span>
+                                <span>مسارات تدريب وتأهيل مهني </span>
                             </li>
                             <li class="showcase-feature-item">
-                                <div class="showcase-feature-icon" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd;">
+                                <div class="showcase-feature-icon"
+                                    style="background: rgba(59, 130, 246, 0.2); color: #93c5fd;">
                                     <i class="fas fa-certificate"></i>
                                 </div>
-                                <span>إصدار شهادات رقمية موثقة برمز QR</span>
+                                <span>إصدار شهادات رقمية </span>
                             </li>
                             <li class="showcase-feature-item">
-                                <div class="showcase-feature-icon" style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7;">
+                                <div class="showcase-feature-icon"
+                                    style="background: rgba(16, 185, 129, 0.2); color: #6ee7b7;">
                                     <i class="fas fa-briefcase"></i>
                                 </div>
-                                <span>تشبيك مباشر مع كبرى الشركات والمؤسسات</span>
+                                <span>تشبيك مع كبرى الشركات والمؤسسات</span>
                             </li>
                         </ul>
 
-                        <!-- تذييل البطاقة الهادئ -->
-                        <div class="showcase-card-footer">
-                            <span><i class="fas fa-university text-warning me-1"></i> الإدارة العامة لجامعة طرابلس</span>
-                            <span class="text-white-50">بوابة الخريج الموحدة</span>
-                        </div>
+
 
                     </div>
                 </div>

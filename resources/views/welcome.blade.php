@@ -538,10 +538,12 @@
         .card_box.ribbon-blue .card_ribbon::before {
             background-image: linear-gradient(45deg, #1d4ed8 0%, #38bdf8 51%, #1e40af 100%);
         }
+
         .card_box.ribbon-blue .card_ribbon::after {
             background-image: linear-gradient(45deg, #1e40af 0%, #38bdf8 51%, #1e40af 100%);
             box-shadow: 122px -122px #1e3a8a;
         }
+
         .card_box.ribbon-blue:hover {
             border-color: rgba(56, 189, 248, 0.5);
             box-shadow: 0 28px 55px rgba(29, 78, 216, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
@@ -551,10 +553,12 @@
         .card_box.ribbon-emerald .card_ribbon::before {
             background-image: linear-gradient(45deg, #059669 0%, #34d399 51%, #047857 100%);
         }
+
         .card_box.ribbon-emerald .card_ribbon::after {
             background-image: linear-gradient(45deg, #047857 0%, #34d399 51%, #047857 100%);
             box-shadow: 122px -122px #064e3b;
         }
+
         .card_box.ribbon-emerald:hover {
             border-color: rgba(52, 211, 153, 0.5);
             box-shadow: 0 28px 55px rgba(5, 150, 105, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
@@ -564,26 +568,33 @@
         .card_box.ribbon-gold .card_ribbon::before {
             background-image: linear-gradient(45deg, #d97706 0%, #fbbf24 51%, #b45309 100%);
         }
+
         .card_box.ribbon-gold .card_ribbon::after {
             background-image: linear-gradient(45deg, #b45309 0%, #fbbf24 51%, #b45309 100%);
             box-shadow: 122px -122px #78350f;
         }
+
         .card_box.ribbon-gold:hover {
             border-color: rgba(251, 191, 36, 0.55);
             box-shadow: 0 28px 55px rgba(217, 119, 6, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
         }
 
-        /* 4. Job Opportunities - Platform Royal Purple */
+        /* 4. Job Opportunities - Platform Cyan / Sky Blue */
+        .card_box.ribbon-cyan .card_ribbon::before,
         .card_box.ribbon-purple .card_ribbon::before {
-            background-image: linear-gradient(45deg, #7c3aed 0%, #c084fc 51%, #6d28d9 100%);
+            background-image: linear-gradient(45deg, #0284c7 0%, #38bdf8 51%, #0369a1 100%);
         }
+
+        .card_box.ribbon-cyan .card_ribbon::after,
         .card_box.ribbon-purple .card_ribbon::after {
-            background-image: linear-gradient(45deg, #6d28d9 0%, #c084fc 51%, #6d28d9 100%);
-            box-shadow: 122px -122px #4c1d95;
+            background-image: linear-gradient(45deg, #0369a1 0%, #38bdf8 51%, #0369a1 100%);
+            box-shadow: 122px -122px #0c4a6e;
         }
+
+        .card_box.ribbon-cyan:hover,
         .card_box.ribbon-purple:hover {
-            border-color: rgba(192, 132, 252, 0.55);
-            box-shadow: 0 28px 55px rgba(124, 58, 237, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            border-color: rgba(56, 189, 248, 0.55);
+            box-shadow: 0 28px 55px rgba(2, 132, 199, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
         }
 
         /* Card Content Inner Elements */
@@ -642,24 +653,30 @@
                 min-height: 200px;
                 padding: 1.4rem 0.8rem 1rem;
             }
+
             .card_box .stat-box-num {
                 font-size: 2.1rem;
             }
+
             .card_box .stat-box-title {
                 font-size: 0.84rem;
             }
+
             .card_box .stat-box-sub {
                 font-size: 0.7rem;
             }
+
             .card_box .card_ribbon {
                 width: 105px;
                 height: 105px;
             }
+
             .card_box .card_ribbon::before {
                 height: 28px;
                 font-size: 0.68rem;
                 transform: rotate(-45deg) translateY(-14px);
             }
+
             .card_box .card_ribbon::after {
                 box-shadow: 98px -98px #1e3a8a;
             }
@@ -2824,7 +2841,7 @@
                                     'graduates' => 'ribbon-blue',
                                     'companies' => 'ribbon-emerald',
                                     'trainings' => 'ribbon-gold',
-                                    'opportunities' => 'ribbon-purple',
+                                    'opportunities' => 'ribbon-cyan',
                                     default => 'ribbon-blue',
                                 };
                                 $ribbonText = match ($key) {
@@ -2852,14 +2869,14 @@
                                     'graduates' => '#38bdf8',
                                     'companies' => '#34d399',
                                     'trainings' => '#fbbf24',
-                                    'opportunities' => '#c084fc',
+                                    'opportunities' => '#38bdf8',
                                     default => '#38bdf8',
                                 };
                                 $iconBg = match ($key) {
                                     'graduates' => 'rgba(37, 99, 235, 0.22)',
                                     'companies' => 'rgba(16, 185, 129, 0.22)',
                                     'trainings' => 'rgba(245, 158, 11, 0.22)',
-                                    'opportunities' => 'rgba(139, 92, 246, 0.22)',
+                                    'opportunities' => 'rgba(2, 132, 199, 0.22)',
                                     default => 'rgba(37, 99, 235, 0.22)',
                                 };
                                 $cardIcon = $card['icon'] ?? match ($key) {
@@ -2903,7 +2920,9 @@
                             <div class="stat-icon-wrap" style="background: rgba(37, 99, 235, 0.22); color: #38bdf8;">
                                 <i class="fas fa-user-graduate"></i>
                             </div>
-                            <div class="stat-box-num" dir="ltr">+{{ number_format(($stats['graduates_count'] ?? 0) > 0 ? $stats['graduates_count'] : 69) }}</div>
+                            <div class="stat-box-num" dir="ltr">
+                                +{{ number_format(($stats['graduates_count'] ?? 0) > 0 ? $stats['graduates_count'] : 69) }}
+                            </div>
                             <div class="stat-box-title">خريج مسجل ومعتمد</div>
                             <div class="stat-box-sub">
                                 <i class="fas fa-arrow-trend-up" style="color: #38bdf8; font-size: 0.72rem;"></i>
@@ -2919,7 +2938,8 @@
                             <div class="stat-icon-wrap" style="background: rgba(16, 185, 129, 0.22); color: #34d399;">
                                 <i class="fas fa-building"></i>
                             </div>
-                            <div class="stat-box-num" dir="ltr">+{{ number_format(($stats['companies_count'] ?? 0) > 0 ? $stats['companies_count'] : 4) }}</div>
+                            <div class="stat-box-num" dir="ltr">
+                                +{{ number_format(($stats['companies_count'] ?? 0) > 0 ? $stats['companies_count'] : 4) }}</div>
                             <div class="stat-box-title">شركة ومؤسسة شريكة</div>
                             <div class="stat-box-sub">
                                 <i class="fas fa-handshake" style="color: #34d399; font-size: 0.72rem;"></i>
@@ -2935,7 +2955,9 @@
                             <div class="stat-icon-wrap" style="background: rgba(245, 158, 11, 0.22); color: #fbbf24;">
                                 <i class="fas fa-chalkboard-teacher"></i>
                             </div>
-                            <div class="stat-box-num" dir="ltr">+{{ number_format(($stats['trainings_count'] ?? 0) > 0 ? $stats['trainings_count'] : 35) }}</div>
+                            <div class="stat-box-num" dir="ltr">
+                                +{{ number_format(($stats['trainings_count'] ?? 0) > 0 ? $stats['trainings_count'] : 35) }}
+                            </div>
                             <div class="stat-box-title">برنامج تدريبي وتأهيلي</div>
                             <div class="stat-box-sub">
                                 <i class="fas fa-chart-line" style="color: #fbbf24; font-size: 0.72rem;"></i>
@@ -2946,15 +2968,17 @@
 
                     <!-- البطاقة 4: فرصة عمل وترشيح -->
                     <div class="col-6 col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
-                        <div class="card_box ribbon-purple">
+                        <div class="card_box ribbon-cyan">
                             <span class="card_ribbon" data-ribbon="نشط الآن"></span>
-                            <div class="stat-icon-wrap" style="background: rgba(139, 92, 246, 0.22); color: #60a5fa
+                            <div class="stat-icon-wrap" style="background: rgba(2, 132, 199, 0.22); color: #38bdf8;">
                                 <i class="fas fa-briefcase"></i>
                             </div>
-                            <div class="stat-box-num" dir="ltr">+{{ number_format(($stats['opportunities_count'] ?? 0) > 0 ? $stats['opportunities_count'] : 10) }}</div>
+                            <div class="stat-box-num" dir="ltr">
+                                +{{ number_format(($stats['opportunities_count'] ?? 0) > 0 ? $stats['opportunities_count'] : 10) }}
+                            </div>
                             <div class="stat-box-title">فرصة عمل وترشيح</div>
                             <div class="stat-box-sub">
-                                <i class="fas fa-bullseye" style="color: #c084fc; font-size: 0.72rem;"></i>
+                                <i class="fas fa-bullseye" style="color: #38bdf8; font-size: 0.72rem;"></i>
                                 <span>ربط مباشر بسوق العمل</span>
                             </div>
                         </div>
@@ -3868,7 +3892,7 @@
             <div
                 class="border-top border-secondary pt-4 mt-2 text-center text-white-50 small d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <span>© {{ date('Y') }} جامعة طرابلس — جميع الحقوق محفوظة لمكتب تدريب الخريجين.</span>
-                <span class="text-warning">منصة الخريجين وسوق العمل</span>
+                <span class="text-warning">منصة مكتب تدريب الخريجين</span>
             </div>
         </div>
     </footer>

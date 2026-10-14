@@ -733,6 +733,8 @@
     @auth
         @include('components.ai-assistant-widget')
     @endauth
+
+    @include('partials.loading-wave-overlay')
 </body>
 
 </html>

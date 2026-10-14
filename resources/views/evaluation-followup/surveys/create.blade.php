@@ -233,7 +233,7 @@
                             </li>
                             <li class="nav-item">
                                 <button class="nav-link rounded-pill px-3 py-2 fw-bold" id="tab-events-btn" data-bs-toggle="pill" data-bs-target="#tab-events" type="button">
-                                    <i class="fas fa-calendar-star me-1 text-warning"></i> المعارض والفعاليات
+                                    <i class="fas fa-calendar-alt me-1 text-warning"></i> المعارض والفعاليات
                                 </button>
                             </li>
                             <li class="nav-item">

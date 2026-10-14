@@ -2,6 +2,103 @@
 
 @section('title', 'الفعاليات و المعارض')
 
+@push('styles')
+<style>
+    /* تصحيح مظهر وألوان أزرار التبويبات لمنع اختفاء النصوص */
+    #fairsTabs {
+        border-bottom: none !important;
+    }
+    #fairsTabs .nav-item {
+        margin: 0 !important;
+    }
+    #fairsTabs .nav-link {
+        color: #1e293b !important;
+        background-color: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        font-weight: 700 !important;
+        font-size: 0.92rem !important;
+        padding: 0.65rem 1.4rem !important;
+        border-radius: 50rem !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+        transition: all 0.25s ease !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        margin: 0 !important;
+        transform: none !important;
+        cursor: pointer;
+    }
+    #fairsTabs .nav-link:hover {
+        background-color: #f1f5f9 !important;
+        color: #0d3882 !important;
+        border-color: #cbd5e1 !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08) !important;
+    }
+    #fairsTabs .nav-link.active {
+        background: linear-gradient(135deg, #0d3882 0%, #1565c0 100%) !important;
+        color: #ffffff !important;
+        border-color: #0d3882 !important;
+        box-shadow: 0 6px 18px rgba(13, 56, 130, 0.28) !important;
+        transform: translateY(-2px) !important;
+    }
+    #fairsTabs .nav-link.active i {
+        color: #fbbf24 !important;
+    }
+
+    /* أزرار فلترة ورش العمل والجلسات */
+    .event-filter-btn {
+        color: #334155 !important;
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        font-weight: 600 !important;
+        transition: all 0.2s ease !important;
+    }
+    .event-filter-btn:hover {
+        background-color: #eff6ff !important;
+        color: #0d3882 !important;
+        border-color: #93c5fd !important;
+    }
+    .event-filter-btn.active {
+        background-color: #0d3882 !important;
+        color: #ffffff !important;
+        border-color: #0d3882 !important;
+        box-shadow: 0 4px 10px rgba(13, 56, 130, 0.2) !important;
+    }
+
+    /* الوضع المظلم */
+    html[data-theme='dark'] #fairsTabs .nav-link,
+    html[data-bs-theme='dark'] #fairsTabs .nav-link {
+        background-color: #1e293b !important;
+        color: #f1f5f9 !important;
+        border-color: #334155 !important;
+    }
+    html[data-theme='dark'] #fairsTabs .nav-link:hover,
+    html[data-bs-theme='dark'] #fairsTabs .nav-link:hover {
+        background-color: #334155 !important;
+        color: #ffffff !important;
+    }
+    html[data-theme='dark'] #fairsTabs .nav-link.active,
+    html[data-bs-theme='dark'] #fairsTabs .nav-link.active {
+        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
+        color: #ffffff !important;
+        border-color: #3b82f6 !important;
+    }
+    html[data-theme='dark'] .event-filter-btn,
+    html[data-bs-theme='dark'] .event-filter-btn {
+        background-color: #1e293b !important;
+        color: #cbd5e1 !important;
+        border-color: #334155 !important;
+    }
+    html[data-theme='dark'] .event-filter-btn.active,
+    html[data-bs-theme='dark'] .event-filter-btn.active {
+        background-color: #2563eb !important;
+        color: #ffffff !important;
+        border-color: #3b82f6 !important;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid px-2 px-md-3">
 
@@ -9,7 +106,7 @@
     <x-page-hero
         title="الفعاليات و المعارض"
         subtitle="استكشف المعارض والملتقيات المهنية والفعاليات والورش العلمية وسجّل حضورك فيها مباشرة"
-        icon="fas fa-calendar-star"
+        icon="fas fa-calendar-alt"
         :breadcrumbs="[
             ['label' => 'منصة الخريجين', 'url' => route('graduate.dashboard')],
             ['label' => 'الفعاليات و المعارض']
@@ -82,7 +179,7 @@
     <ul class="nav nav-pills mb-4 gap-2 flex-wrap" id="fairsTabs" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active fw-bold px-4 py-2.5 rounded-pill shadow-sm" id="fairs-list-tab" data-bs-toggle="pill" data-bs-target="#fairs-list" type="button" role="tab" aria-controls="fairs-list" aria-selected="true">
-                <i class="fas fa-calendar-star me-1.5 text-warning"></i>
+                <i class="fas fa-building me-1.5 text-warning"></i>
                 المعارض المهنية المتاحة ({{ $fairs->count() }})
             </button>
         </li>

@@ -1723,7 +1723,7 @@
                     <div class="text-center mb-4" data-aos="fade-up">
                         <div class="d-inline-flex align-items-center gap-2 px-3.5 py-1.5 rounded-pill mb-2 shadow-xs"
                             style="background: rgba(13, 56, 130, 0.08); border: 1px solid rgba(13, 56, 130, 0.18);">
-                            <i class="fas fa-calendar-star text-primary"></i>
+                            <i class="fas fa-calendar-alt text-primary"></i>
                             <span class="text-primary fw-bold small">الفعاليات والمعارض المعتمدة — جامعة طرابلس</span>
                         </div>
                         <h2 class="display-6 fw-bold text-dark mb-2">الفعاليات والمعارض النشطة</h2>

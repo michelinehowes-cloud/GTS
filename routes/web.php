@@ -764,6 +764,11 @@ Route::middleware(['auth'])->prefix('graduate')->name('graduate.')->group(functi
     // مسح الباركود للشركة
     Route::get('/job-fairs/{fair}/company/{company}/scan', [App\Http\Controllers\GraduateJobFairController::class, 'scanCompanyQr'])->name('job-fairs.company.scan');
 
+    // الفعاليات والمعارض
+    Route::get('/events-and-fairs', [App\Http\Controllers\GraduateJobFairController::class, 'index'])->name('job-fairs.index');
+    Route::get('/job-fairs', [App\Http\Controllers\GraduateJobFairController::class, 'index'])->name('job-fairs');
+    Route::delete('/job-fairs/{fair}/cancel', [App\Http\Controllers\GraduateJobFairController::class, 'cancelRegistration'])->name('job-fairs.cancel');
+
     // فرص العمل
     Route::get('/job-opportunities', [App\Http\Controllers\GraduateJobController::class, 'index'])->name('job-opportunities.index');
     Route::get('/jobs', [App\Http\Controllers\GraduateJobController::class, 'index'])->name('jobs.index');
@@ -893,6 +898,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin/job-fair')->name('job-fair.a
     Route::post('/{fair}/toggle-feature', [App\Http\Controllers\JobFairController::class, 'toggleFeature'])->name('toggle-feature');
     Route::post('/{fair}/companies', [App\Http\Controllers\JobFairController::class, 'addCompany'])->name('add-company');
     Route::delete('/{fair}/companies/{company}', [App\Http\Controllers\JobFairController::class, 'removeCompany'])->name('remove-company');
+    Route::delete('/{fair}/registrations/{registration}', [App\Http\Controllers\JobFairController::class, 'destroyRegistration'])->name('registrations.destroy');
     Route::get('/{fair}/export', [App\Http\Controllers\JobFairController::class, 'exportRegistrations'])->name('export');
     Route::get('/{fair}/export-recruitment-excel', [App\Http\Controllers\JobFairController::class, 'exportRecruitmentExcel'])->name('export-recruitment-excel');
     Route::get('/{fair}/attendance', [App\Http\Controllers\JobFairController::class, 'attendancePage'])->name('attendance');

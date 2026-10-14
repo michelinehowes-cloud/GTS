@@ -400,6 +400,7 @@
                                 <th class="py-2 border-0 small fw-bold">التخصص</th>
                                 <th class="py-2 border-0 small fw-bold">الحضور</th>
                                 <th class="py-2 border-0 text-center small fw-bold">البطاقة</th>
+                                <th class="py-2 border-0 text-center small fw-bold">إجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -419,6 +420,15 @@
                                     <a href="{{ route('job-fair.my-ticket', $reg->id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-2 py-1" target="_blank" style="font-size: 0.75rem;">
                                         <i class="fas fa-ticket-alt me-1"></i>عرض
                                     </a>
+                                </td>
+                                <td class="text-center">
+                                    <form action="{{ route('job-fair.admin.registrations.destroy', [$fair->id, $reg->id]) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف تسجيل الخريج «{{ $reg->graduate->name }}» من هذا المعرض؟ سيتم أيضاً إلغاء تسجيله في ورش العمل المرتبطة بهذا المعرض.');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-1" style="font-size: 0.75rem;" title="حذف تسجيل الخريج">
+                                            <i class="fas fa-trash-alt me-1"></i>حذف
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             @endforeach
@@ -440,13 +450,23 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center text-muted small mt-2">
                             <span><i class="fas fa-graduation-cap me-1"></i>{{ $reg->graduate->major ?? '—' }}</span>
-                            <a href="{{ route('job-fair.my-ticket', $reg->id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0" target="_blank" style="font-size: 0.75rem;">
-                                <i class="fas fa-ticket-alt me-1"></i>التذكرة
-                            </a>
+                            <div class="d-flex gap-1 align-items-center">
+                                <a href="{{ route('job-fair.my-ticket', $reg->id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0" target="_blank" style="font-size: 0.75rem;">
+                                    <i class="fas fa-ticket-alt me-1"></i>التذكرة
+                                </a>
+                                <form action="{{ route('job-fair.admin.registrations.destroy', [$fair->id, $reg->id]) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف تسجيل الخريج «{{ $reg->graduate->name }}»؟');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-0" style="font-size: 0.75rem;" title="حذف">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                     @endforeach
                 </div>
+
 
                 @if(method_exists($registrations, 'links'))
                     <div class="mt-3 d-flex justify-content-center">

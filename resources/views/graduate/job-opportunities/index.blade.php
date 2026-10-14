@@ -26,45 +26,6 @@
         </a>
     </x-page-hero>
 
-    <!-- بطاقة دعوة لمعرض التوظيف (إن وجد) -->
-    @php
-        $upcomingFair = \App\Models\JobFair::where('status', 'published')
-                            ->where('registration_open', true)
-                            ->where('event_date', '>=', now()->startOfDay())
-                            ->orderBy('event_date', 'asc')
-                            ->first();
-        
-        $isRegistered = false;
-        if ($upcomingFair) {
-            $isRegistered = \App\Models\JobFairRegistration::where('user_id', auth()->id())
-                            ->where('job_fair_id', $upcomingFair->id)
-                            ->exists();
-        }
-    @endphp
-
-    @if($upcomingFair && !$isRegistered)
-        <div class="card-modern mb-4 p-4 border-start border-4 border-primary">
-            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-                <div>
-                    <span class="badge bg-light text-warning border border-warning rounded-pill px-3 py-1 fw-bold mb-2">
-                        <i class="fas fa-star me-1"></i> حدث قادم
-                    </span>
-                    <h4 class="fw-bold text-dark mb-2">{{ $upcomingFair->title }}</h4>
-                    <div class="d-flex flex-wrap gap-3 text-muted small">
-                        <div><i class="fas fa-calendar-alt me-1 text-primary"></i> {{ \Carbon\Carbon::parse($upcomingFair->event_date)->format('Y-m-d') }}</div>
-                        <div><i class="fas fa-map-marker-alt me-1 text-danger"></i> {{ $upcomingFair->location }}</div>
-                    </div>
-                </div>
-                <div class="text-md-end">
-                    <a href="{{ route('job-fair.public') }}" class="btn btn-primary-modern px-4 py-2">
-                        سجّل الآن في المعرض <i class="fas fa-arrow-left ms-1"></i>
-                    </a>
-                    <div class="text-muted small mt-1">حضور المعرض يتيح لك التواصل المباشر مع الشركات</div>
-                </div>
-            </div>
-        </div>
-    @endif
-
     <!-- البحث والتصفية -->
     <div class="card-modern mb-4">
         <div class="card-header bg-white py-3 border-bottom">

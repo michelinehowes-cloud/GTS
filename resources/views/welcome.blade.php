@@ -2033,16 +2033,16 @@
             -webkit-backdrop-filter: blur(40px);
             border-radius: 0px 2.5rem;
             background-image: radial-gradient(#07172c 0%, #030a16 100%),
-                linear-gradient(35deg, #0d3882 0%, #1565c0 45%, #f59e0b 80%, #38bdf8 100%);
+                linear-gradient(135deg, #1565c0 0%, #0d3882 50%, #1565c0 100%);
             background-origin: border-box;
             background-clip: content-box, border-box;
-            box-shadow: 0 20px 50px rgba(5, 17, 34, 0.45), 0 0 35px rgba(21, 101, 192, 0.25), 0 0 20px rgba(245, 158, 11, 0.2);
+            box-shadow: 0 20px 50px rgba(5, 17, 34, 0.45), 0 0 35px rgba(21, 101, 192, 0.45), 0 0 15px rgba(21, 101, 192, 0.3);
             transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             animation: goals_screen_pulse 4s ease-in-out infinite;
         }
 
         .goals-hud-screen-border:hover {
-            box-shadow: 0 25px 60px rgba(5, 17, 34, 0.55), 0 0 45px rgba(21, 101, 192, 0.4), 0 0 30px rgba(245, 158, 11, 0.35);
+            box-shadow: 0 25px 60px rgba(5, 17, 34, 0.55), 0 0 45px rgba(21, 101, 192, 0.65), 0 0 25px rgba(21, 101, 192, 0.45);
             transform: translateY(-4px);
         }
 
@@ -2093,43 +2093,32 @@
             gap: 14px;
         }
 
-        /* شعار الشاشة الدوار المضلع Conic Logo */
-        .hud-logo-container {
+        /* إطار شعار المكتب الدائري الفاخر بدلاً من الشكل السداسي */
+        .hud-office-logo-frame {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #ffffff;
+            padding: 2px;
+            border: 2.5px solid #1565c0;
+            box-shadow: 0 0 16px rgba(21, 101, 192, 0.5), 0 4px 10px rgba(0, 0, 0, 0.25);
             display: flex;
-            position: relative;
-            width: 3.4rem;
-            height: 3rem;
             align-items: center;
             justify-content: center;
-            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-            filter: drop-shadow(0 2px 8px rgba(245, 158, 11, 0.35));
             flex-shrink: 0;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
         }
 
-        .hud-logo-spin {
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(#0d3882 0%, #fff 15%, #f59e0b 35%, #1565c0 55%, #38bdf8 75%, #d97706 90%, #0d3882 100%);
-            animation: hud_spin 6s linear infinite;
+        .hud-office-logo-frame:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 25px rgba(21, 101, 192, 0.75), 0 6px 14px rgba(0, 0, 0, 0.35);
         }
 
-        .hud-logo-inside {
-            display: flex;
-            width: 86%;
-            height: 86%;
-            align-items: center;
-            justify-content: center;
-            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-            background-color: #06152b;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hud-logo-inside i {
-            color: #f59e0b;
-            font-size: 1.15rem;
-            filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+        .hud-office-logo-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
         }
 
         .goals-screen-title-area h3 {
@@ -2442,15 +2431,15 @@
 
         @keyframes goals_screen_pulse {
             0% {
-                box-shadow: 0 20px 50px rgba(5, 17, 34, 0.45), 0 0 25px rgba(21, 101, 192, 0.25), 0 0 15px rgba(245, 158, 11, 0.18);
+                box-shadow: 0 20px 50px rgba(5, 17, 34, 0.45), 0 0 25px rgba(21, 101, 192, 0.35), 0 0 10px rgba(21, 101, 192, 0.2);
             }
 
             50% {
-                box-shadow: 0 25px 60px rgba(5, 17, 34, 0.55), 0 0 38px rgba(21, 101, 192, 0.38), 0 0 26px rgba(245, 158, 11, 0.3);
+                box-shadow: 0 25px 60px rgba(5, 17, 34, 0.55), 0 0 38px rgba(21, 101, 192, 0.55), 0 0 20px rgba(21, 101, 192, 0.35);
             }
 
             100% {
-                box-shadow: 0 20px 50px rgba(5, 17, 34, 0.45), 0 0 25px rgba(21, 101, 192, 0.25), 0 0 15px rgba(245, 158, 11, 0.18);
+                box-shadow: 0 20px 50px rgba(5, 17, 34, 0.45), 0 0 25px rgba(21, 101, 192, 0.35), 0 0 10px rgba(21, 101, 192, 0.2);
             }
         }
 
@@ -3387,21 +3376,18 @@
             <div class="goals-hud-screen-border" data-aos="zoom-in-up" data-aos-duration="800">
                 <div class="goals-hud-screen-bg">
 
-                    <!-- الترويسة العلوية للشاشة مع الشعار الدوار المضلع -->
+                    <!-- الترويسة العلوية للشاشة مع شعار المكتب الرسمي -->
                     <div class="goals-screen-header">
                         <div class="goals-screen-badge-box">
-                            <div class="hud-logo-container">
-                                <div class="hud-logo-spin"></div>
-                                <div class="hud-logo-inside">
-                                    <i class="fas fa-bullseye"></i>
-                                </div>
+                            <div class="hud-office-logo-frame">
+                                <img src="{{ asset('images/gto_logo.jpg') }}" alt="شعار مكتب تدريب الخريجين" class="hud-office-logo-img" onerror="this.src='{{ asset('images/logo.jpg') }}'">
                             </div>
                             <div class="goals-screen-title-area">
                                 <h3>
-                                    <span>نهدف الى </span>
-                                    <i class="fas fa-shield-alt text-warning fs-6"></i>
+                                    <span>نهدف إلى</span>
+                                    <i class="fas fa-bullseye text-primary ms-1 fs-6"></i>
                                 </h3>
-                                <p>مكتب تدريب الخريجين </p>
+                                <p>مكتب تدريب الخريجين • جامعة طرابلس</p>
                             </div>
                         </div>
 
@@ -3416,10 +3402,10 @@
                     <!-- شريط الماركيه المتحرك في الخلفية (Marquee Text) -->
                     <div class="goals-hud-marquee">
                         <div class="goals-hud-marquee-inner" aria-hidden="true">
+                            <span class="goals-hud-giant-text">GRADUATE TRAINING OFFICE • UNIVERSITY OF TRIPOLI •
+                                مكتب تدريب الخريجين • </span>
                             <span class="goals-hud-giant-text">GRADUATE TRAINING OFFICE • UNIVERSITY OF TRIPOLI • أهداف
-                                التميز والريادة • </span>
-                            <span class="goals-hud-giant-text">GRADUATE TRAINING OFFICE • UNIVERSITY OF TRIPOLI • أهداف
-                                التميز والريادة • </span>
+                                • </span>
                         </div>
                     </div>
 

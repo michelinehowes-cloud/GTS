@@ -1405,7 +1405,7 @@
             font-size: 2.1rem;
             font-weight: 900;
             color: #ffffff;
-            font-family: monospace;
+            font-family: 'Tajawal', sans-serif;
             line-height: 1;
             text-shadow: 0 2px 10px rgba(245, 158, 11, 0.35);
         }

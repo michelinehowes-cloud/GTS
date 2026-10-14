@@ -101,8 +101,19 @@
                             </span>
                             <h5 class="card-title-main" title="{{ $job->title }}">{{ $job->title }}</h5>
                             <div class="plain">
-                                <span>{{ $contractLabel }}</span>
-                                <span>{{ $job->jobFair ? 'ملتقى التوظيف' : 'شراكات سوق العمل' }}</span>
+                                <span class="badge-contract">
+                                    <i class="fas fa-clock text-primary me-1"></i> {{ $contractLabel }}
+                                </span>
+                                @if($job->seats)
+                                    <span class="badge-seats">
+                                        <i class="fas fa-users text-success me-1"></i> {{ $job->seats }} {{ $job->seats > 2 && $job->seats < 11 ? 'شواغر' : 'شاغر' }}
+                                    </span>
+                                @else
+                                    <span class="badge-source">
+                                        <i class="fas {{ $job->jobFair ? 'fa-handshake text-warning' : 'fa-check-circle text-info' }} me-1"></i>
+                                        {{ $job->jobFair ? 'ملتقى التوظيف' : 'شراكات سوق العمل' }}
+                                    </span>
+                                @endif
                             </div>
                             <p class="description">
                                 {{ Str::limit(strip_tags($job->description ?: 'فرصة عمل وتدريب وظيفي مميزة مقدمة من شركاء مكتب تدريب الخريجين.'), 115) }}
@@ -234,29 +245,56 @@
 
 .uiverse-train-card .card-content .plain {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 8px;
     margin: 0;
-    padding-bottom: 6px;
+    padding-bottom: 8px;
     border-bottom: 1px dashed #e2e8f0;
+    flex-wrap: wrap;
 }
 
+.uiverse-train-card .card-content .plain .badge-contract,
 .uiverse-train-card .card-content .plain :nth-child(1) {
-    font-size: 1.85rem;
-    font-weight: 900;
+    font-size: 0.86rem;
+    font-weight: 800;
     color: #0d3882;
-    font-family: monospace;
-    line-height: 1;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    padding: 4px 10px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    font-family: 'Tajawal', sans-serif;
+    line-height: 1.3;
 }
 
+.uiverse-train-card .card-content .plain .badge-source,
 .uiverse-train-card .card-content .plain :nth-child(2) {
     font-size: 0.82rem;
     font-weight: 700;
     color: #b45309;
     background: #fef3c7;
     border: 1px solid #fde68a;
-    padding: 2px 8px;
-    border-radius: 6px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    font-family: 'Tajawal', sans-serif;
+    line-height: 1.3;
+}
+
+.uiverse-train-card .card-content .plain .badge-seats {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #065f46;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    padding: 4px 10px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    font-family: 'Tajawal', sans-serif;
+    line-height: 1.3;
 }
 
 .uiverse-train-card .card-content .description {
@@ -337,9 +375,27 @@
 .dark-mode .uiverse-train-card .card-title-main {
     color: #ffffff;
 }
+[data-theme="dark"] .uiverse-train-card .plain .badge-contract,
+.dark-mode .uiverse-train-card .plain .badge-contract,
 [data-theme="dark"] .uiverse-train-card .plain :nth-child(1),
 .dark-mode .uiverse-train-card .plain :nth-child(1) {
-    color: #60a5fa;
+    color: #93c5fd;
+    background: rgba(30, 58, 138, 0.4);
+    border-color: rgba(147, 197, 253, 0.3);
+}
+[data-theme="dark"] .uiverse-train-card .plain .badge-source,
+.dark-mode .uiverse-train-card .plain .badge-source,
+[data-theme="dark"] .uiverse-train-card .plain :nth-child(2),
+.dark-mode .uiverse-train-card .plain :nth-child(2) {
+    color: #fcd34d;
+    background: rgba(180, 83, 9, 0.25);
+    border-color: rgba(251, 191, 36, 0.3);
+}
+[data-theme="dark"] .uiverse-train-card .plain .badge-seats,
+.dark-mode .uiverse-train-card .plain .badge-seats {
+    color: #6ee7b7;
+    background: rgba(6, 95, 70, 0.3);
+    border-color: rgba(110, 231, 183, 0.3);
 }
 [data-theme="dark"] .uiverse-train-card .card-meta-pill,
 .dark-mode .uiverse-train-card .card-meta-pill {

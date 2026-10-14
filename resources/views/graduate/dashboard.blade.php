@@ -2,6 +2,437 @@
 
 @section('title', 'لوحة تحكم الخريج')
 
+@push('styles')
+<style>
+    /* تصميم التقويم المعتمد وفق هوية المنظومة FullCalendar v6 */
+    .fc {
+        font-family: '29LT Bukra', 'Cairo', 'Tajawal', sans-serif !important;
+    }
+    .fc .fc-toolbar {
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding-bottom: 0.85rem !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        margin-bottom: 1rem !important;
+    }
+    .fc .fc-toolbar-title {
+        font-size: 1.35rem !important;
+        font-weight: 800 !important;
+        color: #0d3882 !important;
+        letter-spacing: -0.3px;
+    }
+    .fc .fc-button {
+        font-size: 0.84rem !important;
+        font-weight: 700 !important;
+        padding: 0.42rem 0.9rem !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba(13, 56, 130, 0.12) !important;
+        transition: all 0.2s ease !important;
+    }
+    .fc .fc-button-primary {
+        background-color: #0d3882 !important;
+        border-color: #0d3882 !important;
+        color: #ffffff !important;
+    }
+    .fc .fc-button-primary:hover, 
+    .fc .fc-button-primary:focus, 
+    .fc .fc-button-primary.fc-button-active {
+        background-color: #1e40af !important;
+        border-color: #1e40af !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(13, 56, 130, 0.25) !important;
+    }
+    .fc .fc-button-group {
+        border-radius: 8px !important;
+        overflow: hidden;
+    }
+    .fc .fc-button-group > .fc-button {
+        border-radius: 0 !important;
+    }
+    .fc .fc-button-group > .fc-button:first-child {
+        border-top-right-radius: 8px !important;
+        border-bottom-right-radius: 8px !important;
+    }
+    .fc .fc-button-group > .fc-button:last-child {
+        border-top-left-radius: 8px !important;
+        border-bottom-left-radius: 8px !important;
+    }
+
+    /* عناوين الأيام */
+    .fc .fc-col-header-cell {
+        background: #f8fafc !important;
+        padding: 10px 0 !important;
+        border-color: #e2e8f0 !important;
+    }
+    .fc-col-header-cell-cushion {
+        font-size: 0.86rem !important;
+        font-weight: 800 !important;
+        color: #334155 !important;
+        text-decoration: none !important;
+    }
+
+    /* خلايا الأيام */
+    .fc-theme-standard td, .fc-theme-standard th {
+        border-color: #edf2f7 !important;
+    }
+    .fc-daygrid-day-top {
+        padding: 4px 6px !important;
+    }
+    .fc-daygrid-day-number {
+        font-size: 0.88rem !important;
+        font-weight: 700 !important;
+        color: #1e293b !important;
+        padding: 2px 7px !important;
+        text-decoration: none !important;
+        border-radius: 6px;
+    }
+    .fc-day-other .fc-daygrid-day-number {
+        color: #94a3b8 !important;
+        opacity: 0.55;
+    }
+    .fc-day-today {
+        background-color: #eff6ff !important;
+    }
+    .fc-day-today .fc-daygrid-day-number {
+        background-color: #0d3882 !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        box-shadow: 0 2px 6px rgba(13, 56, 130, 0.3);
+    }
+
+    /* كبسولات الفعاليات والتدريبات الحديثة */
+    .fc .fc-daygrid-event {
+        border-radius: 7px !important;
+        padding: 3px 8px !important;
+        margin: 2px 3px !important;
+        font-size: 0.76rem !important;
+        font-weight: 700 !important;
+        border: none !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+        transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+        cursor: pointer;
+    }
+    .fc .fc-daygrid-event:hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18) !important;
+        filter: brightness(1.06);
+    }
+    .fc-h-event {
+        border: none !important;
+    }
+    .fc-event-title {
+        font-weight: 700 !important;
+        font-size: 0.77rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        display: block !important;
+    }
+
+    /* نافذة المزيد للمناسبات المتعددة */
+    .fc .fc-more-popover {
+        border-radius: 12px !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+        border: 1px solid #e2e8f0 !important;
+        overflow: hidden;
+        z-index: 1050;
+    }
+    .fc .fc-more-popover .fc-popover-header {
+        background: #f8fafc !important;
+        font-weight: 700 !important;
+        padding: 8px 12px !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+    }
+
+    /* طريقة عرض القائمة */
+    .fc .fc-list-empty {
+        background: #f8fafc !important;
+        padding: 2rem !important;
+        color: #64748b !important;
+        font-weight: 600 !important;
+    }
+    .fc .fc-list-day-cushion {
+        background: #f1f5f9 !important;
+        color: #0d3882 !important;
+        font-weight: 800 !important;
+        padding: 8px 16px !important;
+    }
+    .fc .fc-list-event:hover td {
+        background-color: #f8fafc !important;
+    }
+
+    @media (max-width: 576px) {
+        .fc .fc-toolbar-title {
+            font-size: 1.15rem !important;
+            width: 100%;
+            text-align: center;
+            order: -1;
+            margin-bottom: 0.25rem !important;
+        }
+        .fc-col-header-cell-cushion {
+            font-size: 0.72rem !important;
+            padding: 3px 0 !important;
+        }
+        .fc-daygrid-day-number {
+            font-size: 0.75rem !important;
+            padding: 2px 4px !important;
+        }
+        .fc-daygrid-event {
+            font-size: 0.70rem !important;
+            padding: 2px 4px !important;
+        }
+    }
+
+    .location-pill {
+        background: #eff6ff;
+        color: #1e40af;
+        border: 1px solid #bfdbfe;
+        border-radius: 8px;
+        padding: 3px 8px;
+        font-weight: 600;
+        font-size: 0.76rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* أنماط القوائم المنسدلة للرسائل والإشعارات */
+    .dropdown-bridge {
+        position: absolute;
+        top: -12px;
+        left: 0;
+        right: 0;
+        height: 12px;
+        background: transparent;
+        pointer-events: auto;
+    }
+
+    .graduate-hero-banner .btn,
+    .graduate-hero-banner .btn:hover,
+    .graduate-hero-banner .btn:focus,
+    .graduate-hero-banner .btn:active,
+    #desktopMsgDropdownBtn,
+    #desktopNotifDropdownBtn,
+    #mobileMsgDropdownBtn,
+    #mobileNotifDropdownBtn,
+    .custom-header-dropdown,
+    .custom-header-dropdown * {
+        transform: none !important;
+    }
+
+    .dash-msg-badge,
+    .dash-notif-badge {
+        pointer-events: none !important;
+        transform: translate(-50%, -50%) !important;
+    }
+
+    [dir="rtl"] .dropdown-menu-end.custom-header-dropdown {
+        left: 0 !important;
+        right: auto !important;
+    }
+
+    @media (max-width: 576px) {
+        .custom-header-dropdown {
+            position: fixed !important;
+            top: 64px !important;
+            left: 12px !important;
+            right: 12px !important;
+            width: auto !important;
+            max-width: calc(100vw - 24px) !important;
+            margin: 0 auto !important;
+        }
+    }
+
+    .custom-dropdown-list {
+        max-height: 380px;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+    }
+    .custom-dropdown-list::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-dropdown-list::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-dropdown-list::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.4);
+        border-radius: 4px;
+    }
+    .custom-dropdown-list::-webkit-scrollbar-thumb:hover {
+        background: rgba(148, 163, 184, 0.7);
+    }
+
+    .custom-dropdown-item {
+        color: #1e293b;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        gap: 12px;
+        padding: 12px 16px;
+        align-items: flex-start;
+        text-decoration: none !important;
+        transition: background-color 0.15s ease;
+        transform: none !important;
+    }
+    .custom-dropdown-item:hover {
+        background-color: #f8fafc;
+    }
+    .custom-dropdown-item.is-unread {
+        background-color: #eff6ff;
+    }
+    .custom-dropdown-item.is-unread-msg {
+        background-color: #f0fdf4;
+    }
+    .custom-dropdown-footer {
+        background-color: #f8fafc;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    /* كبسولة +X إضافية للمزيد */
+    .fc .fc-more-link {
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        color: #0d3882 !important;
+        background: rgba(13, 56, 130, 0.08) !important;
+        padding: 2px 7px !important;
+        border-radius: 6px !important;
+        text-decoration: none !important;
+        display: inline-block !important;
+        margin-top: 2px !important;
+        transition: all 0.2s ease !important;
+    }
+    .fc .fc-more-link:hover {
+        background: #0d3882 !important;
+        color: #ffffff !important;
+    }
+
+    /* Dark Mode */
+    html[data-theme='dark'] .fc .fc-col-header-cell,
+    html[data-bs-theme='dark'] .fc .fc-col-header-cell {
+        background: #162032 !important;
+        background-color: #162032 !important;
+        border-color: #27354a !important;
+    }
+    html[data-theme='dark'] .fc-col-header-cell-cushion,
+    html[data-bs-theme='dark'] .fc-col-header-cell-cushion {
+        color: #f1f5f9 !important;
+    }
+    html[data-theme='dark'] .fc-theme-standard td,
+    html[data-theme='dark'] .fc-theme-standard th,
+    html[data-theme='dark'] .fc-daygrid-day {
+        background-color: #111827 !important;
+        border-color: #1e293b !important;
+    }
+    html[data-theme='dark'] .fc-daygrid-day-number {
+        color: #94a3b8 !important;
+    }
+    html[data-theme='dark'] .fc-day-other {
+        background-color: #0b1120 !important;
+        opacity: 0.65;
+    }
+    html[data-theme='dark'] .fc-day-other .fc-daygrid-day-number {
+        color: #64748b !important;
+    }
+    html[data-theme='dark'] .fc-day-today {
+        background-color: rgba(59, 130, 246, 0.12) !important;
+    }
+    html[data-theme='dark'] .fc-day-today .fc-daygrid-day-number {
+        background-color: #2563eb !important;
+        color: #ffffff !important;
+    }
+    html[data-theme='dark'] .fc .fc-toolbar-title {
+        color: #f8fafc !important;
+    }
+    html[data-theme='dark'] .fc .fc-toolbar {
+        border-bottom-color: #1e293b !important;
+    }
+    html[data-theme='dark'] .fc .fc-button-primary {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #f1f5f9 !important;
+    }
+    html[data-theme='dark'] .fc .fc-button-primary:hover,
+    html[data-theme='dark'] .fc .fc-button-primary.fc-button-active {
+        background-color: #2563eb !important;
+        border-color: #3b82f6 !important;
+        color: #ffffff !important;
+    }
+    html[data-theme='dark'] .fc .fc-more-popover {
+        background: #111827 !important;
+        border-color: #27354a !important;
+    }
+    html[data-theme='dark'] .fc .fc-more-popover .fc-popover-header {
+        background: #162032 !important;
+        border-bottom-color: #27354a !important;
+        color: #f1f5f9 !important;
+    }
+    html[data-theme='dark'] .fc .fc-list-empty {
+        background: #111827 !important;
+        color: #94a3b8 !important;
+    }
+    html[data-theme='dark'] .fc .fc-list-day-cushion {
+        background: #162032 !important;
+        color: #60a5fa !important;
+    }
+    html[data-theme='dark'] .fc .fc-list-event:hover td {
+        background-color: #1e293b !important;
+    }
+    html[data-theme='dark'] .fc .fc-more-link {
+        color: #60a5fa !important;
+        background: rgba(96, 165, 250, 0.15) !important;
+    }
+    html[data-theme='dark'] .fc .fc-more-link:hover {
+        background: #2563eb !important;
+        color: #ffffff !important;
+    }
+    html[data-theme='dark'] .custom-header-dropdown,
+    [data-bs-theme='dark'] .custom-header-dropdown {
+        background: #0f172a !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
+    }
+    html[data-theme='dark'] .custom-dropdown-item,
+    [data-bs-theme='dark'] .custom-dropdown-item {
+        color: #f1f5f9 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+        background: #0f172a;
+    }
+    html[data-theme='dark'] .custom-dropdown-item:hover,
+    [data-bs-theme='dark'] .custom-dropdown-item:hover {
+        background: #1e293b !important;
+    }
+    html[data-theme='dark'] .custom-dropdown-item.is-unread,
+    [data-bs-theme='dark'] .custom-dropdown-item.is-unread {
+        background: rgba(37, 99, 235, 0.16) !important;
+    }
+    html[data-theme='dark'] .custom-dropdown-item.is-unread-msg,
+    [data-bs-theme='dark'] .custom-dropdown-item.is-unread-msg {
+        background: rgba(16, 185, 129, 0.16) !important;
+    }
+    html[data-theme='dark'] .dropdown-item-title,
+    [data-bs-theme='dark'] .dropdown-item-title {
+        color: #f8fafc !important;
+    }
+    html[data-theme='dark'] .dropdown-item-desc,
+    [data-bs-theme='dark'] .dropdown-item-desc {
+        color: #94a3b8 !important;
+    }
+    html[data-theme='dark'] .custom-dropdown-footer,
+    [data-bs-theme='dark'] .custom-dropdown-footer {
+        background: #090d16 !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+    html[data-theme='dark'] .custom-dropdown-list::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid px-2 px-md-3">
     @php
@@ -231,71 +662,42 @@
     <div class="row g-3 g-md-4 mb-4">
         <!-- التقويم التفاعلي / الأجندة -->
         <div class="col-lg-8">
-            <div class="card border-0 rounded-4 shadow-sm h-100">
-                <div class="card-header py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <div class="d-flex align-items-center gap-3">
+            <div class="card border-0 rounded-4 shadow-sm h-100 overflow-hidden">
+                <div class="card-header bg-white py-3 px-3 px-md-4 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2 gap-md-3 flex-wrap">
                         <h5 class="card-title mb-0 text-primary fw-bold fs-6 fs-md-5">
                             <i class="fas fa-calendar-alt me-2"></i>تقويم التدريبات والفعاليات
                         </h5>
-                        <!-- Legend Bar for Desktop -->
-                        <div class="d-none d-xl-flex align-items-center gap-2">
-                            <span class="badge rounded-pill" style="background: rgba(13, 56, 130, 0.08); color: #0d3882; font-size: 0.72rem; font-weight: 700;">
-                                <span class="d-inline-block rounded-circle me-1" style="width: 7px; height: 7px; background: #0d3882;"></span> دورات
+                        <!-- دليل ألوان التصنيفات (Legend Bar) -->
+                        <div class="d-none d-md-flex align-items-center gap-2">
+                            <span class="badge rounded-pill" style="background: rgba(13, 56, 130, 0.08); color: #0d3882; font-size: 0.75rem; font-weight: 700; padding: 5px 10px;">
+                                <span class="d-inline-block rounded-circle me-1" style="width: 8px; height: 8px; background: #0d3882;"></span> دورات
                             </span>
-                            <span class="badge rounded-pill" style="background: rgba(5, 150, 105, 0.08); color: #059669; font-size: 0.72rem; font-weight: 700;">
-                                <span class="d-inline-block rounded-circle me-1" style="width: 7px; height: 7px; background: #059669;"></span> ورش
+                            <span class="badge rounded-pill" style="background: rgba(5, 150, 105, 0.08); color: #059669; font-size: 0.75rem; font-weight: 700; padding: 5px 10px;">
+                                <span class="d-inline-block rounded-circle me-1" style="width: 8px; height: 8px; background: #059669;"></span> ورش
                             </span>
-                            <span class="badge rounded-pill" style="background: rgba(29, 78, 216, 0.08); color: #1d4ed8; font-size: 0.72rem; font-weight: 700;">
-                                <span class="d-inline-block rounded-circle me-1" style="width: 7px; height: 7px; background: #1d4ed8;"></span> عملي
+                            <span class="badge rounded-pill" style="background: rgba(29, 78, 216, 0.08); color: #1d4ed8; font-size: 0.75rem; font-weight: 700; padding: 5px 10px;">
+                                <span class="d-inline-block rounded-circle me-1" style="width: 8px; height: 8px; background: #1d4ed8;"></span> عملي
                             </span>
-                            <span class="badge rounded-pill" style="background: rgba(217, 119, 6, 0.08); color: #d97706; font-size: 0.72rem; font-weight: 700;">
-                                <span class="d-inline-block rounded-circle me-1" style="width: 7px; height: 7px; background: #d97706;"></span> ندوات
+                            <span class="badge rounded-pill" style="background: rgba(217, 119, 6, 0.08); color: #d97706; font-size: 0.75rem; font-weight: 700; padding: 5px 10px;">
+                                <span class="d-inline-block rounded-circle me-1" style="width: 8px; height: 8px; background: #d97706;"></span> ندوات
                             </span>
                         </div>
                     </div>
-                    <!-- Switcher for Mobile -->
-                    <div class="btn-group btn-group-sm d-md-none" role="group">
-                        <button type="button" class="btn btn-outline-primary active" id="btnShowAgenda" onclick="toggleCalendarView('agenda')">
-                            <i class="fas fa-list me-1"></i>الأجندة
-                        </button>
-                        <button type="button" class="btn btn-outline-primary" id="btnShowCalendar" onclick="toggleCalendarView('calendar')">
-                            <i class="fas fa-calendar me-1"></i>التقويم
-                        </button>
+
+                    <!-- شريط الفلترة السريعة حسب المكان -->
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        <span class="small fw-bold text-muted d-none d-sm-inline"><i class="fas fa-map-marker-alt text-danger me-1"></i>الموقع:</span>
+                        <select id="locationFilterSelect" class="form-select form-select-sm rounded-pill" style="min-width: 140px; max-width: 190px;" onchange="filterCalendarByLocation(this.value)">
+                            <option value="all">جميع القاعات والأماكن</option>
+                            @foreach($calendarLocations ?? [] as $loc)
+                                <option value="{{ $loc }}">{{ $loc }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
-                <div class="card-body p-3">
-                    <!-- Agenda List for Mobile -->
-                    <div id="mobile-agenda-view" class="d-md-none">
-                        @if(isset($calendarTrainings) && count($calendarTrainings) > 0)
-                            <div class="d-flex flex-column gap-2">
-                                @foreach($calendarTrainings as $event)
-                                    <div class="p-3 rounded-3 border-start border-4 border-primary bg-light d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="fw-bold text-dark mb-1 fs-6">{{ $event['title'] ?? 'برنامج تدريبي' }}</h6>
-                                            <div class="text-muted small d-flex align-items-center gap-2">
-                                                <span><i class="fas fa-calendar-day text-primary me-1"></i> {{ \Carbon\Carbon::parse($event['start'])->format('Y-m-d') }}</span>
-                                            </div>
-                                        </div>
-                                        @if(!empty($event['url']))
-                                            <a href="{{ $event['url'] }}" class="btn btn-sm btn-primary rounded-pill px-3">
-                                                عرض التفاصيل
-                                            </a>
-                                        @endif
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="text-center py-4 text-muted">
-                                <i class="fas fa-calendar-check fa-2x mb-2 opacity-50"></i>
-                                <p class="small mb-0">لا توجد تدريبات مجدولة حالياً</p>
-                            </div>
-                        @endif
-                    </div>
-
-                    <!-- Full Calendar Container -->
-                    <div id="calendar-container">
-                        <div id="calendar"></div>
-                    </div>
+                <div class="card-body p-3 p-md-4">
+                    <div id="calendar"></div>
                 </div>
             </div>
         </div>
@@ -730,421 +1132,97 @@
     </div>
 </div>
 
-@push('styles')
-<style>
-    /* تصميم التقويم المعتمد وفق هوية المنظومة */
-    .fc {
-        font-family: '29LT Bukra', 'Cairo', 'Tajawal', sans-serif !important;
-    }
-    .fc .fc-toolbar {
-        flex-wrap: wrap !important;
-        gap: 10px !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        padding-bottom: 0.85rem !important;
-        border-bottom: 1px solid #f1f5f9 !important;
-        margin-bottom: 1rem !important;
-    }
-    .fc .fc-toolbar-title {
-        font-size: 1.35rem !important;
-        font-weight: 800 !important;
-        color: #0d3882 !important;
-        letter-spacing: -0.3px;
-    }
-    .fc .fc-button {
-        font-size: 0.84rem !important;
-        font-weight: 700 !important;
-        padding: 0.42rem 0.9rem !important;
-        border-radius: 8px !important;
-        box-shadow: 0 2px 4px rgba(13, 56, 130, 0.12) !important;
-        transition: all 0.2s ease !important;
-    }
-    .fc .fc-button-primary {
-        background-color: #0d3882 !important;
-        border-color: #0d3882 !important;
-        color: #ffffff !important;
-    }
-    .fc .fc-button-primary:hover, .fc .fc-button-primary:focus, .fc .fc-button-primary.fc-button-active {
-        background-color: #1e40af !important;
-        border-color: #1e40af !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 10px rgba(13, 56, 130, 0.25) !important;
-    }
-    .fc .fc-button-group {
-        border-radius: 8px !important;
-        overflow: hidden;
-    }
-    .fc .fc-button-group > .fc-button {
-        border-radius: 0 !important;
-    }
-    .fc .fc-button-group > .fc-button:first-child {
-        border-top-right-radius: 8px !important;
-        border-bottom-right-radius: 8px !important;
-    }
-    .fc .fc-button-group > .fc-button:last-child {
-        border-top-left-radius: 8px !important;
-        border-bottom-left-radius: 8px !important;
-    }
+<!-- Modal تفاصيل التدريب التفاعلي عند النقر على أي فعالية في التقويم -->
+<div class="modal fade" id="calEventModal" tabindex="-1" aria-hidden="true" onclick="if(event.target === this) closeCalendarModal()">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+            <div class="modal-header text-white py-3 px-4" style="background: #0d3882;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-calendar-check fs-5 text-warning"></i>
+                    <h6 class="modal-title fw-bold mb-0" id="mEventTitle">تفاصيل البرنامج التدريبي</h6>
+                </div>
+                <button type="button" class="btn-close btn-close-white" onclick="closeCalendarModal()" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <h5 id="mEventHeading" class="fw-bold text-dark mb-3"></h5>
 
-    /* عناوين الأيام */
-    .fc .fc-col-header-cell {
-        background: #f8fafc !important;
-        padding: 10px 0 !important;
-        border-color: #e2e8f0 !important;
-    }
-    .fc-col-header-cell-cushion {
-        font-size: 0.86rem !important;
-        font-weight: 800 !important;
-        color: #334155 !important;
-        text-decoration: none !important;
-    }
+                <div class="p-3 bg-light rounded-3 mb-3 border d-flex flex-column gap-2.5 small">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-map-marker-alt text-danger fs-6" style="width: 22px;"></i>
+                        <span class="text-muted">مكان التدريب / القاعة:</span>
+                        <strong id="mEventLocation" class="text-primary fw-bold fs-6"></strong>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-calendar-alt text-primary" style="width: 22px;"></i>
+                        <span class="text-muted">الفترة الزمنية:</span>
+                        <strong id="mEventDates" class="text-dark font-monospace"></strong>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-hourglass-half text-warning" style="width: 22px;"></i>
+                        <span class="text-muted">المدة المقدرة:</span>
+                        <strong id="mEventDuration" class="text-dark"></strong>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-chalkboard-teacher text-info" style="width: 22px;"></i>
+                        <span class="text-muted">المدرب المشرف:</span>
+                        <strong id="mEventInstructor" class="text-dark"></strong>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-users text-success" style="width: 22px;"></i>
+                        <span class="text-muted">المقاعد المتاحة:</span>
+                        <strong id="mEventSeats" class="text-dark"></strong>
+                    </div>
+                </div>
 
-    html[data-theme='dark'] .fc .fc-col-header-cell,
-    html[data-bs-theme='dark'] .fc .fc-col-header-cell {
-        background: #162032 !important;
-        background-color: #162032 !important;
-        border-color: #27354a !important;
-    }
-    html[data-theme='dark'] .fc-col-header-cell-cushion,
-    html[data-bs-theme='dark'] .fc-col-header-cell-cushion {
-        color: #f1f5f9 !important;
-    }
-
-    /* خلايا الأيام */
-    .fc-theme-standard td, .fc-theme-standard th {
-        border-color: #edf2f7 !important;
-    }
-    html[data-theme='dark'] .fc-theme-standard td,
-    html[data-theme='dark'] .fc-theme-standard th,
-    html[data-theme='dark'] .fc-daygrid-day {
-        background-color: #111827 !important;
-        border-color: #1e293b !important;
-    }
-
-    .fc-daygrid-day-top {
-        padding: 4px 6px !important;
-    }
-    .fc-daygrid-day-number {
-        font-size: 0.88rem !important;
-        font-weight: 700 !important;
-        color: #1e293b !important;
-        padding: 2px 7px !important;
-        text-decoration: none !important;
-        border-radius: 6px;
-    }
-    html[data-theme='dark'] .fc-daygrid-day-number {
-        color: #94a3b8 !important;
-    }
-
-    .fc-day-other .fc-daygrid-day-number {
-        color: #94a3b8 !important;
-        opacity: 0.55;
-    }
-    html[data-theme='dark'] .fc-day-other {
-        background-color: #0b1120 !important;
-        opacity: 0.65;
-    }
-    html[data-theme='dark'] .fc-day-other .fc-daygrid-day-number {
-        color: #64748b !important;
-    }
-
-    .fc-day-today {
-        background-color: #eff6ff !important;
-    }
-    html[data-theme='dark'] .fc-day-today {
-        background-color: rgba(59, 130, 246, 0.12) !important;
-    }
-
-    .fc-day-today .fc-daygrid-day-number {
-        background-color: #0d3882 !important;
-        color: #ffffff !important;
-        font-weight: 800 !important;
-        box-shadow: 0 2px 6px rgba(13, 56, 130, 0.3);
-    }
-    html[data-theme='dark'] .fc-day-today .fc-daygrid-day-number {
-        background-color: #2563eb !important;
-        color: #ffffff !important;
-    }
-
-    /* أزرار وعنوان التقويم بالوضع الليلي */
-    html[data-theme='dark'] .fc .fc-toolbar-title {
-        color: #f8fafc !important;
-    }
-    html[data-theme='dark'] .fc .fc-toolbar {
-        border-bottom-color: #1e293b !important;
-    }
-    html[data-theme='dark'] .fc .fc-button-primary {
-        background-color: #1e293b !important;
-        border-color: #334155 !important;
-        color: #f1f5f9 !important;
-    }
-    html[data-theme='dark'] .fc .fc-button-primary:hover,
-    html[data-theme='dark'] .fc .fc-button-primary.fc-button-active {
-        background-color: #2563eb !important;
-        border-color: #3b82f6 !important;
-        color: #ffffff !important;
-    }
-
-    /* نافذة المزيد للمناسبات المتعددة */
-    .fc .fc-more-popover {
-        border-radius: 12px !important;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
-        border: 1px solid #e2e8f0 !important;
-        overflow: hidden;
-    }
-    .fc .fc-more-popover .fc-popover-header {
-        background: #f8fafc !important;
-        font-weight: 700 !important;
-        padding: 8px 12px !important;
-        border-bottom: 1px solid #e2e8f0 !important;
-    }
-    html[data-theme='dark'] .fc .fc-more-popover {
-        background: #111827 !important;
-        border-color: #27354a !important;
-    }
-    html[data-theme='dark'] .fc .fc-more-popover .fc-popover-header {
-        background: #162032 !important;
-        border-bottom-color: #27354a !important;
-        color: #f1f5f9 !important;
-    }
-
-    /* طريقة عرض القائمة */
-    .fc .fc-list-empty {
-        background: #f8fafc !important;
-        padding: 2rem !important;
-        color: #64748b !important;
-        font-weight: 600 !important;
-    }
-    .fc .fc-list-day-cushion {
-        background: #f1f5f9 !important;
-        color: #0d3882 !important;
-        font-weight: 800 !important;
-        padding: 8px 16px !important;
-    }
-    .fc .fc-list-event:hover td {
-        background-color: #f8fafc !important;
-    }
-    html[data-theme='dark'] .fc .fc-list-empty {
-        background: #111827 !important;
-        color: #94a3b8 !important;
-    }
-    html[data-theme='dark'] .fc .fc-list-day-cushion {
-        background: #162032 !important;
-        color: #60a5fa !important;
-    }
-    html[data-theme='dark'] .fc .fc-list-event:hover td {
-        background-color: #1e293b !important;
-    }
-
-    @media (max-width: 576px) {
-        .fc .fc-toolbar-title {
-            font-size: 1.15rem !important;
-            width: 100%;
-            text-align: center;
-            order: -1;
-            margin-bottom: 0.25rem !important;
-        }
-        .fc-col-header-cell-cushion {
-            font-size: 0.72rem !important;
-            padding: 3px 0 !important;
-        }
-        .fc-daygrid-day-number {
-            font-size: 0.75rem !important;
-            padding: 2px 4px !important;
-        }
-        .fc-daygrid-event {
-            font-size: 0.70rem !important;
-            padding: 2px 4px !important;
-        }
-    }
-
-    /* تثبيت ومنع أي ارتعاش أو اهتزاز في القوائم المنسدلة */
-    .custom-header-dropdown {
-        position: absolute !important;
-        top: calc(100% + 8px) !important;
-        transform: none !important;
-        margin: 0 !important;
-        background: #ffffff;
-        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22) !important;
-        border: 1px solid rgba(0, 0, 0, 0.08) !important;
-        border-radius: 16px !important;
-        overflow: hidden !important;
-        z-index: 1060 !important;
-        animation: none !important;
-    }
-
-    /* جسر وهمي غير مرئي يربط الزر بالقائمة المنسدلة لمنع أي فجوة ماوس تسبب اهتزاز */
-    .custom-header-dropdown::before {
-        content: '';
-        position: absolute;
-        top: -12px;
-        left: 0;
-        right: 0;
-        height: 12px;
-        background: transparent;
-        pointer-events: auto;
-    }
-
-    /* منع أي تحول أو اهتزاز نهائياً عند وضع الماوس على أزرار البانر أو القوائم */
-    .graduate-hero-banner .btn,
-    .graduate-hero-banner .btn:hover,
-    .graduate-hero-banner .btn:focus,
-    .graduate-hero-banner .btn:active,
-    #desktopMsgDropdownBtn,
-    #desktopNotifDropdownBtn,
-    #mobileMsgDropdownBtn,
-    #mobileNotifDropdownBtn,
-    .custom-header-dropdown,
-    .custom-header-dropdown * {
-        transform: none !important;
-    }
-
-    /* شارات الإشعارات لا تتداخل مع مؤشر الفأرة لمنع الارتجاج */
-    .dash-msg-badge,
-    .dash-notif-badge {
-        pointer-events: none !important;
-        transform: translate(-50%, -50%) !important;
-    }
-
-    [dir="rtl"] .dropdown-menu-end.custom-header-dropdown {
-        left: 0 !important;
-        right: auto !important;
-    }
-
-    @media (max-width: 576px) {
-        .custom-header-dropdown {
-            position: fixed !important;
-            top: 64px !important;
-            left: 12px !important;
-            right: 12px !important;
-            width: auto !important;
-            max-width: calc(100vw - 24px) !important;
-            margin: 0 auto !important;
-        }
-    }
-
-    /* شريط التمرير الداخلي السلس ومنع تسريب التمرير للنافذة */
-    .custom-dropdown-list {
-        max-height: 380px;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        overscroll-behavior: contain !important;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: thin;
-        scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
-    }
-    .custom-dropdown-list::-webkit-scrollbar {
-        width: 6px;
-    }
-    .custom-dropdown-list::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    .custom-dropdown-list::-webkit-scrollbar-thumb {
-        background: rgba(148, 163, 184, 0.4);
-        border-radius: 4px;
-    }
-    .custom-dropdown-list::-webkit-scrollbar-thumb:hover {
-        background: rgba(148, 163, 184, 0.7);
-    }
-
-    .custom-dropdown-item {
-        color: #1e293b;
-        border-bottom: 1px solid #f1f5f9;
-        display: flex;
-        gap: 12px;
-        padding: 12px 16px;
-        align-items: flex-start;
-        text-decoration: none !important;
-        transition: background-color 0.15s ease;
-        transform: none !important;
-    }
-    .custom-dropdown-item:hover {
-        background-color: #f8fafc;
-    }
-    .custom-dropdown-item.is-unread {
-        background-color: #eff6ff;
-    }
-    .custom-dropdown-item.is-unread-msg {
-        background-color: #f0fdf4;
-    }
-    .custom-dropdown-footer {
-        background-color: #f8fafc;
-        border-top: 1px solid #f1f5f9;
-    }
-
-    /* الوضع المظلم للقوائم المنسدلة */
-    html[data-theme='dark'] .custom-header-dropdown,
-    [data-bs-theme='dark'] .custom-header-dropdown {
-        background: #0f172a !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
-    }
-    html[data-theme='dark'] .custom-dropdown-item,
-    [data-bs-theme='dark'] .custom-dropdown-item {
-        color: #f1f5f9 !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-        background: #0f172a;
-    }
-    html[data-theme='dark'] .custom-dropdown-item:hover,
-    [data-bs-theme='dark'] .custom-dropdown-item:hover {
-        background: #1e293b !important;
-    }
-    html[data-theme='dark'] .custom-dropdown-item.is-unread,
-    [data-bs-theme='dark'] .custom-dropdown-item.is-unread {
-        background: rgba(37, 99, 235, 0.16) !important;
-    }
-    html[data-theme='dark'] .custom-dropdown-item.is-unread-msg,
-    [data-bs-theme='dark'] .custom-dropdown-item.is-unread-msg {
-        background: rgba(16, 185, 129, 0.16) !important;
-    }
-    html[data-theme='dark'] .dropdown-item-title,
-    [data-bs-theme='dark'] .dropdown-item-title {
-        color: #f8fafc !important;
-    }
-    html[data-theme='dark'] .dropdown-item-desc,
-    [data-bs-theme='dark'] .dropdown-item-desc {
-        color: #94a3b8 !important;
-    }
-    html[data-theme='dark'] .custom-dropdown-footer,
-    [data-bs-theme='dark'] .custom-dropdown-footer {
-        background: #090d16 !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-    }
-    html[data-theme='dark'] .custom-dropdown-list::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
-    }
-</style>
-@endpush
+                <div class="d-flex justify-content-between align-items-center pt-2">
+                    <button type="button" class="btn btn-light border rounded-3 px-4 fw-semibold" onclick="closeCalendarModal()" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> إغلاق
+                    </button>
+                    <a id="mEventUrl" href="#" class="btn btn-primary rounded-3 px-4 fw-bold d-flex align-items-center gap-1.5" style="background: #0d3882; border-color: #0d3882;">
+                        <i class="fas fa-eye"></i>
+                        <span>عرض تفاصيل التدريب والتقديم</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
+        let calendar = null;
+        const allCalendarEvents = @json($calendarTrainings ?? []);
+
         document.addEventListener('DOMContentLoaded', function () {
             // HTML5 QR Code Scanner
             let html5QrcodeScanner;
             const qrModal = document.getElementById('qrScannerModal');
 
-            qrModal.addEventListener('shown.bs.modal', function () {
-                html5QrcodeScanner = new Html5QrcodeScanner(
-                    "reader",
-                    { fps: 10, qrbox: {width: 250, height: 250}, aspectRatio: 1.0 },
-                    /* verbose= */ false
-                );
-                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-            });
+            if (qrModal) {
+                qrModal.addEventListener('shown.bs.modal', function () {
+                    html5QrcodeScanner = new Html5QrcodeScanner(
+                        "reader",
+                        { fps: 10, qrbox: {width: 250, height: 250}, aspectRatio: 1.0 },
+                        /* verbose= */ false
+                    );
+                    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+                });
 
-            qrModal.addEventListener('hidden.bs.modal', function () {
-                if (html5QrcodeScanner) {
-                    html5QrcodeScanner.clear().catch(error => {
-                        console.error("Failed to clear html5QrcodeScanner. ", error);
-                    });
-                }
-            });
+                qrModal.addEventListener('hidden.bs.modal', function () {
+                    if (html5QrcodeScanner) {
+                        html5QrcodeScanner.clear().catch(error => {
+                            console.error("Failed to clear html5QrcodeScanner. ", error);
+                        });
+                    }
+                });
+            }
 
             function onScanSuccess(decodedText, decodedResult) {
                 if (decodedText.startsWith('http')) {
-                    html5QrcodeScanner.clear();
+                    if (html5QrcodeScanner) html5QrcodeScanner.clear();
                     window.location.href = decodedText;
                 } else {
                     alert('هذا الباركود غير صالح للاستخدام هنا.');
@@ -1156,10 +1234,9 @@
             }
 
             // FullCalendar
-            var calendarEl = document.getElementById('calendar');
-            var calendar;
+            const calendarEl = document.getElementById('calendar');
             if (calendarEl) {
-                var isSmallScreen = window.innerWidth < 480;
+                const isSmallScreen = window.innerWidth < 576;
                 calendar = new FullCalendar.Calendar(calendarEl, {
                     initialView: 'dayGridMonth',
                     locale: 'ar',
@@ -1178,7 +1255,7 @@
                         week: 'أسبوع',
                         list: 'قائمة'
                     },
-                    events: @json($calendarTrainings),
+                    events: allCalendarEvents,
                     eventContent: function(arg) {
                         let type = (arg.event.extendedProps && arg.event.extendedProps.type) ? arg.event.extendedProps.type : 'course';
                         let iconClass = 'fa-graduation-cap';
@@ -1195,10 +1272,19 @@
                         return { html: customHtml };
                     },
                     eventClick: function (info) {
-                        if (info.event.url) {
-                            window.location.href = info.event.url;
-                            info.jsEvent.preventDefault();
-                        }
+                        info.jsEvent.preventDefault();
+                        const props = info.event.extendedProps || {};
+                        openCalendarModal(
+                            props.rawTitle || info.event.title,
+                            props.location || 'غير محدد',
+                            props.startDate || '',
+                            props.endDate || '',
+                            props.duration || 'غير محدد',
+                            props.instructor || 'غير محدد',
+                            props.seats || '0',
+                            props.status || 'active',
+                            props.showUrl || info.event.url || '#'
+                        );
                     }
                 });
 
@@ -1209,48 +1295,76 @@
 
                 window.addEventListener('resize', function() {
                     if (calendar) {
-                        calendar.setOption('dayHeaderFormat', window.innerWidth < 480 ? { weekday: 'narrow' } : { weekday: 'short' });
+                        calendar.setOption('dayHeaderFormat', window.innerWidth < 576 ? { weekday: 'narrow' } : { weekday: 'short' });
                         calendar.updateSize();
                     }
                 });
             }
-
-            // Mobile Calendar / Agenda View Toggle
-            window.toggleCalendarView = function(view) {
-                const agendaView = document.getElementById('mobile-agenda-view');
-                const calendarContainer = document.getElementById('calendar-container');
-                const btnAgenda = document.getElementById('btnShowAgenda');
-                const btnCalendar = document.getElementById('btnShowCalendar');
-
-                if (view === 'agenda') {
-                    if (agendaView) agendaView.classList.remove('d-none');
-                    if (calendarContainer) calendarContainer.classList.add('d-none');
-                    btnAgenda?.classList.add('active');
-                    btnCalendar?.classList.remove('active');
-                } else {
-                    if (agendaView) agendaView.classList.add('d-none');
-                    if (calendarContainer) calendarContainer.classList.remove('d-none');
-                    btnCalendar?.classList.add('active');
-                    btnAgenda?.classList.remove('active');
-                    setTimeout(() => {
-                        if (calendar) {
-                            calendar.render();
-                            calendar.updateSize();
-                        }
-                    }, 50);
-                }
-            };
-
-            // Set initial state for mobile
-            if (window.innerWidth < 768) {
-                const calendarContainer = document.getElementById('calendar-container');
-                if (calendarContainer) {
-                    calendarContainer.classList.add('d-none');
-                }
-            }
         });
 
+        function filterCalendarByLocation(loc) {
+            if (!calendar) return;
+            calendar.removeAllEvents();
+            if (loc === 'all') {
+                calendar.addEventSource(allCalendarEvents);
+            } else {
+                const filtered = allCalendarEvents.filter(function(e) {
+                    return e.extendedProps && e.extendedProps.location === loc;
+                });
+                calendar.addEventSource(filtered);
+            }
+        }
 
+        function openCalendarModal(title, location, start, end, duration, instructor, seats, status, url) {
+            document.getElementById('mEventHeading').innerText = title;
+            document.getElementById('mEventLocation').innerText = location || 'غير محدد';
+            document.getElementById('mEventDates').innerText = (start || '') + (end ? ' إلى ' + end : '');
+            document.getElementById('mEventDuration').innerText = duration || 'غير محدد';
+            document.getElementById('mEventInstructor').innerText = instructor || 'غير محدد';
+            document.getElementById('mEventSeats').innerText = (seats || '0') + ' مقعد';
+            document.getElementById('mEventUrl').href = url || '#';
+
+            const modalEl = document.getElementById('calEventModal');
+            if (!modalEl) return;
+
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                let m = bootstrap.Modal.getInstance(modalEl);
+                if (!m) m = new bootstrap.Modal(modalEl, { backdrop: true, keyboard: true });
+                m.show();
+            } else {
+                modalEl.classList.add('show');
+                modalEl.style.display = 'block';
+                modalEl.setAttribute('aria-modal', 'true');
+                document.body.classList.add('modal-open');
+            }
+        }
+
+        function closeCalendarModal() {
+            const modalEl = document.getElementById('calEventModal');
+            if (!modalEl) return;
+
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                const m = bootstrap.Modal.getInstance(modalEl);
+                if (m) {
+                    try { m.hide(); } catch(e) {}
+                }
+            }
+
+            modalEl.classList.remove('show');
+            modalEl.style.display = 'none';
+            modalEl.setAttribute('aria-modal', 'false');
+            modalEl.removeAttribute('role');
+            document.body.classList.remove('modal-open');
+            document.body.style.removeProperty('padding-right');
+            document.body.style.removeProperty('overflow');
+
+            document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeCalendarModal();
+            }
+        });
     </script>
-@endpush
-@endsection
+@endpush

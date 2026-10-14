@@ -549,13 +549,11 @@
             left: -5px;
             width: 7px;
             height: calc(100% - 12px);
-            background: repeating-linear-gradient(
-                to bottom,
-                #f8fafc 0px,
-                #f8fafc 2px,
-                #94a3b8 3px,
-                #94a3b8 4px
-            );
+            background: repeating-linear-gradient(to bottom,
+                    #f8fafc 0px,
+                    #f8fafc 2px,
+                    #94a3b8 3px,
+                    #94a3b8 4px);
             border-radius: 4px 0 0 4px;
             box-shadow: -2px 0 5px rgba(0, 0, 0, 0.35);
             z-index: 1;
@@ -647,10 +645,33 @@
             border-style: solid;
         }
 
-        .fair-card-qr-box .qr-tl { top: -2px; right: -2px; border-width: 2px 2px 0 0; border-top-right-radius: 4px; }
-        .fair-card-qr-box .qr-tr { top: -2px; left: -2px; border-width: 2px 0 0 2px; border-top-left-radius: 4px; }
-        .fair-card-qr-box .qr-bl { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; border-bottom-right-radius: 4px; }
-        .fair-card-qr-box .qr-br { bottom: -2px; left: -2px; border-width: 0 0 2px 2px; border-bottom-left-radius: 4px; }
+        .fair-card-qr-box .qr-tl {
+            top: -2px;
+            right: -2px;
+            border-width: 2px 2px 0 0;
+            border-top-right-radius: 4px;
+        }
+
+        .fair-card-qr-box .qr-tr {
+            top: -2px;
+            left: -2px;
+            border-width: 2px 0 0 2px;
+            border-top-left-radius: 4px;
+        }
+
+        .fair-card-qr-box .qr-bl {
+            bottom: -2px;
+            right: -2px;
+            border-width: 0 2px 2px 0;
+            border-bottom-right-radius: 4px;
+        }
+
+        .fair-card-qr-box .qr-br {
+            bottom: -2px;
+            left: -2px;
+            border-width: 0 0 2px 2px;
+            border-bottom-left-radius: 4px;
+        }
 
         .fair-card-qr-svg {
             width: 100%;
@@ -671,10 +692,24 @@
         }
 
         @keyframes qrLaserScan {
-            0%, 100% { top: 10px; opacity: 0; }
-            15% { opacity: 1; }
-            85% { opacity: 1; }
-            50% { top: 102px; }
+
+            0%,
+            100% {
+                top: 10px;
+                opacity: 0;
+            }
+
+            15% {
+                opacity: 1;
+            }
+
+            85% {
+                opacity: 1;
+            }
+
+            50% {
+                top: 102px;
+            }
         }
 
         .fair-card-meta {
@@ -827,8 +862,15 @@
         }
 
         @keyframes hintWiggle {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-3px);
+            }
         }
 
         /* 🌟 حركة فتح الغلاف ثلاثية الأبعاد (3D Flip Open) 🌟 */
@@ -845,29 +887,185 @@
             z-index: 6;
         }
 
-        /* 5. بطاقات التدريبات المميزة (Bento Training Cards) */
-        .bento-training-card {
-            background: #ffffff;
-            border-radius: var(--bento-radius);
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
-            overflow: hidden;
-            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+        /* 5. بطاقات التدريبات المميزة بنمط Uiverse Cobp المتناسق مع هوية المنصة */
+        .uiverse-train-card {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg,
+                    #0d3882 0%,
+                    #1565c0 30%,
+                    #1e88e5 55%,
+                    #f59e0b 85%,
+                    #d97706 100%);
+            padding: 3.5px;
+            border-radius: 30px;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 14px 34px -8px rgba(11, 31, 58, 0.18), 0 0 16px rgba(245, 158, 11, 0.12);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        .uiverse-train-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 22px 48px -10px rgba(13, 56, 130, 0.28), 0 0 28px rgba(245, 158, 11, 0.35);
+        }
+
+        .uiverse-train-card .title-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px 10px;
+            color: #ffffff;
+        }
+
+        .uiverse-train-card .title-card p {
+            margin: 0;
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 8px rgba(13, 56, 130, 0.8);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .uiverse-train-card .title-card svg {
+            color: #fbbf24;
+            filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.8));
+        }
+
+        .uiverse-train-card .card-content {
+            width: 100%;
             height: 100%;
+            background: linear-gradient(180deg, #091e3e 0%, #06152c 100%);
+            border-radius: 27px;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            padding: 22px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 14px;
+            position: relative;
+            flex-grow: 1;
         }
 
-        .bento-training-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 16px 36px rgba(13, 56, 130, 0.1);
-            border-color: #93c5fd;
+        .uiverse-train-card .card-content .card-category {
+            font-size: 0.76rem;
+            font-weight: 800;
+            color: #38bdf8;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.3px;
         }
 
-        .bento-card-header {
-            background: linear-gradient(135deg, rgba(13, 56, 130, 0.04) 0%, rgba(21, 101, 192, 0.08) 100%);
-            padding: 1.4rem 1.5rem;
-            border-bottom: 1px solid #f1f5f9;
+        .uiverse-train-card .card-content .card-title-main {
+            font-size: 1.12rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.45;
+            margin: 0;
+            min-height: 48px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .uiverse-train-card .card-content .plain {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin: 0;
+            padding-bottom: 4px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
+        }
+
+        .uiverse-train-card .card-content .plain :nth-child(1) {
+            font-size: 2.1rem;
+            font-weight: 900;
+            color: #ffffff;
+            font-family: monospace;
+            line-height: 1;
+            text-shadow: 0 2px 10px rgba(245, 158, 11, 0.35);
+        }
+
+        .uiverse-train-card .card-content .plain :nth-child(2) {
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: #fbbf24;
+        }
+
+        .uiverse-train-card .card-content .description {
+            font-size: 0.84rem;
+            color: #94a3b8;
+            line-height: 1.6;
+            margin: 0;
+            flex-grow: 1;
+            min-height: 42px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .uiverse-train-card .card-meta-pill {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: #cbd5e1;
+        }
+
+        .uiverse-train-card .card-btn {
+            background: rgba(245, 158, 11, 0.12) !important;
+            border: 2px solid #f59e0b !important;
+            color: #ffffff !important;
+            font-weight: 800;
+            font-size: 0.9rem;
+            padding: 0.65rem 1.4rem;
+            border-radius: 50px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.28s ease;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.2), inset 0 0 10px rgba(245, 158, 11, 0.08);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .uiverse-train-card .card-btn i {
+            color: #fbbf24 !important;
+            transition: all 0.28s ease;
+        }
+
+        .uiverse-train-card .card-btn:hover {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+            border-color: #f59e0b !important;
+            color: #0b1f3a !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45);
+            text-shadow: none;
+        }
+
+        .uiverse-train-card .card-btn:hover i {
+            color: #0b1f3a !important;
+            transform: translateX(-3px);
+        }
+
+        .uiverse-train-card .card-btn:active {
+            transform: scale(0.98);
         }
 
         /* ========================================================
@@ -1817,6 +2015,481 @@
                 padding-bottom: calc(16px + env(safe-area-inset-bottom));
             }
         }
+
+        /* ========================================================
+           شاشة أهداف مكتب تدريب الخريجين الموحدة (Wide HUD Screen Card)
+           مستوحاة من كود Uiverse (StealthWorm) مع هوية جامعة طرابلس الملكية
+           ======================================================== */
+        .goals-hud-screen-border {
+            z-index: 1;
+            position: relative;
+            padding: 1.1rem;
+            width: 100%;
+            max-width: 1240px;
+            margin: 0 auto;
+            box-sizing: border-box;
+            background: transparent;
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border-radius: 0px 2.5rem;
+            background-image: radial-gradient(#07172c 0%, #030a16 100%),
+                linear-gradient(35deg, #0d3882 0%, #1565c0 45%, #f59e0b 80%, #38bdf8 100%);
+            background-origin: border-box;
+            background-clip: content-box, border-box;
+            box-shadow: 0 20px 50px rgba(5, 17, 34, 0.45), 0 0 35px rgba(21, 101, 192, 0.25), 0 0 20px rgba(245, 158, 11, 0.2);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: goals_screen_pulse 4s ease-in-out infinite;
+        }
+
+        .goals-hud-screen-border:hover {
+            box-shadow: 0 25px 60px rgba(5, 17, 34, 0.55), 0 0 45px rgba(21, 101, 192, 0.4), 0 0 30px rgba(245, 158, 11, 0.35);
+            transform: translateY(-4px);
+        }
+
+        .goals-hud-screen-bg {
+            position: relative;
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border-radius: 0px 1.8rem;
+            background: radial-gradient(circle at 90% 10%, rgba(21, 101, 192, 0.22) 0%, transparent 60%),
+                radial-gradient(circle at 10% 90%, rgba(245, 158, 11, 0.15) 0%, transparent 60%),
+                linear-gradient(155deg, #071936 0%, #05142b 55%, #020914 100%);
+            padding: 2.25rem 2rem 2.25rem;
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* شبكة نقاط تقنية ناعمة لخلفية الشاشة */
+        .goals-hud-screen-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* شريط العنوان التفاعلي أعلى الشاشة */
+        .goals-screen-header {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .goals-screen-badge-box {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* شعار الشاشة الدوار المضلع Conic Logo */
+        .hud-logo-container {
+            display: flex;
+            position: relative;
+            width: 3.4rem;
+            height: 3rem;
+            align-items: center;
+            justify-content: center;
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+            filter: drop-shadow(0 2px 8px rgba(245, 158, 11, 0.35));
+            flex-shrink: 0;
+        }
+
+        .hud-logo-spin {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(#0d3882 0%, #fff 15%, #f59e0b 35%, #1565c0 55%, #38bdf8 75%, #d97706 90%, #0d3882 100%);
+            animation: hud_spin 6s linear infinite;
+        }
+
+        .hud-logo-inside {
+            display: flex;
+            width: 86%;
+            height: 86%;
+            align-items: center;
+            justify-content: center;
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+            background-color: #06152b;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hud-logo-inside i {
+            color: #f59e0b;
+            font-size: 1.15rem;
+            filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+        }
+
+        .goals-screen-title-area h3 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .goals-screen-title-area p {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin: 2px 0 0;
+            font-weight: 500;
+        }
+
+        .goals-screen-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #fbd38d;
+            font-family: monospace, 'Tajawal', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        .goals-screen-status-pill .hud-pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            display: inline-block;
+            animation: hud_dot_pulse 2s infinite;
+        }
+
+        /* نص الماركيه الخلفي المتحرك من الكود المرفق */
+        .goals-hud-marquee {
+            top: 15%;
+            z-index: 0;
+            width: 100%;
+            height: 70%;
+            position: absolute;
+            overflow: hidden;
+            --offset: 2rem;
+            --move-initial: calc(0% + var(--offset));
+            --move-final: calc(-50% + var(--offset));
+            filter: opacity(0.08);
+            pointer-events: none;
+            direction: ltr;
+        }
+
+        .goals-hud-marquee-inner {
+            width: max-content;
+            display: flex;
+            position: relative;
+            transform: translate3d(var(--move-initial), 0, 0);
+            animation: hud_slide 45s linear infinite;
+        }
+
+        .goals-hud-giant-text {
+            display: inline-flex;
+            text-transform: uppercase;
+            font-family: 'Tajawal', 'Open Sans', sans-serif;
+            font-size: 5.5rem;
+            font-weight: 900;
+            align-items: center;
+            line-height: 1;
+            color: transparent;
+            -webkit-text-stroke-width: 2px;
+            -webkit-text-stroke-color: #ffffff;
+            white-space: nowrap;
+            letter-spacing: 0.2rem;
+            padding: 0 1rem;
+        }
+
+        /* طبقة الضباب المتوهج في الأسفل من الكود المرفق */
+        .hud-mist-container {
+            position: absolute;
+            width: 70%;
+            height: 180px;
+            overflow: hidden;
+            filter: blur(2rem);
+            bottom: -30px;
+            left: 15%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .hud-mist {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 15%, rgba(21, 101, 192, 0.3) 45%, transparent 70%);
+            animation: hud_mist 12s infinite both;
+        }
+
+        /* شبكة الأهداف الثلاثة داخل الشاشة */
+        .goals-hud-grid {
+            position: relative;
+            z-index: 2;
+        }
+
+        .goal-hud-card {
+            position: relative;
+            background: rgba(13, 38, 76, 0.45);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-top: 2px solid rgba(245, 158, 11, 0.4);
+            border-radius: 18px;
+            padding: 1.75rem 1.5rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        .goal-hud-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.08) 0%, transparent 60%);
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+            opacity: 0.5;
+        }
+
+        .goal-hud-card:hover {
+            transform: translateY(-6px);
+            background: rgba(18, 48, 92, 0.65);
+            border-color: rgba(245, 158, 11, 0.7);
+            border-top-color: #f59e0b;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(245, 158, 11, 0.25);
+        }
+
+        .goal-hud-card:hover::before {
+            opacity: 1;
+        }
+
+        .goal-hud-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+
+        .goal-hud-num {
+            font-family: monospace, 'Tajawal', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: transparent;
+            -webkit-text-stroke-width: 1.5px;
+            -webkit-text-stroke-color: #f59e0b;
+            letter-spacing: 1px;
+            background: linear-gradient(180deg, #f59e0b 0%, rgba(245, 158, 11, 0.3) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .goal-hud-icon-badge {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            transition: transform 0.35s ease;
+        }
+
+        .goal-hud-card:hover .goal-hud-icon-badge {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .goal-hud-icon-1 {
+            background: rgba(21, 101, 192, 0.25);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+            box-shadow: 0 4px 15px rgba(21, 101, 192, 0.3);
+        }
+
+        .goal-hud-icon-2 {
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.5);
+            color: #fbbf24;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .goal-hud-icon-3 {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #34d399;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .goal-hud-title {
+            font-size: 1.18rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.65rem;
+            letter-spacing: -0.2px;
+        }
+
+        .goal-hud-desc {
+            font-size: 0.88rem;
+            line-height: 1.75;
+            color: #cbd5e1;
+            margin-bottom: 1.25rem;
+            font-weight: 400;
+        }
+
+        .goal-hud-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding-top: 0.85rem;
+            border-top: 1px dashed rgba(255, 255, 255, 0.12);
+        }
+
+        .goal-hud-tag-item {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .goal-hud-card:hover .goal-hud-tag-item {
+            color: #e2e8f0;
+            border-color: rgba(245, 158, 11, 0.3);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        /* شريط أسفل الشاشة التكنولوجي */
+        .goals-screen-footer {
+            position: relative;
+            z-index: 2;
+            margin-top: 2rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .hud-footer-vision {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #f59e0b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hud-footer-code {
+            font-family: monospace, sans-serif;
+            font-size: 0.75rem;
+            color: #64748b;
+            letter-spacing: 1px;
+            direction: ltr;
+        }
+
+        /* الرسوم المتحركة Keyframes */
+        @keyframes hud_spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes hud_mist {
+            0% {
+                transform: translateX(-30%) translateY(0%) scaleY(0.8) rotate(0deg);
+                opacity: 0.25;
+            }
+
+            50% {
+                transform: translateX(10%) translateY(20%) scaleY(1.3) rotate(10deg);
+                opacity: 0.55;
+            }
+
+            100% {
+                transform: translateX(-30%) translateY(0%) scaleY(0.8) rotate(0deg);
+                opacity: 0.25;
+            }
+        }
+
+        @keyframes goals_screen_pulse {
+            0% {
+                box-shadow: 0 20px 50px rgba(5, 17, 34, 0.45), 0 0 25px rgba(21, 101, 192, 0.25), 0 0 15px rgba(245, 158, 11, 0.18);
+            }
+
+            50% {
+                box-shadow: 0 25px 60px rgba(5, 17, 34, 0.55), 0 0 38px rgba(21, 101, 192, 0.38), 0 0 26px rgba(245, 158, 11, 0.3);
+            }
+
+            100% {
+                box-shadow: 0 20px 50px rgba(5, 17, 34, 0.45), 0 0 25px rgba(21, 101, 192, 0.25), 0 0 15px rgba(245, 158, 11, 0.18);
+            }
+        }
+
+        @keyframes hud_slide {
+            0% {
+                transform: translate3d(var(--move-initial), 0, 0);
+            }
+
+            100% {
+                transform: translate3d(var(--move-final), 0, 0);
+            }
+        }
+
+        @keyframes hud_dot_pulse {
+            0% {
+                transform: scale(0.9);
+                opacity: 0.7;
+            }
+
+            50% {
+                transform: scale(1.3);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(0.9);
+                opacity: 0.7;
+            }
+        }
+
+        @media (max-width: 991px) {
+            .goals-hud-screen-bg {
+                padding: 1.5rem 1.25rem;
+            }
+
+            .goals-hud-giant-text {
+                font-size: 3.5rem;
+            }
+        }
     </style>
 </head>
 
@@ -2006,7 +2679,8 @@
                                 <i class="fas fa-user-graduate"></i>
                             </div>
                             <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">
-                                {{ number_format($stats['graduates_count'] ?? 0) }}</h3>
+                                {{ number_format($stats['graduates_count'] ?? 0) }}
+                            </h3>
                             <p class="text-muted small mb-0 fw-semibold">خريج مسجل ومعتمد</p>
                         </div>
                     </div>
@@ -2016,7 +2690,8 @@
                                 <i class="fas fa-building"></i>
                             </div>
                             <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">
-                                {{ number_format($stats['companies_count'] ?? 0) }}</h3>
+                                {{ number_format($stats['companies_count'] ?? 0) }}
+                            </h3>
                             <p class="text-muted small mb-0 fw-semibold">شركة ومؤسسة شريكة</p>
                         </div>
                     </div>
@@ -2026,7 +2701,8 @@
                                 <i class="fas fa-chalkboard-teacher"></i>
                             </div>
                             <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">
-                                {{ number_format($stats['trainings_count'] ?? 0) }}</h3>
+                                {{ number_format($stats['trainings_count'] ?? 0) }}
+                            </h3>
                             <p class="text-muted small mb-0 fw-semibold">برنامج تدريبي وتأهيلي</p>
                         </div>
                     </div>
@@ -2036,7 +2712,8 @@
                                 <i class="fas fa-briefcase"></i>
                             </div>
                             <h3 class="fw-bolder text-dark mb-1 fs-4 font-monospace">
-                                {{ number_format($stats['opportunities_count'] ?? 0) }}</h3>
+                                {{ number_format($stats['opportunities_count'] ?? 0) }}
+                            </h3>
                             <p class="text-muted small mb-0 fw-semibold">فرصة عمل وترشيح</p>
                         </div>
                     </div>
@@ -2106,7 +2783,8 @@
                                 </div>
                                 <div class="col-lg-4 text-center">
                                     <div class="fair-book-stage">
-                                        <div class="fair-book" id="fairBook_{{ $fair->id }}" onclick="this.classList.toggle('book-opened')" title="انقر أو مرر لفتح البطاقة">
+                                        <div class="fair-book" id="fairBook_{{ $fair->id }}"
+                                            onclick="this.classList.toggle('book-opened')" title="انقر أو مرر لفتح البطاقة">
                                             <!-- الطبقات الورقية السميكة لدفتر/بطاقة المعرض -->
                                             <div class="fair-book-pages"></div>
 
@@ -2117,7 +2795,9 @@
                                                         <i class="fas fa-microchip"></i>
                                                         <span>UOT PASS</span>
                                                     </span>
-                                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-2 py-0.5" style="font-size: 0.68rem;">
+                                                    <span
+                                                        class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-2 py-0.5"
+                                                        style="font-size: 0.68rem;">
                                                         <i class="fas fa-check-circle me-1"></i>معتمدة رقمياً
                                                     </span>
                                                 </div>
@@ -2136,43 +2816,44 @@
                                                     <div class="qr-corner qr-bl"></div>
                                                     <div class="qr-corner qr-br"></div>
                                                     <div class="fair-card-laser"></div>
-                                                    <svg class="fair-card-qr-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                                    <svg class="fair-card-qr-svg" viewBox="0 0 100 100"
+                                                        xmlns="http://www.w3.org/2000/svg">
                                                         <!-- QR Pattern Elements -->
-                                                        <rect x="8" y="8" width="26" height="26" rx="4" fill="#0d3882"/>
-                                                        <rect x="13" y="13" width="16" height="16" rx="2" fill="#ffffff"/>
-                                                        <rect x="17" y="17" width="8" height="8" rx="1" fill="#0d3882"/>
+                                                        <rect x="8" y="8" width="26" height="26" rx="4" fill="#0d3882" />
+                                                        <rect x="13" y="13" width="16" height="16" rx="2" fill="#ffffff" />
+                                                        <rect x="17" y="17" width="8" height="8" rx="1" fill="#0d3882" />
 
-                                                        <rect x="66" y="8" width="26" height="26" rx="4" fill="#0d3882"/>
-                                                        <rect x="71" y="13" width="16" height="16" rx="2" fill="#ffffff"/>
-                                                        <rect x="75" y="17" width="8" height="8" rx="1" fill="#0d3882"/>
+                                                        <rect x="66" y="8" width="26" height="26" rx="4" fill="#0d3882" />
+                                                        <rect x="71" y="13" width="16" height="16" rx="2" fill="#ffffff" />
+                                                        <rect x="75" y="17" width="8" height="8" rx="1" fill="#0d3882" />
 
-                                                        <rect x="8" y="66" width="26" height="26" rx="4" fill="#0d3882"/>
-                                                        <rect x="13" y="71" width="16" height="16" rx="2" fill="#ffffff"/>
-                                                        <rect x="17" y="75" width="8" height="8" rx="1" fill="#0d3882"/>
+                                                        <rect x="8" y="66" width="26" height="26" rx="4" fill="#0d3882" />
+                                                        <rect x="13" y="71" width="16" height="16" rx="2" fill="#ffffff" />
+                                                        <rect x="17" y="75" width="8" height="8" rx="1" fill="#0d3882" />
 
                                                         <!-- Data Bits with Gold Accent -->
-                                                        <rect x="40" y="10" width="7" height="7" rx="1.5" fill="#0d3882"/>
-                                                        <rect x="52" y="10" width="7" height="7" rx="1.5" fill="#f59e0b"/>
-                                                        <rect x="40" y="22" width="7" height="14" rx="1.5" fill="#0d3882"/>
-                                                        <rect x="52" y="22" width="7" height="7" rx="1.5" fill="#0d3882"/>
+                                                        <rect x="40" y="10" width="7" height="7" rx="1.5" fill="#0d3882" />
+                                                        <rect x="52" y="10" width="7" height="7" rx="1.5" fill="#f59e0b" />
+                                                        <rect x="40" y="22" width="7" height="14" rx="1.5" fill="#0d3882" />
+                                                        <rect x="52" y="22" width="7" height="7" rx="1.5" fill="#0d3882" />
 
-                                                        <rect x="10" y="42" width="14" height="7" rx="1.5" fill="#0d3882"/>
-                                                        <rect x="29" y="42" width="7" height="7" rx="1.5" fill="#f59e0b"/>
-                                                        <rect x="41" y="42" width="18" height="7" rx="1.5" fill="#0d3882"/>
-                                                        <rect x="64" y="42" width="7" height="7" rx="1.5" fill="#0d3882"/>
-                                                        <rect x="76" y="42" width="14" height="7" rx="1.5" fill="#0d3882"/>
+                                                        <rect x="10" y="42" width="14" height="7" rx="1.5" fill="#0d3882" />
+                                                        <rect x="29" y="42" width="7" height="7" rx="1.5" fill="#f59e0b" />
+                                                        <rect x="41" y="42" width="18" height="7" rx="1.5" fill="#0d3882" />
+                                                        <rect x="64" y="42" width="7" height="7" rx="1.5" fill="#0d3882" />
+                                                        <rect x="76" y="42" width="14" height="7" rx="1.5" fill="#0d3882" />
 
-                                                        <rect x="41" y="54" width="7" height="7" rx="1.5" fill="#f59e0b"/>
-                                                        <rect x="53" y="54" width="18" height="7" rx="1.5" fill="#0d3882"/>
-                                                        <rect x="76" y="54" width="14" height="7" rx="1.5" fill="#0d3882"/>
+                                                        <rect x="41" y="54" width="7" height="7" rx="1.5" fill="#f59e0b" />
+                                                        <rect x="53" y="54" width="18" height="7" rx="1.5" fill="#0d3882" />
+                                                        <rect x="76" y="54" width="14" height="7" rx="1.5" fill="#0d3882" />
 
-                                                        <rect x="41" y="66" width="7" height="16" rx="1.5" fill="#0d3882"/>
-                                                        <rect x="53" y="66" width="14" height="7" rx="1.5" fill="#0d3882"/>
-                                                        <rect x="72" y="66" width="7" height="7" rx="1.5" fill="#f59e0b"/>
-                                                        <rect x="84" y="66" width="7" height="16" rx="1.5" fill="#0d3882"/>
+                                                        <rect x="41" y="66" width="7" height="16" rx="1.5" fill="#0d3882" />
+                                                        <rect x="53" y="66" width="14" height="7" rx="1.5" fill="#0d3882" />
+                                                        <rect x="72" y="66" width="7" height="7" rx="1.5" fill="#f59e0b" />
+                                                        <rect x="84" y="66" width="7" height="16" rx="1.5" fill="#0d3882" />
 
-                                                        <rect x="53" y="78" width="22" height="10" rx="1.5" fill="#0d3882"/>
-                                                        <rect x="41" y="87" width="7" height="7" rx="1.5" fill="#0d3882"/>
+                                                        <rect x="53" y="78" width="22" height="10" rx="1.5" fill="#0d3882" />
+                                                        <rect x="41" y="87" width="7" height="7" rx="1.5" fill="#0d3882" />
                                                     </svg>
                                                 </div>
 
@@ -2200,12 +2881,14 @@
                                                 <div class="fair-book-spine-line"></div>
 
                                                 <div class="fair-cover-crest-wrap">
-                                                    <img src="{{ asset('images/logo.jpg') }}" alt="جامعة طرابلس" class="fair-cover-crest-img" onerror="this.onerror=null;">
+                                                    <img src="{{ asset('images/logo.jpg') }}" alt="جامعة طرابلس"
+                                                        class="fair-cover-crest-img" onerror="this.onerror=null;">
                                                 </div>
 
                                                 @if($fair->white_logo_url)
                                                     <div class="my-1">
-                                                        <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" class="img-fluid"
+                                                        <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}"
+                                                            class="img-fluid"
                                                             style="max-height: 52px; max-width: 155px; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));"
                                                             onerror="this.onerror=null;this.src='{{ $fair->logo_url }}';">
                                                     </div>
@@ -2229,7 +2912,8 @@
                                                     <h5 class="fair-cover-title">
                                                         {{ $fair->title }}
                                                     </h5>
-                                                    <small class="text-white-50" style="font-size: 0.7rem;">جامعة طرابلس • تصريح رسمي</small>
+                                                    <small class="text-white-50" style="font-size: 0.7rem;">جامعة طرابلس • تصريح
+                                                        رسمي</small>
                                                 </div>
 
                                                 <div class="fair-cover-hint">
@@ -2310,36 +2994,47 @@
                         <div class="col-lg-4 col-md-6 training-card {{ $index >= 3 ? 'hidden-training' : '' }}"
                             data-aos="fade-up" data-aos-delay="{{ ($index % 3) * 100 }}"
                             style="{{ $index >= 3 ? 'display: none;' : '' }}">
-                            <div class="bento-training-card">
-                                <div class="bento-card-header d-flex justify-content-between align-items-center">
-                                    <span class="badge rounded-pill px-2.5 py-1 small fw-bold"
-                                        style="background: #eff6ff; color: #1565c0; border: 1px solid #bfdbfe;">
-                                        <i class="fas fa-certificate me-1 text-warning"></i>برنامج معتمد
-                                    </span>
-                                    <small class="text-muted"><i
-                                            class="fas fa-clock me-1 text-warning"></i>{{ $training->duration }} أيام</small>
-                                </div>
-                                <div class="card-body p-4 d-flex flex-column flex-grow-1">
-                                    <h5 class="fw-bold text-dark mb-2 fs-6">{{ $training->title }}</h5>
-                                    <p class="text-muted small mb-3 flex-grow-1" style="line-height: 1.6;">
-                                        {{ Str::limit(strip_tags($training->description), 130) }}
+                            <div class="uiverse-train-card">
+                                <div class="title-card">
+                                    <p>
+                                        <i class="fas fa-certificate text-warning"></i>
+                                        <span>برنامج تدريبي معتمد</span>
                                     </p>
-                                    <div class="p-2.5 rounded-3 bg-light mb-3 text-muted small d-flex justify-content-between align-items-center"
-                                        style="font-size: 0.8rem;">
-                                        <span><i class="fas fa-calendar-alt text-primary me-1"></i>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                                        <path fill="currentColor"
+                                            d="M10.277 16.515c.005-.11.187-.154.24-.058c.254.45.686 1.111 1.177 1.412c.49.3 1.275.386 1.791.408c.11.005.154.186.058.24c-.45.254-1.111.686-1.412 1.176s-.386 1.276-.408 1.792c-.005.11-.187.153-.24.057c-.254-.45-.686-1.11-1.176-1.411s-1.276-.386-1.792-.408c-.11-.005-.153-.187-.057-.24c.45-.254 1.11-.686 1.411-1.177c.301-.49.386-1.276.408-1.791m8.215-1c-.008-.11-.2-.156-.257-.062c-.172.283-.421.623-.697.793s-.693.236-1.023.262c-.11.008-.155.2-.062.257c.283.172.624.42.793.697s.237.693.262 1.023c.009.11.2.155.258.061c.172-.282.42-.623.697-.792s.692-.237 1.022-.262c.11-.009.156-.2.062-.258c-.283-.172-.624-.42-.793-.697s-.236-.692-.262-1.022M14.704 4.002l-.242-.306c-.937-1.183-1.405-1.775-1.95-1.688c-.545.088-.806.796-1.327 2.213l-.134.366c-.149.403-.223.604-.364.752c-.143.148-.336.225-.724.38l-.353.141l-.248.1c-1.2.48-1.804.753-1.881 1.283c-.082.565.49 1.049 1.634 2.016l.296.25c.325.275.488.413.58.6c.094.187.107.403.134.835l.024.393c.093 1.52.14 2.28.634 2.542s1.108-.147 2.336-.966l.318-.212c.35-.233.524-.35.723-.381c.2-.032.402.024.806.136l.368.102c1.422.394 2.133.591 2.52.188c.388-.403.196-1.14-.19-2.613l-.099-.381c-.11-.419-.164-.628-.134-.835s.142-.389.365-.752l.203-.33c.786-1.276 1.179-1.914.924-2.426c-.254-.51-.987-.557-2.454-.648l-.379-.024c-.417-.026-.625-.039-.806-.135c-.18-.096-.314-.264-.58-.6m-5.869 9.324C6.698 14.37 4.919 16.024 4.248 18c-.752-4.707.292-7.747 1.965-9.637c.144.295.332.539.5.73c.35.396.852.82 1.362 1.251l.367.31l.17.145c.005.064.01.14.015.237l.03.485c.04.655.08 1.294.178 1.805" />
+                                    </svg>
+                                </div>
+                                <div class="card-content">
+                                    <span class="card-category">
+                                        <i class="fas fa-graduation-cap text-warning"></i>
+                                        <span>تأهيل الكفاءات • جامعة طرابلس</span>
+                                    </span>
+                                    <h5 class="card-title-main" title="{{ $training->title }}">{{ $training->title }}</h5>
+                                    <div class="plain">
+                                        @php
+                                            $durDigits = preg_replace('/[^0-9]/', '', $training->duration);
+                                            $durIsHours = Str::contains(strtolower($training->duration), 'hour') || Str::contains($training->duration, 'ساعة');
+                                        @endphp
+                                        <span>{{ $durDigits ?: $training->duration }}</span>
+                                        <span>{{ $durIsHours ? 'ساعة تدريبية معتمدة' : 'أيام تدريبية مكثفة' }}</span>
+                                    </div>
+                                    <p class="description">
+                                        {{ Str::limit(strip_tags($training->description), 115) }}
+                                    </p>
+                                    <div class="card-meta-pill">
+                                        <span><i class="fas fa-calendar-alt text-warning me-1"></i>
                                             {{ \Carbon\Carbon::parse($training->start_date)->format('Y/m/d') }}</span>
-                                        <span><i class="fas fa-map-marker-alt text-danger me-1"></i>
+                                        <span><i class="fas fa-map-marker-alt text-info me-1"></i>
                                             {{ $training->location ?? 'جامعة طرابلس' }}</span>
                                     </div>
                                     @auth
-                                        <a href="{{ route('graduate.trainings.show', $training->id) }}"
-                                            class="btn btn-outline-primary rounded-3 w-100 fw-bold py-2">
-                                            <span>تفاصيل التدريب والتسجيل</span>
+                                        <a href="{{ route('graduate.trainings.show', $training->id) }}" class="card-btn">
+                                            <span>تفاصيل التدريب والتقديم</span>
                                             <i class="fas fa-arrow-left ms-1 small"></i>
                                         </a>
                                     @else
-                                        <button type="button" class="btn btn-outline-primary rounded-3 w-100 fw-bold py-2"
-                                            data-bs-toggle="modal" data-bs-target="#loginModal">
+                                        <button type="button" class="card-btn" data-bs-toggle="modal" data-bs-target="#loginModal">
                                             <span>سجل دخولك للتقديم</span>
                                             <i class="fas fa-arrow-left ms-1 small"></i>
                                         </button>
@@ -2688,41 +3383,140 @@
                     الكفاءات الليبية الشابة لدخول سوق العمل بجدارة.</p>
             </div>
 
-            <div class="row g-4 text-center">
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-                    <div class="p-4 border rounded-4 shadow-sm h-100" style="background: #f8fafc;">
-                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                            style="width: 64px; height: 64px; background: rgba(21, 101, 192, 0.1); color: #1565c0; font-size: 1.6rem;">
-                            <i class="fas fa-graduation-cap"></i>
-                        </div>
-                        <h5 class="fw-bold text-dark fs-6 mb-2">تطوير مهني احترافي</h5>
-                        <p class="text-muted small mb-0">تقديم حزم تدريبية دورية تركز على المهارات التقنية، القيادية،
-                            واللغوية المطلوبة من أرباب العمل.</p>
-                    </div>
-                </div>
+            <!-- بطاقة الشاشة العريضة الموحدة للأهداف (Wide HUD Screen Card) -->
+            <div class="goals-hud-screen-border" data-aos="zoom-in-up" data-aos-duration="800">
+                <div class="goals-hud-screen-bg">
 
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
-                    <div class="p-4 border rounded-4 shadow-sm h-100" style="background: #f8fafc;">
-                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                            style="width: 64px; height: 64px; background: rgba(16, 185, 129, 0.1); color: #10b981; font-size: 1.6rem;">
-                            <i class="fas fa-handshake"></i>
+                    <!-- الترويسة العلوية للشاشة مع الشعار الدوار المضلع -->
+                    <div class="goals-screen-header">
+                        <div class="goals-screen-badge-box">
+                            <div class="hud-logo-container">
+                                <div class="hud-logo-spin"></div>
+                                <div class="hud-logo-inside">
+                                    <i class="fas fa-bullseye"></i>
+                                </div>
+                            </div>
+                            <div class="goals-screen-title-area">
+                                <h3>
+                                    <span>نهدف الى </span>
+                                    <i class="fas fa-shield-alt text-warning fs-6"></i>
+                                </h3>
+                                <p>مكتب تدريب الخريجين </p>
+                            </div>
                         </div>
-                        <h5 class="fw-bold text-dark fs-6 mb-2">شراكات عمل استراتيجية</h5>
-                        <p class="text-muted small mb-0">بناء مذكرات تفاهم وشراكات مستدامة مع القطاعين العام والخاص
-                            لتسهيل استيعاب الخريجين في برامج تدريب وتوظيف.</p>
-                    </div>
-                </div>
 
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
-                    <div class="p-4 border rounded-4 shadow-sm h-100" style="background: #f8fafc;">
-                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                            style="width: 64px; height: 64px; background: rgba(245, 158, 11, 0.1); color: #f59e0b; font-size: 1.6rem;">
-                            <i class="fas fa-chart-line"></i>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="goals-screen-status-pill">
+                                <span class="hud-pulse-dot"></span>
+                                <span>LIVE HUD // UOT-GTO</span>
+                            </div>
                         </div>
-                        <h5 class="fw-bold text-dark fs-6 mb-2">متابعة الأثر والتقييم المستمر</h5>
-                        <p class="text-muted small mb-0">توثيق معدلات التوظيف ونسب نجاح الخريجين واستطلاع آراء الشركات
-                            لتحسين مخرجات التعليم الجامعي.</p>
                     </div>
+
+                    <!-- شريط الماركيه المتحرك في الخلفية (Marquee Text) -->
+                    <div class="goals-hud-marquee">
+                        <div class="goals-hud-marquee-inner" aria-hidden="true">
+                            <span class="goals-hud-giant-text">GRADUATE TRAINING OFFICE • UNIVERSITY OF TRIPOLI • أهداف
+                                التميز والريادة • </span>
+                            <span class="goals-hud-giant-text">GRADUATE TRAINING OFFICE • UNIVERSITY OF TRIPOLI • أهداف
+                                التميز والريادة • </span>
+                        </div>
+                    </div>
+
+                    <!-- الضباب المتوهج (Glow Mist) -->
+                    <div class="hud-mist-container">
+                        <div class="hud-mist"></div>
+                    </div>
+
+                    <!-- الأهداف الثلاثة مكتوبة وموزعة بوضوح تام داخل الشاشة -->
+                    <div class="row g-4 goals-hud-grid">
+                        <!-- الهدف 1 -->
+                        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                            <div class="goal-hud-card">
+                                <div>
+                                    <div class="goal-hud-card-top">
+                                        <div class="goal-hud-icon-badge goal-hud-icon-1">
+                                            <i class="fas fa-graduation-cap"></i>
+                                        </div>
+                                        <span class="goal-hud-num">GOAL // 01</span>
+                                    </div>
+                                    <h4 class="goal-hud-title">تطوير مهني احترافي</h4>
+                                    <p class="goal-hud-desc">
+                                        تقديم حزم تدريبية دورية تركز على المهارات التقنية، القيادية، واللغوية المطلوبة
+                                        من أرباب العمل في سوق العمل المعاصر.
+                                    </p>
+                                </div>
+                                <div class="goal-hud-tags">
+                                    <span class="goal-hud-tag-item"><i class="fas fa-certificate text-warning"></i>
+                                        برامج تطبيقية</span>
+                                    <span class="goal-hud-tag-item"><i class="fas fa-user-tie text-info"></i> خبراء
+                                        ومدربون</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- الهدف 2 -->
+                        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                            <div class="goal-hud-card">
+                                <div>
+                                    <div class="goal-hud-card-top">
+                                        <div class="goal-hud-icon-badge goal-hud-icon-2">
+                                            <i class="fas fa-handshake"></i>
+                                        </div>
+                                        <span class="goal-hud-num">GOAL // 02</span>
+                                    </div>
+                                    <h4 class="goal-hud-title">شراكات عمل استراتيجية</h4>
+                                    <p class="goal-hud-desc">
+                                        بناء مذكرات تفاهم وشراكات مستدامة مع القطاعين العام والخاص لتسهيل استيعاب
+                                        الخريجين في برامج تدريب وتوظيف واعدة.
+                                    </p>
+                                </div>
+                                <div class="goal-hud-tags">
+                                    <span class="goal-hud-tag-item"><i class="fas fa-building text-warning"></i> قطاع
+                                        عام وخاص</span>
+                                    <span class="goal-hud-tag-item"><i class="fas fa-calendar-alt text-info"></i> معارض
+                                        توظيف</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- الهدف 3 -->
+                        <div class="col-lg-4 col-md-12" data-aos="fade-up" data-aos-delay="300">
+                            <div class="goal-hud-card">
+                                <div>
+                                    <div class="goal-hud-card-top">
+                                        <div class="goal-hud-icon-badge goal-hud-icon-3">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <span class="goal-hud-num">GOAL // 03</span>
+                                    </div>
+                                    <h4 class="goal-hud-title">متابعة الأثر والتقييم المستمر</h4>
+                                    <p class="goal-hud-desc">
+                                        توثيق معدلات التوظيف ونسب نجاح الخريجين واستطلاع آراء الشركات لتحسين مخرجات
+                                        التعليم الجامعي ورفع الجاهزية المهنية.
+                                    </p>
+                                </div>
+                                <div class="goal-hud-tags">
+                                    <span class="goal-hud-tag-item"><i class="fas fa-poll text-warning"></i> قياس مؤشرات
+                                        التوظيف</span>
+                                    <span class="goal-hud-tag-item"><i class="fas fa-award text-success"></i> جودة
+                                        مستدامة</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- التذييل السفلي للشاشة التكنولوجية -->
+                    <div class="goals-screen-footer">
+                        <div class="hud-footer-vision">
+                            <i class="fas fa-quote-right text-warning"></i>
+                            <span>نحو كوادر وطنية واعدة تقود ريادة المستقبل والابتكار</span>
+                        </div>
+                        <div class="hud-footer-code">
+                            <span>UOT-GTO-VISION • EST. 2024</span>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -2736,7 +3530,8 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="d-flex align-items-center gap-3 mb-3">
                         <div class="footer-brand-logo-frame">
-                            <img src="{{ asset('images/logo.jpg') }}" alt="جامعة طرابلس" class="footer-brand-logo-img" onerror="this.onerror=null;">
+                            <img src="{{ asset('images/logo.jpg') }}" alt="جامعة طرابلس" class="footer-brand-logo-img"
+                                onerror="this.onerror=null;">
                         </div>
                         <div>
                             <h5 class="text-white fw-bold mb-0 fs-6">جامعة طرابلس</h5>
@@ -2744,19 +3539,25 @@
                         </div>
                     </div>
                     <p class="text-white-50 small mb-3" style="line-height: 1.8;">
-                        المنصة الإلكترونية الموحدة لربط خريجي جامعة طرابلس بسوق العمل، وتقديم البرامج التدريبية المعتمدة وتنظيم معارض التوظيف السنوية.
+                        المنصة الإلكترونية الموحدة لربط خريجي جامعة طرابلس بسوق العمل، وتقديم البرامج التدريبية المعتمدة
+                        وتنظيم معارض التوظيف السنوية.
                     </p>
                     <div class="d-flex gap-2 flex-wrap">
-                        <a href="https://uot.edu.ly/gto/" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="الموقع الرسمي لمكتب تدريب الخريجين">
+                        <a href="https://uot.edu.ly/gto/" target="_blank" rel="noopener noreferrer"
+                            class="footer-social-btn" title="الموقع الرسمي لمكتب تدريب الخريجين">
                             <i class="fas fa-globe"></i>
                         </a>
-                        <a href="https://www.facebook.com/p/%D9%85%D9%83%D8%AA%D8%A8-%D8%AA%D8%AF%D8%B1%D9%8A%D8%A8-%D8%A7%D9%84%D8%AE%D8%B1%D9%8A%D8%AC%D9%8A%D9%86-%D8%AC%D8%A7%D9%85%D8%B9%D8%A9-%D8%B7%D8%B1%D8%A8%D9%84%D8%B3-61554996546918/" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="صفحة فيسبوك الرسمية">
+                        <a href="https://www.facebook.com/p/%D9%85%D9%83%D8%AA%D8%A8-%D8%AA%D8%AF%D8%B1%D9%8A%D8%A8-%D8%A7%D9%84%D8%AE%D8%B1%D9%8A%D8%AC%D9%8A%D9%86-%D8%AC%D8%A7%D9%85%D8%B9%D8%A9-%D8%B7%D8%B1%D8%A8%D9%84%D8%B3-61554996546918/"
+                            target="_blank" rel="noopener noreferrer" class="footer-social-btn"
+                            title="صفحة فيسبوك الرسمية">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="https://www.linkedin.com/company/traning2024office/" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="صفحة لينكد إن الرسمية">
+                        <a href="https://www.linkedin.com/company/traning2024office/" target="_blank"
+                            rel="noopener noreferrer" class="footer-social-btn" title="صفحة لينكد إن الرسمية">
                             <i class="fab fa-linkedin-in"></i>
                         </a>
-                        <a href="https://www.tiktok.com/@graduate_training_office" target="_blank" rel="noopener noreferrer" class="footer-social-btn" title="حساب تيك توك الرسمي">
+                        <a href="https://www.tiktok.com/@graduate_training_office" target="_blank"
+                            rel="noopener noreferrer" class="footer-social-btn" title="حساب تيك توك الرسمي">
                             <i class="fab fa-tiktok"></i>
                         </a>
                     </div>
@@ -2779,13 +3580,18 @@
                 <div class="col-lg-3 col-md-6 col-6">
                     <h6 class="text-white fw-bold mb-3 fs-6">البوابات والخدمات</h6>
                     <ul class="list-unstyled mb-0">
-                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal" class="footer-link">تسجيل خريج جديد</a></li>
-                        <li><a href="{{ route('company.register') }}" class="footer-link"><i class="fas fa-building me-1 text-warning"></i>تسجيل شركة أو مؤسسة جديدة</a></li>
-                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#loginModal" class="footer-link">تسجيل الدخول للنظام</a></li>
+                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#graduateRegisterModal"
+                                class="footer-link">تسجيل خريج جديد</a></li>
+                        <li><a href="{{ route('company.register') }}" class="footer-link"><i
+                                    class="fas fa-building me-1 text-warning"></i>تسجيل شركة أو مؤسسة جديدة</a></li>
+                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#loginModal"
+                                class="footer-link">تسجيل الدخول للنظام</a></li>
                         @if(isset($activeFair) && $activeFair && !$activeFair->is_ended)
-                            <li><a href="{{ route('job-fair.public', $activeFair->id) }}" class="footer-link">بوابة {{ $activeFair->title }}</a></li>
+                            <li><a href="{{ route('job-fair.public', $activeFair->id) }}" class="footer-link">بوابة
+                                    {{ $activeFair->title }}</a></li>
                         @endif
-                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" class="footer-link">استعادة كلمة المرور</a></li>
+                        <li><a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal"
+                                class="footer-link">استعادة كلمة المرور</a></li>
                     </ul>
                 </div>
 
@@ -2795,18 +3601,22 @@
                     <ul class="list-unstyled text-white-50 small mb-0">
                         <li class="d-flex align-items-start gap-2 mb-2">
                             <span class="footer-contact-icon mt-1"><i class="fas fa-map-marker-alt"></i></span>
-                            <a href="https://maps.app.goo.gl/U8z9xwycDn9qAYz47" target="_blank" rel="noopener noreferrer" class="text-white-50 text-decoration-none text-hover-warning" title="عرض موقع مكتب تدريب الخريجين على خرائط جوجل">
+                            <a href="https://maps.app.goo.gl/U8z9xwycDn9qAYz47" target="_blank"
+                                rel="noopener noreferrer" class="text-white-50 text-decoration-none text-hover-warning"
+                                title="عرض موقع مكتب تدريب الخريجين على خرائط جوجل">
                                 جامعة طرابلس، سيدي المصري، طرابلس — ليبيا
                                 <i class="fas fa-external-link-alt ms-1 text-warning" style="font-size: 0.7rem;"></i>
                             </a>
                         </li>
                         <li class="d-flex align-items-center gap-2 mb-2">
                             <span class="footer-contact-icon"><i class="fas fa-envelope"></i></span>
-                            <a href="mailto:officetraining@uot.edu.ly" class="text-white-50 text-decoration-none text-hover-warning">officetraining@uot.edu.ly</a>
+                            <a href="mailto:officetraining@uot.edu.ly"
+                                class="text-white-50 text-decoration-none text-hover-warning">officetraining@uot.edu.ly</a>
                         </li>
                         <li class="d-flex align-items-center gap-2 mb-2">
                             <span class="footer-contact-icon"><i class="fas fa-phone-alt"></i></span>
-                            <a href="tel:0930822581" class="text-white-50 text-decoration-none text-hover-warning" dir="ltr">093-0822581</a>
+                            <a href="tel:0930822581" class="text-white-50 text-decoration-none text-hover-warning"
+                                dir="ltr">093-0822581</a>
                         </li>
                         <li class="d-flex align-items-center gap-2">
                             <span class="footer-contact-icon"><i class="fas fa-clock"></i></span>
@@ -2816,7 +3626,8 @@
                 </div>
             </div>
 
-            <div class="border-top border-secondary pt-4 mt-2 text-center text-white-50 small d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div
+                class="border-top border-secondary pt-4 mt-2 text-center text-white-50 small d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <span>© {{ date('Y') }} جامعة طرابلس — جميع الحقوق محفوظة لمكتب تدريب الخريجين.</span>
                 <span class="text-warning">منصة الخريجين وسوق العمل</span>
             </div>
@@ -2824,32 +3635,39 @@
     </footer>
 
     <!-- ==================== 11. نافذة تسجيل الدخول المنبثقة (Login Modal) ==================== -->
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true" style="backdrop-filter: blur(8px);">
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true"
+        style="backdrop-filter: blur(8px);">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
             <div class="modal-content modal-login-content">
                 <div class="modal-login-header">
-                    <button type="button" class="btn-close btn-close-white position-absolute top-0 start-0 m-3 shadow-none" data-bs-dismiss="modal" aria-label="إغلاق"></button>
-                    <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" class="modal-login-logo d-block" onerror="this.onerror=null;">
+                    <button type="button"
+                        class="btn-close btn-close-white position-absolute top-0 start-0 m-3 shadow-none"
+                        data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                    <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" class="modal-login-logo d-block"
+                        onerror="this.onerror=null;">
                     <h4 class="fw-bold mb-1" id="loginModalLabel">تسجيل الدخول</h4>
                     <p class="mb-0 text-white-50 small">مكتب تدريب الخريجين — جامعة طرابلس</p>
                 </div>
                 <div class="modal-login-body">
                     @if(session('success'))
-                        <div class="alert alert-success border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
+                        <div
+                            class="alert alert-success border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
                             <i class="fas fa-check-circle flex-shrink-0 fs-6 text-success"></i>
                             <span class="fw-semibold">{{ session('success') }}</span>
                         </div>
                     @endif
 
                     @if(session('status'))
-                        <div class="alert alert-success border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
+                        <div
+                            class="alert alert-success border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
                             <i class="fas fa-check-circle flex-shrink-0 fs-6 text-success"></i>
                             <span class="fw-semibold">{{ session('status') }}</span>
                         </div>
                     @endif
 
                     @if($errors->any() && !request('open_forgot') && !request('open_verify') && !request('open_register') && !old('reset_form') && !old('verify_form') && !old('from_register_modal'))
-                        <div class="alert alert-danger border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
+                        <div
+                            class="alert alert-danger border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
                             <i class="fas fa-exclamation-circle flex-shrink-0 fs-6 text-danger"></i>
                             <span class="fw-semibold">{{ $errors->first() }}</span>
                         </div>
@@ -2861,7 +3679,10 @@
                             <label for="modalEmail" class="form-label fw-bold text-dark small mb-1">
                                 <i class="fas fa-user-circle text-primary me-1"></i>البريد الإلكتروني أو اسم المستخدم
                             </label>
-                            <input type="text" class="form-control modal-login-input @error('email') is-invalid @enderror" id="modalEmail" name="email" value="{{ old('email') }}" placeholder="البريد الإلكتروني أو اسم المستخدم (مثال: admin)" required autofocus>
+                            <input type="text"
+                                class="form-control modal-login-input @error('email') is-invalid @enderror"
+                                id="modalEmail" name="email" value="{{ old('email') }}"
+                                placeholder="البريد الإلكتروني أو اسم المستخدم (مثال: admin)" required autofocus>
                         </div>
 
                         <div class="mb-3 text-start text-rtl">
@@ -2869,13 +3690,18 @@
                                 <label for="modalPassword" class="form-label fw-bold text-dark small mb-0">
                                     <i class="fas fa-lock text-primary me-1"></i>كلمة المرور
                                 </label>
-                                <a class="small text-decoration-none fw-bold" href="javascript:void(0)" id="btnOpenForgotModal" style="color: #1565c0; font-size: 0.8rem; cursor: pointer;">
+                                <a class="small text-decoration-none fw-bold" href="javascript:void(0)"
+                                    id="btnOpenForgotModal" style="color: #1565c0; font-size: 0.8rem; cursor: pointer;">
                                     نسيت كلمة المرور؟
                                 </a>
                             </div>
                             <div class="position-relative">
-                                <input type="password" class="form-control modal-login-input pe-5 @error('password') is-invalid @enderror" id="modalPassword" name="password" placeholder="••••••••" required>
-                                <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 shadow-none border-0" id="btnToggleModalPass" style="z-index: 5;">
+                                <input type="password"
+                                    class="form-control modal-login-input pe-5 @error('password') is-invalid @enderror"
+                                    id="modalPassword" name="password" placeholder="••••••••" required>
+                                <button type="button"
+                                    class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 shadow-none border-0"
+                                    id="btnToggleModalPass" style="z-index: 5;">
                                     <i class="far fa-eye" id="iconToggleModalPass"></i>
                                 </button>
                             </div>
@@ -2891,7 +3717,8 @@
                         <x-honeypot />
                         <x-turnstile action="login" />
 
-                        <button type="submit" class="btn btn-modal-login w-100 d-flex align-items-center justify-content-center gap-2 mt-2">
+                        <button type="submit"
+                            class="btn btn-modal-login w-100 d-flex align-items-center justify-content-center gap-2 mt-2">
                             <i class="fas fa-sign-in-alt"></i><span>دخول إلى النظام</span>
                         </button>
                     </form>
@@ -2899,14 +3726,16 @@
                     <div class="text-center mt-4 pt-3 border-top">
                         <p class="text-muted small mb-2">
                             خريج جديد ولم تسجل بعد؟
-                            <a href="javascript:void(0)" id="btnOpenRegisterFromLogin" class="fw-bold text-decoration-none ms-1" style="color: #1565c0; cursor: pointer;">
+                            <a href="javascript:void(0)" id="btnOpenRegisterFromLogin"
+                                class="fw-bold text-decoration-none ms-1" style="color: #1565c0; cursor: pointer;">
                                 تسجيل خريج جديد <i class="fas fa-arrow-left ms-1 small"></i>
                             </a>
                         </p>
                         <div class="pt-2 border-top border-light">
                             <p class="text-muted small mb-0">
                                 تمثل شركة أو مؤسسة وتبحث عن كفاءات؟
-                                <a href="{{ route('company.register') }}" class="fw-bold text-decoration-none ms-1" style="color: #0284c7;">
+                                <a href="{{ route('company.register') }}" class="fw-bold text-decoration-none ms-1"
+                                    style="color: #0284c7;">
                                     <i class="fas fa-building me-1"></i>تسجيل حساب شركة شريكة
                                 </a>
                             </p>
@@ -2918,18 +3747,23 @@
     </div>
 
     <!-- ==================== 12. نافذة استعادة كلمة المرور المنبثقة (Forgot Password Modal) ==================== -->
-    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true" style="backdrop-filter: blur(8px);">
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel"
+        aria-hidden="true" style="backdrop-filter: blur(8px);">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
             <div class="modal-content modal-login-content">
                 <div class="modal-login-header">
-                    <button type="button" class="btn-close btn-close-white position-absolute top-0 start-0 m-3 shadow-none" data-bs-dismiss="modal" aria-label="إغلاق"></button>
-                    <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" class="modal-login-logo d-block" onerror="this.onerror=null;">
+                    <button type="button"
+                        class="btn-close btn-close-white position-absolute top-0 start-0 m-3 shadow-none"
+                        data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                    <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" class="modal-login-logo d-block"
+                        onerror="this.onerror=null;">
                     <h4 class="fw-bold mb-1" id="forgotPasswordModalLabel">استعادة كلمة المرور</h4>
                     <p class="mb-0 text-white-50 small">أدخل بريدك الإلكتروني لاستلام رمز التحقق</p>
                 </div>
                 <div class="modal-login-body">
                     @if($errors->any() && (request('open_forgot') || old('reset_form')))
-                        <div class="alert alert-danger border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
+                        <div
+                            class="alert alert-danger border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
                             <i class="fas fa-exclamation-circle flex-shrink-0 fs-6 text-danger"></i>
                             <span class="fw-semibold">{{ $errors->first() }}</span>
                         </div>
@@ -2938,24 +3772,30 @@
                     <form method="POST" action="{{ route('password.code.store') }}" id="modalForgotForm">
                         @csrf
                         <input type="hidden" name="reset_form" value="1">
-                        
+
                         <div class="mb-3 text-start text-rtl">
                             <label for="forgotEmail" class="form-label fw-bold text-dark small mb-1">
                                 <i class="fas fa-envelope text-primary me-1"></i>البريد الإلكتروني المسجل
                             </label>
-                            <input type="email" class="form-control modal-login-input @error('email') is-invalid @enderror" id="forgotEmail" name="email" value="{{ old('email') }}" placeholder="example@uot.edu.ly" required autofocus>
-                            <small class="text-muted" style="font-size: 0.78rem;">سنرسل لك رمز تحقق مكون من 6 أرقام لإعادة تعيين كلمة المرور.</small>
+                            <input type="email"
+                                class="form-control modal-login-input @error('email') is-invalid @enderror"
+                                id="forgotEmail" name="email" value="{{ old('email') }}"
+                                placeholder="example@uot.edu.ly" required autofocus>
+                            <small class="text-muted" style="font-size: 0.78rem;">سنرسل لك رمز تحقق مكون من 6 أرقام
+                                لإعادة تعيين كلمة المرور.</small>
                         </div>
 
                         <x-honeypot />
                         <x-turnstile action="forgot_password" />
 
-                        <button type="submit" class="btn btn-modal-login w-100 d-flex align-items-center justify-content-center gap-2 mb-3 mt-2">
+                        <button type="submit"
+                            class="btn btn-modal-login w-100 d-flex align-items-center justify-content-center gap-2 mb-3 mt-2">
                             <i class="fas fa-paper-plane"></i><span>إرسال رمز التحقق</span>
                         </button>
 
                         <div class="text-center pt-2 border-top">
-                            <a href="javascript:void(0)" id="btnBackToLoginModal" class="fw-bold text-decoration-none small" style="color: #1565c0; cursor: pointer;">
+                            <a href="javascript:void(0)" id="btnBackToLoginModal"
+                                class="fw-bold text-decoration-none small" style="color: #1565c0; cursor: pointer;">
                                 <i class="fas fa-arrow-right me-1"></i>العودة لتسجيل الدخول
                             </a>
                         </div>
@@ -2966,25 +3806,31 @@
     </div>
 
     <!-- ==================== 13. نافذة التحقق وتغيير كلمة المرور المنبثقة (Verify Code & Reset Modal) ==================== -->
-    <div class="modal fade" id="verifyCodeModal" tabindex="-1" aria-labelledby="verifyCodeModalLabel" aria-hidden="true" style="backdrop-filter: blur(8px);">
+    <div class="modal fade" id="verifyCodeModal" tabindex="-1" aria-labelledby="verifyCodeModalLabel" aria-hidden="true"
+        style="backdrop-filter: blur(8px);">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 440px;">
             <div class="modal-content modal-login-content">
                 <div class="modal-login-header">
-                    <button type="button" class="btn-close btn-close-white position-absolute top-0 start-0 m-3 shadow-none" data-bs-dismiss="modal" aria-label="إغلاق"></button>
-                    <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" class="modal-login-logo d-block" onerror="this.onerror=null;">
+                    <button type="button"
+                        class="btn-close btn-close-white position-absolute top-0 start-0 m-3 shadow-none"
+                        data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                    <img src="{{ asset('images/logo.jpg') }}" alt="شعار الجامعة" class="modal-login-logo d-block"
+                        onerror="this.onerror=null;">
                     <h4 class="fw-bold mb-1" id="verifyCodeModalLabel">تغيير كلمة المرور</h4>
                     <p class="mb-0 text-white-50 small">أدخل الرمز المرسل إلى بريدك الإلكتروني</p>
                 </div>
                 <div class="modal-login-body">
                     @if(session('status_code_sent'))
-                        <div class="alert alert-success border-0 rounded-3 py-2 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
+                        <div
+                            class="alert alert-success border-0 rounded-3 py-2 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
                             <i class="fas fa-check-circle flex-shrink-0 fs-6 text-success"></i>
                             <span>{{ session('status_code_sent') }}</span>
                         </div>
                     @endif
 
                     @if($errors->any() && (request('open_verify') || old('verify_form')))
-                        <div class="alert alert-danger border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
+                        <div
+                            class="alert alert-danger border-0 rounded-3 py-2.5 px-3 small d-flex align-items-center gap-2 mb-3 shadow-none">
                             <i class="fas fa-exclamation-circle flex-shrink-0 fs-6 text-danger"></i>
                             <span class="fw-semibold">{{ $errors->first() }}</span>
                         </div>
@@ -2998,13 +3844,17 @@
                         @endphp
                         <input type="hidden" name="email" id="verifyModalEmailInput" value="{{ $safeVerifyEmail }}">
 
-                        <div class="p-2.5 rounded-3 bg-light border mb-3 d-flex justify-content-between align-items-center">
+                        <div
+                            class="p-2.5 rounded-3 bg-light border mb-3 d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center gap-1.5 overflow-hidden">
                                 <i class="fas fa-envelope text-primary small"></i>
                                 <span class="text-muted small">البريد:</span>
-                                <strong class="text-dark small text-truncate" id="verifyModalEmailDisplay">{{ $safeVerifyEmail }}</strong>
+                                <strong class="text-dark small text-truncate"
+                                    id="verifyModalEmailDisplay">{{ $safeVerifyEmail }}</strong>
                             </div>
-                            <a href="javascript:void(0)" id="btnChangeEmailInVerify" class="small fw-bold text-decoration-none flex-shrink-0" style="color: #1565c0; font-size: 0.78rem; cursor: pointer;">
+                            <a href="javascript:void(0)" id="btnChangeEmailInVerify"
+                                class="small fw-bold text-decoration-none flex-shrink-0"
+                                style="color: #1565c0; font-size: 0.78rem; cursor: pointer;">
                                 تغيير
                             </a>
                         </div>
@@ -3013,7 +3863,10 @@
                             <label for="verifyCodeInput" class="form-label fw-bold text-dark small mb-1">
                                 <i class="fas fa-key text-primary me-1"></i>رمز التحقق (6 أرقام)
                             </label>
-                            <input type="text" class="form-control modal-login-input text-center fw-bold fs-5 @error('code') is-invalid @enderror" id="verifyCodeInput" name="code" value="{{ old('code') }}" placeholder="123456" maxlength="6" required autofocus style="letter-spacing: 4px;">
+                            <input type="text"
+                                class="form-control modal-login-input text-center fw-bold fs-5 @error('code') is-invalid @enderror"
+                                id="verifyCodeInput" name="code" value="{{ old('code') }}" placeholder="123456"
+                                maxlength="6" required autofocus style="letter-spacing: 4px;">
                         </div>
 
                         <div class="mb-3 text-start text-rtl">
@@ -3021,8 +3874,12 @@
                                 <i class="fas fa-lock text-primary me-1"></i>كلمة المرور الجديدة
                             </label>
                             <div class="position-relative">
-                                <input type="password" class="form-control modal-login-input pe-5 @error('password') is-invalid @enderror" id="verifyNewPassword" name="password" placeholder="••••••••" required>
-                                <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 shadow-none border-0" id="btnToggleVerifyPass" style="z-index: 5;">
+                                <input type="password"
+                                    class="form-control modal-login-input pe-5 @error('password') is-invalid @enderror"
+                                    id="verifyNewPassword" name="password" placeholder="••••••••" required>
+                                <button type="button"
+                                    class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 shadow-none border-0"
+                                    id="btnToggleVerifyPass" style="z-index: 5;">
                                     <i class="far fa-eye" id="iconToggleVerifyPass"></i>
                                 </button>
                             </div>
@@ -3033,19 +3890,25 @@
                                 <i class="fas fa-lock text-primary me-1"></i>تأكيد كلمة المرور الجديدة
                             </label>
                             <div class="position-relative">
-                                <input type="password" class="form-control modal-login-input pe-5" id="verifyConfirmPassword" name="password_confirmation" placeholder="••••••••" required>
-                                <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 shadow-none border-0" id="btnToggleVerifyConfirmPass" style="z-index: 5;">
+                                <input type="password" class="form-control modal-login-input pe-5"
+                                    id="verifyConfirmPassword" name="password_confirmation" placeholder="••••••••"
+                                    required>
+                                <button type="button"
+                                    class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 shadow-none border-0"
+                                    id="btnToggleVerifyConfirmPass" style="z-index: 5;">
                                     <i class="far fa-eye" id="iconToggleVerifyConfirmPass"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-modal-login w-100 d-flex align-items-center justify-content-center gap-2 mb-3">
+                        <button type="submit"
+                            class="btn btn-modal-login w-100 d-flex align-items-center justify-content-center gap-2 mb-3">
                             <i class="fas fa-check-circle"></i><span>تأكيد وتغيير كلمة المرور</span>
                         </button>
 
                         <div class="text-center pt-2 border-top">
-                            <a href="javascript:void(0)" id="btnBackToLoginFromVerify" class="fw-bold text-decoration-none small" style="color: #1565c0; cursor: pointer;">
+                            <a href="javascript:void(0)" id="btnBackToLoginFromVerify"
+                                class="fw-bold text-decoration-none small" style="color: #1565c0; cursor: pointer;">
                                 <i class="fas fa-arrow-right me-1"></i>العودة لتسجيل الدخول
                             </a>
                         </div>
@@ -3056,14 +3919,19 @@
     </div>
 
     <!-- ==================== 14. نافذة تسجيل خريج جديد المنبثقة (Graduate Registration Modal) ==================== -->
-    <div class="modal fade" id="graduateRegisterModal" tabindex="-1" aria-labelledby="graduateRegisterModalLabel" aria-hidden="true" style="backdrop-filter: blur(8px);">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 860px; margin: 0.5rem auto;">
+    <div class="modal fade" id="graduateRegisterModal" tabindex="-1" aria-labelledby="graduateRegisterModalLabel"
+        aria-hidden="true" style="backdrop-filter: blur(8px);">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+            style="max-width: 860px; margin: 0.5rem auto;">
             <div class="modal-content modal-register-content">
                 <!-- Header -->
                 <div class="modal-register-header position-relative">
-                    <button type="button" class="btn-close btn-close-white position-absolute top-0 start-0 m-3 shadow-none" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                    <button type="button"
+                        class="btn-close btn-close-white position-absolute top-0 start-0 m-3 shadow-none"
+                        data-bs-dismiss="modal" aria-label="إغلاق"></button>
                     <h3><i class="fas fa-user-graduate me-2 text-warning"></i> تسجيل خريج جديد</h3>
-                    <p class="text-white-50 mb-0 small">انضم إلينا للاستفادة من خدمات التدريب والتأهيل وفرص التوظيف المباشر</p>
+                    <p class="text-white-50 mb-0 small">انضم إلينا للاستفادة من خدمات التدريب والتأهيل وفرص التوظيف
+                        المباشر</p>
                 </div>
 
                 <!-- Body -->
@@ -3100,13 +3968,15 @@
                     @endif
 
                     <!-- Step Alert Container -->
-                    <div id="regStepAlert" class="alert alert-warning border-0 rounded-3 py-2 px-3 small mb-3 shadow-none d-none">
+                    <div id="regStepAlert"
+                        class="alert alert-warning border-0 rounded-3 py-2 px-3 small mb-3 shadow-none d-none">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         <span id="regStepAlertText">يرجى استكمال الحقول الإلزامية المطلوبة.</span>
                     </div>
 
                     <!-- Form -->
-                    <form method="POST" action="{{ route('graduate.register.store') }}" id="modalRegistrationForm" novalidate>
+                    <form method="POST" action="{{ route('graduate.register.store') }}" id="modalRegistrationForm"
+                        novalidate>
                         @csrf
                         <input type="hidden" name="from_register_modal" value="1">
                         <x-honeypot />
@@ -3123,8 +3993,10 @@
                                     <label for="reg_name" class="form-label fw-bold text-dark small mb-1">
                                         الاسم الرباعي <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" class="form-control modal-login-input @error('name') is-invalid @enderror" id="reg_name"
-                                        name="name" value="{{ old('name') }}" required placeholder="الاسم الرباعي كما هو في الشهادة">
+                                    <input type="text"
+                                        class="form-control modal-login-input @error('name') is-invalid @enderror"
+                                        id="reg_name" name="name" value="{{ old('name') }}" required
+                                        placeholder="الاسم الرباعي كما هو في الشهادة">
                                     @error('name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -3134,8 +4006,10 @@
                                     <label for="reg_student_id" class="form-label fw-bold text-dark small mb-1">
                                         رقم القيد الجامعي <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" class="form-control modal-login-input @error('student_id') is-invalid @enderror @error('national_id') is-invalid @enderror"
-                                        id="reg_student_id" name="student_id" value="{{ old('student_id', old('national_id')) }}" required
+                                    <input type="text"
+                                        class="form-control modal-login-input @error('student_id') is-invalid @enderror @error('national_id') is-invalid @enderror"
+                                        id="reg_student_id" name="student_id"
+                                        value="{{ old('student_id', old('national_id')) }}" required
                                         placeholder="رقم القيد بالجامعة (الرقم الجامعي)">
                                     @error('student_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -3149,8 +4023,10 @@
                                     <label for="reg_email" class="form-label fw-bold text-dark small mb-1">
                                         البريد الإلكتروني <span class="text-danger">*</span>
                                     </label>
-                                    <input type="email" class="form-control modal-login-input @error('email') is-invalid @enderror" id="reg_email"
-                                        name="email" value="{{ old('email') }}" required placeholder="example@domain.com">
+                                    <input type="email"
+                                        class="form-control modal-login-input @error('email') is-invalid @enderror"
+                                        id="reg_email" name="email" value="{{ old('email') }}" required
+                                        placeholder="example@domain.com">
                                     @error('email')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -3160,8 +4036,10 @@
                                     <label for="reg_phone" class="form-label fw-bold text-dark small mb-1">
                                         رقم الهاتف <span class="text-danger">*</span>
                                     </label>
-                                    <input type="tel" class="form-control modal-login-input @error('phone') is-invalid @enderror" id="reg_phone"
-                                        name="phone" value="{{ old('phone') }}" required placeholder="09xxxxxxxx">
+                                    <input type="tel"
+                                        class="form-control modal-login-input @error('phone') is-invalid @enderror"
+                                        id="reg_phone" name="phone" value="{{ old('phone') }}" required
+                                        placeholder="09xxxxxxxx">
                                     @error('phone')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -3172,9 +4050,13 @@
                                         كلمة المرور <span class="text-danger">*</span>
                                     </label>
                                     <div class="position-relative">
-                                        <input type="password" class="form-control modal-login-input pe-5 @error('password') is-invalid @enderror"
-                                            id="reg_password" name="password" required minlength="8" placeholder="8 أحرف على الأقل">
-                                        <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 shadow-none border-0" id="btnToggleRegPass" style="z-index: 5;">
+                                        <input type="password"
+                                            class="form-control modal-login-input pe-5 @error('password') is-invalid @enderror"
+                                            id="reg_password" name="password" required minlength="8"
+                                            placeholder="8 أحرف على الأقل">
+                                        <button type="button"
+                                            class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 shadow-none border-0"
+                                            id="btnToggleRegPass" style="z-index: 5;">
                                             <i class="far fa-eye" id="iconToggleRegPass"></i>
                                         </button>
                                     </div>
@@ -3184,13 +4066,17 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label for="reg_password_confirmation" class="form-label fw-bold text-dark small mb-1">
+                                    <label for="reg_password_confirmation"
+                                        class="form-label fw-bold text-dark small mb-1">
                                         تأكيد كلمة المرور <span class="text-danger">*</span>
                                     </label>
                                     <div class="position-relative">
-                                        <input type="password" class="form-control modal-login-input pe-5" id="reg_password_confirmation"
-                                            name="password_confirmation" required minlength="8" placeholder="أعد كتابة كلمة المرور">
-                                        <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 shadow-none border-0" id="btnToggleRegConfirmPass" style="z-index: 5;">
+                                        <input type="password" class="form-control modal-login-input pe-5"
+                                            id="reg_password_confirmation" name="password_confirmation" required
+                                            minlength="8" placeholder="أعد كتابة كلمة المرور">
+                                        <button type="button"
+                                            class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-muted text-decoration-none pe-3 shadow-none border-0"
+                                            id="btnToggleRegConfirmPass" style="z-index: 5;">
                                             <i class="far fa-eye" id="iconToggleRegConfirmPass"></i>
                                         </button>
                                     </div>
@@ -3200,8 +4086,10 @@
                                     <label for="reg_date_of_birth" class="form-label fw-bold text-dark small mb-1">
                                         تاريخ الميلاد <span class="text-danger">*</span>
                                     </label>
-                                    <input type="date" class="form-control modal-login-input @error('date_of_birth') is-invalid @enderror"
-                                        id="reg_date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}" required>
+                                    <input type="date"
+                                        class="form-control modal-login-input @error('date_of_birth') is-invalid @enderror"
+                                        id="reg_date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}"
+                                        required>
                                     @error('date_of_birth')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -3211,11 +4099,12 @@
                                     <label for="reg_gender" class="form-label fw-bold text-dark small mb-1">
                                         الجنس <span class="text-danger">*</span>
                                     </label>
-                                    <select class="form-select modal-login-input @error('gender') is-invalid @enderror" id="reg_gender"
-                                        name="gender" required>
+                                    <select class="form-select modal-login-input @error('gender') is-invalid @enderror"
+                                        id="reg_gender" name="gender" required>
                                         <option value="">اختر الجنس</option>
                                         <option value="male" {{ old('gender') == 'male' ? 'selected' : '' }}>ذكر</option>
-                                        <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>أنثى</option>
+                                        <option value="female" {{ old('gender') == 'female' ? 'selected' : '' }}>أنثى
+                                        </option>
                                     </select>
                                     @error('gender')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -3226,8 +4115,10 @@
                                     <label for="reg_city" class="form-label fw-bold text-dark small mb-1">
                                         المدينة <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" class="form-control modal-login-input @error('city') is-invalid @enderror" id="reg_city"
-                                        name="city" value="{{ old('city', 'طرابلس') }}" required placeholder="طرابلس">
+                                    <input type="text"
+                                        class="form-control modal-login-input @error('city') is-invalid @enderror"
+                                        id="reg_city" name="city" value="{{ old('city', 'طرابلس') }}" required
+                                        placeholder="طرابلس">
                                     @error('city')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -3237,7 +4128,8 @@
                                     <label for="reg_address" class="form-label fw-bold text-dark small mb-1">
                                         العنوان بالتفصيل <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" class="form-control modal-login-input @error('address') is-invalid @enderror"
+                                    <input type="text"
+                                        class="form-control modal-login-input @error('address') is-invalid @enderror"
                                         id="reg_address" name="address" value="{{ old('address') }}" required
                                         placeholder="الحي - الشارع">
                                     @error('address')
@@ -3247,7 +4139,8 @@
                             </div>
 
                             <div class="d-flex justify-content-end mt-4 pt-2 border-top">
-                                <button type="button" class="btn btn-modal-login px-4 d-flex align-items-center gap-2" onclick="switchRegStep(2)">
+                                <button type="button" class="btn btn-modal-login px-4 d-flex align-items-center gap-2"
+                                    onclick="switchRegStep(2)">
                                     <span>المتابعة: البيانات الأكاديمية</span>
                                     <i class="fas fa-arrow-left"></i>
                                 </button>
@@ -3266,8 +4159,9 @@
                                     <label for="university" class="form-label fw-bold text-dark small mb-1">
                                         الجامعة <span class="text-danger">*</span>
                                     </label>
-                                    <select class="form-select modal-login-input @error('university') is-invalid @enderror" id="university"
-                                        name="university" required>
+                                    <select
+                                        class="form-select modal-login-input @error('university') is-invalid @enderror"
+                                        id="university" name="university" required>
                                         <option value="جامعة طرابلس" selected>جامعة طرابلس</option>
                                     </select>
                                     @error('university')
@@ -3279,8 +4173,8 @@
                                     <label for="sector" class="form-label fw-bold text-dark small mb-1">
                                         القطاع / القاطع <span class="text-danger">*</span>
                                     </label>
-                                    <select class="form-select modal-login-input @error('sector') is-invalid @enderror" id="sector"
-                                        name="sector" required>
+                                    <select class="form-select modal-login-input @error('sector') is-invalid @enderror"
+                                        id="sector" name="sector" required>
                                         <option value="">اختر القطاع</option>
                                     </select>
                                     <input type="hidden" id="old_sector" value="{{ old('sector') }}">
@@ -3293,8 +4187,8 @@
                                     <label for="faculty" class="form-label fw-bold text-dark small mb-1">
                                         الكلية <span class="text-danger">*</span>
                                     </label>
-                                    <select class="form-select modal-login-input @error('faculty') is-invalid @enderror" id="faculty"
-                                        name="faculty" required disabled>
+                                    <select class="form-select modal-login-input @error('faculty') is-invalid @enderror"
+                                        id="faculty" name="faculty" required disabled>
                                         <option value="">اختر الكلية</option>
                                     </select>
                                     <input type="hidden" id="old_faculty" value="{{ old('faculty') }}">
@@ -3307,13 +4201,17 @@
                                     <label for="qualification" class="form-label fw-bold text-dark small mb-1">
                                         المؤهل العلمي <span class="text-danger">*</span>
                                     </label>
-                                    <select class="form-select modal-login-input @error('qualification') is-invalid @enderror"
+                                    <select
+                                        class="form-select modal-login-input @error('qualification') is-invalid @enderror"
                                         id="qualification" name="qualification" required>
                                         <option value="">اختر المؤهل</option>
                                         <option value="بكالوريوس" {{ old('qualification', 'بكالوريوس') == 'بكالوريوس' ? 'selected' : '' }}>بكالوريوس</option>
-                                        <option value="ليسانس" {{ old('qualification') == 'ليسانس' ? 'selected' : '' }}>ليسانس</option>
-                                        <option value="ماجستير" {{ old('qualification') == 'ماجستير' ? 'selected' : '' }}>ماجستير</option>
-                                        <option value="دكتوراه" {{ old('qualification') == 'دكتوراه' ? 'selected' : '' }}>دكتوراه</option>
+                                        <option value="ليسانس" {{ old('qualification') == 'ليسانس' ? 'selected' : '' }}>
+                                            ليسانس</option>
+                                        <option value="ماجستير" {{ old('qualification') == 'ماجستير' ? 'selected' : '' }}>
+                                            ماجستير</option>
+                                        <option value="دكتوراه" {{ old('qualification') == 'دكتوراه' ? 'selected' : '' }}>
+                                            دكتوراه</option>
                                         <option value="دبلوم عالي" {{ old('qualification') == 'دبلوم عالي' ? 'selected' : '' }}>دبلوم عالي</option>
                                     </select>
                                     @error('qualification')
@@ -3325,7 +4223,8 @@
                                     <label for="specialization" class="form-label fw-bold text-dark small mb-1">
                                         التخصص الأكاديمي <span class="text-danger">*</span>
                                     </label>
-                                    <select class="form-select modal-login-input @error('specialization') is-invalid @enderror"
+                                    <select
+                                        class="form-select modal-login-input @error('specialization') is-invalid @enderror"
                                         id="specialization" name="specialization" required disabled>
                                         <option value="">اختر التخصص</option>
                                     </select>
@@ -3339,9 +4238,11 @@
                                     <label for="graduation_year" class="form-label fw-bold text-dark small mb-1">
                                         سنة التخرج <span class="text-danger">*</span>
                                     </label>
-                                    <input type="number" class="form-control modal-login-input @error('graduation_year') is-invalid @enderror"
-                                        id="graduation_year" name="graduation_year" value="{{ old('graduation_year', date('Y')) }}"
-                                        required min="1960" max="{{ date('Y') + 1 }}" placeholder="{{ date('Y') }}">
+                                    <input type="number"
+                                        class="form-control modal-login-input @error('graduation_year') is-invalid @enderror"
+                                        id="graduation_year" name="graduation_year"
+                                        value="{{ old('graduation_year', date('Y')) }}" required min="1960"
+                                        max="{{ date('Y') + 1 }}" placeholder="{{ date('Y') }}">
                                     @error('graduation_year')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -3351,8 +4252,9 @@
                                     <label for="gpa" class="form-label fw-bold text-dark small mb-1">
                                         المعدل التراكمي (%)
                                     </label>
-                                    <input type="number" class="form-control modal-login-input @error('gpa') is-invalid @enderror" id="gpa"
-                                        name="gpa" value="{{ old('gpa') }}" step="0.01" min="0" max="100"
+                                    <input type="number"
+                                        class="form-control modal-login-input @error('gpa') is-invalid @enderror"
+                                        id="gpa" name="gpa" value="{{ old('gpa') }}" step="0.01" min="0" max="100"
                                         placeholder="مثال: 85.50">
                                     @error('gpa')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -3361,11 +4263,14 @@
                             </div>
 
                             <div class="d-flex justify-content-between mt-4 pt-2 border-top">
-                                <button type="button" class="btn btn-outline-secondary rounded-3 px-4 d-flex align-items-center gap-2" onclick="switchRegStep(1)">
+                                <button type="button"
+                                    class="btn btn-outline-secondary rounded-3 px-4 d-flex align-items-center gap-2"
+                                    onclick="switchRegStep(1)">
                                     <i class="fas fa-arrow-right"></i>
                                     <span>السابق: البيانات الشخصية</span>
                                 </button>
-                                <button type="button" class="btn btn-modal-login px-4 d-flex align-items-center gap-2" onclick="switchRegStep(3)">
+                                <button type="button" class="btn btn-modal-login px-4 d-flex align-items-center gap-2"
+                                    onclick="switchRegStep(3)">
                                     <span>المتابعة: المهارات والخبرات</span>
                                     <i class="fas fa-arrow-left"></i>
                                 </button>
@@ -3384,7 +4289,8 @@
                                     <label for="experiences" class="form-label fw-bold text-dark small mb-1">
                                         الخبرة العملية السابقة (إن وجدت)
                                     </label>
-                                    <textarea class="form-control modal-login-input @error('experiences') is-invalid @enderror"
+                                    <textarea
+                                        class="form-control modal-login-input @error('experiences') is-invalid @enderror"
                                         id="experiences" name="experiences" rows="3"
                                         placeholder="اذكر خبراتك العملية السابقة أو مشاريع التخرج والتدريبات الميدانية...">{{ old('experiences') }}</textarea>
                                     @error('experiences')
@@ -3396,10 +4302,12 @@
                                     <label for="skills" class="form-label fw-bold text-dark small mb-1">
                                         المهارات الشخصية والتقنية
                                     </label>
-                                    <input type="text" class="form-control modal-login-input @error('skills') is-invalid @enderror"
+                                    <input type="text"
+                                        class="form-control modal-login-input @error('skills') is-invalid @enderror"
                                         id="skills" name="skills" value="{{ old('skills') }}"
                                         placeholder="مثال: برمجة، تحليل بيانات، إدارة وقت">
-                                    <small class="text-muted" style="font-size: 0.78rem;">افصل بين المهارات بفاصلة (,)</small>
+                                    <small class="text-muted" style="font-size: 0.78rem;">افصل بين المهارات بفاصلة
+                                        (,)</small>
                                     @error('skills')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -3409,10 +4317,13 @@
                                     <label for="languages" class="form-label fw-bold text-dark small mb-1">
                                         اللغات المتقنة
                                     </label>
-                                    <input type="text" class="form-control modal-login-input @error('languages') is-invalid @enderror"
-                                        id="languages" name="languages" value="{{ old('languages', 'العربية، الإنجليزية') }}"
+                                    <input type="text"
+                                        class="form-control modal-login-input @error('languages') is-invalid @enderror"
+                                        id="languages" name="languages"
+                                        value="{{ old('languages', 'العربية، الإنجليزية') }}"
                                         placeholder="العربية، الإنجليزية">
-                                    <small class="text-muted" style="font-size: 0.78rem;">افصل بين اللغات بفاصلة (,)</small>
+                                    <small class="text-muted" style="font-size: 0.78rem;">افصل بين اللغات بفاصلة
+                                        (,)</small>
                                     @error('languages')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -3424,11 +4335,17 @@
                             </div>
 
                             <div class="d-flex justify-content-between mt-4 pt-2 border-top gap-2 flex-wrap">
-                                <button type="button" class="btn btn-outline-secondary rounded-3 px-4 d-flex align-items-center gap-2" onclick="switchRegStep(2)" style="flex:1 1 auto; min-width:130px;">
+                                <button type="button"
+                                    class="btn btn-outline-secondary rounded-3 px-4 d-flex align-items-center gap-2"
+                                    onclick="switchRegStep(2)" style="flex:1 1 auto; min-width:130px;">
                                     <i class="fas fa-arrow-right"></i>
                                     <span>السابق: البيانات الأكاديمية</span>
                                 </button>
-                                <button type="submit" class="btn btn-modal-login px-5 d-flex align-items-center justify-content-center gap-2" id="modalSubmitRegisterBtn" style="flex:1 1 auto; min-width:150px; touch-action: manipulation;" data-original-html='<i class="fas fa-user-plus"></i> <span>تسجيل حساب جديد</span>'>
+                                <button type="submit"
+                                    class="btn btn-modal-login px-5 d-flex align-items-center justify-content-center gap-2"
+                                    id="modalSubmitRegisterBtn"
+                                    style="flex:1 1 auto; min-width:150px; touch-action: manipulation;"
+                                    data-original-html='<i class="fas fa-user-plus"></i> <span>تسجيل حساب جديد</span>'>
                                     <i class="fas fa-user-plus"></i>
                                     <span>تسجيل حساب جديد</span>
                                 </button>
@@ -3441,7 +4358,8 @@
                 <div class="modal-register-footer">
                     <p class="mb-0 text-muted small">
                         لديك حساب خريج بالفعل؟
-                        <a href="javascript:void(0)" id="btnBackToLoginFromRegister" class="fw-bold text-decoration-none ms-1" style="color: #1565c0; cursor: pointer;">
+                        <a href="javascript:void(0)" id="btnBackToLoginFromRegister"
+                            class="fw-bold text-decoration-none ms-1" style="color: #1565c0; cursor: pointer;">
                             تسجيل الدخول هنا <i class="fas fa-arrow-left ms-1 small"></i>
                         </a>
                     </p>
@@ -3499,7 +4417,7 @@
         }
 
         // التحقق من صحة بيانات الخطوة 1 (البيانات الشخصية)
-        window.validateRegStep1 = function() {
+        window.validateRegStep1 = function () {
             const sec = document.getElementById('regSection1');
             if (!sec) return true;
             clearRegFieldErrors(sec);
@@ -3590,7 +4508,7 @@
         };
 
         // التحقق من صحة بيانات الخطوة 2 (البيانات الأكاديمية)
-        window.validateRegStep2 = function() {
+        window.validateRegStep2 = function () {
             const sec = document.getElementById('regSection2');
             if (!sec) return true;
             clearRegFieldErrors(sec);
@@ -3702,7 +4620,7 @@
 
             // تفعيل كاشف الروبوتات عند الوصول للخطوة 3
             if (targetStep === 3) {
-                setTimeout(function() {
+                setTimeout(function () {
                     window.dispatchEvent(new CustomEvent('turnstile:render'));
                 }, 60);
             }
@@ -3837,14 +4755,14 @@
             if (regForm) {
                 // إزالة الخطأ تلقائياً بمجرد إدخال أو تغيير أي قيمة
                 regForm.querySelectorAll('input, select, textarea').forEach(input => {
-                    input.addEventListener('input', function() {
+                    input.addEventListener('input', function () {
                         if (this.classList.contains('is-invalid')) {
                             this.classList.remove('is-invalid');
                             const msg = this.parentNode.querySelector('.js-validation-msg');
                             if (msg) msg.remove();
                         }
                     });
-                    input.addEventListener('change', function() {
+                    input.addEventListener('change', function () {
                         if (this.classList.contains('is-invalid')) {
                             this.classList.remove('is-invalid');
                             const msg = this.parentNode.querySelector('.js-validation-msg');
@@ -3975,7 +4893,7 @@
         }
 
         // تأثير التمرير للشريط العلوي العائم (Scroll Elevation مع Hysteresis و rAF لمنع الارتعاش)
-        (function() {
+        (function () {
             const wrapper = document.querySelector('.home-navbar-wrapper');
             const navbar = document.querySelector('.home-navbar');
             if (!navbar) return;
@@ -3997,7 +4915,7 @@
                 ticking = false;
             }
 
-            window.addEventListener('scroll', function() {
+            window.addEventListener('scroll', function () {
                 if (!ticking) {
                     window.requestAnimationFrame(updateNavbar);
                     ticking = true;
@@ -4009,7 +4927,7 @@
 
         // التمرير السلس للروابط الداخلية فقط دون التأثير على سلاسة تمرير الماوس
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
+            anchor.addEventListener('click', function (e) {
                 const targetId = this.getAttribute('href');
                 if (targetId && targetId.length > 1) {
                     const targetEl = document.querySelector(targetId);

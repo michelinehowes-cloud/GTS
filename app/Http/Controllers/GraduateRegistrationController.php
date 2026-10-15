@@ -137,35 +137,91 @@ class GraduateRegistrationController extends Controller
             'experiences' => $request->experiences,
             'skills' => $skills,
             'languages' => $languages,
-            'is_approved' => false, // في انتظار الموافقة
+            'is_approved' => false, // القيمة الابتدائية قبل فحص المساعد الذكي
         ]);
 
-        // مزامنة فورية وكاملة لبيانات الخريج في جدول graduates_data لحفظ كافة الحقول دون أي نقص
-        try {
-            \App\Models\GraduateData::syncFromUser($user, [
-                'is_active' => false,
-                'data_source' => 'online_registration',
-                'notes' => 'تسجيل ذاتي عبر الموقع الرئيسي (في انتظار الاعتماد)',
+        // 1. تقييم الطلب فوراً بواسطة المساعد الذكي
+        $eval = self::evaluateGraduateApplication($user);
+        $dangerCount = count(array_filter($eval['flags'] ?? [], fn($f) => ($f['type'] ?? '') === 'danger'));
+        $isAutoApproved = ($eval['verdict'] === 'valid') || ($eval['score'] >= 50 && $dangerCount === 0);
+
+        if ($isAutoApproved) {
+            // اعتماد فوري وتفعيل الحساب بواسطة المساعد الذكي
+            $user->update([
+                'is_approved' => true,
+                'approved_at' => now(),
+                'approved_by' => null, // اعتماد آلي عبر المساعد الذكي
             ]);
-        } catch (\Exception $e) {
-            \Log::warning('Failed immediate GraduateData sync on registration: ' . $e->getMessage());
-        }
 
-        // إشعار لمسؤول الإرشاد المهني ومدير النظام
-        try {
-            $this->notificationService->sendToRoles(
-                ['career_guidance_officer', 'admin'],
-                'طلب تسجيل خريج جديد',
-                "قام {$user->name} بالتسجيل وينتظر الموافقة.",
-                'info',
-                ['model_type' => get_class($user), 'model_id' => $user->id]
-            );
-        } catch (\Exception $e) {
-            \Log::error('Failed to send registration notification: ' . $e->getMessage());
-        }
+            // مزامنة سجل الخريج في جدول graduates_data وتفعيله
+            try {
+                \App\Models\GraduateData::syncFromUser($user, [
+                    'is_active' => true,
+                    'data_source' => 'online_registration_auto_approved',
+                    'notes' => 'تم الاعتماد والتفعيل التلقائي بواسطة المساعد الذكي (نسبة التقييم: ' . $eval['score'] . '%)',
+                ]);
+            } catch (\Exception $e) {
+                \Log::warning('Failed GraduateData sync on auto-approval: ' . $e->getMessage());
+            }
 
-        return redirect()->route('login')
-            ->with('success', 'تم إرسال طلب التسجيل بنجاح! سيتم مراجعته من قبل الإدارة قريباً.');
+            // إشعار بالقبول الفوري للخريج
+            try {
+                $this->notificationService->sendToUser(
+                    $user,
+                    'تهانينا! تم تفعيل حسابك تلقائياً',
+                    'تم فحص بياناتك واعتماد حسابك بنجاح بواسطة المساعد الذكي بنسبة توافق ' . $eval['score'] . '%. يمكنك الآن الدخول مباشرة والاستفادة من خدمات المنظومة.',
+                    'success'
+                );
+            } catch (\Exception $e) {
+                \Log::error('Failed to send auto-approval notification: ' . $e->getMessage());
+            }
+
+            // إشعار للمسؤولين بأن المساعد الذكي اعتمد الخريج تلقائياً
+            try {
+                $this->notificationService->sendToRoles(
+                    ['career_guidance_officer', 'admin'],
+                    'اعتماد خريج تلقائياً بالذكاء الاصطناعي',
+                    "قام المساعد الذكي باعتماد وتفعيل حساب الخريج ({$user->name}) تلقائياً بنسبة تقييم {$eval['score']}%.",
+                    'success',
+                    ['model_type' => get_class($user), 'model_id' => $user->id]
+                );
+            } catch (\Exception $e) {
+                \Log::error('Failed to notify staff of auto-approval: ' . $e->getMessage());
+            }
+
+            // تسجيل الدخول مباشرة وتوجيهه للوحة تحكم الخريج
+            \Illuminate\Support\Facades\Auth::login($user);
+
+            return redirect()->route('graduate.dashboard')
+                ->with('success', "مرحباً بك يا {$user->name}! تم فحص بياناتك واعتماد وتفعيل حسابك تلقائياً بنجاح بواسطة المساعد الذكي (نسبة التوافق {$eval['score']}%).");
+        } else {
+            // مزامنة مبدئية غير مفعلة للطلبات التي تحتاج مراجعة يدوية
+            try {
+                \App\Models\GraduateData::syncFromUser($user, [
+                    'is_active' => false,
+                    'data_source' => 'online_registration',
+                    'notes' => 'تسجيل ذاتي عبر الموقع الرئيسي (يحتاج مراجعة الإدارة - نسبة التقييم: ' . $eval['score'] . '%)',
+                ]);
+            } catch (\Exception $e) {
+                \Log::warning('Failed immediate GraduateData sync on registration: ' . $e->getMessage());
+            }
+
+            // إشعار لمسؤول الإرشاد المهني ومدير النظام للمراجعة اليدوية
+            try {
+                $this->notificationService->sendToRoles(
+                    ['career_guidance_officer', 'admin'],
+                    'طلب تسجيل خريج جديد (بحاجة لمراجعة)',
+                    "قام {$user->name} بالتسجيل بنسبة تقييم {$eval['score']}%. يرجى مراجعة الطلب يدوياً.",
+                    'info',
+                    ['model_type' => get_class($user), 'model_id' => $user->id]
+                );
+            } catch (\Exception $e) {
+                \Log::error('Failed to send registration notification: ' . $e->getMessage());
+            }
+
+            return redirect()->route('login')
+                ->with('warning', 'تم استلام طلب التسجيل بنجاح! الطلب قيد المراجعة والتدقيق من قبل الإدارة وسنوافيك بالرد قريباً.');
+        }
     }
 
     /**
@@ -627,24 +683,24 @@ class GraduateRegistrationController extends Controller
         $dangerCount = count(array_filter($flags, fn($f) => $f['type'] === 'danger'));
         $warningCount = count(array_filter($flags, fn($f) => $f['type'] === 'warning'));
 
-        if ($dangerCount > 0 || $score < 60) {
+        if ($dangerCount > 0 || $score < 40) {
             $verdict = 'invalid';
             $summaryText = 'بيانات مشبوهة أو غير صحيحة';
             $recommendation = 'يُوصى برفض الطلب أو التواصل مع المتقدم لإعادة تصحيح البيانات.';
             $badgeColor = 'danger';
             $badgeText = '🔴 بيانات غير متطابقة';
-        } elseif ($warningCount > 0 || $score < 85) {
+        } elseif ($score < 50) {
             $verdict = 'warning';
             $summaryText = 'بيانات تحتاج مراجعة وتدقيق بشري';
-            $recommendation = 'البيانات شبه مكتملة ولكن يُوصى بالتحقق من الملاحظات قبل الاعتماد.';
+            $recommendation = 'نسبة التقييم أقل من 50% ويُوصى بالتحقق من الملاحظات قبل الاعتماد.';
             $badgeColor = 'warning';
             $badgeText = '🟡 يحتاج تدقيق';
         } else {
             $verdict = 'valid';
-            $summaryText = 'بيانات سليمة وموثوقة';
-            $recommendation = 'الطلب مستوفٍ لكافة المعايير ومؤهل للاعتماد والموافقة الفورية.';
+            $summaryText = 'بيانات مكتملة وموثوقة (50% فما فوق)';
+            $recommendation = 'الطلب مستوفٍ للحد الأدنى المطلوب (50% فما فوق) ومؤهل للاعتماد والموافقة الفورية.';
             $badgeColor = 'success';
-            $badgeText = '🟢 سليم وموثوق';
+            $badgeText = '🟢 سليم ومكتمل';
         }
 
         return [

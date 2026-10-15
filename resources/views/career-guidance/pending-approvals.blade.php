@@ -81,11 +81,11 @@
                 <div class="d-flex align-items-center gap-2">
                     <!-- زر سريع لتحديد السليمة فقط في الشيك بوكس -->
                     <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-sm fw-bold" onclick="selectByVerdict('valid')">
-                        <i class="fas fa-check-circle me-1"></i> تحديد السليمة فقط (🟢)
+                        <i class="fas fa-check-circle me-1"></i> تحديد السليمة (50%+ 🟢)
                     </button>
                     <!-- زر اعتماد السليمة فوراً -->
                     <button type="button" class="btn btn-sm btn-success rounded-pill px-3 shadow-sm fw-bold" onclick="approveValidImmediately()">
-                        <i class="fas fa-bolt me-1"></i> اعتماد السليمة فوراً
+                        <i class="fas fa-bolt me-1"></i> اعتماد السليمة فوراً (50%+ 🟢)
                     </button>
                 </div>
             </div>
@@ -95,7 +95,7 @@
                 <div class="col-md-4 col-sm-6">
                     <div class="p-3 rounded-3 bg-white border border-success border-opacity-25 shadow-sm d-flex align-items-center justify-content-between h-100">
                         <div>
-                            <div class="text-muted small mb-1 fw-semibold">طلبات سليمة وموثوقة</div>
+                            <div class="text-muted small mb-1 fw-semibold">طلبات مكتملة وسليمة (50% فما فوق)</div>
                             <div class="d-flex align-items-baseline gap-2">
                                 <span class="fs-4 fw-bold text-success" id="countValid">{{ $auditSummary['valid'] ?? 0 }}</span>
                                 <span class="text-muted small">طلب (جاهز للاعتماد)</span>

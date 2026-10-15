@@ -420,14 +420,6 @@ class User extends Authenticatable
     }
 
     /**
-     * الشركة المرتبطة بحساب المستخدم
-     */
-    public function company()
-    {
-        return $this->hasOne(Company::class, 'user_id');
-    }
-
-    /**
      * العلاقة مع فرص العمل التي أنشأها المستخدم
      */
     public function createdJobOpportunities()

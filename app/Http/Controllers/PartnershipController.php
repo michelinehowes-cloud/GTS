@@ -511,6 +511,7 @@ class PartnershipController extends Controller
             'partnership_start_date' => 'nullable|date',
             'partnership_end_date' => 'nullable|date',
             'partnership_notes' => 'nullable|string',
+            'password' => 'nullable|string|min:8|confirmed',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -552,13 +553,42 @@ class PartnershipController extends Controller
 
         $company->update($data);
 
-        // مزامنة مع حساب المستخدم إن وجد
-        if ($company->user) {
-            $company->user->name = $company->name;
-            $company->user->email = $company->email;
-            $company->user->is_approved = $company->is_approved;
-            $company->user->is_active = $company->is_approved;
-            $company->user->save();
+        // مزامنة مع حساب المستخدم إن وجد أو إنشاؤه في حال إدخال كلمة مرور
+        $user = $company->user;
+        if (!$user) {
+            $user = User::where('email', $company->email)->first();
+            if ($user) {
+                $company->user_id = $user->id;
+                $company->save();
+            }
+        }
+
+        if ($request->filled('password')) {
+            if (!$user) {
+                $user = User::create([
+                    'name' => $company->name,
+                    'email' => $company->email,
+                    'password' => Hash::make($request->password),
+                    'role' => 'company',
+                    'is_approved' => $company->is_approved,
+                    'is_active' => $company->is_approved,
+                ]);
+                $company->user_id = $user->id;
+                $company->save();
+            } else {
+                $user->password = Hash::make($request->password);
+                $user->name = $company->name;
+                $user->email = $company->email;
+                $user->is_approved = $company->is_approved;
+                $user->is_active = $company->is_approved;
+                $user->save();
+            }
+        } elseif ($user) {
+            $user->name = $company->name;
+            $user->email = $company->email;
+            $user->is_approved = $company->is_approved;
+            $user->is_active = $company->is_approved;
+            $user->save();
         }
 
         try {
@@ -667,4 +697,62 @@ class PartnershipController extends Controller
 
         return redirect()->back()->with('success', "تم رفض طلب تسجيل شركة ({$company->name}) وإشعارها بالسبب.");
     }
+
+    /**
+     * إعادة تعيين أو تعيين كلمة مرور جديدة لحساب الشركة
+     */
+    public function resetCompanyPassword(Request $request, $id)
+    {
+        $company = Company::findOrFail($id);
+
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'password.required' => 'كلمة المرور الجديدة مطلوبة.',
+            'password.min' => 'كلمة المرور يجب ألا تقل عن 8 خانات لأسباب أمنية.',
+            'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
+        ]);
+
+        $user = $company->user;
+        if (!$user) {
+            $user = User::where('email', $company->email)->first();
+            if (!$user) {
+                $user = User::create([
+                    'name' => $company->name,
+                    'email' => $company->email,
+                    'password' => Hash::make($request->password),
+                    'role' => 'company',
+                    'is_approved' => true,
+                    'is_active' => true,
+                ]);
+            }
+            $company->user_id = $user->id;
+            $company->is_approved = true;
+            $company->partnership_status = 'active';
+            $company->save();
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->is_approved = true;
+        $user->is_active = true;
+        $user->save();
+
+        try {
+            AuditLog::logAction(
+                'COMPANY_PASSWORD_RESET_BY_PARTNERSHIP_OFFICER',
+                'Company',
+                $company->id,
+                null,
+                [
+                    'company_name' => $company->name,
+                    'company_email' => $company->email,
+                    'officer_id' => auth()->id(),
+                    'officer_email' => auth()->user()->email
+                ]
+            );
+        } catch (\Throwable $e) {}
+
+        return redirect()->back()->with('success', "تم إعادة تعيين كلمة المرور لحساب شركة ({$company->name}) بنجاح. يمكن للشركة الآن تسجيل الدخول بالبريد ({$company->email}) وكلمة المرور الجديدة.");
+    }
 }
+

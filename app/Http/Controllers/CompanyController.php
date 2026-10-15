@@ -425,9 +425,44 @@ class CompanyController extends Controller
         return redirect()->route('company.profile')->with('success', 'تم تحديث الملف الشخصي بنجاح');
     }
 
+    /**
+     * تحديث كلمة مرور حساب الشركة من قبل مستخدم الشركة
+     */
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'current_password.required' => 'كلمة المرور الحالية مطلوبة.',
+            'current_password.current_password' => 'كلمة المرور الحالية غير صحيحة.',
+            'password.required' => 'كلمة المرور الجديدة مطلوبة.',
+            'password.min' => 'كلمة المرور يجب ألا تقل عن 8 خانات لأسباب أمنية.',
+            'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
+        ]);
+
+        $user = auth()->user();
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        try {
+            AuditLog::logAction(
+                'COMPANY_PASSWORD_CHANGED_BY_USER',
+                'User',
+                $user->id,
+                null,
+                ['company_user' => $user->email]
+            );
+        } catch (\Throwable $e) {}
+
+        return back()->with('success', 'تم تحديث كلمة المرور الخاصة بحساب الشركة بنجاح.');
+    }
+
     // ==========================================
     // مسارات التوظيف والمرشحين (Company ATS)
     // ==========================================
+
 
     public function nominations(Request $request)
     {

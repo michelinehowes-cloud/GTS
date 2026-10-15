@@ -64,42 +64,12 @@
             @csrf
             @method('PUT')
 
-            <!-- كرت الهوية والترويسة العلوية للشركة -->
-            <div class="company-header-card mb-4">
-                <div class="cover-banner">
-                    <div class="cover-overlay-pattern"></div>
-                </div>
-
-                <div class="profile-meta-bar">
-                    <div class="d-flex gap-3 align-items-end flex-wrap">
-                        <div class="logo-wrapper">
-                            @if($logoUrl)
-                                <img src="{{ $logoUrl }}" alt="{{ $company->name }}" class="logo-img" id="company-logo-preview">
-                            @else
-                                <div class="logo-img logo-placeholder d-flex align-items-center justify-content-center" id="company-logo-placeholder">
-                                    <span>{{ mb_substr($company->name, 0, 1) }}</span>
-                                </div>
-                                <img src="" alt="{{ $company->name }}" class="logo-img d-none" id="company-logo-preview">
-                            @endif
-
-                            <label for="upload-logo" class="upload-btn" title="تغيير الشعار">
-                                <i class="fas fa-camera"></i>
-                            </label>
-                            <input type="file" name="logo" id="upload-logo" accept="image/png, image/jpeg, image/jpg, image/webp" style="display: none;">
-                        </div>
-
-                        <div class="company-info">
-                            <h2>{{ $company->name }}</h2>
-                            <p>
-                                <i class="fas fa-building text-warning"></i>
-                                <span>{{ $company->industry ?? 'قطاع الأعمال والخدمات' }}</span>
-                                @if($company->city || $company->address)
-                                    <span class="mx-1">•</span>
-                                    <i class="fas fa-map-marker-alt text-danger"></i>
-                                    <span>{{ $company->city ?? Str::limit($company->address, 25) }}</span>
-                                @endif
-                            </p>
-                        </div>
+            <!-- كرت النموذج وتحديث البيانات -->
+            <div class="form-card mb-4">
+                <div class="form-header d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <h3><i class="fas fa-pen-to-square text-primary"></i> تحديث بيانات الشركة</h3>
+                        <p>قم بتحديث معلومات شركتك لتظهر بشكل احترافي للطلبة والخريجين ومسؤولي التوظيف.</p>
                     </div>
 
                     <div class="partnership-badges">
@@ -127,16 +97,35 @@
                     </div>
                 </div>
 
-                <div id="new-logo-notice" class="px-4 pb-3 text-success small fw-bold d-none">
-                    <i class="fas fa-check-circle me-1"></i> تم اختيار شعار جديد للمعاينة، اضغط "حفظ التغييرات" لتطبيقه نهائياً.
-                </div>
-            </div>
+                <!-- قسم شعار الشركة مع المعاينة الفورية -->
+                <div class="logo-upload-box mb-4 p-3.5 bg-light rounded-4 border d-flex align-items-center gap-3 flex-wrap">
+                    <div class="position-relative flex-shrink-0">
+                        @if($logoUrl)
+                            <img src="{{ $logoUrl }}" alt="{{ $company->name }}" id="company-logo-preview" class="rounded-circle border border-2 border-white shadow-sm" style="width: 76px; height: 76px; object-fit: cover;">
+                        @else
+                            <div id="company-logo-placeholder" class="rounded-circle bg-white border border-2 border-primary text-primary fw-bold fs-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 76px; height: 76px;">
+                                <span>{{ mb_substr($company->name, 0, 1) }}</span>
+                            </div>
+                            <img src="" alt="{{ $company->name }}" id="company-logo-preview" class="rounded-circle border border-2 border-white shadow-sm d-none" style="width: 76px; height: 76px; object-fit: cover;">
+                        @endif
+                    </div>
 
-            <!-- كرت النموذج وتحديث البيانات -->
-            <div class="form-card mb-4">
-                <div class="form-header">
-                    <h3><i class="fas fa-pen-to-square text-primary"></i> تحديث بيانات الشركة</h3>
-                    <p>قم بتحديث معلومات شركتك لتظهر بشكل احترافي للطلبة والخريجين ومسؤولي التوظيف.</p>
+                    <div class="flex-grow-1">
+                        <label class="form-label fw-bold text-dark mb-1 d-block" style="font-size: 0.92rem;">
+                            شعار الشركة (Logo)
+                        </label>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <label for="upload-logo" class="btn btn-primary btn-sm rounded-pill px-3 py-1.5 fw-bold cursor-pointer mb-0 shadow-sm" style="font-size: 0.85rem;">
+                                <i class="fas fa-camera me-1"></i> اختيار شعار جديد
+                            </label>
+                            <input type="file" name="logo" id="upload-logo" accept="image/png, image/jpeg, image/jpg, image/webp" class="d-none">
+                            <span class="text-muted small">يفضل أن يكون الشعار بخلفية شفافة (PNG) أو بيضاء. الحد الأقصى للحجم 2MB.</span>
+                        </div>
+                        <div id="new-logo-notice" class="text-success small fw-bold mt-1 d-none">
+                            <i class="fas fa-check-circle me-1"></i> تم اختيار شعار جديد بنجاح، اضغط "حفظ التغييرات" لتطبيقه نهائياً.
+                        </div>
+                        @error('logo') <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div> @enderror
+                    </div>
                 </div>
 
                 <div class="grid-fields">
@@ -272,100 +261,16 @@
     gap: 12px;
   }
 
-  /* كرت الهوية والترويسة العلوية */
-  .company-header-card {
-    background: var(--bg-surface);
-    border-radius: 20px;
-    border: 1px solid var(--border-color);
-    overflow: hidden;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
-  }
-
-  .cover-banner {
-    height: 120px;
-    background: linear-gradient(135deg, #0d3882 0%, #1e40af 50%, #3b82f6 100%);
-    position: relative;
-  }
-
-  .cover-overlay-pattern {
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
-    background-size: 16px 16px;
-  }
-
-  .profile-meta-bar {
-    padding: 0 28px 20px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-    position: relative;
-  }
-
-  .logo-wrapper {
-    position: relative;
-    margin-top: -55px;
-    z-index: 3;
-  }
-
-  .logo-img {
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    border: 4px solid #ffffff;
-    background: #ffffff;
-    object-fit: cover;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  }
-
-  .logo-placeholder {
-    font-size: 2.8rem;
-    font-weight: 800;
-    color: var(--primary);
-    background: #eff6ff;
-  }
-
-  .upload-btn {
-    position: absolute;
-    bottom: 4px;
-    left: 4px;
-    background: var(--primary);
-    color: #ffffff;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 13px;
-    border: 2.5px solid #ffffff;
+  /* قسم الشعار والوسوم */
+  .logo-upload-box {
+    background-color: #f8fafc;
+    border: 1px dashed var(--border-color) !important;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   }
 
-  .upload-btn:hover {
-    background: #f59e0b;
-    color: #0b1f3a;
-    transform: scale(1.1);
-  }
-
-  .company-info h2 {
-    font-size: 1.35rem;
-    font-weight: 800;
-    color: var(--text-main);
-    margin: 0 0 4px 0;
-  }
-
-  .company-info p {
-    font-size: 0.88rem;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin: 0;
+  .logo-upload-box:hover {
+    border-color: var(--primary) !important;
+    background-color: #ffffff;
   }
 
   .partnership-badges {
@@ -565,7 +470,6 @@
   @media (max-width: 768px) {
     .grid-fields { grid-template-columns: 1fr; }
     .full-width { grid-column: span 1; }
-    .profile-meta-bar { flex-direction: column; align-items: flex-start; }
     .actions-bar { justify-content: stretch; }
     .actions-bar .btn { flex: 1; }
   }

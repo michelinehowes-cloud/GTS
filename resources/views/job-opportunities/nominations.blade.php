@@ -211,6 +211,25 @@
                                                        title="تحديث الحالة">
                                                         <i class="fas fa-edit"></i>
                                                     </a>
+                                                @elseif(auth()->user()->role === 'company')
+                                                    <a href="{{ route('company.nominations.show', $nomination->id) }}"
+                                                       class="btn btn-sm rounded-pill"
+                                                       title="عرض تفاصيل المرشح وإدارة التوظيف"
+                                                       style="background-color: #2c5aa0; color: white; border: none;">
+                                                        <i class="fas fa-user-check me-1"></i> عرض المرشح
+                                                    </a>
+                                                @elseif(auth()->user()->role === 'admin')
+                                                    <a href="{{ route('admin.career-guidance.nominations.show', $nomination->id) }}"
+                                                       class="btn btn-sm rounded-pill"
+                                                       title="عرض تفاصيل الترشيح"
+                                                       style="background-color: #2c5aa0; color: white; border: none;">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{{ route('admin.career-guidance.nominations.edit-status', $nomination->id) }}"
+                                                       class="btn btn-outline-primary btn-sm"
+                                                       title="تحديث الحالة">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
                                                 @endif
                                             </div>
 

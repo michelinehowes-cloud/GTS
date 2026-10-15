@@ -537,7 +537,7 @@ class CompanyController extends Controller
     public function nominations(Request $request)
     {
         $user = auth()->user();
-        $company = Company::where('user_id', $user->id)->first();
+        $company = $user->company;
 
         if (!$company) {
             return redirect()->route('company.dashboard')->with('error', 'يجب استكمال بيانات الشركة أولاً.');
@@ -545,8 +545,8 @@ class CompanyController extends Controller
 
         // جلب الترشيحات الخاصة بوظائف هذه الشركة فقط
         $query = Nomination::with(['graduate', 'jobOpportunity'])
-            ->whereHas('jobOpportunity', function ($q) use ($company) {
-                $q->where('company_id', $company->id);
+            ->whereHas('jobOpportunity', function ($q) use ($company, $user) {
+                $q->where('company_id', $company->id)->orWhere('created_by', $user->id);
             });
 
         // الفلاتر
@@ -567,7 +567,10 @@ class CompanyController extends Controller
         }
 
         $nominations = $query->latest()->get();
-        $opportunities = JobOpportunity::where('company_id', $company->id)->latest()->get();
+        $opportunities = JobOpportunity::where('company_id', $company->id)
+            ->orWhere('created_by', $user->id)
+            ->latest()
+            ->get();
 
         return view('company.nominations.index', compact('nominations', 'opportunities', 'company'));
     }
@@ -575,11 +578,15 @@ class CompanyController extends Controller
     public function showNomination($id)
     {
         $user = auth()->user();
-        $company = Company::where('user_id', $user->id)->first();
+        $company = $user->company;
+
+        if (!$company) {
+            return redirect()->route('company.dashboard')->with('error', 'يجب استكمال بيانات الشركة أولاً.');
+        }
 
         $nomination = Nomination::with(['graduate', 'jobOpportunity.company', 'nominator'])
-            ->whereHas('jobOpportunity', function ($q) use ($company) {
-                $q->where('company_id', $company->id);
+            ->whereHas('jobOpportunity', function ($q) use ($company, $user) {
+                $q->where('company_id', $company->id)->orWhere('created_by', $user->id);
             })->findOrFail($id);
 
         return view('company.nominations.show', compact('nomination', 'company'));
@@ -588,10 +595,14 @@ class CompanyController extends Controller
     public function updateNominationStatus(Request $request, $id)
     {
         $user = auth()->user();
-        $company = Company::where('user_id', $user->id)->first();
+        $company = $user->company;
 
-        $nomination = Nomination::whereHas('jobOpportunity', function ($q) use ($company) {
-            $q->where('company_id', $company->id);
+        if (!$company) {
+            return redirect()->route('company.dashboard')->with('error', 'يجب استكمال بيانات الشركة أولاً.');
+        }
+
+        $nomination = Nomination::whereHas('jobOpportunity', function ($q) use ($company, $user) {
+            $q->where('company_id', $company->id)->orWhere('created_by', $user->id);
         })->findOrFail($id);
 
         $request->validate([

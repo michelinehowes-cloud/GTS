@@ -669,7 +669,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [JobOpportunityController::class, 'destroy'])->where('id', '[0-9]+')->name('job-opportunities.destroy');
         Route::post('/{id}/approve', [JobOpportunityController::class, 'approve'])->where('id', '[0-9]+')->name('job-opportunities.approve');
         Route::post('/{id}/reject', [JobOpportunityController::class, 'reject'])->where('id', '[0-9]+')->name('job-opportunities.reject');
-        Route::get('/{id}/nominations', [JobOpportunityController::class, 'nominations'])->where('id', '[0-9]+')->name('job-opportunities.nominations')->middleware('can:manage-nominations');
+        Route::get('/{id}/nominations', [JobOpportunityController::class, 'nominations'])->where('id', '[0-9]+')->name('job-opportunities.nominations');
         Route::get('/statistics', [JobOpportunityController::class, 'statistics'])->name('job-opportunities.statistics');
 
         // مسارات خاصة بمسؤول الشراكات فقط

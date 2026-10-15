@@ -124,7 +124,7 @@ class JobOpportunityPolicy
     public function manageNominations(User $user, JobOpportunity $jobOpportunity): bool
     {
         // المدراء ومسؤولي الشراكات يديرون جميع الترشيحات
-        if (in_array($user->role, ['admin', 'partnership_officer'])) {
+        if ($user->isAdmin() || in_array($user->role, ['admin', 'partnership_officer']) || $user->hasPermission('nominations.manage')) {
             return true;
         }
 
@@ -133,9 +133,10 @@ class JobOpportunityPolicy
             return true;
         }
 
-        // الشركات تدير ترشيحات فرصها الخاصة
+        // الشركات تدير وتعرض ترشيحات فرصها الخاصة فقط
         if ($user->role === 'company') {
-            return $jobOpportunity->created_by === $user->id;
+            $company = $user->company;
+            return ($company && $jobOpportunity->company_id === $company->id) || $jobOpportunity->created_by === $user->id;
         }
 
         return false;
@@ -147,13 +148,14 @@ class JobOpportunityPolicy
     public function updateStatus(User $user, JobOpportunity $jobOpportunity): bool
     {
         // المدراء ومسؤولي الشراكات يغيرون الحالة
-        if (in_array($user->role, ['admin', 'partnership_officer'])) {
+        if ($user->isAdmin() || in_array($user->role, ['admin', 'partnership_officer'])) {
             return true;
         }
 
         // الشركات تغير حالة فرصها الخاصة
         if ($user->role === 'company') {
-            return $jobOpportunity->created_by === $user->id;
+            $company = $user->company;
+            return ($company && $jobOpportunity->company_id === $company->id) || $jobOpportunity->created_by === $user->id;
         }
 
         return false;

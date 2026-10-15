@@ -49,14 +49,35 @@
 
         @php
             $partnershipLabels = [
-                'employment' => 'شراكة توظيف',
-                'training' => 'شراكة تدريب ميداني',
-                'logistic_support' => 'دعم لوجستي ورعاية',
-                'academic' => 'تعاون أكاديمي',
+                'employment' => 'توظيف الخريجين',
+                'training' => 'تدريب ميداني وتأهيل',
+                'logistic_support' => 'رعاية ودعم لوجستي',
+                'academic' => 'تعاون أكاديمي وبحثي',
+                'workshops' => 'ورش عمل وندوات',
                 'training_employment' => 'تدريب وتوظيف معتمد',
             ];
             $partnershipLabel = $partnershipLabels[$company->partnership_type] ?? 'شراكة معتمدة';
             $logoUrl = $company->logo_path ? \Illuminate\Support\Facades\Storage::url($company->logo_path) : null;
+
+            // استخراج المدينة والعنوان
+            $city = 'طرابلس';
+            $streetAddress = $company->address ?? '';
+            if (!empty($company->address) && str_contains($company->address, ' - ')) {
+                $parts = explode(' - ', $company->address, 2);
+                $city = trim($parts[0]);
+                $streetAddress = trim($parts[1]);
+            }
+
+            // مجالات الشراكة المحددة للشركة
+            $selectedPartnershipTypes = old('partnership_types', $company->partnership_types_list ?? ['employment']);
+
+            $typesList = [
+                'employment'       => ['label' => 'توظيف الخريجين',       'desc' => 'نشر الشواغر واستقطاب كفاءات الجامعة',        'icon' => 'fa-user-tie'],
+                'training'         => ['label' => 'تدريب ميداني وتأهيل',  'desc' => 'استقبال طلاب وخريجين في برامج تدريب عملي',  'icon' => 'fa-graduation-cap'],
+                'logistic_support' => ['label' => 'رعاية ودعم لوجستي',   'desc' => 'رعاية فعاليات ومعارض التوظيف',               'icon' => 'fa-award'],
+                'academic'         => ['label' => 'تعاون أكاديمي وبحثي', 'desc' => 'مشاريع تخرج، بحوث مشتركة، تطوير مناهج',    'icon' => 'fa-flask'],
+                'workshops'        => ['label' => 'ورش عمل وندوات',       'desc' => 'محاضرات وورش نقل المعرفة للطلاب',           'icon' => 'fa-chalkboard-teacher'],
+            ];
         @endphp
 
         <!-- نموذج تعديل بيانات الشركة والشعار -->
@@ -69,14 +90,23 @@
                 <div class="form-header d-flex align-items-center justify-content-between flex-wrap gap-3">
                     <div>
                         <h3><i class="fas fa-pen-to-square text-primary"></i> تحديث بيانات الشركة</h3>
-                        <p>قم بتحديث معلومات شركتك لتظهر بشكل احترافي للطلبة والخريجين ومسؤولي التوظيف.</p>
+                        <p>قم بتحديث معلومات شركتك ومجالات الشراكة وبيانات مسؤول الاتصال لتظهر باحترافية للجميع.</p>
                     </div>
 
                     <div class="partnership-badges">
-                        <span class="badge badge-primary">
-                            <i class="fas fa-handshake"></i>
-                            <span>{{ $partnershipLabel }}</span>
-                        </span>
+                        @if(!empty($company->partnership_types_labels))
+                            @foreach($company->partnership_types_labels as $pLabel)
+                                <span class="badge badge-primary">
+                                    <i class="fas fa-handshake"></i>
+                                    <span>{{ $pLabel }}</span>
+                                </span>
+                            @endforeach
+                        @else
+                            <span class="badge badge-primary">
+                                <i class="fas fa-handshake"></i>
+                                <span>{{ $partnershipLabel }}</span>
+                            </span>
+                        @endif
 
                         @if($company->partnership_status === 'active')
                             <span class="badge badge-success">
@@ -151,47 +181,121 @@
                     </div>
                 </div>
 
-                <div class="grid-fields">
+                <!-- ═══════════ القسم الأول: بيانات الشركة والمؤسسة ═══════════ -->
+                <div class="section-divider-title mt-2">
+                    <h5>
+                        <i class="fas fa-building text-primary"></i>
+                        <span>بيانات الشركة أو المؤسسة</span>
+                    </h5>
+                    <span class="badge-subtitle">المعلومات الرسمية وبيانات التواصل بمقر الشركة</span>
+                </div>
+
+                <div class="grid-fields mb-4">
                     <div class="field-group">
-                        <label for="name">اسم الشركة <span>*</span></label>
-                        <input type="text" class="input-box @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $company->name) }}" required>
+                        <label for="name">اسم الشركة أو المؤسسة الرسمي <span class="text-danger">*</span></label>
+                        <input type="text" class="input-box @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $company->name) }}" required placeholder="مثال: شركة التقنية الحديثة القابضة">
                         @error('name') <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="field-group">
-                        <label for="industry">مجال العمل / النشاط <span>*</span></label>
-                        <input type="text" class="input-box @error('industry') is-invalid @enderror" id="industry" name="industry" value="{{ old('industry', $company->industry) }}" required placeholder="مثل: البرمجيات، الاتصالات، المقاولات...">
+                        <label for="industry">مجال ونشاط العمل <span class="text-danger">*</span></label>
+                        <input type="text" class="input-box @error('industry') is-invalid @enderror" id="industry" name="industry" value="{{ old('industry', $company->industry) }}" required placeholder="مثل: البرمجيات، الاتصالات، المقاولات، الخدمات المالية...">
                         @error('industry') <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="field-group">
-                        <label for="email">البريد الإلكتروني للشركة <span>*</span></label>
-                        <input type="email" class="input-box @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $company->user->email ?? $company->email) }}" required>
-                        @error('email') <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div> @enderror
+                        <label for="city">المدينة <span class="text-danger">*</span></label>
+                        <input type="text" class="input-box @error('city') is-invalid @enderror" id="city" name="city" value="{{ old('city', $city) }}" required placeholder="مثال: طرابلس، بنغازي، مصراتة...">
+                        @error('city') <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="field-group">
-                        <label for="phone">رقم الهاتف <span>*</span></label>
-                        <input type="tel" class="input-box @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone', $company->phone) }}" required placeholder="09XXXXXXXX">
+                        <label for="phone">هاتف مقر الشركة / البدالة</label>
+                        <input type="tel" class="input-box @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone', $company->phone) }}" placeholder="021XXXXXXX أو 09XXXXXXXX">
                         @error('phone') <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="field-group full-width">
-                        <label for="address">عنوان المقر الرئيسي <span>*</span></label>
-                        <input type="text" class="input-box @error('address') is-invalid @enderror" id="address" name="address" value="{{ old('address', $company->address) }}" required placeholder="المدينة، الشارع، المعلم البارز...">
+                        <label for="address">العنوان التفصيلي للمقر الرئيسي <span class="text-danger">*</span></label>
+                        <input type="text" class="input-box @error('address') is-invalid @enderror" id="address" name="address" value="{{ old('address', $streetAddress) }}" required placeholder="الشارع، المنطقة، أقرب نقطة دالة...">
                         @error('address') <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="field-group full-width">
-                        <label for="website">الموقع الإلكتروني</label>
+                        <label for="website">الموقع الإلكتروني الرسمي</label>
                         <input type="url" class="input-box @error('website') is-invalid @enderror" id="website" name="website" value="{{ old('website', $company->website) }}" placeholder="https://example.com">
                         @error('website') <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="field-group full-width">
-                        <label for="description">نبذة عن الشركة</label>
-                        <textarea class="input-box @error('description') is-invalid @enderror" id="description" name="description" placeholder="اكتب نبذة مختصرة عن نشاط الشركة وخدماتها وخبراتها في سوق العمل...">{{ old('description', $company->description) }}</textarea>
+                        <label for="description">نبذة تعريفية عن الشركة ورؤيتها</label>
+                        <textarea class="input-box @error('description') is-invalid @enderror" id="description" name="description" placeholder="اكتب نبذة مختصرة عن أنشطة الشركة ورؤيتها وخبراتها في سوق العمل...">{{ old('description', $company->description) }}</textarea>
                         @error('description') <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div> @enderror
+                    </div>
+                </div>
+
+                <!-- ═══════════ القسم الثاني: مجالات الشراكة مع الجامعة ═══════════ -->
+                <div class="section-divider-title">
+                    <h5>
+                        <i class="fas fa-handshake text-warning"></i>
+                        <span>مجالات الشراكة المطلوبة مع جامعة طرابلس</span>
+                    </h5>
+                    <span class="badge-subtitle">يمكنك اختيار وتحديث أكثر من مجال شراكة</span>
+                </div>
+
+                <div class="partnership-types-grid mb-4">
+                    @foreach($typesList as $val => $info)
+                        <div>
+                            <input type="checkbox" name="partnership_types[]" id="type_{{ $val }}"
+                                   value="{{ $val }}" class="partner-type-checkbox"
+                                   {{ in_array($val, (array)$selectedPartnershipTypes) ? 'checked' : '' }}>
+                            <label for="type_{{ $val }}" class="partner-type-card">
+                                <div class="type-icon">
+                                    <i class="fas {{ $info['icon'] }}"></i>
+                                </div>
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div class="fw-bold text-dark" style="font-size: 0.9rem;">{{ $info['label'] }}</div>
+                                    <small class="text-muted d-block text-truncate" style="font-size: 0.74rem;">{{ $info['desc'] }}</small>
+                                </div>
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+                @error('partnership_types') <div class="invalid-feedback d-block text-danger small mb-3">{{ $message }}</div> @enderror
+
+                <!-- ═══════════ القسم الثالث: بيانات مسؤول الاتصال وممثل الشركة ═══════════ -->
+                <div class="section-divider-title">
+                    <h5>
+                        <i class="fas fa-id-card text-success"></i>
+                        <span>بيانات مسؤول الاتصال وممثل الشركة</span>
+                    </h5>
+                    <span class="badge-subtitle">بيانات الشخص المخوّل بالتواصل وإدارة الحساب</span>
+                </div>
+
+                <div class="grid-fields mb-4">
+                    <div class="field-group">
+                        <label for="contact_person">اسم مسؤول الاتصال أو ممثل الشركة</label>
+                        <input type="text" class="input-box @error('contact_person') is-invalid @enderror" id="contact_person" name="contact_person" value="{{ old('contact_person', $company->contact_person) }}" placeholder="الاسم الثلاثي">
+                        @error('contact_person') <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="field-group">
+                        <label for="contact_position">المسمى الوظيفي لمسؤول الاتصال</label>
+                        <input type="text" class="input-box @error('contact_position') is-invalid @enderror" id="contact_position" name="contact_position" value="{{ old('contact_position', $company->contact_position) }}" placeholder="مثال: مدير الموارد البشرية، مسؤول التوظيف">
+                        @error('contact_position') <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="field-group">
+                        <label for="contact_phone">رقم هاتف الاتصال المباشر</label>
+                        <input type="tel" class="input-box @error('contact_phone') is-invalid @enderror" id="contact_phone" name="contact_phone" value="{{ old('contact_phone', $company->contact_phone) }}" placeholder="09XXXXXXXX">
+                        @error('contact_phone') <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="field-group">
+                        <label for="email">البريد الإلكتروني للشركة (اسم المستخدم) <span class="text-danger">*</span></label>
+                        <input type="email" class="input-box @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $company->user->email ?? $company->email) }}" required placeholder="info@company.ly أو hr@company.ly">
+                        <span class="text-muted" style="font-size: 0.75rem;">يُستخدم لتسجيل الدخول إلى النظام واستلام المراسلات الرسمية</span>
+                        @error('email') <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div> @enderror
                     </div>
                 </div>
 
@@ -470,6 +574,90 @@
     font-weight: 700;
     margin-top: 4px;
     width: fit-content;
+  }
+
+  /* بطاقات اختيار مجالات الشراكة */
+  .partnership-types-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+
+  .partner-type-card {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #ffffff;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    height: 100%;
+  }
+
+  .partner-type-card:hover {
+    border-color: #93c5fd;
+    background: #f8fafc;
+    transform: translateY(-2px);
+  }
+
+  .partner-type-checkbox:checked + .partner-type-card {
+    border-color: #0d3882;
+    background: #eff6ff;
+    box-shadow: 0 4px 12px rgba(13, 56, 130, 0.12);
+  }
+
+  .partner-type-checkbox:checked + .partner-type-card .type-icon {
+    background: #0d3882;
+    color: #ffffff;
+  }
+
+  .partner-type-checkbox {
+    display: none;
+  }
+
+  .type-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #e0f2fe;
+    color: #0d3882;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .section-divider-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 28px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid #f1f5f9;
+    flex-wrap: wrap;
+  }
+
+  .section-divider-title h5 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-divider-title .badge-subtitle {
+    font-size: 0.78rem;
+    color: #64748b;
+    font-weight: 600;
   }
 
   .partnership-badges {

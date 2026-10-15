@@ -390,39 +390,109 @@ class CompanyController extends Controller
         $user = auth()->user();
         $company = Company::where('user_id', $user->id)->first();
 
+        if (!$company) {
+            return redirect()->route('company.dashboard')->with('error', 'الشركة غير موجودة');
+        }
+
         $request->validate([
+            // بيانات الشركة أو المؤسسة
             'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
             'industry' => 'required|string|max:255',
+            'city' => 'nullable|string|max:100',
             'address' => 'required|string|max:500',
+            'phone' => 'nullable|string|max:20',
+            'website' => 'nullable|url|max:255',
             'description' => 'nullable|string',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
+
+            // مجالات الشراكة المطلوبة
+            'partnership_types' => 'nullable|array|min:1',
+            'partnership_types.*' => 'in:employment,training,logistic_support,academic,workshops,training_employment',
+
+            // بيانات مسؤول الاتصال وممثل الشركة
+            'contact_person' => 'nullable|string|max:255',
+            'contact_position' => 'nullable|string|max:255',
+            'contact_phone' => 'nullable|string|max:20',
+            'contact_email' => 'nullable|email|max:255',
+            'email' => 'nullable|email|max:255|unique:users,email,' . $user->id . '|unique:companies,email,' . $company->id,
+        ], [
+            'name.required' => 'اسم الشركة أو المؤسسة مطلوب.',
+            'industry.required' => 'مجال ونشاط الشركة مطلوب.',
+            'address.required' => 'عنوان المقر الرئيسي مطلوب.',
+            'website.url' => 'يرجى إدخال رابط موقع إلكتروني صحيح (مثل: https://example.com).',
+            'logo.image' => 'يجب أن يكون ملف الشعار صورة صحيحة.',
+            'logo.max' => 'الحد الأقصى لحجم الشعار هو 5 ميجابايت.',
+            'email.unique' => 'هذا البريد الإلكتروني مسجل مسبقاً في النظام.',
         ]);
 
-        if ($company) {
-            $company->update($request->only([
-                'name',
-                'phone',
-                'industry',
-                'address',
-                'description'
-            ]));
+        $data = $request->only([
+            'name',
+            'industry',
+            'phone',
+            'website',
+            'description',
+            'contact_person',
+            'contact_position',
+            'contact_phone',
+            'contact_email',
+        ]);
 
-            if ($request->hasFile('logo')) {
-                if ($company->logo_path) {
-                    \Illuminate\Support\Facades\Storage::disk('public')->delete($company->logo_path);
-                }
-                $path = $request->file('logo')->store('companies/logos', 'public');
-                $company->logo_path = $path;
-                $company->save();
+        // معالجة العنوان مع المدينة
+        $city = $request->input('city');
+        $streetAddress = $request->input('address');
+        if (!empty($city)) {
+            if (!str_starts_with($streetAddress, $city)) {
+                $data['address'] = trim($city . ' - ' . $streetAddress, ' -');
+            } else {
+                $data['address'] = $streetAddress;
+            }
+        } else {
+            $data['address'] = $streetAddress;
+        }
+
+        // تحديث مجالات الشراكة
+        if ($request->has('partnership_types')) {
+            $types = array_values((array) $request->input('partnership_types', []));
+            $data['partnership_types'] = $types;
+            if (!empty($types)) {
+                $data['partnership_type'] = $types[0];
             }
         }
 
-        $user->update([
-            'name' => $request->name,
-        ]);
+        // البريد الإلكتروني
+        if ($request->filled('email')) {
+            $data['email'] = $request->input('email');
+            $user->email = $request->input('email');
+        }
 
-        return redirect()->route('company.profile')->with('success', 'تم تحديث الملف الشخصي بنجاح');
+        // حفظ الشعار الجديد
+        if ($request->hasFile('logo')) {
+            if ($company->logo_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($company->logo_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($company->logo_path);
+            }
+            $path = $request->file('logo')->store('companies/logos', 'public');
+            $data['logo_path'] = $path;
+        }
+
+        $company->update($data);
+
+        // مزامنة اسم وبريد المستخدم
+        $user->name = $request->name;
+        $user->save();
+
+        try {
+            AuditLog::logAction(
+                'COMPANY_PROFILE_UPDATED',
+                'Company',
+                $company->id,
+                null,
+                ['name' => $company->name, 'industry' => $company->industry, 'contact_person' => $company->contact_person]
+            );
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Failed logging audit action for company profile update: ' . $e->getMessage());
+        }
+
+        return redirect()->route('company.profile')->with('success', 'تم تحديث بيانات الشركة بنجاح');
     }
 
     /**

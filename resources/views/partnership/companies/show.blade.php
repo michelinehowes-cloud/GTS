@@ -56,6 +56,9 @@
                     </div>
                 </div>
                 <div class="ms-auto d-flex gap-2 flex-wrap">
+                    <button type="button" class="btn btn-sm btn-light text-dark fw-bold rounded-pill shadow-sm px-3" data-bs-toggle="modal" data-bs-target="#resetPasswordModal{{ $company->id }}">
+                        <i class="fas fa-key text-warning me-1"></i>تعيين كلمة المرور
+                    </button>
                     <a href="{{ route('partnership.companies.edit', $company->id) }}" class="btn btn-sm btn-light text-primary fw-bold rounded-pill shadow-sm px-3">
                         <i class="fas fa-edit me-1"></i>تعديل البيانات
                     </a>
@@ -282,5 +285,49 @@
             </div>
         </div>
     </div>
+
+    <!-- نافذة إعادة تعيين كلمة المرور للشركة -->
+    <div class="modal fade" id="resetPasswordModal{{ $company->id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden text-start">
+                <form action="{{ route('partnership.companies.reset-password', $company->id) }}" method="POST">
+                    @csrf
+                    <div class="modal-header text-white p-3 border-0" style="background: linear-gradient(135deg, #0d3882 0%, #1e3a8a 100%);">
+                        <h6 class="modal-title fw-bold text-white mb-0">
+                            <i class="fas fa-key text-warning me-1"></i> تعيين كلمة المرور: {{ $company->name }}
+                        </h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4 bg-light text-end">
+                        <div class="alert alert-info border-0 rounded-3 small mb-3 text-end" style="background: rgba(13, 56, 130, 0.08); color: #0d3882;">
+                            <i class="fas fa-info-circle me-1"></i> البريد المعتمد لتسجيل دخول الشركة: 
+                            <strong class="d-block mt-1 font-monospace">{{ $company->email }}</strong>
+                        </div>
+
+                        <div class="mb-3 text-end">
+                            <label for="password_{{ $company->id }}" class="form-label small fw-bold text-dark">كلمة المرور الجديدة <span class="text-danger">*</span></label>
+                            <input type="password" name="password" id="password_{{ $company->id }}" class="form-control rounded-3" placeholder="8 خانات على الأقل..." required minlength="8">
+                        </div>
+
+                        <div class="mb-3 text-end">
+                            <label for="password_confirmation_{{ $company->id }}" class="form-label small fw-bold text-dark">تأكيد كلمة المرور <span class="text-danger">*</span></label>
+                            <input type="password" name="password_confirmation" id="password_confirmation_{{ $company->id }}" class="form-control rounded-3" placeholder="أعد إدخال كلمة المرور..." required minlength="8">
+                        </div>
+
+                        <p class="small text-muted mb-0">
+                            <i class="fas fa-shield-alt text-success me-1"></i> سيتم تفعيل حساب الشركة تلقائياً وتحديث بيانات تسجيل الدخول فور الحفظ.
+                        </p>
+                    </div>
+                    <div class="modal-footer bg-white border-0 p-3">
+                        <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">إلغاء</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">
+                            <i class="fas fa-save me-1"></i> حفظ وتعيين كلمة المرور
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
+

@@ -305,6 +305,46 @@
                             </div>
                         </div>
 
+                        {{-- =================== القسم الرابع: بيانات الدخول وكلمة المرور =================== --}}
+                        <hr class="my-4">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="badge rounded-circle d-flex align-items-center justify-content-center" style="width:32px;height:32px;background:linear-gradient(135deg,#0d3882,#1e3a8a);font-size:.9rem;"><i class="fas fa-key text-warning"></i></span>
+                            <h6 class="fw-bold text-dark mb-0">بيانات حساب الدخول وكلمة المرور</h6>
+                        </div>
+
+                        <div class="alert alert-info border-0 rounded-3 small mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fas fa-info-circle text-primary fs-5"></i>
+                                <div>
+                                    <span>البريد الإلكتروني المعتمد للدخول: <strong>{{ $company->email }}</strong></span>
+                                    <div class="text-muted mt-0.5">اترك حقول كلمة المرور فارغة إذا لم تكن ترغب بتغيير كلمة المرور الحالية للشركة.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="password" class="form-label-modern">كلمة المرور الجديدة</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-muted"></i></span>
+                                    <input type="password" class="form-control-modern border-start-0 ps-0 @error('password') is-invalid @enderror" 
+                                           id="password" name="password" placeholder="8 خانات على الأقل (اختياري)..." minlength="8">
+                                </div>
+                                @error('password')
+                                    <div class="text-danger small mt-1 fw-bold">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="password_confirmation" class="form-label-modern">تأكيد كلمة المرور الجديدة</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-muted"></i></span>
+                                    <input type="password" class="form-control-modern border-start-0 ps-0" 
+                                           id="password_confirmation" name="password_confirmation" placeholder="أعد إدخال كلمة المرور..." minlength="8">
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
                             <div class="d-flex gap-2">
                                 <a href="{{ route('partnership.companies') }}" class="btn btn-secondary px-4 py-2 rounded-pill">

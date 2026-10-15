@@ -454,6 +454,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/companies/{id}/approve', [PartnershipController::class, 'approveCompany'])->name('partnership.companies.approve');
         Route::post('/companies/{id}/reject', [PartnershipController::class, 'rejectCompany'])->name('partnership.companies.reject');
         Route::put('/companies/{id}/partnership', [PartnershipController::class, 'updateCompanyPartnership'])->name('partnership.companies.update-partnership');
+        Route::post('/companies/{id}/reset-password', [PartnershipController::class, 'resetCompanyPassword'])->name('partnership.companies.reset-password');
 
         // 📎 إدارة الوثائق
         Route::get('/documents', [PartnershipController::class, 'documents'])->name('partnership.documents');

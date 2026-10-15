@@ -143,7 +143,10 @@ class GraduateRegistrationController extends Controller
         // 1. تقييم الطلب فوراً بواسطة المساعد الذكي
         $eval = self::evaluateGraduateApplication($user);
         $dangerCount = count(array_filter($eval['flags'] ?? [], fn($f) => ($f['type'] ?? '') === 'danger'));
-        $isAutoApproved = ($eval['verdict'] === 'valid') || ($eval['score'] >= 50 && $dangerCount === 0);
+        $gpa = !is_null($user->gpa) ? (float) $user->gpa : null;
+
+        // 2. شرط الاعتماد التلقائي: نسبة ثقة 85% فما فوق + معدل تراكمي 50% فما فوق + خلو الطلب من مؤشرات الخطر
+        $isAutoApproved = ($eval['verdict'] === 'valid') && ($eval['score'] >= 85) && ($gpa !== null && $gpa >= 50) && ($dangerCount === 0);
 
         if ($isAutoApproved) {
             // اعتماد فوري وتفعيل الحساب بواسطة المساعد الذكي
@@ -664,18 +667,34 @@ class GraduateRegistrationController extends Controller
             }
         }
 
-        // 6. فحص المعدل التراكمي
+        // 6. فحص المعدل التراكمي (يجب أن يكون 50% فما فوق كحد أدنى لنسبة التخرج والنجاح)
         if (!is_null($user->gpa)) {
             $gpa = (float) $user->gpa;
             if ($gpa < 0 || $gpa > 100) {
-                $score -= 25;
+                $score -= 30;
                 $flags[] = [
                     'type' => 'danger',
                     'field' => 'gpa',
                     'title' => 'معدل تراكمي غير صحيح',
-                    'msg' => "المعدل التراكمي ({$gpa}%) خارج النطاق المقبول."
+                    'msg' => "المعدل التراكمي ({$gpa}%) خارج النطاق المقبول (0 - 100%)."
+                ];
+            } elseif ($gpa < 50) {
+                $score -= 35;
+                $flags[] = [
+                    'type' => 'danger',
+                    'field' => 'gpa',
+                    'title' => 'المعدل التراكمي أقل من نسبة التخرج (50%)',
+                    'msg' => "المعدل التراكمي المدخل ({$gpa}%) أقل من الحد الأدنى المطلوب للنجاح والتخرج (50%)."
                 ];
             }
+        } else {
+            $score -= 15;
+            $flags[] = [
+                'type' => 'warning',
+                'field' => 'gpa',
+                'title' => 'المعدل التراكمي غير مسجل',
+                'msg' => 'لم يتم إدخال المعدل التراكمي للخريج.'
+            ];
         }
 
         $score = max(0, min(100, $score));
@@ -683,24 +702,24 @@ class GraduateRegistrationController extends Controller
         $dangerCount = count(array_filter($flags, fn($f) => $f['type'] === 'danger'));
         $warningCount = count(array_filter($flags, fn($f) => $f['type'] === 'warning'));
 
-        if ($dangerCount > 0 || $score < 40) {
+        if ($dangerCount > 0 || $score < 60) {
             $verdict = 'invalid';
             $summaryText = 'بيانات مشبوهة أو غير صحيحة';
             $recommendation = 'يُوصى برفض الطلب أو التواصل مع المتقدم لإعادة تصحيح البيانات.';
             $badgeColor = 'danger';
             $badgeText = '🔴 بيانات غير متطابقة';
-        } elseif ($score < 50) {
+        } elseif ($warningCount > 0 || $score < 85) {
             $verdict = 'warning';
             $summaryText = 'بيانات تحتاج مراجعة وتدقيق بشري';
-            $recommendation = 'نسبة التقييم أقل من 50% ويُوصى بالتحقق من الملاحظات قبل الاعتماد.';
+            $recommendation = 'نسبة التقييم أقل من 85% ويُوصى بالتحقق من الملاحظات قبل الاعتماد.';
             $badgeColor = 'warning';
             $badgeText = '🟡 يحتاج تدقيق';
         } else {
             $verdict = 'valid';
-            $summaryText = 'بيانات مكتملة وموثوقة (50% فما فوق)';
-            $recommendation = 'الطلب مستوفٍ للحد الأدنى المطلوب (50% فما فوق) ومؤهل للاعتماد والموافقة الفورية.';
+            $summaryText = 'بيانات سليمة وموثوقة (ثقة 85%+ ومعدل 50%+)';
+            $recommendation = 'الطلب مستوفٍ لكافة المعايير (معدل 50%+ وثقة 85%+) ومؤهل للاعتماد والموافقة الفورية.';
             $badgeColor = 'success';
-            $badgeText = '🟢 سليم ومكتمل';
+            $badgeText = '🟢 سليم وموثوق';
         }
 
         return [

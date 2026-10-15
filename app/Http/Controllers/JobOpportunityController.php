@@ -863,8 +863,13 @@ class JobOpportunityController extends Controller
      */
     public function nominations($id)
     {
-        $opportunity = JobOpportunity::with(['nominations.graduate'])->findOrFail($id);
-        $this->authorize('view', $opportunity);
+        $opportunity = JobOpportunity::with(['nominations.graduate', 'company'])->findOrFail($id);
+        $this->authorize('manageNominations', $opportunity);
+
+        // إذا كان المستخدم شركة، يتم توجيهه بسلاسة إلى صفحة إدارة مرشحي التوظيف (ATS) للشركة مع فلترة هذه الفرصة المحددة
+        if (auth()->user()->role === 'company') {
+            return redirect()->route('company.nominations', ['opportunity_id' => $opportunity->id]);
+        }
 
         $nominations = $opportunity->nominations()->latest()->get();
 

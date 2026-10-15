@@ -373,6 +373,32 @@ class User extends Authenticatable
     }
 
     /**
+     * الحصول على بيانات الشركة مع دعم الربط بالبريد كخيار احتياطي تلقائي والمزامنة التلقائية
+     */
+    public function getCompanyAttribute()
+    {
+        if ($this->relationLoaded('company')) {
+            $comp = $this->getRelation('company');
+            if ($comp) return $comp;
+        } else {
+            $comp = $this->getRelationValue('company');
+            if ($comp) return $comp;
+        }
+
+        if ($this->email) {
+            $comp = Company::where('email', $this->email)->first();
+            if ($comp) {
+                if (!$comp->user_id) {
+                    $comp->updateQuietly(['user_id' => $this->id]);
+                }
+                return $comp;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * العلاقة مع بيانات الخريج
      */
     public function graduateData()

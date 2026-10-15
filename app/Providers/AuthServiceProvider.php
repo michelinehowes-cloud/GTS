@@ -74,8 +74,20 @@ class AuthServiceProvider extends ServiceProvider
             return $user->hasPermission('graduates.view') || in_array($user->role, ['admin', 'career_guidance_officer']);
         });
 
-        \Gate::define('manage-nominations', function ($user) {
-            return $user->hasPermission('nominations.manage') || in_array($user->role, ['admin', 'partnership_officer', 'career_guidance_officer']);
+        \Gate::define('manage-nominations', function ($user, $jobOpportunity = null) {
+            if ($user->hasPermission('nominations.manage') || in_array($user->role, ['admin', 'partnership_officer', 'career_guidance_officer'])) {
+                return true;
+            }
+
+            if ($user->role === 'company') {
+                if ($jobOpportunity instanceof \App\Models\JobOpportunity) {
+                    $company = $user->company;
+                    return ($company && $jobOpportunity->company_id === $company->id) || $jobOpportunity->created_by === $user->id;
+                }
+                return true;
+            }
+
+            return false;
         });
 
         \Gate::define('view-reports', function ($user) {

@@ -337,6 +337,28 @@
                 <div id="qr-code" class="d-flex justify-content-center"></div>
                 <div class="qr-code-text">{{ $registration->qr_code }}</div>
             </div>
+
+            <!-- قسم الرعاة الرسميون للمعرض -->
+            @php
+                $ticketSponsors = $registration->jobFair->sponsors()->where('is_active', true)->orderBy('display_order')->take(5)->get();
+            @endphp
+            @if($ticketSponsors->count() > 0)
+                <div class="mt-3 pt-2.5 border-top text-center" style="border-color: #e2e8f0 !important;">
+                    <div class="text-muted fw-bold mb-2 d-flex align-items-center justify-content-center gap-1.5" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+                        <i class="fas fa-handshake text-warning"></i>
+                        <span>الرعاة الرسميون للمعرض</span>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                        @foreach($ticketSponsors as $ts)
+                            @if($ts->logo_path)
+                                <div class="bg-white p-1 rounded-2 border shadow-xs d-flex align-items-center justify-content-center" style="height: 32px; min-width: 50px; border-color: #e2e8f0 !important;" title="{{ $ts->name }} — {{ $ts->tier_label }}">
+                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($ts->logo_path) }}" alt="{{ $ts->name }}" style="max-height: 24px; max-width: 58px; object-fit: contain;">
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 </div>

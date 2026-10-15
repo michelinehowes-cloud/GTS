@@ -97,34 +97,57 @@
                     </div>
                 </div>
 
-                <!-- قسم شعار الشركة مع المعاينة الفورية -->
-                <div class="logo-upload-box mb-4 p-3.5 bg-light rounded-4 border d-flex align-items-center gap-3 flex-wrap">
-                    <div class="position-relative flex-shrink-0">
-                        @if($logoUrl)
-                            <img src="{{ $logoUrl }}" alt="{{ $company->name }}" id="company-logo-preview" class="rounded-circle border border-2 border-white shadow-sm" style="width: 76px; height: 76px; object-fit: cover;">
-                        @else
-                            <div id="company-logo-placeholder" class="rounded-circle bg-white border border-2 border-primary text-primary fw-bold fs-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 76px; height: 76px;">
-                                <span>{{ mb_substr($company->name, 0, 1) }}</span>
-                            </div>
-                            <img src="" alt="{{ $company->name }}" id="company-logo-preview" class="rounded-circle border border-2 border-white shadow-sm d-none" style="width: 76px; height: 76px; object-fit: cover;">
-                        @endif
-                    </div>
+                <!-- قسم شعار الشركة مع المعاينة الفورية والتصميم المرتب المتناسق -->
+                <div class="logo-upload-card mb-4">
+                    <div class="logo-card-inner">
+                        <!-- المعاينة الفورية للشعار مع شارة الكاميرا التفاعلية -->
+                        <div class="logo-preview-wrapper">
+                            <label for="upload-logo" class="logo-avatar-frame" title="اضغط لتغيير الشعار">
+                                @if($logoUrl)
+                                    <img src="{{ $logoUrl }}" alt="{{ $company->name }}" id="company-logo-preview">
+                                @else
+                                    <div id="company-logo-placeholder" class="logo-avatar-placeholder">
+                                        <span>{{ mb_substr($company->name, 0, 1) }}</span>
+                                    </div>
+                                    <img src="" alt="{{ $company->name }}" id="company-logo-preview" class="d-none">
+                                @endif
+                                <div class="logo-edit-badge" title="تغيير الشعار">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                            </label>
+                        </div>
 
-                    <div class="flex-grow-1">
-                        <label class="form-label fw-bold text-dark mb-1 d-block" style="font-size: 0.92rem;">
-                            شعار الشركة (Logo)
-                        </label>
-                        <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <label for="upload-logo" class="btn btn-primary btn-sm rounded-pill px-3 py-1.5 fw-bold cursor-pointer mb-0 shadow-sm" style="font-size: 0.85rem;">
-                                <i class="fas fa-camera me-1"></i> اختيار شعار جديد
+                        <!-- تفاصيل الهوية وإرشادات الملف -->
+                        <div class="logo-content-wrapper">
+                            <div class="logo-title-group">
+                                <label class="logo-main-label">
+                                    <i class="fas fa-image text-primary"></i>
+                                    <span>شعار الشركة (Logo)</span>
+                                </label>
+                                <span class="logo-sub-label">يظهر الشعار في الملف التعريفي وبطاقات المعرض وملصقات الأجنحة</span>
+                            </div>
+
+                            <div class="logo-meta-tags">
+                                <span class="meta-tag"><i class="fas fa-file-image text-primary"></i> صيغ PNG, JPG, WEBP</span>
+                                <span class="meta-tag"><i class="fas fa-weight-hanging text-muted"></i> أقصى حجم 2MB</span>
+                                <span class="meta-tag"><i class="fas fa-wand-magic-sparkles text-warning"></i> يفضل خلفية شفافة أو بيضاء</span>
+                            </div>
+
+                            <div id="new-logo-notice" class="logo-success-notice d-none">
+                                <i class="fas fa-check-circle"></i>
+                                <span>تم اختيار الشعار الجديد بنجاح، اضغط "حفظ التغييرات" بالأسفل لتطبيقه.</span>
+                            </div>
+                            @error('logo') <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div> @enderror
+                        </div>
+
+                        <!-- زر رفع الشعار العصري -->
+                        <div class="logo-action-wrapper">
+                            <label for="upload-logo" class="btn-upload-trigger">
+                                <i class="fas fa-cloud-arrow-up"></i>
+                                <span>اختيار شعار جديد</span>
                             </label>
                             <input type="file" name="logo" id="upload-logo" accept="image/png, image/jpeg, image/jpg, image/webp" class="d-none">
-                            <span class="text-muted small">يفضل أن يكون الشعار بخلفية شفافة (PNG) أو بيضاء. الحد الأقصى للحجم 2MB.</span>
                         </div>
-                        <div id="new-logo-notice" class="text-success small fw-bold mt-1 d-none">
-                            <i class="fas fa-check-circle me-1"></i> تم اختيار شعار جديد بنجاح، اضغط "حفظ التغييرات" لتطبيقه نهائياً.
-                        </div>
-                        @error('logo') <div class="invalid-feedback d-block text-danger small mt-1">{{ $message }}</div> @enderror
                     </div>
                 </div>
 
@@ -261,16 +284,192 @@
     gap: 12px;
   }
 
-  /* قسم الشعار والوسوم */
-  .logo-upload-box {
-    background-color: #f8fafc;
-    border: 1px dashed var(--border-color) !important;
+  /* قسم الشعار والوسوم المرتب والمريح بصرياً */
+  .logo-upload-card {
+    width: 100%;
+  }
+
+  .logo-card-inner {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1.5px solid var(--border-color);
+    border-radius: 18px;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    transition: all 0.25s ease;
+  }
+
+  .logo-card-inner:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  }
+
+  .logo-preview-wrapper {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .logo-avatar-frame {
+    position: relative;
+    width: 84px;
+    height: 84px;
+    border-radius: 18px;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0;
+  }
+
+  .logo-avatar-frame:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(13, 56, 130, 0.12);
+  }
+
+  .logo-avatar-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 12px;
+  }
+
+  .logo-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    color: var(--primary);
+    font-size: 2rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-edit-badge {
+    position: absolute;
+    bottom: -4px;
+    left: -4px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    box-shadow: 0 2px 6px rgba(13, 56, 130, 0.35);
+    border: 2px solid #ffffff;
     transition: all 0.2s ease;
   }
 
-  .logo-upload-box:hover {
-    border-color: var(--primary) !important;
-    background-color: #ffffff;
+  .logo-avatar-frame:hover .logo-edit-badge {
+    background: var(--primary-hover);
+    transform: scale(1.1);
+  }
+
+  .logo-content-wrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .logo-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .logo-main-label {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-sub-label {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .logo-meta-tags {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+  }
+
+  .meta-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #475569;
+  }
+
+  .logo-action-wrapper {
+    flex-shrink: 0;
+  }
+
+  .btn-upload-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #0d3882 0%, #1565c0 100%);
+    color: #ffffff;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 4px 12px rgba(13, 56, 130, 0.2);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    margin: 0;
+  }
+
+  .btn-upload-trigger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(13, 56, 130, 0.3);
+    color: #ffffff;
+    background: linear-gradient(135deg, #1565c0 0%, #1d4ed8 100%);
+  }
+
+  .logo-success-notice {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #15803d;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-top: 4px;
+    width: fit-content;
   }
 
   .partnership-badges {
@@ -468,6 +667,26 @@
   }
 
   @media (max-width: 768px) {
+    .logo-card-inner {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 20px 16px;
+      gap: 16px;
+    }
+    .logo-content-wrapper {
+      align-items: center;
+    }
+    .logo-meta-tags {
+      justify-content: center;
+    }
+    .logo-action-wrapper {
+      width: 100%;
+    }
+    .btn-upload-trigger {
+      width: 100%;
+      justify-content: center;
+    }
     .grid-fields { grid-template-columns: 1fr; }
     .full-width { grid-column: span 1; }
     .actions-bar { justify-content: stretch; }

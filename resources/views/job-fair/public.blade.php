@@ -1554,12 +1554,12 @@
         }
 
         /* ══════════════════════════════════════════════════════
-           SPONSORS SECTION: UIVERSE SMIT-PRAJAPATI LUXURY CARDS
-           (Adapted to University of Tripoli Exhibition Brand Colors)
+           SPONSORS SECTION: LUXURY CYBER SPONSOR CARDS
+           (University of Tripoli Exhibition Brand Colors)
            ══════════════════════════════════════════════════════ */
         .sponsors-uiverse-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(290px, 320px));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
             gap: 2.2rem;
             justify-content: center;
             max-width: 1140px;
@@ -1569,271 +1569,260 @@
         }
 
         .sponsor-uiverse-card {
-            width: 235px;
-            height: 235px;
-            background: linear-gradient(145deg, #021226 0%, #06264c 100%);
+            width: 100%;
+            max-width: 320px;
+            min-height: 330px;
+            background: linear-gradient(155deg, #021226 0%, #06264c 55%, #041d3b 100%);
             position: relative;
-            display: grid;
-            place-content: center;
-            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            border-radius: 20px;
             overflow: hidden;
-            transition: all 0.5s ease-in-out;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65), 0 0 20px rgba(4, 93, 176, 0.2);
-            border: 1px solid rgba(56, 189, 248, 0.25);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.65), 0 0 20px rgba(4, 93, 176, 0.2);
+            border: 1.5px solid rgba(56, 189, 248, 0.22);
             text-decoration: none;
             cursor: pointer;
             margin: 0 auto;
+            padding: 24px 20px 20px;
         }
 
+        /* الإطار السيبراني المتوهج المستوحى من Uiverse */
         .sponsor-uiverse-card .uiverse-border {
             position: absolute;
             inset: 0px;
             border: 2px solid #EECA3E;
             opacity: 0;
-            transform: rotate(10deg);
-            transition: all 0.5s ease-in-out;
+            transform: rotate(4deg) scale(0.96);
+            transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
             pointer-events: none;
             z-index: 1;
-            box-shadow: inset 0 0 14px rgba(238, 202, 62, 0.28);
-        }
-
-        .sponsor-uiverse-card .bottom-text {
-            position: absolute;
-            left: 50%;
-            bottom: 8px;
-            transform: translateX(-50%);
-            font-size: 9px;
-            text-transform: uppercase;
-            padding: 2px 10px;
-            color: #EECA3E;
-            background: #02142B;
-            opacity: 0.85;
-            letter-spacing: 2px;
-            transition: all 0.5s ease-in-out;
-            font-weight: 800;
-            white-space: nowrap;
-            border-radius: 4px;
-            z-index: 3;
-            border: 1px solid rgba(238, 202, 62, 0.25);
-        }
-
-        .sponsor-uiverse-card .content {
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 3;
-            opacity: 1;
-        }
-
-        .sponsor-uiverse-card .content .logo {
-            height: 110px;
-            position: relative;
-            width: 110px;
-            overflow: hidden;
-            transition: all 0.9s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            direction: ltr;
-        }
-
-        .sponsor-uiverse-card .content .logo .logo1 {
-            height: 110px;
-            width: 110px;
-            position: absolute;
-            left: 0;
-            top: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2;
-        }
-
-        .sponsor-uiverse-card .content .logo .logo1 img {
-            max-height: 98px;
-            max-width: 98px;
-            object-fit: contain;
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.98);
-            padding: 6px;
-            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.5);
-            display: block;
-        }
-
-        .sponsor-uiverse-card .content .logo .logo1 svg {
-            width: 92px;
-            height: 92px;
-            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5));
-        }
-
-        .sponsor-uiverse-card .content .logo .logo2 {
-            height: 110px;
-            position: absolute;
-            left: 110px;
-            top: 0;
-            display: flex;
-            align-items: center;
-            white-space: nowrap;
-            padding-left: 12px;
-            padding-right: 14px;
-            z-index: 2;
-        }
-
-        .sponsor-uiverse-card .content .logo .logo2 .sponsor-brand-text {
-            color: #ffffff;
-            font-weight: 800;
-            font-size: 1.15rem;
-            letter-spacing: 0.2px;
-            direction: rtl;
-            unicode-bidi: embed;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
-        }
-
-        .sponsor-uiverse-card .content .logo .trail {
-            position: absolute;
-            right: 0;
-            height: 100%;
-            width: 100%;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 3;
-        }
-
-        .sponsor-uiverse-card .content .logo-bottom-text {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            margin-top: 76px;
-            color: #EECA3E;
-            background: rgba(2, 20, 43, 0.95);
-            border: 1px solid rgba(238, 202, 62, 0.5);
-            padding: 4px 14px;
-            border-radius: 50px;
-            font-size: 11.5px;
-            font-weight: 800;
-            opacity: 1;
-            letter-spacing: 0.3px;
-            white-space: nowrap;
-            transition: all 0.4s ease-in-out;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.55);
+            border-radius: 16px;
+            box-shadow: inset 0 0 16px rgba(238, 202, 62, 0.25);
         }
 
         .sponsor-uiverse-card:hover {
-            border-radius: 4px;
-            transform: scale(1.06);
-            box-shadow: 0 22px 50px rgba(0, 0, 0, 0.85), 0 0 35px rgba(238, 202, 62, 0.35);
-            border-color: rgba(238, 202, 62, 0.7);
-        }
-
-        .sponsor-uiverse-card:hover .logo {
-            width: 295px;
-            animation: uiverse-opacity 1s ease-in-out;
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 24px 55px rgba(0, 0, 0, 0.85), 0 0 35px rgba(238, 202, 62, 0.35);
+            border-color: rgba(238, 202, 62, 0.75);
         }
 
         .sponsor-uiverse-card:hover .uiverse-border {
-            inset: 14px;
+            inset: 8px;
             opacity: 1;
-            transform: rotate(0);
+            transform: rotate(0) scale(1);
         }
 
-        .sponsor-uiverse-card:hover .bottom-text {
-            letter-spacing: 3px;
-            opacity: 1;
-            transform: translateX(-50%);
+        /* المحتوى الداخلي للبطاقة */
+        .sponsor-uiverse-card .card-inner {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100%;
+            width: 100%;
+            text-align: center;
+            gap: 16px;
         }
 
-        .sponsor-uiverse-card:hover .content .logo-bottom-text {
-            opacity: 1;
-            letter-spacing: 1px;
-            transform: translate(-50%, -50%) scale(1.06);
-            box-shadow: 0 6px 20px rgba(238, 202, 62, 0.35);
+        /* شارة باقة الرعاية */
+        .sponsor-uiverse-card .sponsor-tier-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            padding: 5px 16px;
+            border-radius: 50px;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+            background: rgba(2, 20, 43, 0.9);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
         }
 
-        .sponsor-uiverse-card:hover .trail {
-            animation: uiverse-trail 1s ease-in-out;
+        /* صندوق الشعار المحاط بخلفية ناصعة وأبعاد متناسقة */
+        .sponsor-logo-box {
+            width: 105px;
+            height: 105px;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+            flex-shrink: 0;
         }
 
-        /* Tier Styling */
+        .sponsor-logo-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 12px;
+            display: block;
+        }
+
+        .sponsor-monogram-box {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #043C73 0%, #02142B 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #EECA3E;
+            font-weight: 900;
+            font-size: 2.2rem;
+            border: 2px solid #EECA3E;
+        }
+
+        .sponsor-uiverse-card:hover .sponsor-logo-box {
+            transform: scale(1.08) translateY(-2px);
+            box-shadow: 0 16px 35px rgba(0, 0, 0, 0.65), 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        /* حاوية اسم الشركة الراعية - تضمن ظهور الاسم كاملاً بدون أي قطع */
+        .sponsor-name-wrap {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 52px;
+            padding: 0 4px;
+        }
+
+        .sponsor-brand-title {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1.12rem;
+            line-height: 1.45;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-word;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+            transition: color 0.3s ease;
+        }
+
+        .sponsor-uiverse-card:hover .sponsor-brand-title {
+            color: #ffffff;
+        }
+
+        /* زر أسفل البطاقة */
+        .sponsor-bottom-action {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: auto;
+        }
+
+        .sponsor-bottom-action .action-btn-text {
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.35s ease;
+            white-space: nowrap;
+        }
+
+        /* ألوان الفئات (Tier Specific Styling) */
+        /* 1. الماسي (Diamond) */
+        .sponsor-uiverse-card.tier-diamond {
+            border-color: rgba(56, 189, 248, 0.35);
+        }
         .sponsor-uiverse-card.tier-diamond .uiverse-border {
             border-color: #38BDF8;
-            box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.3);
+            box-shadow: inset 0 0 18px rgba(56, 189, 248, 0.35);
         }
-        .sponsor-uiverse-card.tier-diamond .bottom-text {
+        .sponsor-uiverse-card.tier-diamond .sponsor-tier-chip {
             color: #38BDF8;
-            border-color: rgba(56, 189, 248, 0.3);
+            border: 1px solid rgba(56, 189, 248, 0.6);
+            background: rgba(14, 165, 233, 0.12);
         }
-        .sponsor-uiverse-card.tier-diamond .content .logo-bottom-text {
+        .sponsor-uiverse-card.tier-diamond .action-btn-text {
             color: #38BDF8;
-            border-color: rgba(56, 189, 248, 0.6);
+            background: rgba(56, 189, 248, 0.08);
+            border: 1px solid rgba(56, 189, 248, 0.35);
         }
         .sponsor-uiverse-card.tier-diamond:hover {
-            box-shadow: 0 22px 50px rgba(0, 0, 0, 0.85), 0 0 35px rgba(56, 189, 248, 0.4);
-            border-color: rgba(56, 189, 248, 0.8);
+            border-color: rgba(56, 189, 248, 0.85);
+            box-shadow: 0 24px 55px rgba(0, 0, 0, 0.85), 0 0 35px rgba(56, 189, 248, 0.4);
         }
-        .sponsor-uiverse-card.tier-diamond:hover .content .logo-bottom-text {
-            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+        .sponsor-uiverse-card.tier-diamond:hover .action-btn-text {
+            background: #38BDF8;
+            color: #02142B;
+            border-color: #38BDF8;
+            box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
         }
 
+        /* 2. الذهبي (Gold) */
+        .sponsor-uiverse-card.tier-gold {
+            border-color: rgba(238, 202, 62, 0.35);
+        }
         .sponsor-uiverse-card.tier-gold .uiverse-border {
             border-color: #EECA3E;
-            box-shadow: inset 0 0 15px rgba(238, 202, 62, 0.3);
+            box-shadow: inset 0 0 18px rgba(238, 202, 62, 0.35);
         }
-        .sponsor-uiverse-card.tier-gold .bottom-text {
+        .sponsor-uiverse-card.tier-gold .sponsor-tier-chip {
             color: #EECA3E;
-            border-color: rgba(238, 202, 62, 0.3);
+            border: 1px solid rgba(238, 202, 62, 0.6);
+            background: rgba(238, 202, 62, 0.12);
+        }
+        .sponsor-uiverse-card.tier-gold .action-btn-text {
+            color: #EECA3E;
+            background: rgba(238, 202, 62, 0.08);
+            border: 1px solid rgba(238, 202, 62, 0.35);
+        }
+        .sponsor-uiverse-card.tier-gold:hover {
+            border-color: rgba(238, 202, 62, 0.85);
+            box-shadow: 0 24px 55px rgba(0, 0, 0, 0.85), 0 0 35px rgba(238, 202, 62, 0.4);
+        }
+        .sponsor-uiverse-card.tier-gold:hover .action-btn-text {
+            background: #EECA3E;
+            color: #02142B;
+            border-color: #EECA3E;
+            box-shadow: 0 4px 16px rgba(238, 202, 62, 0.4);
         }
 
-        .sponsor-uiverse-card.tier-silver .uiverse-border {
-            border-color: #CBD5E1;
-            box-shadow: inset 0 0 15px rgba(203, 213, 225, 0.25);
-        }
-        .sponsor-uiverse-card.tier-silver .bottom-text {
-            color: #CBD5E1;
+        /* 3. الفضي (Silver) */
+        .sponsor-uiverse-card.tier-silver {
             border-color: rgba(203, 213, 225, 0.3);
         }
-        .sponsor-uiverse-card.tier-silver .content .logo-bottom-text {
+        .sponsor-uiverse-card.tier-silver .uiverse-border {
+            border-color: #CBD5E1;
+            box-shadow: inset 0 0 18px rgba(203, 213, 225, 0.25);
+        }
+        .sponsor-uiverse-card.tier-silver .sponsor-tier-chip {
             color: #CBD5E1;
-            border-color: rgba(203, 213, 225, 0.5);
+            border: 1px solid rgba(203, 213, 225, 0.5);
+            background: rgba(203, 213, 225, 0.1);
         }
-        .sponsor-uiverse-card.tier-silver:hover .content .logo-bottom-text {
-            box-shadow: 0 6px 20px rgba(203, 213, 225, 0.3);
+        .sponsor-uiverse-card.tier-silver .action-btn-text {
+            color: #CBD5E1;
+            background: rgba(203, 213, 225, 0.08);
+            border: 1px solid rgba(203, 213, 225, 0.3);
         }
-
-        @keyframes uiverse-opacity {
-            0% {
-                border-right: 1.5px solid transparent;
-            }
-            10% {
-                border-right: 1.5px solid #EECA3E;
-            }
-            80% {
-                border-right: 1.5px solid #EECA3E;
-            }
-            100% {
-                border-right: 1.5px solid transparent;
-            }
+        .sponsor-uiverse-card.tier-silver:hover {
+            border-color: rgba(203, 213, 225, 0.8);
+            box-shadow: 0 24px 55px rgba(0, 0, 0, 0.85), 0 0 35px rgba(203, 213, 225, 0.3);
         }
-
-        @keyframes uiverse-trail {
-            0% {
-                background: linear-gradient(90deg, rgba(238, 202, 62, 0) 90%, rgb(238, 202, 62) 100%);
-                opacity: 0;
-            }
-            30% {
-                background: linear-gradient(90deg, rgba(238, 202, 62, 0) 70%, rgb(238, 202, 62) 100%);
-                opacity: 1;
-            }
-            70% {
-                background: linear-gradient(90deg, rgba(238, 202, 62, 0) 70%, rgb(238, 202, 62) 100%);
-                opacity: 1;
-            }
-            95% {
-                background: linear-gradient(90deg, rgba(238, 202, 62, 0) 90%, rgb(238, 202, 62) 100%);
-                opacity: 0;
-            }
+        .sponsor-uiverse-card.tier-silver:hover .action-btn-text {
+            background: #CBD5E1;
+            color: #02142B;
+            border-color: #CBD5E1;
+            box-shadow: 0 4px 16px rgba(203, 213, 225, 0.35);
         }
 
         /* ── Strategic Hero Partner Banner (Grand Uiverse Aesthetic) ── */
@@ -6210,38 +6199,68 @@
                                     $tierPackageName = Str::startsWith($tierRawLbl, 'باقة') ? $tierRawLbl : ('باقة ' . $tierRawLbl);
                                     $monogramLetter = mb_substr(trim($sponsor->name), 0, 1, 'UTF-8');
                                     $sponsorUrl = $sponsor->website ? (Str::startsWith($sponsor->website, 'http') ? $sponsor->website : 'https://' . $sponsor->website) : '#';
+
+                                    // حل دقيق وموثوق لمسار شعار الراعي
+                                    $sLogo = $sponsor->logo_path ? trim($sponsor->logo_path) : null;
+                                    $resolvedLogo = null;
+                                    if ($sLogo) {
+                                        if (str_starts_with($sLogo, 'http://') || str_starts_with($sLogo, 'https://')) {
+                                            $resolvedLogo = $sLogo;
+                                        } elseif (str_starts_with($sLogo, 'images/')) {
+                                            $resolvedLogo = asset($sLogo);
+                                        } elseif (str_starts_with($sLogo, '/storage/') || str_starts_with($sLogo, 'storage/')) {
+                                            $resolvedLogo = asset(ltrim($sLogo, '/'));
+                                        } else {
+                                            $resolvedLogo = Storage::url($sLogo);
+                                        }
+                                    }
                                 @endphp
 
                                 <a href="{{ $sponsorUrl }}" target="{{ $sponsor->website ? '_blank' : '_self' }}" rel="noopener noreferrer"
                                    class="sponsor-uiverse-card {{ $tierClass }}" title="{{ $sponsor->name }} — {{ $tierPackageName }}">
                                     <div class="uiverse-border"></div>
-                                    <div class="content">
-                                        <div class="logo">
-                                            <div class="logo1">
-                                                @if($sponsor->logo_path)
-                                                    <img src="{{ Storage::url($sponsor->logo_path) }}" alt="{{ $sponsor->name }}" loading="lazy"
-                                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                                    <svg viewBox="0 0 32 32" style="display:none;">
-                                                        <polygon points="16,2 30,9 30,23 16,30 2,23 2,9" fill="#043C73" stroke="#EECA3E" stroke-width="2"/>
-                                                        <text x="16" y="21" font-size="14" font-weight="900" fill="#EECA3E" text-anchor="middle" font-family="'Cairo', sans-serif">{{ $monogramLetter }}</text>
-                                                    </svg>
-                                                @else
-                                                    <svg viewBox="0 0 32 32">
-                                                        <polygon points="16,2 30,9 30,23 16,30 2,23 2,9" fill="#043C73" stroke="#EECA3E" stroke-width="2"/>
-                                                        <text x="16" y="21" font-size="14" font-weight="900" fill="#EECA3E" text-anchor="middle" font-family="'Cairo', sans-serif">{{ $monogramLetter }}</text>
-                                                    </svg>
-                                                @endif
-                                            </div>
-                                            <div class="logo2">
-                                                <span class="sponsor-brand-text">{{ $sponsor->name }}</span>
-                                            </div>
-                                            <span class="trail"></span>
+                                    <div class="card-inner">
+                                        {{-- 1. باقة الرعاية في الأعلى --}}
+                                        <div class="sponsor-tier-chip">
+                                            <i class="{{ $tierIcon }}"></i>
+                                            <span>{{ $tierPackageName }}</span>
                                         </div>
-                                        <span class="logo-bottom-text">
-                                            <i class="{{ $tierIcon }} me-1"></i>{{ $tierPackageName }}
-                                        </span>
+
+                                        {{-- 2. إطار الشعار المضيء --}}
+                                        <div class="sponsor-logo-box">
+                                            @if($resolvedLogo)
+                                                <img src="{{ $resolvedLogo }}" alt="{{ $sponsor->name }}" loading="lazy"
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                <div class="sponsor-monogram-box" style="display:none;">
+                                                    <span>{{ $monogramLetter }}</span>
+                                                </div>
+                                            @else
+                                                <div class="sponsor-monogram-box">
+                                                    <span>{{ $monogramLetter }}</span>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        {{-- 3. اسم الشركة الراعية كاملاً وبوضوح تام بدون أي اقتطاع --}}
+                                        <div class="sponsor-name-wrap">
+                                            <h4 class="sponsor-brand-title">{{ $sponsor->name }}</h4>
+                                        </div>
+
+                                        {{-- 4. إجراء / شارة أسفل البطاقة --}}
+                                        <div class="sponsor-bottom-action">
+                                            @if($sponsor->website)
+                                                <span class="action-btn-text">
+                                                    <span>زيارة الموقع الرسمي</span>
+                                                    <i class="fas fa-external-link-alt"></i>
+                                                </span>
+                                            @else
+                                                <span class="action-btn-text">
+                                                    <i class="fas fa-check-circle"></i>
+                                                    <span>شريك معتمد</span>
+                                                </span>
+                                            @endif
+                                        </div>
                                     </div>
-                                    <span class="bottom-text">{{ $sponsor->website ? 'زيارة الموقع الرسمي' : 'شريك معتمد' }}</span>
                                 </a>
                             @endforeach
                         </div>

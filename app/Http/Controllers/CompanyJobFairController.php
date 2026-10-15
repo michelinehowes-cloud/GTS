@@ -113,12 +113,23 @@ class CompanyJobFairController extends Controller
     {
         $company = auth()->user()->company;
         
-        // التأكد من أن الشركة مشاركة في هذا المعرض
-        if (!$company || !$fair->companies()->where('company_id', $company->id)->exists()) {
-            abort(403, 'غير مصرح لك بالوصول.');
+        // السماح لمدير النظام ومسؤولي الشراكات بالمعاينة للشركات المشاركة عبر ?company_id=X
+        if (in_array(auth()->user()->role, ['admin', 'partnership_officer', 'training_coordinator']) && request()->has('company_id')) {
+            $requestedCompany = Company::find(request('company_id'));
+            if ($requestedCompany) {
+                $company = $requestedCompany;
+            }
         }
 
-        return view('company.job-fair.qr-booth', compact('fair', 'company'));
+        // التأكد من أن الشركة مشاركة في هذا المعرض
+        if (!$company || !$fair->companies()->where('company_id', $company->id)->exists()) {
+            abort(403, 'غير مصرح لك بالوصول أو أن الشركة غير مسجلة في هذا المعرض.');
+        }
+
+        $fairCompany = $fair->companies()->where('company_id', $company->id)->first();
+        $sponsors = $fair->sponsors()->where('is_active', true)->orderBy('display_order')->get();
+
+        return view('company.job-fair.qr-booth', compact('fair', 'company', 'fairCompany', 'sponsors'));
     }
 
     /**

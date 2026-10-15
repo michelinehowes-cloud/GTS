@@ -204,17 +204,27 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            flex-shrink: 0;
         }
 
         .org-logo-box img {
             height: 60px;
             width: auto;
-            max-width: 90px;
             object-fit: contain;
             background: #ffffff;
             border-radius: 10px;
             padding: 4px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .uni-logo-box img {
+            max-width: 65px;
+            padding: 4px;
+        }
+
+        .fair-logo-box img {
+            max-width: 170px;
+            padding: 5px 12px;
         }
 
         .fair-title-center {
@@ -526,7 +536,24 @@
         .sponsor-chip-item.tier-diamond { border-color: #93c5fd; background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%); }
         .sponsor-chip-item.tier-gold    { border-color: #fde68a; background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%); }
         .sponsor-chip-item.tier-silver  { border-color: #cbd5e1; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); }
-        .sponsor-chip-item.tier-strategic { border-color: #fcd34d; background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%); }
+        .sponsor-chip-item.tier-strategic {
+            border: 2px solid #f59e0b;
+            background: linear-gradient(135deg, #ffffff 0%, #fffbeb 60%, #fef3c7 100%);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.18);
+            min-width: 195px;
+        }
+        .sponsor-chip-item.tier-strategic .sponsor-thumb {
+            border: 1.5px solid #fde68a;
+            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.15);
+        }
+        .sponsor-chip-item.tier-strategic .sponsor-tier-tag {
+            color: #b45309;
+            font-weight: 800;
+        }
+        .sponsor-chip-item.tier-strategic .sponsor-name {
+            color: #0b1f3a;
+            font-weight: 900;
+        }
 
         .sponsor-thumb {
             width: 44px;
@@ -665,12 +692,32 @@
 
     @php
         $companyLogo = $company->logo_path ? \Illuminate\Support\Facades\Storage::url($company->logo_path) : null;
-        $fairLogo = $fair->white_logo_url ?? $fair->logo_url ?? asset('images/job_fair_logo_white.png');
+        // نستخدم الشعار الرسمي الملون لمعرض التوظيف ليكون واضحاً وعالي التباين على الحاوية البيضاء
+        $fairLogo = $fair->logo_url ?? asset('images/job_fair_logo.png');
         $uniLogo = asset('images/logo.jpg');
         $scanUrl = route('graduate.job-fairs.company.scan', ['fair' => $fair->id, 'company' => $company->id]);
         $boothNumber = $fairCompany->booth_number ?? null;
         $boothLocation = $fairCompany->booth_location ?? null;
         $serialCode = 'GT-BOOTH-' . $fair->id . '-' . $company->id . '-' . strtoupper(substr(md5($fair->id . '-' . $company->id . '-gts-tripoli'), 0, 6));
+
+        // تنظيم قائمة الرعاة والتأكد التام من إدراج الراعي الاستراتيجي (شركة الواحة لتنظيم المعارض) في المقدمة دائماً
+        $strategicSponsor = (isset($sponsors) ? $sponsors->first(function($s) {
+            return in_array(strtolower(trim((string)$s->tier)), ['strategic', 'الراعي الاستراتيجي']);
+        }) : null);
+
+        if (!$strategicSponsor) {
+            $strategicSponsor = (object)[
+                'name' => 'شركة الواحة لتنظيم المعارض والمؤتمرات',
+                'tier' => 'strategic',
+                'tier_label' => 'الراعي الاستراتيجي',
+                'tier_icon' => 'fa-crown',
+                'logo_url' => asset('images/wahaexpo_logo_transparent.png'),
+            ];
+        }
+
+        $otherSponsors = isset($sponsors) ? $sponsors->filter(function($s) {
+            return !in_array(strtolower(trim((string)$s->tier)), ['strategic', 'الراعي الاستراتيجي']);
+        }) : collect();
     @endphp
 
     <!-- شريط أدوات التحكم العلوي -->
@@ -714,7 +761,7 @@
                 <div class="fair-identity-header">
                     <div class="header-content-grid">
                         <!-- شعار جامعة طرابلس -->
-                        <div class="org-logo-box">
+                        <div class="org-logo-box uni-logo-box">
                             <img src="{{ $uniLogo }}" alt="جامعة طرابلس" onerror="this.src='{{ asset('storage/logo.jpg') }}'">
                         </div>
 
@@ -732,7 +779,7 @@
                         </div>
 
                         <!-- شعار المعرض المعتمد -->
-                        <div class="org-logo-box">
+                        <div class="org-logo-box fair-logo-box">
                             <img src="{{ $fairLogo }}" alt="{{ $fair->title }}" onerror="this.src='{{ asset('images/job_fair_logo.png') }}'">
                         </div>
                     </div>
@@ -743,7 +790,10 @@
                     <div class="company-brand-group">
                         <div class="company-logo-frame">
                             @if($companyLogo)
-                                <img src="{{ $companyLogo }}" alt="{{ $company->name }}">
+                                <img src="{{ $companyLogo }}" alt="{{ $company->name }}" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                                <div class="company-logo-placeholder" style="display: none;">
+                                    {{ mb_substr($company->name, 0, 1) }}
+                                </div>
                             @else
                                 <div class="company-logo-placeholder">
                                     {{ mb_substr($company->name, 0, 1) }}
@@ -829,10 +879,29 @@
                     </div>
 
                     <div class="sponsors-grid">
-                        @if(isset($sponsors) && $sponsors->count() > 0)
-                            @foreach($sponsors as $sponsor)
+                        {{-- 1. الراعي الاستراتيجي دائماً في صدارة الرعاة --}}
+                        @if($strategicSponsor)
+                            @php
+                                $stratLogo = $strategicSponsor->logo_url 
+                                    ?? ($strategicSponsor->logo_path ? (str_starts_with($strategicSponsor->logo_path, 'images/') ? asset($strategicSponsor->logo_path) : \Illuminate\Support\Facades\Storage::url($strategicSponsor->logo_path)) : asset('images/wahaexpo_logo_transparent.png'));
+                            @endphp
+                            <div class="sponsor-chip-item tier-strategic">
+                                <img src="{{ $stratLogo }}" alt="{{ $strategicSponsor->name }}" class="sponsor-thumb" onerror="this.src='{{ asset('images/wahaexpo_logo.png') }}'">
+                                <div class="sponsor-info">
+                                    <div class="sponsor-name" title="{{ $strategicSponsor->name }}">{{ $strategicSponsor->name }}</div>
+                                    <div class="sponsor-tier-tag">
+                                        <i class="fas fa-crown text-warning me-1"></i>الراعي الاستراتيجي
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- 2. بقية الرعاة المعتمدين --}}
+                        @if(isset($otherSponsors) && $otherSponsors->count() > 0)
+                            @foreach($otherSponsors as $sponsor)
                                 @php
-                                    $sponsorLogo = $sponsor->logo_path ? \Illuminate\Support\Facades\Storage::url($sponsor->logo_path) : null;
+                                    $sponsorLogo = $sponsor->logo_url 
+                                        ?? ($sponsor->logo_path ? (str_starts_with($sponsor->logo_path, 'images/') ? asset($sponsor->logo_path) : \Illuminate\Support\Facades\Storage::url($sponsor->logo_path)) : null);
                                     $tierClass = match(strtolower(trim((string)$sponsor->tier))) {
                                         'strategic', 'الراعي الاستراتيجي' => 'tier-strategic',
                                         'diamond', 'الراعي الماسي' => 'tier-diamond',
@@ -844,7 +913,10 @@
                                 @endphp
                                 <div class="sponsor-chip-item {{ $tierClass }}">
                                     @if($sponsorLogo)
-                                        <img src="{{ $sponsorLogo }}" alt="{{ $sponsor->name }}" class="sponsor-thumb">
+                                        <img src="{{ $sponsorLogo }}" alt="{{ $sponsor->name }}" class="sponsor-thumb" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';">
+                                        <div class="sponsor-thumb-fallback" style="display: none;">
+                                            <i class="fas fa-building"></i>
+                                        </div>
                                     @else
                                         <div class="sponsor-thumb-fallback">
                                             <i class="fas fa-building"></i>
@@ -859,33 +931,6 @@
                                     </div>
                                 </div>
                             @endforeach
-                        @else
-                            {{-- عرض الرعاة المعتمدين الافتراضيين لجامعة طرابلس --}}
-                            <div class="sponsor-chip-item tier-diamond">
-                                <img src="{{ asset('images/logo.jpg') }}" alt="جامعة طرابلس" class="sponsor-thumb">
-                                <div class="sponsor-info">
-                                    <div class="sponsor-name">جامعة طرابلس</div>
-                                    <div class="sponsor-tier-tag"><i class="fas fa-crown me-1"></i>المنظم الرئيسي</div>
-                                </div>
-                            </div>
-
-                            <div class="sponsor-chip-item tier-strategic">
-                                <img src="{{ asset('images/job_fair_logo.png') }}" alt="مكتب تدريب الخريجين" class="sponsor-thumb">
-                                <div class="sponsor-info">
-                                    <div class="sponsor-name">مكتب تدريب وتأهيل الخريجين</div>
-                                    <div class="sponsor-tier-tag"><i class="fas fa-award me-1"></i>الإشراف والتنفيذ</div>
-                                </div>
-                            </div>
-
-                            <div class="sponsor-chip-item tier-gold">
-                                <div class="sponsor-thumb-fallback">
-                                    <i class="fas fa-handshake text-warning"></i>
-                                </div>
-                                <div class="sponsor-info">
-                                    <div class="sponsor-name">رعاة وشركاء التوظيف</div>
-                                    <div class="sponsor-tier-tag"><i class="fas fa-star me-1"></i>الرعاة المعتمدون</div>
-                                </div>
-                            </div>
                         @endif
                     </div>
                 </div>

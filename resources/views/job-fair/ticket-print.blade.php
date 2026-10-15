@@ -352,7 +352,7 @@
                         @foreach($ticketSponsors as $ts)
                             @if($ts->logo_path)
                                 <div class="bg-white p-1 rounded-2 border shadow-xs d-flex align-items-center justify-content-center" style="height: 32px; min-width: 50px; border-color: #e2e8f0 !important;" title="{{ $ts->name }} — {{ $ts->tier_label }}">
-                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($ts->logo_path) }}" alt="{{ $ts->name }}" style="max-height: 24px; max-width: 58px; object-fit: contain;">
+                                    <img src="{{ $ts->logo_url ?? \Illuminate\Support\Facades\Storage::url($ts->logo_path) }}" alt="{{ $ts->name }}" style="max-height: 24px; max-width: 58px; object-fit: contain;">
                                 </div>
                             @endif
                         @endforeach

@@ -722,6 +722,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/profile', [CompanyController::class, 'profile'])->name('profile');
         Route::get('/profile/edit', [CompanyController::class, 'profile'])->name('profile.edit');
         Route::put('/profile', [CompanyController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/password', [CompanyController::class, 'updatePassword'])->name('password.update');
         
         // مسارات التوظيف والمرشحين (ATS)
         Route::get('/nominations', [CompanyController::class, 'nominations'])->name('nominations');

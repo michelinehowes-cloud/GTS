@@ -212,6 +212,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/download/{filename}', [App\Http\Controllers\AdminBackupController::class, 'download'])->name('download');
             Route::post('/restore/{filename}', [App\Http\Controllers\AdminBackupController::class, 'restore'])->name('restore');
             Route::delete('/delete/{filename}', [App\Http\Controllers\AdminBackupController::class, 'destroy'])->name('destroy');
+            Route::post('/upload', [App\Http\Controllers\AdminBackupController::class, 'upload'])->name('upload');
             Route::post('/upload-cloud/{filename}', [App\Http\Controllers\AdminBackupController::class, 'uploadCloud'])->name('upload-cloud');
         });
 

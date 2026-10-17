@@ -143,6 +143,20 @@
                 <x-turnstile action="login" />
 
                 <button type="submit" class="btn btn-login mt-2">تسجيل الدخول</button>
+
+                <!-- خيار الدخول ببصمة الإصبع (يظهر حصرياً داخل تطبيق الهاتف) -->
+                <div id="biometric-login-container" class="mt-3 text-center" style="display: none;">
+                    <div class="d-flex align-items-center my-3">
+                        <hr class="flex-grow-1 border-secondary opacity-25">
+                        <span class="px-2 text-muted small fw-semibold">أو عبر الأمان الحيوي</span>
+                        <hr class="flex-grow-1 border-secondary opacity-25">
+                    </div>
+                    <button type="button" id="btn-biometric-login" class="btn w-100 py-2 d-flex align-items-center justify-content-center gap-2" style="border-radius: 12px; font-weight: 700; border: 2px solid #1565c0; color: #1565c0; background: rgba(21, 101, 192, 0.05); transition: all 0.25s ease;">
+                        <i class="fas fa-fingerprint fa-lg" style="color: #1565c0;"></i>
+                        <span>تسجيل الدخول ببصمة الإصبع</span>
+                    </button>
+                    <div id="biometric-feedback" class="small mt-2"></div>
+                </div>
             </form>
         </div>
     </div>
@@ -156,14 +170,58 @@
             const passwordInput = document.getElementById('password');
             const rememberCheckbox = document.getElementById('remember');
 
-            // التحقق من وجود Capacitor
+            // التحقق من وجود بيئة تطبيق أندرويد/Capacitor ودعم البصمة
             const isNativeApp = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+            const NativeBiometric = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.NativeBiometric;
+            const biometricContainer = document.getElementById('biometric-login-container');
+            const btnBiometric = document.getElementById('btn-biometric-login');
+            const biometricFeedback = document.getElementById('biometric-feedback');
 
-            // استرجاع البيانات المحفوظة عند تحميل الصفحة
+            if (NativeBiometric) {
+                // التحقق من توفر حساس البصمة على الجهاز
+                NativeBiometric.isAvailable({ useFallback: true }).then(result => {
+                    if (result && result.isAvailable) {
+                        // التحقق هل تم تخزين بيانات اعتماد سابقة
+                        NativeBiometric.getCredentials({ server: 'gto.com.ly' }).then(cred => {
+                            if (cred && cred.username) {
+                                biometricContainer.style.display = 'block';
+                            }
+                        }).catch(() => {
+                            // لا توجد بيانات محفوظة بعد، ستُحفظ تلقائياً في أول دخول ناجح
+                        });
+                    }
+                }).catch(err => console.log('Biometric isAvailable error:', err));
+
+                // عند النقر على زر تسجيل الدخول بالبصمة
+                if (btnBiometric) {
+                    btnBiometric.addEventListener('click', function () {
+                        biometricFeedback.innerHTML = '<span class="text-primary"><i class="fas fa-spinner fa-spin me-1"></i> بانتظار مسح البصمة...</span>';
+                        NativeBiometric.verifyIdentity({
+                            title: 'تسجيل الدخول بالبصمة',
+                            subtitle: 'مكتب تدريب الخريجين - جامعة طرابلس',
+                            description: 'ضع إصبعك على المستشعر للتحقق من هويتك',
+                            negativeButtonText: 'إلغاء'
+                        }).then(() => {
+                            return NativeBiometric.getCredentials({ server: 'gto.com.ly' });
+                        }).then(cred => {
+                            if (cred && cred.username && cred.password) {
+                                biometricFeedback.innerHTML = '<span class="text-success"><i class="fas fa-check-circle me-1"></i> تم التحقق بنجاح، جاري الدخول...</span>';
+                                emailInput.value = cred.username;
+                                passwordInput.value = cred.password;
+                                rememberCheckbox.checked = true;
+                                setTimeout(() => form.submit(), 350);
+                            }
+                        }).catch(err => {
+                            console.log('Biometric auth error/cancelled:', err);
+                            biometricFeedback.innerHTML = '<span class="text-danger small">تم إلغاء أو تعذر مسح البصمة. يمكنك الدخول بكلمة المرور.</span>';
+                        });
+                    });
+                }
+            }
+
+            // استرجاع البريد الإلكتروني المحفوظ
             if (isNativeApp && window.Capacitor.Plugins && window.Capacitor.Plugins.Storage) {
                 const Storage = window.Capacitor.Plugins.Storage;
-
-                // استرجاع البريد الإلكتروني المحفوظ
                 Storage.get({ key: 'remembered_email' }).then(result => {
                     if (result.value) {
                         emailInput.value = result.value;
@@ -172,21 +230,27 @@
                 }).catch(err => console.log('Error loading saved email:', err));
             }
 
-            // حفظ البيانات عند تسجيل الدخول
+            // حفظ البيانات والبصمة عند تسجيل الدخول
             form.addEventListener('submit', function (e) {
+                // حفظ بيانات الاعتماد للبصمة في مخزن الأندرويد المشفر
+                if (NativeBiometric && emailInput.value && passwordInput.value) {
+                    NativeBiometric.isAvailable({ useFallback: true }).then(avail => {
+                        if (avail && avail.isAvailable) {
+                            NativeBiometric.setCredentials({
+                                server: 'gto.com.ly',
+                                username: emailInput.value,
+                                password: passwordInput.value
+                            }).catch(e => console.log('Biometric save error:', e));
+                        }
+                    }).catch(e => console.log('Biometric check skipped:', e));
+                }
+
                 if (isNativeApp && window.Capacitor.Plugins && window.Capacitor.Plugins.Storage) {
                     const Storage = window.Capacitor.Plugins.Storage;
-
                     if (rememberCheckbox.checked) {
-                        // حفظ البريد الإلكتروني
-                        Storage.set({
-                            key: 'remembered_email',
-                            value: emailInput.value
-                        }).catch(err => console.log('Error saving email:', err));
+                        Storage.set({ key: 'remembered_email', value: emailInput.value }).catch(err => console.log('Error saving email:', err));
                     } else {
-                        // حذف البريد المحفوظ
-                        Storage.remove({ key: 'remembered_email' })
-                            .catch(err => console.log('Error removing email:', err));
+                        Storage.remove({ key: 'remembered_email' }).catch(err => console.log('Error removing email:', err));
                     }
                 }
             });

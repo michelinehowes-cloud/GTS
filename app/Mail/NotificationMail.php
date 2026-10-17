@@ -40,7 +40,7 @@ class NotificationMail extends Mailable
     {
         return new Envelope(
             from: new \Illuminate\Mail\Mailables\Address(
-                config('mail.from.address', 'moneeb20mohamed@gmail.com'),
+                config('mail.from.address', 'gts@gto.com.ly'),
                 config('mail.from.name', 'مكتب تدريب الخريجين')
             ),
             subject: $this->notification->title,
@@ -54,12 +54,24 @@ class NotificationMail extends Mailable
      */
     public function content()
     {
+        $data = $this->notification->data;
+        if (is_string($data)) {
+            $data = json_decode($data, true) ?? [];
+        } elseif (!is_array($data)) {
+            $data = [];
+        }
+
+        $actionUrl = $data['action_url'] ?? $data['url'] ?? $data['link'] ?? null;
+        $recipientName = $this->notification->user?->name;
+
         return new Content(
             view: 'emails.notification',
             with: [
                 'notificationTitle' => $this->notification->title,
                 'notificationMessage' => $this->notification->message,
-                'notificationData' => $this->notification->data,
+                'notificationData' => $data,
+                'actionUrl' => $actionUrl,
+                'recipientName' => $recipientName,
             ],
         );
     }

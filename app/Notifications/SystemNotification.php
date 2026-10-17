@@ -56,7 +56,7 @@ class SystemNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         $mail = (new MailMessage)
-            ->from(config('mail.from.address', 'moneeb20mohamed@gmail.com'), config('mail.from.name', 'مكتب تدريب الخريجين'))
+            ->from(config('mail.from.address', 'gts@gto.com.ly'), config('mail.from.name', 'مكتب تدريب الخريجين'))
             ->subject($this->title)
             ->greeting('مرحباً ' . $notifiable->name)
             ->line($this->message);

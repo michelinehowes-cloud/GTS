@@ -34,7 +34,7 @@ class JobFairReminderMail extends Mailable
     {
         return new Envelope(
             from: new \Illuminate\Mail\Mailables\Address(
-                config('mail.from.address', 'moneeb20mohamed@gmail.com'),
+                config('mail.from.address', 'gts@gto.com.ly'),
                 config('mail.from.name', 'مكتب تدريب الخريجين')
             ),
             subject: 'تذكير: غداً موعد معرض التوظيف - ' . $this->fair->title,

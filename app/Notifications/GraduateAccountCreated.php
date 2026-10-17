@@ -39,24 +39,13 @@ class GraduateAccountCreated extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->from(config('mail.from.address', 'moneeb20mohamed@gmail.com'), config('mail.from.name', 'مكتب تدريب الخريجين'))
-            ->subject('حساب جديد في نظام إدارة الخريجين')
-            ->greeting('مرحباً ' . $this->graduateName . ',')
-            ->line('تم إنشاء حساب لك في نظام إدارة الخريجين بجامعة طرابلس.')
-            ->line('**بيانات الدخول:**')
-            ->line('البريد الإلكتروني: **' . $this->email . '**')
-            ->line('كلمة المرور المؤقتة: **' . $this->temporaryPassword . '**')
-            ->line('')
-            ->line('⚠️ **مهم جداً:**')
-            ->line('• يجب عليك تغيير كلمة المرور عند أول تسجيل دخول')
-            ->line('• لا تشارك كلمة المرور مع أي شخص')
-            ->line('• احفظ بيانات الدخول في مكان آمن')
-            ->line('')
-            ->action('تسجيل الدخول الآن', url('/login'))
-            ->line('إذا كانت لديك أي استفسارات، يرجى التواصل مع مكتب تدريب الخريجين.')
-            ->salutation('مع تحياتنا،')
-            ->salutation('فريق نظام إدارة الخريجين')
-            ->salutation('جامعة طرابلس');
+            ->from(config('mail.from.address', 'gts@gto.com.ly'), config('mail.from.name', 'مكتب تدريب الخريجين'))
+            ->subject('بيانات تفعيل حسابك في المنظومة - مكتب تدريب وتأهيل الخريجين')
+            ->view('emails.graduate_account_created', [
+                'email' => $this->email,
+                'temporaryPassword' => $this->temporaryPassword,
+                'graduateName' => $this->graduateName,
+            ]);
     }
 
     /**

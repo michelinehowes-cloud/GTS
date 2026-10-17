@@ -40,7 +40,7 @@ class GraduateAccountCreated extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->from(config('mail.from.address', 'gts@gto.com.ly'), config('mail.from.name', 'مكتب تدريب الخريجين'))
-            ->subject('بيانات تفعيل حسابك في المنظومة - مكتب تدريب وتأهيل الخريجين')
+            ->subject('بيانات تفعيل حسابك في المنظومة - مكتب تدريب الخريجين')
             ->view('emails.graduate_account_created', [
                 'email' => $this->email,
                 'temporaryPassword' => $this->temporaryPassword,

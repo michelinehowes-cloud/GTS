@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>بيانات تفعيل حسابك - منظومة تدريب وتأهيل الخريجين</title>
+    <title>بيانات تفعيل حسابك - منظومة تدريب الخريجين</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -150,7 +150,7 @@
         <div class="email-card">
             <!-- الهيدر والشعار الرسمي -->
             <div class="email-header">
-                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب وتأهيل الخريجين" class="logo">
+                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب الخريجين" class="logo">
             </div>
 
             <!-- المحتوى الأساسي -->
@@ -159,7 +159,7 @@
                 
                 <div class="greeting">مرحباً بك يا {{ $graduateName }}،</div>
                 
-                <p>يسعدنا إعلامك بأنه تم إنشاء وتفعيل حسابك الرسمي في <strong>منظومة تدريب وتأهيل الخريجين بجامعة طرابلس</strong>.</p>
+                <p>يسعدنا إعلامك بأنه تم إنشاء وتفعيل حسابك الرسمي في <strong>منظومة تدريب الخريجين بجامعة طرابلس</strong>.</p>
                 <p>يمكنك الآن تسجيل الدخول للاطلاع على فرص التدريب، والتقديم على الوظائف الشاغرة، وتنزيل بطاقة الخريج الذكية الخاصة بك.</p>
 
                 <!-- صندوق بيانات الدخول -->
@@ -196,7 +196,7 @@
 
             <!-- التذييل الرسمي -->
             <div class="email-footer">
-                <p style="margin: 0;"><strong>مكتب تدريب وتأهيل الخريجين - جامعة طرابلس</strong></p>
+                <p style="margin: 0;"><strong>مكتب تدريب الخريجين - جامعة طرابلس</strong></p>
                 <p style="margin: 4px 0 0;">جميع الحقوق محفوظة &copy; {{ date('Y') }}</p>
                 <div class="footer-note">
                     هذا البريد الإلكتروني أُرسل تلقائياً من المنظومة، يرجى عدم الرد على هذه الرسالة.

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>رمز استعادة كلمة المرور - مكتب تدريب وتأهيل الخريجين</title>
+    <title>رمز استعادة كلمة المرور - مكتب تدريب الخريجين</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -98,14 +98,14 @@
         <div class="email-card">
             <!-- الهيدر مع الشعار -->
             <div class="email-header">
-                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب وتأهيل الخريجين" class="logo">
+                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب الخريجين" class="logo">
             </div>
 
             <!-- المحتوى -->
             <div class="email-body">
                 <h2 class="email-title">استعادة كلمة المرور</h2>
                 <p style="color: #4a5568; margin-bottom: 20px;">
-                    لقد تلقينا طلباً لاستعادة كلمة المرور الخاصة بحسابك في منظومة تدريب وتأهيل الخريجين. استخدم الرمز التالي لإكمال العملية:
+                    لقد تلقينا طلباً لاستعادة كلمة المرور الخاصة بحسابك في منظومة تدريب الخريجين. استخدم الرمز التالي لإكمال العملية:
                 </p>
 
                 <div class="verification-code">
@@ -124,7 +124,7 @@
 
             <!-- التذييل -->
             <div class="email-footer">
-                <p style="margin: 0;"><strong>مكتب تدريب وتأهيل الخريجين - جامعة طرابلس</strong></p>
+                <p style="margin: 0;"><strong>مكتب تدريب الخريجين - جامعة طرابلس</strong></p>
                 <p style="margin: 4px 0 0;">جميع الحقوق محفوظة &copy; {{ date('Y') }}</p>
                 <div class="footer-note">
                     هذا البريد تم إرساله تلقائياً من المنظومة، يرجى عدم الرد على هذه الرسالة.

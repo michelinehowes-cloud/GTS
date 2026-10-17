@@ -138,7 +138,7 @@
         <div class="email-card">
             <!-- الترويسة مع الشعار -->
             <div class="email-header">
-                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب وتأهيل الخريجين" class="logo">
+                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب الخريجين" class="logo">
             </div>
 
             <!-- محتوى الرسالة -->
@@ -177,13 +177,13 @@
 
                 <p style="font-size: 14px; color: #64748b; margin-top: 25px;">
                     مع تحيات،<br>
-                    <strong>مكتب تدريب وتأهيل الخريجين - جامعة طرابلس</strong>
+                    <strong>مكتب تدريب الخريجين - جامعة طرابلس</strong>
                 </p>
             </div>
 
             <!-- التذييل -->
             <div class="email-footer">
-                <p style="margin: 0;"><strong>مكتب تدريب وتأهيل الخريجين - جامعة طرابلس</strong></p>
+                <p style="margin: 0;"><strong>مكتب تدريب الخريجين - جامعة طرابلس</strong></p>
                 <p style="margin: 4px 0 0;">جميع الحقوق محفوظة &copy; {{ date('Y') }}</p>
                 <div class="footer-note">
                     هذا البريد تم إرساله تلقائياً من المنظومة، يرجى عدم الرد على هذه الرسالة.

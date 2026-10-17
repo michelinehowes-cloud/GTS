@@ -22,5 +22,6 @@ cloudflared*.log
 fix_cert_names.php
 /storage/app/backups/*
 !/storage/app/backups/.gitignore
+/public/downloads/*.apk
 
 

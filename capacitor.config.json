@@ -1,9 +1,10 @@
 {
   "appId": "com.graduate.training",
-  "appName": "Graduate Training System",
-  "webDir": "public",
+  "appName": "مكتب تدريب الخريجين",
+  "webDir": "mobile-shell",
   "server": {
-    "url": "http://192.168.1.119:8000",
-    "cleartext": true
+    "url": "https://gto.com.ly",
+    "cleartext": false,
+    "androidScheme": "https"
   }
 }

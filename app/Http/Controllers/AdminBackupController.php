@@ -61,7 +61,7 @@ class AdminBackupController extends Controller
             'total_size' => $this->formatBytes($totalBytes),
             'latest_backup' => !empty($backups) ? $backups[0]['created_at'] : 'لا توجد نسخ بعد',
             'latest_backup_human' => !empty($backups) ? $backups[0]['created_at_ar'] : '—',
-            'next_scheduled' => 'اليوم الساعة 02:00 فجراً (تلقائياً)',
+            'next_scheduled' => 'مرتين يومياً (10:00 صباحاً و 02:30 ظهراً بتوقيت طرابلس)',
             'cloud_configured' => !empty(env('AWS_ACCESS_KEY_ID')) && !empty(env('AWS_BUCKET')),
             'cloud_disk' => env('BACKUP_CLOUD_DISK', 's3'),
         ];

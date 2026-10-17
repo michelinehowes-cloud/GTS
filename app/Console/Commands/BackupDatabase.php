@@ -47,11 +47,11 @@ class BackupDatabase extends Command
         $filename = "backup-{$dbName}-{$timestamp}.sql";
         $filepath = $backupDir . DIRECTORY_SEPARATOR . $filename;
 
-        // Try mysqldump if available
+        // Try mysqldump if available and exec function is enabled on server
         $mysqldumpPath = $this->findMysqldump();
         $success = false;
 
-        if ($mysqldumpPath) {
+        if ($mysqldumpPath && function_exists('exec')) {
             $this->line("⚡ استخدام محرك mysqldump المكتشف: {$mysqldumpPath}");
             $cmd = sprintf(
                 '"%s" --host=%s --port=%s --user=%s %s %s > "%s"',
@@ -64,7 +64,7 @@ class BackupDatabase extends Command
                 $filepath
             );
 
-            exec($cmd, $output, $returnVar);
+            @exec($cmd, $output, $returnVar);
             if ($returnVar === 0 && file_exists($filepath) && filesize($filepath) > 0) {
                 $success = true;
             }
@@ -105,6 +105,10 @@ class BackupDatabase extends Command
      */
     protected function findMysqldump(): ?string
     {
+        if (!function_exists('exec')) {
+            return null;
+        }
+
         $possiblePaths = [
             'mysqldump',
             'C:\\xampp\\mysql\\bin\\mysqldump.exe',
@@ -117,7 +121,7 @@ class BackupDatabase extends Command
 
         foreach ($possiblePaths as $path) {
             if ($path === 'mysqldump') {
-                exec('mysqldump --version 2>&1', $output, $res);
+                @exec('mysqldump --version 2>&1', $output, $res);
                 if ($res === 0) return 'mysqldump';
             } elseif (file_exists($path)) {
                 return $path;

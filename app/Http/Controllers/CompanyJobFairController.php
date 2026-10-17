@@ -6,6 +6,7 @@ use App\Models\JobFair;
 use App\Models\JobFairVisit;
 use App\Models\JobFairRegistration;
 use App\Models\JobOpportunity;
+use App\Models\Company;
 use App\Models\Nomination;
 use App\Models\GraduateData;
 use App\Models\User;
@@ -25,12 +26,12 @@ class CompanyJobFairController extends Controller
         $company = $user->company;
         
         if (!$company && $user->role === 'company') {
-            $company = \App\Models\Company::where('user_id', $user->id)->first();
+            $company = Company::where('user_id', $user->id)->first();
         }
 
         // للمدير العام في حال تصفح واجهة الشركة للمعاينة
         if (!$company && method_exists($user, 'isAdmin') && $user->isAdmin()) {
-            $company = \App\Models\Company::first();
+            $company = Company::first();
         }
         
         if (!$company) {
@@ -85,7 +86,7 @@ class CompanyJobFairController extends Controller
         // جلب الشواغر الوظيفية المتاحة للشركة في المعرض بشكل آمن
         $opportunities = collect();
         try {
-            $query = \App\Models\JobOpportunity::where('company_id', $company->id);
+            $query = JobOpportunity::where('company_id', $company->id);
 
             if (\Illuminate\Support\Facades\Schema::hasColumn('job_opportunities', 'status')) {
                 // لا تُعرض في ماسح المعرض إلا الوظائف المعتمدة والمفتوحة رسمياً
@@ -161,7 +162,7 @@ class CompanyJobFairController extends Controller
         // التحقق من صحة الوظيفة المستهدفة إن تم تحديدها
         $jobOpportunityId = $request->job_opportunity_id;
         if ($jobOpportunityId && $jobOpportunityId !== 'general') {
-            $opp = \App\Models\JobOpportunity::where('id', $jobOpportunityId)
+            $opp = JobOpportunity::where('id', $jobOpportunityId)
                 ->where('company_id', $company->id)
                 ->first();
             $jobOpportunityId = $opp ? $opp->id : null;
@@ -354,12 +355,12 @@ class CompanyJobFairController extends Controller
             });
         }
 
-        $visits = $query->latest()->paginate(15)->withQueryString();
+        $visits = $query->latest()->paginate(15)->appends(request()->query());
 
         // قائمة الوظائف الخاصة بالشركة للمعرض
         $opportunities = collect();
         try {
-            $opportunities = \App\Models\JobOpportunity::where('company_id', $company->id)
+            $opportunities = JobOpportunity::where('company_id', $company->id)
                 ->whereNotIn('status', ['rejected', 'closed'])
                 ->orderBy('title')
                 ->get();
@@ -423,7 +424,7 @@ class CompanyJobFairController extends Controller
         if ($hasJobOppCol) {
             $jobId = $request->job_opportunity_id;
             if ($jobId && $jobId !== 'general') {
-                $opp = \App\Models\JobOpportunity::where('id', $jobId)
+                $opp = JobOpportunity::where('id', $jobId)
                     ->where('company_id', $company->id)
                     ->firstOrFail();
                 $visit->job_opportunity_id = $opp->id;
@@ -604,34 +605,37 @@ class CompanyJobFairController extends Controller
             abort(403, 'غير مصرح لك بالوصول.');
         }
 
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+
         switch ($type) {
             case 'fair-logo':
-                if ($fair->fair_logo_path && Storage::disk('public')->exists($fair->fair_logo_path)) {
+                if ($fair->fair_logo_path && $disk->exists($fair->fair_logo_path)) {
                     $ext = pathinfo($fair->fair_logo_path, PATHINFO_EXTENSION) ?: 'png';
-                    return Storage::disk('public')->download($fair->fair_logo_path, 'شعار_' . Str::slug($fair->title) . '.' . $ext);
+                    return response()->download($disk->path($fair->fair_logo_path), 'شعار_' . Str::slug($fair->title) . '.' . $ext);
                 }
                 $path = public_path('images/job_fair_logo.png');
                 return response()->download($path, 'شعار_معرض_التوظيف_2026.png');
 
             case 'fair-logo-horizontal':
-                if ($fair->fair_logo_horizontal_path && Storage::disk('public')->exists($fair->fair_logo_horizontal_path)) {
+                if ($fair->fair_logo_horizontal_path && $disk->exists($fair->fair_logo_horizontal_path)) {
                     $ext = pathinfo($fair->fair_logo_horizontal_path, PATHINFO_EXTENSION) ?: 'png';
-                    return Storage::disk('public')->download($fair->fair_logo_horizontal_path, 'شعار_' . Str::slug($fair->title) . '_أفقي.' . $ext);
+                    return response()->download($disk->path($fair->fair_logo_horizontal_path), 'شعار_' . Str::slug($fair->title) . '_أفقي.' . $ext);
                 }
                 $path = public_path('images/job_fair_logo_horizontal.png');
                 return response()->download($path, 'شعار_معرض_التوظيف_أفقي.png');
 
             case 'fair-logo-white':
-                if ($fair->fair_logo_white_path && Storage::disk('public')->exists($fair->fair_logo_white_path)) {
+                if ($fair->fair_logo_white_path && $disk->exists($fair->fair_logo_white_path)) {
                     $ext = pathinfo($fair->fair_logo_white_path, PATHINFO_EXTENSION) ?: 'png';
-                    return Storage::disk('public')->download($fair->fair_logo_white_path, 'شعار_' . Str::slug($fair->title) . '_أبيض_شفاف.' . $ext);
+                    return response()->download($disk->path($fair->fair_logo_white_path), 'شعار_' . Str::slug($fair->title) . '_أبيض_شفاف.' . $ext);
                 }
                 $path = public_path('images/job_fair_logo_white.png');
                 return response()->download($path, 'شعار_معرض_التوظيف_أبيض_شفاف.png');
 
             case 'brand-guidelines':
-                if ($fair->brand_guidelines_path && Storage::disk('public')->exists($fair->brand_guidelines_path)) {
-                    return Storage::disk('public')->download($fair->brand_guidelines_path, 'دليل_الهوية_البصرية_' . Str::slug($fair->title) . '.pdf');
+                if ($fair->brand_guidelines_path && $disk->exists($fair->brand_guidelines_path)) {
+                    return response()->download($disk->path($fair->brand_guidelines_path), 'دليل_الهوية_البصرية_' . Str::slug($fair->title) . '.pdf');
                 }
                 abort(404, 'دليل الهوية غير متوفر حالياً.');
 
@@ -645,9 +649,9 @@ class CompanyJobFairController extends Controller
 
             case 'media-kit':
             default:
-                if ($fair->media_kit_path && Storage::disk('public')->exists($fair->media_kit_path)) {
+                if ($fair->media_kit_path && $disk->exists($fair->media_kit_path)) {
                     $ext = pathinfo($fair->media_kit_path, PATHINFO_EXTENSION) ?: 'zip';
-                    return Storage::disk('public')->download($fair->media_kit_path, 'الحقيبة_الإعلامية_' . Str::slug($fair->title) . '.' . $ext);
+                    return response()->download($disk->path($fair->media_kit_path), 'الحقيبة_الإعلامية_' . Str::slug($fair->title) . '.' . $ext);
                 }
                 $path = public_path('assets/media-kit-2026.zip');
                 if (!file_exists($path)) {

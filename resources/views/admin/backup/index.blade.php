@@ -70,13 +70,13 @@
                         تحكم كامل في أخذ وتنزيل واستعادة النسخ الاحتياطية لقاعدة بيانات المنظومة، مع دعم التنزيل المباشر لجهازك أو الربط مع التخزين السحابي (AWS S3 / Google Drive).
                     </p>
                 </div>
-                <div class="col-lg-5 text-lg-end mt-3 mt-lg-0 d-flex flex-wrap gap-2 justify-content-lg-end align-items-center">
+                <div class="col-lg-6 text-lg-end mt-3 mt-lg-0 d-flex flex-wrap gap-2 justify-content-lg-end align-items-center">
                     <button type="button" class="btn btn-light btn-lg rounded-pill shadow-sm px-3 fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#uploadBackupModal">
                         <i class="fas fa-file-upload me-1"></i> رفع نسخة من جهازي
                     </button>
-                    <form action="{{ route('admin.backup.create') }}" method="POST" class="d-inline" onsubmit="this.querySelector('button').disabled=true; this.querySelector('button').innerHTML='<i class=\"fas fa-spinner fa-spin me-2\"></i> جاري الإنشاء...';">
+                    <form action="{{ route('admin.backup.create') }}" method="POST" class="d-inline" id="createBackupForm">
                         @csrf
-                        <button type="submit" class="btn btn-warning btn-lg rounded-pill shadow-sm px-4 fw-bold text-dark">
+                        <button type="submit" class="btn btn-warning btn-lg rounded-pill shadow-sm px-4 fw-bold text-dark" id="createBackupBtn">
                             <i class="fas fa-plus-circle me-1"></i> أخذ نسخة احتياطية فورية الآن
                         </button>
                     </form>
@@ -336,7 +336,7 @@ AWS_ENDPOINT=   # يُترك فارغاً لـ AWS، أو يوضع رابط Clou
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
             </div>
-            <form action="{{ route('admin.backup.upload') }}" method="POST" enctype="multipart/form-data" onsubmit="this.querySelector('button[type=submit]').disabled=true; this.querySelector('button[type=submit]').innerHTML='<i class=\"fas fa-spinner fa-spin me-2\"></i> جاري الرفع...';">
+            <form action="{{ route('admin.backup.upload') }}" method="POST" enctype="multipart/form-data" id="uploadBackupForm">
                 @csrf
                 <div class="modal-body py-4">
                     <div class="alert alert-info border-0 rounded-3 small mb-3">
@@ -349,7 +349,7 @@ AWS_ENDPOINT=   # يُترك فارغاً لـ AWS، أو يوضع رابط Clou
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">إلغاء</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold" id="uploadBackupBtn">
                         <i class="fas fa-cloud-upload-alt me-1"></i> رفع الملف الآن
                     </button>
                 </div>
@@ -360,6 +360,22 @@ AWS_ENDPOINT=   # يُترك فارغاً لـ AWS، أو يوضع رابط Clou
 
 @push('scripts')
 <script>
+    document.getElementById('createBackupForm')?.addEventListener('submit', function () {
+        const btn = document.getElementById('createBackupBtn');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> جاري الإنشاء...';
+        }
+    });
+
+    document.getElementById('uploadBackupForm')?.addEventListener('submit', function () {
+        const btn = document.getElementById('uploadBackupBtn');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> جاري الرفع...';
+        }
+    });
+
     function confirmRestore(filename) {
         document.getElementById('restoreFileName').innerText = filename;
         const form = document.getElementById('restoreForm');

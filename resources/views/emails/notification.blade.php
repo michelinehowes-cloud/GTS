@@ -108,7 +108,7 @@
         <div class="email-card">
             <!-- الترويسة مع الشعار -->
             <div class="email-header">
-                <img src="{{ $message->embed(public_path('images/logo.jpg')) }}" alt="شعار المكتب" class="logo">
+                <img src="{{ asset('images/logo.jpg') }}" alt="شعار مكتب تدريب وتأهيل الخريجين" class="logo">
             </div>
 
             <!-- محتوى الرسالة -->

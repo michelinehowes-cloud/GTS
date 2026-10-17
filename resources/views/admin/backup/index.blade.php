@@ -70,7 +70,10 @@
                         تحكم كامل في أخذ وتنزيل واستعادة النسخ الاحتياطية لقاعدة بيانات المنظومة، مع دعم التنزيل المباشر لجهازك أو الربط مع التخزين السحابي (AWS S3 / Google Drive).
                     </p>
                 </div>
-                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <div class="col-lg-5 text-lg-end mt-3 mt-lg-0 d-flex flex-wrap gap-2 justify-content-lg-end align-items-center">
+                    <button type="button" class="btn btn-light btn-lg rounded-pill shadow-sm px-3 fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#uploadBackupModal">
+                        <i class="fas fa-file-upload me-1"></i> رفع نسخة من جهازي
+                    </button>
                     <form action="{{ route('admin.backup.create') }}" method="POST" class="d-inline" onsubmit="this.querySelector('button').disabled=true; this.querySelector('button').innerHTML='<i class=\"fas fa-spinner fa-spin me-2\"></i> جاري الإنشاء...';">
                         @csrf
                         <button type="submit" class="btn btn-warning btn-lg rounded-pill shadow-sm px-4 fw-bold text-dark">
@@ -316,6 +319,38 @@ AWS_ENDPOINT=   # يُترك فارغاً لـ AWS، أو يوضع رابط Clou
                     <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">إلغاء</button>
                     <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold text-dark" id="submitRestoreBtn" disabled>
                         <i class="fas fa-history me-1"></i> استعادة البيانات الآن
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- نافذة رفع نسخة احتياطية من الحاسوب --}}
+<div class="modal fade" id="uploadBackupModal" tabindex="-1" aria-labelledby="uploadBackupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark" id="uploadBackupModalLabel">
+                    <i class="fas fa-file-upload text-primary me-2"></i> رفع نسخة احتياطية من جهازك
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+            </div>
+            <form action="{{ route('admin.backup.upload') }}" method="POST" enctype="multipart/form-data" onsubmit="this.querySelector('button[type=submit]').disabled=true; this.querySelector('button[type=submit]').innerHTML='<i class=\"fas fa-spinner fa-spin me-2\"></i> جاري الرفع...';">
+                @csrf
+                <div class="modal-body py-4">
+                    <div class="alert alert-info border-0 rounded-3 small mb-3">
+                        <i class="fas fa-info-circle me-1"></i> اختر ملف النسخة الاحتياطية (بصيغة <strong>.sql</strong>) المحفوظ على جهازك. سيتم نقله فوراً إلى مجلد النسخ الآمن في السيرفر وتستطيع استعادته بضغطة زر.
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary small">اختر ملف قاعدة البيانات (.sql):</label>
+                        <input type="file" name="backup_file" accept=".sql" class="form-control rounded-3 py-2" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-3" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">
+                        <i class="fas fa-cloud-upload-alt me-1"></i> رفع الملف الآن
                     </button>
                 </div>
             </form>

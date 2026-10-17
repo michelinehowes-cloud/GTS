@@ -96,6 +96,42 @@ class AdminBackupController extends Controller
     }
 
     /**
+     * رفع نسخة احتياطية من الحاسوب الشخصي للمدير
+     */
+    public function upload(Request $request)
+    {
+        $request->validate([
+            'backup_file' => 'required|file|max:102400', // max 100MB
+        ]);
+
+        $file = $request->file('backup_file');
+        $ext = strtolower($file->getClientOriginalExtension());
+
+        if ($ext !== 'sql') {
+            return back()->with('error', 'يُسمح فقط برفع ملفات النسخ الاحتياطية ذات الامتداد .sql');
+        }
+
+        if (!File::isDirectory($this->backupDir)) {
+            File::makeDirectory($this->backupDir, 0755, true);
+        }
+
+        $baseClean = preg_replace('/[^a-zA-Z0-9_\-]/', '_', pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        $filename = "backup-uploaded-" . date('Y-m-d_H-i-s') . "-{$baseClean}.sql";
+        $filepath = $this->backupDir . DIRECTORY_SEPARATOR . $filename;
+
+        $file->move($this->backupDir, $filename);
+
+        AuditLog::logAction(
+            'backup_upload',
+            "تم رفع نسخة احتياطية من الحاسوب الشخصي للمدير: {$filename}",
+            'DatabaseBackup',
+            null
+        );
+
+        return back()->with('success', "تم بنجاح رفع ملف النسخة الاحتياطية ({$filename})! أصبحت متوفرة الآن في القائمة وجاهزة للاستعادة.");
+    }
+
+    /**
      * تحميل النسخة الاحتياطية مباشرة إلى حاسوب المدير
      */
     public function download(string $filename)

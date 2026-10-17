@@ -4403,6 +4403,20 @@
                             class="btn btn-modal-login w-100 d-flex align-items-center justify-content-center gap-2 mt-2">
                             <i class="fas fa-sign-in-alt"></i><span>دخول إلى النظام</span>
                         </button>
+
+                        <!-- خيار الدخول ببصمة الإصبع (يظهر حصرياً لمستخدمي تطبيق الهاتف) -->
+                        <div id="modalBiometricContainer" class="mt-3 text-center" style="display: none;">
+                            <div class="d-flex align-items-center my-2">
+                                <hr class="flex-grow-1 border-secondary opacity-25">
+                                <span class="px-2 text-muted small fw-semibold">أو عبر الأمان الحيوي</span>
+                                <hr class="flex-grow-1 border-secondary opacity-25">
+                            </div>
+                            <button type="button" id="btnModalBiometricLogin" class="btn w-100 py-2 d-flex align-items-center justify-content-center gap-2" style="border-radius: 12px; font-weight: 700; border: 2px solid #1565c0; color: #1565c0; background: rgba(21, 101, 192, 0.05); transition: all 0.25s ease;">
+                                <i class="fas fa-fingerprint fa-lg" style="color: #1565c0;"></i>
+                                <span>تسجيل الدخول ببصمة الإصبع</span>
+                            </button>
+                            <div id="modalBiometricFeedback" class="small mt-2"></div>
+                        </div>
                     </form>
 
                     <div class="text-center mt-4 pt-3 border-top">
@@ -5430,6 +5444,69 @@
                 forgotModal?.show();
             } else if (isLoginRequested || hasErrors || hasStatus || hasSuccess) {
                 loginModal?.show();
+            }
+
+            // تفعيل ميزة الدخول ببصمة الإصبع داخل تطبيق الهاتف
+            const isNativeApp = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+            const NativeBiometric = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.NativeBiometric;
+            const modalBiometricContainer = document.getElementById('modalBiometricContainer');
+            const btnModalBiometric = document.getElementById('btnModalBiometricLogin');
+            const modalBiometricFeedback = document.getElementById('modalBiometricFeedback');
+            const modalEmail = document.getElementById('modalEmail');
+            const modalPassword = document.getElementById('modalPassword');
+            const modalRemember = document.getElementById('modalRemember');
+            const modalLoginForm = document.getElementById('modalLoginForm');
+
+            if (NativeBiometric) {
+                NativeBiometric.isAvailable({ useFallback: true }).then(result => {
+                    if (result && result.isAvailable) {
+                        // إظهار خيار البصمة تلقائياً لمستخدمي التطبيق
+                        if (modalBiometricContainer) modalBiometricContainer.style.display = 'block';
+                    }
+                }).catch(err => console.log('Biometric isAvailable:', err));
+
+                if (btnModalBiometric) {
+                    btnModalBiometric.addEventListener('click', function () {
+                        modalBiometricFeedback.innerHTML = '<span class="text-primary"><i class="fas fa-spinner fa-spin me-1"></i> بانتظار مسح البصمة...</span>';
+                        NativeBiometric.getCredentials({ server: 'gto.com.ly' }).then(cred => {
+                            if (cred && cred.username && cred.password) {
+                                return NativeBiometric.verifyIdentity({
+                                    title: 'تسجيل الدخول بالبصمة',
+                                    subtitle: 'مكتب تدريب الخريجين - جامعة طرابلس',
+                                    description: 'ضع إصبعك على المستشعر للتحقق من هويتك',
+                                    negativeButtonText: 'إلغاء'
+                                }).then(() => {
+                                    modalBiometricFeedback.innerHTML = '<span class="text-success"><i class="fas fa-check-circle me-1"></i> تم التحقق بنجاح، جاري الدخول...</span>';
+                                    if (modalEmail) modalEmail.value = cred.username;
+                                    if (modalPassword) modalPassword.value = cred.password;
+                                    if (modalRemember) modalRemember.checked = true;
+                                    setTimeout(() => modalLoginForm.submit(), 300);
+                                });
+                            } else {
+                                modalBiometricFeedback.innerHTML = '<span class="text-warning small"><i class="fas fa-info-circle me-1"></i> يرجى تسجيل الدخول بالبريد وكلمة المرور لمرة واحدة أولاً لتفعيل البصمة على هذا الجهاز.</span>';
+                            }
+                        }).catch(err => {
+                            console.log('Biometric error:', err);
+                            modalBiometricFeedback.innerHTML = '<span class="text-warning small"><i class="fas fa-info-circle me-1"></i> يرجى تسجيل الدخول بالبريد وكلمة المرور لمرة واحدة أولاً لتفعيل البصمة على هذا الجهاز.</span>';
+                        });
+                    });
+                }
+
+                if (modalLoginForm) {
+                    modalLoginForm.addEventListener('submit', function () {
+                        if (modalEmail && modalPassword && modalEmail.value && modalPassword.value) {
+                            NativeBiometric.isAvailable({ useFallback: true }).then(avail => {
+                                if (avail && avail.isAvailable) {
+                                    NativeBiometric.setCredentials({
+                                        server: 'gto.com.ly',
+                                        username: modalEmail.value,
+                                        password: modalPassword.value
+                                    }).catch(e => console.log('Biometric save error:', e));
+                                }
+                            }).catch(e => console.log('Biometric skip:', e));
+                        }
+                    });
+                }
             }
 
             // التعامل مع نموذج تسجيل الخريج الجديد

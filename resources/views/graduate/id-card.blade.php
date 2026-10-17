@@ -120,11 +120,11 @@
                         @endif
                     </div>
 
-                    <h4 class="fw-bold mb-1 text-white" style="font-size: 1.35rem; letter-spacing: -0.3px;">{{ $graduate->name }}</h4>
+                    <h4 class="fw-bold mb-1 text-white" style="font-size: 1.35rem; letter-spacing: normal !important; direction: rtl;">{{ $graduate->name }}</h4>
                     <p class="mb-2 text-white-50 small fw-bold">خريج معتمد — جامعة طرابلس</p>
 
                     @if(isset($eventContext))
-                        <span class="badge rounded-pill bg-warning text-dark fw-bold px-3 py-1.5 shadow-sm" style="font-size: 0.78rem;">
+                        <span class="badge rounded-pill bg-warning text-dark fw-bold px-3 py-1.5 shadow-sm text-wrap" style="font-size: 0.78rem; white-space: normal !important; line-height: 1.4; max-width: 95%; display: inline-block;">
                             <i class="fas fa-calendar-check me-1 text-dark"></i>
                             {{ $eventContext['title'] }} • {{ $eventContext['badge'] }}
                         </span>
@@ -223,6 +223,10 @@
 </div>
 
 <style>
+    #id-card-container, #id-card-container * {
+        letter-spacing: normal !important;
+        word-spacing: normal !important;
+    }
     @media print {
         body * {
             visibility: hidden;
@@ -276,7 +280,19 @@
             scale: 3,
             useCORS: true,
             allowTaint: true,
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
+            letterRendering: false,
+            onclone: function(clonedDoc) {
+                const clonedCard = clonedDoc.getElementById('id-card-container');
+                if (clonedCard) {
+                    clonedCard.style.letterSpacing = 'normal';
+                    clonedCard.style.direction = 'rtl';
+                    const allElements = clonedCard.querySelectorAll('*');
+                    allElements.forEach(el => {
+                        el.style.letterSpacing = 'normal';
+                    });
+                }
+            }
         }).then(canvas => {
             const link = document.createElement('a');
             link.download = 'بطاقة-الخريج-{{ Str::slug($graduate->name) }}.png';

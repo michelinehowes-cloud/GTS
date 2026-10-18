@@ -33,14 +33,14 @@ class JobOpportunityPolicy
             return true;
         }
 
-        // مسؤولي الإرشاد المهني يرون الفرص النشطة فقط
+        // مسؤولي الإرشاد المهني يرون الفرص النشطة والمفتوحة
         if ($user->role === 'career_guidance_officer') {
-            return $jobOpportunity->status === 'active';
+            return in_array($jobOpportunity->status, ['active', 'open', 'pending']);
         }
 
-        // الخريجين يرون الفرص النشطة فقط
+        // الخريجين يرون الفرص النشطة والمفتوحة فقط
         if ($user->role === 'graduate') {
-            return $jobOpportunity->status === 'active';
+            return in_array($jobOpportunity->status, ['active', 'open']);
         }
 
         // الشركات ترى فرصها الخاصة فقط
@@ -56,7 +56,7 @@ class JobOpportunityPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isAdmin() || $user->hasPermission('jobs.manage') || in_array($user->role, ['partnership_officer', 'company']);
+        return $user->isAdmin() || $user->hasPermission('jobs.manage') || in_array($user->role, ['partnership_officer', 'career_guidance_officer', 'company']);
     }
 
     /**
@@ -105,8 +105,8 @@ class JobOpportunityPolicy
             return false;
         }
 
-        // الفرصة يجب أن تكون نشطة
-        if ($jobOpportunity->status !== 'active') {
+        // الفرصة يجب أن تكون نشطة ومفتوحة
+        if (!in_array($jobOpportunity->status, ['active', 'open'])) {
             return false;
         }
 

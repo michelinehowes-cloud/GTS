@@ -162,12 +162,14 @@ class NotificationService
         $this->sendToRole('career_guidance_officer', "فرصة عمل جديدة: {$jobOpportunity->title}", $message, $type, [
             'model_type' => get_class($jobOpportunity),
             'model_id' => $jobOpportunity->id,
+            'send_email' => false,
         ]);
 
         // إشعار لمدير النظام
         $this->sendToRole('admin', "فرصة عمل جديدة: {$jobOpportunity->title}", $message, $type, [
             'model_type' => get_class($jobOpportunity),
             'model_id' => $jobOpportunity->id,
+            'send_email' => false,
         ]);
     }
 

@@ -128,8 +128,9 @@
                             </div>
                             
                             <div class="col-md-4 mb-3">
-                                <label for="contract_type" class="form-label">نوع العقد *</label>
-                                <select name="contract_type" id="contract_type" class="form-select @error('contract_type') is-invalid @enderror" required>
+                                <label for="contract_type" class="form-label">نوع العقد</label>
+                                <select name="contract_type" id="contract_type" class="form-select @error('contract_type') is-invalid @enderror">
+                                    <option value="">-- اختياري للتدريب أو اختر نوع العقد --</option>
                                     <option value="full_time" {{ old('contract_type', $opportunity->contract_type) == 'full_time' ? 'selected' : '' }}>دوام كامل</option>
                                     <option value="part_time" {{ old('contract_type', $opportunity->contract_type) == 'part_time' ? 'selected' : '' }}>دوام جزئي</option>
                                     <option value="contract" {{ old('contract_type', $opportunity->contract_type) == 'contract' ? 'selected' : '' }}>عقد</option>

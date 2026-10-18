@@ -103,13 +103,16 @@ class JobOpportunityController extends Controller
     /**
      * عرض نموذج إنشاء فرصة جديدة
      */
-    public function create()
+    public function create(Request $request)
     {
         $this->authorize('create', JobOpportunity::class);
 
         $user = Auth::user();
         if ($user && $user->role === 'company') {
-            $userCompany = $user->company ?: Company::where('user_id', $user->id)->first();
+            $userCompany = $user->company ?: Company::where('user_id', $user->id)->orWhere('email', $user->email)->first();
+            if ($userCompany && !$userCompany->user_id) {
+                $userCompany->update(['user_id' => $user->id]);
+            }
             $companies = $userCompany ? collect([$userCompany]) : collect([]);
             $participatingFairs = $userCompany
                 ? JobFair::whereHas('companies', function ($q) use ($userCompany) {
@@ -117,7 +120,7 @@ class JobOpportunityController extends Controller
                 })->where('status', '!=', 'completed')->orderBy('event_date', 'desc')->get()
                 : collect();
         } else {
-            $companies = Company::all();
+            $companies = Company::orderBy('name')->get();
             $participatingFairs = JobFair::where('status', '!=', 'completed')->orderBy('event_date', 'desc')->get();
         }
 
@@ -136,8 +139,11 @@ class JobOpportunityController extends Controller
 
         $user = Auth::user();
         if ($user && $user->role === 'company') {
-            $userCompany = $user->company ?: Company::where('user_id', $user->id)->first();
+            $userCompany = $user->company ?: Company::where('user_id', $user->id)->orWhere('email', $user->email)->first();
             if ($userCompany) {
+                if (!$userCompany->user_id) {
+                    $userCompany->update(['user_id' => $user->id]);
+                }
                 $request->merge(['company_id' => $userCompany->id]);
             }
         }
@@ -146,13 +152,13 @@ class JobOpportunityController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'type' => 'required|in:job,training,internship',
-            'contract_type' => 'required|in:full_time,part_time,contract,freelance',
+            'contract_type' => 'nullable|in:full_time,part_time,contract,freelance',
             'company_id' => 'required|exists:companies,id',
             'location' => 'required|string|max:255',
             'seats' => 'required|integer|min:1',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'application_deadline' => 'required|date|after:today',
+            'application_deadline' => 'required|date|after_or_equal:today',
             'required_specializations' => 'nullable|array',
             'required_skills' => 'nullable|array',
             'required_experience' => 'nullable|string|max:255',
@@ -160,6 +166,45 @@ class JobOpportunityController extends Controller
             'benefits' => 'nullable|string',
             'requirements' => 'nullable|string',
             'job_fair_id' => 'nullable|exists:job_fairs,id',
+        ], [
+            'title.required' => 'يرجى إدخال عنوان الفرصة الوظيفية أو التدريبية.',
+            'title.max' => 'عنوان الفرصة يجب ألا يتجاوز 255 حرفاً.',
+            'description.required' => 'يرجى إدخال وصف تفصيلي للفرصة.',
+            'type.required' => 'يرجى اختيار نوع الفرصة (وظيفة / تدريب / تدريب عملي).',
+            'type.in' => 'نوع الفرصة المختار غير صالح.',
+            'contract_type.in' => 'نوع العقد المختار غير صالح.',
+            'company_id.required' => 'يرجى تحديد الشركة المسؤولة عن هذه الفرصة.',
+            'company_id.exists' => 'الشركة المختارة غير مسجلة في المنظومة.',
+            'location.required' => 'يرجى إدخال مكان أو مقر العمل أو التدريب.',
+            'seats.required' => 'يرجى تحديد عدد المقاعد المتاحة.',
+            'seats.integer' => 'عدد المقاعد يجب أن يكون رقماً صحيحاً.',
+            'seats.min' => 'عدد المقاعد يجب أن يكون مقعداً واحداً على الأقل.',
+            'start_date.required' => 'يرجى تحديد تاريخ البدء.',
+            'start_date.date' => 'صيغة تاريخ البدء غير صالحة.',
+            'end_date.required' => 'يرجى تحديد تاريخ الانتهاء.',
+            'end_date.date' => 'صيغة تاريخ الانتهاء غير صالحة.',
+            'end_date.after_or_equal' => 'تاريخ الانتهاء يجب أن يكون مساوياً أو لاحقاً لتاريخ البدء.',
+            'application_deadline.required' => 'يرجى تحديد آخر موعد للتقديم.',
+            'application_deadline.date' => 'صيغة تاريخ آخر موعد للتقديم غير صالحة.',
+            'application_deadline.after_or_equal' => 'آخر موعد للتقديم يجب ألا يكون في الماضي (يمكن اختيار اليوم أو تاريخ لاحق).',
+            'salary.numeric' => 'الراتب يجب أن يكون قيمة رقمية صحيحة.',
+            'salary.min' => 'الراتب يجب ألا يقل عن 0.',
+            'job_fair_id.exists' => 'معرض التوظيف المختار غير صالح أو غير موجود.',
+        ], [
+            'title' => 'عنوان الفرصة',
+            'description' => 'الوصف',
+            'type' => 'نوع الفرصة',
+            'contract_type' => 'نوع العقد',
+            'company_id' => 'الشركة',
+            'location' => 'المكان',
+            'seats' => 'عدد المقاعد',
+            'start_date' => 'تاريخ البدء',
+            'end_date' => 'تاريخ الانتهاء',
+            'application_deadline' => 'آخر موعد للتقديم',
+            'salary' => 'الراتب',
+            'required_specializations' => 'التخصصات المطلوبة',
+            'required_skills' => 'المهارات المطلوبة',
+            'required_experience' => 'الخبرة المطلوبة',
         ]);
 
         if ($validator->fails()) {
@@ -287,8 +332,11 @@ class JobOpportunityController extends Controller
 
         $user = Auth::user();
         if ($user && $user->role === 'company') {
-            $userCompany = $user->company ?: Company::where('user_id', $user->id)->first();
+            $userCompany = $user->company ?: Company::where('user_id', $user->id)->orWhere('email', $user->email)->first();
             if ($userCompany) {
+                if (!$userCompany->user_id) {
+                    $userCompany->update(['user_id' => $user->id]);
+                }
                 $request->merge(['company_id' => $userCompany->id]);
             }
         }
@@ -302,13 +350,13 @@ class JobOpportunityController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'type' => 'required|in:job,training,internship',
-            'contract_type' => 'required|in:full_time,part_time,contract,freelance',
+            'contract_type' => 'nullable|in:full_time,part_time,contract,freelance',
             'company_id' => 'required|exists:companies,id',
             'location' => 'required|string|max:255',
             'seats' => 'required|integer|min:1',
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'application_deadline' => 'required|date|after:today',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'application_deadline' => 'required|date',
             'required_specializations' => 'nullable|array',
             'required_skills' => 'nullable|array',
             'required_experience' => 'nullable|string|max:255',
@@ -317,6 +365,45 @@ class JobOpportunityController extends Controller
             'requirements' => 'nullable|string',
             'status' => $statusRule,
             'job_fair_id' => 'nullable|exists:job_fairs,id',
+        ], [
+            'title.required' => 'يرجى إدخال عنوان الفرصة الوظيفية أو التدريبية.',
+            'title.max' => 'عنوان الفرصة يجب ألا يتجاوز 255 حرفاً.',
+            'description.required' => 'يرجى إدخال وصف تفصيلي للفرصة.',
+            'type.required' => 'يرجى اختيار نوع الفرصة (وظيفة / تدريب / تدريب عملي).',
+            'type.in' => 'نوع الفرصة المختار غير صالح.',
+            'contract_type.in' => 'نوع العقد المختار غير صالح.',
+            'company_id.required' => 'يرجى تحديد الشركة المسؤولة عن هذه الفرصة.',
+            'company_id.exists' => 'الشركة المختارة غير مسجلة في المنظومة.',
+            'location.required' => 'يرجى إدخال مكان أو مقر العمل أو التدريب.',
+            'seats.required' => 'يرجى تحديد عدد المقاعد المتاحة.',
+            'seats.integer' => 'عدد المقاعد يجب أن يكون رقماً صحيحاً.',
+            'seats.min' => 'عدد المقاعد يجب أن يكون مقعداً واحداً على الأقل.',
+            'start_date.required' => 'يرجى تحديد تاريخ البدء.',
+            'start_date.date' => 'صيغة تاريخ البدء غير صالحة.',
+            'end_date.required' => 'يرجى تحديد تاريخ الانتهاء.',
+            'end_date.date' => 'صيغة تاريخ الانتهاء غير صالحة.',
+            'end_date.after_or_equal' => 'تاريخ الانتهاء يجب أن يكون مساوياً أو لاحقاً لتاريخ البدء.',
+            'application_deadline.required' => 'يرجى تحديد آخر موعد للتقديم.',
+            'application_deadline.date' => 'صيغة تاريخ آخر موعد للتقديم غير صالحة.',
+            'salary.numeric' => 'الراتب يجب أن يكون قيمة رقمية صحيحة.',
+            'salary.min' => 'الراتب يجب ألا يقل عن 0.',
+            'job_fair_id.exists' => 'معرض التوظيف المختار غير صالح أو غير موجود.',
+        ], [
+            'title' => 'عنوان الفرصة',
+            'description' => 'الوصف',
+            'type' => 'نوع الفرصة',
+            'contract_type' => 'نوع العقد',
+            'company_id' => 'الشركة',
+            'location' => 'المكان',
+            'seats' => 'عدد المقاعد',
+            'start_date' => 'تاريخ البدء',
+            'end_date' => 'تاريخ الانتهاء',
+            'application_deadline' => 'آخر موعد للتقديم',
+            'salary' => 'الراتب',
+            'status' => 'الحالة',
+            'required_specializations' => 'التخصصات المطلوبة',
+            'required_skills' => 'المهارات المطلوبة',
+            'required_experience' => 'الخبرة المطلوبة',
         ]);
 
         if ($validator->fails()) {

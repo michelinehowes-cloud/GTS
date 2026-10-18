@@ -32,14 +32,21 @@
                             
                             <div class="col-md-6 mb-3">
                                 <label for="company_id" class="form-label">الشركة <span class="text-danger">*</span></label>
-                                @if(auth()->user()->isCompany() && count($companies) > 0)
-                                    <input type="hidden" name="company_id" value="{{ $companies->first()->id }}">
-                                    <input type="text" class="form-control bg-light" value="{{ $companies->first()->name }}" readonly>
+                                @if(auth()->user()->isCompany())
+                                    @if(count($companies) > 0)
+                                        <input type="hidden" name="company_id" value="{{ $companies->first()->id }}">
+                                        <input type="text" class="form-control bg-light" value="{{ $companies->first()->name }}" readonly>
+                                    @else
+                                        <div class="alert alert-warning py-2 mb-0 small">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            حساب شركتكم غير مرتبط بسجل شركة معتمد حتى الآن، يرجى التواصل مع إدارة المنظومة.
+                                        </div>
+                                    @endif
                                 @else
                                     <select name="company_id" id="company_id" class="form-select @error('company_id') is-invalid @enderror" required>
                                         <option value="">اختر الشركة</option>
                                         @foreach($companies as $company)
-                                            <option value="{{ $company->id }}" {{ old('company_id') == $company->id ? 'selected' : '' }}>
+                                            <option value="{{ $company->id }}" {{ old('company_id', request('company_id')) == $company->id ? 'selected' : '' }}>
                                                 {{ $company->name }}
                                             </option>
                                         @endforeach
@@ -126,9 +133,9 @@
                             </div>
                             
                             <div class="col-md-4 mb-3">
-                                <label for="contract_type" class="form-label">نوع العقد <span class="text-danger">*</span></label>
-                                <select name="contract_type" id="contract_type" class="form-select @error('contract_type') is-invalid @enderror" required>
-                                    <option value="">اختر نوع العقد</option>
+                                <label for="contract_type" class="form-label">نوع العقد</label>
+                                <select name="contract_type" id="contract_type" class="form-select @error('contract_type') is-invalid @enderror">
+                                    <option value="">-- اختياري للتدريب أو اختر نوع العقد --</option>
                                     <option value="full_time" {{ old('contract_type') == 'full_time' ? 'selected' : '' }}>دوام كامل</option>
                                     <option value="part_time" {{ old('contract_type') == 'part_time' ? 'selected' : '' }}>دوام جزئي</option>
                                     <option value="contract" {{ old('contract_type') == 'contract' ? 'selected' : '' }}>عقد</option>
@@ -186,8 +193,7 @@
                             <div class="col-md-4 mb-3">
                                 <label for="start_date" class="form-label">تاريخ البدء <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control @error('start_date') is-invalid @enderror" 
-                                       id="start_date" name="start_date" value="{{ old('start_date') }}" 
-                                       min="{{ date('Y-m-d') }}" required>
+                                       id="start_date" name="start_date" value="{{ old('start_date') }}" required>
                                 @error('start_date')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -196,8 +202,7 @@
                             <div class="col-md-4 mb-3">
                                 <label for="end_date" class="form-label">تاريخ الانتهاء <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control @error('end_date') is-invalid @enderror" 
-                                       id="end_date" name="end_date" value="{{ old('end_date') }}" 
-                                       min="{{ date('Y-m-d') }}" required>
+                                       id="end_date" name="end_date" value="{{ old('end_date') }}" required>
                                 @error('end_date')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -278,6 +283,7 @@
                         </div>
                     </form>
 </x-bento-form>
+@endsection
 
 @section('scripts')
 <script>
@@ -286,16 +292,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const startDate = document.getElementById('start_date');
     const endDate = document.getElementById('end_date');
     
-    startDate.addEventListener('change', function() {
-        endDate.min = this.value;
-    });
-
-    // التحقق من أن آخر موعد قبل تاريخ البدء
-    const deadline = document.getElementById('application_deadline');
-    
-    startDate.addEventListener('change', function() {
-        deadline.max = this.value;
-    });
+    if (startDate && endDate) {
+        startDate.addEventListener('change', function() {
+            if (this.value) {
+                endDate.min = this.value;
+                if (endDate.value && endDate.value < this.value) {
+                    endDate.value = this.value;
+                }
+            }
+        });
+    }
 
     // إدارة ظهور حقل معرض التوظيف
     const isForJobFair = document.getElementById('is_for_job_fair');
@@ -314,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // مؤشر التحميل عند الإرسال
+    // مؤشر التحميل عند الإرسال وتفادي تعطيل الزر في حال وجود خطأ تحقق
     const jobForm = document.getElementById('jobOpportunityForm');
     const submitBtn = document.getElementById('btnSubmitJob');
     if (jobForm && submitBtn) {
@@ -327,14 +333,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             setTimeout(() => {
-                if (!e.defaultPrevented) {
-                    submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> جاري الحفظ والمعالجة...';
-                }
-            }, 10);
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> جاري الحفظ والمعالجة...';
+            }, 50);
+        });
+
+        window.addEventListener('pageshow', function() {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>حفظ الفرصة';
         });
     }
 });
 </script>
-@endsection
 @endsection

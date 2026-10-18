@@ -430,21 +430,50 @@ class AiAssistantService
                     $companyId = $c->id;
                 }
             }
+            if (!$companyId) {
+                $firstComp = Company::where('is_approved', true)->first() ?: Company::first();
+                $companyId = $firstComp ? $firstComp->id : 1;
+            }
+
+            $rawType = $actionData['type'] ?? 'job';
+            $type = in_array($rawType, ['job', 'training', 'internship']) ? $rawType : 'job';
+
+            $rawContract = $actionData['contract_type'] ?? 'full_time';
+            $contractType = in_array($rawContract, ['full_time', 'part_time', 'contract', 'freelance']) ? $rawContract : 'full_time';
+
+            $startDate = $actionData['start_date'] ?? now()->format('Y-m-d');
+            $endDate = $actionData['end_date'] ?? now()->addMonths(2)->format('Y-m-d');
+            $deadline = $actionData['application_deadline'] ?? now()->addDays(21)->format('Y-m-d');
+
+            $status = ($user->role === 'company') ? 'pending' : 'open';
 
             $job = JobOpportunity::create([
                 'title' => $actionData['title'] ?? 'فرصة وظيفية جديدة',
                 'description' => $actionData['description'] ?? 'فرصة عمل لخريجي جامعة طرابلس.',
                 'company_id' => $companyId,
-                'type' => $actionData['type'] ?? 'full-time',
-                'contract_type' => $actionData['contract_type'] ?? 'full_time',
+                'type' => $type,
+                'contract_type' => $contractType,
                 'location' => $actionData['location'] ?? 'طرابلس، ليبيا',
-                'seats' => (int) ($actionData['seats'] ?? 1),
-                'salary' => $actionData['salary'] ?? null,
-                'application_deadline' => $actionData['application_deadline'] ?? now()->addDays(21)->format('Y-m-d'),
-                'status' => 'open',
+                'seats' => max(1, (int) ($actionData['seats'] ?? 1)),
+                'salary' => (isset($actionData['salary']) && is_numeric($actionData['salary'])) ? (float) $actionData['salary'] : null,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'application_deadline' => $deadline,
+                'status' => $status,
                 'requirements' => $actionData['requirements'] ?? 'المؤهل العلمي المناسب وإتقان المهارات التخصصية.',
                 'created_by' => $user->id,
             ]);
+
+            // إرسال الإشعار المناسب
+            try {
+                if ($user->role === 'company') {
+                    app(\App\Services\NotificationService::class)->notifyCompanyJobSubmitted($job);
+                } else {
+                    app(\App\Services\NotificationService::class)->notifyNewJobOpportunity($job);
+                }
+            } catch (\Throwable $ne) {
+                \Log::warning('AI Assistant: failed to send job opportunity notification: ' . $ne->getMessage());
+            }
 
             AuditLog::create([
                 'user_id' => $user->id,
@@ -457,7 +486,9 @@ class AiAssistantService
                 'timestamp' => now(),
             ]);
 
-            $resultMessage = "💼 ✅ تم نشر وتفعيل فرصة العمل بنجاح: **'{$job->title}'**! أصبحت متاحة الآن في بوابة الوظائف للتقديم والترشيح.";
+            $resultMessage = ($user->role === 'company')
+                ? "💼 ✅ تم تقديم فرصة العمل بنجاح: **'{$job->title}'**! أُرسلت للمراجعة والاعتماد من قبل إدارة المنظومة قبل نشرها للخريجين."
+                : "💼 ✅ تم نشر وتفعيل فرصة العمل بنجاح: **'{$job->title}'**! أصبحت متاحة الآن في بوابة الوظائف للتقديم والترشيح.";
         } elseif ($actionType === 'update_candidate_status') {
             $nominationId = $actionData['nomination_id'] ?? null;
             $nomination = $nominationId ? Nomination::with(['graduate.user', 'jobOpportunity.company'])->find($nominationId) : null;

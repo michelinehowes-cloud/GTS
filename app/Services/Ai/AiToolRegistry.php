@@ -2197,10 +2197,12 @@ class AiToolRegistry
                         }
                     }
 
-                    $type = $args['type'] ?? 'full-time';
+                    $type = 'job';
                     $location = $args['location'] ?? 'طرابلس، ليبيا';
                     $seats = (int) ($args['seats'] ?? 1);
                     $salary = isset($args['salary']) ? (float) $args['salary'] : 2500.00;
+                    $startDate = now()->format('Y-m-d');
+                    $endDate = now()->addMonths(2)->format('Y-m-d');
                     $deadline = now()->addDays(21)->format('Y-m-d');
 
                     return [
@@ -2209,16 +2211,18 @@ class AiToolRegistry
                         'action_type' => 'create_job_opportunity',
                         'title' => 'تأكيد إضافة فرصة عمل جديدة',
                         'summary' => "إضافة وظيفة: {$title} لدى ({$companyName})",
-                        'details' => "**المسمى الوظيفي:** {$title}\n**الشركة:** {$companyName}\n**النوع والموقع:** {$type} | {$location}\n**المقاعد والراتب:** {$seats} شاغر | {$salary} د.ل\n**آخر موعد للتقديم:** {$deadline}",
+                        'details' => "**المسمى الوظيفي:** {$title}\n**الشركة:** {$companyName}\n**النوع والموقع:** وظيفة دوام كامل | {$location}\n**المقاعد والراتب:** {$seats} شاغر | {$salary} د.ل\n**آخر موعد للتقديم:** {$deadline}",
                         'message' => "هل تود تأكيد نشر فرصة العمل '{$title}' في بوابة الإرشاد والتوظيف؟",
                         'data' => [
                             'title' => $title,
                             'company_id' => $companyId,
-                            'type' => $type,
+                            'type' => 'job',
                             'contract_type' => 'full_time',
                             'location' => $location,
                             'seats' => $seats,
                             'salary' => $salary,
+                            'start_date' => $startDate,
+                            'end_date' => $endDate,
                             'application_deadline' => $deadline,
                             'status' => 'open',
                             'description' => $args['description'] ?? 'فرصة عمل نوعية تستهدف الكفاءات الوطنية وخريجي جامعة طرابلس المتميزين.',
@@ -3081,10 +3085,13 @@ class AiToolRegistry
                             'description' => $desc,
                             'requirements' => $reqs,
                             'company_id' => $companyId,
+                            'type' => 'job',
                             'contract_type' => $contractType,
                             'seats' => $seats,
                             'salary' => $salary,
                             'location' => $location,
+                            'start_date' => now()->format('Y-m-d'),
+                            'end_date' => now()->addMonths(2)->format('Y-m-d'),
                             'application_deadline' => $deadline,
                         ]
                     ];

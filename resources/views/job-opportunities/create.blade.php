@@ -212,7 +212,7 @@
                                 <label for="application_deadline" class="form-label">آخر موعد للتقديم <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control @error('application_deadline') is-invalid @enderror" 
                                        id="application_deadline" name="application_deadline" value="{{ old('application_deadline') }}" 
-                                       min="{{ date('Y-m-d') }}" required>
+                                       required>
                                 @error('application_deadline')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -320,25 +320,50 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // مؤشر التحميل عند الإرسال وتفادي تعطيل الزر في حال وجود خطأ تحقق
+    // معالجة إرسال النموذج وتفادي إلغاء المتصفح للطلب (Chromium submit button abort prevention)
     const jobForm = document.getElementById('jobOpportunityForm');
     const submitBtn = document.getElementById('btnSubmitJob');
+    let isSubmitting = false;
+
     if (jobForm && submitBtn) {
         jobForm.addEventListener('submit', function(e) {
-            if (jobForm.checkValidity && !jobForm.checkValidity()) {
-                return;
-            }
-            if (submitBtn.disabled) {
+            if (isSubmitting) {
                 e.preventDefault();
+                return false;
+            }
+
+            if (jobForm.checkValidity && !jobForm.checkValidity()) {
+                const firstInvalid = jobForm.querySelector(':invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstInvalid.focus();
+                    if (firstInvalid.reportValidity) {
+                        firstInvalid.reportValidity();
+                    }
+                }
                 return;
             }
+
+            isSubmitting = true;
+            submitBtn.style.pointerEvents = 'none';
+            submitBtn.style.opacity = '0.75';
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> جاري الحفظ والمعالجة...';
+
+            // مهلة أمان لاستعادة الزر في حال حدوث أي توقف غير متوقع بالشبكة
             setTimeout(() => {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> جاري الحفظ والمعالجة...';
-            }, 50);
+                if (isSubmitting) {
+                    isSubmitting = false;
+                    submitBtn.style.pointerEvents = 'auto';
+                    submitBtn.style.opacity = '1';
+                    submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>حفظ الفرصة';
+                }
+            }, 15000);
         });
 
         window.addEventListener('pageshow', function() {
+            isSubmitting = false;
+            submitBtn.style.pointerEvents = 'auto';
+            submitBtn.style.opacity = '1';
             submitBtn.disabled = false;
             submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>حفظ الفرصة';
         });

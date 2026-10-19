@@ -3975,7 +3975,7 @@
                                                         <img src="{{ $news->thumbnail_url }}"
                                                             class="rounded-3 flex-shrink-0 object-fit-cover" alt=""
                                                             style="width: 84px; height: 84px;"
-                                                            onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'rounded-3 flex-shrink-0 d-flex align-items-center justify-content-center text-primary\' style=\'width: 84px; height: 84px; background: rgba(13, 56, 130, 0.08);\'><i class=\'fas fa-newspaper fs-3 opacity-50\'></i></div>';">
+                                                            onerror="this.outerHTML='<div class=\'rounded-3 flex-shrink-0 d-flex align-items-center justify-content-center text-primary\' style=\'width: 84px; height: 84px; background: rgba(13, 56, 130, 0.08);\'><i class=\'fas fa-newspaper fs-3 opacity-50\'></i></div>';">
                                                     @else
                                                         <div class="rounded-3 flex-shrink-0 d-flex align-items-center justify-content-center text-primary"
                                                             style="width: 84px; height: 84px; background: rgba(13, 56, 130, 0.08);">

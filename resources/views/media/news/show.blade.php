@@ -56,8 +56,12 @@
             <article class="card border-0 rounded-4 shadow-sm overflow-hidden mb-4" style="background: #ffffff;">
                 <!-- الغلاف الصحفي البارز -->
                 @if($news->thumbnail_url)
-                    <div class="position-relative w-100" style="max-height: 420px; overflow: hidden; background: #0f172a;">
-                        <img src="{{ $news->thumbnail_url }}" alt="{{ $news->title }}" class="w-100 h-100" style="object-fit: cover; min-height: 260px;">
+                    <div class="position-relative w-100" style="max-height: 420px; overflow: hidden; background: #f1f5f9;">
+                        <img src="{{ $news->thumbnail_url }}"
+                             alt="{{ $news->title }}"
+                             class="w-100"
+                             style="object-fit: cover; min-height: 260px; max-height: 420px; display: block;"
+                             onerror="this.parentElement.style.minHeight='180px'; this.parentElement.innerHTML='<div class=\'d-flex align-items-center justify-content-center text-primary\' style=\'min-height:180px; background: rgba(13,56,130,0.07); border-radius:4px;\'><i class=\'fas fa-newspaper fa-4x opacity-25\'></i></div>';">
                     </div>
                 @endif
 

@@ -234,12 +234,13 @@
                         <div class="d-flex flex-column gap-3">
                             @foreach($relatedNews as $other)
                                 <a href="{{ route('media.news.show', $other) }}" class="text-decoration-none text-dark d-flex gap-3 align-items-center p-2 rounded-3 hover-bg-light" style="transition: background 0.2s;">
-                                    <div class="rounded-3 overflow-hidden flex-shrink-0" style="width: 58px; height: 58px; background: #0f172a;">
+                                    <div class="rounded-3 overflow-hidden flex-shrink-0" style="width: 58px; height: 58px; background: rgba(13, 56, 130, 0.08);">
                                         @if($other->thumbnail_url)
-                                            <img src="{{ $other->thumbnail_url }}" alt="{{ $other->title }}" class="w-100 h-100" style="object-fit: cover;">
+                                            <img src="{{ $other->thumbnail_url }}" alt="{{ $other->title }}" class="w-100 h-100" style="object-fit: cover;"
+                                                 onerror="this.outerHTML='<div class=\'w-100 h-100 d-flex align-items-center justify-content-center text-primary\'><i class=\'fas fa-newspaper opacity-50\'></i></div>';">
                                         @else
-                                            <div class="w-100 h-100 d-flex align-items-center justify-content-center text-white-50">
-                                                <i class="fas fa-newspaper"></i>
+                                            <div class="w-100 h-100 d-flex align-items-center justify-content-center text-primary">
+                                                <i class="fas fa-newspaper opacity-50"></i>
                                             </div>
                                         @endif
                                     </div>

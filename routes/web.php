@@ -45,6 +45,77 @@ Route::get('/', function () {
             \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
             $migrateOutput = \Illuminate\Support\Facades\Artisan::output();
 
+            if (request('diagnose_storage') === '1') {
+                $pubStorage = public_path('storage');
+                $appStorage = storage_path('app/public');
+                $newsThumbStorage = storage_path('app/public/news/thumbnails');
+                $pubNewsThumb = public_path('storage/news/thumbnails');
+
+                return response()->json([
+                    'status' => 'success',
+                    'php_version' => PHP_VERSION,
+                    'app_url' => config('app.url'),
+                    'public_path' => public_path(),
+                    'storage_path' => storage_path(),
+                    'public_storage_exists' => file_exists($pubStorage),
+                    'public_storage_is_link' => is_link($pubStorage),
+                    'public_storage_target' => is_link($pubStorage) ? @readlink($pubStorage) : null,
+                    'app_public_exists' => file_exists($appStorage),
+                    'news_thumbnails_in_storage_app' => file_exists($newsThumbStorage) ? scandir($newsThumbStorage) : [],
+                    'news_thumbnails_in_public_storage' => file_exists($pubNewsThumb) ? scandir($pubNewsThumb) : [],
+                ]);
+            }
+
+            if (request('fix_storage') === '1') {
+                $pubStorage = public_path('storage');
+                $appStorage = storage_path('app/public');
+                $actionsTaken = [];
+
+                // 1. إذا كان رابطاً رمزياً مكسوراً
+                if (is_link($pubStorage) && !file_exists($pubStorage)) {
+                    @unlink($pubStorage);
+                    $actionsTaken[] = 'تم حذف الرابط الرمزي المعطل (Broken symlink removed)';
+                }
+
+                // 2. إذا لم يكن موجوداً أصلاً، ننشئ الرابط
+                if (!file_exists($pubStorage)) {
+                    \Illuminate\Support\Facades\Artisan::call('storage:link');
+                    $actionsTaken[] = 'تم استدعاء storage:link: ' . trim(\Illuminate\Support\Facades\Artisan::output());
+                }
+
+                // 3. إذا كان مجلداً حقيقياً (غير symlink)، نقوم بمزامنة الملفات
+                if (file_exists($pubStorage) && !is_link($pubStorage)) {
+                    $actionsTaken[] = 'public/storage مجلد حقيقي وليس symlink - جاري نسخ الملفات من storage/app/public...';
+                    $copyRecursive = function($src, $dst) use (&$copyRecursive) {
+                        if (!file_exists($dst)) {
+                            @mkdir($dst, 0755, true);
+                        }
+                        $dir = opendir($src);
+                        while (false !== ($file = readdir($dir))) {
+                            if ($file != '.' && $file != '..' && $file != '.gitignore') {
+                                if (is_dir($src . '/' . $file)) {
+                                    $copyRecursive($src . '/' . $file, $dst . '/' . $file);
+                                } else {
+                                    @copy($src . '/' . $file, $dst . '/' . $file);
+                                }
+                            }
+                        }
+                        closedir($dir);
+                    };
+                    $copyRecursive($appStorage, $pubStorage);
+                    $actionsTaken[] = 'اكتملت مزامنة الملفات بنجاح إلى public/storage.';
+                }
+
+                \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+                $actionsTaken[] = 'تم تنظيف الكاش (optimize:clear)';
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'تم إصلاح ومزامنة التخزين بنجاح',
+                    'actions' => $actionsTaken,
+                ]);
+            }
+
             if (request('only_migrate') === '1') {
                 return response()->json([
                     'status' => 'success',
@@ -115,6 +186,31 @@ Route::get('/home', function () {
 // ==================== 📰 الأخبار والإعلانات العامة للزوار ====================
 Route::get('/news/{news}', [App\Http\Controllers\NewsController::class, 'publicShow'])->name('public.news.show');
 Route::get('/announcements/{announcement}', [App\Http\Controllers\AnnouncementController::class, 'publicShow'])->name('public.announcements.show');
+
+// ==================== 🖼️ مسار بديل موثوق لملفات وصور التخزين (Fallback Storage Route) ====================
+Route::get('/storage/{path}', function ($path) {
+    // حماية ضد التلاعب بالمسارات Directory Traversal
+    $cleanPath = str_replace(['..', '\\'], ['', '/'], $path);
+    $cleanPath = ltrim($cleanPath, '/');
+
+    // 1. فحص مجلد التخزين الأساسي storage/app/public
+    $storageFile = storage_path('app/public/' . $cleanPath);
+    if (file_exists($storageFile) && !is_dir($storageFile)) {
+        return response()->file($storageFile, [
+            'Cache-Control' => 'public, max-age=31536000',
+        ]);
+    }
+
+    // 2. فحص مجلد public/storage
+    $publicFile = public_path('storage/' . $cleanPath);
+    if (file_exists($publicFile) && !is_dir($publicFile)) {
+        return response()->file($publicFile, [
+            'Cache-Control' => 'public, max-age=31536000',
+        ]);
+    }
+
+    abort(404);
+})->where('path', '.*');
 
 // ==================== 🔐 نظام المصادقة ====================
 Route::middleware('guest')->group(function () {

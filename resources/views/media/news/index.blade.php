@@ -163,13 +163,14 @@
                 <div class="col-12 col-md-6 col-lg-4">
                     <div class="card border-0 rounded-4 shadow-sm h-100 overflow-hidden d-flex flex-column news-bento-card" style="transition: transform 0.2s ease, box-shadow 0.2s ease; background: #ffffff;">
                         <!-- غلاف الصورة -->
-                        <div class="position-relative" style="height: 190px; background: #0f172a; overflow: hidden;">
+                        <div class="position-relative" style="height: 190px; background: rgba(13, 56, 130, 0.06); overflow: hidden;">
                             @if($item->thumbnail_url)
-                                <img src="{{ $item->thumbnail_url }}" alt="{{ $item->title }}" class="w-100 h-100" style="object-fit: cover; transition: transform 0.3s ease;">
+                                <img src="{{ $item->thumbnail_url }}" alt="{{ $item->title }}" class="w-100 h-100" style="object-fit: cover; transition: transform 0.3s ease;"
+                                     onerror="this.outerHTML='<div class=\'w-100 h-100 d-flex flex-column align-items-center justify-content-center text-primary\' style=\'background: rgba(13, 56, 130, 0.06);\'><i class=\'fas fa-newspaper fa-3x mb-2 opacity-50\'></i><small class=\'text-muted\'>تعذر تحميل الصورة</small></div>';">
                             @else
-                                <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-white-50" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);">
-                                    <i class="fas fa-newspaper fa-3x mb-2 opacity-50 text-white"></i>
-                                    <small class="text-white-50">لا توجد صورة غلاف</small>
+                                <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-primary" style="background: rgba(13, 56, 130, 0.06);">
+                                    <i class="fas fa-newspaper fa-3x mb-2 opacity-50"></i>
+                                    <small class="text-muted">لا توجد صورة غلاف</small>
                                 </div>
                             @endif
 

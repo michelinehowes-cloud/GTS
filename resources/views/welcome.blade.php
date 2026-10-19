@@ -4026,22 +4026,30 @@
                                             class="text-decoration-none d-block">
                                             <div class="bento-news-card p-3 p-md-4 transition-all"
                                                 style="border-right: 4px solid var(--gold-accent); transition: transform 0.2s ease, box-shadow 0.2s ease;">
-                                                <h6 class="fw-bold text-dark mb-1 fs-6"
-                                                    style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.45;"
-                                                    title="{{ $announcement->title }}">{{ $announcement->title }}</h6>
-                                                <p class="text-muted small mb-2"
-                                                    style="font-size: 0.84rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">
-                                                    {{ $announcement->excerpt }}
-                                                </p>
-                                                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                                                    <small class="text-muted" style="font-size: 0.75rem;">
-                                                        <i class="far fa-clock me-1 text-warning"></i>
-                                                        {{ $announcement->created_at->diffForHumans() }}
-                                                    </small>
-                                                    <span class="small fw-bold text-primary">
-                                                        التفاصيل الكاملة <i class="fas fa-arrow-left ms-1"
-                                                            style="font-size: 0.7rem;"></i>
-                                                    </span>
+                                                <div class="d-flex gap-3 align-items-start">
+                                                    <div class="rounded-3 flex-shrink-0 d-flex align-items-center justify-content-center text-warning"
+                                                        style="width: 84px; height: 84px; background: rgba(245, 158, 11, 0.1);">
+                                                        <i class="fas fa-bullhorn fs-3 opacity-75"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1" style="min-width: 0;">
+                                                        <h6 class="fw-bold text-dark mb-1 fs-6"
+                                                            style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.45;"
+                                                            title="{{ $announcement->title }}">{{ $announcement->title }}</h6>
+                                                        <p class="text-muted small mb-2"
+                                                            style="font-size: 0.84rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">
+                                                            {{ $announcement->excerpt }}
+                                                        </p>
+                                                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                                            <small class="text-muted" style="font-size: 0.75rem;">
+                                                                <i class="far fa-clock me-1 text-warning"></i>
+                                                                {{ $announcement->created_at->diffForHumans() }}
+                                                            </small>
+                                                            <span class="small fw-bold text-primary">
+                                                                التفاصيل الكاملة <i class="fas fa-arrow-left ms-1"
+                                                                    style="font-size: 0.7rem;"></i>
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </a>

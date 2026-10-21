@@ -112,6 +112,7 @@ const universitiesData = {
             ],
             'كلية الطب البشري': [
                 'طبيب عام',
+                'متخصص',
                 'قسم الأحياء الدقيقة والمناعة الطبية',
                 'قسم طب الأطفال',
                 'قسم الأنسجة والوراثة',
@@ -320,7 +321,40 @@ function loadSpecializations() {
     // مسح القائمة
     specializationSelect.innerHTML = '<option value="">اختر التخصص</option>';
 
-    if (selectedUniversity && selectedSector && selectedFaculty &&
+    const isMedicine = selectedFaculty && (selectedFaculty === 'كلية الطب البشري' || selectedFaculty.includes('الطب البشري'));
+
+    if (isMedicine) {
+        specializationSelect.disabled = false;
+
+        // الخياران الأساسيان لخريجي كلية الطب البشري
+        const optGeneral = document.createElement('option');
+        optGeneral.value = 'طبيب عام';
+        optGeneral.textContent = 'طبيب عام';
+        specializationSelect.appendChild(optGeneral);
+
+        const optSpecialist = document.createElement('option');
+        optSpecialist.value = 'متخصص';
+        optSpecialist.textContent = 'متخصص';
+        specializationSelect.appendChild(optSpecialist);
+
+        // قائمة التخصصات السريرية المعتمدة
+        const optGroup = document.createElement('optgroup');
+        optGroup.label = 'التخصصات السريرية (لمن أتم التخصص)';
+
+        const rawSpecs = (universitiesData[selectedUniversity] && universitiesData[selectedUniversity][selectedSector] && universitiesData[selectedUniversity][selectedSector][selectedFaculty]) 
+            ? universitiesData[selectedUniversity][selectedSector][selectedFaculty] 
+            : [];
+
+        rawSpecs.forEach(spec => {
+            if (spec !== 'طبيب عام' && spec !== 'متخصص') {
+                const opt = document.createElement('option');
+                opt.value = spec;
+                opt.textContent = spec;
+                optGroup.appendChild(opt);
+            }
+        });
+        specializationSelect.appendChild(optGroup);
+    } else if (selectedUniversity && selectedSector && selectedFaculty &&
         universitiesData[selectedUniversity] &&
         universitiesData[selectedUniversity][selectedSector] &&
         universitiesData[selectedUniversity][selectedSector][selectedFaculty]) {
@@ -337,11 +371,11 @@ function loadSpecializations() {
         specializationSelect.disabled = true;
     }
 
-    // مزامنة مسار كلية الطب البشري (طبيب عام / طبيب متخصص)
+    // مزامنة مسار كلية الطب البشري (طبيب عام / متخصص)
     handleMedicalTrack();
 }
 
-// دالة إدارة المسار الطبي لكلية الطب البشري (طبيب عام / طبيب متخصص)
+// دالة إدارة المسار الطبي لكلية الطب البشري (طبيب عام / متخصص)
 function handleMedicalTrack(isQualChange = false) {
     const facultySelect = document.getElementById('faculty');
     const qualificationSelect = document.getElementById('qualification');
@@ -357,7 +391,7 @@ function handleMedicalTrack(isQualChange = false) {
 
     if (!facultySelect || !specializationSelect) return;
 
-    const isMedicine = (facultySelect.value === 'كلية الطب البشري');
+    const isMedicine = facultySelect.value && (facultySelect.value === 'كلية الطب البشري' || facultySelect.value.includes('الطب البشري'));
 
     if (!isMedicine) {
         if (trackContainer) trackContainer.style.display = 'none';
@@ -369,107 +403,51 @@ function handleMedicalTrack(isQualChange = false) {
         return;
     }
 
-    // الكلية المختارة هي كلية الطب البشري
+    // إظهار بطاقة المسار الطبي وحقل التخصص معاً
     if (trackContainer) {
         trackContainer.style.display = 'block';
+    }
+    if (specializationWrapper) {
+        specializationWrapper.style.display = 'block';
+    }
+    specializationSelect.disabled = false;
+    specializationSelect.required = true;
+
+    if (specializationLabel) {
+        specializationLabel.innerHTML = 'التخصص (طبيب عام / متخصص) <span class="text-danger">*</span>';
     }
 
     const currentQual = qualificationSelect ? qualificationSelect.value : 'بكالوريوس';
     const isPostgrad = ['ماجستير', 'دكتوراه', 'دبلوم عالي', 'زمالة', 'بورد'].includes(currentQual);
     const savedSpec = oldSpecInput ? oldSpecInput.value : specializationSelect.value;
 
-    // تحديد الخيار الأنسب إذا لم يكن محددًا مسبقاً
-    if (trackGeneral && trackSpecialist) {
-        if (!trackGeneral.checked && !trackSpecialist.checked) {
-            if (savedSpec && savedSpec !== 'طبيب عام' && savedSpec !== '') {
-                // الخريج لديه تخصص سريري محفوظ مسبقاً
-                trackSpecialist.checked = true;
-            } else if (isPostgrad) {
-                // خريج دراسات عليا في الطب يميل للتخصص الدقيق
-                trackSpecialist.checked = true;
-            } else {
-                // خريج بكالوريوس يبدأ طبيعياً كطبيب عام
-                trackGeneral.checked = true;
-            }
-        } else if (isQualChange) {
-            if (isPostgrad && trackGeneral.checked) {
-                trackSpecialist.checked = true;
-            } else if (currentQual === 'بكالوريوس' && (!specializationSelect.value || specializationSelect.value === 'طبيب عام')) {
-                trackGeneral.checked = true;
-            }
-        }
-
-        // تطبيق حالة الواجهة بناءً على الخيار
-        if (trackGeneral.checked) {
-            if (generalNotice) generalNotice.style.display = 'flex';
-            if (specializationWrapper) specializationWrapper.style.display = 'none';
-            specializationSelect.required = false;
-
-            // التأكد من وجود قيمة طبيب عام وتعيينها
-            let hasGeneralOption = false;
-            for (let i = 0; i < specializationSelect.options.length; i++) {
-                if (specializationSelect.options[i].value === 'طبيب عام') {
-                    hasGeneralOption = true;
-                    break;
-                }
-            }
-            if (!hasGeneralOption) {
-                const opt = document.createElement('option');
-                opt.value = 'طبيب عام';
-                opt.textContent = 'طبيب عام';
-                specializationSelect.appendChild(opt);
-            }
+    // تعيين القيمة المناسبة إذا لم يتم تحديد قيمة بعد
+    if (!specializationSelect.value || specializationSelect.value === '') {
+        if (savedSpec && savedSpec !== '') {
+            specializationSelect.value = savedSpec;
+        } else if (isPostgrad) {
+            specializationSelect.value = 'متخصص';
+        } else {
             specializationSelect.value = 'طبيب عام';
-            specializationSelect.disabled = false;
-            if (hiddenMajor) hiddenMajor.value = 'طبيب عام';
-        } else if (trackSpecialist.checked) {
-            if (generalNotice) generalNotice.style.display = 'none';
-            if (specializationWrapper) specializationWrapper.style.display = '';
-            specializationSelect.required = true;
-            specializationSelect.disabled = false;
-            if (specializationLabel) {
-                specializationLabel.innerHTML = 'التخصص السريري / الدقيق <span class="text-danger">*</span>';
-            }
-
-            // استدعاء تعبئة التخصصات السريرية (باستثناء طبيب عام)
-            populateMedicalSpecialties(savedSpec);
+        }
+    } else if (isQualChange) {
+        if (isPostgrad && specializationSelect.value === 'طبيب عام') {
+            specializationSelect.value = 'متخصص';
         }
     }
-}
 
-// دالة لتعبئة التخصصات السريرية لكلية الطب البشري (باستثناء "طبيب عام")
-function populateMedicalSpecialties(selectedVal) {
-    const specializationSelect = document.getElementById('specialization');
-    const universitySelect = document.getElementById('university');
-    const sectorSelect = document.getElementById('sector');
-    const facultySelect = document.getElementById('faculty');
-    const hiddenMajor = document.getElementById('hidden_major');
+    // مزامنة أزرار الراديو والإشعار
+    const currentVal = specializationSelect.value;
+    if (currentVal === 'طبيب عام') {
+        if (trackGeneral) trackGeneral.checked = true;
+        if (generalNotice) generalNotice.style.display = 'flex';
+    } else if (currentVal && currentVal !== '') {
+        if (trackSpecialist) trackSpecialist.checked = true;
+        if (generalNotice) generalNotice.style.display = 'none';
+    }
 
-    if (!specializationSelect) return;
-
-    const u = universitySelect ? universitySelect.value : 'جامعة طرابلس';
-    const s = sectorSelect ? sectorSelect.value : 'قاطع (أ)';
-    const f = facultySelect ? facultySelect.value : 'كلية الطب البشري';
-
-    const rawSpecs = (universitiesData[u] && universitiesData[u][s] && universitiesData[u][s][f]) ? universitiesData[u][s][f] : [];
-    const clinicalSpecs = rawSpecs.filter(spec => spec !== 'طبيب عام');
-
-    specializationSelect.innerHTML = '<option value="">اختر التخصص السريري / الدقيق</option>';
-    clinicalSpecs.forEach(spec => {
-        const opt = document.createElement('option');
-        opt.value = spec;
-        opt.textContent = spec;
-        if (selectedVal && selectedVal === spec) {
-            opt.selected = true;
-        }
-        specializationSelect.appendChild(opt);
-    });
-
-    if (selectedVal && selectedVal !== 'طبيب عام') {
-        specializationSelect.value = selectedVal;
-        if (hiddenMajor) hiddenMajor.value = selectedVal;
-    } else if (specializationSelect.value === 'طبيب عام') {
-        specializationSelect.value = '';
+    if (hiddenMajor && specializationSelect.value) {
+        hiddenMajor.value = specializationSelect.value;
     }
 }
 
@@ -482,6 +460,8 @@ function initUniversityDropdowns() {
     const qualificationSelect = document.getElementById('qualification');
     const trackGeneral = document.getElementById('medical_track_general');
     const trackSpecialist = document.getElementById('medical_track_specialist');
+    const generalNotice = document.getElementById('medical_general_notice');
+    const hiddenMajor = document.getElementById('hidden_major');
 
     if (!universitySelect) return;
 
@@ -498,29 +478,66 @@ function initUniversityDropdowns() {
         facultySelect.addEventListener('change', loadSpecializations);
     }
 
+    if (specializationSelect) {
+        specializationSelect.removeEventListener('change', onSpecChanged);
+        specializationSelect.addEventListener('change', onSpecChanged);
+    }
+
+    function onSpecChanged() {
+        const isMed = facultySelect && (facultySelect.value === 'كلية الطب البشري' || facultySelect.value.includes('الطب البشري'));
+        if (isMed) {
+            if (this.value === 'طبيب عام') {
+                if (trackGeneral) trackGeneral.checked = true;
+                if (generalNotice) generalNotice.style.display = 'flex';
+            } else if (this.value && this.value !== '') {
+                if (trackSpecialist) trackSpecialist.checked = true;
+                if (generalNotice) generalNotice.style.display = 'none';
+            }
+        }
+        if (hiddenMajor && this.value) {
+            hiddenMajor.value = this.value;
+        }
+    }
+
     if (qualificationSelect) {
         qualificationSelect.removeEventListener('change', onQualificationChanged);
         qualificationSelect.addEventListener('change', onQualificationChanged);
     }
 
     function onQualificationChanged() {
-        if (facultySelect && facultySelect.value === 'كلية الطب البشري') {
+        const isMed = facultySelect && (facultySelect.value === 'كلية الطب البشري' || facultySelect.value.includes('الطب البشري'));
+        if (isMed) {
             handleMedicalTrack(true);
         }
     }
 
     if (trackGeneral) {
-        trackGeneral.removeEventListener('change', onTrackRadioChanged);
-        trackGeneral.addEventListener('change', onTrackRadioChanged);
+        trackGeneral.removeEventListener('change', onGeneralRadioSelected);
+        trackGeneral.addEventListener('change', onGeneralRadioSelected);
+    }
+
+    function onGeneralRadioSelected() {
+        if (this.checked && specializationSelect) {
+            specializationSelect.value = 'طبيب عام';
+            if (hiddenMajor) hiddenMajor.value = 'طبيب عام';
+            if (generalNotice) generalNotice.style.display = 'flex';
+        }
     }
 
     if (trackSpecialist) {
-        trackSpecialist.removeEventListener('change', onTrackRadioChanged);
-        trackSpecialist.addEventListener('change', onTrackRadioChanged);
+        trackSpecialist.removeEventListener('change', onSpecialistRadioSelected);
+        trackSpecialist.addEventListener('change', onSpecialistRadioSelected);
     }
 
-    function onTrackRadioChanged() {
-        handleMedicalTrack();
+    function onSpecialistRadioSelected() {
+        if (this.checked && specializationSelect) {
+            if (specializationSelect.value === 'طبيب عام' || !specializationSelect.value) {
+                specializationSelect.value = 'متخصص';
+            }
+            if (hiddenMajor) hiddenMajor.value = specializationSelect.value;
+            if (generalNotice) generalNotice.style.display = 'none';
+            specializationSelect.focus();
+        }
     }
 
     // قراءة القيم المحفوظة مسبقاً (old values أو بيانات الخريج)
@@ -546,11 +563,12 @@ function initUniversityDropdowns() {
                 facultySelect.value = savedFaculty;
                 loadSpecializations();
 
-                if (savedFaculty === 'كلية الطب البشري') {
-                    if (savedSpecialization === 'طبيب عام' || (!savedSpecialization && (!qualificationSelect || qualificationSelect.value === 'بكالوريوس'))) {
-                        if (trackGeneral) trackGeneral.checked = true;
-                    } else if (savedSpecialization && savedSpecialization !== 'طبيب عام') {
-                        if (trackSpecialist) trackSpecialist.checked = true;
+                const isMed = (savedFaculty === 'كلية الطب البشري' || savedFaculty.includes('الطب البشري'));
+                if (isMed) {
+                    if (savedSpecialization && savedSpecialization !== '') {
+                        specializationSelect.value = savedSpecialization;
+                    } else if (qualificationSelect && qualificationSelect.value === 'بكالوريوس') {
+                        specializationSelect.value = 'طبيب عام';
                     }
                     handleMedicalTrack();
                 } else {
@@ -567,23 +585,12 @@ function initUniversityDropdowns() {
     forms.forEach(form => {
         form.addEventListener('submit', function () {
             const currentFaculty = document.getElementById('faculty');
-            const currentGeneralRadio = document.getElementById('medical_track_general');
             const currentSpecSelect = document.getElementById('specialization');
-            const hiddenMajor = document.getElementById('hidden_major');
+            const currentHiddenMajor = document.getElementById('hidden_major');
 
-            if (currentFaculty && currentFaculty.value === 'كلية الطب البشري' && currentGeneralRadio && currentGeneralRadio.checked) {
-                if (currentSpecSelect) {
-                    currentSpecSelect.disabled = false;
-                    currentSpecSelect.value = 'طبيب عام';
-                }
-                if (hiddenMajor) {
-                    hiddenMajor.value = 'طبيب عام';
-                }
-            } else {
-                if (currentSpecSelect && currentSpecSelect.value) {
-                    currentSpecSelect.disabled = false;
-                    if (hiddenMajor) hiddenMajor.value = currentSpecSelect.value;
-                }
+            if (currentSpecSelect && currentSpecSelect.value) {
+                currentSpecSelect.disabled = false;
+                if (currentHiddenMajor) currentHiddenMajor.value = currentSpecSelect.value;
             }
 
             if (sectorSelect && sectorSelect.value) {

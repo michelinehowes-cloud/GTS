@@ -21,7 +21,8 @@
         }
 
         body {
-            background-color: #f8f9fa; /* Light gray background matching Bento UI */
+            background-color: #f8f9fa;
+            /* Light gray background matching Bento UI */
             min-height: 100vh;
             padding: 40px 0;
         }
@@ -58,7 +59,8 @@
             text-align: center;
             position: relative;
             overflow: hidden;
-            border-bottom: 4px solid #f59e0b; /* Gold accent */
+            border-bottom: 4px solid #f59e0b;
+            /* Gold accent */
         }
 
         .card-header::before {
@@ -424,7 +426,8 @@
                                     الاسم الرباعي <span class="required">*</span>
                                 </label>
                                 <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
-                                    name="name" value="{{ old('name') }}" required placeholder="الاسم الرباعي كما هو في الشهادة">
+                                    name="name" value="{{ old('name') }}" required
+                                    placeholder="الاسم الرباعي كما هو في الشهادة">
                                 @error('name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -434,8 +437,10 @@
                                 <label for="student_id" class="form-label">
                                     رقم القيد الجامعي <span class="required">*</span>
                                 </label>
-                                <input type="text" class="form-control @error('student_id') is-invalid @enderror @error('national_id') is-invalid @enderror"
-                                    id="student_id" name="student_id" value="{{ old('student_id', old('national_id')) }}" required
+                                <input type="text"
+                                    class="form-control @error('student_id') is-invalid @enderror @error('national_id') is-invalid @enderror"
+                                    id="student_id" name="student_id"
+                                    value="{{ old('student_id', old('national_id')) }}" required
                                     placeholder="رقم القيد الجامعي بالجامعة">
                                 @error('student_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -620,31 +625,40 @@
                             </div>
 
                             <!-- المسار الطبي لكلية الطب البشري -->
-                            <div class="col-md-12 medical-track-container" id="medical_track_container" style="display: none;">
+                            <div class="col-md-12 medical-track-container" id="medical_track_container"
+                                style="display: none;">
                                 <div class="p-3 rounded-3 border bg-light shadow-sm mb-2">
                                     <label class="form-label fw-bold text-primary small d-flex align-items-center mb-1">
                                         <i class="fas fa-stethoscope me-1.5 text-primary"></i>
                                         <span>تحديد المسار الطبي (كلية الطب البشري)</span>
                                         <span class="required ms-1">*</span>
                                     </label>
-                                    <p class="text-muted small mb-2" style="font-size: 0.85rem;">
-                                        خريجو الطب البشري يبدأون عادةً كـ <strong>"طبيب عام"</strong> بموجب البكالوريوس، وفي حال إتمام مسار تخصصي أو دراسات عليا يمكنك تحديد التخصص السريري:
-                                    </p>
+
                                     <div class="d-flex flex-wrap gap-3 my-1">
                                         <div class="form-check custom-medical-radio">
-                                            <input class="form-check-input" type="radio" name="medical_track" id="medical_track_general" value="general">
-                                            <label class="form-check-label fw-bold text-dark small cursor-pointer" for="medical_track_general">
-                                                <i class="fas fa-user-md text-success me-1"></i> طبيب عام <span class="badge bg-success-subtle text-success border border-success-subtle ms-1">المسار الأساسي للبكالوريوس</span>
+                                            <input class="form-check-input" type="radio" name="medical_track"
+                                                id="medical_track_general" value="general">
+                                            <label class="form-check-label fw-bold text-dark small cursor-pointer"
+                                                for="medical_track_general">
+                                                <i class="fas fa-user-md text-success me-1"></i> طبيب عام <span
+                                                    class="badge bg-success-subtle text-success border border-success-subtle ms-1">المسار
+                                                    الأساسي للبكالوريوس</span>
                                             </label>
                                         </div>
                                         <div class="form-check custom-medical-radio">
-                                            <input class="form-check-input" type="radio" name="medical_track" id="medical_track_specialist" value="specialist">
-                                            <label class="form-check-label fw-bold text-dark small cursor-pointer" for="medical_track_specialist">
-                                                <i class="fas fa-hospital-user text-primary me-1"></i> طبيب متخصص <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1">أتم التخصص / مقيم / دراسات عليا</span>
+                                            <input class="form-check-input" type="radio" name="medical_track"
+                                                id="medical_track_specialist" value="specialist">
+                                            <label class="form-check-label fw-bold text-dark small cursor-pointer"
+                                                for="medical_track_specialist">
+                                                <i class="fas fa-hospital-user text-primary me-1"></i> متخصص <span
+                                                    class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1">أتم
+                                                    التخصص / مقيم / دراسات عليا</span>
                                             </label>
                                         </div>
                                     </div>
-                                    <div id="medical_general_notice" class="alert alert-success d-flex align-items-center py-2 px-3 mt-2 mb-0 small rounded-3" style="display: none; font-size: 0.85rem;">
+                                    <div id="medical_general_notice"
+                                        class="alert alert-success d-flex align-items-center py-2 px-3 mt-2 mb-0 small rounded-3"
+                                        style="display: none; font-size: 0.85rem;">
                                         <i class="fas fa-check-circle me-1.5 flex-shrink-0"></i>
                                         <div>تم اعتماد التخصص تلقائياً كـ: <strong>"طبيب عام"</strong>.</div>
                                     </div>
@@ -652,7 +666,8 @@
                             </div>
 
                             <div class="col-md-12 specialization-wrapper" id="specialization_wrapper">
-                                <label for="specialization" class="form-label specialization-label" id="specialization_label">
+                                <label for="specialization" class="form-label specialization-label"
+                                    id="specialization_label">
                                     التخصص <span class="required">*</span>
                                 </label>
                                 <select class="form-select @error('specialization') is-invalid @enderror"
@@ -761,9 +776,10 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- University Data Script -->
-    <script src="{{ asset('js/university-data.js') }}"></script>
+    <script
+        src="{{ asset('js/university-data.js') }}?v={{ file_exists(public_path('js/university-data.js')) ? filemtime(public_path('js/university-data.js')) : time() }}"></script>
 
     <script>
         // Toggle password visibility

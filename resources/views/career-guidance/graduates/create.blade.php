@@ -239,14 +239,11 @@
                             <!-- المسار الطبي لكلية الطب البشري -->
                             <div class="col-md-12 medical-track-container" id="medical_track_container" style="display: none;">
                                 <div class="p-3 rounded-3 border bg-light shadow-sm mb-2">
-                                    <label class="form-label fw-bold text-primary small d-flex align-items-center mb-1">
+                                    <label class="form-label fw-bold text-primary small d-flex align-items-center mb-2">
                                         <i class="fas fa-stethoscope me-1.5 text-primary"></i>
                                         <span>تحديد المسار الطبي (كلية الطب البشري)</span>
                                         <span class="required ms-1">*</span>
                                     </label>
-                                    <p class="text-muted small mb-2" style="font-size: 0.85rem;">
-                                        خريجو الطب البشري يبدأون عادةً كـ <strong>"طبيب عام"</strong> بموجب البكالوريوس، وفي حال إتمام مسار تخصصي أو دراسات عليا يمكنك تحديد التخصص السريري:
-                                    </p>
                                     <div class="d-flex flex-wrap gap-3 my-1">
                                         <div class="form-check custom-medical-radio">
                                             <input class="form-check-input" type="radio" name="medical_track" id="medical_track_general" value="general">
@@ -257,7 +254,7 @@
                                         <div class="form-check custom-medical-radio">
                                             <input class="form-check-input" type="radio" name="medical_track" id="medical_track_specialist" value="specialist">
                                             <label class="form-check-label fw-bold text-dark small cursor-pointer" for="medical_track_specialist">
-                                                <i class="fas fa-hospital-user text-primary me-1"></i> طبيب متخصص <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1">أتم التخصص / مقيم / دراسات عليا</span>
+                                                <i class="fas fa-hospital-user text-primary me-1"></i> متخصص <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1">أتم التخصص / مقيم / دراسات عليا</span>
                                             </label>
                                         </div>
                                     </div>
@@ -403,7 +400,7 @@
 @endsection
 
 @section('scripts')
-<script src="{{ asset('js/university-data.js') }}"></script>
+<script src="{{ asset('js/university-data.js') }}?v={{ file_exists(public_path('js/university-data.js')) ? filemtime(public_path('js/university-data.js')) : time() }}"></script>
 <script>
 const form = document.getElementById('registrationForm');
 const submitBtn = document.getElementById('submitBtn');

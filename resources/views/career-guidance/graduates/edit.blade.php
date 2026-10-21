@@ -268,8 +268,40 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-12">
-                                <label for="specialization" class="form-label">
+                            <!-- المسار الطبي لكلية الطب البشري -->
+                            <div class="col-md-12 medical-track-container" id="medical_track_container" style="display: none;">
+                                <div class="p-3 rounded-3 border bg-light shadow-sm mb-2">
+                                    <label class="form-label fw-bold text-primary small d-flex align-items-center mb-1">
+                                        <i class="fas fa-stethoscope me-1.5 text-primary"></i>
+                                        <span>تحديد المسار الطبي (كلية الطب البشري)</span>
+                                        <span class="required ms-1">*</span>
+                                    </label>
+                                    <p class="text-muted small mb-2" style="font-size: 0.85rem;">
+                                        خريجو الطب البشري يبدأون عادةً كـ <strong>"طبيب عام"</strong> بموجب البكالوريوس، وفي حال إتمام مسار تخصصي أو دراسات عليا يمكنك تحديد التخصص السريري:
+                                    </p>
+                                    <div class="d-flex flex-wrap gap-3 my-1">
+                                        <div class="form-check custom-medical-radio">
+                                            <input class="form-check-input" type="radio" name="medical_track" id="medical_track_general" value="general">
+                                            <label class="form-check-label fw-bold text-dark small cursor-pointer" for="medical_track_general">
+                                                <i class="fas fa-user-md text-success me-1"></i> طبيب عام <span class="badge bg-success-subtle text-success border border-success-subtle ms-1">المسار الأساسي للبكالوريوس</span>
+                                            </label>
+                                        </div>
+                                        <div class="form-check custom-medical-radio">
+                                            <input class="form-check-input" type="radio" name="medical_track" id="medical_track_specialist" value="specialist">
+                                            <label class="form-check-label fw-bold text-dark small cursor-pointer" for="medical_track_specialist">
+                                                <i class="fas fa-hospital-user text-primary me-1"></i> طبيب متخصص <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1">أتم التخصص / مقيم / دراسات عليا</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div id="medical_general_notice" class="alert alert-success d-flex align-items-center py-2 px-3 mt-2 mb-0 small rounded-3" style="display: none; font-size: 0.85rem;">
+                                        <i class="fas fa-check-circle me-1.5 flex-shrink-0"></i>
+                                        <div>تم اعتماد التخصص تلقائياً كـ: <strong>"طبيب عام"</strong>.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 specialization-wrapper" id="specialization_wrapper">
+                                <label for="specialization" class="form-label specialization-label" id="specialization_label">
                                     التخصص <span class="required">*</span>
                                 </label>
                                 <select class="form-select @error('specialization') @error('major') is-invalid @enderror @enderror"
@@ -569,7 +601,15 @@ if (specSelect && hiddenMajor) {
 
 if(form){
     form.addEventListener('submit', function () {
-        if (specSelect && specSelect.value) {
+        const facSelect = document.getElementById('faculty');
+        const trackGeneral = document.getElementById('medical_track_general');
+        if (facSelect && facSelect.value === 'كلية الطب البشري' && trackGeneral && trackGeneral.checked) {
+            if (specSelect) {
+                specSelect.disabled = false;
+                specSelect.value = 'طبيب عام';
+            }
+            if (hiddenMajor) hiddenMajor.value = 'طبيب عام';
+        } else if (specSelect && specSelect.value) {
             specSelect.disabled = false;
             if (hiddenMajor) hiddenMajor.value = specSelect.value;
         }

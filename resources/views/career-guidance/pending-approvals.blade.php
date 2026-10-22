@@ -56,6 +56,13 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show border-0 rounded-3 shadow-sm mb-4" role="alert">
+            <i class="fas fa-times-circle me-2"></i> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     @if($errors->any())
         <div class="alert alert-danger alert-dismissible fade show border-0 rounded-3 shadow-sm mb-4" role="alert">
             <ul class="mb-0">
@@ -174,10 +181,10 @@
                     </button>
 
                     <!-- اعتماد الكل بنقرة واحدة -->
-                    <form action="{{ route('career-guidance.bulk-approve-graduates') }}" method="POST" class="d-inline m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في اعتماد جميع طلبات الخريجين المعلقة ({{ $pendingUsers->total() ?? $pendingUsers->count() }}) دفعة واحدة؟')">
+                    <form id="approveAllForm" action="{{ route('career-guidance.bulk-approve-graduates') }}" method="POST" class="d-inline m-0">
                         @csrf
                         <input type="hidden" name="approve_all" value="1">
-                        <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-sm">
+                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-sm" onclick="confirmApproveAll({{ $pendingUsers->total() ?? $pendingUsers->count() }})">
                             <i class="fas fa-clipboard-check me-1"></i> اعتماد الكل
                         </button>
                     </form>
@@ -308,11 +315,11 @@
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                                 <!-- زر الموافقة والتفعيل -->
-                                                <button type="button" class="btn btn-sm btn-success rounded-circle d-inline-flex align-items-center justify-content-center action-btn-circle" style="width: 34px; height: 34px;" onclick="approveDirectly({{ $user->id }}, '{{ addslashes($user->name) }}')" title="موافقة واعتماد فوري">
+                                                <button type="button" class="btn btn-sm btn-success rounded-circle d-inline-flex align-items-center justify-content-center action-btn-circle" style="width: 34px; height: 34px;" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" onclick="approveDirectly({{ $user->id }}, this.getAttribute('data-user-name'))" title="موافقة واعتماد فوري">
                                                     <i class="fas fa-check"></i>
                                                 </button>
                                                 <!-- زر الرفض والحذف -->
-                                                <button type="button" class="btn btn-sm btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center action-btn-circle" style="width: 34px; height: 34px;" onclick="rejectDirectly({{ $user->id }}, '{{ addslashes($user->name) }}')" title="رفض الطلب">
+                                                <button type="button" class="btn btn-sm btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center action-btn-circle" style="width: 34px; height: 34px;" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" onclick="rejectDirectly({{ $user->id }}, this.getAttribute('data-user-name'))" title="رفض الطلب">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             </div>
@@ -385,10 +392,10 @@
                                             <i class="fas fa-eye me-1"></i>التفاصيل
                                         </button>
                                         <div class="d-flex gap-1.5">
-                                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2.5" onclick="rejectDirectly({{ $user->id }}, '{{ addslashes($user->name) }}')">
+                                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2.5" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" onclick="rejectDirectly({{ $user->id }}, this.getAttribute('data-user-name'))">
                                                 <i class="fas fa-times me-1"></i>رفض
                                             </button>
-                                            <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" onclick="approveDirectly({{ $user->id }}, '{{ addslashes($user->name) }}')">
+                                            <button type="button" class="btn btn-sm btn-success rounded-pill px-3 fw-bold" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" onclick="approveDirectly({{ $user->id }}, this.getAttribute('data-user-name'))">
                                                 <i class="fas fa-check me-1"></i>اعتماد
                                             </button>
                                         </div>
@@ -651,10 +658,10 @@
             <div class="modal-footer bg-light px-4 py-3 border-top d-flex justify-content-between">
                 <button type="button" class="btn btn-secondary px-4 rounded-pill" data-bs-dismiss="modal">إغلاق</button>
                 <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-outline-danger px-3 rounded-pill" onclick="rejectDirectly({{ $user->id }}, '{{ addslashes($user->name) }}')">
+                    <button type="button" class="btn btn-outline-danger px-3 rounded-pill" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" onclick="rejectDirectly({{ $user->id }}, this.getAttribute('data-user-name'))">
                         <i class="fas fa-times me-1"></i> رفض الطلب
                     </button>
-                    <button type="button" class="btn btn-success px-4 rounded-pill fw-bold shadow-sm" onclick="approveDirectly({{ $user->id }}, '{{ addslashes($user->name) }}')">
+                    <button type="button" class="btn btn-success px-4 rounded-pill fw-bold shadow-sm" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" onclick="approveDirectly({{ $user->id }}, this.getAttribute('data-user-name'))">
                         <i class="fas fa-check-circle me-1"></i> موافقة واعتماد الحساب
                     </button>
                 </div>
@@ -710,6 +717,9 @@
         border-color: #2563eb;
     }
 </style>
+
+<!-- مكتبة التنبيهات المتقدمة لمنع حجب مربعات الحوار في المتصفح -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- JavaScript للإجراءات الجماعية والتفاعلية والتدقيق الذكي -->
 <script>
@@ -948,14 +958,100 @@
         }
 
         const form = document.getElementById('bulkActionForm');
+        if (!form) return;
+
         if (action === 'approve') {
-            if (confirm(`هل أنت متأكد من رغبتك في اعتماد وموافقة ${count} طلب خريج وتفعيل حساباتهم؟`)) {
-                form.action = "{{ route('career-guidance.bulk-approve-graduates') }}";
-                form.submit();
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'تأكيد الاعتماد الجماعي',
+                    html: `هل أنت متأكد من رغبتك في اعتماد وموافقة <strong>${count}</strong> طلب خريج وتفعيل حساباتهم؟`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#10b981',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: '<i class="fas fa-check-double me-1"></i> نعم، اعتماد وتفعيل',
+                    cancelButtonText: 'إلغاء',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'جاري الاعتماد الجماعي...',
+                            text: 'يرجى الانتظار لحظات جاري تحديث الحسابات',
+                            allowOutsideClick: false,
+                            didOpen: () => Swal.showLoading()
+                        });
+                        form.action = "{{ route('career-guidance.bulk-approve-graduates') }}";
+                        form.submit();
+                    }
+                });
+            } else {
+                if (confirm(`هل أنت متأكد من رغبتك في اعتماد وموافقة ${count} طلب خريج وتفعيل حساباتهم؟`)) {
+                    form.action = "{{ route('career-guidance.bulk-approve-graduates') }}";
+                    form.submit();
+                }
             }
         } else if (action === 'reject') {
-            if (confirm(`هل أنت متأكد من رغبتك في رفض ${count} طلب وحذفها نهائياً؟`)) {
-                form.action = "{{ route('career-guidance.bulk-reject-graduates') }}";
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: 'تأكيد الرفض الجماعي',
+                    html: `هل أنت متأكد من رغبتك في رفض <strong>${count}</strong> طلب وحذفها نهائياً؟`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: '<i class="fas fa-trash-alt me-1"></i> نعم، رفض وحذف',
+                    cancelButtonText: 'إلغاء',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({
+                            title: 'جاري الحذف الجماعي...',
+                            text: 'يرجى الانتظار لحظات',
+                            allowOutsideClick: false,
+                            didOpen: () => Swal.showLoading()
+                        });
+                        form.action = "{{ route('career-guidance.bulk-reject-graduates') }}";
+                        form.submit();
+                    }
+                });
+            } else {
+                if (confirm(`هل أنت متأكد من رغبتك في رفض ${count} طلب وحذفها نهائياً؟`)) {
+                    form.action = "{{ route('career-guidance.bulk-reject-graduates') }}";
+                    form.submit();
+                }
+            }
+        }
+    }
+
+    // اعتماد الكل بنقرة واحدة
+    function confirmApproveAll(count) {
+        const form = document.getElementById('approveAllForm');
+        if (!form) return;
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'اعتماد جميع الطلبات',
+                html: `هل أنت متأكد من رغبتك في اعتماد جميع طلبات الخريجين المعلقة (${count}) وتفعيل حساباتهم دفعة واحدة؟`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-clipboard-check me-1"></i> نعم، اعتماد الكل',
+                cancelButtonText: 'إلغاء',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'جاري اعتماد جميع الحسابات...',
+                        text: 'يرجى الانتظار لحظات',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+                    form.submit();
+                }
+            });
+        } else {
+            if (confirm(`هل أنت متأكد من رغبتك في اعتماد جميع طلبات الخريجين المعلقة (${count}) دفعة واحدة؟`)) {
                 form.submit();
             }
         }
@@ -963,19 +1059,73 @@
 
     // تنفيذ الموافقة الفردية
     function approveDirectly(userId, userName) {
-        if (confirm(`هل أنت متأكد من رغبتك في الموافقة على حساب ${userName} وتفعيله؟`)) {
-            const form = document.getElementById('singleApproveForm');
-            form.action = `/career-guidance/pending-approvals/${userId}/approve`;
-            form.submit();
+        userName = userName || 'هذا الخريج';
+        const form = document.getElementById('singleApproveForm');
+        if (!form) return;
+        form.action = `/career-guidance/pending-approvals/${userId}/approve`;
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'تأكيد اعتماد الحساب',
+                html: `هل أنت متأكد من رغبتك في الموافقة على حساب <strong>${userName}</strong> وتفعيله رسمياً؟`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-check me-1"></i> نعم، موافقة وتفعيل',
+                cancelButtonText: 'إلغاء',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'جاري تفعيل الحساب...',
+                        text: 'يرجى الانتظار لحظات جاري تحديث الحساب وتفعيل السجل',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+                    form.submit();
+                }
+            });
+        } else {
+            if (confirm(`هل أنت متأكد من رغبتك في الموافقة على حساب ${userName} وتفعيله؟`)) {
+                form.submit();
+            }
         }
     }
 
     // تنفيذ الرفض الفردي
     function rejectDirectly(userId, userName) {
-        if (confirm(`هل أنت متأكد من رغبتك في رفض طلب ${userName} وحذفه؟`)) {
-            const form = document.getElementById('singleRejectForm');
-            form.action = `/career-guidance/pending-approvals/${userId}/reject`;
-            form.submit();
+        userName = userName || 'هذا الخريج';
+        const form = document.getElementById('singleRejectForm');
+        if (!form) return;
+        form.action = `/career-guidance/pending-approvals/${userId}/reject`;
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'تأكيد رفض الطلب',
+                html: `هل أنت متأكد من رغبتك في رفض طلب <strong>${userName}</strong> وحذفه نهائياً؟`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-trash-alt me-1"></i> نعم، رفض وحذف',
+                cancelButtonText: 'إلغاء',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'جاري حذف الطلب...',
+                        text: 'يرجى الانتظار لحظات',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+                    form.submit();
+                }
+            });
+        } else {
+            if (confirm(`هل أنت متأكد من رغبتك في رفض طلب ${userName} وحذفه؟`)) {
+                form.submit();
+            }
         }
     }
 

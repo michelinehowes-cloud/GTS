@@ -672,6 +672,50 @@
 @endforeach
 @endif
 
+{{-- نافذة تأكيد الإجراءات بهوية المنصة الرسمية (GTS Brand Confirmation Modal) --}}
+<div class="modal fade" id="gtsConfirmModal" tabindex="-1" aria-labelledby="gtsModalTitle" aria-hidden="true" dir="rtl" style="font-family: 'Tajawal', sans-serif; z-index: 1065;">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 460px;">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <!-- شريط علوي بلون الهوية المتغير ديناميكياً -->
+            <div id="gtsModalTopBar" style="height: 6px; background: linear-gradient(90deg, #10b981, #0d3882); transition: all 0.3s ease;"></div>
+            
+            <div class="modal-body p-4 text-center">
+                <!-- أيقونة التأكيد بهوية المنصة مع تأثير النبض اللوني -->
+                <div class="mb-3 d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm" id="gtsModalIconBox" style="width: 74px; height: 74px; transition: all 0.3s ease;">
+                    <i id="gtsModalIcon" class="fas fa-check-circle fa-2x"></i>
+                </div>
+
+                <!-- عنوان النافذة -->
+                <h5 class="fw-bold text-dark mb-2" id="gtsModalTitle" style="font-size: 1.25rem;">تأكيد الإجراء</h5>
+
+                <!-- كرت معلومات الخريج أو الطلبات -->
+                <div class="p-3 rounded-3 my-3 text-end" id="gtsModalTargetBox" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <i class="fas fa-user-graduate text-primary" id="gtsModalTargetIcon"></i>
+                        <span class="fw-bold text-dark fs-6" id="gtsModalTargetName">اسم الخريج</span>
+                    </div>
+                    <div class="small text-muted" id="gtsModalTargetSubtext">طلب تسجيل جديد قيد المراجعة والاعتماد</div>
+                </div>
+
+                <!-- نص الرسالة التوضيحية -->
+                <p class="text-muted small mb-0 px-2 lh-base" id="gtsModalMessage">
+                    سيتم تفعيل حساب الخريج فوراً وتمكينه من الدخول للمنظومة والتقديم على الفرص التدريبية.
+                </p>
+            </div>
+
+            <!-- أزرار الإجراءات بهوية المنصة -->
+            <div class="modal-footer border-0 bg-light bg-opacity-75 px-4 py-3 d-flex justify-content-center gap-2">
+                <button type="button" class="btn btn-light rounded-pill px-4 py-2 text-muted fw-bold border" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> تراجع
+                </button>
+                <button type="button" class="btn rounded-pill px-4 py-2 fw-bold text-white shadow-sm" id="gtsModalConfirmBtn">
+                    <i class="fas fa-check-circle me-1"></i> نعم، متابعة
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
     /* Styling for AI Gradient Buttons & Checkboxes */
     .btn-gradient-ai {
@@ -715,6 +759,23 @@
     .custom-checkbox-main:checked, .custom-checkbox-item:checked {
         background-color: #2563eb;
         border-color: #2563eb;
+    }
+
+    /* تحسينات بصرية لهوية نافذة التأكيد GTS */
+    .icon-box-approve {
+        background: rgba(16, 185, 129, 0.12) !important;
+        color: #10b981 !important;
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.2) !important;
+    }
+    .icon-box-reject {
+        background: rgba(239, 68, 68, 0.12) !important;
+        color: #ef4444 !important;
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.2) !important;
+    }
+    .icon-box-bulk {
+        background: rgba(13, 56, 130, 0.12) !important;
+        color: #0d3882 !important;
+        box-shadow: 0 0 20px rgba(13, 56, 130, 0.2) !important;
     }
 </style>
 
@@ -943,6 +1004,137 @@
         });
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // نظام التأكيد والانتظار الموحد بهوية المنصة (GTS Branded Confirm & Wave Loading)
+    // ══════════════════════════════════════════════════════════════
+    let pendingConfirmCallback = null;
+    let gtsModalInstance = null;
+
+    function getGtsConfirmModal() {
+        const modalEl = document.getElementById('gtsConfirmModal');
+        if (!modalEl) return null;
+        if (!gtsModalInstance && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            gtsModalInstance = new bootstrap.Modal(modalEl, {
+                backdrop: true,
+                keyboard: true
+            });
+        }
+        return gtsModalInstance;
+    }
+
+    function openGtsConfirmModal({
+        actionType = 'approve', // 'approve' | 'reject' | 'bulk-approve' | 'bulk-reject' | 'approve-all'
+        title = 'تأكيد الإجراء',
+        targetName = '',
+        targetSubtext = '',
+        message = '',
+        confirmBtnText = 'نعم، متابعة',
+        confirmBtnIcon = 'fas fa-check-circle',
+        confirmBtnClass = 'btn-success',
+        loadingTitle = 'جاري المعالجة...',
+        loadingSubtext = 'يرجى الانتظار لحظات، يجري الربط الآمن وحفظ البيانات...',
+        onConfirm = null
+    }) {
+        // إغلاق أي modal تفاصيل مفتوح مسبقاً لمنع تداخل شاشات الـ Backdrop
+        document.querySelectorAll('.modal.show').forEach(m => {
+            if (m.id !== 'gtsConfirmModal') {
+                const inst = bootstrap.Modal.getInstance(m);
+                if (inst) inst.hide();
+            }
+        });
+
+        const topBar = document.getElementById('gtsModalTopBar');
+        const iconBox = document.getElementById('gtsModalIconBox');
+        const icon = document.getElementById('gtsModalIcon');
+        const titleEl = document.getElementById('gtsModalTitle');
+        const targetIcon = document.getElementById('gtsModalTargetIcon');
+        const targetNameEl = document.getElementById('gtsModalTargetName');
+        const targetSubtextEl = document.getElementById('gtsModalTargetSubtext');
+        const messageEl = document.getElementById('gtsModalMessage');
+        const confirmBtn = document.getElementById('gtsModalConfirmBtn');
+
+        if (titleEl) titleEl.textContent = title;
+        if (targetNameEl) targetNameEl.textContent = targetName;
+        if (targetSubtextEl) targetSubtextEl.textContent = targetSubtext;
+        if (messageEl) messageEl.textContent = message;
+
+        // تطبيق الألوان والأيقونات بهوية المنظومة
+        if (actionType === 'approve') {
+            if (topBar) topBar.style.background = 'linear-gradient(90deg, #10b981, #059669)';
+            if (iconBox) {
+                iconBox.className = 'mb-3 d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm icon-box-approve';
+            }
+            if (icon) icon.className = 'fas fa-user-check fa-2x';
+            if (targetIcon) targetIcon.className = 'fas fa-user-graduate text-success';
+            if (confirmBtn) {
+                confirmBtn.className = 'btn btn-success rounded-pill px-4 py-2 fw-bold text-white shadow-sm';
+                confirmBtn.innerHTML = `<i class="${confirmBtnIcon} me-1"></i> ${confirmBtnText}`;
+            }
+        } else if (actionType === 'reject' || actionType === 'bulk-reject') {
+            if (topBar) topBar.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+            if (iconBox) {
+                iconBox.className = 'mb-3 d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm icon-box-reject';
+            }
+            if (icon) icon.className = actionType === 'bulk-reject' ? 'fas fa-user-slash fa-2x' : 'fas fa-user-times fa-2x';
+            if (targetIcon) targetIcon.className = 'fas fa-trash-alt text-danger';
+            if (confirmBtn) {
+                confirmBtn.className = 'btn btn-danger rounded-pill px-4 py-2 fw-bold text-white shadow-sm';
+                confirmBtn.innerHTML = `<i class="${confirmBtnIcon} me-1"></i> ${confirmBtnText}`;
+            }
+        } else {
+            // bulk-approve | approve-all
+            if (topBar) topBar.style.background = 'linear-gradient(90deg, #0d3882, #10b981)';
+            if (iconBox) {
+                iconBox.className = 'mb-3 d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm icon-box-bulk';
+            }
+            if (icon) icon.className = actionType === 'approve-all' ? 'fas fa-clipboard-check fa-2x text-primary' : 'fas fa-check-double fa-2x text-primary';
+            if (targetIcon) targetIcon.className = 'fas fa-users-cog text-primary';
+            if (confirmBtn) {
+                confirmBtn.className = 'btn btn-success rounded-pill px-4 py-2 fw-bold text-white shadow-sm';
+                confirmBtn.innerHTML = `<i class="${confirmBtnIcon} me-1"></i> ${confirmBtnText}`;
+            }
+        }
+
+        // حفظ دالة التنفيذ
+        pendingConfirmCallback = function() {
+            // إظهار شاشة الانتظار الرسمية للمنظومة بموجة الألوان
+            if (typeof window.showLoadingWave === 'function') {
+                window.showLoadingWave(loadingTitle, loadingSubtext);
+            }
+            if (typeof onConfirm === 'function') {
+                onConfirm();
+            }
+        };
+
+        const modal = getGtsConfirmModal();
+        if (modal) {
+            modal.show();
+        } else {
+            // كحل بديل آمن إن لم تكن المكتبة مهيأة
+            if (confirm(`${title}\n${targetName}\n${message}`)) {
+                pendingConfirmCallback();
+            }
+        }
+    }
+
+    // ربط نقرة زر التأكيد داخل النافذة
+    document.addEventListener('DOMContentLoaded', function() {
+        const confirmBtn = document.getElementById('gtsModalConfirmBtn');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', function() {
+                const modal = getGtsConfirmModal();
+                if (modal) {
+                    modal.hide();
+                }
+                if (typeof pendingConfirmCallback === 'function') {
+                    const callback = pendingConfirmCallback;
+                    pendingConfirmCallback = null;
+                    callback();
+                }
+            });
+        }
+    });
+
     // إرسال الإجراء الجماعي (اعتماد أو رفض المحدد بالشيك بوكس)
     function submitBulkAction(action) {
         const checkedValues = new Set();
@@ -951,9 +1143,8 @@
         });
 
         const count = checkedValues.size;
-
         if (count === 0) {
-            alert('يرجى تحديد خريج واحد على الأقل عبر الشيك بوكس.');
+            showToastMessage('يرجى تحديد خريج واحد على الأقل عبر مربعات الاختيار أولاً.', 'warning');
             return;
         }
 
@@ -961,65 +1152,33 @@
         if (!form) return;
 
         if (action === 'approve') {
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: 'تأكيد الاعتماد الجماعي',
-                    html: `هل أنت متأكد من رغبتك في اعتماد وموافقة <strong>${count}</strong> طلب خريج وتفعيل حساباتهم؟`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#10b981',
-                    cancelButtonColor: '#6b7280',
-                    confirmButtonText: '<i class="fas fa-check-double me-1"></i> نعم، اعتماد وتفعيل',
-                    cancelButtonText: 'إلغاء',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            title: 'جاري الاعتماد الجماعي...',
-                            text: 'يرجى الانتظار لحظات جاري تحديث الحسابات',
-                            allowOutsideClick: false,
-                            didOpen: () => Swal.showLoading()
-                        });
-                        form.action = "{{ route('career-guidance.bulk-approve-graduates') }}";
-                        form.submit();
-                    }
-                });
-            } else {
-                if (confirm(`هل أنت متأكد من رغبتك في اعتماد وموافقة ${count} طلب خريج وتفعيل حساباتهم؟`)) {
-                    form.action = "{{ route('career-guidance.bulk-approve-graduates') }}";
-                    form.submit();
-                }
-            }
+            form.action = "{{ route('career-guidance.bulk-approve-graduates') }}";
+            openGtsConfirmModal({
+                actionType: 'bulk-approve',
+                title: 'تأكيد الاعتماد الجماعي للطلبات',
+                targetName: `اعتماد عدد (${count}) طلب خريج`,
+                targetSubtext: 'الطلبات المحددة عبر مربعات الاختيار',
+                message: `هل أنت متأكد من رغبتك في اعتماد وتفعيل جميع حسابات الخريجين المحددة (${count} خريج) دفعة واحدة؟`,
+                confirmBtnText: `اعتماد (${count}) طلبات فوراً`,
+                confirmBtnIcon: 'fas fa-check-double',
+                loadingTitle: 'جاري الاعتماد الجماعي...',
+                loadingSubtext: 'يرجى الانتظار لحظات، يجري تفعيل الحسابات المحددة ومزامنة السجلات...',
+                onConfirm: () => form.submit()
+            });
         } else if (action === 'reject') {
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: 'تأكيد الرفض الجماعي',
-                    html: `هل أنت متأكد من رغبتك في رفض <strong>${count}</strong> طلب وحذفها نهائياً؟`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#ef4444',
-                    cancelButtonColor: '#6b7280',
-                    confirmButtonText: '<i class="fas fa-trash-alt me-1"></i> نعم، رفض وحذف',
-                    cancelButtonText: 'إلغاء',
-                    reverseButtons: true
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            title: 'جاري الحذف الجماعي...',
-                            text: 'يرجى الانتظار لحظات',
-                            allowOutsideClick: false,
-                            didOpen: () => Swal.showLoading()
-                        });
-                        form.action = "{{ route('career-guidance.bulk-reject-graduates') }}";
-                        form.submit();
-                    }
-                });
-            } else {
-                if (confirm(`هل أنت متأكد من رغبتك في رفض ${count} طلب وحذفها نهائياً؟`)) {
-                    form.action = "{{ route('career-guidance.bulk-reject-graduates') }}";
-                    form.submit();
-                }
-            }
+            form.action = "{{ route('career-guidance.bulk-reject-graduates') }}";
+            openGtsConfirmModal({
+                actionType: 'bulk-reject',
+                title: 'تأكيد الرفض والحذف الجماعي',
+                targetName: `رفض وحذف عدد (${count}) طلب خريج`,
+                targetSubtext: 'الطلبات المحددة عبر مربعات الاختيار',
+                message: `تحذير: سيتم حذف جميع طلبات الخريجين المحددة (${count} طلب) نهائياً من قاعدة البيانات ولا يمكن استرجاعها.`,
+                confirmBtnText: `رفض وحذف (${count}) طلبات`,
+                confirmBtnIcon: 'fas fa-trash-alt',
+                loadingTitle: 'جاري الحذف الجماعي...',
+                loadingSubtext: 'يرجى الانتظار لحظات، يجري حذف الطلبات وتنظيف السجلات...',
+                onConfirm: () => form.submit()
+            });
         }
     }
 
@@ -1028,33 +1187,18 @@
         const form = document.getElementById('approveAllForm');
         if (!form) return;
 
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                title: 'اعتماد جميع الطلبات',
-                html: `هل أنت متأكد من رغبتك في اعتماد جميع طلبات الخريجين المعلقة (${count}) وتفعيل حساباتهم دفعة واحدة؟`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#10b981',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: '<i class="fas fa-clipboard-check me-1"></i> نعم، اعتماد الكل',
-                cancelButtonText: 'إلغاء',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'جاري اعتماد جميع الحسابات...',
-                        text: 'يرجى الانتظار لحظات',
-                        allowOutsideClick: false,
-                        didOpen: () => Swal.showLoading()
-                    });
-                    form.submit();
-                }
-            });
-        } else {
-            if (confirm(`هل أنت متأكد من رغبتك في اعتماد جميع طلبات الخريجين المعلقة (${count}) دفعة واحدة؟`)) {
-                form.submit();
-            }
-        }
+        openGtsConfirmModal({
+            actionType: 'approve-all',
+            title: 'اعتماد جميع الطلبات المعلقة',
+            targetName: `جميع طلبات الخريجين المعلقة (${count})`,
+            targetSubtext: 'اعتماد شامل لجميع الطلبات دون استثناء',
+            message: `سيتم اعتماد وتفعيل كافة طلبات تسجيل الخريجين المعلقة (${count}) دفعة واحدة وتمكينهم من الدخول للمنظومة.`,
+            confirmBtnText: 'اعتماد جميع الطلبات فوراً',
+            confirmBtnIcon: 'fas fa-clipboard-check',
+            loadingTitle: 'جاري اعتماد جميع الحسابات...',
+            loadingSubtext: 'يرجى الانتظار لحظات، يجري مزامنة وتفعيل كافة الحسابات التدريبية...',
+            onConfirm: () => form.submit()
+        });
     }
 
     // تنفيذ الموافقة الفردية
@@ -1064,33 +1208,18 @@
         if (!form) return;
         form.action = `/career-guidance/pending-approvals/${userId}/approve`;
 
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                title: 'تأكيد اعتماد الحساب',
-                html: `هل أنت متأكد من رغبتك في الموافقة على حساب <strong>${userName}</strong> وتفعيله رسمياً؟`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#10b981',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: '<i class="fas fa-check me-1"></i> نعم، موافقة وتفعيل',
-                cancelButtonText: 'إلغاء',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'جاري تفعيل الحساب...',
-                        text: 'يرجى الانتظار لحظات جاري تحديث الحساب وتفعيل السجل',
-                        allowOutsideClick: false,
-                        didOpen: () => Swal.showLoading()
-                    });
-                    form.submit();
-                }
-            });
-        } else {
-            if (confirm(`هل أنت متأكد من رغبتك في الموافقة على حساب ${userName} وتفعيله؟`)) {
-                form.submit();
-            }
-        }
+        openGtsConfirmModal({
+            actionType: 'approve',
+            title: 'تأكيد اعتماد حساب الخريج',
+            targetName: userName,
+            targetSubtext: 'طلب تسجيل خريج جديد قيد المراجعة',
+            message: 'عند الاعتماد، سيتم تفعيل حساب الخريج فوراً وتمكينه من تسجيل الدخول والتقديم على البرامج التدريبية والمعارض الوظيفية.',
+            confirmBtnText: 'موافقة وتفعيل الحساب',
+            confirmBtnIcon: 'fas fa-check-circle',
+            loadingTitle: 'جاري تفعيل الحساب...',
+            loadingSubtext: 'يرجى الانتظار لحظات، يجري تفعيل السجل وإرسال إشعار الترحيب...',
+            onConfirm: () => form.submit()
+        });
     }
 
     // تنفيذ الرفض الفردي
@@ -1100,33 +1229,18 @@
         if (!form) return;
         form.action = `/career-guidance/pending-approvals/${userId}/reject`;
 
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                title: 'تأكيد رفض الطلب',
-                html: `هل أنت متأكد من رغبتك في رفض طلب <strong>${userName}</strong> وحذفه نهائياً؟`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: '<i class="fas fa-trash-alt me-1"></i> نعم، رفض وحذف',
-                cancelButtonText: 'إلغاء',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'جاري حذف الطلب...',
-                        text: 'يرجى الانتظار لحظات',
-                        allowOutsideClick: false,
-                        didOpen: () => Swal.showLoading()
-                    });
-                    form.submit();
-                }
-            });
-        } else {
-            if (confirm(`هل أنت متأكد من رغبتك في رفض طلب ${userName} وحذفه؟`)) {
-                form.submit();
-            }
-        }
+        openGtsConfirmModal({
+            actionType: 'reject',
+            title: 'تأكيد رفض طلب التسجيل',
+            targetName: userName,
+            targetSubtext: 'طلب تسجيل جديد سيتم حذفه من المنظومة',
+            message: 'تحذير: سيتم رفض هذا الطلب وحذف بياناته نهائياً من قاعدة البيانات ولا يمكن التراجع عن هذا الإجراء.',
+            confirmBtnText: 'نعم، رفض وحذف الطلب',
+            confirmBtnIcon: 'fas fa-trash-alt',
+            loadingTitle: 'جاري حذف الطلب...',
+            loadingSubtext: 'يرجى الانتظار لحظات، يجري حذف الطلب وتنظيف البيانات...',
+            onConfirm: () => form.submit()
+        });
     }
 
     // فتح نافذة التفاصيل

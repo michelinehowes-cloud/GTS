@@ -375,9 +375,6 @@ class TrainingController extends Controller
         }
 
         $application = TrainingApplication::with(['training.company', 'user'])->findOrFail($id);
-        if ($user->role === 'training_coordinator' && (!$application->training || $application->training->coordinator_id !== $user->id)) {
-            abort(403, 'غير مصرح لك بقبول طلبات لبرنامج تدريبي لا تشرف عليه.');
-        }
 
         $application->update(['status' => 'approved']);
 
@@ -425,17 +422,10 @@ class TrainingController extends Controller
 
         $ids = $request->application_ids;
 
-        $query = TrainingApplication::with(['user', 'training.company'])
+        $applications = TrainingApplication::with(['user', 'training.company'])
             ->whereIn('id', $ids)
-            ->where('status', 'pending');
-
-        if ($user->role === 'training_coordinator') {
-            $query->whereHas('training', function ($q) use ($user) {
-                $q->where('coordinator_id', $user->id);
-            });
-        }
-
-        $applications = $query->get();
+            ->where('status', 'pending')
+            ->get();
 
         foreach ($applications as $application) {
             $application->update(['status' => 'approved']);
@@ -480,16 +470,9 @@ class TrainingController extends Controller
 
         $ids = $request->application_ids;
 
-        $query = TrainingApplication::with(['user', 'training'])
-            ->whereIn('id', $ids);
-
-        if ($user->role === 'training_coordinator') {
-            $query->whereHas('training', function ($q) use ($user) {
-                $q->where('coordinator_id', $user->id);
-            });
-        }
-
-        $applications = $query->get();
+        $applications = TrainingApplication::with(['user', 'training'])
+            ->whereIn('id', $ids)
+            ->get();
 
         foreach ($applications as $application) {
             $application->update(['status' => 'rejected']);
@@ -525,15 +508,7 @@ class TrainingController extends Controller
 
         $ids = $request->application_ids;
 
-        $query = TrainingApplication::whereIn('id', $ids);
-
-        if ($user->role === 'training_coordinator') {
-            $query->whereHas('training', function ($q) use ($user) {
-                $q->where('coordinator_id', $user->id);
-            });
-        }
-
-        $deletedCount = $query->delete();
+        $deletedCount = TrainingApplication::whereIn('id', $ids)->delete();
 
         return redirect()->back()->with('success', 'تم إلغاء وحذف ' . $deletedCount . ' طلب(ات) بنجاح');
     }
@@ -546,9 +521,6 @@ class TrainingController extends Controller
         }
 
         $application = TrainingApplication::with(['training', 'user'])->findOrFail($id);
-        if ($user->role === 'training_coordinator' && (!$application->training || $application->training->coordinator_id !== $user->id)) {
-            abort(403, 'غير مصرح لك برفض طلبات لبرنامج تدريبي لا تشرف عليه.');
-        }
 
         $application->update(['status' => 'rejected']);
 
@@ -578,9 +550,6 @@ class TrainingController extends Controller
         }
 
         $application = TrainingApplication::with('training')->findOrFail($id);
-        if ($user->role === 'training_coordinator' && (!$application->training || $application->training->coordinator_id !== $user->id)) {
-            abort(403, 'غير مصرح لك بتعديل حالة طلبات لبرنامج تدريبي لا تشرف عليه.');
-        }
 
         $application->update(['status' => 'pending']);
 
@@ -595,9 +564,6 @@ class TrainingController extends Controller
         }
 
         $application = TrainingApplication::with('training')->findOrFail($id);
-        if ($user->role === 'training_coordinator' && (!$application->training || $application->training->coordinator_id !== $user->id)) {
-            abort(403, 'غير مصرح لك بحذف طلب تدريب لبرنامج لا تشرف عليه.');
-        }
 
         $application->delete();
 
@@ -1858,9 +1824,6 @@ class TrainingController extends Controller
             abort(403, 'غير مصرح لك بالبت في طلبات التدريب');
         }
 
-        if ($user->role === 'training_coordinator' && $training->coordinator_id !== $user->id) {
-            abort(403, 'غير مصرح لك بإدارة طلبات برنامج تدريبي تابع لمنسق آخر.');
-        }
 
         $request->validate([
             'application_ids' => 'required|array',

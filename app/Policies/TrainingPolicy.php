@@ -117,17 +117,10 @@ class TrainingPolicy
      */
     public function manageApplications(User $user, Training $training): bool
     {
-        // المدراء يديرون جميع الطلبات
-        if ($user->role === 'admin') {
-            return true;
-        }
-
-        // منسقي التدريب يديرون طلبات تدريباتهم
-        if ($user->role === 'training_coordinator') {
-            return $training->coordinator_id === $user->id;
-        }
-
-        return false;
+        // المدراء ومن لديهم صلاحية أو دور منسق التدريب يمكنهم إدارة طلبات التدريب
+        return $user->isAdmin() 
+            || $user->hasPermission('trainings.applications') 
+            || $user->role === 'training_coordinator';
     }
 
     /**

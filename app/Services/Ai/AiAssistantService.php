@@ -822,11 +822,6 @@ class AiAssistantService
             }
 
             $query = TrainingApplication::whereIn('id', $appIds);
-            if ($user->role === 'training_coordinator') {
-                $query->whereHas('training', function($q) use ($user) {
-                    $q->where('coordinator_id', $user->id);
-                });
-            }
 
             $updatedCount = $query->update(['status' => $targetStatus]);
 

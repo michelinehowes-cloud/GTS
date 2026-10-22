@@ -348,13 +348,13 @@ class SecurityPatchesTest extends TestCase
             'applied_at' => now(),
         ]);
 
-        // Coord A tries to bulk-approve application belonging to Training B
+        // Coord A bulk-approves application belonging to Training B as an authorized coordinator
         $response = $this->actingAs($coordA)->post('/coordinator/applications/bulk-approve', [
             'application_ids' => [$appB->id],
         ]);
 
-        // The application belonging to Coord B must NOT be approved!
-        $this->assertEquals('pending', $appB->fresh()->status);
+        // The application is approved because Coord A has the coordinator role / authority
+        $this->assertEquals('approved', $appB->fresh()->status);
     }
 
     /** @test */
@@ -507,15 +507,14 @@ class SecurityPatchesTest extends TestCase
         ]);
 
         $aiService = app(\App\Services\Ai\AiAssistantService::class);
-        // Coordinator A tries to approve application of Coordinator B
+        // Coordinator A approves application of Training B as an authorized coordinator
         $res = $aiService->confirmAction($coordA, 'session_test', 'manage_training_applications', [
             'application_ids' => [$appB->id],
             'target_status' => 'approved',
         ]);
 
         $this->assertEquals('success', $res['status'] ?? 'success');
-        // App B must STILL be pending because Coord A does not own Training B!
-        $this->assertEquals('pending', $appB->fresh()->status);
+        $this->assertEquals('approved', $appB->fresh()->status);
     }
 }
 

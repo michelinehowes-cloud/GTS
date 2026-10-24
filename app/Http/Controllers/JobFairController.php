@@ -257,8 +257,8 @@ class JobFairController extends Controller
         $companies = collect();
         $sponsors = collect();
         if ($fair) {
-            $companies = $fair->companies()->with('company')->get();
-            $sponsors = $fair->sponsors()->get();
+            $companies = $fair->companies()->with('company')->where('status', 'confirmed')->get();
+            $sponsors = $fair->sponsors()->where('is_active', true)->orderBy('display_order')->get();
         }
 
         return view('job-fair.program', compact(

@@ -1385,6 +1385,9 @@
 
         </div>
 
+        <!-- Official Unified Sponsors Strip -->
+        @include('job-fair.partials.footer-sponsors-strip', ['fair' => $fair, 'sponsors' => $sponsors ?? null, 'companies' => $companies ?? null])
+
         <!-- Official Footer -->
         <footer class="event-footer">
             <div class="container text-center">

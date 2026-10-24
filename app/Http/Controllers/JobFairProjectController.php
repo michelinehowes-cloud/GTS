@@ -144,8 +144,8 @@ class JobFairProjectController extends Controller
             $sponsors = collect();
             if ($fair && $fair->id) {
                 try {
-                    $companies = $fair->companies()->with('company')->get();
-                    $sponsors = $fair->sponsors()->get();
+                    $companies = $fair->companies()->with('company')->where('status', 'confirmed')->get();
+                    $sponsors = $fair->sponsors()->where('is_active', true)->orderBy('display_order')->get();
                 } catch (\Throwable $relErr) {}
             }
 
@@ -236,8 +236,16 @@ class JobFairProjectController extends Controller
             ->inRandomOrder()
             ->take(3)
             ->get();
+        $companies = collect();
+        $sponsors = collect();
+        if ($fair && $fair->id) {
+            try {
+                $companies = $fair->companies()->with('company')->where('status', 'confirmed')->get();
+                $sponsors = $fair->sponsors()->where('is_active', true)->orderBy('display_order')->get();
+            } catch (\Throwable $relErr) {}
+        }
 
-        return view('job-fair.projects.show', compact('project', 'fair', 'relatedProjects'));
+        return view('job-fair.projects.show', compact('project', 'fair', 'relatedProjects', 'companies', 'sponsors'));
     }
 
     /**

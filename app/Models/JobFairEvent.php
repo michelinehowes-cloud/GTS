@@ -156,4 +156,71 @@ class JobFairEvent extends Model
         }
         return array_values(array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $this->topics))));
     }
+
+    /**
+     * تحويل الوقت إلى صيغة عربية سهلة القراءة (12 ساعة مع ص/م)
+     */
+    public static function formatTimeArabic($time): ?string
+    {
+        if (!$time) {
+            return null;
+        }
+
+        try {
+            if ($time instanceof \Carbon\CarbonInterface) {
+                $carbon = $time;
+            } else {
+                $carbon = \Carbon\Carbon::parse($time);
+            }
+            $hour = $carbon->format('h:i');
+            $ampm = $carbon->format('A') === 'PM' ? 'م' : 'ص';
+            return "{$hour} {$ampm}";
+        } catch (\Throwable $e) {
+            return is_string($time) ? $time : null;
+        }
+    }
+
+    public function getFormattedStartTimeAttribute(): ?string
+    {
+        return static::formatTimeArabic($this->start_time);
+    }
+
+    public function getFormattedEndTimeAttribute(): ?string
+    {
+        return static::formatTimeArabic($this->end_time);
+    }
+
+    /**
+     * نص توقيت الفعالية (مثال: من 10:00 ص إلى 01:00 م)
+     */
+    public function getTimingTextAttribute(): ?string
+    {
+        $start = $this->formatted_start_time;
+        $end = $this->formatted_end_time;
+
+        if ($start && $end) {
+            return "من {$start} إلى {$end}";
+        } elseif ($start) {
+            return "يبدأ الساعة {$start}";
+        } elseif ($end) {
+            return "حتى {$end}";
+        }
+
+        return null;
+    }
+
+    /**
+     * نص التوقيت والجدول الزمني الكامل شاملاً التاريخ والساعة
+     */
+    public function getFullScheduleTextAttribute(): string
+    {
+        $dateText = $this->start_time ? $this->start_time->locale('ar')->isoFormat('dddd، D MMMM YYYY') : '';
+        $timing = $this->timing_text;
+
+        if ($dateText && $timing) {
+            return "{$dateText} ({$timing})";
+        }
+
+        return $dateText ?: ($timing ?: 'يحدد لاحقاً وفق جدول المعرض');
+    }
 }

@@ -1646,7 +1646,7 @@
                             </div>
                             <div class="event-meta-item">
                                 <i class="far fa-clock text-info"></i>
-                                <span>{{ $event->start_time->format('H:i') }} — {{ $event->end_time->format('H:i') }}</span>
+                                <span>{{ $event->timing_text ?: ($event->start_time->format('H:i') . ' — ' . $event->end_time->format('H:i')) }}</span>
                             </div>
                             <div class="event-meta-item">
                                 <i class="fas fa-map-marker-alt text-danger"></i>

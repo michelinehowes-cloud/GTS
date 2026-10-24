@@ -399,6 +399,11 @@
                                         <span class="text-muted font-monospace" style="font-size: 0.75rem;">
                                             إلى: {{ $t->end_date ? $t->end_date->format('Y-m-d') : '--' }}
                                         </span>
+                                        @if($t->timing_text)
+                                            <span class="text-primary-emphasis fw-bold" style="font-size: 0.73rem;">
+                                                <i class="far fa-clock text-warning me-1"></i>{{ $t->timing_text }}
+                                            </span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td>
@@ -470,6 +475,11 @@
                         <i class="fas fa-calendar-alt text-primary" style="width: 22px;"></i>
                         <span class="text-muted">الفترة الزمنية:</span>
                         <strong id="mEventDates" class="text-dark font-monospace"></strong>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="far fa-clock text-warning" style="width: 22px;"></i>
+                        <span class="text-muted">توقيت الجلسة:</span>
+                        <strong id="mEventTiming" class="text-dark"></strong>
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         <i class="fas fa-hourglass-half text-warning" style="width: 22px;"></i>
@@ -561,6 +571,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     props.location || 'غير محدد',
                     props.startDate || '',
                     props.endDate || '',
+                    props.timing || 'غير محدد',
                     props.duration || 'غير محدد',
                     props.instructor || 'غير محدد',
                     props.seats || '0',
@@ -587,10 +598,11 @@ function filterCalendarByLocation(loc) {
     }
 }
 
-function openCalendarModal(title, location, start, end, duration, instructor, seats, status, url, attendanceUrl) {
+function openCalendarModal(title, location, start, end, timing, duration, instructor, seats, status, url, attendanceUrl) {
     document.getElementById('mEventHeading').innerText = title;
     document.getElementById('mEventLocation').innerText = location || 'غير محدد';
     document.getElementById('mEventDates').innerText = (start || '') + (end ? ' إلى ' + end : '');
+    document.getElementById('mEventTiming').innerText = timing || 'غير محدد';
     document.getElementById('mEventDuration').innerText = duration || 'غير محدد';
     document.getElementById('mEventInstructor').innerText = instructor || 'غير محدد';
     document.getElementById('mEventSeats').innerText = (seats || '0') + ' مقعد';

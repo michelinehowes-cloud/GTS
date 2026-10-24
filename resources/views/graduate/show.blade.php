@@ -68,8 +68,26 @@
                                     </tr>
                                     <tr>
                                         <th>تاريخ الانتهاء</th>
-                                        <td>{{ $training->end_date->format('Y-m-d') }}</td>
+                                        <td>{{ $training->end_date ? $training->end_date->format('Y-m-d') : 'غير محدد' }}</td>
                                     </tr>
+                                    <tr>
+                                        <th>توقيت الجلسة</th>
+                                        <td>
+                                            @if($training->timing_text)
+                                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle px-2.5 py-1.5 fs-7">
+                                                    <i class="far fa-clock me-1"></i> {{ $training->timing_text }}
+                                                </span>
+                                            @else
+                                                <span class="text-muted">سيتم تحديده لاحقاً</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @if($training->training_days_text)
+                                    <tr>
+                                        <th>أيام التدريب</th>
+                                        <td><small class="text-dark fw-semibold"><i class="fas fa-calendar-week text-info me-1"></i>{{ $training->training_days_text }}</small></td>
+                                    </tr>
+                                    @endif
                                 </table>
                             </div>
                             <div class="col-md-6">

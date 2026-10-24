@@ -156,6 +156,9 @@
                                             @if($training->end_date)
                                                 <div class="mt-1"><i class="far fa-calendar-check me-1 text-danger"></i>{{ $training->end_date->format('Y-m-d') }}</div>
                                             @endif
+                                            @if($training->timing_text)
+                                                <div class="mt-1 text-primary-emphasis fw-semibold"><i class="far fa-clock me-1 text-warning"></i>{{ $training->timing_text }}</div>
+                                            @endif
                                         </td>
                                         <td class="text-center">
                                             @if($training->status == 'active')

@@ -187,7 +187,7 @@
                         </div>
 
                         <div class="row g-3 mb-4">
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-6 col-lg-3">
                                 <label for="start_date" class="form-label fw-semibold text-dark small mb-1">تاريخ البدء <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-modern rounded-3 overflow-hidden">
                                     <span class="input-group-text border-end-0"><i class="fas fa-calendar-alt text-primary"></i></span>
@@ -196,13 +196,31 @@
                                 @error('start_date') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
 
-                            <div class="col-12 col-md-4">
+                            <div class="col-12 col-md-6 col-lg-3">
                                 <label for="end_date" class="form-label fw-semibold text-dark small mb-1">تاريخ الانتهاء <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-modern rounded-3 overflow-hidden">
                                     <span class="input-group-text border-end-0"><i class="fas fa-calendar-check text-success"></i></span>
                                     <input type="date" class="form-control border-start-0 font-monospace @error('end_date') is-invalid @enderror" id="end_date" name="end_date" value="{{ old('end_date') }}" required>
                                 </div>
                                 @error('end_date') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <label for="start_time" class="form-label fw-semibold text-dark small mb-1">وقت البدء (التوقيت)</label>
+                                <div class="input-group input-group-modern rounded-3 overflow-hidden">
+                                    <span class="input-group-text border-end-0"><i class="far fa-clock text-primary"></i></span>
+                                    <input type="time" class="form-control border-start-0 font-monospace @error('start_time') is-invalid @enderror" id="start_time" name="start_time" value="{{ old('start_time', '10:00') }}">
+                                </div>
+                                @error('start_time') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <label for="end_time" class="form-label fw-semibold text-dark small mb-1">وقت الانتهاء (التوقيت)</label>
+                                <div class="input-group input-group-modern rounded-3 overflow-hidden">
+                                    <span class="input-group-text border-end-0"><i class="far fa-clock text-danger"></i></span>
+                                    <input type="time" class="form-control border-start-0 font-monospace @error('end_time') is-invalid @enderror" id="end_time" name="end_time" value="{{ old('end_time', '13:00') }}">
+                                </div>
+                                @error('end_time') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-12 col-md-4">

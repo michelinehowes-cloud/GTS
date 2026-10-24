@@ -112,34 +112,58 @@ class NotificationService
      */
     public function notifyNewTraining($training): void
     {
-        $title = 'تدريب جديد متاح';
-        $message = "تم إضافة تدريب جديد: {$training->title}";
+        $typeLabel = $training->type_arabic ?: 'برنامج تدريبي';
+        $title = "{$typeLabel} جديد متاح: {$training->title}";
+
+        $datesStr = ($training->start_date ? $training->start_date->format('Y-m-d') : 'قريباً')
+                  . ($training->end_date ? ' إلى ' . $training->end_date->format('Y-m-d') : '');
+
+        $message = "تم فتح باب التسجيل في {$typeLabel}: «{$training->title}».\n"
+                 . "📅 التاريخ: {$datesStr}\n"
+                 . ($training->timing_text ? "⏰ التوقيت: {$training->timing_text}\n" : "")
+                 . "📍 المقر: " . ($training->location ?? 'جامعة طرابلس');
+
         $type = 'info';
 
-        // إشعار للخريجين
-        $this->sendToRole('graduate', $title, $message, $type, [
+        $details = [
+            'البرنامج / الورشة' => $training->title,
+            'النوع' => $typeLabel,
+            'تاريخ الانعقاد' => $datesStr,
+        ];
+
+        if ($training->timing_text) {
+            $details['توقيت الجلسات'] = $training->timing_text;
+        }
+
+        if ($training->training_days_text) {
+            $details['أيام التدريب'] = $training->training_days_text;
+        }
+
+        $details['المكان'] = $training->location ?? 'جامعة طرابلس';
+        $details['المقاعد المتاحة'] = $training->seats;
+
+        $options = [
             'model_type' => get_class($training),
             'model_id' => $training->id,
+            'data' => [
+                'details' => $details,
+                'action_url' => route('graduate.trainings.show', $training->id),
+            ],
+        ];
+
+        // إشعار للخريجين
+        $this->sendToRole('graduate', $title, $message, $type, array_merge($options, [
             'send_email' => false,
-        ]);
+        ]));
 
         // إشعار لمسؤولي الإرشاد المهني
-        $this->sendToRole('career_guidance_officer', "تدريب جديد: {$training->title}", $message, $type, [
-            'model_type' => get_class($training),
-            'model_id' => $training->id,
-        ]);
+        $this->sendToRole('career_guidance_officer', $title, $message, $type, $options);
 
         // إشعار للتقييم والمتابعة
-        $this->sendToRole('evaluation_followup', "تدريب جديد: {$training->title}", $message, $type, [
-            'model_type' => get_class($training),
-            'model_id' => $training->id,
-        ]);
+        $this->sendToRole('evaluation_followup', $title, $message, $type, $options);
 
         // إشعار لمسؤول الميديا
-        $this->sendToRole('media_officer', "تدريب جديد: {$training->title}", $message, $type, [
-            'model_type' => get_class($training),
-            'model_id' => $training->id,
-        ]);
+        $this->sendToRole('media_officer', $title, $message, $type, $options);
     }
 
     /**
@@ -312,14 +336,49 @@ class NotificationService
      */
     public function notifyTrainingApplicationApproved($application): void
     {
-        $title = 'تمت الموافقة على طلب التدريب';
-        $message = "تمت الموافقة على طلبك للتدريب: {$application->training->title}";
+        $training = $application->training;
+        $typeLabel = $training->type_arabic ?: 'البرنامج التدريبي';
+        $title = "تمت الموافقة والقبول في {$typeLabel} 🎓";
+
+        $datesStr = ($training->start_date ? $training->start_date->format('Y-m-d') : 'قريباً')
+                  . ($training->end_date ? ' إلى ' . $training->end_date->format('Y-m-d') : '');
+
+        $message = "تهانينا! تمت الموافقة على طلب انضمامك إلى {$typeLabel}: «{$training->title}».\n"
+                 . "📅 الموعد: {$datesStr}\n"
+                 . ($training->timing_text ? "⏰ التوقيت: {$training->timing_text}\n" : "")
+                 . ($training->training_days_text ? "🗓️ الأيام: {$training->training_days_text}\n" : "")
+                 . "📍 المقر: " . ($training->location ?? 'جامعة طرابلس');
+
         $type = 'success';
+
+        $details = [
+            'البرنامج / الورشة' => $training->title,
+            'النوع' => $typeLabel,
+            'تاريخ الانعقاد' => $datesStr,
+        ];
+
+        if ($training->timing_text) {
+            $details['توقيت الجلسات'] = $training->timing_text;
+        }
+
+        if ($training->training_days_text) {
+            $details['أيام التدريب'] = $training->training_days_text;
+        }
+
+        $details['المقر / القاعة'] = $training->location ?? 'جامعة طرابلس';
+
+        if ($training->instructor_name || ($training->trainer && $training->trainer->name)) {
+            $details['المدرب / المحاضر'] = $training->instructor_name ?: $training->trainer->name;
+        }
 
         $this->sendToUser($application->user, $title, $message, $type, [
             'model_type' => get_class($application),
             'model_id' => $application->id,
             'send_email' => true,
+            'data' => [
+                'details' => $details,
+                'action_url' => route('graduate.trainings.show', $training->id),
+            ],
         ]);
     }
 
@@ -328,14 +387,82 @@ class NotificationService
      */
     public function notifyTrainingApplicationRejected($application): void
     {
-        $title = 'تم رفض طلب التدريب';
-        $message = "تم رفض طلبك للتدريب: {$application->training->title}";
+        $training = $application->training;
+        $typeLabel = $training->type_arabic ?: 'البرنامج التدريبي';
+        $title = "تحديث بخصوص طلب {$typeLabel}";
+        $message = "نأسف لإبلاغك بأنه لم يتم قبول طلبك في {$typeLabel}: «{$training->title}» نظراً لاكتمال المقاعد المتاحة.";
         $type = 'warning';
+
+        $details = [
+            'البرنامج / الورشة' => $training->title,
+            'النوع' => $typeLabel,
+            'تاريخ التدريب' => ($training->start_date ? $training->start_date->format('Y-m-d') : '—') . ($training->end_date ? ' إلى ' . $training->end_date->format('Y-m-d') : ''),
+        ];
+
+        if ($training->timing_text) {
+            $details['التوقيت'] = $training->timing_text;
+        }
 
         $this->sendToUser($application->user, $title, $message, $type, [
             'model_type' => get_class($application),
             'model_id' => $application->id,
             'send_email' => true,
+            'data' => [
+                'details' => $details,
+                'action_url' => route('graduate.trainings.index'),
+            ],
+        ]);
+    }
+
+    /**
+     * إرسال إشعار وتأكيد بالبريد الإلكتروني عند التسجيل في ورشة عمل أو فعالية علمية
+     */
+    public function notifyJobFairEventRegistration(User $user, \App\Models\JobFairEvent $event): void
+    {
+        $typeLabel = $event->type_label;
+        $title = "تأكيد التسجيل في {$event->type_short_label}: {$event->title}";
+
+        $ampmStart = ($event->start_time && $event->start_time->format('A') === 'AM') ? 'ص' : 'م';
+        $ampmEnd = ($event->end_time && $event->end_time->format('A') === 'AM') ? 'ص' : 'م';
+
+        $timeDisplay = '';
+        if ($event->start_time && $event->end_time) {
+            $timeDisplay = "من " . $event->start_time->format('h:i') . " {$ampmStart} إلى " . $event->end_time->format('h:i') . " {$ampmEnd}";
+        } elseif ($event->start_time) {
+            $timeDisplay = "الساعة " . $event->start_time->format('h:i') . " {$ampmStart}";
+        }
+
+        $dateDisplay = $event->start_time ? $event->start_time->format('Y-m-d') : ($event->jobFair ? $event->jobFair->event_date->format('Y-m-d') : 'قريباً');
+
+        $message = "تم تأكيد تسجيلك بنجاح في {$typeLabel}: «{$event->title}».\n"
+                 . "📅 التاريخ: {$dateDisplay}\n"
+                 . ($timeDisplay ? "⏰ التوقيت: {$timeDisplay}\n" : "")
+                 . "📍 القاعة / المكان: " . ($event->location ?: 'المدرج الرئيسي - جامعة طرابلس');
+
+        $details = [
+            'الفعالية / الورشة' => $event->title,
+            'النوع' => $typeLabel,
+            'التاريخ' => $dateDisplay,
+        ];
+
+        if ($timeDisplay) {
+            $details['التوقيت'] = $timeDisplay;
+        }
+
+        $details['المكان'] = $event->location ?: 'جامعة طرابلس';
+
+        if ($event->speaker_name) {
+            $details['المحاضر / المدرب'] = $event->speaker_name . ($event->speaker_title ? " ({$event->speaker_title})" : "");
+        }
+
+        $this->sendToUser($user, $title, $message, 'success', [
+            'model_type' => get_class($event),
+            'model_id' => $event->id,
+            'send_email' => true,
+            'data' => [
+                'details' => $details,
+                'action_url' => route('job-fair.public.events.show', $event->id),
+            ],
         ]);
     }
 

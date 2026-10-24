@@ -72,6 +72,8 @@ class TrainingController extends Controller
             'duration' => 'required|string|max:100',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'start_time' => 'nullable|date_format:H:i',
+            'end_time' => 'nullable|date_format:H:i',
             'location' => 'required|string|max:255',
             'seats' => 'required|integer|min:1',
             'status' => 'required|in:active,inactive,completed',
@@ -93,6 +95,7 @@ class TrainingController extends Controller
         // حماية الإسناد الجماعي الصارمة (Strict Whitelisting)
         $data = $request->only([
             'title', 'description', 'type', 'duration', 'start_date', 'end_date',
+            'start_time', 'end_time',
             'location', 'seats', 'status', 'company_id', 'trainer_id', 'category', 'instructor_name'
         ]);
 
@@ -202,6 +205,8 @@ class TrainingController extends Controller
             'duration' => 'required|string|max:100',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'start_time' => 'nullable|date_format:H:i',
+            'end_time' => 'nullable|date_format:H:i',
             'location' => 'required|string|max:255',
             'seats' => 'required|integer|min:1',
             'status' => 'required|in:active,inactive,completed',
@@ -223,6 +228,7 @@ class TrainingController extends Controller
         // حماية الإسناد الجماعي الصارمة (Strict Whitelisting)
         $data = $request->only([
             'title', 'description', 'type', 'duration', 'start_date', 'end_date',
+            'start_time', 'end_time',
             'location', 'seats', 'status', 'company_id', 'trainer_id', 'category', 'instructor_name'
         ]);
         if ($user->isAdmin() && $request->filled('coordinator_id')) {
@@ -735,6 +741,7 @@ class TrainingController extends Controller
                     'duration'      => $t->duration ?? '—',
                     'startDate'     => $t->start_date ? $t->start_date->format('Y-m-d') : '—',
                     'endDate'       => $t->end_date ? $t->end_date->format('Y-m-d') : '—',
+                    'timing'        => $t->timing_text ?: 'غير محدد',
                     'showUrl'       => route('training-coordinator.trainings.show', $t->id),
                     'attendanceUrl' => route('training-coordinator.trainings.attendance', $t->id),
                 ];

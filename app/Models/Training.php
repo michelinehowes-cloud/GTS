@@ -292,19 +292,27 @@ class Training extends Model
     /**
      * تحويل الوقت إلى صيغة عربية واضحة ومقروءة (مثال: 10:00 ص أو 01:30 م)
      */
-    public function formatTimeArabic(?string $time): ?string
+    public function formatTimeArabic($time): ?string
     {
-        if (!$time) {
+        if (empty($time)) {
             return null;
         }
 
         try {
-            $carbon = \Carbon\Carbon::createFromFormat('H:i:s', strlen($time) === 5 ? $time . ':00' : $time);
+            if ($time instanceof \Carbon\CarbonInterface || $time instanceof \DateTimeInterface) {
+                $carbon = $time;
+            } else {
+                $timeStr = trim((string) $time);
+                if (strlen($timeStr) === 5) {
+                    $timeStr .= ':00';
+                }
+                $carbon = \Carbon\Carbon::parse($timeStr);
+            }
             $hour = $carbon->format('h:i');
-            $ampm = $carbon->format('A') === 'AM' ? 'ص' : 'م';
+            $ampm = $carbon->format('A') === 'PM' ? 'م' : 'ص';
             return "{$hour} {$ampm}";
         } catch (\Throwable $e) {
-            return substr($time, 0, 5);
+            return is_string($time) ? substr($time, 0, 5) : null;
         }
     }
 
@@ -316,6 +324,22 @@ class Training extends Model
     public function getFormattedEndTimeAttribute(): ?string
     {
         return $this->formatTimeArabic($this->end_time);
+    }
+
+    public function getStartTimeInputAttribute(): string
+    {
+        if (!$this->start_time) {
+            return '';
+        }
+        return substr((string) $this->start_time, 0, 5);
+    }
+
+    public function getEndTimeInputAttribute(): string
+    {
+        if (!$this->end_time) {
+            return '';
+        }
+        return substr((string) $this->end_time, 0, 5);
     }
 
     /**

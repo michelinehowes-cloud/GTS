@@ -24,6 +24,26 @@ class TrainingController extends Controller
     public function __construct(NotificationService $notificationService)
     {
         $this->notificationService = $notificationService;
+        $this->ensureTimingColumnsExist();
+    }
+
+    /**
+     * التحقق التلقائي من وجود أعمدة توقيت التدريب وترحيلها تلقائياً على خوادم الإنتاج
+     */
+    protected function ensureTimingColumnsExist(): void
+    {
+        try {
+            if (!\Illuminate\Support\Facades\Schema::hasTable('trainings')) {
+                return;
+            }
+
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('trainings', 'start_time') ||
+                !\Illuminate\Support\Facades\Schema::hasColumn('trainings', 'end_time')) {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Auto-migration for trainings timing columns: ' . $e->getMessage());
+        }
     }
 
     // ========== 🎯 الدوال الأساسية ==========
@@ -113,7 +133,21 @@ class TrainingController extends Controller
             $data['training_days_of_week'] = [0, 1, 2, 3, 4];
         }
 
-        $training = Training::create($data);
+        try {
+            $training = Training::create($data);
+        } catch (\Illuminate\Database\QueryException $e) {
+            if (str_contains($e->getMessage(), 'start_time') || str_contains($e->getMessage(), 'end_time') || str_contains($e->getMessage(), 'Unknown column')) {
+                try {
+                    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                    $training = Training::create($data);
+                } catch (\Throwable $retryErr) {
+                    unset($data['start_time'], $data['end_time']);
+                    $training = Training::create($data);
+                }
+            } else {
+                throw $e;
+            }
+        }
 
         // تسجيل في سجل الرقابة
         AuditLog::logAction(
@@ -142,6 +176,7 @@ class TrainingController extends Controller
 
     public function show($id)
     {
+        $this->ensureTimingColumnsExist();
         $user = auth()->user();
         if (!$user->isAdmin() && !$user->hasPermission('trainings.view') && $user->role !== 'training_coordinator') {
             abort(403, 'غير مصرح لك بعرض تفاصيل التدريب');
@@ -172,6 +207,7 @@ class TrainingController extends Controller
 
     public function edit($id)
     {
+        $this->ensureTimingColumnsExist();
         $user = auth()->user();
         if (!$user->isAdmin() && !$user->hasPermission('trainings.edit') && $user->role !== 'training_coordinator') {
             abort(403, 'غير مصرح لك بتعديل هذا البرنامج التدريبي');
@@ -243,7 +279,21 @@ class TrainingController extends Controller
             $data['training_days_of_week'] = [0, 1, 2, 3, 4];
         }
 
-        $training->update($data);
+        try {
+            $training->update($data);
+        } catch (\Illuminate\Database\QueryException $e) {
+            if (str_contains($e->getMessage(), 'start_time') || str_contains($e->getMessage(), 'end_time') || str_contains($e->getMessage(), 'Unknown column')) {
+                try {
+                    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                    $training->update($data);
+                } catch (\Throwable $retryErr) {
+                    unset($data['start_time'], $data['end_time']);
+                    $training->update($data);
+                }
+            } else {
+                throw $e;
+            }
+        }
 
         // ======================================================
         // مزامنة الشهادات الصادرة مع بيانات التدريب المحدثة

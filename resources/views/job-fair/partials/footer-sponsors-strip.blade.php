@@ -7,10 +7,17 @@
 
     $tickerList = collect();
 
-    // 1. إضافة الرعاة الرسميين المضافين للمعرض في لوحة التحكم
-    $activeSponsors = (isset($sponsors) && $sponsors instanceof \Illuminate\Support\Collection && $sponsors->isNotEmpty())
-        ? $sponsors
-        : (isset($fair) && $fair ? $fair->sponsors()->where('is_active', true)->orderBy('display_order')->get() : collect());
+    // 1. إضافة الرعاة الرسميين المضافين للمعرض في لوحة التحكم (المفعلين فقط)
+    $activeSponsors = collect();
+    try {
+        if (isset($sponsors) && $sponsors instanceof \Illuminate\Support\Collection) {
+            $activeSponsors = $sponsors->filter(function($sp) {
+                return !isset($sp->is_active) || (bool)$sp->is_active;
+            });
+        } elseif (isset($fair) && $fair && method_exists($fair, 'sponsors')) {
+            $activeSponsors = $fair->sponsors()->where('is_active', true)->orderBy('display_order')->get();
+        }
+    } catch (\Throwable $e) {}
 
     foreach ($activeSponsors as $sp) {
         $tickerList->push((object)[
@@ -22,10 +29,17 @@
         ]);
     }
 
-    // 2. إضافة الشركات المشاركة المؤكدة في المعرض من لوحة التحكم
-    $activeCompanies = (isset($companies) && $companies instanceof \Illuminate\Support\Collection && $companies->isNotEmpty())
-        ? $companies
-        : (isset($fair) && $fair ? $fair->companies()->with('company')->where('status', 'confirmed')->get() : collect());
+    // 2. إضافة الشركات المشاركة المؤكدة في المعرض من لوحة التحكم (المؤكدة فقط)
+    $activeCompanies = collect();
+    try {
+        if (isset($companies) && $companies instanceof \Illuminate\Support\Collection) {
+            $activeCompanies = $companies->filter(function($fc) {
+                return !isset($fc->status) || $fc->status === 'confirmed';
+            });
+        } elseif (isset($fair) && $fair && method_exists($fair, 'companies')) {
+            $activeCompanies = $fair->companies()->with('company')->where('status', 'confirmed')->get();
+        }
+    } catch (\Throwable $e) {}
 
     foreach ($activeCompanies as $fc) {
         $comp = $fc->company ?? null;

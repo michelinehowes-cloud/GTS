@@ -841,6 +841,9 @@
 
     </main>
 
+    <!-- Official Unified Sponsors Strip -->
+    @include('job-fair.partials.footer-sponsors-strip', ['fair' => $fair ?? null])
+
     <!-- University Approved Footer -->
     <footer class="university-footer">
         <div class="container">

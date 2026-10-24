@@ -362,6 +362,25 @@ class Training extends Model
     }
 
     /**
+     * نص توقيت مختصر ومناسب للبطاقات وتقويم الفعاليات (مثال: 10:00 ص - 01:00 م)
+     */
+    public function getCompactTimingTextAttribute(): ?string
+    {
+        $start = $this->formatted_start_time;
+        $end = $this->formatted_end_time;
+
+        if ($start && $end) {
+            return "{$start} - {$end}";
+        } elseif ($start) {
+            return "{$start}";
+        } elseif ($end) {
+            return "حتى {$end}";
+        }
+
+        return null;
+    }
+
+    /**
      * نص التوقيت الكامل شاملاً التواريخ والساعات
      */
     public function getFullScheduleTextAttribute(): string

@@ -89,18 +89,22 @@ class GraduateController extends Controller
             $hasSpecificDays = is_array($allowedDays) && count($allowedDays) > 0 && count($allowedDays) < 7;
 
             $extendedProps = [
-                'type'         => $t->type,
-                'location'     => $t->location ?? 'جامعة طرابلس',
-                'rawTitle'     => $t->title,
-                'instructor'   => $t->instructor_name ?? ($t->trainer->name ?? 'غير محدد'),
-                'seats'        => $t->seats ?? '—',
-                'status'       => $t->status,
-                'duration'     => $t->duration ?? '—',
-                'startDate'    => $startDate->format('Y-m-d'),
-                'endDate'      => $endDate ? $endDate->format('Y-m-d') : '—',
-                'showUrl'      => route('graduate.trainings.show', $t->id),
-                'isMyTraining' => $isMy,
-                'myAppStatus'  => $appStatus,
+                'type'          => $t->type,
+                'location'      => $t->location ?? 'جامعة طرابلس',
+                'rawTitle'      => $t->title,
+                'instructor'    => $t->instructor_name ?? ($t->trainer->name ?? 'غير محدد'),
+                'seats'         => $t->seats ?? '—',
+                'status'        => $t->status,
+                'duration'      => $t->duration ?? '—',
+                'startDate'     => $startDate->format('Y-m-d'),
+                'endDate'       => $endDate ? $endDate->format('Y-m-d') : '—',
+                'timing'        => $t->timing_text ?: 'غير محدد',
+                'compactTiming' => $t->compact_timing_text ?: ($t->timing_text ?: ''),
+                'startTime'     => $t->formatted_start_time,
+                'endTime'       => $t->formatted_end_time,
+                'showUrl'       => route('graduate.trainings.show', $t->id),
+                'isMyTraining'  => $isMy,
+                'myAppStatus'   => $appStatus,
             ];
 
             $myBadge = $isMy ? '⭐ ' : '';

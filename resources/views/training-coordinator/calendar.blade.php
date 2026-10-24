@@ -463,6 +463,12 @@
                 <button type="button" class="btn-close btn-close-white" onclick="closeCalendarModal()" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
+                <div id="mEventTimingPill" class="mb-3 d-none">
+                    <span class="badge rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5" style="background: rgba(245, 158, 11, 0.15); color: #b45309; font-size: 0.8rem; border: 1px solid rgba(245, 158, 11, 0.3);">
+                        <i class="far fa-clock text-warning"></i>
+                        <span id="mEventTimingPillText"></span>
+                    </span>
+                </div>
                 <h5 id="mEventHeading" class="fw-bold text-dark mb-3"></h5>
 
                 <div class="p-3 bg-light rounded-3 mb-3 border d-flex flex-column gap-2.5 small">
@@ -479,7 +485,7 @@
                     <div class="d-flex align-items-center gap-2">
                         <i class="far fa-clock text-warning" style="width: 22px;"></i>
                         <span class="text-muted">توقيت الجلسة:</span>
-                        <strong id="mEventTiming" class="text-dark"></strong>
+                        <strong id="mEventTiming" class="text-dark font-monospace"></strong>
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         <i class="fas fa-hourglass-half text-warning" style="width: 22px;"></i>
@@ -549,16 +555,30 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             events: allCalendarEvents,
             eventContent: function(arg) {
-                let type = (arg.event.extendedProps && arg.event.extendedProps.type) ? arg.event.extendedProps.type : 'course';
+                const props = arg.event.extendedProps || {};
+                let type = props.type || 'course';
                 let iconClass = 'fa-graduation-cap';
                 if (type === 'workshop') iconClass = 'fa-tools';
                 else if (type === 'internship') iconClass = 'fa-laptop-code';
                 else if (type === 'seminar') iconClass = 'fa-bullhorn';
 
+                let timing = props.compactTiming || props.timing || '';
+                if (timing === 'غير محدد') timing = '';
+
+                let timingHtml = timing ? `
+                    <div class="d-flex align-items-center gap-1 text-truncate mt-0.5" style="font-size: 0.65rem; opacity: 0.95; padding-right: 2px;">
+                        <i class="far fa-clock" style="font-size: 0.6rem; flex-shrink: 0;"></i>
+                        <span class="font-monospace text-truncate">${timing}</span>
+                    </div>
+                ` : '';
+
                 let customHtml = `
-                    <div class="d-flex align-items-center gap-1.5 overflow-hidden w-100 text-white" style="line-height: 1.25;">
-                        <i class="fas ${iconClass} me-1" style="font-size: 0.68rem; opacity: 0.9; flex-shrink: 0;"></i>
-                        <span class="text-truncate fw-bold" style="font-size: 0.74rem;">${arg.event.title}</span>
+                    <div class="d-flex flex-column overflow-hidden w-100 text-white" style="line-height: 1.2; padding: 1px 0;">
+                        <div class="d-flex align-items-center gap-1 overflow-hidden w-100">
+                            <i class="fas ${iconClass} me-1" style="font-size: 0.68rem; opacity: 0.9; flex-shrink: 0;"></i>
+                            <span class="text-truncate fw-bold" style="font-size: 0.74rem;">${arg.event.title}</span>
+                        </div>
+                        ${timingHtml}
                     </div>
                 `;
                 return { html: customHtml };
@@ -606,6 +626,17 @@ function openCalendarModal(title, location, start, end, timing, duration, instru
     document.getElementById('mEventDuration').innerText = duration || 'غير محدد';
     document.getElementById('mEventInstructor').innerText = instructor || 'غير محدد';
     document.getElementById('mEventSeats').innerText = (seats || '0') + ' مقعد';
+    
+    const timingPill = document.getElementById('mEventTimingPill');
+    const timingPillText = document.getElementById('mEventTimingPillText');
+    if (timingPill && timingPillText) {
+        if (timing && timing !== 'غير محدد') {
+            timingPillText.innerText = timing;
+            timingPill.classList.remove('d-none');
+        } else {
+            timingPill.classList.add('d-none');
+        }
+    }
     
     document.getElementById('mEventUrl').href = url || '#';
     const attendanceBtn = document.getElementById('mEventAttendance');

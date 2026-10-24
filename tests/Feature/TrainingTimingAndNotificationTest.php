@@ -200,4 +200,59 @@ class TrainingTimingAndNotificationTest extends TestCase
         $this->assertEquals('من 10:00 ص إلى 01:00 م', $notification->data['details']['توقيت الجلسات']);
         $this->assertEquals('2026-10-28', $notification->data['details']['تاريخ الانعقاد']);
     }
+
+    /**
+     * اختبار إدراج التوقيت في أحداث وبطاقات تقويم التدريب للمنسق ومسؤول المتابعة والتقييم
+     */
+    public function test_calendar_endpoints_include_timing_in_calendar_events_payload()
+    {
+        $coordinator = User::factory()->create([
+            'role' => 'training_coordinator',
+            'is_active' => true,
+            'is_approved' => true,
+        ]);
+
+        $evalFollowup = User::factory()->create([
+            'role' => 'evaluation_followup',
+            'is_active' => true,
+            'is_approved' => true,
+        ]);
+
+        $training = Training::create([
+            'title' => 'دورة التحليل المالي والمحاسبي',
+            'type' => 'course',
+            'category' => 'business',
+            'description' => 'دورة تدريبية متقدمة في التحليل المالي والمحاسبي وقراءة القوائم المالية.',
+            'duration' => '3 أسابيع',
+            'location' => 'القاعة 4 - مدرج رفيق بدري',
+            'start_date' => '2026-11-15',
+            'end_date' => '2026-12-05',
+            'start_time' => '10:00',
+            'end_time' => '13:00',
+            'coordinator_id' => $coordinator->id,
+            'status' => 'active',
+            'seats' => 25,
+        ]);
+
+        // تقويم منسق التدريب
+        $resCoord = $this->actingAs($coordinator)->get('/coordinator/calendar');
+        $resCoord->assertOk();
+        $calTrainingsCoord = $resCoord->viewData('calendarTrainings');
+        $this->assertNotEmpty($calTrainingsCoord);
+        $foundCoord = collect($calTrainingsCoord)->first(fn($e) => ($e['extendedProps']['rawTitle'] ?? '') === 'دورة التحليل المالي والمحاسبي');
+        $this->assertNotNull($foundCoord);
+        $this->assertEquals('من 10:00 ص إلى 01:00 م', $foundCoord['extendedProps']['timing']);
+        $this->assertEquals('10:00 ص - 01:00 م', $foundCoord['extendedProps']['compactTiming']);
+
+        // تقويم مسؤول التقييم والمتابعة
+        $resEval = $this->actingAs($evalFollowup)->get('/evaluation-followup/training-calendar');
+        $resEval->assertOk();
+        $calTrainingsEval = $resEval->viewData('calendarTrainings');
+        $this->assertNotEmpty($calTrainingsEval);
+        $foundEval = collect($calTrainingsEval)->first(fn($e) => ($e['extendedProps']['rawTitle'] ?? '') === 'دورة التحليل المالي والمحاسبي');
+        $this->assertNotNull($foundEval);
+        $this->assertEquals('من 10:00 ص إلى 01:00 م', $foundEval['extendedProps']['timing']);
+        $this->assertEquals('10:00 ص - 01:00 م', $foundEval['extendedProps']['compactTiming']);
+    }
 }
+

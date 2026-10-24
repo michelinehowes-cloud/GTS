@@ -436,27 +436,10 @@ class TrainingController extends Controller
 
         // Send notification to the graduate with email and details
         try {
-            $this->notificationService->sendToUser(
-                $application->user,
-                'تم قبول طلب التدريب',
-                "تم قبول طلبك للتسجيل في برنامج التدريب: {$application->training->title}. يمكنك الآن البدء في التدريب.",
-                'success',
-                [
-                    'model_type' => 'App\Models\TrainingApplication',
-                    'model_id' => $application->id,
-                    'send_email' => true,
-                    'data' => [
-                        'details' => [
-                            'البرنامج التدريبي' => $application->training->title,
-                            'الشركة المقدمة' => $application->training->company->name ?? 'غير محدد',
-                            'الموقع' => $application->training->location,
-                            'تاريخ البدء' => $application->training->start_date,
-                            'المدة' => $application->training->duration,
-                        ]
-                    ]
-                ]
-            );
-        } catch (\Exception $e) {}
+            $this->notificationService->notifyTrainingApplicationApproved($application);
+        } catch (\Exception $e) {
+            \Log::error('Failed to notify approved application: ' . $e->getMessage());
+        }
 
         return redirect()->back()->with('success', 'تم الموافقة على طلب التدريب بنجاح');
     }
@@ -486,26 +469,7 @@ class TrainingController extends Controller
         foreach ($applications as $application) {
             $application->update(['status' => 'approved']);
             try {
-                $this->notificationService->sendToUser(
-                    $application->user,
-                    'تم قبول طلب التدريب',
-                    "تم قبول طلبك للتسجيل في برنامج التدريب: {$application->training->title}.",
-                    'success',
-                    [
-                        'model_type' => 'App\Models\TrainingApplication',
-                        'model_id'   => $application->id,
-                        'send_email' => true,
-                        'data' => [
-                            'details' => [
-                                'البرنامج التدريبي' => $application->training->title,
-                                'الشركة المقدمة'    => $application->training->company->name ?? 'غير محدد',
-                                'الموقع'           => $application->training->location,
-                                'تاريخ البدء'      => $application->training->start_date,
-                                'المدة'            => $application->training->duration,
-                            ]
-                        ]
-                    ]
-                );
+                $this->notificationService->notifyTrainingApplicationApproved($application);
             } catch (\Exception $e) {}
         }
 
@@ -533,17 +497,7 @@ class TrainingController extends Controller
         foreach ($applications as $application) {
             $application->update(['status' => 'rejected']);
             try {
-                $this->notificationService->sendToUser(
-                    $application->user,
-                    'تم رفض طلب التدريب',
-                    "نأسف لإبلاغك بأنه تم رفض طلبك للتسجيل في برنامج التدريب: {$application->training->title}.",
-                    'warning',
-                    [
-                        'model_type' => 'App\Models\TrainingApplication',
-                        'model_id'   => $application->id,
-                        'send_email' => true
-                    ]
-                );
+                $this->notificationService->notifyTrainingApplicationRejected($application);
             } catch (\Exception $e) {}
         }
 
@@ -582,17 +536,7 @@ class TrainingController extends Controller
 
         // Send notification to the graduate with email
         try {
-            $this->notificationService->sendToUser(
-                $application->user,
-                'تم رفض طلب التدريب',
-                "نأسف لإبلاغك بأنه تم رفض طلبك للتسجيل في برنامج التدريب: {$application->training->title}. يمكنك التقديم على برامج تدريب أخرى.",
-                'warning',
-                [
-                    'model_type' => 'App\Models\TrainingApplication',
-                    'model_id' => $application->id,
-                    'send_email' => true
-                ]
-            );
+            $this->notificationService->notifyTrainingApplicationRejected($application);
         } catch (\Exception $e) {}
 
         return redirect()->back()->with('success', 'تم رفض طلب التدريب بنجاح');
@@ -1894,17 +1838,11 @@ class TrainingController extends Controller
             ->where('training_id', $training->id)
             ->update(['status' => 'approved']);
 
-        // Send notifications (Optional, if notification logic supports bulk or you can loop)
-        $applications = TrainingApplication::whereIn('id', $ids)->get();
+        // Send notifications
+        $applications = TrainingApplication::with(['training', 'user'])->whereIn('id', $ids)->get();
         foreach($applications as $app) {
             try {
-                $this->notificationService->sendToUser(
-                    $app->user,
-                    'تم قبول طلب التدريب',
-                    "تم قبول طلبك للالتحاق ببرنامج: {$training->title}",
-                    'application_approved',
-                    ['training_id' => $training->id]
-                );
+                $this->notificationService->notifyTrainingApplicationApproved($app);
             } catch (\Exception $e) {}
         }
 

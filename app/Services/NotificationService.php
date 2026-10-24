@@ -338,28 +338,36 @@ class NotificationService
     {
         $training = $application->training;
         $typeLabel = $training->type_arabic ?: 'البرنامج التدريبي';
-        $title = "تمت الموافقة والقبول في {$typeLabel} 🎓";
+        $title = "تم قبول طلب التدريب 🎓";
 
-        $datesStr = ($training->start_date ? $training->start_date->format('Y-m-d') : 'قريباً')
-                  . ($training->end_date ? ' إلى ' . $training->end_date->format('Y-m-d') : '');
+        $startDateStr = $training->start_date ? $training->start_date->format('Y-m-d') : null;
+        $endDateStr = $training->end_date ? $training->end_date->format('Y-m-d') : null;
 
-        $message = "تهانينا! تمت الموافقة على طلب انضمامك إلى {$typeLabel}: «{$training->title}».\n"
+        $datesStr = '';
+        if ($startDateStr && $endDateStr) {
+            $datesStr = ($startDateStr === $endDateStr) ? $startDateStr : "من {$startDateStr} إلى {$endDateStr}";
+        } elseif ($startDateStr) {
+            $datesStr = "يبدأ في {$startDateStr}";
+        } else {
+            $datesStr = 'يحدد لاحقاً';
+        }
+
+        $timingStr = $training->timing_text ?: 'يحدد لاحقاً مع إدارة التدريب';
+
+        $message = "تهانينا! تم قبول طلبك للتسجيل في {$typeLabel}: «{$training->title}».\n"
                  . "📅 الموعد: {$datesStr}\n"
-                 . ($training->timing_text ? "⏰ التوقيت: {$training->timing_text}\n" : "")
+                 . "⏰ التوقيت: {$timingStr}\n"
                  . ($training->training_days_text ? "🗓️ الأيام: {$training->training_days_text}\n" : "")
                  . "📍 المقر: " . ($training->location ?? 'جامعة طرابلس');
 
         $type = 'success';
 
         $details = [
-            'البرنامج / الورشة' => $training->title,
-            'النوع' => $typeLabel,
-            'تاريخ الانعقاد' => $datesStr,
+            'البرنامج التدريبي' => $training->title,
+            'نوع البرنامج'      => $typeLabel,
+            'تاريخ الانعقاد'    => $datesStr,
+            'توقيت الجلسات'     => $timingStr,
         ];
-
-        if ($training->timing_text) {
-            $details['توقيت الجلسات'] = $training->timing_text;
-        }
 
         if ($training->training_days_text) {
             $details['أيام التدريب'] = $training->training_days_text;
@@ -367,8 +375,16 @@ class NotificationService
 
         $details['المقر / القاعة'] = $training->location ?? 'جامعة طرابلس';
 
+        if ($training->company && $training->company->name) {
+            $details['الشركة المقدمة'] = $training->company->name;
+        }
+
         if ($training->instructor_name || ($training->trainer && $training->trainer->name)) {
             $details['المدرب / المحاضر'] = $training->instructor_name ?: $training->trainer->name;
+        }
+
+        if ($training->duration) {
+            $details['المدة'] = $training->duration;
         }
 
         $this->sendToUser($application->user, $title, $message, $type, [

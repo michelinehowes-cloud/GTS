@@ -215,7 +215,7 @@
                                 <label for="start_time" class="form-label fw-semibold text-dark small mb-1">وقت البدء (التوقيت)</label>
                                 <div class="input-group input-group-modern rounded-3 overflow-hidden">
                                     <span class="input-group-text border-end-0"><i class="far fa-clock text-primary"></i></span>
-                                    <input type="time" class="form-control border-start-0 font-monospace @error('start_time') is-invalid @enderror" id="start_time" name="start_time" value="{{ old('start_time', $training->start_time ? substr($training->start_time, 0, 5) : '') }}">
+                                    <input type="time" class="form-control border-start-0 font-monospace @error('start_time') is-invalid @enderror" id="start_time" name="start_time" value="{{ old('start_time', $training->start_time_input) }}">
                                 </div>
                                 @error('start_time') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
@@ -224,7 +224,7 @@
                                 <label for="end_time" class="form-label fw-semibold text-dark small mb-1">وقت الانتهاء (التوقيت)</label>
                                 <div class="input-group input-group-modern rounded-3 overflow-hidden">
                                     <span class="input-group-text border-end-0"><i class="far fa-clock text-danger"></i></span>
-                                    <input type="time" class="form-control border-start-0 font-monospace @error('end_time') is-invalid @enderror" id="end_time" name="end_time" value="{{ old('end_time', $training->end_time ? substr($training->end_time, 0, 5) : '') }}">
+                                    <input type="time" class="form-control border-start-0 font-monospace @error('end_time') is-invalid @enderror" id="end_time" name="end_time" value="{{ old('end_time', $training->end_time_input) }}">
                                 </div>
                                 @error('end_time') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>

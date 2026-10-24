@@ -355,6 +355,17 @@ Route::middleware('auth')->group(function () {
         Route::get('trainings/export-report', [TrainingController::class, 'exportMonthlyReport'])->name('admin.trainings.export-report');
         Route::post('trainings/import', [TrainingController::class, 'importTrainings'])->name('admin.trainings.import');
 
+        // 🔄 تشغيل ترحيلات وتحديثات قاعدة البيانات
+        Route::get('run-migrations', function () {
+            try {
+                \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                $output = trim(\Illuminate\Support\Facades\Artisan::output());
+                return redirect()->route('admin.trainings')->with('success', 'تم تحديث وترحيل قاعدة البيانات بنجاح: ' . ($output ?: 'الجداول محدثة بالكامل'));
+            } catch (\Throwable $e) {
+                return redirect()->route('admin.trainings')->with('error', 'فشل الترحيل: ' . $e->getMessage());
+            }
+        })->name('admin.run-migrations');
+
         // 🎯 إدارة برامج التدريب
         Route::resource('trainings', TrainingController::class)->names([
             'index' => 'admin.trainings',

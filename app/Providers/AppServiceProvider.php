@@ -40,7 +40,8 @@ class AppServiceProvider extends ServiceProvider
         try {
             if (!\Illuminate\Support\Facades\Schema::hasTable('job_fair_visitors') ||
                 !\Illuminate\Support\Facades\Schema::hasColumn('job_fair_visits', 'job_opportunity_id') ||
-                !\Illuminate\Support\Facades\Schema::hasColumn('job_opportunities', 'job_fair_id')) {
+                !\Illuminate\Support\Facades\Schema::hasColumn('job_opportunities', 'job_fair_id') ||
+                !\Illuminate\Support\Facades\Schema::hasColumn('trainings', 'start_time')) {
                 \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
             }
         } catch (\Throwable $e) {

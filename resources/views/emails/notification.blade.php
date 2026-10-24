@@ -173,10 +173,16 @@
                                         $icon = '🏷️ ';
                                     }
                                     $isHighlight = str_contains($label, 'توقيت') || str_contains($label, 'تاريخ');
+                                    $displayVal = $value;
+                                    if (is_string($displayVal) && preg_match('/^\d{4}-\d{2}-\d{2}T/', $displayVal)) {
+                                        try {
+                                            $displayVal = \Carbon\Carbon::parse($displayVal)->format('Y-m-d');
+                                        } catch (\Throwable $e) {}
+                                    }
                                 @endphp
                                 <tr>
                                     <td class="details-label">{{ $icon }}{{ $label }}:</td>
-                                    <td class="details-value" style="{{ $isHighlight ? 'font-weight: 700; color: #0056b3;' : '' }}">{{ is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : $value }}</td>
+                                    <td class="details-value" style="{{ $isHighlight ? 'font-weight: 700; color: #0056b3;' : '' }}">{{ is_array($displayVal) ? json_encode($displayVal, JSON_UNESCAPED_UNICODE) : $displayVal }}</td>
                                 </tr>
                             @endforeach
                         </table>

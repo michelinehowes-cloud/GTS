@@ -352,8 +352,12 @@ public function reports()
                 ->with('error', 'جدول طلبات التدريب غير موجود في قاعدة البيانات');
         }
 
-        $application = TrainingApplication::with('training')->findOrFail($id);
+        $application = TrainingApplication::with(['training.company', 'user'])->findOrFail($id);
         $application->update(['status' => 'approved']);
+
+        try {
+            app(\App\Services\NotificationService::class)->notifyTrainingApplicationApproved($application);
+        } catch (\Exception $e) {}
 
         return redirect()->back()->with('success', 'تم الموافقة على طلب التدريب بنجاح');
     }
@@ -370,8 +374,15 @@ public function reports()
 
         $ids = $request->application_ids;
 
+        $applications = TrainingApplication::with(['training.company', 'user'])->whereIn('id', $ids)->get();
         TrainingApplication::whereIn('id', $ids)
             ->update(['status' => 'approved']);
+
+        foreach ($applications as $app) {
+            try {
+                app(\App\Services\NotificationService::class)->notifyTrainingApplicationApproved($app);
+            } catch (\Exception $e) {}
+        }
 
         return redirect()->back()
             ->with('success', 'تم الموافقة على ' . count($ids) . ' طلب(ات) بنجاح');
@@ -389,8 +400,15 @@ public function reports()
 
         $ids = $request->application_ids;
 
+        $applications = TrainingApplication::with(['training', 'user'])->whereIn('id', $ids)->get();
         TrainingApplication::whereIn('id', $ids)
             ->update(['status' => 'rejected']);
+
+        foreach ($applications as $app) {
+            try {
+                app(\App\Services\NotificationService::class)->notifyTrainingApplicationRejected($app);
+            } catch (\Exception $e) {}
+        }
 
         return redirect()->back()
             ->with('success', 'تم رفض ' . count($ids) . ' طلب(ات) بنجاح');

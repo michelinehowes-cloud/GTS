@@ -147,4 +147,57 @@ class TrainingTimingAndNotificationTest extends TestCase
         $this->assertEquals('من 11:30 ص إلى 01:00 م', $event->timing_text);
         $this->assertStringContainsString('من 11:30 ص إلى 01:00 م', $event->full_schedule_text);
     }
+
+    /**
+     * اختبار نقطة نهاية موافقة المنسق على طلب التدريب وتأكيد إرسال التوقيت والتاريخ المنسق
+     */
+    public function test_coordinator_approve_application_endpoint_sends_email_with_timing()
+    {
+        $coordinator = User::factory()->create([
+            'role' => 'training_coordinator',
+            'is_active' => true,
+            'is_approved' => true,
+        ]);
+
+        $graduate = User::factory()->create([
+            'role' => 'graduate',
+            'name' => 'المنيب محمد الشريف',
+            'email' => 'almonib@uot.edu.ly',
+            'is_active' => true,
+            'is_approved' => true,
+        ]);
+
+        $training = Training::create([
+            'title' => 'السيرة الذاتية CV',
+            'type' => 'workshop',
+            'category' => 'career_skills',
+            'description' => 'ورشة متخصصة في كتابة السيرة الذاتية واجتياز المقابلات الشخصية.',
+            'duration' => '1 يوم',
+            'location' => 'جامعة طرابلس',
+            'start_date' => '2026-10-28',
+            'end_date' => '2026-10-28',
+            'start_time' => '10:00',
+            'end_time' => '13:00',
+            'coordinator_id' => $coordinator->id,
+            'status' => 'active',
+            'seats' => 20,
+        ]);
+
+        $application = TrainingApplication::create([
+            'training_id' => $training->id,
+            'user_id' => $graduate->id,
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($coordinator)->post('/coordinator/applications/' . $application->id . '/approve');
+
+        $response->assertSessionHas('success');
+        $this->assertEquals('approved', $application->fresh()->status);
+
+        $notification = \App\Models\Notification::where('user_id', $graduate->id)->latest()->first();
+        $this->assertNotNull($notification);
+        $this->assertArrayHasKey('توقيت الجلسات', $notification->data['details']);
+        $this->assertEquals('من 10:00 ص إلى 01:00 م', $notification->data['details']['توقيت الجلسات']);
+        $this->assertEquals('2026-10-28', $notification->data['details']['تاريخ الانعقاد']);
+    }
 }

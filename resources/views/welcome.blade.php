@@ -3707,9 +3707,13 @@
                                     <p class="description">
                                         {{ Str::limit(strip_tags($training->description), 115) }}
                                     </p>
-                                    <div class="card-meta-pill">
+                                    <div class="card-meta-pill flex-wrap">
                                         <span><i class="fas fa-calendar-alt text-warning me-1"></i>
                                             {{ \Carbon\Carbon::parse($training->start_date)->format('Y/m/d') }}</span>
+                                        @if($training->timing_text)
+                                            <span><i class="far fa-clock text-warning me-1"></i>
+                                                {{ $training->timing_text }}</span>
+                                        @endif
                                         <span><i class="fas fa-map-marker-alt text-info me-1"></i>
                                             {{ $training->location ?? 'جامعة طرابلس' }}</span>
                                     </div>

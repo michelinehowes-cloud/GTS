@@ -20,6 +20,8 @@ class Training extends Model
         'duration',
         'start_date',
         'end_date',
+        'start_time',
+        'end_time',
         'training_days_of_week',
         'location',
         'seats',
@@ -286,4 +288,73 @@ class Training extends Model
     {
         return $this->belongsTo(Trainer::class);
     }
+
+    /**
+     * تحويل الوقت إلى صيغة عربية واضحة ومقروءة (مثال: 10:00 ص أو 01:30 م)
+     */
+    public function formatTimeArabic(?string $time): ?string
+    {
+        if (!$time) {
+            return null;
+        }
+
+        try {
+            $carbon = \Carbon\Carbon::createFromFormat('H:i:s', strlen($time) === 5 ? $time . ':00' : $time);
+            $hour = $carbon->format('h:i');
+            $ampm = $carbon->format('A') === 'AM' ? 'ص' : 'م';
+            return "{$hour} {$ampm}";
+        } catch (\Throwable $e) {
+            return substr($time, 0, 5);
+        }
+    }
+
+    public function getFormattedStartTimeAttribute(): ?string
+    {
+        return $this->formatTimeArabic($this->start_time);
+    }
+
+    public function getFormattedEndTimeAttribute(): ?string
+    {
+        return $this->formatTimeArabic($this->end_time);
+    }
+
+    /**
+     * نص توقيت الجلسة التدريبية (مثال: من 10:00 ص إلى 01:00 م)
+     */
+    public function getTimingTextAttribute(): ?string
+    {
+        $start = $this->formatted_start_time;
+        $end = $this->formatted_end_time;
+
+        if ($start && $end) {
+            return "من {$start} إلى {$end}";
+        } elseif ($start) {
+            return "الساعة {$start}";
+        } elseif ($end) {
+            return "حتى {$end}";
+        }
+
+        return null;
+    }
+
+    /**
+     * نص التوقيت الكامل شاملاً التواريخ والساعات
+     */
+    public function getFullScheduleTextAttribute(): string
+    {
+        $dateText = '';
+        if ($this->start_date && $this->end_date) {
+            $dateText = "من " . $this->start_date->format('Y/m/d') . " إلى " . $this->end_date->format('Y/m/d');
+        } elseif ($this->start_date) {
+            $dateText = "يبدأ في " . $this->start_date->format('Y/m/d');
+        }
+
+        $timing = $this->timing_text;
+        if ($timing) {
+            return $dateText ? "{$dateText} ({$timing})" : $timing;
+        }
+
+        return $dateText ?: 'سيتم تحديد الموعد لاحقاً';
+    }
 }
+

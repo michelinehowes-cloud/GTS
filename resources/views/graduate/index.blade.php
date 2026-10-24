@@ -96,9 +96,13 @@
                             <p class="description">
                                 {{ Str::limit(strip_tags($training->description ?: 'برنامج تدريبي معتمد لتطوير المهارات التخصصية وسد الفجوة مع متطلبات سوق العمل.'), 115) }}
                             </p>
-                            <div class="card-meta-pill">
+                            <div class="card-meta-pill flex-wrap">
                                 <span><i class="fas fa-calendar-alt text-warning me-1"></i>
                                     {{ $training->start_date ? \Carbon\Carbon::parse($training->start_date)->format('Y/m/d') : 'قريباً' }}</span>
+                                @if($training->timing_text)
+                                    <span><i class="far fa-clock text-warning me-1"></i>
+                                        {{ $training->timing_text }}</span>
+                                @endif
                                 <span><i class="fas fa-map-marker-alt text-info me-1"></i>
                                     {{ $training->location ?? 'جامعة طرابلس' }}</span>
                             </div>

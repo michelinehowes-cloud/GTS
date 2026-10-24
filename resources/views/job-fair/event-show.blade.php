@@ -1241,13 +1241,7 @@
                                     <div>
                                         <span class="meta-label">الوقت والتوقيت</span>
                                         <span class="meta-value">
-                                            @if($event->start_time && $event->end_time)
-                                                من {{ $event->start_time->format('h:i A') }} إلى {{ $event->end_time->format('h:i A') }}
-                                            @elseif($event->start_time)
-                                                يبدأ الساعة {{ $event->start_time->format('h:i A') }}
-                                            @else
-                                                يحدد لاحقاً وفق جدول المعرض
-                                            @endif
+                                            {{ $event->timing_text ?: 'يحدد لاحقاً وفق جدول المعرض' }}
                                         </span>
                                     </div>
                                 </div>

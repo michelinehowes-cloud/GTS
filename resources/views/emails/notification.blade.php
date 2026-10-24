@@ -159,9 +159,24 @@
                         <div class="details-title">تفاصيل إضافية:</div>
                         <table class="details-table">
                             @foreach($notificationData['details'] as $label => $value)
+                                @php
+                                    $icon = '';
+                                    if (str_contains($label, 'توقيت') || str_contains($label, 'وقت') || str_contains($label, 'ساعة')) {
+                                        $icon = '⏰ ';
+                                    } elseif (str_contains($label, 'تاريخ') || str_contains($label, 'موعد') || str_contains($label, 'أيام')) {
+                                        $icon = '📅 ';
+                                    } elseif (str_contains($label, 'مكان') || str_contains($label, 'مقر') || str_contains($label, 'قاعة')) {
+                                        $icon = '📍 ';
+                                    } elseif (str_contains($label, 'مدرب') || str_contains($label, 'محاضر') || str_contains($label, 'متحدث')) {
+                                        $icon = '👤 ';
+                                    } elseif (str_contains($label, 'نوع')) {
+                                        $icon = '🏷️ ';
+                                    }
+                                    $isHighlight = str_contains($label, 'توقيت') || str_contains($label, 'تاريخ');
+                                @endphp
                                 <tr>
-                                    <td class="details-label">{{ $label }}:</td>
-                                    <td class="details-value">{{ is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : $value }}</td>
+                                    <td class="details-label">{{ $icon }}{{ $label }}:</td>
+                                    <td class="details-value" style="{{ $isHighlight ? 'font-weight: 700; color: #0056b3;' : '' }}">{{ is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : $value }}</td>
                                 </tr>
                             @endforeach
                         </table>

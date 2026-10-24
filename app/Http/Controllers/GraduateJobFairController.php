@@ -163,7 +163,14 @@ class GraduateJobFairController extends Controller
                 'graduate_id' => $graduate->id,
                 'status' => 'registered'
             ]);
-            return back()->with('success', 'تم التسجيل في الفعالية بنجاح.');
+
+            try {
+                app(\App\Services\NotificationService::class)->notifyJobFairEventRegistration($graduate, $event);
+            } catch (\Throwable $e) {
+                \Log::warning('Failed sending workshop registration notification: ' . $e->getMessage());
+            }
+
+            return back()->with('success', 'تم التسجيل في الفعالية بنجاح وإرسال تفاصيل الموعد والتوقيت إلى بريدك الإلكتروني.');
         }
     }
 

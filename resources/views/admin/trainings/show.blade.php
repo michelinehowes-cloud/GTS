@@ -239,6 +239,13 @@
                         </div>
                     </div>
                     <div class="info-list-item">
+                        <div class="info-icon-box bg-light text-primary"><i class="far fa-clock"></i></div>
+                        <div>
+                            <small class="text-muted d-block">توقيت الجلسة اليومية</small>
+                            <strong class="text-dark">{{ $training->timing_text ?: 'غير محدد' }}</strong>
+                        </div>
+                    </div>
+                    <div class="info-list-item">
                         <div class="info-icon-box bg-light text-info"><i class="fas fa-calendar-week"></i></div>
                         <div>
                             <small class="text-muted d-block">أيام التدريب الأسبوعية</small>

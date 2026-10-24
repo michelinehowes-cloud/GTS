@@ -424,6 +424,11 @@
                                         <span class="text-muted font-monospace" style="font-size: 0.74rem;">
                                             إلى: {{ $t->end_date ? $t->end_date->format('Y-m-d') : '--' }}
                                         </span>
+                                        @if($t->timing_text)
+                                            <span class="text-primary-emphasis fw-bold" style="font-size: 0.73rem;">
+                                                <i class="far fa-clock text-warning me-1"></i>{{ $t->timing_text }}
+                                            </span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td>
@@ -498,6 +503,11 @@
                         <i class="fas fa-calendar-alt text-primary" style="width: 22px;"></i>
                         <span class="text-muted">الفترة الزمنية:</span>
                         <strong id="mEventDates" class="text-dark font-monospace"></strong>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="far fa-clock text-warning" style="width: 22px;"></i>
+                        <span class="text-muted">توقيت الجلسة:</span>
+                        <strong id="mEventTiming" class="text-dark font-monospace"></strong>
                     </div>
                     <div class="d-flex align-items-center gap-2">
                         <i class="fas fa-hourglass-half text-warning" style="width: 22px;"></i>
@@ -603,22 +613,36 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             events: allCalendarEvents,
             eventContent: function(arg) {
-                let type = (arg.event.extendedProps && arg.event.extendedProps.type) ? arg.event.extendedProps.type : 'course';
+                const props = arg.event.extendedProps || {};
+                let type = props.type || 'course';
                 let iconClass = 'fa-graduation-cap';
                 if (type === 'workshop') iconClass = 'fa-tools';
                 else if (type === 'internship') iconClass = 'fa-laptop-code';
                 else if (type === 'seminar') iconClass = 'fa-bullhorn';
 
                 let coverageBadge = '';
-                if (arg.event.extendedProps && arg.event.extendedProps.coverageStatus === 'covered') {
+                if (props.coverageStatus === 'covered') {
                     coverageBadge = '<i class="fas fa-check-circle ms-1 text-warning" title="تمت التغطية"></i>';
                 }
 
+                let timing = props.compactTiming || props.timing || '';
+                if (timing === 'غير محدد') timing = '';
+
+                let timingHtml = timing ? `
+                    <div class="d-flex align-items-center gap-1 text-truncate mt-0.5" style="font-size: 0.65rem; opacity: 0.95; padding-right: 2px;">
+                        <i class="far fa-clock" style="font-size: 0.6rem; flex-shrink: 0;"></i>
+                        <span class="font-monospace text-truncate">${timing}</span>
+                    </div>
+                ` : '';
+
                 let customHtml = `
-                    <div class="d-flex align-items-center gap-1.5 overflow-hidden w-100 text-white" style="line-height: 1.25;">
-                        <i class="fas ${iconClass} me-1" style="font-size: 0.68rem; opacity: 0.9; flex-shrink: 0;"></i>
-                        <span class="text-truncate fw-bold" style="font-size: 0.74rem;">${arg.event.title}</span>
-                        ${coverageBadge}
+                    <div class="d-flex flex-column overflow-hidden w-100 text-white" style="line-height: 1.2; padding: 1px 0;">
+                        <div class="d-flex align-items-center gap-1 overflow-hidden w-100">
+                            <i class="fas ${iconClass} me-1" style="font-size: 0.68rem; opacity: 0.9; flex-shrink: 0;"></i>
+                            <span class="text-truncate fw-bold" style="font-size: 0.74rem;">${arg.event.title}</span>
+                            ${coverageBadge}
+                        </div>
+                        ${timingHtml}
                     </div>
                 `;
                 return { html: customHtml };
@@ -631,6 +655,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     props.location || 'جامعة طرابلس',
                     props.startDate || '',
                     props.endDate || '',
+                    props.timing || 'غير محدد',
                     (props.typeArabic || '') + (props.duration ? ' (' + props.duration + ')' : ''),
                     props.instructor || 'غير محدد',
                     props.coverageStatus || 'pending',
@@ -669,10 +694,11 @@ function applyFilters() {
     calendar.addEventSource(filtered);
 }
 
-function openCalendarModal(title, location, start, end, duration, instructor, coverageStatus, coverageStatusText, hasPressRelease, showUrl, editUrl, trainingUrl) {
+function openCalendarModal(title, location, start, end, timing, duration, instructor, coverageStatus, coverageStatusText, hasPressRelease, showUrl, editUrl, trainingUrl) {
     document.getElementById('mEventHeading').innerText = title;
     document.getElementById('mEventLocation').innerText = location || 'جامعة طرابلس';
     document.getElementById('mEventDates').innerText = (start || '') + (end ? ' إلى ' + end : '');
+    document.getElementById('mEventTiming').innerText = timing || 'غير محدد';
     document.getElementById('mEventDuration').innerText = duration || 'غير محدد';
     document.getElementById('mEventInstructor').innerText = instructor || 'غير محدد';
     

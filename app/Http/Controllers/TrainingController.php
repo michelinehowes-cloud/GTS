@@ -736,6 +736,9 @@ class TrainingController extends Controller
                     'startDate'     => $t->start_date ? $t->start_date->format('Y-m-d') : '—',
                     'endDate'       => $t->end_date ? $t->end_date->format('Y-m-d') : '—',
                     'timing'        => $t->timing_text ?: 'غير محدد',
+                    'compactTiming' => $t->compact_timing_text ?: ($t->timing_text ?: ''),
+                    'startTime'     => $t->formatted_start_time,
+                    'endTime'       => $t->formatted_end_time,
                     'showUrl'       => route('training-coordinator.trainings.show', $t->id),
                     'attendanceUrl' => route('training-coordinator.trainings.attendance', $t->id),
                 ];

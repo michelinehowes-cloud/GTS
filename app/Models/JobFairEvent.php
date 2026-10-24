@@ -210,6 +210,25 @@ class JobFairEvent extends Model
     }
 
     /**
+     * نص توقيت مختصر للبطاقات وتقويم الفعاليات (مثال: 10:00 ص - 01:00 م)
+     */
+    public function getCompactTimingTextAttribute(): ?string
+    {
+        $start = $this->formatted_start_time;
+        $end = $this->formatted_end_time;
+
+        if ($start && $end) {
+            return "{$start} - {$end}";
+        } elseif ($start) {
+            return "{$start}";
+        } elseif ($end) {
+            return "حتى {$end}";
+        }
+
+        return null;
+    }
+
+    /**
      * نص التوقيت والجدول الزمني الكامل شاملاً التاريخ والساعة
      */
     public function getFullScheduleTextAttribute(): string

@@ -1272,6 +1272,11 @@
                         <strong id="mEventDates" class="text-dark font-monospace"></strong>
                     </div>
                     <div class="d-flex align-items-center gap-2">
+                        <i class="far fa-clock text-warning" style="width: 22px;"></i>
+                        <span class="text-muted">توقيت الجلسة:</span>
+                        <strong id="mEventTiming" class="text-dark font-monospace"></strong>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
                         <i class="fas fa-hourglass-half text-warning" style="width: 22px;"></i>
                         <span class="text-muted">المدة المقدرة:</span>
                         <strong id="mEventDuration" class="text-dark"></strong>
@@ -1392,11 +1397,24 @@
 
                         let starHtml = isMy ? '<i class="fas fa-star text-warning me-1 flex-shrink-0" title="برنامج مسجل به" style="font-size: 0.62rem;"></i>' : '';
 
+                        let timing = props.compactTiming || props.timing || '';
+                        if (timing === 'غير محدد') timing = '';
+
+                        let timingHtml = timing ? `
+                            <div class="d-flex align-items-center gap-1 text-truncate mt-0.5" style="font-size: 0.65rem; opacity: 0.95; padding-right: 2px;">
+                                <i class="far fa-clock" style="font-size: 0.6rem; flex-shrink: 0;"></i>
+                                <span class="font-monospace text-truncate">${timing}</span>
+                            </div>
+                        ` : '';
+
                         let customHtml = `
-                            <div class="d-flex align-items-center gap-1 overflow-hidden w-100 text-white" style="line-height: 1.25; padding: 1px 2px;">
-                                ${starHtml}
-                                <i class="fas ${iconClass} me-1" style="font-size: 0.68rem; opacity: 0.95; flex-shrink: 0;"></i>
-                                <span class="text-truncate fw-bold flex-grow-1" style="font-size: 0.74rem;">${arg.event.title}</span>
+                            <div class="d-flex flex-column overflow-hidden w-100 text-white" style="line-height: 1.2; padding: 1px 2px;">
+                                <div class="d-flex align-items-center gap-1 overflow-hidden w-100">
+                                    ${starHtml}
+                                    <i class="fas ${iconClass} me-1" style="font-size: 0.68rem; opacity: 0.95; flex-shrink: 0;"></i>
+                                    <span class="text-truncate fw-bold flex-grow-1" style="font-size: 0.74rem;">${arg.event.title}</span>
+                                </div>
+                                ${timingHtml}
                             </div>
                         `;
                         return { html: customHtml };
@@ -1484,6 +1502,7 @@
             document.getElementById('mEventHeading').innerText = title;
             document.getElementById('mEventLocation').innerText = location || 'غير محدد';
             document.getElementById('mEventDates').innerText = (start || '') + (end ? ' إلى ' + end : '');
+            document.getElementById('mEventTiming').innerText = props.timing || 'غير محدد';
             document.getElementById('mEventDuration').innerText = duration || 'غير محدد';
             document.getElementById('mEventInstructor').innerText = instructor || 'غير محدد';
             document.getElementById('mEventSeats').innerText = (seats || '0') + ' مقعد';
@@ -1494,6 +1513,9 @@
                 let badges = '';
                 if (props.isMyTraining) {
                     badges += '<span class="badge bg-warning text-dark px-3 py-1.5 rounded-pill fw-bold"><i class="fas fa-star me-1"></i>أنت مسجل في هذا البرنامج التدريبي</span> ';
+                }
+                if (props.timing && props.timing !== 'غير محدد') {
+                    badges += '<span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.3);"><i class="far fa-clock text-warning me-1"></i>' + props.timing + '</span> ';
                 }
                 if (props.eventRole === 'start') {
                     badges += '<span class="badge bg-primary px-3 py-1.5 rounded-pill fw-bold"><i class="fas fa-flag-checkered me-1"></i>موعد انطلاق البرنامج</span> ';

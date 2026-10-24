@@ -87,6 +87,12 @@
                         @endif
                     </span>
                 </div>
+                @if($training->timing_text)
+                <div class="meta-row" style="color: #b45309; font-weight: 600;">
+                    <i class="far fa-clock text-warning"></i>
+                    <span>{{ $training->timing_text }}</span>
+                </div>
+                @endif
                 <div class="meta-row">
                     <i class="fas fa-map-marker-alt"></i>
                     <span>{{ $training->location ?? 'غير محدد' }}</span>

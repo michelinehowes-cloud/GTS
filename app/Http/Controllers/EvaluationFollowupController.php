@@ -428,6 +428,10 @@ class EvaluationFollowupController extends Controller
                         'duration'      => $t->duration ?? '—',
                         'startDate'     => $t->start_date ? $t->start_date->format('Y-m-d') : '—',
                         'endDate'       => $t->end_date ? $t->end_date->format('Y-m-d') : '—',
+                        'timing'        => $t->timing_text ?: 'غير محدد',
+                        'compactTiming' => $t->compact_timing_text ?: ($t->timing_text ?: ''),
+                        'startTime'     => $t->formatted_start_time,
+                        'endTime'       => $t->formatted_end_time,
                         'showUrl'       => route('evaluation-followup.training-programs.index'),
                     ],
                     'className'       => 'fc-event-custom fc-event-' . $t->type

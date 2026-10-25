@@ -124,6 +124,17 @@ class TrainingPolicy
     }
 
     /**
+     * تحقق إذا كان المستخدم يمكنه إدارة الحضور والغياب وتسجيله
+     */
+    public function manageAttendance(User $user, Training $training): bool
+    {
+        // المدراء ومن لديهم صلاحية الحضور أو دور منسق التدريب يمكنهم تسجيل وإدارة الحضور
+        return $user->isAdmin() 
+            || $user->hasPermission('trainings.attendance') 
+            || $user->role === 'training_coordinator';
+    }
+
+    /**
      * تحقق إذا كان المستخدم يمكنه عرض التقارير
      */
     public function viewReports(User $user): bool

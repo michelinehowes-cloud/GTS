@@ -265,7 +265,7 @@ class SecurityPatchesTest extends TestCase
     }
 
     /** @test */
-    public function training_coordinator_cannot_access_scanner_or_attendance_of_other_trainings()
+    public function training_coordinator_can_access_scanner_and_attendance_of_all_trainings()
     {
         $coordA = User::factory()->create([
             'role' => 'training_coordinator',
@@ -293,15 +293,45 @@ class SecurityPatchesTest extends TestCase
             'coordinator_id' => $coordB->id,
         ]);
 
-        // Coord A attempts to access scanner
+        $graduate = User::factory()->create([
+            'role' => 'graduate',
+            'is_active' => true,
+            'is_approved' => true,
+        ]);
+
+        $app = TrainingApplication::create([
+            'user_id' => $graduate->id,
+            'training_id' => $training->id,
+            'status' => 'approved',
+            'applied_at' => now(),
+        ]);
+
+        // Coord A can access scanner of training created by Coord B
         $responseScanner = $this->actingAs($coordA)->get("/coordinator/trainings/{$training->id}/scanner");
-        $responseScanner->assertStatus(403);
+        $responseScanner->assertStatus(200);
 
-        // Coord A attempts to access attendance sheet
+        // Coord A can access attendance sheet of training created by Coord B
         $responseAttendance = $this->actingAs($coordA)->get("/coordinator/trainings/{$training->id}/attendance");
-        $responseAttendance->assertStatus(403);
+        $responseAttendance->assertStatus(200);
 
-        // Coord A attempts to access edit view
+        // Coord A can process scan and record attendance for Coord B's training
+        $responseScan = $this->actingAs($coordA)->postJson("/coordinator/trainings/{$training->id}/scan", [
+            'graduate_id' => $graduate->id,
+            'date' => now()->format('Y-m-d'),
+        ]);
+        $responseScan->assertStatus(200);
+        $responseScan->assertJson(['success' => true]);
+
+        // Coord A can toggle attendance on Coord B's training
+        $responseToggle = $this->actingAs($coordA)->postJson("/coordinator/trainings/{$training->id}/attendance/toggle", [
+            'user_id' => $graduate->id,
+            'date' => now()->format('Y-m-d'),
+            'status' => 'absent',
+        ]);
+        $responseToggle->assertStatus(200);
+        $responseToggle->assertJson(['success' => true]);
+
+        // Coord A attempts to access edit view - remains protected and restricted (403)
         $responseEdit = $this->actingAs($coordA)->get("/coordinator/trainings/{$training->id}/edit");
         $responseEdit->assertStatus(403);
     }

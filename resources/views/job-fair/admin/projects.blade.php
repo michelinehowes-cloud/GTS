@@ -463,6 +463,7 @@
                                         <i class="fas fa-external-link-alt"></i>
                                     </a>
 
+                                    @if(auth()->user()->canManageJobFairProjects())
                                     <!-- تعديل -->
                                     <button type="button" class="action-circle-btn text-primary" title="تعديل بيانات المشروع" onclick="editProjectById({{ $proj->id }})" data-bs-toggle="modal" data-bs-target="#editProjectModal">
                                         <i class="fas fa-edit"></i>
@@ -476,10 +477,11 @@
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </form>
+                                    @endif
                                 </div>
 
                                 <!-- أزرار القرار السريع للمشاريع المعلقة -->
-                                @if($proj->status === 'pending')
+                                @if($proj->status === 'pending' && auth()->user()->canManageJobFairProjects())
                                     <div class="d-flex align-items-center justify-content-center gap-1 mt-2">
                                         <form action="{{ route('job-fair.admin.projects.update-status', $proj->id) }}" method="POST" class="d-inline">
                                             @csrf
@@ -547,6 +549,7 @@
                                     @endif
                                 </div>
 
+                                @if(auth()->user()->canManageJobFairProjects())
                                 <!-- نموذج اعتماد المشروع وتخصيص الجناح -->
                                 <form action="{{ route('job-fair.admin.projects.update-status', $proj->id) }}" method="POST" class="d-flex align-items-center gap-2">
                                     @csrf
@@ -561,6 +564,7 @@
                                         <i class="fas fa-check-circle me-1"></i> اعتماد ونشر
                                     </button>
                                 </form>
+                                @endif
                             </div>
                         </div>
 
@@ -762,6 +766,7 @@
                                         </tbody>
                                     </table>
 
+                                    @if(auth()->user()->canManageJobFairProjects())
                                     <!-- نموذج تحديث الملاحظات الإدارية السريع -->
                                     <form action="{{ route('job-fair.admin.projects.update-status', $proj->id) }}" method="POST" class="mt-3 border-top pt-3">
                                         @csrf
@@ -773,20 +778,24 @@
                                             <i class="fas fa-save me-1"></i> حفظ الملاحظات
                                         </button>
                                     </form>
+                                    @endif
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer uot-modal-footer">
                         <button type="button" class="uot-btn-cancel" data-bs-dismiss="modal">إغلاق</button>
+                        @if(auth()->user()->canManageJobFairProjects())
                         <button type="button" class="uot-btn-submit" onclick="editProjectById({{ $proj->id }})" data-bs-dismiss="modal">
                             <i class="fas fa-edit me-1"></i> تعديل بيانات المشروع
                         </button>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
 
+        @if(auth()->user()->canManageJobFairProjects())
         <!-- Modal: Reject Project -->
         <div class="modal fade" id="rejectModal{{ $proj->id }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ $proj->id }}" aria-hidden="true" dir="rtl">
             <div class="modal-dialog modal-dialog-centered">
@@ -828,9 +837,11 @@
                 </div>
             </div>
         </div>
+        @endif
     @endforeach
 
 
+@if(auth()->user()->canManageJobFairProjects())
 <!-- Modal: Add Project -->
 <div class="modal fade" id="addProjectModal" tabindex="-1" role="dialog" aria-labelledby="addProjectModalLabel" aria-hidden="true" dir="rtl">
     <div class="modal-dialog uot-modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
@@ -1334,6 +1345,7 @@
         </div>
     </div>
 </div>
+@endif
 
 @push('scripts')
 <script>

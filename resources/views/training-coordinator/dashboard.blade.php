@@ -6,14 +6,14 @@
 <div class="container-fluid">
     <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
     <x-page-hero
-        title="لوحة تحكم منسق التدريب والتأهيل"
+        title="{{ auth()->user()->role === 'staff' ? 'إدارة برامج التدريب والتأهيل' : 'لوحة تحكم منسق التدريب والتأهيل' }}"
         subtitle="إدارة وتنظيم برامج التدريب والتأهيل ومتابعة حضور الخريجين والتقييمات"
         icon="fas fa-chalkboard-teacher"
         :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
-            ['label' => 'لوحة تحكم التدريب']
+            ['label' => auth()->user()->role === 'staff' ? 'لوحة الموظف' : 'لوحة تحكم التدريب', 'url' => auth()->user()->role === 'staff' ? route('staff.dashboard') : null]
         ]"
-        secondaryBadge="منسق برامج التدريب"
+        secondaryBadge="{{ auth()->user()->role === 'staff' ? 'موظف مخصص الصلاحيات' : 'منسق برامج التدريب' }}"
         secondaryBadgeIcon="fas fa-graduation-cap"
     >
         <a href="#" data-bs-toggle="modal" data-bs-target="#scannerModal" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">

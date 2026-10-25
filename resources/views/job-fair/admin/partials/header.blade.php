@@ -329,6 +329,7 @@
                 {!! $actions !!}
             @elseif($page === 'projects')
                 {{-- أزرار صفحة مشاريع التخرج --}}
+                @if(auth()->user()->canManageJobFairProjects())
                 <button type="button" class="fair-btn-action btn btn-warning text-dark shadow-sm fw-bold" onclick="typeof showModalSafe === 'function' ? showModalSafe('addProjectModal') : (new bootstrap.Modal(document.getElementById('addProjectModal'))).show();" data-bs-toggle="modal" data-bs-target="#addProjectModal">
                     <i class="fas fa-plus-circle"></i>
                     <span>إضافة مشروع</span>
@@ -347,6 +348,7 @@
                         <span>{{ $fair->is_projects_published ? 'منشور للجمهور' : 'قيد التحضير' }}</span>
                     </button>
                 </form>
+                @endif
 
                 <a href="{{ route('job-fair.public.projects', $fair->id) }}" target="_blank" class="fair-btn-action fair-btn-glass" title="معاينة صفحة المشاريع العامة">
                     <i class="fas fa-desktop text-info"></i>
@@ -363,10 +365,12 @@
 
             @elseif($page === 'visitors')
                 {{-- أزرار صفحة الزوار --}}
+                @if(auth()->user()->isAdmin() || auth()->user()->hasAnyPermission(['job_fair.visitors', 'job_fair.manage', 'job_fair.registrations']))
                 <button type="button" class="fair-btn-action btn btn-warning text-dark shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#adminVisitorRegisterModal">
                     <i class="fas fa-user-plus"></i>
                     <span>تسجيل زائر</span>
                 </button>
+                @endif
 
                 <button type="button" class="fair-btn-action btn btn-info text-white shadow-sm" style="background: linear-gradient(135deg, #0284c7, #0369a1); border: none;" data-bs-toggle="modal" data-bs-target="#registrationQrModal">
                     <i class="fas fa-qrcode"></i>
@@ -388,6 +392,7 @@
 
             @elseif($page === 'events')
                 {{-- أزرار صفحة البرنامج العلمي والفعاليات --}}
+                @if(auth()->user()->canManageJobFairEvents())
                 <button class="fair-btn-action btn btn-success shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addEventModal" data-toggle="modal" data-target="#addEventModal">
                     <i class="fas fa-plus-circle"></i>
                     <span>إضافة فعالية جديدة</span>
@@ -401,6 +406,7 @@
                         <span>{{ $fair->is_program_published ? 'البرنامج منشور' : 'قيد التحضير' }}</span>
                     </button>
                 </form>
+                @endif
 
                 <a href="{{ route('job-fair.public.program', $fair->id) }}" target="_blank" class="fair-btn-action fair-btn-glass">
                     <i class="fas fa-external-link-alt text-info"></i>
@@ -417,10 +423,12 @@
 
             @elseif($page === 'attendance')
                 {{-- أزرار صفحة ماسح الحضور --}}
+                @if(auth()->user()->isAdmin() || auth()->user()->hasAnyPermission(['job_fair.live', 'job_fair.attendance', 'job_fair.manage']))
                 <a href="{{ route('job-fair.admin.live', $fair->id) }}" class="fair-btn-action btn btn-info text-white shadow-sm" target="_blank" style="background: linear-gradient(135deg, #0284c7, #0369a1); border: none;">
                     <i class="fas fa-chart-line"></i>
                     <span>المتابعة اللحظية</span>
                 </a>
+                @endif
 
                 @include('job-fair.admin.partials.sections-dropdown', ['fair' => $fair])
                 @include('job-fair.admin.partials.options-dropdown', ['fair' => $fair])
@@ -442,10 +450,12 @@
                     <span>تنزيل إكسيل التوظيف</span>
                 </a>
 
+                @if(auth()->user()->canManageJobFairAttendance())
                 <a href="{{ route('job-fair.admin.attendance', $fair->id) }}" class="fair-btn-action fair-btn-glass">
                     <i class="fas fa-qrcode text-warning"></i>
                     <span>ماسح QR</span>
                 </a>
+                @endif
 
                 @include('job-fair.admin.partials.sections-dropdown', ['fair' => $fair])
                 @include('job-fair.admin.partials.options-dropdown', ['fair' => $fair])
@@ -457,17 +467,21 @@
 
             @else
                 {{-- الأزرار الافتراضية (صفحة تفاصيل المعرض الرئيسية show) --}}
+                @if(auth()->user()->canManageJobFairAttendance())
                 <!-- زر ماسح QR السريع -->
                 <a href="{{ route('job-fair.admin.attendance', $fair->id) }}" class="fair-btn-action btn btn-warning text-dark fw-bold shadow-sm" title="فتح ماسح الباركود لتسجيل حضور الزوار">
                     <i class="fas fa-qrcode"></i>
                     <span>ماسح QR</span>
                 </a>
+                @endif
 
+                @if(auth()->user()->isAdmin() || auth()->user()->hasAnyPermission(['job_fair.live', 'job_fair.attendance', 'job_fair.manage']))
                 <!-- المتابعة اللحظية للحضور -->
                 <a href="{{ route('job-fair.admin.live', $fair->id) }}" class="fair-btn-action btn btn-info text-white shadow-sm" target="_blank" style="background: linear-gradient(135deg, #0284c7, #0369a1); border: none;" title="لوحة المتابعة اللحظية للحضور والإحصائيات">
                     <i class="fas fa-chart-line"></i>
                     <span>المتابعة اللحظية</span>
                 </a>
+                @endif
 
                 @include('job-fair.admin.partials.sections-dropdown', ['fair' => $fair])
                 @include('job-fair.admin.partials.options-dropdown', ['fair' => $fair])

@@ -344,15 +344,15 @@ class User extends Authenticatable
             'media_officer' => 'مسؤول الإعلام والتواصل',
             'company' => 'شركة شريكة',
             'graduate' => 'خريج',
-            'staff' => 'موظف إداري',
+            'staff' => 'موظف مخصص الصلاحيات',
         ];
         return $map[$this->role] ?? ($this->role_name ?? $this->role);
     }
 
     /**
-     * التحقق إذا كان المستخدم يملك صلاحية إدارة معرض التوظيف
+     * التحقق إذا كان المستخدم يملك صلاحية استعراض معرض التوظيف
      */
-    public function canManageJobFair(): bool
+    public function canViewJobFair(): bool
     {
         return $this->isAdmin() ||
                in_array($this->role, ['partnership_officer']) ||
@@ -360,8 +360,102 @@ class User extends Authenticatable
                    'job_fair.view', 'job_fair.create', 'job_fair.edit', 'job_fair.delete',
                    'job_fair.manage', 'job_fair.events', 'job_fair.projects', 'job_fair.sponsors',
                    'job_fair.registrations', 'job_fair.attendance', 'job_fair.live', 'job_fair.visitors',
-                   'partnerships.manage', 'companies.view'
+                   'partnerships.manage'
                ]);
+    }
+
+    /**
+     * التحقق إذا كان المستخدم يملك صلاحية إدارة معرض التوظيف (إنشاء، تعديل، إدارة أجنحة)
+     */
+    public function canManageJobFair(): bool
+    {
+        return $this->isAdmin() ||
+               in_array($this->role, ['partnership_officer']) ||
+               $this->hasAnyPermission([
+                   'job_fair.create', 'job_fair.edit', 'job_fair.delete',
+                   'job_fair.manage', 'job_fair.events', 'job_fair.projects', 'job_fair.sponsors',
+                   'partnerships.manage'
+               ]);
+    }
+
+    /**
+     * صلاحية إنشاء معرض جديد
+     */
+    public function canCreateJobFair(): bool
+    {
+        return $this->isAdmin() ||
+               in_array($this->role, ['partnership_officer']) ||
+               $this->hasAnyPermission(['job_fair.create', 'job_fair.manage']);
+    }
+
+    /**
+     * صلاحية تعديل بيانات وإعدادات المعرض
+     */
+    public function canEditJobFair(): bool
+    {
+        return $this->isAdmin() ||
+               in_array($this->role, ['partnership_officer']) ||
+               $this->hasAnyPermission(['job_fair.edit', 'job_fair.manage']);
+    }
+
+    /**
+     * صلاحية حذف أو تصفير بيانات المعرض
+     */
+    public function canDeleteJobFair(): bool
+    {
+        return $this->isAdmin() ||
+               in_array($this->role, ['partnership_officer']) ||
+               $this->hasAnyPermission(['job_fair.delete']);
+    }
+
+    /**
+     * صلاحية إدارة أجنحة وشركات المعرض
+     */
+    public function canManageJobFairCompanies(): bool
+    {
+        return $this->isAdmin() ||
+               in_array($this->role, ['partnership_officer']) ||
+               $this->hasAnyPermission(['job_fair.manage']);
+    }
+
+    /**
+     * صلاحية إدارة فعاليات وورش عمل المعرض
+     */
+    public function canManageJobFairEvents(): bool
+    {
+        return $this->isAdmin() ||
+               in_array($this->role, ['partnership_officer']) ||
+               $this->hasAnyPermission(['job_fair.events', 'job_fair.manage']);
+    }
+
+    /**
+     * صلاحية إدارة مشاريع التخرج بالمعرض
+     */
+    public function canManageJobFairProjects(): bool
+    {
+        return $this->isAdmin() ||
+               in_array($this->role, ['partnership_officer']) ||
+               $this->hasAnyPermission(['job_fair.projects', 'job_fair.manage']);
+    }
+
+    /**
+     * صلاحية إدارة الرعاة والداعمين بالمعرض
+     */
+    public function canManageJobFairSponsors(): bool
+    {
+        return $this->isAdmin() ||
+               in_array($this->role, ['partnership_officer']) ||
+               $this->hasAnyPermission(['job_fair.sponsors', 'job_fair.manage']);
+    }
+
+    /**
+     * صلاحية مسح وتسجيل حضور المعرض (QR)
+     */
+    public function canManageJobFairAttendance(): bool
+    {
+        return $this->isAdmin() ||
+               in_array($this->role, ['partnership_officer']) ||
+               $this->hasAnyPermission(['job_fair.attendance', 'job_fair.manage']);
     }
 
     /**
@@ -595,6 +689,7 @@ class User extends Authenticatable
             case 'media_officer':
                 return route('media.dashboard');
             case 'staff':
+                return route('staff.dashboard');
             default:
                 if ($this->hasPermission('trainings.view')) return route('training-coordinator.dashboard');
                 if ($this->hasPermission('companies.view') || $this->hasPermission('job_fair.view')) return route('partnership.dashboard');
@@ -602,7 +697,7 @@ class User extends Authenticatable
                 if ($this->hasPermission('evaluations.manage') || $this->hasPermission('surveys.manage')) return route('evaluation-followup.dashboard');
                 if ($this->hasPermission('media.manage')) return route('media.dashboard');
                 if ($this->hasPermission('users.view') || $this->hasPermission('users.manage')) return route('admin.users');
-                return route('dashboard');
+                return route('staff.dashboard');
         }
     }
 

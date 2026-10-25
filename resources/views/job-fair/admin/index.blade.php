@@ -449,9 +449,11 @@
                 <a href="{{ route('job-fair.public') }}" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.22); font-size: 0.82rem; font-weight: 600;" target="_blank">
                     <i class="fas fa-external-link-alt text-warning me-1"></i> الصفحة العامة
                 </a>
+                @if(auth()->user()->canCreateJobFair())
                 <a href="{{ route('job-fair.admin.create') }}" class="btn btn-sm rounded-pill fw-bold px-3 py-1 shadow-sm" style="background: linear-gradient(135deg, #eeca3e 0%, #d4af37 100%); color: #0f172a; border: none; font-size: 0.82rem;">
                     <i class="fas fa-plus me-1"></i> إنشاء فعالية جديدة
                 </a>
+                @endif
             </div>
         </div>
 
@@ -478,9 +480,11 @@
         <div style="font-size: 3.5rem">🎪</div>
         <h5 class="fw-bold text-dark mt-3">لا توجد معارض أو فعاليات مسجلة حتى الآن</h5>
         <p class="text-muted small mb-4">يمكنك إنشاء أول فعالية أو معرض وإتاحة تسجيل الخريجين والشركات</p>
+        @if(auth()->user()->canCreateJobFair())
         <a href="{{ route('job-fair.admin.create') }}" class="btn btn-primary-modern rounded-pill px-4 mx-auto">
             <i class="fas fa-plus me-2"></i> إنشاء أول فعالية
         </a>
+        @endif
     </div>
     @else
     <div class="row g-3 g-md-4">
@@ -590,14 +594,18 @@
                         <i class="fas fa-sliders-h"></i>
                         <span>لوحة التحكم والتفاصيل</span>
                     </a>
+                    @if(auth()->user()->canManageJobFairAttendance())
                     <a href="{{ route('job-fair.admin.attendance', $fair->id) }}" class="btn-fair-attendance" title="شاشة تسجيل وقراءة الحضور عبر QR">
                         <i class="fas fa-qrcode"></i>
                         <span>الحضور</span>
                     </a>
+                    @endif
+                    @if(auth()->user()->canEditJobFair())
                     <a href="{{ route('job-fair.admin.edit', $fair->id) }}" class="btn-fair-utility" title="تعديل بيانات المعرض">
                         <i class="fas fa-edit text-primary"></i>
                         <span>تعديل</span>
                     </a>
+                    @endif
                     <a href="{{ route('job-fair.admin.export', $fair->id) }}" class="btn-fair-utility export" title="تصدير كشف البيانات إلى Excel">
                         <i class="fas fa-file-excel text-success"></i>
                         <span>تصدير</span>

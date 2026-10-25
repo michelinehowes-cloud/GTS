@@ -6,14 +6,14 @@
 <div class="container-fluid">
     <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
     <x-page-hero
-        title="لوحة تحكم مسؤول الشراكات والتوظيف"
+        title="{{ auth()->user()->role === 'staff' ? 'إدارة الشراكات والفرص الوظيفية' : 'لوحة تحكم مسؤول الشراكات والتوظيف' }}"
         subtitle="إدارة الشراكات الاستراتيجية ومتابعة المؤسسات الشريكة وفرص التوظيف والتدريب للخريجين"
         icon="fas fa-handshake"
         :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
-            ['label' => 'لوحة الشراكات والتوظيف']
+            ['label' => auth()->user()->role === 'staff' ? 'لوحة الموظف' : 'لوحة الشراكات والتوظيف', 'url' => auth()->user()->role === 'staff' ? route('staff.dashboard') : null]
         ]"
-        secondaryBadge="مسؤول الشراكات والتوظيف"
+        secondaryBadge="{{ auth()->user()->role === 'staff' ? 'موظف مخصص الصلاحيات' : 'مسؤول الشراكات والتوظيف' }}"
         secondaryBadgeIcon="fas fa-handshake"
     >
         <a href="{{ route('job-opportunities.create') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">

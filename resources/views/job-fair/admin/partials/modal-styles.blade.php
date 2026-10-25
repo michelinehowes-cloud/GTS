@@ -7,7 +7,6 @@
    ═══════════════════════════════════════════════════════════════ */
 .uot-modal-dialog,
 .modal-dialog.uot-modal-dialog,
-.modal-dialog.modal-xl:has(.uot-modal-content),
 .modal-dialog:has(.uot-modal-content) {
     max-width: 860px !important;
     width: 90% !important;
@@ -20,7 +19,6 @@
 @media (min-width: 1400px) {
     .uot-modal-dialog,
     .modal-dialog.uot-modal-dialog,
-    .modal-dialog.modal-xl:has(.uot-modal-content),
     .modal-dialog:has(.uot-modal-content) {
         max-width: 880px !important;
     }
@@ -29,13 +27,49 @@
 @media (max-width: 991.98px) {
     .uot-modal-dialog,
     .modal-dialog.uot-modal-dialog,
-    .modal-dialog.modal-xl:has(.uot-modal-content),
     .modal-dialog:has(.uot-modal-content) {
         max-width: 95% !important;
         width: 95% !important;
         margin: 0.75rem auto !important;
     }
 }
+
+/* نوافذ عريضة للغاية لعرض الجداول المعقدة وملفات المراجعة */
+.uot-modal-dialog.uot-modal-xl,
+.modal-dialog.uot-modal-xl,
+.modal-dialog.modal-xl:has(.uot-modal-content),
+.modal-dialog.modal-xl.uot-modal-dialog {
+    max-width: 95% !important;
+    width: 95% !important;
+}
+
+@media (min-width: 992px) {
+    .uot-modal-dialog.uot-modal-xl,
+    .modal-dialog.uot-modal-xl,
+    .modal-dialog.modal-xl:has(.uot-modal-content),
+    .modal-dialog.modal-xl.uot-modal-dialog {
+        max-width: 1180px !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    .uot-modal-dialog.uot-modal-xl,
+    .modal-dialog.uot-modal-xl,
+    .modal-dialog.modal-xl:has(.uot-modal-content),
+    .modal-dialog.modal-xl.uot-modal-dialog {
+        max-width: 1260px !important;
+    }
+}
+
+@media (min-width: 1400px) {
+    .uot-modal-dialog.uot-modal-xl,
+    .modal-dialog.uot-modal-xl,
+    .modal-dialog.modal-xl:has(.uot-modal-content),
+    .modal-dialog.modal-xl.uot-modal-dialog {
+        max-width: 1340px !important;
+    }
+}
+
 
 /* ضمان بقاء الرأس والذيل ظاهرين وتمرير الجسم الداخلي فقط */
 .uot-modal-dialog.modal-dialog-scrollable,
@@ -100,6 +134,7 @@
 .uot-modal-form > .modal-body {
     flex: 1 1 auto !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
     min-height: 0 !important;
     padding: 1.4rem 1.75rem !important;
     -webkit-overflow-scrolling: touch;
@@ -139,9 +174,11 @@
     padding: 1.25rem 1.75rem !important;
     color: #ffffff !important;
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 1rem !important;
+    min-width: 0 !important;
 }
 
 .uot-modal-header-edit {
@@ -165,7 +202,7 @@
     justify-content: center;
     font-size: 1.25rem;
     color: #eeca3e;
-    flex-shrink: 0;
+    flex-shrink: 0 !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -202,6 +239,9 @@
     font-size: 1rem;
     line-height: 1;
     text-decoration: none;
+    flex-shrink: 0 !important;
+    position: relative;
+    z-index: 2;
 }
 .uot-btn-close:hover {
     background: #eeca3e;

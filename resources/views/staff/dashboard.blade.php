@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'لوحة تحكم الموظف (صلاحيات مخصصة)')
+@section('title', auth()->user()->name . ' - لوحة التحكم')
 
 @push('styles')
 <style>
@@ -69,17 +69,17 @@
 
     <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
     <x-page-hero
-        title="لوحة تحكم الموظف (صلاحيات مخصصة)"
-        subtitle="متابعة وإدارة الأقسام والعمليات المتاحة لك وفق الصلاحيات الممنوحة لحسابك في المنظومة"
+        title="{{ auth()->user()->name }}"
+        subtitle="لوحة تحكم الموظف (صلاحيات مخصصة) — متابعة وإدارة الأقسام والعمليات المتاحة لك وفق الصلاحيات الممنوحة"
         icon="fas fa-user-shield"
         :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
-            ['label' => 'لوحة الموظف المخصص']
+            ['label' => auth()->user()->name]
         ]"
         secondaryBadge="موظف مخصص الصلاحيات"
         secondaryBadgeIcon="fas fa-id-badge"
     >
-        <span class="text-white-50 small d-none d-md-inline me-2">الحساب: <strong>{{ auth()->user()->name }}</strong></span>
+        <span class="text-white-50 small d-none d-md-inline me-2"><i class="fas fa-envelope me-1"></i> {{ auth()->user()->email }}</span>
     </x-page-hero>
 
     <!-- شريط الصلاحيات المفعلة -->

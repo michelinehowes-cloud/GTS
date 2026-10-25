@@ -278,12 +278,15 @@
                     <h5 class="fw-bold mb-0 text-dark fs-6">
                         <i class="fas fa-building me-2 text-primary"></i>الشركات المشاركة
                     </h5>
+                    @if(auth()->user()->canManageJobFairCompanies())
                     <button class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-1" data-bs-toggle="collapse" data-bs-target="#addCompanyForm">
                         <i class="fas fa-plus"></i>
                         <span>إضافة شركة</span>
                     </button>
+                    @endif
                 </div>
 
+                @if(auth()->user()->canManageJobFairCompanies())
                 <!-- Add Company Form Collapse -->
                 <div class="collapse mb-3" id="addCompanyForm">
                     <form action="{{ route('job-fair.admin.add-company', $fair->id) }}" method="POST"
@@ -317,6 +320,7 @@
                         </div>
                     </form>
                 </div>
+                @endif
 
                 <!-- Companies List -->
                 @if($fair->companies->isEmpty())
@@ -363,6 +367,7 @@
                                 </div>
                             </div>
                         </div>
+                        @if(auth()->user()->canManageJobFairCompanies())
                         <form action="{{ route('job-fair.admin.remove-company', [$fair->id, $fc->company_id]) }}" method="POST" class="m-0">
                             @csrf @method('DELETE')
                             <button type="submit" class="action-circle-btn text-danger"
@@ -370,6 +375,7 @@
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </form>
+                        @endif
                     </div>
                     @endforeach
                 </div>
@@ -422,6 +428,7 @@
                                     </a>
                                 </td>
                                 <td class="text-center">
+                                    @if(auth()->user()->isAdmin() || auth()->user()->hasAnyPermission(['job_fair.registrations', 'job_fair.delete', 'job_fair.manage']))
                                     <form action="{{ route('job-fair.admin.registrations.destroy', [$fair->id, $reg->id]) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف تسجيل الخريج «{{ $reg->graduate->name }}» من هذا المعرض؟ سيتم أيضاً إلغاء تسجيله في ورش العمل المرتبطة بهذا المعرض.');">
                                         @csrf
                                         @method('DELETE')
@@ -429,6 +436,7 @@
                                             <i class="fas fa-trash-alt me-1"></i>حذف
                                         </button>
                                     </form>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach
@@ -454,6 +462,7 @@
                                 <a href="{{ route('job-fair.my-ticket', $reg->id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-2 py-0" target="_blank" style="font-size: 0.75rem;">
                                     <i class="fas fa-ticket-alt me-1"></i>التذكرة
                                 </a>
+                                @if(auth()->user()->isAdmin() || auth()->user()->hasAnyPermission(['job_fair.registrations', 'job_fair.delete', 'job_fair.manage']))
                                 <form action="{{ route('job-fair.admin.registrations.destroy', [$fair->id, $reg->id]) }}" method="POST" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف تسجيل الخريج «{{ $reg->graduate->name }}»؟');">
                                     @csrf
                                     @method('DELETE')
@@ -461,6 +470,7 @@
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </form>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -586,11 +596,13 @@
                             <span>معاينة كما تظهر للشركات</span>
                         </button>
 
+                        @if(auth()->user()->canEditJobFair())
                         <!-- زر تعديل ورفع الأصول -->
                         <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold d-inline-flex align-items-center gap-1.5 shadow-sm" data-bs-toggle="modal" data-bs-target="#editBrandIdentityModal">
                             <i class="fas fa-cloud-upload-alt"></i>
                             <span>رفع وتعديل الهوية</span>
                         </button>
+                        @endif
                     </div>
                 </div>
 
@@ -616,7 +628,7 @@
                                 <a href="{{ route('job-fair.admin.brand-identity.download', [$fair->id, 'fair-logo']) }}" class="btn btn-sm btn-outline-primary rounded-pill flex-grow-1 fw-semibold" style="font-size: 0.76rem;">
                                     <i class="fas fa-download me-1"></i>تحميل
                                 </a>
-                                @if($fair->fair_logo_path)
+                                @if($fair->fair_logo_path && auth()->user()->canEditJobFair())
                                 <form action="{{ route('job-fair.admin.brand-identity.delete', [$fair->id, 'fair_logo']) }}" method="POST" class="m-0">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="action-circle-btn text-danger" onclick="return confirm('استعادة الشعار الافتراضي؟')" title="حذف الشعار المخصص">
@@ -648,7 +660,7 @@
                                 <a href="{{ route('job-fair.admin.brand-identity.download', [$fair->id, 'fair-logo-white']) }}" class="btn btn-sm btn-outline-primary rounded-pill flex-grow-1 fw-semibold" style="font-size: 0.76rem;">
                                     <i class="fas fa-download me-1"></i>تحميل
                                 </a>
-                                @if($fair->fair_logo_white_path)
+                                @if($fair->fair_logo_white_path && auth()->user()->canEditJobFair())
                                 <form action="{{ route('job-fair.admin.brand-identity.delete', [$fair->id, 'fair_logo_white']) }}" method="POST" class="m-0">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="action-circle-btn text-danger" onclick="return confirm('استعادة الشعار الأبيض الافتراضي؟')" title="حذف الشعار الأبيض المخصص">
@@ -680,7 +692,7 @@
                                 <a href="{{ route('job-fair.admin.brand-identity.download', [$fair->id, 'fair-logo-horizontal']) }}" class="btn btn-sm btn-outline-primary rounded-pill flex-grow-1 fw-semibold" style="font-size: 0.76rem;">
                                     <i class="fas fa-download me-1"></i>تحميل
                                 </a>
-                                @if($fair->fair_logo_horizontal_path)
+                                @if($fair->fair_logo_horizontal_path && auth()->user()->canEditJobFair())
                                 <form action="{{ route('job-fair.admin.brand-identity.delete', [$fair->id, 'fair_logo_horizontal']) }}" method="POST" class="m-0">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="action-circle-btn text-danger" onclick="return confirm('استعادة الشعار الأفقي الافتراضي؟')" title="حذف الشعار الأفقي">
@@ -714,13 +726,15 @@
                                     <a href="{{ route('job-fair.admin.brand-identity.download', [$fair->id, 'brand-guidelines']) }}" class="btn btn-sm btn-outline-danger rounded-pill flex-grow-1 fw-semibold" style="font-size: 0.76rem;" target="_blank">
                                         <i class="fas fa-download me-1"></i>تحميل
                                     </a>
+                                    @if(auth()->user()->canEditJobFair())
                                     <form action="{{ route('job-fair.admin.brand-identity.delete', [$fair->id, 'brand_guidelines']) }}" method="POST" class="m-0">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="action-circle-btn text-danger" onclick="return confirm('حذف ملف دليل الهوية البصرية؟')" title="حذف الملف">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </form>
-                                @else
+                                    @endif
+                                @elseif(auth()->user()->canEditJobFair())
                                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill w-100 fw-semibold" style="font-size: 0.76rem;" data-bs-toggle="modal" data-bs-target="#editBrandIdentityModal">
                                         <i class="fas fa-plus me-1"></i>رفع PDF
                                     </button>
@@ -750,7 +764,7 @@
                                 <a href="{{ route('job-fair.admin.brand-identity.download', [$fair->id, 'media-kit']) }}" class="btn btn-sm btn-primary rounded-pill flex-grow-1 fw-semibold shadow-xs" style="font-size: 0.76rem;">
                                     <i class="fas fa-download me-1"></i>تحميل
                                 </a>
-                                @if($fair->media_kit_path)
+                                @if($fair->media_kit_path && auth()->user()->canEditJobFair())
                                 <form action="{{ route('job-fair.admin.brand-identity.delete', [$fair->id, 'media_kit_zip']) }}" method="POST" class="m-0">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="action-circle-btn text-danger" onclick="return confirm('استعادة الحقيبة العامة للنظام؟')" title="حذف الحزمة المخصصة">
@@ -1086,12 +1100,15 @@
                             {{ $fair->sponsors->count() }} جهة راعية
                         </span>
                     </div>
+                    @if(auth()->user()->canManageJobFairSponsors())
                     <button class="btn btn-sm btn-warning text-dark fw-bold rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-1" data-bs-toggle="collapse" data-bs-target="#addSponsorForm">
                         <i class="fas fa-plus"></i>
                         <span>إضافة جهة راعية</span>
                     </button>
+                    @endif
                 </div>
 
+                @if(auth()->user()->canManageJobFairSponsors())
                 <!-- نموذج إضافة جهة راعية (Collapse) -->
                 <div class="collapse mb-4" id="addSponsorForm">
                     <form action="{{ route('job-fair.admin.sponsors.store', $fair->id) }}" method="POST" enctype="multipart/form-data"
@@ -1153,6 +1170,7 @@
                         </div>
                     </form>
                 </div>
+                @endif
 
                 <!-- قائمة الرعاة الحالية -->
                 @if($fair->sponsors->isEmpty())
@@ -1221,6 +1239,7 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
+                                        @if(auth()->user()->canManageJobFairSponsors())
                                         <div class="d-flex justify-content-center gap-1">
                                             <!-- زر تعديل -->
                                             <button type="button" class="action-circle-btn text-primary" data-bs-toggle="modal" data-bs-target="#editSponsorModal{{ $sp->id }}" title="تعديل جهة الرعاية">
@@ -1236,9 +1255,13 @@
                                                 </button>
                                             </form>
                                         </div>
+                                        @else
+                                        <span class="text-muted small">—</span>
+                                        @endif
                                     </td>
                                 </tr>
 
+                                @if(auth()->user()->canManageJobFairSponsors())
                                 <!-- Modal تعديل الراعي -->
                                 <div class="modal fade" id="editSponsorModal{{ $sp->id }}" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -1312,6 +1335,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                @endif
                                 @endforeach
                             </tbody>
                         </table>

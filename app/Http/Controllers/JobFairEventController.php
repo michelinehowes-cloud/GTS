@@ -32,6 +32,10 @@ class JobFairEventController extends Controller
 
     public function store(Request $request, JobFair $fair)
     {
+        if (!auth()->user()->canManageJobFairEvents()) {
+            abort(403, 'غير مصرح لك بإضافة الفعاليات وورش العمل.');
+        }
+
         $validated = $request->validate([
             'title'           => 'required|string|max:255',
             'type'            => 'required|string|in:masterclass,workshop,panel_discussion,keynote',
@@ -64,6 +68,10 @@ class JobFairEventController extends Controller
 
     public function update(Request $request, JobFairEvent $event)
     {
+        if (!auth()->user()->canManageJobFairEvents()) {
+            abort(403, 'غير مصرح لك بتعديل الفعاليات وورش العمل.');
+        }
+
         $validated = $request->validate([
             'title'           => 'required|string|max:255',
             'type'            => 'required|string|in:masterclass,workshop,panel_discussion,keynote',
@@ -98,6 +106,10 @@ class JobFairEventController extends Controller
 
     public function destroy(JobFairEvent $event)
     {
+        if (!auth()->user()->canManageJobFairEvents()) {
+            abort(403, 'غير مصرح لك بحذف الفعاليات وورش العمل.');
+        }
+
         if ($event->speaker_image && Storage::disk('public')->exists($event->speaker_image)) {
             Storage::disk('public')->delete($event->speaker_image);
         }

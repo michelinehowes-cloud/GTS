@@ -360,6 +360,10 @@ class JobFairController extends Controller
      */
     public function checkIn(Request $request)
     {
+        if (!auth()->user()->canManageJobFairAttendance()) {
+            return response()->json(['success' => false, 'message' => 'غير مصرح لك بتسجيل حضور الزوار في المعرض.'], 403);
+        }
+
         $graduateId = $request->graduate_id;
         $jobFairId = $request->job_fair_id;
         $code = trim($request->code ?? '');
@@ -464,6 +468,10 @@ class JobFairController extends Controller
      */
     public function create()
     {
+        if (!auth()->user()->canCreateJobFair()) {
+            abort(403, 'غير مصرح لك بإنشاء معرض جديد.');
+        }
+
         $companies = Company::orderBy('name')->get();
         $surveys = \App\Models\Survey::where('type', 'job_fair')->orWhereNull('type')->orderBy('title')->get();
         return view('job-fair.admin.create', compact('companies', 'surveys'));
@@ -474,6 +482,10 @@ class JobFairController extends Controller
      */
     public function store(Request $request)
     {
+        if (!auth()->user()->canCreateJobFair()) {
+            abort(403, 'غير مصرح لك بإنشاء معرض جديد.');
+        }
+
         $request->validate([
             'title'      => 'required|string|max:255',
             'event_date' => 'required|date',
@@ -519,6 +531,10 @@ class JobFairController extends Controller
      */
     public function show(JobFair $fair)
     {
+        if (!auth()->user()->canViewJobFair()) {
+            abort(403, 'غير مصرح لك باستعراض بيانات هذا المعرض.');
+        }
+
         $fair->load(['companies.company', 'registrations.graduate', 'sponsors']);
         $stats = $this->getFairStats($fair);
         $recruitment = $this->getRecruitmentStats($fair);
@@ -536,6 +552,10 @@ class JobFairController extends Controller
      */
     public function liveDashboard(JobFair $fair)
     {
+        if (!auth()->user()->canViewJobFair()) {
+            abort(403, 'غير مصرح لك باستعراض لوحة البث المباشر.');
+        }
+
         $stats = $this->getFairStats($fair);
         
         // جلب أحدث الحضور
@@ -565,6 +585,10 @@ class JobFairController extends Controller
 
     public function resetAttendance(JobFair $fair)
     {
+        if (!auth()->user()->canManageJobFairAttendance() && !auth()->user()->canDeleteJobFair()) {
+            abort(403, 'غير مصرح لك بتصفير أو إعادة تهيئة حضور المعرض.');
+        }
+
         JobFairRegistration::where('job_fair_id', $fair->id)
             ->update([
                 'attended' => false,
@@ -605,6 +629,10 @@ class JobFairController extends Controller
      */
     public function edit(JobFair $fair)
     {
+        if (!auth()->user()->canEditJobFair()) {
+            abort(403, 'غير مصرح لك بتعديل بيانات هذا المعرض.');
+        }
+
         $companies = Company::orderBy('name')->get();
         $surveys = \App\Models\Survey::where('type', 'job_fair')->orWhereNull('type')->orderBy('title')->get();
         $fair->load('companies');
@@ -616,6 +644,10 @@ class JobFairController extends Controller
      */
     public function update(Request $request, JobFair $fair)
     {
+        if (!auth()->user()->canEditJobFair()) {
+            abort(403, 'غير مصرح لك بتعديل بيانات هذا المعرض.');
+        }
+
         $request->validate([
             'title'      => 'required|string|max:255',
             'event_date' => 'required|date',
@@ -646,6 +678,10 @@ class JobFairController extends Controller
      */
     public function updateStatus(Request $request, JobFair $fair)
     {
+        if (!auth()->user()->canEditJobFair()) {
+            abort(403, 'غير مصرح لك بتغيير حالة المعرض.');
+        }
+
         $fair->update(['status' => $request->status]);
 
         \App\Models\AuditLog::logAction('update_status', "تم تغيير حالة المعرض {$fair->title} إلى {$request->status}", 'JobFair', $fair->id);
@@ -658,6 +694,10 @@ class JobFairController extends Controller
      */
     public function toggleFeature(Request $request, JobFair $fair)
     {
+        if (!auth()->user()->canEditJobFair()) {
+            abort(403, 'غير مصرح لك بتعديل إعدادات النشر للمعرض.');
+        }
+
         $feature = $request->input('feature');
 
         if ($feature === 'program') {
@@ -702,6 +742,10 @@ class JobFairController extends Controller
      */
     public function addCompany(Request $request, JobFair $fair)
     {
+        if (!auth()->user()->canManageJobFairCompanies()) {
+            abort(403, 'غير مصرح لك بإدارة وإضافة شركات للمعرض.');
+        }
+
         $request->validate(['company_id' => 'required|exists:companies,id']);
 
         JobFairCompany::updateOrCreate(
@@ -723,6 +767,10 @@ class JobFairController extends Controller
      */
     public function removeCompany(JobFair $fair, Company $company)
     {
+        if (!auth()->user()->canManageJobFairCompanies()) {
+            abort(403, 'غير مصرح لك بإدارة وحذف شركات من المعرض.');
+        }
+
         JobFairCompany::where('job_fair_id', $fair->id)
                       ->where('company_id', $company->id)
                       ->delete();
@@ -809,6 +857,10 @@ class JobFairController extends Controller
      */
     public function attendancePage(Request $request, JobFair $fair)
     {
+        if (!auth()->user()->canManageJobFairAttendance()) {
+            abort(403, 'غير مصرح لك بالوصول لصفحة ماسح وتسجيل الحضور.');
+        }
+
         $stats = $this->getFairStats($fair);
         $stats['remaining'] = max(0, ($stats['total_registered'] ?? 0) - ($stats['total_attended'] ?? 0));
         $stats['pct'] = ($stats['total_registered'] ?? 0) > 0 
@@ -856,6 +908,10 @@ class JobFairController extends Controller
      */
     public function storeSponsor(Request $request, JobFair $fair)
     {
+        if (!auth()->user()->canManageJobFairSponsors()) {
+            abort(403, 'غير مصرح لك بإدارة وإضافة الرعاة للمعرض.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'tier' => 'required|in:strategic,diamond,platinum,gold,silver,bronze,tech,media',
@@ -888,6 +944,10 @@ class JobFairController extends Controller
      */
     public function updateSponsor(Request $request, JobFairSponsor $sponsor)
     {
+        if (!auth()->user()->canManageJobFairSponsors()) {
+            abort(403, 'غير مصرح لك بتعديل بيانات الرعاة.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'tier' => 'required|in:strategic,diamond,platinum,gold,silver,bronze,tech,media',
@@ -923,6 +983,10 @@ class JobFairController extends Controller
      */
     public function destroySponsor(JobFairSponsor $sponsor)
     {
+        if (!auth()->user()->canManageJobFairSponsors()) {
+            abort(403, 'غير مصرح لك بحذف جهة الرعاية.');
+        }
+
         if ($sponsor->logo_path && \Storage::disk('public')->exists($sponsor->logo_path)) {
             \Storage::disk('public')->delete($sponsor->logo_path);
         }
@@ -936,6 +1000,10 @@ class JobFairController extends Controller
      */
     public function updateBrandIdentity(Request $request, JobFair $fair)
     {
+        if (!auth()->user()->canEditJobFair()) {
+            abort(403, 'غير مصرح لك بتعديل الهوية البصرية للمعرض.');
+        }
+
         $request->validate([
             'fair_logo'              => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:4096',
             'fair_logo_white'        => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:4096',
@@ -998,6 +1066,10 @@ class JobFairController extends Controller
      */
     public function deleteBrandAsset(JobFair $fair, $asset)
     {
+        if (!auth()->user()->canEditJobFair()) {
+            abort(403, 'غير مصرح لك بحذف ملفات الهوية البصرية.');
+        }
+
         $allowed = [
             'fair_logo'            => 'fair_logo_path',
             'fair_logo_white'      => 'fair_logo_white_path',

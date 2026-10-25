@@ -202,6 +202,7 @@
                                         <a href="{{ route('job-fair.public.events.show', $event->id) }}" target="_blank" class="btn btn-outline-secondary" title="الصفحة العامة ورمز QR">
                                             <i class="fas fa-qrcode"></i>
                                         </a>
+                                        @if(auth()->user()->canManageJobFairEvents())
                                         <!-- Edit Event -->
                                         <button type="button" class="btn btn-outline-primary" title="تعديل" onclick="editEventById({{ $event->id }})">
                                             <i class="fas fa-edit"></i>
@@ -214,6 +215,7 @@
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

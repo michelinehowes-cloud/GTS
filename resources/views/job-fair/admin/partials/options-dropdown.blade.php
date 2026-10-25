@@ -5,12 +5,14 @@
         <span>خيارات وإعدادات</span>
     </button>
     <ul class="dropdown-menu shadow-lg border-0 rounded-3 p-2" aria-labelledby="optionsDropdownBtn-{{ $fair->id }}" style="min-width: 235px; z-index: 1075; right: 0; left: auto; top: 100%; margin-top: 6px;">
+        @if(auth()->user()->canEditJobFair())
         <li>
             <a class="dropdown-item rounded-2 py-2 px-3 small d-flex align-items-center gap-2" href="{{ route('job-fair.admin.edit', $fair->id) }}">
                 <i class="fas fa-edit text-primary"></i>
                 <span>تعديل بيانات المعرض</span>
             </a>
         </li>
+        @endif
         <li>
             <a class="dropdown-item rounded-2 py-2 px-3 small d-flex align-items-center gap-2" href="{{ route('job-fair.admin.export', $fair->id) }}">
                 <i class="fas fa-users text-primary"></i>
@@ -23,6 +25,7 @@
                 <span>تصدير التوظيف والمقابلات (Excel)</span>
             </a>
         </li>
+        @if(auth()->user()->canEditJobFair())
         <li class="dropdown-divider my-1"></li>
         <li class="dropdown-header small text-muted fw-bold pb-1 pt-1"><i class="fas fa-flag me-1"></i>تغيير حالة المعرض:</li>
 
@@ -51,7 +54,9 @@
             </form>
         </li>
         @endforeach
+        @endif
 
+        @if(auth()->user()->canManageJobFairAttendance() || auth()->user()->canDeleteJobFair())
         <li class="dropdown-divider my-1"></li>
         <li>
             <form action="{{ route('job-fair.admin.reset-attendance', $fair->id) }}" method="POST" class="m-0">
@@ -62,5 +67,6 @@
                 </button>
             </form>
         </li>
+        @endif
     </ul>
 </div>

@@ -273,11 +273,16 @@ Route::middleware('auth')->group(function () {
         } elseif ($user->role === 'media_officer') {
             return redirect()->route('media.dashboard');
         } elseif ($user->role === 'staff') {
-            return redirect($user->dashboard_route);
+            return redirect()->route('staff.dashboard');
         }
         // إذا لم يكن هناك توجيه، ارجع للصفحة الرئيسية
         return redirect('/');
     })->name('dashboard');
+
+    // ==================== 🛡️ مسار لوحة تحكم الموظف مخصص الصلاحيات (Staff Dashboard) ====================
+    Route::middleware(['auth'])->prefix('staff')->name('staff.')->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\StaffDashboardController::class, 'index'])->name('dashboard');
+    });
 
     // ==================== 🤖 المساعد الذكي (AI Assistant / Copilot) ====================
     Route::prefix('ai-assistant')->name('ai-assistant.')->group(function () {

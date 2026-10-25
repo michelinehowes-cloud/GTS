@@ -446,6 +446,10 @@ class JobFairProjectController extends Controller
      */
     public function updateStatus(Request $request, JobFairProject $project)
     {
+        if (!auth()->user()->canManageJobFairProjects()) {
+            abort(403, 'غير مصرح لك بتحديث حالة مشاريع التخرج.');
+        }
+
         $validated = $request->validate([
             'status'           => 'required|string|in:published,pending,rejected,draft,archived',
             'booth_number'     => 'nullable|string|max:50',
@@ -488,6 +492,10 @@ class JobFairProjectController extends Controller
      */
     public function store(Request $request, JobFair $fair)
     {
+        if (!auth()->user()->canManageJobFairProjects()) {
+            abort(403, 'غير مصرح لك بإضافة مشاريع التخرج بالمعرض.');
+        }
+
         $validated = $request->validate([
             'title'                    => 'required|string|max:255',
             'faculty'                  => 'required|string|max:255',
@@ -569,6 +577,10 @@ class JobFairProjectController extends Controller
      */
     public function update(Request $request, JobFairProject $project)
     {
+        if (!auth()->user()->canManageJobFairProjects()) {
+            abort(403, 'غير مصرح لك بتعديل بيانات مشاريع التخرج.');
+        }
+
         $validated = $request->validate([
             'title'                    => 'required|string|max:255',
             'faculty'                  => 'required|string|max:255',
@@ -643,6 +655,10 @@ class JobFairProjectController extends Controller
      */
     public function destroy(JobFairProject $project)
     {
+        if (!auth()->user()->canManageJobFairProjects()) {
+            abort(403, 'غير مصرح لك بحذف مشاريع التخرج.');
+        }
+
         if ($project->poster_image && Storage::disk('public')->exists($project->poster_image)) {
             Storage::disk('public')->delete($project->poster_image);
         }

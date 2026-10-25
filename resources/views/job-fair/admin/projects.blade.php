@@ -519,21 +519,21 @@
     @foreach($projects as $proj)
         <!-- Modal: Review Project Details -->
         <div class="modal fade text-start" id="reviewModal{{ $proj->id }}" tabindex="-1" aria-labelledby="reviewModalLabel{{ $proj->id }}" aria-hidden="true" dir="rtl">
-            <div class="modal-dialog uot-modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-dialog uot-modal-dialog uot-modal-xl modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content uot-modal-content">
                     <div class="modal-header uot-modal-header uot-modal-header-review">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="uot-modal-icon-badge" style="border-color:#34d399; background:rgba(52,211,153,0.18); color:#34d399;">
+                        <div class="d-flex align-items-center gap-3" style="min-width: 0; flex: 1 1 auto; margin-inline-end: 1rem;">
+                            <div class="uot-modal-icon-badge flex-shrink-0" style="border-color:#34d399; background:rgba(52,211,153,0.18); color:#34d399;">
                                 <i class="fas fa-microscope"></i>
                             </div>
-                            <div>
-                                <h5 class="uot-modal-title" id="reviewModalLabel{{ $proj->id }}">
+                            <div style="min-width: 0; flex: 1 1 auto;">
+                                <h5 class="uot-modal-title" id="reviewModalLabel{{ $proj->id }}" style="word-break: break-word; overflow-wrap: anywhere; line-height: 1.45;">
                                     ملف مراجعة واعتماد المشروع: {{ $proj->title }}
                                 </h5>
-                                <p class="uot-modal-subtitle">{{ $proj->faculty }} &bull; {{ $proj->department }} &bull; دفعة {{ $proj->graduation_year }}</p>
+                                <p class="uot-modal-subtitle" style="word-break: break-word;">{{ $proj->faculty }} &bull; {{ $proj->department }} &bull; دفعة {{ $proj->graduation_year }}</p>
                             </div>
                         </div>
-                        <button type="button" class="uot-btn-close" data-bs-dismiss="modal" aria-label="Close" title="إغلاق">
+                        <button type="button" class="uot-btn-close flex-shrink-0" data-bs-dismiss="modal" aria-label="Close" title="إغلاق">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -575,11 +575,11 @@
                                     <i class="fas fa-globe text-info me-1"></i> البيانات المتاحة للجمهور (22 حقلاً)
                                 </h6>
 
-                                <table class="table table-bordered table-sm mb-3">
+                                <table class="table table-bordered table-sm mb-3" style="table-layout: fixed; width: 100%; word-break: break-word;">
                                     <tbody>
                                         <tr>
-                                            <th style="width: 32%;" class="bg-light">1. عنوان المشروع</th>
-                                            <td><strong>{{ $proj->title }}</strong></td>
+                                            <th style="width: 28%;" class="bg-light">1. عنوان المشروع</th>
+                                            <td style="width: 72%; word-break: break-word; overflow-wrap: anywhere;"><strong>{{ $proj->title }}</strong></td>
                                         </tr>
                                         <tr>
                                             <th class="bg-light">2. الكلية</th>
@@ -662,7 +662,7 @@
                                         </tr>
                                         <tr>
                                             <th class="bg-light">20. رابط البرمجي/GitHub</th>
-                                            <td>
+                                            <td style="word-break: break-all;">
                                                 @if($proj->project_url)
                                                     <a href="{{ $proj->project_url }}" target="_blank">{{ $proj->project_url }}</a>
                                                 @else
@@ -672,7 +672,7 @@
                                         </tr>
                                         <tr>
                                             <th class="bg-light">21. رابط الفيديو</th>
-                                            <td>
+                                            <td style="word-break: break-all;">
                                                 @if($proj->video_url)
                                                     <a href="{{ $proj->video_url }}" target="_blank">{{ $proj->video_url }}</a>
                                                 @else
@@ -682,7 +682,7 @@
                                         </tr>
                                         <tr>
                                             <th class="bg-light">22. بريد التواصل العام</th>
-                                            <td><a href="mailto:{{ $proj->contact_email }}">{{ $proj->contact_email ?? '-' }}</a></td>
+                                            <td style="word-break: break-all;"><a href="mailto:{{ $proj->contact_email }}">{{ $proj->contact_email ?? '-' }}</a></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -692,15 +692,15 @@
                             <div class="col-lg-5">
                                 <div class="admin-confidential-box h-100 shadow-sm">
                                     <div class="d-flex align-items-center gap-2 mb-3 text-danger fw-bold fs-6">
-                                        <i class="fas fa-user-shield fs-5"></i>
+                                        <i class="fas fa-user-shield fs-5 flex-shrink-0"></i>
                                         <span>معلومات خاصة بالمسؤول فقط (لا تظهر للعامة)</span>
                                     </div>
 
-                                    <table class="table table-sm table-borderless mb-0">
+                                    <table class="table table-sm table-borderless mb-0" style="table-layout: fixed; width: 100%; word-break: break-word;">
                                         <tbody>
                                             <tr class="border-bottom">
-                                                <th class="text-danger small" style="width: 45%;">1. الرقم الجامعي (رقم القيد):</th>
-                                                <td><strong class="fs-6 text-dark">{{ $proj->student_university_id ?? 'غير مسجل' }}</strong></td>
+                                                <th class="text-danger small" style="width: 44%; word-break: break-word;">1. الرقم الجامعي (رقم القيد):</th>
+                                                <td style="width: 56%; word-break: break-word; overflow-wrap: anywhere;"><strong class="fs-6 text-dark">{{ $proj->student_university_id ?? 'غير مسجل' }}</strong></td>
                                             </tr>
                                             <tr class="border-bottom">
                                                 <th class="text-danger small">2. هاتف الواتساب:</th>

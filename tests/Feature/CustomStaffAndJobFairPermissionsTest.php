@@ -65,6 +65,7 @@ class CustomStaffAndJobFairPermissionsTest extends TestCase
 
         $response = $this->actingAs($staff)->get(route('staff.dashboard'));
         $response->assertStatus(200);
+        $response->assertSee(e($staff->name));
         $response->assertSee('لوحة تحكم الموظف (صلاحيات مخصصة)');
         $response->assertSee('موظف مخصص الصلاحيات');
     }

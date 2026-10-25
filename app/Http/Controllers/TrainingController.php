@@ -1305,10 +1305,6 @@ class TrainingController extends Controller
             abort(403, 'غير مصرح لك باستخدام ماسح الحضور');
         }
 
-        if ($user->role === 'training_coordinator' && $training->coordinator_id !== $user->id) {
-            abort(403, 'غير مصرح لك باستخدام ماسح الحضور لبرنامج تدريبي تابع لمنسق آخر.');
-        }
-
         $todayDate = now()->format('Y-m-d');
         $trainingDays = $training->training_days;
         $totalDays = $training->total_days_count;
@@ -1343,10 +1339,6 @@ class TrainingController extends Controller
         $user = auth()->user();
         if (!$user->isAdmin() && !$user->hasPermission('trainings.attendance') && $user->role !== 'training_coordinator') {
             return response()->json(['success' => false, 'message' => 'غير مصرح لك بتسجيل الحضور'], 403);
-        }
-
-        if ($user->role === 'training_coordinator' && $training->coordinator_id !== $user->id) {
-            return response()->json(['success' => false, 'message' => 'غير مصرح لك بتسجيل الحضور لبرنامج تدريبي تابع لمنسق آخر.'], 403);
         }
 
         $request->validate([
@@ -1454,10 +1446,6 @@ class TrainingController extends Controller
             abort(403, 'غير مصرح لك بإدارة حضور وغياب التدريب');
         }
 
-        if ($user->role === 'training_coordinator' && $training->coordinator_id !== $user->id) {
-            abort(403, 'غير مصرح لك بعرض كشف حضور برنامج تدريبي تابع لمنسق آخر.');
-        }
-
         $training->load(['company', 'coordinator', 'trainer']);
         
         $applications = TrainingApplication::with(['user.graduateData'])
@@ -1515,10 +1503,6 @@ class TrainingController extends Controller
         $user = auth()->user();
         if (!$user->isAdmin() && !$user->hasPermission('trainings.attendance') && $user->role !== 'training_coordinator') {
             return response()->json(['success' => false, 'message' => 'غير مصرح لك بتعديل الحضور'], 403);
-        }
-
-        if ($user->role === 'training_coordinator' && $training->coordinator_id !== $user->id) {
-            return response()->json(['success' => false, 'message' => 'غير مصرح لك بتعديل حضور برنامج تدريبي تابع لمنسق آخر.'], 403);
         }
 
         $request->validate([
@@ -1642,10 +1626,6 @@ class TrainingController extends Controller
         $user = auth()->user();
         if (!$user->isAdmin() && !$user->hasPermission('trainings.attendance') && $user->role !== 'training_coordinator') {
             abort(403, 'غير مصرح لك بتصدير كشف الحضور');
-        }
-
-        if ($user->role === 'training_coordinator' && $training->coordinator_id !== $user->id) {
-            abort(403, 'غير مصرح لك بتصدير كشف حضور برنامج تدريبي تابع لمنسق آخر.');
         }
 
         $attendedOnly = $request->boolean('attended_only') || $request->get('filter') === 'attended';
@@ -1858,7 +1838,9 @@ class TrainingController extends Controller
     public function issueCertificates(Request $request, Training $training)
     {
         $user = auth()->user();
-        $isAuthorized = $user->isAdmin() || $user->hasPermission('trainings.attendance') || ($user->role === 'training_coordinator' && ($training->coordinator_id === $user->id || $training->coordinator_id === null));
+        $isAuthorized = $user->isAdmin() 
+            || $user->hasPermission('trainings.attendance') 
+            || $user->role === 'training_coordinator';
         if (!$isAuthorized) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'غير مصرح لك باعتماد وإصدار الشهادات لهذا البرنامج التدريبي.'], 403);

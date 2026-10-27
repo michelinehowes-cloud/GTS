@@ -671,33 +671,42 @@ class User extends Authenticatable
      */
     public function getDashboardRouteAttribute()
     {
-        switch ($this->role) {
-            case 'admin':
-                return route('admin.dashboard');
-            case 'graduate':
-                return route('graduate.dashboard');
-            case 'company':
-                return route('company.dashboard');
-            case 'training_coordinator':
-                return route('training-coordinator.dashboard');
-            case 'partnership_officer':
-                return route('partnership.dashboard');
-            case 'career_guidance_officer':
-                return route('career-guidance.dashboard');
-            case 'evaluation_followup':
-                return route('evaluation-followup.dashboard');
-            case 'media_officer':
-                return route('media.dashboard');
-            case 'staff':
-                return route('staff.dashboard');
-            default:
-                if ($this->hasPermission('trainings.view')) return route('training-coordinator.dashboard');
-                if ($this->hasPermission('companies.view') || $this->hasPermission('job_fair.view')) return route('partnership.dashboard');
-                if ($this->hasPermission('graduates.view')) return route('career-guidance.dashboard');
-                if ($this->hasPermission('evaluations.manage') || $this->hasPermission('surveys.manage')) return route('evaluation-followup.dashboard');
-                if ($this->hasPermission('media.manage')) return route('media.dashboard');
-                if ($this->hasPermission('users.view') || $this->hasPermission('users.manage')) return route('admin.users');
-                return route('staff.dashboard');
+        try {
+            switch ($this->role) {
+                case 'admin':
+                    return route('admin.dashboard');
+                case 'graduate':
+                    return route('graduate.dashboard');
+                case 'company':
+                    return route('company.dashboard');
+                case 'training_coordinator':
+                    return route('training-coordinator.dashboard');
+                case 'partnership_officer':
+                    return route('partnership.dashboard');
+                case 'career_guidance_officer':
+                    return route('career-guidance.dashboard');
+                case 'evaluation_followup':
+                    return route('evaluation-followup.dashboard');
+                case 'media_officer':
+                    return route('media.dashboard');
+                case 'staff':
+                    return \Illuminate\Support\Facades\Route::has('staff.dashboard')
+                        ? route('staff.dashboard')
+                        : route('home');
+                default:
+                    if ($this->hasPermission('trainings.view') && \Illuminate\Support\Facades\Route::has('training-coordinator.dashboard')) return route('training-coordinator.dashboard');
+                    if (($this->hasPermission('companies.view') || $this->hasPermission('job_fair.view')) && \Illuminate\Support\Facades\Route::has('partnership.dashboard')) return route('partnership.dashboard');
+                    if ($this->hasPermission('graduates.view') && \Illuminate\Support\Facades\Route::has('career-guidance.dashboard')) return route('career-guidance.dashboard');
+                    if (($this->hasPermission('evaluations.manage') || $this->hasPermission('surveys.manage')) && \Illuminate\Support\Facades\Route::has('evaluation-followup.dashboard')) return route('evaluation-followup.dashboard');
+                    if ($this->hasPermission('media.manage') && \Illuminate\Support\Facades\Route::has('media.dashboard')) return route('media.dashboard');
+                    if (($this->hasPermission('users.view') || $this->hasPermission('users.manage')) && \Illuminate\Support\Facades\Route::has('admin.users')) return route('admin.users');
+                    return \Illuminate\Support\Facades\Route::has('staff.dashboard')
+                        ? route('staff.dashboard')
+                        : route('home');
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('getDashboardRouteAttribute error for user #' . $this->id . ': ' . $e->getMessage());
+            return '/';
         }
     }
 

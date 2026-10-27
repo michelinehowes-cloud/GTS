@@ -10,14 +10,14 @@
 <div class="container-fluid">
     <!-- الشريط الأزرق الموحد المعتمد في المنظومة -->
     <x-page-hero
-        title="{{ auth()->user()->role === 'staff' ? 'إدارة شؤون وتأهيل الخريجين' : 'لوحة تحكم مسؤول الإرشاد المهني' }}"
+        :title="auth()->user()->role === 'staff' ? 'إدارة شؤون وتأهيل الخريجين' : 'لوحة تحكم مسؤول الإرشاد المهني'"
         subtitle="متابعة وتأهيل الخريجين وإدارة الترشيحات الوظيفية وقياس الأثر والتوظيف"
         icon="fas fa-compass"
         :breadcrumbs="[
             ['label' => 'الرئيسية', 'url' => route('home')],
-            ['label' => auth()->user()->role === 'staff' ? 'لوحة الموظف' : 'لوحة الإرشاد المهني', 'url' => auth()->user()->role === 'staff' ? route('staff.dashboard') : null]
+            ['label' => auth()->user()->role === 'staff' ? 'لوحة الموظف' : 'لوحة الإرشاد المهني', 'url' => auth()->user()->role === 'staff' ? (\Illuminate\Support\Facades\Route::has('staff.dashboard') ? route('staff.dashboard') : '/') : null]
         ]"
-        secondaryBadge="{{ auth()->user()->role === 'staff' ? 'موظف مخصص الصلاحيات' : 'مسؤول الإرشاد المهني' }}"
+        :secondaryBadge="auth()->user()->role === 'staff' ? 'موظف مخصص الصلاحيات' : 'مسؤول الإرشاد المهني'"
         secondaryBadgeIcon="fas fa-compass"
     >
         <a href="{{ route($prefix . '.nominations.create') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">

@@ -24,7 +24,8 @@ class JobFairVisitorController extends Controller
             'specialization' => 'nullable|string|max:255',
             'organization' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:100',
-            'visit_purpose' => 'nullable|string|max:255',
+            'visit_purpose' => 'nullable',
+            'visit_purpose.*' => 'nullable|string|max:100',
             'notes' => 'nullable|string|max:1000',
         ], [
             'name.required' => 'يرجى إدخال اسمك الكامل أو الرباعي.',
@@ -32,6 +33,17 @@ class JobFairVisitorController extends Controller
         ]);
 
         $validated['visitor_type'] = $validated['visitor_type'] ?? 'job_seeker';
+
+        // معالجة أسباب الزيارة المتعددة وتخزينها
+        if (isset($validated['visit_purpose'])) {
+            if (is_array($validated['visit_purpose'])) {
+                $purposes = array_values(array_filter($validated['visit_purpose']));
+                $validated['visit_purpose'] = !empty($purposes) ? json_encode($purposes, JSON_UNESCAPED_UNICODE) : null;
+            } elseif (is_string($validated['visit_purpose'])) {
+                $trimmed = trim($validated['visit_purpose']);
+                $validated['visit_purpose'] = $trimmed !== '' ? $trimmed : null;
+            }
+        }
 
         // التحقق من عدم التكرار لنفس المعرض ورقم الهاتف
         $existing = JobFairVisitor::where('job_fair_id', $fair->id)

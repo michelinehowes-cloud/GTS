@@ -75,15 +75,61 @@ class JobFairVisitor extends Model
         };
     }
 
-    public function getVisitPurposeLabelAttribute(): string
+    public static function purposeOptions(): array
     {
-        return match ($this->visit_purpose) {
-            'explore_jobs' => 'استكشاف فرص العمل والتدريب',
+        return [
+            'explore_jobs' => 'البحث عن فرص عمل وتدريب بأجنحة الشركات',
+            'view_projects' => 'الاطلاع على مشاريع تخرج الطلاب والابتكارات',
+            'networking' => 'بناء علاقات وشراكات مهنية مع الشركات',
+            'attend_workshops' => 'حضور ورش العمل والجلسات الحوارية',
+            'support_graduates' => 'تشجيع ومساندة الخريجين',
+            'general_visit' => 'زيارة استكشافية عامة للفعاليات',
             'visit_booths' => 'التعرف على الشركات العارضة',
-            'attend_workshops' => 'حضور الندوات والبرنامج العلمي',
             'support_graduate' => 'مرافقة ودعم أحد الخريجين',
             'general' => 'زيارة واستطلاع عام',
-            default => $this->visit_purpose ?: 'زيارة عامة',
-        };
+        ];
+    }
+
+    public function getVisitPurposesArrayAttribute(): array
+    {
+        if (empty($this->visit_purpose)) {
+            return [];
+        }
+
+        if (is_array($this->visit_purpose)) {
+            return $this->visit_purpose;
+        }
+
+        if (is_string($this->visit_purpose)) {
+            $decoded = json_decode($this->visit_purpose, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                return $decoded;
+            }
+
+            if (str_contains($this->visit_purpose, ',')) {
+                return array_map('trim', explode(',', $this->visit_purpose));
+            }
+
+            return [$this->visit_purpose];
+        }
+
+        return [];
+    }
+
+    public function getVisitPurposeLabelAttribute(): string
+    {
+        $purposes = $this->visit_purposes_array;
+        if (empty($purposes)) {
+            return 'زيارة واستكشاف المعرض';
+        }
+
+        $options = self::purposeOptions();
+        $labels = [];
+
+        foreach ($purposes as $p) {
+            $labels[] = $options[$p] ?? $p;
+        }
+
+        return implode('، ', $labels);
     }
 }

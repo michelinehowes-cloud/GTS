@@ -388,9 +388,9 @@
                     <div class="info-label">تاريخ التسجيل</div>
                     <div class="info-value">{{ $visitor->created_at->format('d/m/Y') }}</div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">هدف الزيارة</div>
-                    <div class="info-value" style="font-size: 0.78rem;">{{ $visitor->visit_purpose ?: 'زيارة واستكشاف المعرض' }}</div>
+                <div class="info-item" style="grid-column: span 2;">
+                    <div class="info-label">أهداف الزيارة</div>
+                    <div class="info-value" style="font-size: 0.8rem; line-height: 1.5;">{{ $visitor->visit_purpose_label ?: 'زيارة واستكشاف المعرض' }}</div>
                 </div>
             </div>
 

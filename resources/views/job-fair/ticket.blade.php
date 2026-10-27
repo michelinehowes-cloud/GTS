@@ -267,12 +267,34 @@
 
         <!-- Header -->
         <div class="ticket-header">
-            <div class="d-flex justify-content-center align-items-center gap-3 mb-2 ticket-logo flex-wrap">
-                <img src="{{ $registration->jobFair->white_logo_url }}" alt="{{ $registration->jobFair->title }}" style="height: 48px; width: auto; max-width: 140px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
-                <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب الخريجين بجامعة طرابلس" style="height: 48px; width: auto;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+            <div class="d-flex justify-content-center align-items-center gap-2 gap-sm-3 mb-2.5 ticket-logo flex-wrap">
+                <!-- 1. شعار مكتب تدريب الخريجين بجامعة طرابلس -->
+                <img src="{{ asset('images/office_logo_white.png') }}" alt="مكتب تدريب الخريجين بجامعة طرابلس" style="height: 42px; width: auto; max-width: 105px; object-fit: contain;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+
+                <!-- فاصل رأسي -->
+                <div class="ticket-logo-divider" style="width: 1.5px; height: 30px; background: rgba(255,255,255,0.35);"></div>
+
+                <!-- 2. شعار المعرض -->
+                @php
+                    $fair = $registration->jobFair;
+                    $hasWhiteLogo = !empty($fair->fair_logo_white_path) || ($fair->id === 1 && file_exists(public_path('images/job_fair_logo_white.png')));
+                @endphp
+                @if($hasWhiteLogo)
+                    <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" style="height: 44px; width: auto; max-width: 120px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
+                @else
+                    <div class="bg-white rounded-2 p-1 shadow-xs d-inline-flex align-items-center justify-content-center" style="height: 42px; min-width: 42px;">
+                        <img src="{{ $fair->white_logo_url ?: $fair->logo_url }}" alt="{{ $fair->title }}" style="max-height: 36px; max-width: 105px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
+                    </div>
+                @endif
+
+                <!-- فاصل رأسي -->
+                <div class="ticket-logo-divider" style="width: 1.5px; height: 30px; background: rgba(255,255,255,0.35);"></div>
+
+                <!-- 3. شعار شركة الواحة لتنظيم المعارض والمؤتمرات -->
+                <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 34px; width: auto; max-width: 110px; object-fit: contain;" title="شركة الواحة لتنظيم المعارض والمؤتمرات — الشريك الاستراتيجي" onerror="this.onerror=null;this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
             </div>
             <div class="ticket-event-name">{{ $registration->jobFair->title }}</div>
-            <div class="ticket-university">مكتب تدريب الخريجين</div>
+            <div class="ticket-university">مكتب تدريب الخريجين بجامعة طرابلس &bull; بالتعاون مع شركة الواحة للمعارض</div>
             <div class="mt-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.9)">
                 @if($registration->jobFair->event_date)
                     <i class="fas fa-calendar ms-1 text-warning"></i>{{ $registration->jobFair->event_date->format('d/m/Y') }}

@@ -348,7 +348,7 @@ class JobFairController extends Controller
      */
     public function myTicket(JobFairRegistration $registration)
     {
-        if ($registration->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
+        if ((int)$registration->user_id !== (int)Auth::id() && Auth::user()->role !== 'admin') {
             abort(403);
         }
         $registration->load(['jobFair', 'graduate']);

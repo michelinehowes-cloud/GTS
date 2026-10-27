@@ -7182,6 +7182,64 @@
         {{-- ══════════════════════════════════
         نافذة تسجيل زائر / ضيف بالمعرض
         ══════════════════════════════════ --}}
+                {{-- أسلوب عرض خيارات الهدف من الزيارة التفاعلية --}}
+        <style>
+            .visit-purpose-option {
+                background: #162b4c !important;
+                border: 1px solid rgba(255, 255, 255, 0.15) !important;
+                color: #e2e8f0;
+                cursor: pointer;
+                user-select: none;
+                transition: all 0.22s ease;
+                min-height: 48px;
+            }
+            .visit-purpose-option:hover {
+                background: #1d355e !important;
+                border-color: rgba(245, 158, 11, 0.55) !important;
+                transform: translateY(-1px);
+                color: #ffffff;
+            }
+            .visit-purpose-option .form-check-input {
+                width: 1.15rem;
+                height: 1.15rem;
+                cursor: pointer;
+                accent-color: #f59e0b;
+                border-color: rgba(255, 255, 255, 0.35);
+                background-color: rgba(255, 255, 255, 0.08);
+                flex-shrink: 0;
+            }
+            .visit-purpose-option .form-check-input:checked {
+                background-color: #f59e0b;
+                border-color: #f59e0b;
+            }
+            .visit-purpose-option .vp-icon {
+                width: 32px;
+                height: 32px;
+                background: rgba(245, 158, 11, 0.12);
+                color: #f59e0b;
+                font-size: 0.88rem;
+                flex-shrink: 0;
+                transition: all 0.2s ease;
+            }
+            .visit-purpose-option .vp-text {
+                line-height: 1.35;
+                font-weight: 500;
+                font-size: 0.84rem;
+            }
+            .visit-purpose-option:has(input:checked),
+            .visit-purpose-option.is-checked {
+                background: rgba(245, 158, 11, 0.14) !important;
+                border-color: #f59e0b !important;
+                color: #ffffff !important;
+                box-shadow: 0 0 12px rgba(245, 158, 11, 0.22);
+            }
+            .visit-purpose-option:has(input:checked) .vp-icon,
+            .visit-purpose-option.is-checked .vp-icon {
+                background: #f59e0b;
+                color: #0c1a30;
+                transform: scale(1.05);
+            }
+        </style>
         <div class="modal fade" id="visitorRegisterModal" tabindex="-1" aria-labelledby="visitorRegisterModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -7323,21 +7381,72 @@
                                         style="background:#162b4c;" placeholder="مثال: طرابلس، جنزور، مصراتة...">
                                 </div>
 
-                                {{-- الهدف من الزيارة --}}
+                                {{-- الهدف من الزيارة (اختيار متعدد) --}}
                                 <div class="col-12">
-                                    <label class="form-label text-light small fw-bold"><i
-                                            class="fas fa-bullseye text-warning me-1"></i>الهدف الأساسي من زيارة
-                                        المعرض</label>
-                                    <select name="visit_purpose"
-                                        class="form-select text-white border-secondary rounded-3 py-2"
-                                        style="background:#162b4c;">
-                                        <option value="explore_jobs">البحث عن فرص عمل وتدريب بأجنحة الشركات</option>
-                                        <option value="view_projects">الاطلاع على مشاريع تخرج الطلاب والابتكارات</option>
-                                        <option value="networking">بناء علاقات وشراكات مهنية مع الشركات</option>
-                                        <option value="attend_workshops">حضور ورش العمل والجلسات الحوارية</option>
-                                        <option value="support_graduates">تشجيع ومساندة الخريجين</option>
-                                        <option value="general_visit">زيارة استكشافية عامة للفعاليات</option>
-                                    </select>
+                                    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                                        <label class="form-label text-light small fw-bold mb-0">
+                                            <i class="fas fa-bullseye text-warning me-1"></i>الهدف الأساسي من زيارة المعرض
+                                        </label>
+                                        <span class="badge rounded-pill fw-normal px-2 py-1" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.35); font-size: 0.72rem;">
+                                            <i class="fas fa-check-double me-1"></i>يمكنك اختيار أكثر من سبب للزيارة
+                                        </span>
+                                    </div>
+                                    <div class="row g-2 visit-purposes-container">
+                                        <div class="col-md-6 col-12">
+                                            <label class="visit-purpose-option d-flex align-items-center gap-2 p-2 rounded-3 border w-100 mb-0" for="vp_explore_jobs">
+                                                <input type="checkbox" name="visit_purpose[]" value="explore_jobs" id="vp_explore_jobs" class="form-check-input mt-0" checked>
+                                                <span class="vp-icon d-inline-flex align-items-center justify-content-center rounded-2">
+                                                    <i class="fas fa-briefcase"></i>
+                                                </span>
+                                                <span class="vp-text">البحث عن فرص عمل وتدريب بأجنحة الشركات</span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6 col-12">
+                                            <label class="visit-purpose-option d-flex align-items-center gap-2 p-2 rounded-3 border w-100 mb-0" for="vp_view_projects">
+                                                <input type="checkbox" name="visit_purpose[]" value="view_projects" id="vp_view_projects" class="form-check-input mt-0">
+                                                <span class="vp-icon d-inline-flex align-items-center justify-content-center rounded-2">
+                                                    <i class="fas fa-lightbulb"></i>
+                                                </span>
+                                                <span class="vp-text">الاطلاع على مشاريع تخرج الطلاب والابتكارات</span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6 col-12">
+                                            <label class="visit-purpose-option d-flex align-items-center gap-2 p-2 rounded-3 border w-100 mb-0" for="vp_networking">
+                                                <input type="checkbox" name="visit_purpose[]" value="networking" id="vp_networking" class="form-check-input mt-0">
+                                                <span class="vp-icon d-inline-flex align-items-center justify-content-center rounded-2">
+                                                    <i class="fas fa-handshake"></i>
+                                                </span>
+                                                <span class="vp-text">بناء علاقات وشراكات مهنية مع الشركات</span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6 col-12">
+                                            <label class="visit-purpose-option d-flex align-items-center gap-2 p-2 rounded-3 border w-100 mb-0" for="vp_attend_workshops">
+                                                <input type="checkbox" name="visit_purpose[]" value="attend_workshops" id="vp_attend_workshops" class="form-check-input mt-0">
+                                                <span class="vp-icon d-inline-flex align-items-center justify-content-center rounded-2">
+                                                    <i class="fas fa-chalkboard-teacher"></i>
+                                                </span>
+                                                <span class="vp-text">حضور ورش العمل والجلسات الحوارية</span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6 col-12">
+                                            <label class="visit-purpose-option d-flex align-items-center gap-2 p-2 rounded-3 border w-100 mb-0" for="vp_support_graduates">
+                                                <input type="checkbox" name="visit_purpose[]" value="support_graduates" id="vp_support_graduates" class="form-check-input mt-0">
+                                                <span class="vp-icon d-inline-flex align-items-center justify-content-center rounded-2">
+                                                    <i class="fas fa-user-graduate"></i>
+                                                </span>
+                                                <span class="vp-text">تشجيع ومساندة الخريجين</span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-6 col-12">
+                                            <label class="visit-purpose-option d-flex align-items-center gap-2 p-2 rounded-3 border w-100 mb-0" for="vp_general_visit">
+                                                <input type="checkbox" name="visit_purpose[]" value="general_visit" id="vp_general_visit" class="form-check-input mt-0">
+                                                <span class="vp-icon d-inline-flex align-items-center justify-content-center rounded-2">
+                                                    <i class="fas fa-compass"></i>
+                                                </span>
+                                                <span class="vp-text">زيارة استكشافية عامة للفعاليات</span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {{-- ملاحظات --}}
@@ -7790,6 +7899,16 @@
         // ── Visitor Registration Form Handling
         (function () {
             const vForm = document.getElementById('visitorRegisterForm');
+            // تزامن حالة أسباب الزيارة وتنشيط التنسيق البصري
+            document.querySelectorAll('.visit-purpose-option input[type="checkbox"]').forEach(cb => {
+                const updateChecked = () => {
+                    const parent = cb.closest('.visit-purpose-option');
+                    if (parent) parent.classList.toggle('is-checked', cb.checked);
+                };
+                cb.addEventListener('change', updateChecked);
+                updateChecked();
+            });
+
             if (!vForm) return;
 
             vForm.addEventListener('submit', function (e) {

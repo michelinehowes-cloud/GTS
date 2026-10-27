@@ -307,7 +307,12 @@
                             <td>
                                 <div class="small fw-semibold text-dark">{{ $visitor->specialization ?: ($visitor->education_level_label ?: '—') }}</div>
                                 @if($visitor->organization)
-                                    <small class="text-muted">{{ $visitor->organization }}</small>
+                                    <small class="text-muted d-block">{{ $visitor->organization }}</small>
+                                @endif
+                                @if($visitor->visit_purpose)
+                                    <small class="text-muted d-block mt-1" title="أهداف الزيارة: {{ $visitor->visit_purpose_label }}" style="font-size: 0.72rem;">
+                                        <i class="fas fa-bullseye text-warning me-1"></i>{{ Str::limit($visitor->visit_purpose_label, 38) }}
+                                    </small>
                                 @endif
                             </td>
 
@@ -482,6 +487,58 @@
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">المدينة / الإقامة</label>
                             <input type="text" name="city" class="form-control" placeholder="طرابلس، مصراتة، بنغازي...">
+                        </div>
+
+                        <!-- الهدف الأساسي من الزيارة (اختيار متعدد) -->
+                        <div class="col-12">
+                            <label class="form-label small fw-bold d-flex justify-content-between align-items-center mb-2">
+                                <span><i class="fas fa-bullseye text-primary me-1"></i>الهدف الأساسي من زيارة المعرض</span>
+                                <span class="badge bg-light text-primary border fw-normal" style="font-size: 0.72rem;"><i class="fas fa-check-double me-1"></i>يمكن اختيار أكثر من سبب</span>
+                            </label>
+                            <div class="row g-2">
+                                <div class="col-md-6 col-12">
+                                    <label class="d-flex align-items-center gap-2 p-2 rounded-2 border bg-light w-100 mb-0" style="cursor: pointer;">
+                                        <input type="checkbox" name="visit_purpose[]" value="explore_jobs" class="form-check-input mt-0" checked>
+                                        <i class="fas fa-briefcase text-primary"></i>
+                                        <span class="small">البحث عن فرص عمل وتدريب</span>
+                                    </label>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label class="d-flex align-items-center gap-2 p-2 rounded-2 border bg-light w-100 mb-0" style="cursor: pointer;">
+                                        <input type="checkbox" name="visit_purpose[]" value="view_projects" class="form-check-input mt-0">
+                                        <i class="fas fa-lightbulb text-primary"></i>
+                                        <span class="small">الاطلاع على مشاريع التخرج</span>
+                                    </label>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label class="d-flex align-items-center gap-2 p-2 rounded-2 border bg-light w-100 mb-0" style="cursor: pointer;">
+                                        <input type="checkbox" name="visit_purpose[]" value="networking" class="form-check-input mt-0">
+                                        <i class="fas fa-handshake text-primary"></i>
+                                        <span class="small">بناء علاقات وشراكات مهنية</span>
+                                    </label>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label class="d-flex align-items-center gap-2 p-2 rounded-2 border bg-light w-100 mb-0" style="cursor: pointer;">
+                                        <input type="checkbox" name="visit_purpose[]" value="attend_workshops" class="form-check-input mt-0">
+                                        <i class="fas fa-chalkboard-teacher text-primary"></i>
+                                        <span class="small">حضور ورش العمل والندوات</span>
+                                    </label>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label class="d-flex align-items-center gap-2 p-2 rounded-2 border bg-light w-100 mb-0" style="cursor: pointer;">
+                                        <input type="checkbox" name="visit_purpose[]" value="support_graduates" class="form-check-input mt-0">
+                                        <i class="fas fa-user-graduate text-primary"></i>
+                                        <span class="small">تشجيع ومساندة الخريجين</span>
+                                    </label>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label class="d-flex align-items-center gap-2 p-2 rounded-2 border bg-light w-100 mb-0" style="cursor: pointer;">
+                                        <input type="checkbox" name="visit_purpose[]" value="general_visit" class="form-check-input mt-0">
+                                        <i class="fas fa-compass text-primary"></i>
+                                        <span class="small">زيارة استكشافية عامة للفعاليات</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

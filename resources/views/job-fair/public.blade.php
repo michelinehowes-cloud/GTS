@@ -3623,13 +3623,15 @@
         .cyber-cylinder-scene {
             width: 100%;
             position: relative;
-            margin: 0.5rem 0 2rem;
+            margin: 0.5rem 0 1.5rem;
+            overflow: hidden;
+            padding: 0.5rem 0;
         }
 
         /* مسرح الأسطوانة */
         .cyber-cylinder-wrapper {
             width: 100%;
-            height: 490px;
+            height: 480px;
             position: relative;
             display: flex;
             align-items: center;
@@ -3637,7 +3639,7 @@
             overflow: visible;
             user-select: none;
             padding: 0;
-            margin-bottom: 3rem;
+            margin-bottom: 1.5rem;
         }
 
         /* حلقة الأرضية الهولوجرافية */
@@ -3999,39 +4001,96 @@
                 --perspective: 1100px;
             }
             .cyber-cylinder-wrapper {
-                height: 460px;
+                height: 440px;
+                margin-bottom: 1.5rem;
             }
             .cylinder-floor-glow {
-                width: 600px;
-                height: 600px;
-                bottom: -120px;
+                width: 580px;
+                height: 580px;
+                bottom: -110px;
             }
         }
 
         @media (max-width: 576px) {
+            .cyber-cylinder-scene {
+                padding: 0.25rem 0;
+                margin: 0 0 1rem;
+            }
+            .cyber-cylinder-wrapper {
+                height: 380px;
+                margin-bottom: 0.75rem;
+            }
             .cyber-cylinder-inner {
                 --w: 165px;
                 --h: 250px;
-                --translateZ: 255px;
+                --translateZ: 235px;
                 --rotateX: -5deg;
                 --perspective: 900px;
             }
-            .cyber-cylinder-wrapper {
-                height: 400px;
+            .cyber-cylinder-card {
+                padding: 0.75rem 0.65rem 0.65rem;
+                border-radius: 16px;
+            }
+            .cylinder-card-header {
+                margin-bottom: 0.35rem;
+                gap: 4px;
+                flex-wrap: nowrap;
+            }
+            .cylinder-tag-number,
+            .cylinder-tag-jobs {
+                font-size: 0.6rem;
+                padding: 2px 6px;
+                gap: 3px;
+                white-space: nowrap;
+                min-width: 0;
+            }
+            .cylinder-tag-number i,
+            .cylinder-tag-jobs i {
+                display: none;
+            }
+            .cylinder-identity-hub {
+                min-height: 56px;
+                margin: 0.1rem auto 0.3rem;
             }
             .cylinder-logo-dock {
-                width: 95px;
-                height: 56px;
-                padding: 4px 8px;
+                height: 58px;
+            }
+            .cylinder-logo-dock img {
+                max-height: 52px;
+            }
+            .cylinder-crest-emblem {
+                width: 54px;
+                height: 54px;
+                border-radius: 12px;
+            }
+            .cylinder-crest-emblem .crest-monogram-label {
+                font-size: 0.88rem;
+                max-width: 48px;
             }
             .cylinder-company-title {
-                font-size: 0.9rem;
-                min-height: 2.4rem;
+                font-size: 0.82rem;
+                min-height: 2rem;
+                line-height: 1.25;
+                margin-bottom: 0.2rem;
+            }
+            .cylinder-sector-badge {
+                font-size: 0.65rem;
+                padding: 2px 8px;
+                margin-bottom: 0.25rem;
+            }
+            .cylinder-action-cta {
+                padding: 5px 10px;
+                font-size: 0.7rem;
+            }
+            .cylinder-action-arrow {
+                width: 18px;
+                height: 18px;
+                font-size: 0.6rem;
             }
             .cylinder-floor-glow {
-                width: 440px;
-                height: 440px;
-                bottom: -90px;
+                width: 380px;
+                height: 380px;
+                bottom: -75px;
             }
             .cylinder-controls-bar {
                 justify-content: center;
@@ -4374,15 +4433,15 @@
         .companies-dir-cta-wrap {
             position: relative;
             z-index: 10;
-            margin-top: 5rem;
-            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
             clear: both;
         }
 
         @media (max-width: 991px) {
             .companies-dir-cta-wrap {
-                margin-top: 2.5rem;
-                padding-top: 0.8rem;
+                margin-top: 1rem;
+                padding-top: 0.5rem;
             }
         }
 
@@ -6288,28 +6347,16 @@
                     '238, 202, 62',   // ذهبي ملكي فاخر للمعرض (#eeca3e)
                 ];
 
-                // للأسطوانة ثلاثية الأبعاد: إدراج كافة الشركات المشاركة في المعرض بالكامل
+                // للأسطوانة ثلاثية الأبعاد: ضبط دقيق لـ 8 بطاقات لضمان التباعد الدائري المثالي بزاوية 45 درجة كما في التصميم الأصلي المعتمد
                 $cylinderCompanies = collect();
                 $baseCompCount = $companies->count();
                 if ($baseCompCount > 0) {
-                    if ($baseCompCount >= 6) {
-                        // إدراج كافة الشركات المشاركة دون استثناء
-                        $cylinderCompanies = $companies;
-                    } else {
-                        // في حال كان عدد الشركات قليلاً (أقل من 6)، نكررها حتى تكتمل الدائرة الهندسية للأسطوانة 3D
-                        $minCylinderQty = 8;
-                        for ($ci = 0; $ci < $minCylinderQty; $ci++) {
-                            $cylinderCompanies->push($companies[$ci % $baseCompCount]);
-                        }
+                    $targetCylinderQty = 8;
+                    for ($ci = 0; $ci < $targetCylinderQty; $ci++) {
+                        $cylinderCompanies->push($companies[$ci % $baseCompCount]);
                     }
                 }
                 $cylinderQty = $cylinderCompanies->count();
-
-                // حساب نصف القطر المناسب 3D هندسياً حسب عدد الشركات لضمان التباعد المثالي وعدم تداخل البطاقات
-                $cardW = 235;
-                $calcRadius = (int) round(($cardW / (2 * tan(M_PI / max($cylinderQty, 3))))) + 25;
-                $cylinderTranslateZ = max(420, $calcRadius);
-                $cylinderSpeed = max(26, (int) round($cylinderQty * 2.8));
 
                 // عرض معاينة الشركات في الشبكة
                 $previewCompanies = $companies;
@@ -6328,7 +6375,7 @@
                         {{-- مسرح الأسطوانة ثلاثية الأبعاد 3D --}}
                         <div class="cyber-cylinder-wrapper" id="companiesCylinderWrapper">
                             <div class="cylinder-floor-glow"></div>
-                            <div class="cyber-cylinder-inner" id="companiesCylinderInner" style="--quantity: {{ $cylinderQty }}; --translateZ: {{ $cylinderTranslateZ }}px; animation-duration: {{ $cylinderSpeed }}s;">
+                            <div class="cyber-cylinder-inner" id="companiesCylinderInner" style="--quantity: {{ $cylinderQty }};">
                                 @foreach($cylinderCompanies as $cIndex => $fc)
                                     @php
                                         $colorCard = $cardColors[$cIndex % count($cardColors)];
@@ -7876,6 +7923,35 @@
 
             if (prevBtn) prevBtn.addEventListener('click', () => stepCylinder(1));
             if (nextBtn) nextBtn.addEventListener('click', () => stepCylinder(-1));
+
+            // دعم السحب باللمس على الهواتف والأجهزة الذكية
+            let touchStartX = 0;
+            let touchStartTime = 0;
+            const sceneEl = document.getElementById('companiesCylinderScene');
+            if (sceneEl) {
+                sceneEl.addEventListener('touchstart', function (e) {
+                    if (e.touches && e.touches.length === 1) {
+                        touchStartX = e.touches[0].clientX;
+                        touchStartTime = Date.now();
+                    }
+                }, { passive: true });
+
+                sceneEl.addEventListener('touchend', function (e) {
+                    if (e.changedTouches && e.changedTouches.length === 1) {
+                        const touchEndX = e.changedTouches[0].clientX;
+                        const diffX = touchEndX - touchStartX;
+                        const diffTime = Date.now() - touchStartTime;
+
+                        if (Math.abs(diffX) > 35 && diffTime < 500) {
+                            if (diffX < 0) {
+                                stepCylinder(-1); // سحب لليسار
+                            } else {
+                                stepCylinder(1);  // سحب لليمين
+                            }
+                        }
+                    }
+                }, { passive: true });
+            }
         })();
 
         // ── Global Cyber Processing Wave Helpers (Uiverse mrpumps31232)

@@ -66,7 +66,7 @@ class JobFairVisitorController extends Controller
         }
 
         // توليد رقم تذكرة فريد
-        $year = Carbon::parse($fair->event_date)->year ?: date('Y');
+        $year = $fair->event_date ? (Carbon::parse($fair->event_date)->year ?: (int) date('Y')) : (int) date('Y');
         $random = strtoupper(Str::random(5));
         $ticketNumber = "VIS-{$year}-{$random}";
 
@@ -79,7 +79,23 @@ class JobFairVisitorController extends Controller
         $validated['qr_code'] = route('job-fair.visitor.ticket', $ticketNumber);
         $validated['attended'] = false;
 
-        $visitor = JobFairVisitor::create($validated);
+        try {
+            $visitor = JobFairVisitor::create($validated);
+        } catch (\Illuminate\Database\QueryException $e) {
+            if (isset($validated['visit_purpose']) && is_string($validated['visit_purpose']) && mb_strlen($validated['visit_purpose']) > 250) {
+                try {
+                    if (in_array(\Illuminate\Support\Facades\DB::getDriverName(), ['mysql', 'mariadb'], true)) {
+                        \Illuminate\Support\Facades\DB::statement('ALTER TABLE `job_fair_visitors` MODIFY COLUMN `visit_purpose` TEXT NULL');
+                    }
+                    $visitor = JobFairVisitor::create($validated);
+                } catch (\Throwable $retryErr) {
+                    $validated['visit_purpose'] = mb_substr($validated['visit_purpose'], 0, 250);
+                    $visitor = JobFairVisitor::create($validated);
+                }
+            } else {
+                throw $e;
+            }
+        }
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([

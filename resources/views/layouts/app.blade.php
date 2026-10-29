@@ -1578,7 +1578,7 @@
                 <button type="button" class="btn mobile-topbar-btn position-relative" onclick="openNotificationsDrawer()" title="الإشعارات">
                     <i class="fas fa-bell"></i>
                     @php
-                        $unreadNotifsMobile = auth()->user()->unreadNotifications->count() ?? 0;
+                        $unreadNotifsMobile = $unreadNotificationsCount ?? \App\Models\Notification::where('user_id', auth()->id())->where('is_read', false)->count();
                     @endphp
                     @if($unreadNotifsMobile > 0)
                         <span class="mobile-topbar-badge">{{ $unreadNotifsMobile > 9 ? '9+' : $unreadNotifsMobile }}</span>

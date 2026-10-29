@@ -272,13 +272,13 @@
                 <!-- 2. شعار المعرض -->
                 @php
                     $fair = $registration->jobFair;
-                    $hasWhiteLogo = !empty($fair->fair_logo_white_path) || ($fair->id === 1 && file_exists(public_path('images/job_fair_logo_white.png')));
+                    $hasWhiteLogo = $fair && (!empty($fair->fair_logo_white_path) || ($fair->id === 1 && file_exists(public_path('images/job_fair_logo_white.png'))));
                 @endphp
                 @if($hasWhiteLogo)
-                    <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" style="height: 44px; width: auto; max-width: 120px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
+                    <img src="{{ $fair?->white_logo_url ?? asset('images/job_fair_logo_white.png') }}" alt="{{ $fair?->title ?? 'معرض التوظيف' }}" style="height: 44px; width: auto; max-width: 120px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
                 @else
                     <div class="bg-white rounded-2 p-1 shadow-xs d-inline-flex align-items-center justify-content-center" style="height: 42px; min-width: 42px;">
-                        <img src="{{ $fair->white_logo_url ?: $fair->logo_url }}" alt="{{ $fair->title }}" style="max-height: 36px; max-width: 105px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
+                        <img src="{{ ($fair?->white_logo_url ?: $fair?->logo_url) ?? asset('images/job_fair_logo_white.png') }}" alt="{{ $fair?->title ?? 'معرض التوظيف' }}" style="max-height: 36px; max-width: 105px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
                     </div>
                 @endif
 
@@ -288,10 +288,10 @@
                 <!-- 3. شعار شركة الواحة لتنظيم المعارض والمؤتمرات -->
                 <img src="{{ asset('images/wahaexpo_horizontal_white.png') }}" alt="شركة الواحة لتنظيم المعارض والمؤتمرات" style="height: 34px; width: auto; max-width: 110px; object-fit: contain;" title="شركة الواحة لتنظيم المعارض والمؤتمرات — الشريك الاستراتيجي" onerror="this.onerror=null;this.src='{{ asset('images/wahaexpo_logo_white.png') }}';">
             </div>
-            <div class="ticket-event-name">{{ $registration->jobFair->title }}</div>
+            <div class="ticket-event-name">{{ $registration->jobFair?->title ?? 'ملتقى ومعرض التوظيف السنوي' }}</div>
             <div class="ticket-university">مكتب تدريب الخريجين بجامعة طرابلس &bull; بالتعاون مع شركة الواحة للمعارض</div>
             <div class="mt-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.9)">
-                @if($registration->jobFair->event_date)
+                @if($registration->jobFair?->event_date)
                     <i class="fas fa-calendar ms-1 text-warning"></i>{{ $registration->jobFair->event_date->format('d/m/Y') }}
                     &nbsp;&bull;&nbsp;
                 @endif
@@ -312,10 +312,10 @@
             </div>
 
             <div class="text-center mb-3">
-                <div class="grad-name">{{ $registration->graduate->name }}</div>
+                <div class="grad-name">{{ $registration->graduate?->name ?? 'خريج مسجل' }}</div>
                 <div class="grad-info">
                     {{ $registration->graduate->major ?? 'غير محدد' }}
-                    @if($registration->graduate->faculty)
+                    @if($registration->graduate?->faculty)
                     — {{ $registration->graduate->faculty }}
                     @endif
                 </div>
@@ -334,7 +334,7 @@
                 </div>
                 <div class="info-item">
                     <div class="info-label">المعدل التراكمي</div>
-                    <div class="info-value">{{ $registration->graduate->gpa ? number_format($registration->graduate->gpa, 2) : '—' }}</div>
+                    <div class="info-value">{{ $registration->graduate?->gpa ? number_format($registration->graduate->gpa, 2) : '—' }}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">تاريخ التسجيل</div>

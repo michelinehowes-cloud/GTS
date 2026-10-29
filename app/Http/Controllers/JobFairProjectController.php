@@ -168,7 +168,17 @@ class JobFairProjectController extends Controller
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('JobFairProjectController::publicIndex error: ' . $e->getMessage());
 
-            $fallbackFair = $fair ?? JobFair::first() ?? new JobFair(['title' => 'معرض التوظيف 2026', 'status' => 'published']);
+            $fallbackFair = ($fair instanceof JobFair) ? $fair : null;
+            if (!$fallbackFair) {
+                try {
+                    $fallbackFair = JobFair::first();
+                } catch (\Throwable $inner) {
+                    $fallbackFair = null;
+                }
+            }
+            if (!$fallbackFair) {
+                $fallbackFair = new JobFair(['title' => 'معرض التوظيف 2026', 'status' => 'published']);
+            }
             if (!$fallbackFair->id) {
                 $fallbackFair->id = 1;
             }

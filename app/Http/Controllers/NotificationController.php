@@ -121,7 +121,7 @@ class NotificationController extends Controller
                 if ($user->role === 'graduate') {
                     $redirectUrl = route('graduate.certificates.show', $notification->model_id);
                 } else {
-                    $redirectUrl = route('certificates.show', $notification->model_id);
+                    $redirectUrl = \Illuminate\Support\Facades\Route::has('certificates.show') ? route('certificates.show', $notification->model_id) : route('notifications.index');
                 }
             }
         }

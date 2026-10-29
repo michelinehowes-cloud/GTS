@@ -425,7 +425,7 @@ class NotificationService
             'send_email' => true,
             'data' => [
                 'details' => $details,
-                'action_url' => route('graduate.trainings.index'),
+                'action_url' => route('graduate.trainings'),
             ],
         ]);
     }

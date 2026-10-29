@@ -350,7 +350,7 @@
                                     <option value="seeking_opportunities" {{ $empStatus == 'seeking_opportunities' ? 'selected' : '' }}>باحث عن عمل</option>
                                     <option value="employed" {{ $empStatus == 'employed' ? 'selected' : '' }}>موظف</option>
                                     <option value="unemployed" {{ $empStatus == 'unemployed' ? 'selected' : '' }}>غير موظف</option>
-                                    <option value="further_study" {{ $empStatus == 'further_study' ? 'selected' : '' }}>مستكمل للدراسة</option>
+                                    <option value="continuing_education" {{ in_array($empStatus, ['continuing_education', 'further_study']) ? 'selected' : '' }}>مستكمل للدراسة</option>
                                 </select>
                                 @error('employment_status')
                                     <div class="invalid-feedback">{{ $message }}</div>

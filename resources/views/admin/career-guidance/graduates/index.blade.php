@@ -317,7 +317,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('admin.career-guidance.graduates.import') }}" method="POST" enctype="multipart/form-data" id="importForm">
+                <form action="{{ route('admin.career-guidance.import.graduates') }}" method="POST" enctype="multipart/form-data" id="importForm">
                     @csrf
                     
                     <!-- تحميل الملف -->
@@ -440,7 +440,7 @@
 
                     <!-- أزرار الإجراء -->
                     <div class="d-flex justify-content-between align-items-center">
-                        <a href="{{ route('admin.career-guidance.graduates.template') }}" class="btn btn-outline-primary">
+                        <a href="{{ route('admin.career-guidance.download.template') }}" class="btn btn-outline-primary">
                             <i class="fas fa-download me-2"></i>
                             تحميل النموذج
                         </a>

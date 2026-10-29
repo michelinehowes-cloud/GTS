@@ -6352,7 +6352,7 @@
                 ];
 
                 // للأسطوانة ثلاثية الأبعاد: ضبط دقيق لـ 8 بطاقات لضمان التباعد الدائري المثالي بزاوية 45 درجة كما في التصميم الأصلي المعتمد
-                $cylinderCompanies = collect();
+                $companies = $companies->filter(fn($fc) => $fc && $fc->company !== null)->values(); $cylinderCompanies = collect();
                 $baseCompCount = $companies->count();
                 if ($baseCompCount > 0) {
                     $targetCylinderQty = 8;
@@ -6383,9 +6383,9 @@
                                 @foreach($cylinderCompanies as $cIndex => $fc)
                                     @php
                                         $colorCard = $cardColors[$cIndex % count($cardColors)];
-                                        $companyLogo = $fc->company->logo_path ? Storage::url($fc->company->logo_path) : ($fc->company->logo ? Storage::url($fc->company->logo) : '');
+                                        $companyLogo = $fc->company?->logo_path ? Storage::url($fc->company->logo_path) : ($fc->company?->logo ? Storage::url($fc->company->logo) : '');
                                         $companyName = $fc->company->name ?? 'شركة مشاركة';
-                                        $companyDesc = $fc->company->description ?: ('جهة رائدة مشاركة في فعاليات ' . ($fair->title ?? 'المعرض والملتقى') . ' لتوفير أفضل الفرص المهنية والتدريبية للكفاءات الوطنية.');
+                                        $companyDesc = $fc->company?->description ?: ('جهة رائدة مشاركة في فعاليات ' . ($fair?->title ?? 'المعرض والملتقى') . ' لتوفير أفضل الفرص المهنية والتدريبية للكفاءات الوطنية.');
                                         $pos = (int) ($fc->available_positions ?? 0);
                                         $industry = $fc->company->industry ?? 'قطاع الأعمال والخدمات';
 
@@ -6512,9 +6512,9 @@
                     <div class="companies-booth-grid d-none" id="companiesGridWrapper">
                         @foreach($previewCompanies as $fc)
                             @php
-                                $companyLogo = $fc->company->logo_path ? Storage::url($fc->company->logo_path) : ($fc->company->logo ? Storage::url($fc->company->logo) : '');
+                                $companyLogo = $fc->company?->logo_path ? Storage::url($fc->company->logo_path) : ($fc->company?->logo ? Storage::url($fc->company->logo) : '');
                                 $companyName = $fc->company->name ?? 'شركة مشاركة';
-                                $companyDesc = $fc->company->description ?: ('جهة رائدة مشاركة في فعاليات ' . ($fair->title ?? 'المعرض والملتقى') . ' لتوفير أفضل الفرص المهنية والتدريبية للكفاءات الوطنية.');
+                                $companyDesc = $fc->company?->description ?: ('جهة رائدة مشاركة في فعاليات ' . ($fair?->title ?? 'المعرض والملتقى') . ' لتوفير أفضل الفرص المهنية والتدريبية للكفاءات الوطنية.');
                                 $pos = (int) ($fc->available_positions ?? 0);
                                 $industry = $fc->company->industry ?? 'قطاع الأعمال والخدمات';
 

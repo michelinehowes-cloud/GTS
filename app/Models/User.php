@@ -533,7 +533,14 @@ class User extends Authenticatable
 
         // إذا كان المستخدم خريجاً، قم بالمزامنة التلقائية لبياناته لضمان عدم فقدان أي حقل
         if ($this->role === 'graduate') {
-            return GraduateData::syncFromUser($this);
+            try {
+                $synced = GraduateData::syncFromUser($this);
+                $this->setRelation('graduateData', $synced);
+                return $synced;
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Auto syncFromUser failed for user #' . $this->id . ': ' . $e->getMessage());
+                return null;
+            }
         }
 
         return null;

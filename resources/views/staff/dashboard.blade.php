@@ -183,7 +183,7 @@
                 'icon' => 'fas fa-user-graduate',
                 'color' => 'secondary',
                 'description' => 'الخريجون المسجلون بالمنظومة',
-                'link' => route('career-guidance.graduates.index')
+                'link' => route('career-guidance.graduates')
             ])
         @endif
     </div>
@@ -254,7 +254,7 @@
                         </a>
                     @endif
                     @if(auth()->user()->hasPermission('nominations.manage') || auth()->user()->isAdmin())
-                        <a href="{{ route('career-guidance.nominations.index') }}" class="btn btn-sm btn-outline-primary rounded-pill">
+                        <a href="{{ route('career-guidance.nominations') }}" class="btn btn-sm btn-outline-primary rounded-pill">
                             <i class="fas fa-paper-plane me-1"></i> الترشيحات
                         </a>
                     @endif
@@ -341,7 +341,7 @@
                 </div>
                 <div class="module-footer">
                     @if(auth()->user()->hasPermission('graduates.view') || auth()->user()->isAdmin())
-                        <a href="{{ route('career-guidance.graduates.index') }}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                        <a href="{{ route('career-guidance.graduates') }}" class="btn btn-sm btn-outline-secondary rounded-pill">
                             <i class="fas fa-users me-1"></i> قائمة الخريجين
                         </a>
                     @endif
@@ -368,7 +368,7 @@
                 </div>
                 <div class="module-footer">
                     @if(auth()->user()->hasPermission('surveys.manage') || auth()->user()->isAdmin())
-                        <a href="{{ route('evaluation-followup.surveys') }}" class="btn btn-sm btn-outline-danger rounded-pill">
+                        <a href="{{ route('evaluation-followup.surveys.index') }}" class="btn btn-sm btn-outline-danger rounded-pill">
                             <i class="fas fa-poll me-1"></i> الاستبيانات
                         </a>
                     @endif

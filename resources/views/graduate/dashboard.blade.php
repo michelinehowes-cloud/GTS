@@ -835,7 +835,7 @@
                                 @php
                                     $lastMsg = $msgs->first();
                                     $otherUser = $lastMsg->sender_id == auth()->id() ? $lastMsg->receiver : $lastMsg->sender;
-                                    $displayName = $otherUser->company ? $otherUser->company->name : $otherUser->name;
+                                    $displayName = ($otherUser && $otherUser->company) ? $otherUser->company->name : ($otherUser?->name ?? 'جهة تواصل');
                                     $isUnread = $lastMsg->receiver_id == auth()->id() && is_null($lastMsg->read_at);
                                 @endphp
                                 <a href="javascript:void(0)" onclick="window.openMessagesDrawer ? window.openMessagesDrawer({{ $otherPartyId }}) : null; return false;" 
@@ -862,7 +862,7 @@
                                         </div>
                                     </div>
                                     <div class="text-end flex-shrink-0 ms-2">
-                                        <span class="text-muted font-monospace" style="font-size: 0.7rem;">{{ $lastMsg->created_at->diffForHumans(null, true, true) }}</span>
+                                        <span class="text-muted font-monospace" style="font-size: 0.7rem;">{{ $lastMsg->created_at ? $lastMsg->created_at->diffForHumans(null, true, true) : '' }}</span>
                                     </div>
                                 </a>
                             @endforeach
@@ -914,7 +914,7 @@
                                 <div class="list-group-item border-bottom px-2 py-2.5">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div class="min-w-0 me-2">
-                                            <h6 class="mb-0 fw-bold text-dark text-truncate" style="font-size: 0.86rem;">{{ $application->training->title }}</h6>
+                                            <h6 class="mb-0 fw-bold text-dark text-truncate" style="font-size: 0.86rem;">{{ $application->training?->title ?? 'برنامج تدريبي' }}</h6>
                                             <small class="text-muted" style="font-size: 0.74rem;">
                                                 <i class="fas fa-clock me-1"></i>
                                                 {{ $application->created_at->diffForHumans() }}
@@ -961,7 +961,7 @@
                         <div class="col-md-6">
                             <div class="p-3 border rounded-3 bg-light training-progress-item">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-bold text-dark">{{ $app->training->title }}</span>
+                                    <span class="fw-bold text-dark">{{ $app->training?->title ?? 'برنامج تدريبي' }}</span>
                                     <div class="d-flex align-items-center gap-1.5 flex-wrap">
                                         @if($app->attended_days_count > 0)
                                             <span class="badge rounded-pill px-2 py-0.5 small fw-bold bg-success-subtle text-success border border-success-subtle" style="font-size: 0.72rem;">
@@ -977,8 +977,8 @@
                                         aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                                 <div class="mt-2 d-flex justify-content-between text-muted small">
-                                    <span><i class="fas fa-calendar-alt me-1"></i> البداية: {{ $app->training->start_date->format('Y-m-d') }}</span>
-                                    <span><i class="fas fa-calendar-check me-1"></i> النهاية: {{ $app->training->end_date ? $app->training->end_date->format('Y-m-d') : 'غير محدد' }}</span>
+                                    <span><i class="fas fa-calendar-alt me-1"></i> البداية: {{ $app->training?->start_date ? $app->training->start_date->format('Y-m-d') : 'غير محدد' }}</span>
+                                    <span><i class="fas fa-calendar-check me-1"></i> النهاية: {{ $app->training?->end_date ? $app->training->end_date->format('Y-m-d') : 'غير محدد' }}</span>
                                 </div>
                             </div>
                         </div>

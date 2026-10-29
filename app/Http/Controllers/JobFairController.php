@@ -27,13 +27,14 @@ class JobFairController extends Controller
      */
     public function publicShow(Request $request, $fair = null)
     {
+        $fairParam = $fair;
+        $fair = ($fairParam instanceof JobFair) ? $fairParam : null;
+
         try {
             // 1. إذا تم تحديد الفعالية عبر الرابط أو المعامل ?fair=ID
-            if ($fair) {
-                if (!($fair instanceof JobFair)) {
-                    $fair = JobFair::find($fair);
-                }
-            } elseif ($request->has('fair')) {
+            if (!$fair && $fairParam) {
+                $fair = JobFair::find($fairParam);
+            } elseif (!$fair && $request->has('fair')) {
                 $fair = JobFair::find($request->query('fair'));
             }
 
@@ -81,7 +82,7 @@ class JobFairController extends Controller
 
             if ($fair) {
                 try {
-                    $companies = $fair->companies()->with(['company.jobOpportunities'])->where('status', 'confirmed')->get();
+                    $companies = $fair->companies()->whereHas('company')->with(['company.jobOpportunities'])->where('status', 'confirmed')->get();
                 } catch (\Throwable $e) {}
 
                 try {
@@ -128,8 +129,16 @@ class JobFairController extends Controller
             return view('job-fair.public', compact('fair', 'myRegistration', 'companies', 'sponsors', 'events', 'projects', 'recentJobs', 'stats', 'favoriteCompanyIds'));
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error('JobFair publicShow error: ' . $e->getMessage());
+            $safeFair = ($fair instanceof JobFair) ? $fair : null;
+            if (!$safeFair) {
+                try {
+                    $safeFair = JobFair::first();
+                } catch (\Throwable $inner) {
+                    $safeFair = null;
+                }
+            }
             return view('job-fair.public', [
-                'fair' => $fair ?? JobFair::first(),
+                'fair' => $safeFair,
                 'myRegistration' => null,
                 'companies' => collect(),
                 'sponsors' => collect(),
@@ -165,10 +174,14 @@ class JobFairController extends Controller
             if (!$fair) {
                 $fair = JobFair::where('status', 'ongoing')->first();
             }
+            if (!$fair) {
+                $fair = JobFair::first();
+            }
         }
 
         $companies = $fair 
             ? $fair->companies()
+                ->whereHas('company')
                 ->with(['company.jobOpportunities' => function($q) {
                     $q->where('status', 'open');
                 }])
@@ -348,7 +361,7 @@ class JobFairController extends Controller
      */
     public function myTicket(JobFairRegistration $registration)
     {
-        if ((int)$registration->user_id !== (int)Auth::id() && Auth::user()->role !== 'admin') {
+        if ((int)$registration->user_id !== (int)Auth::id() && !Auth::user()->canViewJobFair()) {
             abort(403);
         }
         $registration->load(['jobFair', 'graduate']);
@@ -609,7 +622,7 @@ class JobFairController extends Controller
         $user = auth()->user();
 
         // الأدمن يمكنه عرض بطاقة أي خريج عبر ?reg=ID
-        if (in_array($user->role, ['admin', 'partnership_officer']) && request()->has('reg')) {
+        if ($user->canViewJobFair() && request()->has('reg')) {
             $registration = JobFairRegistration::where('job_fair_id', $fair->id)
                 ->where('id', request('reg'))
                 ->with('graduate')

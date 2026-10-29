@@ -59,19 +59,29 @@ class GraduateRegistrationController extends Controller
         }
         \Illuminate\Support\Facades\RateLimiter::hit($throttleKey, 300);
 
+        $cleanStudentId = is_string($request->input('student_id')) ? trim($request->input('student_id')) : $request->input('student_id');
+        $cleanNatId = is_string($request->input('national_id')) ? trim($request->input('national_id')) : $request->input('national_id');
+        $effectiveStudentId = ($cleanStudentId !== null && $cleanStudentId !== '') ? $cleanStudentId : (($cleanNatId !== null && $cleanNatId !== '') ? $cleanNatId : null);
+
+        $request->merge([
+            'student_id' => ($cleanStudentId !== '') ? $cleanStudentId : null,
+            'national_id' => $effectiveStudentId,
+            'email' => is_string($request->input('email')) ? trim($request->input('email')) : $request->input('email'),
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'student_id' => 'required_without:national_id|nullable|string|max:50',
-            'national_id' => 'nullable|string|max:50',
-            'email' => 'required|email|unique:users,email',
+            'national_id' => 'nullable|string|max:50|unique:users,national_id|unique:graduates_data,national_id',
+            'email' => 'required|email|max:255|unique:users,email|unique:graduates_data,email',
             'password' => 'required|string|min:8|confirmed',
             'phone' => 'required|string|max:20',
             'date_of_birth' => 'required|date',
             'gender' => 'required|in:male,female',
             'address' => 'required|string',
             'city' => 'required|string|max:100',
-            'qualification' => 'required|string|max:100',
-            'specialization' => 'required|string|max:100',
+            'qualification' => 'required|string|max:255',
+            'specialization' => 'required|string|max:255',
             'graduation_year' => 'required|integer|min:1950|max:' . (date('Y') + 1),
             'university' => 'required|string|max:255',
             'sector' => 'required|string|max:100',
@@ -84,6 +94,7 @@ class GraduateRegistrationController extends Controller
             'name.required' => 'الاسم الكامل مطلوب',
             'student_id.required' => 'رقم القيد الجامعي مطلوب',
             'student_id.required_without' => 'رقم القيد الجامعي مطلوب',
+            'national_id.unique' => 'رقم القيد الجامعي أو الرقم الوطني مسجل مسبقاً في المنظومة',
             'email.required' => 'البريد الإلكتروني مطلوب',
             'email.unique' => 'البريد الإلكتروني مستخدم بالفعل',
             'password.required' => 'كلمة المرور مطلوبة',
@@ -105,40 +116,54 @@ class GraduateRegistrationController extends Controller
             'gpa.max' => 'المعدل التراكمي كنسبة مئوية لا يمكن أن يتجاوز 100%',
         ]);
 
-        // معالجة المهارات واللغات (تحويل النص إلى مصفوفة)
+        // معالجة المهارات واللغات (تحويل النص إلى مصفوفة مع دعم الفاصلة العربية والإنجليزية)
         $rawSkills = $request->input('skills');
-        $skills = !empty($rawSkills) ? (is_array($rawSkills) ? $rawSkills : array_filter(array_map('trim', explode(',', (string)$rawSkills)))) : [];
+        $skills = !empty($rawSkills)
+            ? (is_array($rawSkills) ? array_values(array_filter($rawSkills)) : array_values(array_filter(array_map('trim', explode(',', str_replace('،', ',', (string) $rawSkills))))))
+            : [];
 
         $rawLanguages = $request->input('languages');
-        $languages = !empty($rawLanguages) ? (is_array($rawLanguages) ? $rawLanguages : array_filter(array_map('trim', explode(',', (string)$rawLanguages)))) : [];
+        $languages = !empty($rawLanguages)
+            ? (is_array($rawLanguages) ? array_values(array_filter($rawLanguages)) : array_values(array_filter(array_map('trim', explode(',', str_replace('،', ',', (string) $rawLanguages))))))
+            : [];
 
         // استخراج رقم القيد الجامعي
-        $studentId = $request->input('student_id') ?: $request->input('national_id');
+        $studentId = $effectiveStudentId;
 
         // إنشاء حساب جديد بحالة غير موافق عليه
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'graduate',
-            'phone' => $request->phone,
-            'national_id' => $studentId, // تخزين رقم القيد الجامعي
-            'date_of_birth' => $request->date_of_birth,
-            'gender' => $request->gender,
-            'address' => $request->address,
-            'city' => $request->city,
-            'qualification' => $request->qualification,
-            'specialization' => $request->specialization,
-            'graduation_year' => $request->graduation_year,
-            'university' => $request->university,
-            'sector' => $request->sector,
-            'faculty' => $request->faculty,
-            'gpa' => $request->gpa,
-            'experiences' => $request->experiences,
-            'skills' => $skills,
-            'languages' => $languages,
-            'is_approved' => false, // القيمة الابتدائية قبل فحص المساعد الذكي
-        ]);
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => 'graduate',
+                'phone' => $request->phone,
+                'national_id' => $studentId,
+                'date_of_birth' => $request->date_of_birth,
+                'gender' => $request->gender,
+                'address' => $request->address,
+                'city' => $request->city,
+                'degree' => $request->qualification,
+                'qualification' => mb_substr((string) $request->qualification, 0, 100),
+                'major' => $request->specialization,
+                'specialization' => mb_substr((string) $request->specialization, 0, 100),
+                'graduation_year' => $request->graduation_year,
+                'university' => $request->university,
+                'sector' => $request->sector,
+                'faculty' => $request->faculty,
+                'gpa' => $request->gpa,
+                'experiences' => $request->experiences,
+                'skills' => $skills,
+                'languages' => $languages,
+                'is_approved' => false, // القيمة الابتدائية قبل فحص المساعد الذكي
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            \Log::error('Graduate registration QueryException: ' . $e->getMessage());
+            $msg = str_contains($e->getMessage(), 'national_id')
+                ? 'رقم القيد الجامعي المدخل مسجل مسبقاً أو يتجاوز الطول المسموح به (20 خانة).'
+                : 'تعذر حفظ طلب التسجيل، يرجى التأكد من عدم تكرار البريد الإلكتروني أو رقم القيد الجامعي.';
+            return back()->withInput()->withErrors(['student_id' => $msg]);
+        }
 
         // 1. تقييم الطلب فوراً بواسطة المساعد الذكي
         $eval = self::evaluateGraduateApplication($user);
@@ -160,7 +185,7 @@ class GraduateRegistrationController extends Controller
             try {
                 \App\Models\GraduateData::syncFromUser($user, [
                     'is_active' => true,
-                    'data_source' => 'online_registration_auto_approved',
+                    'data_source' => 'system_sync',
                     'notes' => 'تم الاعتماد والتفعيل التلقائي بواسطة المساعد الذكي (نسبة التقييم: ' . $eval['score'] . '%)',
                 ]);
             } catch (\Exception $e) {
@@ -202,7 +227,7 @@ class GraduateRegistrationController extends Controller
             try {
                 \App\Models\GraduateData::syncFromUser($user, [
                     'is_active' => false,
-                    'data_source' => 'online_registration',
+                    'data_source' => 'system_sync',
                     'notes' => 'تسجيل ذاتي عبر الموقع الرئيسي (يحتاج مراجعة الإدارة - نسبة التقييم: ' . $eval['score'] . '%)',
                 ]);
             } catch (\Exception $e) {

@@ -246,6 +246,7 @@ class GraduateController extends Controller
         // طلباتي الأخيرة
         $myRecentApplications = TrainingApplication::with('training')
             ->where('user_id', $user->id)
+            ->whereHas('training')
             ->latest()
             ->take(5)
             ->get();
@@ -326,11 +327,21 @@ class GraduateController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
+        $trimmedNatId = is_string($request->input('national_id')) ? trim($request->input('national_id')) : $request->input('national_id');
+        $request->merge([
+            'national_id' => ($trimmedNatId !== '' && $trimmedNatId !== null) ? $trimmedNatId : null,
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:30',
-            'national_id' => 'nullable|string|max:50',
+            'national_id' => [
+                'nullable',
+                'string',
+                'max:50',
+                \Illuminate\Validation\Rule::unique('users', 'national_id')->ignore($user->id),
+            ],
             'date_of_birth' => 'nullable|date',
             'gender' => 'nullable|in:male,female',
             'address' => 'nullable|string',
@@ -381,11 +392,11 @@ class GraduateController extends Controller
         $data['faculty'] = $data['faculty'] ?? $request->input('faculty_id') ?? $user->faculty;
         
         $specValue = $data['specialization'] ?? $request->input('specialization_id') ?? $request->input('major') ?? $user->specialization ?? $user->major;
-        $data['specialization'] = $specValue;
+        $data['specialization'] = $specValue !== null ? mb_substr((string) $specValue, 0, 100) : null;
         $data['major'] = $specValue;
 
         $qualValue = $data['qualification'] ?? $request->input('degree') ?? $user->qualification ?? $user->degree ?? 'بكالوريوس';
-        $data['qualification'] = $qualValue;
+        $data['qualification'] = $qualValue !== null ? mb_substr((string) $qualValue, 0, 100) : null;
         $data['degree'] = $qualValue;
 
         // معالجة اللغات المتقنة كمصفوفة لتوافق casts في User و GraduateData

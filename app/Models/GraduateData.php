@@ -113,13 +113,36 @@ class GraduateData extends Model
         $experienceValue = $user->experiences ?? ($existing?->work_experience);
         $certificationsValue = $additionalData['certifications'] ?? $user->education ?? ($existing?->certifications);
         $employmentStatusValue = $additionalData['employment_status'] ?? ($existing?->employment_status) ?? 'seeking_opportunities';
+        if ($employmentStatusValue === 'further_study') {
+            $employmentStatusValue = 'continuing_education';
+        }
+        if (!in_array($employmentStatusValue, ['employed', 'unemployed', 'seeking_opportunities', 'continuing_education'], true)) {
+            $employmentStatusValue = 'seeking_opportunities';
+        }
+
+        $rawNationalId = $additionalData['national_id'] ?? $user->national_id ?? ($existing?->national_id);
+        $cleanNationalId = is_string($rawNationalId) ? trim($rawNationalId) : $rawNationalId;
+        if ($cleanNationalId === '') {
+            $cleanNationalId = null;
+        }
+        if ($cleanNationalId !== null) {
+            $dupQuery = self::where('national_id', $cleanNationalId);
+            if ($existing) {
+                $dupQuery->where('id', '!=', $existing->id);
+            }
+            if ($dupQuery->exists()) {
+                $cleanNationalId = null;
+            }
+        }
+
+        $specializationValue = $user->specialization ?? ($existing?->specialization) ?? $majorValue;
 
         $dataToSync = [
             'user_id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'phone' => $user->phone ?? ($existing?->phone),
-            'national_id' => $user->national_id ?? ($existing?->national_id),
+            'national_id' => $cleanNationalId,
             'date_of_birth' => $user->date_of_birth ?? ($existing?->date_of_birth),
             'gender' => $user->gender ?? ($existing?->gender),
             'city' => $user->city ?? ($existing?->city) ?? 'طرابلس',
@@ -127,10 +150,10 @@ class GraduateData extends Model
             'university' => $user->university ?? ($existing?->university) ?? 'جامعة طرابلس',
             'sector' => $user->sector ?? ($existing?->sector),
             'faculty' => $user->faculty ?? ($existing?->faculty),
-            'major' => $majorValue,
-            'specialization' => $user->specialization ?? ($existing?->specialization) ?? $majorValue,
-            'degree' => $degreeValue,
-            'qualification' => $degreeValue,
+            'major' => mb_substr((string) $majorValue, 0, 255),
+            'specialization' => mb_substr((string) $specializationValue, 0, 100),
+            'degree' => mb_substr((string) $degreeValue, 0, 255),
+            'qualification' => mb_substr((string) $degreeValue, 0, 100),
             'graduation_year' => $user->graduation_year ?? ($existing?->graduation_year) ?? (int)date('Y'),
             'gpa' => $user->gpa ?? ($existing?->gpa),
             'skills' => !empty($skills) ? $skills : ($existing?->skills ?? []),
@@ -148,6 +171,14 @@ class GraduateData extends Model
         if (!empty($additionalData)) {
             $dataToSync = array_merge($dataToSync, $additionalData);
         }
+
+        if (($dataToSync['employment_status'] ?? null) === 'further_study') {
+            $dataToSync['employment_status'] = 'continuing_education';
+        }
+        if (!in_array($dataToSync['data_source'] ?? 'system_sync', ['manual', 'excel_import', 'system_sync'], true)) {
+            $dataToSync['data_source'] = 'system_sync';
+        }
+        $dataToSync['national_id'] = $cleanNationalId;
 
         if ($existing) {
             $existing->fill(array_filter($dataToSync, function ($val) { return !is_null($val); }));

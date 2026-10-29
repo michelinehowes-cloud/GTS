@@ -1396,7 +1396,7 @@
                     $companyLogo = $company && $company->logo_path ? Storage::url($company->logo_path) : ($company && $company->logo ? Storage::url($company->logo) : '');
                     $companyName = $company->name ?? 'شركة مشاركة';
                     $companyIndustry = $company->industry ?? 'قطاع الأعمال والخدمات';
-                    $companyDesc = $company->description ?: ('جهة رائدة مشاركة في فعاليات ' . ($fair->title ?? 'معرض التوظيف') . ' لدعم وتوظيف الكفاءات الوطنية الشابة.');
+                    $companyDesc = $company?->description ?: ('جهة رائدة مشاركة في فعاليات ' . ($fair?->title ?? 'معرض التوظيف') . ' لدعم وتوظيف الكفاءات الوطنية الشابة.');
                     $boothNumber = $fc->booth_number ? strtoupper(trim($fc->booth_number)) : '';
                     $availablePos = (int) ($fc->available_positions ?? 0);
                     if ($availablePos === 0 && $company && $company->jobOpportunities) {

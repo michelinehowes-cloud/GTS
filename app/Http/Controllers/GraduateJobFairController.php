@@ -94,7 +94,7 @@ class GraduateJobFairController extends Controller
 
         // AI Matchmaking logic (basic version)
         // Compare graduate's specialization with company's participating_sectors or available_positions
-        $specialization = $graduate->graduateProfile->university_specialization ?? '';
+        $specialization = $graduate->graduateData?->specialization ?? $graduate->specialization ?? $graduate->major ?? '';
         $recommendedCompanies = collect();
 
         if ($specialization) {
@@ -193,9 +193,18 @@ class GraduateJobFairController extends Controller
             return redirect()->route('graduate.dashboard')->with('error', 'هذه الشركة غير مشاركة في المعرض الحالي.');
         }
 
+        // job_fair_visits.company_id references users(id)
+        $companyUserId = $company->user_id;
+        if (!$companyUserId && $company->email) {
+            $companyUserId = \App\Models\User::where('email', $company->email)->value('id');
+        }
+        if (!$companyUserId || !\App\Models\User::where('id', $companyUserId)->exists()) {
+            return redirect()->route('graduate.dashboard')->with('error', 'تعذر تسجيل زيارة الجناح لعدم اكتمال ربط حساب الشركة بالمنظومة.');
+        }
+
         // Check if visit already exists
         $visit = \App\Models\JobFairVisit::where('job_fair_id', $fair->id)
-            ->where('company_id', $company->id)
+            ->where('company_id', $companyUserId)
             ->where('graduate_id', $graduate->id)
             ->first();
 
@@ -206,7 +215,7 @@ class GraduateJobFairController extends Controller
         } else {
             \App\Models\JobFairVisit::create([
                 'job_fair_id' => $fair->id,
-                'company_id'  => $company->id,
+                'company_id'  => $companyUserId,
                 'graduate_id' => $graduate->id,
             ]);
         }

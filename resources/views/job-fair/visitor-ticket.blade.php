@@ -329,13 +329,13 @@
 
                 <!-- 2. شعار المعرض -->
                 @php
-                    $hasWhiteLogo = !empty($fair->fair_logo_white_path) || ($fair->id === 1 && file_exists(public_path('images/job_fair_logo_white.png')));
+                    $hasWhiteLogo = $fair && (!empty($fair->fair_logo_white_path) || ($fair->id === 1 && file_exists(public_path('images/job_fair_logo_white.png'))));
                 @endphp
                 @if($hasWhiteLogo)
-                    <img src="{{ $fair->white_logo_url }}" alt="{{ $fair->title }}" style="height: 44px; width: auto; max-width: 120px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
+                    <img src="{{ $fair?->white_logo_url ?? asset('images/job_fair_logo_white.png') }}" alt="{{ $fair?->title ?? 'معرض التوظيف' }}" style="height: 44px; width: auto; max-width: 120px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
                 @else
                     <div class="bg-white rounded-2 p-1 shadow-xs d-inline-flex align-items-center justify-content-center" style="height: 42px; min-width: 42px;">
-                        <img src="{{ $fair->white_logo_url ?: $fair->logo_url }}" alt="{{ $fair->title }}" style="max-height: 36px; max-width: 105px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
+                        <img src="{{ ($fair?->white_logo_url ?: $fair?->logo_url) ?? asset('images/job_fair_logo_white.png') }}" alt="{{ $fair?->title ?? 'معرض التوظيف' }}" style="max-height: 36px; max-width: 105px; object-fit: contain;" onerror="this.onerror=null;this.src='{{ asset('images/job_fair_logo_white.png') }}';">
                     </div>
                 @endif
 
@@ -350,7 +350,7 @@
             <div class="ticket-university">مكتب تدريب الخريجين بجامعة طرابلس &bull; بالتعاون مع شركة الواحة للمعارض</div>
 
             <div class="mt-2" style="font-size: 0.85rem; color: rgba(255,255,255,0.9)">
-                @if($fair->event_date)
+                @if($fair?->event_date)
                     <i class="fas fa-calendar ms-1 text-warning"></i>{{ $fair->event_date->format('d/m/Y') }}
                     &nbsp;&bull;&nbsp;
                 @endif
@@ -440,7 +440,7 @@
             <a href="https://api.whatsapp.com/send?text={{ urlencode('بطاقة حضوري لمعرض التوظيف بجامعة طرابلس المنظم بالتعاون مع شركة الواحة: ' . route('job-fair.visitor.ticket', $visitor->ticket_number)) }}" target="_blank" class="btn-print m-0" style="background: #25D366; flex: 0.7;">
                 <i class="fab fa-whatsapp ms-1"></i>واتساب
             </a>
-            <a href="{{ route('job-fair.public', $fair->id) }}" class="btn-back m-0">
+            <a href="{{ $fair ? route('job-fair.public', $fair->id) : route('job-fair.public') }}" class="btn-back m-0">
                 <i class="fas fa-arrow-right"></i>
                 العودة
             </a>

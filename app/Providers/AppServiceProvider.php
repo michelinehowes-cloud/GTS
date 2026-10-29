@@ -38,11 +38,29 @@ class AppServiceProvider extends ServiceProvider
         
         // Auto-run migrations in production if schema is missing newer tables or columns
         try {
-            if (!\Illuminate\Support\Facades\Schema::hasTable('job_fair_visitors') ||
+            $needsMigrate = !\Illuminate\Support\Facades\Schema::hasTable('job_fair_visitors') ||
                 !\Illuminate\Support\Facades\Schema::hasColumn('job_fair_visits', 'job_opportunity_id') ||
                 !\Illuminate\Support\Facades\Schema::hasColumn('job_opportunities', 'job_fair_id') ||
-                !\Illuminate\Support\Facades\Schema::hasColumn('trainings', 'start_time')) {
+                !\Illuminate\Support\Facades\Schema::hasColumn('trainings', 'start_time');
+
+            if (!$needsMigrate && !$this->app->runningUnitTests() && !\Illuminate\Support\Facades\Cache::get('schema_500_fix_20261029_applied')) {
+                if (\Illuminate\Support\Facades\Schema::hasTable('migrations')) {
+                    $hasFixMigration = \Illuminate\Support\Facades\DB::table('migrations')
+                        ->where('migration', '2026_10_29_120000_fix_graduate_and_job_fair_columns_for_500_prevention')
+                        ->exists();
+                    if ($hasFixMigration) {
+                        \Illuminate\Support\Facades\Cache::put('schema_500_fix_20261029_applied', true, 86400);
+                    } else {
+                        $needsMigrate = true;
+                    }
+                }
+            }
+
+            if ($needsMigrate) {
                 \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                if (!$this->app->runningUnitTests()) {
+                    \Illuminate\Support\Facades\Cache::put('schema_500_fix_20261029_applied', true, 86400);
+                }
             }
         } catch (\Throwable $e) {
             // Ignore database connection failures during asset/cache commands

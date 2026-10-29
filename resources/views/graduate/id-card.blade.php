@@ -65,8 +65,8 @@
                            target="_blank"
                            class="btn btn-warning text-dark rounded-pill text-nowrap d-inline-flex align-items-center gap-2 px-3.5 py-2 fw-bold shadow-sm transition-all"
                            style="font-size: 0.86rem;">
-                            <img src="{{ $reg->jobFair->logo_url ?? asset('images/logo.jpg') }}" alt="{{ $reg->jobFair->title }}" class="rounded-circle bg-white border" style="width: 22px; height: 22px; object-fit: contain; padding: 1px;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
-                            <span>عرض بطاقة {{ $reg->jobFair->title }}</span>
+                            <img src="{{ $reg->jobFair?->logo_url ?? asset('images/logo.jpg') }}" alt="{{ $reg->jobFair?->title ?? 'معرض التوظيف' }}" class="rounded-circle bg-white border" style="width: 22px; height: 22px; object-fit: contain; padding: 1px;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                            <span>عرض بطاقة {{ $reg->jobFair?->title ?? 'معرض التوظيف' }}</span>
                             <span class="badge bg-dark text-white rounded-pill px-2 py-0.5" style="font-size: 0.7rem;">
                                 تذكرة #{{ $reg->registration_number }}
                             </span>

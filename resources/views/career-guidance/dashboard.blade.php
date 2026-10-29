@@ -116,7 +116,7 @@
                                         {{ mb_substr($graduate->name, 0, 1) }}
                                     </div>
                                     <div>
-                                        <a href="{{ route($prefix . '.graduates.show', $graduate->id) }}" class="text-dark fw-bold text-decoration-none d-block">
+                                        <a href="{{ route($prefix . '.graduates.show', $graduate->graduateData?->id ?? $graduate->id) }}" class="text-dark fw-bold text-decoration-none d-block">
                                             {{ $graduate->name }}
                                         </a>
                                         <small class="text-muted">

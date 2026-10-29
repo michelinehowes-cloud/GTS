@@ -3623,15 +3623,15 @@
         .cyber-cylinder-scene {
             width: 100%;
             position: relative;
-            margin: 0.5rem 0 1.5rem;
-            overflow: hidden;
+            margin: 0.5rem 0 2rem;
+            overflow: visible;
             padding: 0.5rem 0;
         }
 
         /* مسرح الأسطوانة */
         .cyber-cylinder-wrapper {
             width: 100%;
-            height: 480px;
+            height: 520px;
             position: relative;
             display: flex;
             align-items: center;
@@ -3639,7 +3639,7 @@
             overflow: visible;
             user-select: none;
             padding: 0;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         /* حلقة الأرضية الهولوجرافية */
@@ -3668,7 +3668,7 @@
             position: absolute;
             width: var(--w);
             height: var(--h);
-            top: 48%;
+            top: 50%;
             left: 50%;
             margin-top: calc(-1 * (var(--h) / 2));
             margin-left: calc(-1 * (var(--w) / 2));
@@ -3993,6 +3993,9 @@
 
         /* استجابة الشاشات الصغيرة للمسرح ثلاثي الأبعاد */
         @media (max-width: 991px) {
+            .cyber-cylinder-scene {
+                overflow: visible;
+            }
             .cyber-cylinder-inner {
                 --w: 200px;
                 --h: 295px;
@@ -4001,7 +4004,7 @@
                 --perspective: 1100px;
             }
             .cyber-cylinder-wrapper {
-                height: 440px;
+                height: 460px;
                 margin-bottom: 1.5rem;
             }
             .cylinder-floor-glow {
@@ -4015,6 +4018,7 @@
             .cyber-cylinder-scene {
                 padding: 0.25rem 0;
                 margin: 0 0 1rem;
+                overflow: hidden;
             }
             .cyber-cylinder-wrapper {
                 height: 380px;

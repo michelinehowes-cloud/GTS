@@ -63,18 +63,40 @@ class JobFairVisitorController extends Controller
             ->first();
 
         if ($existing) {
+            // تحديث البيانات غير الفارغة وتحديث طابع الوقت ليظهر تاريخ التسجيل المحدّث بالبطاقة دون تكرار السجل
+            $updatable = array_filter([
+                'name' => $validated['name'] ?? null,
+                'email' => $validated['email'] ?? null,
+                'education_level' => $validated['education_level'] ?? null,
+                'specialization' => $validated['specialization'] ?? null,
+                'organization' => $validated['organization'] ?? null,
+                'city' => $validated['city'] ?? null,
+                'visit_purpose' => $validated['visit_purpose'] ?? null,
+                'notes' => $validated['notes'] ?? null,
+            ], fn($v) => $v !== null && $v !== '');
+
+            try {
+                if (!empty($updatable)) {
+                    $existing->fill($updatable);
+                }
+                $existing->updated_at = now();
+                $existing->save();
+            } catch (\Throwable $updateErr) {
+                $existing->touch();
+            }
+
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => true,
                     'already_registered' => true,
-                    'message' => 'أنت مسجّل مسبقاً في هذا المعرض! تم فتح تذكرتك الرقمية مباشرة.',
+                    'message' => 'تم تحديث بياناتك وفتح بطاقتك الرقمية بنجاح!',
                     'ticket_number' => $existing->ticket_number,
                     'ticket_url' => route('job-fair.visitor.ticket', $existing->ticket_number),
                 ]);
             }
 
             return redirect()->route('job-fair.visitor.ticket', $existing->ticket_number)
-                ->with('info', 'أنت مسجل مسبقاً في هذا المعرض، إليك بطاقتك الرقمية الرسمية.');
+                ->with('info', 'تم تحديث بياناتك، إليك بطاقتك الرقمية الرسمية.');
         }
 
         // توليد رقم تذكرة فريد
@@ -165,7 +187,9 @@ class JobFairVisitorController extends Controller
 
         $fair = $visitor->jobFair;
 
-        return view('job-fair.visitor-ticket', compact('visitor', 'fair'));
+        return response()
+            ->view('job-fair.visitor-ticket', compact('visitor', 'fair'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     }
 
     /**

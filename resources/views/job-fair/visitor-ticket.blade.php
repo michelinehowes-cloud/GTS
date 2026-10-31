@@ -435,7 +435,7 @@
                 </div>
                 <div class="info-item">
                     <div class="info-label">تاريخ التسجيل</div>
-                    <div class="info-value">{{ $visitor->created_at->format('d/m/Y') }}</div>
+                    <div class="info-value">{{ ($visitor->updated_at ?? $visitor->created_at)?->copy()->timezone('Africa/Tripoli')->format('d/m/Y') ?? now('Africa/Tripoli')->format('d/m/Y') }}</div>
                 </div>
             </div>
 
@@ -680,7 +680,7 @@ window.addEventListener('load', function() {
         }
 
         try {
-            const storageKey = 'saved_ticket_{{ $visitor->ticket_number }}';
+            const storageKey = 'saved_ticket_{{ $visitor->ticket_number }}_{{ ($visitor->updated_at ?? $visitor->created_at)?->timestamp }}';
             if (!sessionStorage.getItem(storageKey)) {
                 sessionStorage.setItem(storageKey, 'true');
                 downloadTicket(true);

@@ -7,51 +7,27 @@
 
     $tickerList = collect();
 
-    // 1. إضافة الرعاة الرسميين المضافين للمعرض في لوحة التحكم (المفعلين فقط)
+    // إظهار الشركات الرعاة الرسميين للمعرض فقط (المفعّلين في قسم رعاة المعرض) دون الشركات المشاركة العادية
     $activeSponsors = collect();
     try {
-        if (isset($sponsors) && $sponsors instanceof \Illuminate\Support\Collection) {
+        if (isset($sponsors) && $sponsors instanceof \Illuminate\Support\Collection && $sponsors->isNotEmpty()) {
             $activeSponsors = $sponsors->filter(function($sp) {
                 return !isset($sp->is_active) || (bool)$sp->is_active;
             });
         } elseif (isset($fair) && $fair && method_exists($fair, 'sponsors')) {
-            $activeSponsors = $fair->sponsors()->where('is_active', true)->orderBy('display_order')->get();
+            $activeSponsors = $fair->sponsors()->with('company')->where('is_active', true)->orderBy('display_order')->get();
         }
     } catch (\Throwable $e) {}
 
     foreach ($activeSponsors as $sp) {
+        $linkedCompany = $sp->company ?? null;
         $tickerList->push((object)[
-            'name'       => $sp->name,
-            'logo_path'  => $sp->logo_path ?? null,
-            'website'    => $sp->website ?? null,
+            'name'       => $sp->name ?: ($linkedCompany->name ?? 'راعي المعرض'),
+            'logo_path'  => $sp->logo_path ?: ($linkedCompany->logo_path ?? ($linkedCompany->logo ?? null)),
+            'website'    => $sp->website ?: ($linkedCompany->website ?? null),
             'type'       => 'sponsor',
             'tier_label' => method_exists($sp, 'getTierLabelAttribute') ? $sp->tier_label : ($sp->tier ?? 'جهة راعية'),
         ]);
-    }
-
-    // 2. إضافة الشركات المشاركة المؤكدة في المعرض من لوحة التحكم (المؤكدة فقط)
-    $activeCompanies = collect();
-    try {
-        if (isset($companies) && $companies instanceof \Illuminate\Support\Collection) {
-            $activeCompanies = $companies->filter(function($fc) {
-                return !isset($fc->status) || $fc->status === 'confirmed';
-            });
-        } elseif (isset($fair) && $fair && method_exists($fair, 'companies')) {
-            $activeCompanies = $fair->companies()->with('company')->where('status', 'confirmed')->get();
-        }
-    } catch (\Throwable $e) {}
-
-    foreach ($activeCompanies as $fc) {
-        $comp = $fc->company ?? null;
-        if ($comp) {
-            $tickerList->push((object)[
-                'name'         => $comp->name,
-                'logo_path'    => $comp->logo_path ?: ($comp->logo ?? null),
-                'website'      => $comp->website ?? null,
-                'type'         => 'company',
-                'booth_number' => $fc->booth_number ?? null,
-            ]);
-        }
     }
 
     // إزالة التكرار حسب الاسم
@@ -80,11 +56,12 @@
 
     if ($hasDynamicItems) {
         $rawItems = $tickerList->values()->all();
-        // تكرار العناصر لضمان مسار شريط لانهائي وسلس
-        $tickerItems = array_merge($rawItems, $rawItems);
-        if (count($tickerItems) < 8) {
-            $tickerItems = array_merge($tickerItems, $rawItems);
+        // بناء نصفين متطابقين تماماً لضمان حركة شريط لانهائية سلسة عند -50%
+        $halfItems = $rawItems;
+        while (count($halfItems) < 6) {
+            $halfItems = array_merge($halfItems, $rawItems);
         }
+        $tickerItems = array_merge($halfItems, $halfItems);
     } else {
         $tickerItems = [];
     }
@@ -374,7 +351,7 @@
                     <div class="lux-seamless-dot"></div>
                     <div class="lux-seamless-item">
                         <i class="fas fa-handshake text-info lux-seamless-icon"></i>
-                        <span class="lux-seamless-name">تضاف شعارات الرعاة والشركات فور اعتمادها</span>
+                        <span class="lux-seamless-name">تضاف شعارات الرعاة الرسميين للمعرض فور اعتمادها</span>
                     </div>
                     <div class="lux-seamless-dot"></div>
                     <div class="lux-seamless-item">

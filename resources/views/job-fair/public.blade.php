@@ -7346,11 +7346,11 @@
                         </div>
                     </div>
 
-                    <form id="visitorRegisterForm" action="{{ route('job-fair.visitor.register', $fair->id) }}"
+                    <form id="visitorRegisterForm" action="{{ $fair ? route('job-fair.visitor.register', $fair->id, false) : '#' }}"
                         method="POST">
                         @csrf
                         <div class="modal-body p-4">
-                            <div id="visitorFormAlert" class="alert d-none mb-3" role="alert"></div>
+                            <div id="visitorFormAlert" class="alert {{ session('visitor_ticket_notice') ? 'alert-warning d-block' : 'd-none' }} mb-3" role="alert">{{ session('visitor_ticket_notice') }}</div>
 
                             <div class="row g-3">
                                 {{-- الاسم الكامل --}}
@@ -8010,49 +8010,85 @@
 
                 const formData = new FormData(vForm);
 
+                // توجيه آمن لنفس النطاق الحالي (يتجنب اختلاف www / http / متصفحات التطبيقات المدمجة)
+                const goToVisitorTicket = (ticketUrl, ticketNumber) => {
+                    let target = '';
+                    if (ticketNumber) {
+                        target = window.location.origin + '/job-fair/visitor-ticket/' + encodeURIComponent(String(ticketNumber).trim());
+                    } else if (ticketUrl) {
+                        try {
+                            target = window.location.origin + new URL(ticketUrl, window.location.origin).pathname;
+                        } catch (e) {
+                            target = ticketUrl;
+                        }
+                    }
+                    if (target) window.location.assign(target);
+                };
+
+                const showVisitorError = (msg) => {
+                    if (window.hideLoadingWave) window.hideLoadingWave();
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                    alertBox.className = 'alert alert-danger d-block mb-3';
+                    alertBox.innerHTML = msg;
+                };
+
                 fetch(vForm.action, {
                     method: 'POST',
                     body: formData,
+                    credentials: 'same-origin',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json'
                     }
                 })
-                    .then(response => {
-                        return response.json().then(data => ({
+                    .then(response => response.text().then(text => {
+                        let data = null;
+                        try { data = JSON.parse(text); } catch (e) { data = null; }
+                        return {
                             status: response.status,
                             ok: response.ok,
+                            redirected: response.redirected,
+                            url: response.url,
                             data: data
-                        }));
-                    })
+                        };
+                    }))
                     .then(res => {
-                        if (res.ok && res.data.success) {
+                        if (res.ok && res.data && res.data.success) {
                             if (window.showLoadingWave) {
                                 window.showLoadingWave('تم تأكيد التسجيل بنجاح! 🎉', 'جاري تجهيز بطاقتك وتوجيهك فوراً...');
                             }
                             alertBox.className = 'alert alert-success d-block mb-3 fw-bold';
                             alertBox.innerHTML = '<i class="fas fa-check-circle me-1"></i> ' + (res.data.message || 'تم تسجيلك بنجاح! جاري توجيهك لبطاقتك الرقمية...');
                             setTimeout(() => {
-                                window.location.href = res.data.ticket_url;
+                                goToVisitorTicket(res.data.ticket_url, res.data.ticket_number);
                             }, 1000);
-                        } else {
-                            if (window.hideLoadingWave) window.hideLoadingWave();
-                            submitBtn.disabled = false;
-                            submitBtn.innerHTML = originalBtnHtml;
-                            alertBox.className = 'alert alert-danger d-block mb-3';
-                            let errorMsg = res.data.message || 'حدث خطأ أثناء التسجيل، يرجى مراجعة البيانات المدخلة.';
+                            return;
+                        }
+
+                        // استجابة HTML بعد إعادة توجيه ناجحة إلى البطاقة
+                        if (!res.data && res.redirected && res.url && res.url.indexOf('/job-fair/visitor-ticket/') !== -1) {
+                            goToVisitorTicket(res.url, null);
+                            return;
+                        }
+
+                        let errorMsg;
+                        if (res.data) {
+                            errorMsg = res.data.message || 'حدث خطأ أثناء التسجيل، يرجى مراجعة البيانات المدخلة.';
                             if (res.data.errors) {
                                 const list = Object.values(res.data.errors).map(err => `<li>${err[0]}</li>`).join('');
                                 errorMsg += `<ul class="mb-0 mt-2 text-start">${list}</ul>`;
                             }
-                            alertBox.innerHTML = errorMsg;
+                        } else if (res.status === 419) {
+                            errorMsg = 'انتهت صلاحية الصفحة، يرجى تحديث الصفحة ثم إعادة التسجيل.';
+                        } else {
+                            errorMsg = 'تعذّر إتمام التسجيل بسبب استجابة غير متوقعة من الخادم (رمز ' + res.status + '). يرجى المحاولة مرة أخرى، وتجنّب الرموز الخاصة أو الروابط في الحقول النصية.';
                         }
+                        showVisitorError(errorMsg);
                     })
                     .catch(err => {
-                        if (window.hideLoadingWave) window.hideLoadingWave();
                         console.error(err);
-                        // Fallback: submit standard form
-                        vForm.submit();
+                        showVisitorError('تعذّر الاتصال بالخادم، يرجى التحقق من الإنترنت والمحاولة مجدداً. إذا كنت قد سجّلت فعلاً، أعد الإرسال بنفس رقم الهاتف وستُفتح بطاقتك مباشرة دون تكرار.');
                     });
             });
         })();

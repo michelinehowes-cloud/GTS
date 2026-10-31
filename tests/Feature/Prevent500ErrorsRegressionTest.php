@@ -326,7 +326,31 @@ class Prevent500ErrorsRegressionTest extends TestCase
         ]);
         $visitorResp->assertStatus(200)->assertJson(['success' => true]);
         $ticketNumber = $visitorResp->json('ticket_number');
-        $this->get(route('job-fair.visitor.ticket', $ticketNumber))->assertStatus(200);
+        $savedVisitor = JobFairVisitor::where('ticket_number', $ticketNumber)->firstOrFail();
+        $this->assertCount(5, $savedVisitor->visit_purposes_array, 'Visit purposes must remain saved in database');
+
+        $cardResp = $this->get(route('job-fair.visitor.ticket', $ticketNumber));
+        $cardResp->assertStatus(200);
+        $cardResp->assertDontSee('أهداف الزيارة');
+
+        // Lower-case / padded / RTL-marked ticket from WhatsApp or Facebook in-app browsers must still open the ticket
+        $ticketResp = $this->get('/job-fair/visitor-ticket/' . strtolower($ticketNumber) . '%E2%80%8F%20');
+        $ticketResp->assertStatus(200);
+        $ticketResp->assertSee('detectBrowserDownloadEnv', false);
+
+        // Unknown ticket must NOT show a 404 page; redirect to registration modal with a notice
+        $this->get('/job-fair/visitor-ticket/VIS-0000-NOPE1')
+            ->assertRedirect()
+            ->assertSessionHas('visitor_ticket_notice');
+
+        // Re-registering with same phone (even typed in Arabic-Indic digits with spaces) returns the same existing ticket
+        $asciiPhone = (string) \App\Models\JobFairVisitor::where('ticket_number', $ticketNumber)->value('phone');
+        $arabicDigitsPhone = strtr($asciiPhone, ['0' => '٠', '1' => '١', '2' => '٢', '3' => '٣', '4' => '٤', '5' => '٥', '6' => '٦', '7' => '٧', '8' => '٨', '9' => '٩']);
+        $again = $this->postJson(route('job-fair.visitor.register', $fair->id), [
+            'name' => 'أحمد مفتاح القماطي',
+            'phone' => ' ' . substr($arabicDigitsPhone, 0, 6) . ' ' . substr($arabicDigitsPhone, 6) . ' ',
+        ]);
+        $again->assertStatus(200)->assertJson(['success' => true, 'already_registered' => true, 'ticket_number' => $ticketNumber]);
 
         // 3. Graduate QR scan uses company->user_id for job_fair_visits FK
         $graduate = User::factory()->create([

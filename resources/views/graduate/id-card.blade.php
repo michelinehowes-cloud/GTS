@@ -245,16 +245,60 @@
                 }
             }
         }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'بطاقة-الخريج-{{ Str::slug($graduate->name) }}.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+            const fileName = 'بطاقة-الخريج-{{ Str::slug($graduate->name) ?: "graduate" }}.png';
+            const ua = navigator.userAgent || '';
+            const unsafe = /FBAN|FBAV|FBIOS|FB_IAB|FBBV|Instagram|Messenger|Line\/|TikTok|BytedanceWebview|Twitter|Snapchat|Telegram|WhatsApp|; wv\)|\bWebView\b|iPad|iPhone|iPod/i.test(ua)
+                || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+                || !('download' in HTMLAnchorElement.prototype);
 
-            const alertEl = document.getElementById('saveAlert');
-            if (alertEl) {
-                alertEl.classList.remove('d-none');
-                setTimeout(() => alertEl.classList.add('d-none'), 4000);
-            }
+            return new Promise((resolve) => {
+                canvas.toBlob(async function(blob) {
+                    if (unsafe) {
+                        if (blob && typeof File !== 'undefined' && navigator.canShare) {
+                            const file = new File([blob], fileName, { type: 'image/png' });
+                            if (navigator.canShare({ files: [file] })) {
+                                try {
+                                    await navigator.share({ files: [file], title: 'بطاقة الخريج الرقمية' });
+                                    resolve();
+                                    return;
+                                } catch (e) {
+                                    if (e && e.name === 'AbortError') { resolve(); return; }
+                                }
+                            }
+                        }
+                        const dataUrl = canvas.toDataURL('image/png');
+                        let modal = document.getElementById('inAppIdCardPreviewModal');
+                        if (!modal) {
+                            modal = document.createElement('div');
+                            modal.id = 'inAppIdCardPreviewModal';
+                            modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;overflow-y:auto;';
+                            modal.innerHTML = '<div style="max-width:440px;width:100%;text-align:center;color:#fff;"><div style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.5);color:#a7f3d0;padding:10px 14px;border-radius:14px;font-weight:700;font-size:0.88rem;margin-bottom:12px;">اضغط مطولاً على صورة البطاقة أدناه واختر «حفظ الصورة»</div><img id="inAppIdCardImg" src="" style="width:100%;max-height:72vh;object-fit:contain;border-radius:18px;background:#fff;padding:4px;" /><button type="button" onclick="this.closest(\'#inAppIdCardPreviewModal\').style.display=\'none\'" style="margin-top:14px;width:100%;background:#fff;color:#0f172a;border:none;padding:11px;border-radius:12px;font-weight:800;">إغلاق</button></div>';
+                            document.body.appendChild(modal);
+                        }
+                        modal.querySelector('#inAppIdCardImg').src = dataUrl;
+                        modal.style.display = 'flex';
+                        resolve();
+                        return;
+                    }
+                    if (blob && window.URL && URL.createObjectURL) {
+                        const blobUrl = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.download = fileName;
+                        link.href = blobUrl;
+                        link.style.display = 'none';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
+                    }
+                    const alertEl = document.getElementById('saveAlert');
+                    if (alertEl) {
+                        alertEl.classList.remove('d-none');
+                        setTimeout(() => alertEl.classList.add('d-none'), 4000);
+                    }
+                    resolve();
+                }, 'image/png');
+            });
         }).catch(err => {
             console.error('Download error:', err);
             alert('حدث خطأ أثناء تنزيل الصورة، يرجى استخدام زر الطباعة.');

@@ -14,7 +14,9 @@ use App\Models\JobFairVisitor;
 use App\Models\Message;
 use App\Models\Permission;
 use App\Models\TrainingApplication;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Schema;
 
 class Prevent500ErrorsRegressionTest extends TestCase
 {
@@ -91,7 +93,7 @@ class Prevent500ErrorsRegressionTest extends TestCase
         ]);
 
         // Create an application referencing a deleted training
-        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
+        Schema::disableForeignKeyConstraints();
         TrainingApplication::create([
             'user_id' => $graduate->id,
             'training_id' => 999999,
@@ -102,7 +104,7 @@ class Prevent500ErrorsRegressionTest extends TestCase
             'receiver_id' => $graduate->id,
             'content' => 'رسالة اختبارية',
         ]);
-        \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
+        Schema::enableForeignKeyConstraints();
 
         $response = $this->actingAs($graduate)->get(route('graduate.dashboard'));
         $response->assertStatus(200);
@@ -226,7 +228,7 @@ class Prevent500ErrorsRegressionTest extends TestCase
         $this->assertNotNull($gradData, 'GraduateData should be synced without ENUM failure');
         $this->assertEquals('system_sync', $gradData->data_source);
 
-        auth()->logout();
+        Auth::logout();
 
         // Attempt registering another user with the exact same student_id -> must return 302 validation error, NOT 500
         $dupResp = $this->from(route('graduate.register'))->post(route('graduate.register.store'), [
@@ -296,7 +298,7 @@ class Prevent500ErrorsRegressionTest extends TestCase
         ]);
 
         // Also insert an orphaned JobFairCompany row with missing Company record
-        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
+        Schema::disableForeignKeyConstraints();
         JobFairCompany::create([
             'job_fair_id' => $fair->id,
             'company_id' => 999999,
@@ -304,7 +306,7 @@ class Prevent500ErrorsRegressionTest extends TestCase
             'available_positions' => 1,
             'status' => 'confirmed',
         ]);
-        \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
+        Schema::enableForeignKeyConstraints();
 
         // 1. Public show & public companies must return 200 OK without null company crash
         $this->get(route('job-fair.public', $fair->id))->assertStatus(200);
@@ -344,11 +346,11 @@ class Prevent500ErrorsRegressionTest extends TestCase
             ->assertSessionHas('visitor_ticket_notice');
 
         // Re-registering with same phone (even typed in Arabic-Indic digits with spaces) returns the same existing ticket
-        $asciiPhone = (string) \App\Models\JobFairVisitor::where('ticket_number', $ticketNumber)->value('phone');
+        $asciiPhone = (string) $savedVisitor->phone;
         $arabicDigitsPhone = strtr($asciiPhone, ['0' => '٠', '1' => '١', '2' => '٢', '3' => '٣', '4' => '٤', '5' => '٥', '6' => '٦', '7' => '٧', '8' => '٨', '9' => '٩']);
         $again = $this->postJson(route('job-fair.visitor.register', $fair->id), [
             'name' => 'أحمد مفتاح القماطي',
-            'phone' => ' ' . substr($arabicDigitsPhone, 0, 6) . ' ' . substr($arabicDigitsPhone, 6) . ' ',
+            'phone' => ' ' . mb_substr($arabicDigitsPhone, 0, 3) . ' ' . mb_substr($arabicDigitsPhone, 3) . ' ',
         ]);
         $again->assertStatus(200)->assertJson(['success' => true, 'already_registered' => true, 'ticket_number' => $ticketNumber]);
 

@@ -592,12 +592,34 @@
             max-height: 230px;
         }
 
+        .panelist-portrait-stage::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(2, 18, 40, 0.48) 0%, transparent 32%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .panelist-portrait-blur-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: blur(16px) brightness(0.55);
+            transform: scale(1.18);
+            z-index: 0;
+        }
+
         .panelist-portrait-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: center 16%;
+            object-position: center 15%;
             display: block;
+            position: relative;
+            z-index: 1;
             transition: transform 0.4s ease;
         }
 
@@ -1593,6 +1615,7 @@
                                 @endif
 
                                 @if(!empty($sp['image_url']))
+                                    <img src="{{ $sp['image_url'] }}" alt="" aria-hidden="true" class="panelist-portrait-blur-bg">
                                     <img src="{{ $sp['image_url'] }}" alt="{{ $sp['name'] ?: 'متحدث الجلسة' }}" class="panelist-portrait-img">
                                 @else
                                     <div class="panelist-portrait-fallback">

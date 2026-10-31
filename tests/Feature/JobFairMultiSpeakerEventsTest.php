@@ -120,11 +120,13 @@ class JobFairMultiSpeakerEventsTest extends TestCase
             $programRes->assertSee($sp['image_url'], false);
         }
 
-        // 3. Main Job Fair Public Landing Page (/job-fair/{fair}) displays ALL 4 panelists photos in slice
+        // 3. Main Job Fair Public Landing Page (/job-fair/{fair}) dedicates vertical slices to each panelist
         $publicRes = $this->get(route('job-fair.public', $fair->id));
         $publicRes->assertStatus(200);
-        $publicRes->assertSee('slice-multi-portraits', false);
+        $publicRes->assertSee('is-panelists-deck', false);
+        $publicRes->assertSee('slice-panelist-item', false);
         foreach ($event->speakers_list as $sp) {
+            $publicRes->assertSee($sp['name']);
             $publicRes->assertSee($sp['image_url'], false);
         }
 
@@ -218,3 +220,4 @@ class JobFairMultiSpeakerEventsTest extends TestCase
         $res->assertSee('نبذة تعريفية عن مقدم الكلمة الافتتاحية.');
     }
 }
+

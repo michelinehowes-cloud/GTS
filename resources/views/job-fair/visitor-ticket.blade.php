@@ -13,11 +13,12 @@
     <style>
         * { font-family: 'Cairo', sans-serif; box-sizing: border-box; }
         body {
-            background: linear-gradient(135deg, #045db0 0%, #e2e8f0 100%);
+            background: linear-gradient(135deg, #045db0 0%, #dbeafe 100%);
             min-height: 100vh;
-            width: 100vw;
+            min-height: 100dvh;
+            width: 100%;
             margin: 0;
-            padding: 20px 0;
+            padding: 16px 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -26,10 +27,10 @@
 
         /* ===== Ticket Card Wrapper ===== */
         .ticket-wrapper {
-            max-width: 490px;
+            max-width: 425px;
             width: 100%;
-            padding: 15px;
-            transform-origin: center center;
+            padding: 10px 12px;
+            transform-origin: top center;
             margin: auto;
         }
 
@@ -37,15 +38,18 @@
             background: #ffffff;
             border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+            box-shadow: 0 25px 70px rgba(0,0,0,0.45);
             position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 830px;
         }
 
         /* Header الملوّن */
         .ticket-header {
             background: #045db0;
             color: white;
-            padding: 1.35rem 1.25rem 1.75rem;
+            padding: 1.65rem 1.25rem 2.1rem;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -123,21 +127,25 @@
 
         /* Body */
         .ticket-body {
-            padding: 1.05rem 1.4rem 1.4rem;
+            padding: 1.25rem 1.35rem 1.65rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         /* Reg Number Badge */
         .reg-number-badge {
             background: linear-gradient(135deg, #10b981, #059669);
             color: #ffffff;
-            padding: 5px 20px;
+            padding: 6px 22px;
             border-radius: 50px;
             font-weight: 800;
-            font-size: 1rem;
+            font-size: 1.05rem;
             letter-spacing: 1.2px;
             font-family: monospace;
             display: inline-block;
-            margin-bottom: 0.85rem;
+            margin-bottom: 0.9rem;
             box-shadow: 0 4px 15px rgba(16,185,129,0.3);
         }
 
@@ -171,14 +179,14 @@
         .info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.6rem;
-            margin: 0.9rem 0;
+            gap: 0.75rem;
+            margin: 1.05rem 0;
         }
         .info-item {
             background: #f8fafc;
-            border-radius: 12px;
-            padding: 0.6rem 0.75rem;
-            border: 1px solid #f1f5f9;
+            border-radius: 14px;
+            padding: 0.8rem 0.85rem;
+            border: 1px solid #eef2f7;
         }
         .info-label {
             font-size: 0.72rem;
@@ -288,11 +296,33 @@
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
+        /* ملء شاشة الهاتف بالكامل دون تصغير أو فراغات جانبية */
+        @media (max-width: 576px) {
+            body {
+                padding: 0;
+                align-items: stretch;
+            }
+            .ticket-wrapper {
+                max-width: 100%;
+                width: 100%;
+                padding: 8px 8px 16px;
+                margin: 0;
+                transform: none !important;
+                display: flex;
+                flex-direction: column;
+            }
+            .ticket {
+                flex: 1;
+                min-height: calc(100dvh - 120px);
+                border-radius: 20px;
+            }
+        }
+
         @media print {
             .no-print, .auto-save-toast { display: none !important; }
             body { background: none !important; padding: 0 !important; }
             .ticket-wrapper { max-width: 100% !important; padding: 0 !important; }
-            .ticket { box-shadow: none !important; border: 1px solid #ccc; }
+            .ticket { box-shadow: none !important; border: 1px solid #ccc; min-height: auto !important; }
         }
     </style>
 </head>
@@ -416,6 +446,9 @@
                     امسح عند البوابة لتسجيل الدخول والتحقق
                 </div>
                 <div id="qr-code" class="d-flex justify-content-center"></div>
+                <div class="mt-2 pt-1" style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">
+                    بطاقة دخول رقمية رسمية &bull; يُرجى إبرازها عند بوابة المعرض
+                </div>
             </div>
         </div>
     </div>
@@ -447,8 +480,8 @@
 // توليد QR Code
 new QRCode(document.getElementById('qr-code'), {
     text: "{{ route('job-fair.visitor.ticket', $visitor->ticket_number) }}",
-    width: 150,
-    height: 150,
+    width: 185,
+    height: 185,
     colorDark: "#045db0",
     colorLight: "#ffffff",
     correctLevel: QRCode.CorrectLevel.H
@@ -580,13 +613,23 @@ function downloadTicket(isAuto = false) {
     const ticketElement = document.querySelector('.ticket');
 
     html2canvas(ticketElement, {
-        scale: 2, // جودة فائقة الدقة
+        scale: 3, // دقة شاشات الهاتف الحديثة FHD+
         useCORS: true,
-        backgroundColor: null,
+        backgroundColor: '#ffffff',
         onclone: function(clonedDoc) {
             const clonedWrapper = clonedDoc.querySelector('.ticket-wrapper');
             if (clonedWrapper) {
                 clonedWrapper.style.transform = 'none';
+                clonedWrapper.style.width = '412px';
+                clonedWrapper.style.maxWidth = '412px';
+                clonedWrapper.style.padding = '0';
+            }
+            const clonedTicket = clonedDoc.querySelector('.ticket');
+            if (clonedTicket) {
+                clonedTicket.style.width = '412px';
+                clonedTicket.style.minHeight = '865px';
+                clonedTicket.style.borderRadius = '0';
+                clonedTicket.style.boxShadow = 'none';
             }
         }
     }).then(canvas => {
@@ -604,25 +647,11 @@ function downloadTicket(isAuto = false) {
     });
 }
 
-// دالة لتعديل حجم البطاقة تلقائياً لتناسب أي شاشة موبايل أو ديسكتوب
+// على شاشات الهاتف نترك البطاقة تملأ عرض وطول الشاشة بالكامل بدون تصغير scale()
 function fitTicketToScreen() {
     const wrapper = document.querySelector('.ticket-wrapper');
     if (!wrapper) return;
-    
     wrapper.style.transform = 'none';
-    
-    const windowHeight = window.innerHeight;
-    const windowWidth = window.innerWidth;
-    
-    const wrapperHeight = wrapper.offsetHeight;
-    const wrapperWidth = wrapper.offsetWidth;
-    
-    const scaleY = (windowHeight - 30) / wrapperHeight;
-    const scaleX = (windowWidth - 20) / wrapperWidth;
-    
-    const scale = Math.min(scaleX, scaleY, 1);
-    
-    wrapper.style.transform = `scale(${scale})`;
 }
 
 // تشغيل التعديل عند التحميل وتغيير الحجم

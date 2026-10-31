@@ -537,8 +537,8 @@
                                         {{ $ev->title }}
                                     </h6>
                                     <div class="text-muted small mb-2 d-flex align-items-center gap-1.5">
-                                        <i class="fas fa-user-tie text-primary"></i>
-                                        <span>{{ $ev->speaker_name ?? 'لم يحدد' }}</span>
+                                        <i class="fas {{ count($ev->speakers_list) > 1 ? 'fa-users' : 'fa-user-tie' }} text-primary"></i>
+                                        <span>{{ $ev->speakers_names_summary ?: 'لم يحدد' }}</span>
                                     </div>
                                     @if($ev->location)
                                     <div class="text-muted small mb-3">

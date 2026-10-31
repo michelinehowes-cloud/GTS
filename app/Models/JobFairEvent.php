@@ -20,6 +20,7 @@ class JobFairEvent extends Model
         'speaker_title',
         'speaker_bio',
         'speaker_image',
+        'speakers',
         'start_time',
         'end_time',
         'location',
@@ -33,6 +34,12 @@ class JobFairEvent extends Model
         'start_time'  => 'datetime',
         'end_time'    => 'datetime',
         'is_featured' => 'boolean',
+        'speakers'    => 'array',
+    ];
+
+    protected $appends = [
+        'speakers_list',
+        'speakers_names_summary',
     ];
 
     public function jobFair()
@@ -127,15 +134,126 @@ class JobFairEvent extends Model
         };
     }
 
+    public static function resolveSpeakerImageUrl(?string $path): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+        $path = trim($path);
+        if ($path === '') {
+            return null;
+        }
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://') || str_starts_with($path, '/')) {
+            return $path;
+        }
+        return Storage::url($path);
+    }
+
+    public static function defaultSpeakerRoleForType(?string $type): string
+    {
+        return match($type) {
+            'panel_discussion' => 'محاور',
+            'keynote'          => 'متحدث رئيسي',
+            default            => 'مدرب / محاضر',
+        };
+    }
+
     public function getSpeakerImageUrlAttribute(): ?string
     {
         if ($this->speaker_image) {
-            if (str_starts_with($this->speaker_image, 'http')) {
-                return $this->speaker_image;
-            }
-            return Storage::url($this->speaker_image);
+            return static::resolveSpeakerImageUrl($this->speaker_image);
         }
+
+        $raw = $this->speakers;
+        if (is_string($raw)) {
+            $raw = json_decode($raw, true);
+        }
+        if (is_array($raw)) {
+            foreach ($raw as $entry) {
+                if (is_array($entry) && !empty($entry['image'])) {
+                    return static::resolveSpeakerImageUrl($entry['image']);
+                }
+            }
+        }
+
         return null;
+    }
+
+    /**
+     * قائمة المتحدثين والمحاورين الموحدة (تدعم من 1 إلى عدة محاورين مع التوافق الكامل مع الحقول القديمة)
+     */
+    public function getSpeakersListAttribute(): array
+    {
+        $raw = $this->speakers;
+        if (is_string($raw)) {
+            $raw = json_decode($raw, true);
+        }
+
+        $defaultRole = static::defaultSpeakerRoleForType($this->type);
+        $list = [];
+
+        if (is_array($raw)) {
+            foreach ($raw as $entry) {
+                if (!is_array($entry)) {
+                    continue;
+                }
+                $name  = trim((string) ($entry['name'] ?? ''));
+                $title = trim((string) ($entry['title'] ?? ''));
+                $role  = trim((string) ($entry['role'] ?? ''));
+                $bio   = trim((string) ($entry['bio'] ?? ''));
+                $image = !empty($entry['image']) ? trim((string) $entry['image']) : null;
+
+                if ($name === '' && $title === '' && $bio === '' && !$image) {
+                    continue;
+                }
+
+                $list[] = [
+                    'name'      => $name,
+                    'title'     => $title,
+                    'role'      => $role !== '' ? $role : $defaultRole,
+                    'bio'       => $bio,
+                    'image'     => $image,
+                    'image_url' => static::resolveSpeakerImageUrl($image),
+                ];
+            }
+        }
+
+        if (empty($list)) {
+            $legacyName  = trim((string) ($this->speaker_name ?? ''));
+            $legacyTitle = trim((string) ($this->speaker_title ?? ''));
+            $legacyBio   = trim((string) ($this->speaker_bio ?? ''));
+            $legacyImage = !empty($this->speaker_image) ? trim((string) $this->speaker_image) : null;
+
+            if ($legacyName !== '' || $legacyTitle !== '' || $legacyBio !== '' || $legacyImage) {
+                $list[] = [
+                    'name'      => $legacyName,
+                    'title'     => $legacyTitle,
+                    'role'      => $defaultRole,
+                    'bio'       => $legacyBio,
+                    'image'     => $legacyImage,
+                    'image_url' => static::resolveSpeakerImageUrl($legacyImage),
+                ];
+            }
+        }
+
+        return $list;
+    }
+
+    /**
+     * ملخص أسماء المتحدثين والمحاورين مفصولة بفاصلة عربية
+     */
+    public function getSpeakersNamesSummaryAttribute(): string
+    {
+        $names = array_values(array_filter(array_map(
+            fn($sp) => trim((string) ($sp['name'] ?? '')),
+            $this->speakers_list
+        )));
+
+        if (!empty($names)) {
+            return implode(' ، ', $names);
+        }
+
+        return trim((string) ($this->speaker_name ?? ''));
     }
 
     public function getShareUrlAttribute(): string

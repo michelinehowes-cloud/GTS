@@ -344,10 +344,16 @@
             color: #ffffff;
             box-shadow: 0 4px 15px rgba(14,165,233,0.3);
         }
-        .badge-type-panel {
-            background: linear-gradient(135deg, #7c3aed, #a855f7);
+        .badge-type-panel,
+        .badge-type-panel_discussion {
+            background: linear-gradient(135deg, #059669, #10b981);
             color: #ffffff;
-            box-shadow: 0 4px 15px rgba(168,85,247,0.3);
+            box-shadow: 0 4px 15px rgba(16,185,129,0.32);
+        }
+        .badge-type-keynote {
+            background: linear-gradient(135deg, #eeca3e, #f59e0b);
+            color: #061c38;
+            box-shadow: 0 4px 15px rgba(238,202,62,0.35);
         }
 
         .badge-status-pill {
@@ -384,11 +390,363 @@
         }
 
         .event-hero-subtitle {
-            font-size: 1.05rem;
-            color: rgba(255, 255, 255, 0.85);
-            max-width: 850px;
-            line-height: 1.7;
+            font-size: 1.02rem;
+            color: rgba(255, 255, 255, 0.88);
+            max-width: 100%;
+            line-height: 1.75;
             margin: 0;
+        }
+
+        .hero-panelists-inline {
+            display: inline-flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-right: 6px;
+        }
+
+        .hero-panelist-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(238, 202, 62, 0.32);
+            border-radius: 50px;
+            padding: 3px 12px;
+            font-size: 0.86rem;
+            color: #ffffff;
+        }
+
+        .hero-panelist-chip .chip-role {
+            font-size: 0.73rem;
+            color: var(--gold-lt);
+            font-weight: 700;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           TOP WIDE SPEAKERS & PANELISTS SHOWCASE BANNER (~1/3 PAGE)
+        ══════════════════════════════════════════════════════════ */
+        .speakers-showcase-banner {
+            position: relative;
+            background: linear-gradient(145deg, rgba(6, 26, 56, 0.92) 0%, rgba(8, 42, 86, 0.86) 55%, rgba(4, 72, 138, 0.78) 100%);
+            border: 1.5px solid rgba(238, 202, 62, 0.42);
+            border-radius: 26px;
+            padding: 28px 30px 30px;
+            margin-bottom: 32px;
+            box-shadow: 0 22px 50px rgba(0, 0, 0, 0.42), 0 0 35px rgba(238, 202, 62, 0.12);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            overflow: hidden;
+        }
+
+        .speakers-showcase-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent 0%, var(--gold) 25%, #38bdf8 50%, var(--gold) 75%, transparent 100%);
+            opacity: 0.9;
+        }
+
+        .speakers-banner-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .speakers-banner-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .speakers-banner-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, rgba(238, 202, 62, 0.25), rgba(14, 165, 233, 0.25));
+            border: 1.5px solid rgba(238, 202, 62, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            font-size: 1.15rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+        }
+
+        .speakers-banner-title {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .speakers-banner-subtitle {
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.68);
+            margin: 2px 0 0;
+        }
+
+        .speakers-count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(238, 202, 62, 0.16);
+            border: 1px solid rgba(238, 202, 62, 0.45);
+            color: var(--gold-lt);
+            font-size: 0.84rem;
+            font-weight: 800;
+            padding: 6px 16px;
+            border-radius: 50px;
+        }
+
+        .speakers-showcase-grid {
+            display: grid;
+            gap: 18px;
+            align-items: stretch;
+        }
+
+        .speakers-showcase-grid.grid-count-1 {
+            grid-template-columns: 1fr;
+        }
+        .speakers-showcase-grid.grid-count-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .speakers-showcase-grid.grid-count-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .speakers-showcase-grid.grid-count-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+        .speakers-showcase-grid.grid-count-5 {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 15px;
+        }
+        .speakers-showcase-grid.grid-count-many {
+            grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+        }
+
+        .panelist-showcase-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(4, 24, 52, 0.72) 100%);
+            border: 1.5px solid rgba(255, 255, 255, 0.16);
+            border-radius: 20px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panelist-showcase-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 16px 34px rgba(0, 0, 0, 0.45), 0 0 22px rgba(238, 202, 62, 0.22);
+        }
+
+        .panelist-showcase-card.is-moderator {
+            border-color: rgba(238, 202, 62, 0.65);
+            background: linear-gradient(180deg, rgba(238, 202, 62, 0.12) 0%, rgba(6, 28, 60, 0.82) 100%);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35), 0 0 20px rgba(238, 202, 62, 0.16);
+        }
+
+        /* Single Speaker Panoramic Horizontal Card */
+        .speakers-showcase-grid.grid-count-1 .panelist-showcase-card {
+            flex-direction: row;
+            align-items: center;
+            gap: 28px;
+            padding: 20px 24px;
+        }
+
+        .panelist-portrait-stage {
+            width: 100%;
+            aspect-ratio: 4 / 4.3;
+            max-height: 265px;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            background: radial-gradient(circle at 50% 25%, rgba(56, 189, 248, 0.22) 0%, rgba(8, 34, 69, 0.92) 70%, rgba(2, 16, 36, 0.98) 100%);
+            border: 2px solid rgba(238, 202, 62, 0.55);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+            margin-bottom: 14px;
+            flex-shrink: 0;
+        }
+
+        .speakers-showcase-grid.grid-count-1 .panelist-portrait-stage {
+            width: 235px;
+            height: 255px;
+            max-height: none;
+            aspect-ratio: auto;
+            margin-bottom: 0;
+        }
+
+        .speakers-showcase-grid.grid-count-5 .panelist-portrait-stage {
+            aspect-ratio: 4 / 4.25;
+            max-height: 230px;
+        }
+
+        .panelist-portrait-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 16%;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .panelist-showcase-card:hover .panelist-portrait-img {
+            transform: scale(1.04);
+        }
+
+        .panelist-portrait-fallback {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--gold);
+            background: linear-gradient(145deg, rgba(4, 93, 176, 0.35), rgba(2, 20, 43, 0.92));
+        }
+
+        .panelist-portrait-fallback i {
+            font-size: 3.4rem;
+            filter: drop-shadow(0 4px 12px rgba(238, 202, 62, 0.35));
+        }
+
+        .panelist-role-pill {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 3;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 11px;
+            border-radius: 50px;
+            font-size: 0.74rem;
+            font-weight: 800;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+        }
+
+        .panelist-role-pill.role-moderator {
+            background: linear-gradient(135deg, #eeca3e 0%, #f59e0b 100%);
+            color: #051b37;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+        }
+
+        .panelist-role-pill.role-panelist {
+            background: rgba(6, 28, 60, 0.86);
+            color: #7dd3fc;
+            border: 1px solid rgba(56, 189, 248, 0.55);
+        }
+
+        .panelist-role-pill.role-keynote {
+            background: rgba(6, 28, 60, 0.88);
+            color: var(--gold-lt);
+            border: 1px solid rgba(238, 202, 62, 0.55);
+        }
+
+        .panelist-card-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            text-align: center;
+        }
+
+        .speakers-showcase-grid.grid-count-1 .panelist-card-body {
+            text-align: right;
+        }
+
+        .panelist-name {
+            font-size: 1.08rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin: 0 0 5px;
+            line-height: 1.35;
+        }
+
+        .speakers-showcase-grid.grid-count-1 .panelist-name {
+            font-size: 1.45rem;
+            margin-bottom: 8px;
+        }
+
+        .speakers-showcase-grid.grid-count-5 .panelist-name {
+            font-size: 0.98rem;
+        }
+
+        .panelist-job-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--gold-lt);
+            margin-bottom: 8px;
+            line-height: 1.45;
+        }
+
+        .speakers-showcase-grid.grid-count-1 .panelist-job-title {
+            font-size: 0.98rem;
+            margin-bottom: 12px;
+        }
+
+        .panelist-bio {
+            font-size: 0.8rem;
+            line-height: 1.65;
+            color: rgba(255, 255, 255, 0.82);
+            margin: 0;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.09);
+        }
+
+        .speakers-showcase-grid.grid-count-1 .panelist-bio {
+            font-size: 0.94rem;
+            line-height: 1.8;
+            padding-top: 12px;
+        }
+
+        .sidebar-box-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 16px;
+            margin-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+        }
+
+        .sidebar-box-header-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: rgba(238, 202, 62, 0.18);
+            border: 1px solid rgba(238, 202, 62, 0.45);
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .sidebar-box-header h3 {
+            font-size: 1.08rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .sidebar-box-header span {
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.7);
+            display: block;
         }
 
         /* ══════════════════════════════════
@@ -993,13 +1351,48 @@
             to   { opacity: 1; transform: translateY(0); }
         }
 
+        @media (max-width: 1199px) {
+            .speakers-showcase-grid.grid-count-5 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            .speakers-showcase-grid.grid-count-4 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
         @media (max-width: 991px) {
             .event-hero-card { padding: 24px 20px; }
             .event-hero-title { font-size: 1.55rem; }
+            .speakers-showcase-banner { padding: 22px 18px; }
+            .speakers-showcase-grid.grid-count-3,
+            .speakers-showcase-grid.grid-count-4,
+            .speakers-showcase-grid.grid-count-5 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .speakers-showcase-grid.grid-count-1 .panelist-showcase-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            .speakers-showcase-grid.grid-count-1 .panelist-card-body {
+                text-align: center;
+            }
             .speaker-profile-card { flex-direction: column; align-items: center; text-align: center; }
             .speaker-name-badge { justify-content: center; }
             .speaker-job-title { justify-content: center; }
             .sidebar-sticky { position: static; }
+        }
+
+        @media (max-width: 575px) {
+            .speakers-showcase-grid.grid-count-2,
+            .speakers-showcase-grid.grid-count-3,
+            .speakers-showcase-grid.grid-count-4,
+            .speakers-showcase-grid.grid-count-5,
+            .speakers-showcase-grid.grid-count-many {
+                grid-template-columns: 1fr;
+            }
+            .panelist-portrait-stage {
+                max-height: 290px;
+            }
         }
     </style>
 </head>
@@ -1111,13 +1504,124 @@
 
                 <h2 class="event-hero-title">{{ $event->title }}</h2>
 
-                @if($event->speaker_title)
+                @php
+                    $speakers = $event->speakers_list;
+                    $speakersTotal = count($speakers);
+                    $gridCountClass = match(true) {
+                        $speakersTotal <= 1 => 'grid-count-1',
+                        $speakersTotal === 2 => 'grid-count-2',
+                        $speakersTotal === 3 => 'grid-count-3',
+                        $speakersTotal === 4 => 'grid-count-4',
+                        $speakersTotal === 5 => 'grid-count-5',
+                        default => 'grid-count-many',
+                    };
+                @endphp
+
+                @if($speakersTotal > 1)
+                <div class="event-hero-subtitle">
+                    <i class="fas fa-users text-warning me-1"></i>
+                    <span>يشارك في الجلسة:</span>
+                    <div class="hero-panelists-inline">
+                        @foreach($speakers as $sp)
+                            @if(!empty($sp['name']))
+                            <span class="hero-panelist-chip">
+                                <strong>{{ $sp['name'] }}</strong>
+                                @if(!empty($sp['role']))
+                                    <span class="chip-role">({{ $sp['role'] }})</span>
+                                @endif
+                            </span>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+                @elseif($speakersTotal === 1 && !empty($speakers[0]['name']))
                 <p class="event-hero-subtitle">
                     <i class="fas fa-user-tie text-warning me-1"></i>
-                    يقدمها: <strong>{{ $event->speaker_name }}</strong> ({{ $event->speaker_title }})
+                    يقدمها: <strong>{{ $speakers[0]['name'] }}</strong>
+                    @if(!empty($speakers[0]['title']))
+                        ({{ $speakers[0]['title'] }})
+                    @endif
                 </p>
                 @endif
             </div>
+
+            <!-- Wide Top-of-Page Speakers & Panelists Showcase Banner (~1/3 of page) -->
+            @if($speakersTotal > 0)
+            <section class="speakers-showcase-banner" aria-label="المتحدثون والمحاورون">
+                <div class="speakers-banner-header">
+                    <div class="speakers-banner-title-wrap">
+                        <div class="speakers-banner-icon">
+                            <i class="fas {{ $speakersTotal > 1 ? 'fa-users' : 'fa-user-tie' }}"></i>
+                        </div>
+                        <div>
+                            <h3 class="speakers-banner-title">
+                                {{ $speakersTotal > 1 ? 'المتحدثون والمحاورون في الجلسة' : 'المتحدث ومقدم الفعالية' }}
+                            </h3>
+                            <p class="speakers-banner-subtitle">
+                                {{ $speakersTotal > 1 ? 'نخبة من الخبراء والمتخصصين المشاركين في إثراء محاور الجلسة الحوارية' : 'نبذة تعريفية عن المتحدث والخبرة المهنية والأكاديمية' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    @if($speakersTotal > 1)
+                    <span class="speakers-count-badge">
+                        <i class="fas fa-microphone-lines"></i>
+                        <span>{{ $speakersTotal }} محاورين ومتحدثين</span>
+                    </span>
+                    @endif
+                </div>
+
+                <div class="speakers-showcase-grid {{ $gridCountClass }}">
+                    @foreach($speakers as $sp)
+                        @php
+                            $roleText = $sp['role'] ?? '';
+                            $isModerator = str_contains($roleText, 'مدير');
+                            $rolePillClass = $isModerator
+                                ? 'role-moderator'
+                                : (str_contains($roleText, 'رئيسي') ? 'role-keynote' : 'role-panelist');
+                            $roleIcon = $isModerator
+                                ? 'fas fa-microphone-lines'
+                                : (str_contains($roleText, 'رئيسي') ? 'fas fa-star' : 'fas fa-user-tie');
+                        @endphp
+                        <article class="panelist-showcase-card {{ $isModerator ? 'is-moderator' : '' }}">
+                            <div class="panelist-portrait-stage">
+                                @if(!empty($roleText))
+                                <span class="panelist-role-pill {{ $rolePillClass }}">
+                                    <i class="{{ $roleIcon }}"></i>
+                                    <span>{{ $roleText }}</span>
+                                </span>
+                                @endif
+
+                                @if(!empty($sp['image_url']))
+                                    <img src="{{ $sp['image_url'] }}" alt="{{ $sp['name'] ?: 'متحدث الجلسة' }}" class="panelist-portrait-img">
+                                @else
+                                    <div class="panelist-portrait-fallback">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div class="panelist-card-body">
+                                <h4 class="panelist-name">{{ $sp['name'] ?: 'متحدث مشارك' }}</h4>
+
+                                @if(!empty($sp['title']))
+                                    <div class="panelist-job-title">
+                                        <i class="fas fa-briefcase me-1" style="font-size: 0.75rem; opacity: 0.85;"></i>
+                                        <span>{{ $sp['title'] }}</span>
+                                    </div>
+                                @endif
+
+                                @if(!empty($sp['bio']))
+                                    <p class="panelist-bio">{{ $sp['bio'] }}</p>
+                                @elseif($speakersTotal === 1)
+                                    <p class="panelist-bio">مقدم فعالية «{{ $event->title }}» ضمن البرنامج العلمي المصاحب لمعرض التوظيف بجامعة طرابلس.</p>
+                                @endif
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            </section>
+            @endif
 
             <!-- Two-Column Layout -->
             <div class="row g-4">
@@ -1187,38 +1691,33 @@
                 <div class="col-lg-4">
                     <div class="sidebar-sticky">
 
-                        <!-- Speaker & Event Information Box -->
+                        <!-- Event Schedule & Registration Box -->
                         <div class="reg-action-box">
-                            <div class="sidebar-speaker-spotlight">
-                                <div class="sidebar-speaker-portrait-wrap">
-                                    @if($event->speaker_image_url)
-                                        <img src="{{ $event->speaker_image_url }}" alt="{{ $event->speaker_name }}" class="sidebar-speaker-img">
-                                    @else
-                                        <div class="sidebar-speaker-avatar-fallback">
-                                            <i class="fas fa-user-tie"></i>
-                                        </div>
-                                    @endif
+                            <div class="sidebar-box-header">
+                                <div class="sidebar-box-header-icon">
+                                    <i class="fas fa-calendar-check"></i>
                                 </div>
-
-                                <div class="sidebar-speaker-badge">
-                                    <i class="fas fa-microphone-alt text-warning me-1"></i>
-                                    <span>المدرب / المتحدث الرئيسي</span>
-                                </div>
-
-                                <h3 class="sidebar-speaker-title">
-                                    {{ $event->speaker_name ?: 'المنيب محمد الشريف' }}
-                                </h3>
-
-                                <div class="sidebar-speaker-role">
-                                    <i class="fas fa-id-badge text-info me-1"></i>
-                                    <span>{{ $event->speaker_title ?: 'موظف بوحدة الدعم التقني' }}</span>
-                                </div>
-
-                                <div class="sidebar-speaker-session-banner">
-                                    <i class="fas fa-calendar-check text-warning me-1"></i>
-                                    <span>{{ $event->title ?: 'افتتاح وتدشين فعاليات البرنامج العلمي المصاحب لمعرض التوظيف 2026' }}</span>
+                                <div>
+                                    <h3>تفاصيل الموعد والحجز</h3>
+                                    <span>بيانات الحضور والتسجيل الرسمي</span>
                                 </div>
                             </div>
+
+                            @if($event->capacity)
+                                @php
+                                    $bookedCount = $event->attendees_count;
+                                    $fillPct = min(100, round(($bookedCount / max(1, $event->capacity)) * 100));
+                                @endphp
+                                <div class="capacity-bar-wrap mt-3 mb-1">
+                                    <div class="capacity-header">
+                                        <span>المقاعد المحجوزة</span>
+                                        <span class="capacity-number">{{ $bookedCount }} / {{ $event->capacity }} مقعد</span>
+                                    </div>
+                                    <div class="progress-track">
+                                        <div class="progress-fill" style="width: {{ $fillPct }}%;"></div>
+                                    </div>
+                                </div>
+                            @endif
 
                             <!-- Metadata List -->
                             <div class="meta-list">
@@ -1373,8 +1872,8 @@
                             </span>
                             <h4 class="related-title">{{ Str::limit($rel->title, 65) }}</h4>
                             <div class="related-speaker">
-                                <i class="fas fa-user-circle text-warning"></i>
-                                <span>{{ $rel->speaker_name ?: 'نخبة من المدربين' }}</span>
+                                <i class="fas {{ count($rel->speakers_list) > 1 ? 'fa-users' : 'fa-user-circle' }} text-warning"></i>
+                                <span>{{ $rel->speakers_names_summary ?: 'نخبة من المحاورين والمدربين' }}</span>
                             </div>
                         </a>
                     </div>

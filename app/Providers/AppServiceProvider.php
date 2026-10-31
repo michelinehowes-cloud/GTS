@@ -41,7 +41,8 @@ class AppServiceProvider extends ServiceProvider
             $needsMigrate = !\Illuminate\Support\Facades\Schema::hasTable('job_fair_visitors') ||
                 !\Illuminate\Support\Facades\Schema::hasColumn('job_fair_visits', 'job_opportunity_id') ||
                 !\Illuminate\Support\Facades\Schema::hasColumn('job_opportunities', 'job_fair_id') ||
-                !\Illuminate\Support\Facades\Schema::hasColumn('trainings', 'start_time');
+                !\Illuminate\Support\Facades\Schema::hasColumn('trainings', 'start_time') ||
+                !\Illuminate\Support\Facades\Schema::hasColumn('job_fair_events', 'speakers');
 
             if (!$needsMigrate && !$this->app->runningUnitTests() && !\Illuminate\Support\Facades\Cache::get('schema_500_fix_20261029_applied')) {
                 if (\Illuminate\Support\Facades\Schema::hasTable('migrations')) {

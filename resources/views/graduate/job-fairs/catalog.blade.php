@@ -229,8 +229,11 @@
                                 </div>
                                 <div class="col-md-6">
                                     <h5 class="fw-bold text-dark mb-1">{{ $event->title }}</h5>
-                                    @if($event->speaker_name)
-                                        <p class="text-muted small mb-2"><i class="fas fa-user-tie me-1 text-info"></i> {{ $event->speaker_name }}</p>
+                                    @if($event->speakers_names_summary)
+                                        <p class="text-muted small mb-2">
+                                            <i class="fas {{ count($event->speakers_list) > 1 ? 'fa-users' : 'fa-user-tie' }} me-1 text-info"></i>
+                                            {{ $event->speakers_names_summary }}
+                                        </p>
                                     @endif
                                     <p class="text-muted small mb-2">{{ $event->description }}</p>
                                     

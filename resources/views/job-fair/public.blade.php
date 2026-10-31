@@ -2104,6 +2104,31 @@
             transform: scale(1);
         }
 
+        /* منع تداخل النصوص في الشرائح الجانبية المضغوطة عند فتح أي شريحة */
+        .psc-slices-wrapper:hover .psc-slice:not(:hover) .slice-label,
+        .psc-slices-wrapper:hover .psc-slice:not(:hover) .slice-micro-val,
+        .psc-slices-wrapper:hover .psc-slice:not(:hover) .panelist-compact-name,
+        .psc-slices-wrapper:hover .psc-slice:not(:hover) .panelist-compact-role {
+            opacity: 0;
+            visibility: hidden;
+            max-height: 0;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .psc-slices-wrapper:hover .psc-slice:not(:hover) .slice-compact {
+            gap: 0;
+        }
+
+        .psc-slices-wrapper:hover .psc-slice:not(:hover) .panelist-compact-avatar {
+            width: 30px !important;
+            height: 30px !important;
+            border-radius: 50%;
+            border-width: 1.5px;
+        }
+
         /* Slice Details Elements */
         .slice-badge {
             font-size: 0.74rem;
@@ -2204,41 +2229,219 @@
             line-height: 1.35;
         }
 
-        .slice-multi-portraits {
+        /* ── Dedicated Per-Panelist Interactive Vertical Slices (للمحاورين في الجلسات الحوارية) ── */
+        .psc-quick-meta {
             display: flex;
             align-items: center;
-            justify-content: center;
             flex-wrap: wrap;
-            gap: 8px;
-            width: 96%;
-            margin-bottom: 10px;
+            gap: 6px;
+            margin-top: 7px;
+            font-size: 0.73rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.78);
         }
 
-        .slice-multi-portrait-item {
-            width: 62px;
-            height: 70px;
-            border-radius: 12px;
+        .psc-slice.slice-panelist-item {
+            position: relative;
+            transition: flex 0.44s cubic-bezier(0.22, 1, 0.36, 1), background 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        .psc-slice.slice-panelist-item.panelist-tone-0 {
+            background: linear-gradient(180deg, #02142B 0%, #06254c 100%);
+            color: #ffffff;
+        }
+        .psc-slice.slice-panelist-item.panelist-tone-1 {
+            background: linear-gradient(180deg, #043C73 0%, #02264d 100%);
+            color: #ffffff;
+        }
+        .psc-slice.slice-panelist-item.panelist-tone-2 {
+            background: linear-gradient(180deg, #0284C7 0%, #03527d 100%);
+            color: #ffffff;
+        }
+        .psc-slice.slice-panelist-item.panelist-tone-3 {
+            background: linear-gradient(180deg, #38BDF8 0%, #0ea5e9 100%);
+            color: #02142B;
+        }
+        .psc-slice.slice-panelist-item.panelist-tone-4 {
+            background: linear-gradient(180deg, #EECA3E 0%, #d97706 100%);
+            color: #02142B;
+        }
+
+        /* عند تمرير الماوس تتحول شريحة المحاور إلى منصة عرض ملكية داكنة تبرز الصورة والإطار الذهبي */
+        .psc-slice.slice-panelist-item:hover {
+            flex: 9.2;
+            background: radial-gradient(circle at 50% 22%, #083d77 0%, #031c3a 70%, #021226 100%) !important;
+            color: #ffffff !important;
+            box-shadow: inset 0 0 28px rgba(238, 202, 62, 0.18), 0 0 28px rgba(0, 0, 0, 0.7);
+            z-index: 6;
+        }
+
+        .panelist-slice-watermark {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 18%;
+            opacity: 0.14;
+            filter: grayscale(40%) contrast(1.1);
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .psc-slice.slice-panelist-item:hover .panelist-slice-watermark {
+            opacity: 0.06;
+        }
+
+        .panelist-compact-avatar {
+            width: 64px;
+            height: 74px;
+            border-radius: 14px;
             overflow: hidden;
             border: 2px solid #EECA3E;
-            background: rgba(2, 20, 43, 0.9);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+            background: radial-gradient(circle at 50% 25%, #0a3d73, #02142B);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
         }
 
-        .slice-multi-portrait-item img {
+        .psc-slices-wrapper.deck-count-4 .panelist-compact-avatar {
+            width: 54px;
+            height: 62px;
+            border-radius: 12px;
+        }
+
+        .psc-slices-wrapper.deck-count-5 .panelist-compact-avatar,
+        .psc-slices-wrapper.deck-count-many .panelist-compact-avatar {
+            width: 44px;
+            height: 52px;
+            border-radius: 11px;
+        }
+
+        .psc-slice.panelist-tone-4 .panelist-compact-avatar {
+            border-color: #02142B;
+        }
+
+        .panelist-compact-avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: center 16%;
+            object-position: center 15%;
             display: block;
         }
 
-        .slice-multi-portrait-item i {
+        .panelist-compact-avatar i {
+            font-size: 1.45rem;
             color: #EECA3E;
-            font-size: 1.4rem;
+        }
+
+        .panelist-compact-role {
+            font-size: 0.62rem;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 50px;
+            background: rgba(2, 20, 43, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            white-space: nowrap;
+            position: relative;
+            z-index: 2;
+            transition: opacity 0.2s ease;
+        }
+
+        .panelist-compact-role.is-mod-role {
+            background: linear-gradient(135deg, #EECA3E, #f59e0b);
+            color: #02142B;
+            border-color: rgba(2, 20, 43, 0.25);
+        }
+
+        .psc-slice.panelist-tone-3 .panelist-compact-role:not(.is-mod-role),
+        .psc-slice.panelist-tone-4 .panelist-compact-role:not(.is-mod-role) {
+            background: rgba(2, 20, 43, 0.16);
+            border-color: rgba(2, 20, 43, 0.3);
+            color: #02142B;
+        }
+
+        .panelist-compact-name {
+            font-size: 0.75rem;
+            font-weight: 800;
+            line-height: 1.3;
+            padding: 0 3px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+            transition: opacity 0.2s ease;
+        }
+
+        .psc-slices-wrapper.deck-count-5 .panelist-compact-name {
+            font-size: 0.68rem;
+        }
+
+        /* تحسين إطار الصورة الكبيرة داخل الشريحة المفتوحة لتوحيد الخلفيات والإضاءة */
+        .slice-speaker-portrait::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(2, 20, 43, 0.52) 0%, transparent 34%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .slice-portrait-blur-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: blur(14px) brightness(0.55);
+            transform: scale(1.18);
+            z-index: 0;
+        }
+
+        .slice-speaker-portrait .slice-avatar-img {
+            position: relative;
+            z-index: 1;
+            object-position: center 15%;
+        }
+
+        .slice-floating-role-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            z-index: 3;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 50px;
+            background: rgba(2, 20, 43, 0.85);
+            color: #7dd3fc;
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            backdrop-filter: blur(8px);
+        }
+
+        .slice-floating-role-badge.is-mod {
+            background: linear-gradient(135deg, #EECA3E, #f59e0b);
+            color: #02142B;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .panelist-expanded-bio {
+            font-size: 0.72rem;
+            color: rgba(255, 255, 255, 0.82);
+            line-height: 1.45;
+            margin-top: 2px;
+            padding: 0 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         /* Track Slice Elements */
@@ -6753,6 +6956,28 @@
                                 @endphp
                                 <div class="col-lg-4 col-md-6">
                                     <div class="program-slides-card {{ $isCenterCard ? 'is-featured' : '' }}">
+                                        @php
+                                            $sliceSpeakers = $event->speakers_list;
+                                            $sliceSpeakersCount = count($sliceSpeakers);
+                                            $isPanelistsDeck = ($sliceSpeakersCount > 1);
+                                            $deckSpeakers = $isPanelistsDeck ? array_slice($sliceSpeakers, 0, 6) : [];
+                                            $deckCount = count($deckSpeakers);
+                                            $deckCountClass = match(true) {
+                                                $deckCount === 2 => 'deck-count-2',
+                                                $deckCount === 3 => 'deck-count-3',
+                                                $deckCount === 4 => 'deck-count-4',
+                                                $deckCount === 5 => 'deck-count-5',
+                                                default => 'deck-count-many',
+                                            };
+                                            // توزيع ألوان هوية المعرض بتوازن بصري مطابق لبقية البطاقات
+                                            $toneMap = match($deckCount) {
+                                                2 => [0, 4],
+                                                3 => [0, 2, 4],
+                                                4 => [0, 1, 2, 4],
+                                                default => [0, 1, 2, 3, 4, 1],
+                                            };
+                                        @endphp
+
                                         {{-- Header bar --}}
                                         <div class="psc-header">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
@@ -6766,41 +6991,99 @@
                                             <h3 class="psc-title" title="{{ $event->title }}">
                                                 {{ $event->title }}
                                             </h3>
+                                            <div class="psc-quick-meta">
+                                                @if($isPanelistsDeck)
+                                                    <span><i class="fas fa-users text-warning me-1"></i>{{ $sliceSpeakersCount }} محاورين</span>
+                                                @else
+                                                    <span><i class="fas fa-user-tie text-warning me-1"></i>{{ Str::limit($event->speaker_name ?: 'محاضر معتمد', 24) }}</span>
+                                                @endif
+                                                <span class="opacity-50">&bull;</span>
+                                                <span><i class="fas fa-map-marker-alt text-info me-1"></i>{{ Str::limit($locationStr, 22) }}</span>
+                                            </div>
                                         </div>
 
-                                        {{-- Interactive 5 Slices (الشرائح التفاعلية الخمسة بألوان هوية المعرض) --}}
-                                        <div class="psc-slices-wrapper">
-                                            {{-- 1. شريحة التوقيت والجدول --}}
-                                            <div class="psc-slice slice-time">
-                                                <div class="slice-compact">
-                                                    <i class="far fa-clock slice-icon text-warning"></i>
-                                                    <span class="slice-label">التوقيت</span>
-                                                    <span class="slice-micro-val">{{ $startTimeStr }}</span>
-                                                </div>
-                                                <div class="slice-expanded">
-                                                    <div class="slice-badge"><i class="far fa-clock me-1 text-warning"></i> التوقيت والجدول</div>
-                                                    <div class="slice-highlight-val">{{ $startTimeStr }} — {{ $endTimeStr }}</div>
-                                                    <div class="slice-sub-info"><i class="far fa-calendar-alt me-1"></i> {{ $dateStr }}</div>
-                                                    <span class="slice-tag">تأكيد الموعد</span>
-                                                </div>
-                                            </div>
-
-                                            {{-- 2. شريحة المحاضرين والمحاورين --}}
-                                            @php
-                                                $sliceSpeakers = $event->speakers_list;
-                                                $sliceSpeakersCount = count($sliceSpeakers);
-                                            @endphp
-                                            <div class="psc-slice slice-speaker">
-                                                <div class="slice-compact">
-                                                    @if($sliceSpeakersCount > 1)
-                                                        @if($speakerImg)
-                                                            <img src="{{ $speakerImg }}" alt="{{ $event->speakers_names_summary }}" class="slice-mini-avatar">
-                                                        @else
-                                                            <i class="fas fa-users slice-icon text-info"></i>
+                                        @if($isPanelistsDeck)
+                                            {{-- شرائح تفاعلية مخصصة للمحاورين: كل شريحة تمثل محاوراً وتفتح صورته الكاملة ومعلوماته عند التمرير --}}
+                                            <div class="psc-slices-wrapper is-panelists-deck {{ $deckCountClass }}">
+                                                @foreach($deckSpeakers as $pIdx => $sp)
+                                                    @php
+                                                        $toneIdx = $toneMap[$pIdx] ?? ($pIdx % 5);
+                                                        $spRole = trim((string) ($sp['role'] ?? 'محاور'));
+                                                        $isMod = str_contains($spRole, 'مدير');
+                                                    @endphp
+                                                    <div class="psc-slice slice-panelist-item panelist-tone-{{ $toneIdx }}">
+                                                        @if(!empty($sp['image_url']))
+                                                            <img src="{{ $sp['image_url'] }}" alt="" aria-hidden="true" class="panelist-slice-watermark">
                                                         @endif
-                                                        <span class="slice-label">المحاورون</span>
-                                                        <span class="slice-micro-val">{{ $sliceSpeakersCount }} متحدثين</span>
-                                                    @else
+
+                                                        {{-- الوضع المختصر: صورة واضحة مؤطرة + الدور + الاسم --}}
+                                                        <div class="slice-compact">
+                                                            <div class="panelist-compact-avatar">
+                                                                @if(!empty($sp['image_url']))
+                                                                    <img src="{{ $sp['image_url'] }}" alt="{{ $sp['name'] }}">
+                                                                @else
+                                                                    <i class="fas fa-user-tie"></i>
+                                                                @endif
+                                                            </div>
+                                                            @if($spRole !== '')
+                                                                <span class="panelist-compact-role {{ $isMod ? 'is-mod-role' : '' }}">
+                                                                    {{ $spRole }}
+                                                                </span>
+                                                            @endif
+                                                            <span class="panelist-compact-name">
+                                                                {{ $sp['name'] ?: 'محاور الجلسة' }}
+                                                            </span>
+                                                        </div>
+
+                                                        {{-- الوضع الموسع عند تمرير الماوس: الصورة الكاملة بإضاءة استوديو ومعلومات المحاور --}}
+                                                        <div class="slice-expanded">
+                                                            <div class="slice-speaker-portrait">
+                                                                @if($spRole !== '')
+                                                                    <span class="slice-floating-role-badge {{ $isMod ? 'is-mod' : '' }}">
+                                                                        <i class="fas {{ $isMod ? 'fa-microphone-lines' : 'fa-comments' }} me-1"></i>{{ $spRole }}
+                                                                    </span>
+                                                                @endif
+                                                                @if(!empty($sp['image_url']))
+                                                                    <img src="{{ $sp['image_url'] }}" alt="" aria-hidden="true" class="slice-portrait-blur-bg">
+                                                                    <img src="{{ $sp['image_url'] }}" alt="{{ $sp['name'] }}" class="slice-avatar-img">
+                                                                @else
+                                                                    <div class="slice-avatar-placeholder"><i class="fas fa-user-tie"></i></div>
+                                                                @endif
+                                                            </div>
+                                                            <div class="slice-speaker-name">{{ $sp['name'] ?: 'محاور مشارك' }}</div>
+                                                            @if(!empty($sp['title']))
+                                                                <div class="slice-speaker-role">{{ Str::limit($sp['title'], 55) }}</div>
+                                                            @endif
+                                                            @if(!empty($sp['bio']))
+                                                                <div class="panelist-expanded-bio">{{ $sp['bio'] }}</div>
+                                                            @else
+                                                                <span class="slice-tag"><i class="fas fa-award text-warning me-1"></i> مشارك في الجلسة الحوارية</span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            {{-- Interactive 5 Slices لفعاليات المتحدث الواحد (الشرائح التفاعلية الخمسة بألوان هوية المعرض) --}}
+                                            <div class="psc-slices-wrapper">
+                                                {{-- 1. شريحة التوقيت والجدول --}}
+                                                <div class="psc-slice slice-time">
+                                                    <div class="slice-compact">
+                                                        <i class="far fa-clock slice-icon text-warning"></i>
+                                                        <span class="slice-label">التوقيت</span>
+                                                        <span class="slice-micro-val">{{ $startTimeStr }}</span>
+                                                    </div>
+                                                    <div class="slice-expanded">
+                                                        <div class="slice-badge"><i class="far fa-clock me-1 text-warning"></i> التوقيت والجدول</div>
+                                                        <div class="slice-highlight-val">{{ $startTimeStr }} — {{ $endTimeStr }}</div>
+                                                        <div class="slice-sub-info"><i class="far fa-calendar-alt me-1"></i> {{ $dateStr }}</div>
+                                                        <span class="slice-tag">تأكيد الموعد</span>
+                                                    </div>
+                                                </div>
+
+                                                {{-- 2. شريحة المحاضر والمدرب --}}
+                                                <div class="psc-slice slice-speaker">
+                                                    <div class="slice-compact">
                                                         @if($speakerImg)
                                                             <img src="{{ $speakerImg }}" alt="{{ $event->speaker_name }}" class="slice-mini-avatar">
                                                         @else
@@ -6808,27 +7091,11 @@
                                                         @endif
                                                         <span class="slice-label">المحاضر</span>
                                                         <span class="slice-micro-val text-truncate" style="max-width:45px;">{{ Str::limit($event->speaker_name ?: 'المدرب', 6) }}</span>
-                                                    @endif
-                                                </div>
-                                                <div class="slice-expanded">
-                                                    @if($sliceSpeakersCount > 1)
-                                                        <div class="slice-multi-portraits">
-                                                            @foreach(array_slice($sliceSpeakers, 0, 5) as $sp)
-                                                                <div class="slice-multi-portrait-item" title="{{ $sp['name'] }}">
-                                                                    @if(!empty($sp['image_url']))
-                                                                        <img src="{{ $sp['image_url'] }}" alt="{{ $sp['name'] }}">
-                                                                    @else
-                                                                        <i class="fas fa-user-tie"></i>
-                                                                    @endif
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                        <div class="slice-speaker-name" style="font-size: 0.92rem;">{{ Str::limit($event->speakers_names_summary, 70) }}</div>
-                                                        <div class="slice-speaker-role">جلسة بمشاركة {{ $sliceSpeakersCount }} محاورين ومتحدثين</div>
-                                                        <span class="slice-tag"><i class="fas fa-users text-warning me-1"></i> نخبة المحاورين</span>
-                                                    @else
+                                                    </div>
+                                                    <div class="slice-expanded">
                                                         <div class="slice-speaker-portrait">
                                                             @if($speakerImg)
+                                                                <img src="{{ $speakerImg }}" alt="" aria-hidden="true" class="slice-portrait-blur-bg">
                                                                 <img src="{{ $speakerImg }}" alt="{{ $event->speaker_name }}" class="slice-avatar-img">
                                                             @else
                                                                 <div class="slice-avatar-placeholder"><i class="fas fa-user-tie"></i></div>
@@ -6837,55 +7104,55 @@
                                                         <div class="slice-speaker-name">{{ $event->speaker_name ?: 'نخبة من المدربين والخبراء' }}</div>
                                                         <div class="slice-speaker-role">{{ $event->speaker_title ?: 'خبير ومحاضر معتمد' }}</div>
                                                         <span class="slice-tag"><i class="fas fa-certificate text-warning me-1"></i> مدرب معتمد</span>
-                                                    @endif
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            {{-- 3. شريحة المحور ونوع الجلسة --}}
-                                            <div class="psc-slice slice-track">
-                                                <div class="slice-compact">
-                                                    <i class="{{ $event->type_icon ?: 'fas fa-layer-group' }} slice-icon text-white"></i>
-                                                    <span class="slice-label">المحور</span>
-                                                    <span class="slice-micro-val">المجال</span>
+                                                {{-- 3. شريحة المحور ونوع الجلسة --}}
+                                                <div class="psc-slice slice-track">
+                                                    <div class="slice-compact">
+                                                        <i class="{{ $event->type_icon ?: 'fas fa-layer-group' }} slice-icon text-white"></i>
+                                                        <span class="slice-label">المحور</span>
+                                                        <span class="slice-micro-val">المجال</span>
+                                                    </div>
+                                                    <div class="slice-expanded">
+                                                        <div class="slice-badge"><i class="fas fa-compass me-1 text-warning"></i> مسار البرنامج</div>
+                                                        <div class="slice-track-name">{{ $event->type_short_label ?: 'ورشة تطبيقية' }}</div>
+                                                        <div class="slice-sub-info"><i class="fas fa-users me-1"></i> {{ $event->target_audience ?: 'الخريجون والباحثون عن عمل' }}</div>
+                                                        <span class="slice-tag">شهادة حضور معتمدة</span>
+                                                    </div>
                                                 </div>
-                                                <div class="slice-expanded">
-                                                    <div class="slice-badge"><i class="fas fa-compass me-1 text-warning"></i> مسار البرنامج</div>
-                                                    <div class="slice-track-name">{{ $event->type_short_label ?: 'ورشة تطبيقية' }}</div>
-                                                    <div class="slice-sub-info"><i class="fas fa-users me-1"></i> {{ $event->target_audience ?: 'الخريجون والباحثون عن عمل' }}</div>
-                                                    <span class="slice-tag">شهادة حضور معتمدة</span>
-                                                </div>
-                                            </div>
 
-                                            {{-- 4. شريحة تفاصيل ومحاور الورشة --}}
-                                            <div class="psc-slice slice-details">
-                                                <div class="slice-compact">
-                                                    <i class="fas fa-file-alt slice-icon text-dark"></i>
-                                                    <span class="slice-label">المحاور</span>
-                                                    <span class="slice-micro-val">التفاصيل</span>
+                                                {{-- 4. شريحة تفاصيل ومحاور الورشة --}}
+                                                <div class="psc-slice slice-details">
+                                                    <div class="slice-compact">
+                                                        <i class="fas fa-file-alt slice-icon text-dark"></i>
+                                                        <span class="slice-label">المحاور</span>
+                                                        <span class="slice-micro-val">التفاصيل</span>
+                                                    </div>
+                                                    <div class="slice-expanded">
+                                                        <div class="slice-badge text-dark"><i class="fas fa-bullseye me-1"></i> نبذة وأهداف</div>
+                                                        <p class="slice-desc-text">
+                                                            {{ Str::limit($event->description ?: 'جلسة تدريبية تطبيقية مكثفة تؤهلك لمتطلبات سوق العمل وتمكّنك من اكتساب مهارات احترافية.', 115) }}
+                                                        </p>
+                                                        <span class="slice-tag-dark">تطبيق عملي وتفاعلي</span>
+                                                    </div>
                                                 </div>
-                                                <div class="slice-expanded">
-                                                    <div class="slice-badge text-dark"><i class="fas fa-bullseye me-1"></i> نبذة وأهداف</div>
-                                                    <p class="slice-desc-text">
-                                                        {{ Str::limit($event->description ?: 'جلسة تدريبية تطبيقية مكثفة تؤهلك لمتطلبات سوق العمل وتمكّنك من اكتساب مهارات احترافية.', 115) }}
-                                                    </p>
-                                                    <span class="slice-tag-dark">تطبيق عملي وتفاعلي</span>
-                                                </div>
-                                            </div>
 
-                                            {{-- 5. شريحة القاعة والتسجيل --}}
-                                            <div class="psc-slice slice-venue">
-                                                <div class="slice-compact">
-                                                    <i class="fas fa-map-marker-alt slice-icon text-dark"></i>
-                                                    <span class="slice-label">القاعة</span>
-                                                    <span class="slice-micro-val">الموقع</span>
-                                                </div>
-                                                <div class="slice-expanded">
-                                                    <div class="slice-badge text-dark"><i class="fas fa-door-open me-1"></i> الموقع والقاعة</div>
-                                                    <div class="slice-hall-name">{{ $locationStr }}</div>
-                                                    <span class="slice-tag-dark">المقاعد محدودة</span>
+                                                {{-- 5. شريحة القاعة والتسجيل --}}
+                                                <div class="psc-slice slice-venue">
+                                                    <div class="slice-compact">
+                                                        <i class="fas fa-map-marker-alt slice-icon text-dark"></i>
+                                                        <span class="slice-label">القاعة</span>
+                                                        <span class="slice-micro-val">الموقع</span>
+                                                    </div>
+                                                    <div class="slice-expanded">
+                                                        <div class="slice-badge text-dark"><i class="fas fa-door-open me-1"></i> الموقع والقاعة</div>
+                                                        <div class="slice-hall-name">{{ $locationStr }}</div>
+                                                        <span class="slice-tag-dark">المقاعد محدودة</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        @endif
 
                                         {{-- الشريط السفلي التفاعلي --}}
                                         <div class="psc-footer">

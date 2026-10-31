@@ -45,7 +45,7 @@
         .ticket-header {
             background: #045db0;
             color: white;
-            padding: 1.8rem 1.5rem 2.2rem;
+            padding: 1.35rem 1.25rem 1.75rem;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -97,47 +97,47 @@
         .ticket-separator {
             display: flex;
             align-items: center;
-            padding: 0 1.5rem;
+            justify-content: space-between;
+            padding: 0;
             position: relative;
-            margin: 0 -1px;
             z-index: 5;
         }
-        .ticket-separator::before,
-        .ticket-separator::after {
-            content: '';
+        .ticket-separator-line {
             flex: 1;
-            height: 1px;
-            background: repeating-linear-gradient(90deg, #e2e8f0 0, #e2e8f0 6px, transparent 6px, transparent 12px);
+            height: 1.5px;
+            margin: 0 8px;
+            background: repeating-linear-gradient(90deg, #cbd5e1 0, #cbd5e1 6px, transparent 6px, transparent 12px);
         }
         .ticket-hole {
-            width: 20px; height: 20px;
-            background: linear-gradient(135deg, #045db0, #3b82f6);
+            width: 22px; height: 22px;
+            background: linear-gradient(135deg, #045db0, #6495d6);
             border-radius: 50%;
-            margin: 0 -10px;
             flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            margin-inline-start: -11px;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.22);
         }
-        .ticket-hole-right {
-            background: linear-gradient(135deg, #045db0, #3b82f6);
+        .ticket-hole-left {
+            margin-inline-start: 0;
+            margin-inline-end: -11px;
         }
 
         /* Body */
         .ticket-body {
-            padding: 1.4rem 1.8rem 2rem;
+            padding: 1.05rem 1.4rem 1.4rem;
         }
 
         /* Reg Number Badge */
         .reg-number-badge {
             background: linear-gradient(135deg, #10b981, #059669);
             color: #ffffff;
-            padding: 6px 22px;
+            padding: 5px 20px;
             border-radius: 50px;
             font-weight: 800;
-            font-size: 1.05rem;
+            font-size: 1rem;
             letter-spacing: 1.2px;
             font-family: monospace;
             display: inline-block;
-            margin-bottom: 1.2rem;
+            margin-bottom: 0.85rem;
             box-shadow: 0 4px 15px rgba(16,185,129,0.3);
         }
 
@@ -171,13 +171,13 @@
         .info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-            margin: 1.2rem 0;
+            gap: 0.6rem;
+            margin: 0.9rem 0;
         }
         .info-item {
             background: #f8fafc;
             border-radius: 12px;
-            padding: 0.75rem 0.85rem;
+            padding: 0.6rem 0.75rem;
             border: 1px solid #f1f5f9;
         }
         .info-label {
@@ -361,7 +361,8 @@
         <!-- Separator -->
         <div class="ticket-separator">
             <div class="ticket-hole"></div>
-            <div class="ticket-hole ticket-hole-right" style="margin-right: auto"></div>
+            <div class="ticket-separator-line"></div>
+            <div class="ticket-hole ticket-hole-left"></div>
         </div>
 
         <!-- Body -->
@@ -372,7 +373,7 @@
                 </span>
             </div>
 
-            <div class="text-center mb-3">
+            <div class="text-center mb-2">
                 <div class="grad-name">{{ $visitor->name }}</div>
                 <div class="grad-info">
                     {{ $visitor->visitor_type_label }}
@@ -388,18 +389,15 @@
                 </div>
             </div>
 
+            {{-- شبكة بيانات متوازنة (2×2) بحجم مثالي لشاشات الهاتف مع الاحتفاظ بأهداف الزيارة محفوظة في قاعدة البيانات ولوحة الإدارة --}}
             <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-label">صفة الزائر</div>
-                    <div class="info-value">{{ $visitor->visitor_type_label }}</div>
-                </div>
                 <div class="info-item">
                     <div class="info-label">رقم الهاتف</div>
                     <div class="info-value" dir="ltr">{{ $visitor->phone }}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">التخصص / المجال</div>
-                    <div class="info-value">{{ $visitor->specialization ?: ($visitor->education_level ?: '—') }}</div>
+                    <div class="info-value">{{ $visitor->specialization ?: ($visitor->education_level_label !== '—' ? $visitor->education_level_label : '—') }}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">المدينة</div>
@@ -408,10 +406,6 @@
                 <div class="info-item">
                     <div class="info-label">تاريخ التسجيل</div>
                     <div class="info-value">{{ $visitor->created_at->format('d/m/Y') }}</div>
-                </div>
-                <div class="info-item" style="grid-column: span 2;">
-                    <div class="info-label">أهداف الزيارة</div>
-                    <div class="info-value" style="font-size: 0.8rem; line-height: 1.5;">{{ $visitor->visit_purpose_label ?: 'زيارة واستكشاف المعرض' }}</div>
                 </div>
             </div>
 
@@ -453,34 +447,138 @@
 // توليد QR Code
 new QRCode(document.getElementById('qr-code'), {
     text: "{{ route('job-fair.visitor.ticket', $visitor->ticket_number) }}",
-    width: 170,
-    height: 170,
+    width: 150,
+    height: 150,
     colorDark: "#045db0",
     colorLight: "#ffffff",
     correctLevel: QRCode.CorrectLevel.H
 });
 
-// دالة حفظ البطاقة كصورة (تدعم الحفظ اليدوي والحفظ التلقائي)
+// فحص المتصفحات المدمجة داخل التطبيقات (فيسبوك، ماسنجر، إنستغرام، واتساب، تيك توك، WebView) وأجهزة iOS
+// حيث يؤدي النقر التلقائي على رابط data:/blob: إلى انتقال الصفحة وظهور رسالة "لم يتم العثور على الصفحة"
+function detectBrowserDownloadEnv() {
+    const ua = navigator.userAgent || navigator.vendor || window.opera || '';
+    const isIAB = /FBAN|FBAV|FBIOS|FB_IAB|FBBV|Instagram|Messenger|Line\/|TikTok|BytedanceWebview|Musical\.ly|Twitter|Snapchat|Telegram|WhatsApp|; wv\)|\bWebView\b/i.test(ua);
+    const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const noDownloadAttr = !('download' in HTMLAnchorElement.prototype);
+    return {
+        isIAB: isIAB,
+        isIOS: isIOS,
+        unsafeForAnchorDownload: isIAB || isIOS || noDownloadAttr
+    };
+}
+
+// نافذة معاينة داخلية لحفظ الصورة بالضغط المطول في متصفحات فيسبوك/إنستغرام دون مغادرة صفحة البطاقة
+function showInPageImagePreview(dataUrl) {
+    let modal = document.getElementById('inAppImageSaveModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'inAppImageSaveModal';
+        modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;overflow-y:auto;backdrop-filter:blur(6px);';
+        modal.innerHTML = `
+            <div style="max-width:440px;width:100%;text-align:center;color:#fff;">
+                <div style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.5);color:#a7f3d0;padding:10px 14px;border-radius:14px;font-weight:700;font-size:0.88rem;margin-bottom:12px;line-height:1.6;">
+                    <i class="fas fa-hand-pointer ms-1"></i>
+                    اضغط مطولاً على صورة البطاقة أدناه ثم اختر <strong>«حفظ الصورة»</strong> أو <strong>«تنزيل الصورة»</strong>
+                </div>
+                <img id="inAppPreviewImg" src="" alt="بطاقة الزائر" style="width:100%;max-height:72vh;object-fit:contain;border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,0.5);background:#fff;padding:4px;" />
+                <button type="button" id="closeInAppPreviewBtn" style="margin-top:14px;width:100%;background:#ffffff;color:#0f172a;border:none;padding:11px 18px;border-radius:12px;font-weight:800;font-size:0.95rem;cursor:pointer;">
+                    إغلاق والعودة للبطاقة
+                </button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.addEventListener('click', function(ev) {
+            if (ev.target === modal || ev.target.id === 'closeInAppPreviewBtn') {
+                modal.style.display = 'none';
+            }
+        });
+    }
+    const img = modal.querySelector('#inAppPreviewImg');
+    if (img) img.src = dataUrl;
+    modal.style.display = 'flex';
+}
+
+function triggerSafeCanvasSave(canvas, fileName, isAuto) {
+    const env = detectBrowserDownloadEnv();
+    if (isAuto && env.unsafeForAnchorDownload) {
+        return Promise.resolve();
+    }
+
+    return new Promise((resolve) => {
+        canvas.toBlob(async function(blob) {
+            try {
+                if (env.unsafeForAnchorDownload) {
+                    if (!isAuto && blob && typeof File !== 'undefined' && navigator.canShare) {
+                        const file = new File([blob], fileName, { type: 'image/png' });
+                        if (navigator.canShare({ files: [file] })) {
+                            try {
+                                await navigator.share({ files: [file], title: 'بطاقة زائر معرض التوظيف' });
+                                resolve();
+                                return;
+                            } catch (shareErr) {
+                                if (shareErr && shareErr.name === 'AbortError') {
+                                    resolve();
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                    if (!isAuto) {
+                        showInPageImagePreview(canvas.toDataURL('image/png'));
+                    }
+                    resolve();
+                    return;
+                }
+
+                if (blob && window.URL && URL.createObjectURL) {
+                    const blobUrl = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = fileName;
+                    link.href = blobUrl;
+                    link.rel = 'noopener';
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
+                } else if (!isAuto) {
+                    showInPageImagePreview(canvas.toDataURL('image/png'));
+                }
+            } catch (e) {
+                if (!isAuto) {
+                    showInPageImagePreview(canvas.toDataURL('image/png'));
+                }
+            }
+            resolve();
+        }, 'image/png');
+    });
+}
+
+// دالة حفظ البطاقة كصورة (تدعم الحفظ اليدوي والحفظ التلقائي بأمان في جميع المتصفحات)
 function downloadTicket(isAuto = false) {
+    const env = detectBrowserDownloadEnv();
+    if (isAuto && env.unsafeForAnchorDownload) {
+        return;
+    }
+
     const btn = document.getElementById('download-btn');
     const toast = document.getElementById('autoSaveToast');
-    const originalText = btn.innerHTML;
+    const originalText = btn ? btn.innerHTML : '';
 
-    if (!isAuto) {
+    if (!isAuto && btn) {
         btn.innerHTML = '<i class="fas fa-spinner fa-spin ms-2"></i> جاري إنشاء وحفظ الصورة...';
         btn.disabled = true;
-    } else {
-        if (toast) {
-            toast.classList.remove('d-none');
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 600);
-            }, 3500);
-        }
+    } else if (isAuto && toast) {
+        toast.classList.remove('d-none');
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 600);
+        }, 3500);
     }
 
     const ticketElement = document.querySelector('.ticket');
-    
+
     html2canvas(ticketElement, {
         scale: 2, // جودة فائقة الدقة
         useCORS: true,
@@ -492,19 +590,14 @@ function downloadTicket(isAuto = false) {
             }
         }
     }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = `visitor_ticket_{{ $visitor->ticket_number }}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-
-        if (!isAuto) {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        }
+        return triggerSafeCanvasSave(canvas, `visitor_ticket_{{ $visitor->ticket_number }}.png`, isAuto);
     }).catch(err => {
         console.error("Error generating ticket image: ", err);
         if (!isAuto) {
             alert("حدث خطأ أثناء حفظ البطاقة، يرجى المحاولة مرة أخرى.");
+        }
+    }).finally(() => {
+        if (!isAuto && btn) {
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
@@ -537,15 +630,34 @@ window.addEventListener('load', fitTicketToScreen);
 window.addEventListener('resize', fitTicketToScreen);
 setTimeout(fitTicketToScreen, 100);
 
-// ── تنفيذ الحفظ التلقائي بعد تحميل الصفحة وتوليد QR Code
+// ── تنفيذ الحفظ التلقائي فقط في المتصفحات المستقلة التي تدعم التنزيل المباشر دون مغادرة الصفحة
 window.addEventListener('load', function() {
-    // الانتظار قليلاً حتى يكتمل رندر الـ QR Code والصور بالكامل
     setTimeout(function() {
-        // التحقق من عدم التكرار إذا كان قد تم الحفظ مسبقاً في نفس الجلسة
-        const storageKey = 'saved_ticket_{{ $visitor->ticket_number }}';
-        if (!sessionStorage.getItem(storageKey)) {
-            sessionStorage.setItem(storageKey, 'true');
-            downloadTicket(true);
+        const env = detectBrowserDownloadEnv();
+        if (env.unsafeForAnchorDownload) {
+            const toast = document.getElementById('autoSaveToast');
+            if (toast) {
+                const span = toast.querySelector('span');
+                if (span) {
+                    span.textContent = 'تم إصدار بطاقتك بنجاح! اضغط «حفظ كصورة» للاحتفاظ بها';
+                }
+                toast.classList.remove('d-none');
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 600);
+                }, 4000);
+            }
+            return;
+        }
+
+        try {
+            const storageKey = 'saved_ticket_{{ $visitor->ticket_number }}';
+            if (!sessionStorage.getItem(storageKey)) {
+                sessionStorage.setItem(storageKey, 'true');
+                downloadTicket(true);
+            }
+        } catch (e) {
+            // sessionStorage may be restricted in private WebViews
         }
     }, 1100);
 });

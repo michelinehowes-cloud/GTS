@@ -408,16 +408,53 @@ function saveBadge() {
             backgroundColor: null,
             logging: false,
         }).then(canvas => {
-            canvas.toBlob(function(blob) {
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.download = 'Ticket_{{ $registration->registration_number }}.png';
-                link.href = url;
-                link.click();
-                
-                setTimeout(() => URL.revokeObjectURL(url), 100);
-                
+            canvas.toBlob(async function(blob) {
+                const fileName = 'Ticket_{{ $registration->registration_number }}.png';
+                const ua = navigator.userAgent || '';
+                const unsafe = /FBAN|FBAV|FBIOS|FB_IAB|FBBV|Instagram|Messenger|Line\/|TikTok|BytedanceWebview|Twitter|Snapchat|Telegram|WhatsApp|; wv\)|\bWebView\b|iPad|iPhone|iPod/i.test(ua)
+                    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+                    || !('download' in HTMLAnchorElement.prototype);
+
                 overlay.style.display = 'none';
+
+                if (unsafe) {
+                    if (blob && typeof File !== 'undefined' && navigator.canShare) {
+                        const file = new File([blob], fileName, { type: 'image/png' });
+                        if (navigator.canShare({ files: [file] })) {
+                            try {
+                                await navigator.share({ files: [file], title: 'تذكرة معرض التوظيف' });
+                                return;
+                            } catch (e) {
+                                if (e && e.name === 'AbortError') return;
+                            }
+                        }
+                    }
+                    const dataUrl = canvas.toDataURL('image/png');
+                    let modal = document.getElementById('inAppBadgePreviewModal');
+                    if (!modal) {
+                        modal = document.createElement('div');
+                        modal.id = 'inAppBadgePreviewModal';
+                        modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;overflow-y:auto;';
+                        modal.innerHTML = '<div style="max-width:440px;width:100%;text-align:center;color:#fff;"><div style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.5);color:#a7f3d0;padding:10px 14px;border-radius:14px;font-weight:700;font-size:0.88rem;margin-bottom:12px;">اضغط مطولاً على صورة البطاقة أدناه واختر «حفظ الصورة»</div><img id="inAppBadgeImg" src="" style="width:100%;max-height:72vh;object-fit:contain;border-radius:18px;background:#fff;padding:4px;" /><button type="button" onclick="this.closest(\'#inAppBadgePreviewModal\').style.display=\'none\'" style="margin-top:14px;width:100%;background:#fff;color:#0f172a;border:none;padding:11px;border-radius:12px;font-weight:800;">إغلاق</button></div>';
+                        document.body.appendChild(modal);
+                    }
+                    modal.querySelector('#inAppBadgeImg').src = dataUrl;
+                    modal.style.display = 'flex';
+                    return;
+                }
+
+                if (blob && window.URL && URL.createObjectURL) {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = fileName;
+                    link.href = url;
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    setTimeout(() => URL.revokeObjectURL(url), 15000);
+                }
+
                 msg.style.display = 'block';
                 setTimeout(() => msg.style.display = 'none', 5000);
             }, 'image/png');

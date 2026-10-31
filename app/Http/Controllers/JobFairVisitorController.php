@@ -15,6 +15,18 @@ class JobFairVisitorController extends Controller
      */
     public function store(Request $request, JobFair $fair)
     {
+        if ($request->has('phone') && is_string($request->input('phone'))) {
+            $rawPhone = trim($request->input('phone'));
+            $normalizedPhone = strtr($rawPhone, [
+                '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
+                '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+                '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
+                '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+            ]);
+            $normalizedPhone = preg_replace('/\s+/', '', $normalizedPhone);
+            $request->merge(['phone' => $normalizedPhone]);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:50',
@@ -118,9 +130,39 @@ class JobFairVisitorController extends Controller
     /**
      * عرض بطاقة/تذكرة الزائر الرقمية
      */
-    public function showTicket($ticketNumber)
+    public function showTicket(Request $request, $ticketNumber)
     {
-        $visitor = JobFairVisitor::with('jobFair')->where('ticket_number', $ticketNumber)->firstOrFail();
+        // تطبيع رقم التذكرة (مسافات، علامات اتجاه النص RTL من واتساب/فيسبوك، أحرف صغيرة، ترميز URL)
+        $normalized = strtoupper(trim(rawurldecode((string) $ticketNumber)));
+        if (preg_match('/(VIS-\d{4}-[A-Z0-9]{4,10})/', $normalized, $matches)) {
+            $normalized = $matches[1];
+        } else {
+            $normalized = preg_replace('/[^A-Z0-9\-]/', '', $normalized);
+        }
+
+        $visitor = JobFairVisitor::with('jobFair')
+            ->whereIn('ticket_number', array_values(array_unique([(string) $ticketNumber, $normalized])))
+            ->first();
+
+        if (!$visitor) {
+            \Illuminate\Support\Facades\Log::warning('Visitor ticket not found', [
+                'ticket' => $ticketNumber,
+                'normalized' => $normalized,
+                'referer' => $request->headers->get('referer'),
+                'user_agent' => $request->userAgent(),
+                'ip' => $request->ip(),
+            ]);
+
+            // بدلاً من صفحة 404: إعادة الزائر لنموذج التسجيل لاسترجاع بطاقته برقم هاتفه
+            $fallbackFair = JobFair::whereIn('status', ['published', 'ongoing'])->orderBy('event_date', 'asc')->first()
+                ?? JobFair::latest('id')->first();
+
+            $target = $fallbackFair ? route('job-fair.public', $fallbackFair->id) : route('job-fair.public');
+
+            return redirect()->to($target . '#visitor-register')
+                ->with('visitor_ticket_notice', 'تعذّر فتح البطاقة من الرابط. أدخل اسمك ورقم هاتفك نفسه الذي سجّلت به وستُفتح بطاقتك الرقمية فوراً دون تكرار التسجيل.');
+        }
+
         $fair = $visitor->jobFair;
 
         return view('job-fair.visitor-ticket', compact('visitor', 'fair'));

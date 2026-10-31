@@ -258,7 +258,9 @@ class JobFairController extends Controller
         $masterclassCount = $events->where('type', 'masterclass')->count();
         $workshopsCount = $events->where('type', 'workshop')->count();
         $panelsCount = $events->where('type', 'panel_discussion')->count();
-        $speakersCount = $events->pluck('speaker_name')->filter()->unique()->count();
+        $speakersCount = $events->flatMap(function ($e) {
+            return collect($e->speakers_list)->pluck('name');
+        })->filter()->unique()->count();
 
         $registeredEventIds = [];
         if (Auth::check() && Auth::user()->role === 'graduate') {

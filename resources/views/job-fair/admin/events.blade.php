@@ -102,7 +102,7 @@
                             <th class="border-0" style="width: 50px;">#</th>
                             <th class="border-0">نوع الفعالية</th>
                             <th class="border-0">عنوان الفعالية</th>
-                            <th class="border-0">المتحدث / المدرب</th>
+                            <th class="border-0">المتحدثون / المحاورون</th>
                             <th class="border-0">الموعد والقاعة</th>
                             <th class="border-0 text-center">التسجيل والمقاعد</th>
                             <th class="border-0 text-center">الحالة</th>
@@ -134,21 +134,58 @@
                                     @endif
                                 </td>
                                 <td class="align-middle">
-                                    <div class="d-flex align-items-center">
-                                        @if($event->speaker_image_url)
-                                            <img src="{{ $event->speaker_image_url }}" alt="{{ $event->speaker_name }}" class="rounded-circle mr-2" style="width: 38px; height: 38px; object-fit: cover; border: 1px solid #ddd;">
-                                        @else
-                                            <div class="rounded-circle mr-2 bg-light text-primary d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; border: 1px solid #ddd;">
-                                                <i class="fas fa-user-tie"></i>
+                                    @php
+                                        $rowSpeakers = $event->speakers_list;
+                                        $rowSpeakersCount = count($rowSpeakers);
+                                    @endphp
+                                    @if($rowSpeakersCount > 1)
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="d-flex align-items-center" style="padding-right: 6px;">
+                                                @foreach(array_slice($rowSpeakers, 0, 5) as $sIdx => $sp)
+                                                    @if(!empty($sp['image_url']))
+                                                        <img src="{{ $sp['image_url'] }}"
+                                                             alt="{{ $sp['name'] }}"
+                                                             title="{{ $sp['name'] }}{{ !empty($sp['role']) ? ' (' . $sp['role'] . ')' : '' }}"
+                                                             class="rounded-circle"
+                                                             style="width: 34px; height: 34px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.15); margin-right: {{ $sIdx === 0 ? '0' : '-10px' }}; position: relative; z-index: {{ 10 - $sIdx }};">
+                                                    @else
+                                                        <div class="rounded-circle bg-light text-primary d-flex align-items-center justify-content-center"
+                                                             title="{{ $sp['name'] }}{{ !empty($sp['role']) ? ' (' . $sp['role'] . ')' : '' }}"
+                                                             style="width: 34px; height: 34px; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.12); margin-right: {{ $sIdx === 0 ? '0' : '-10px' }}; position: relative; z-index: {{ 10 - $sIdx }}; font-size: 0.78rem;">
+                                                            <i class="fas fa-user-tie"></i>
+                                                        </div>
+                                                    @endif
+                                                @endforeach
                                             </div>
-                                        @endif
-                                        <div>
-                                            <div class="font-weight-bold text-dark">{{ $event->speaker_name ?? '-' }}</div>
-                                            @if($event->speaker_title)
-                                                <small class="text-muted d-block">{{ Str::limit($event->speaker_title, 35) }}</small>
-                                            @endif
+                                            <div>
+                                                <div class="font-weight-bold text-dark" style="font-size: 0.88rem;">
+                                                    {{ Str::limit($event->speakers_names_summary, 42) }}
+                                                </div>
+                                                <span class="badge bg-info text-dark rounded-pill px-2 py-0" style="font-size: 0.72rem;">
+                                                    <i class="fas fa-users me-1"></i>{{ $rowSpeakersCount }} محاورين ومتحدثين
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
+                                    @elseif($rowSpeakersCount === 1)
+                                        @php $sp0 = $rowSpeakers[0]; @endphp
+                                        <div class="d-flex align-items-center gap-2">
+                                            @if(!empty($sp0['image_url']))
+                                                <img src="{{ $sp0['image_url'] }}" alt="{{ $sp0['name'] }}" class="rounded-circle" style="width: 38px; height: 38px; object-fit: cover; border: 1px solid #ddd;">
+                                            @else
+                                                <div class="rounded-circle bg-light text-primary d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; border: 1px solid #ddd;">
+                                                    <i class="fas fa-user-tie"></i>
+                                                </div>
+                                            @endif
+                                            <div>
+                                                <div class="font-weight-bold text-dark">{{ $sp0['name'] ?: '-' }}</div>
+                                                @if(!empty($sp0['title']))
+                                                    <small class="text-muted d-block">{{ Str::limit($sp0['title'], 35) }}</small>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
                                 </td>
                                 <td class="align-middle">
                                     <div class="small">
@@ -269,7 +306,7 @@
                             <label class="uot-form-label">
                                 نوع الفعالية <span class="req">*</span>
                             </label>
-                            <select name="type" class="form-select uot-select" required>
+                            <select name="type" id="add_type" class="form-select uot-select" required onchange="handleAddTypeChange(this.value)">
                                 <option value="workshop">ورشة عمل تطبيقية (Workshop)</option>
                                 <option value="masterclass">ماستر كلاس (Masterclass)</option>
                                 <option value="panel_discussion">جلسة حوارية (Panel Discussion)</option>
@@ -284,31 +321,24 @@
                         </div>
                     </div>
 
-                    {{-- القسم 2: بيانات المتحدث / المدرب --}}
-                    <div class="uot-section-divider">
-                        <span class="divider-icon"><i class="fas fa-user-tie"></i></span>
-                        <h6 class="divider-title">بيانات المتحدث / المدرب</h6>
-                        <span class="divider-badge">المسؤول عن التقديم</span>
+                    {{-- القسم 2: قائمة المتحدثين والمحاورين (1 إلى 6 متحدثين) --}}
+                    <div class="uot-section-divider d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="divider-icon"><i class="fas fa-users"></i></span>
+                            <h6 class="divider-title mb-0">المتحدثون والمحاورون في الفعالية</h6>
+                            <span class="divider-badge">يدعم متحدثاً واحداً أو جلسة حوارية (3 إلى 5 محاورين)</span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold shadow-sm" onclick="addSpeakerBuilderRow('add')">
+                            <i class="fas fa-user-plus me-1"></i> إضافة محاور / متحدث آخر
+                        </button>
                     </div>
 
-                    <div class="row g-3 mb-2">
-                        <div class="col-md-4">
-                            <label class="uot-form-label">اسم المتحدث / المدرب</label>
-                            <input type="text" name="speaker_name" class="form-control uot-input" placeholder="مثال: د. محمد قويش">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="uot-form-label">الصفة المهنية للمتحدث</label>
-                            <input type="text" name="speaker_title" class="form-control uot-input" placeholder="مثال: مدرب ومستشار في الذكاء الاصطناعي">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="uot-form-label">صورة المتحدث (اختياري)</label>
-                            <input type="file" name="speaker_image" class="form-control uot-input" accept="image/*">
-                        </div>
-                        <div class="col-12">
-                            <label class="uot-form-label">نبذة عن المتحدث</label>
-                            <textarea name="speaker_bio" class="form-control uot-textarea" rows="2" placeholder="نبذة مختصرة عن خبرات وإنجازات المتحدث الأكاديمية والمهنية..."></textarea>
-                        </div>
+                    <div class="alert alert-info py-2 px-3 small rounded-3 mb-3 border-0" style="background: #eff6ff; color: #1e40af;">
+                        <i class="fas fa-info-circle me-1"></i>
+                        في الجلسات الحوارية يمكنك إضافة جميع المحاورين ومدير الجلسة (3 إلى 5 أشخاص أو أكثر) مع صورة ونبذة مستقلة لكل متحدث ليظهروا جميعاً جنباً إلى جنب في البانر العريض أعلى صفحة الفعالية.
                     </div>
+
+                    <div id="addSpeakersContainer" class="d-flex flex-column gap-3 mb-3"></div>
 
                     {{-- القسم 3: فكرة ومحاور الفعالية --}}
                     <div class="uot-section-divider">
@@ -443,31 +473,19 @@
                         </div>
                     </div>
 
-                    {{-- القسم 2: بيانات المتحدث / المدرب --}}
-                    <div class="uot-section-divider">
-                        <span class="divider-icon"><i class="fas fa-user-tie"></i></span>
-                        <h6 class="divider-title">بيانات المتحدث / المدرب</h6>
-                        <span class="divider-badge">المسؤول عن التقديم</span>
+                    {{-- القسم 2: قائمة المتحدثين والمحاورين (1 إلى 6 متحدثين) --}}
+                    <div class="uot-section-divider d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="divider-icon"><i class="fas fa-users"></i></span>
+                            <h6 class="divider-title mb-0">المتحدثون والمحاورون في الفعالية</h6>
+                            <span class="divider-badge">تعديل أو إضافة محاورين وصورهم</span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold shadow-sm" onclick="addSpeakerBuilderRow('edit')">
+                            <i class="fas fa-user-plus me-1"></i> إضافة محاور / متحدث آخر
+                        </button>
                     </div>
 
-                    <div class="row g-3 mb-2">
-                        <div class="col-md-4">
-                            <label class="uot-form-label">اسم المتحدث / المدرب</label>
-                            <input type="text" name="speaker_name" id="edit_speaker_name" class="form-control uot-input">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="uot-form-label">الصفة المهنية للمتحدث</label>
-                            <input type="text" name="speaker_title" id="edit_speaker_title" class="form-control uot-input">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="uot-form-label">تحديث صورة المتحدث</label>
-                            <input type="file" name="speaker_image" class="form-control uot-input" accept="image/*">
-                        </div>
-                        <div class="col-12">
-                            <label class="uot-form-label">نبذة عن المتحدث</label>
-                            <textarea name="speaker_bio" id="edit_speaker_bio" class="form-control uot-textarea" rows="2"></textarea>
-                        </div>
-                    </div>
+                    <div id="editSpeakersContainer" class="d-flex flex-column gap-3 mb-3"></div>
 
                     {{-- القسم 3: فكرة ومحاور الفعالية --}}
                     <div class="uot-section-divider">
@@ -662,7 +680,178 @@
         document.body.classList.remove('modal-open');
     }
 
-    // Auto bind all close/dismiss buttons
+    let speakerRowSeq = 0;
+
+    function escapeHtmlAttr(val) {
+        return String(val == null ? '' : val)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
+    function getDefaultRoleByEventType(mode) {
+        const typeEl = document.getElementById(mode === 'edit' ? 'edit_type' : 'add_type');
+        const typeVal = typeEl ? typeEl.value : 'workshop';
+        if (typeVal === 'panel_discussion') return 'محاور';
+        if (typeVal === 'keynote') return 'متحدث رئيسي';
+        return 'مدرب / محاضر';
+    }
+
+    function refreshSpeakerRowNumbers(container) {
+        if (!container) return;
+        const cards = container.querySelectorAll('.uot-speaker-builder-card');
+        cards.forEach((card, i) => {
+            const numBadge = card.querySelector('.sp-order-num');
+            if (numBadge) numBadge.textContent = (i + 1);
+            const removeBtn = card.querySelector('.sp-remove-row-btn');
+            if (removeBtn) {
+                removeBtn.style.display = cards.length > 1 ? 'inline-flex' : 'none';
+            }
+        });
+    }
+
+    function addSpeakerBuilderRow(mode, data = null) {
+        const container = document.getElementById(mode === 'edit' ? 'editSpeakersContainer' : 'addSpeakersContainer');
+        if (!container) return;
+
+        const idx = speakerRowSeq++;
+        const sp = data || {};
+        const nameVal = sp.name || '';
+        const titleVal = sp.title || '';
+        const bioVal = sp.bio || '';
+        const roleVal = sp.role || getDefaultRoleByEventType(mode);
+        const existingImage = sp.image || '';
+        const imageUrl = sp.image_url || '';
+
+        const roles = ['محاور', 'مدير الجلسة', 'متحدث رئيسي', 'مدرب / محاضر'];
+        let roleOptions = '';
+        let matchedRole = false;
+        roles.forEach(r => {
+            const sel = (roleVal === r) ? 'selected' : '';
+            if (sel) matchedRole = true;
+            roleOptions += `<option value="${escapeHtmlAttr(r)}" ${sel}>${r}</option>`;
+        });
+        if (roleVal && !matchedRole) {
+            roleOptions = `<option value="${escapeHtmlAttr(roleVal)}" selected>${escapeHtmlAttr(roleVal)}</option>` + roleOptions;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'uot-speaker-builder-card p-3 rounded-3 border bg-light position-relative';
+        card.style.borderColor = '#cbd5e1';
+        card.innerHTML = `
+            <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+                <span class="badge bg-primary text-white rounded-pill px-3 py-1 fw-bold">
+                    <i class="fas fa-user-tie me-1"></i> المتحدث / المحاور #<span class="sp-order-num">1</span>
+                </span>
+                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-0 sp-remove-row-btn" onclick="removeSpeakerBuilderRow(this)">
+                    <i class="fas fa-trash-alt me-1"></i> حذف المتحدث
+                </button>
+            </div>
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <label class="uot-form-label small mb-1">اسم المتحدث / المحاور</label>
+                    <input type="text" name="speakers[${idx}][name]" class="form-control uot-input sp-name-input" value="${escapeHtmlAttr(nameVal)}" placeholder="مثال: د. محمد الفيتوري">
+                </div>
+                <div class="col-md-3">
+                    <label class="uot-form-label small mb-1">الدور في الجلسة</label>
+                    <select name="speakers[${idx}][role]" class="form-select uot-select">
+                        ${roleOptions}
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <label class="uot-form-label small mb-1">الصفة المهنية / جهة العمل</label>
+                    <input type="text" name="speakers[${idx}][title]" class="form-control uot-input" value="${escapeHtmlAttr(titleVal)}" placeholder="مثال: خبير التحول الرقمي وتطوير الأعمال">
+                </div>
+                <div class="col-md-5">
+                    <label class="uot-form-label small mb-1">الصورة الشخصية للمتحدث</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="sp-thumb-box rounded-3 border bg-white d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0" style="width: 46px; height: 46px;">
+                            ${imageUrl
+                                ? `<img src="${escapeHtmlAttr(imageUrl)}" alt="preview" style="width:100%;height:100%;object-fit:cover;">`
+                                : `<i class="fas fa-camera text-muted"></i>`}
+                        </div>
+                        <div class="flex-grow-1">
+                            <input type="file" name="speakers[${idx}][image]" class="form-control uot-input" accept="image/*" onchange="previewSpeakerFile(this)">
+                            <input type="hidden" name="speakers[${idx}][existing_image]" class="sp-existing-img" value="${escapeHtmlAttr(existingImage)}">
+                            <input type="hidden" name="speakers[${idx}][remove_image]" class="sp-remove-img" value="0">
+                        </div>
+                        ${imageUrl ? `
+                        <button type="button" class="btn btn-sm btn-outline-secondary sp-clear-img-btn" title="إزالة الصورة الحالية" onclick="clearSpeakerExistingImage(this)">
+                            <i class="fas fa-times"></i>
+                        </button>` : ''}
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <label class="uot-form-label small mb-1">نبذة تعريفية مختصرة</label>
+                    <textarea name="speakers[${idx}][bio]" class="form-control uot-textarea" rows="2" placeholder="نبذة تعريفية عن خبرات المتحدث تظهر تحت صورته في البانر العريض...">${escapeHtmlAttr(bioVal)}</textarea>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(card);
+        refreshSpeakerRowNumbers(container);
+    }
+
+    function removeSpeakerBuilderRow(btn) {
+        const card = btn.closest('.uot-speaker-builder-card');
+        if (!card) return;
+        const container = card.parentElement;
+        if (container.querySelectorAll('.uot-speaker-builder-card').length <= 1) {
+            card.querySelectorAll('input[type="text"], textarea, input[type="file"]').forEach(el => el.value = '');
+            return;
+        }
+        card.remove();
+        refreshSpeakerRowNumbers(container);
+    }
+
+    function previewSpeakerFile(fileInput) {
+        const card = fileInput.closest('.uot-speaker-builder-card');
+        if (!card) return;
+        const thumbBox = card.querySelector('.sp-thumb-box');
+        const removeHidden = card.querySelector('.sp-remove-img');
+        if (fileInput.files && fileInput.files[0]) {
+            if (removeHidden) removeHidden.value = '0';
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (thumbBox) {
+                    thumbBox.innerHTML = `<img src="${e.target.result}" alt="preview" style="width:100%;height:100%;object-fit:cover;">`;
+                }
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        }
+    }
+
+    function clearSpeakerExistingImage(btn) {
+        const card = btn.closest('.uot-speaker-builder-card');
+        if (!card) return;
+        const thumbBox = card.querySelector('.sp-thumb-box');
+        const existingHidden = card.querySelector('.sp-existing-img');
+        const removeHidden = card.querySelector('.sp-remove-img');
+        const fileInput = card.querySelector('input[type="file"]');
+        if (existingHidden) existingHidden.value = '';
+        if (removeHidden) removeHidden.value = '1';
+        if (fileInput) fileInput.value = '';
+        if (thumbBox) thumbBox.innerHTML = '<i class="fas fa-camera text-muted"></i>';
+        btn.style.display = 'none';
+    }
+
+    function handleAddTypeChange(typeVal) {
+        const container = document.getElementById('addSpeakersContainer');
+        if (!container) return;
+        const cards = container.querySelectorAll('.uot-speaker-builder-card');
+        if (typeVal === 'panel_discussion' && cards.length === 1) {
+            const firstName = cards[0].querySelector('.sp-name-input');
+            if (firstName && firstName.value.trim() === '') {
+                const firstRole = cards[0].querySelector('select');
+                if (firstRole) firstRole.value = 'مدير الجلسة';
+                addSpeakerBuilderRow('add', { role: 'محاور' });
+                addSpeakerBuilderRow('add', { role: 'محاور' });
+            }
+        }
+    }
+
+    // Auto bind all close/dismiss buttons & initialize Add Event speaker row
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('[data-bs-dismiss="modal"], [data-dismiss="modal"]').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -670,6 +859,11 @@
                 if (modal) hideModalSafe(modal.id);
             });
         });
+
+        const addContainer = document.getElementById('addSpeakersContainer');
+        if (addContainer && addContainer.children.length === 0) {
+            addSpeakerBuilderRow('add');
+        }
     });
 
     function editEventById(id) {
@@ -682,9 +876,6 @@
         document.getElementById('editEventForm').action = "/admin/job-fair/events/" + event.id;
         document.getElementById('edit_type').value = event.type || 'workshop';
         document.getElementById('edit_title').value = event.title || '';
-        document.getElementById('edit_speaker_name').value = event.speaker_name || '';
-        document.getElementById('edit_speaker_title').value = event.speaker_title || '';
-        document.getElementById('edit_speaker_bio').value = event.speaker_bio || '';
         document.getElementById('edit_description').value = event.description || '';
         document.getElementById('edit_topics').value = event.topics || '';
         document.getElementById('edit_location').value = event.location || '';
@@ -698,6 +889,25 @@
         }
         if (event.end_time) {
             document.getElementById('edit_end_time').value = event.end_time.substring(0, 16);
+        }
+
+        const editContainer = document.getElementById('editSpeakersContainer');
+        if (editContainer) {
+            editContainer.innerHTML = '';
+            const speakersList = (Array.isArray(event.speakers_list) && event.speakers_list.length > 0)
+                ? event.speakers_list
+                : ((event.speaker_name || event.speaker_title || event.speaker_bio || event.speaker_image)
+                    ? [{
+                        name: event.speaker_name || '',
+                        title: event.speaker_title || '',
+                        role: '',
+                        bio: event.speaker_bio || '',
+                        image: event.speaker_image || '',
+                        image_url: event.speaker_image_url || ''
+                    }]
+                    : [{}]);
+
+            speakersList.forEach(sp => addSpeakerBuilderRow('edit', sp));
         }
 
         showModalSafe('editEventModal');

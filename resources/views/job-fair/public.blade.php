@@ -2204,6 +2204,43 @@
             line-height: 1.35;
         }
 
+        .slice-multi-portraits {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            width: 96%;
+            margin-bottom: 10px;
+        }
+
+        .slice-multi-portrait-item {
+            width: 62px;
+            height: 70px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #EECA3E;
+            background: rgba(2, 20, 43, 0.9);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .slice-multi-portrait-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 16%;
+            display: block;
+        }
+
+        .slice-multi-portrait-item i {
+            color: #EECA3E;
+            font-size: 1.4rem;
+        }
+
         /* Track Slice Elements */
         .slice-track-name {
             font-size: 1.05rem;
@@ -6748,28 +6785,59 @@
                                                 </div>
                                             </div>
 
-                                            {{-- 2. شريحة المحاضر والمدرب --}}
+                                            {{-- 2. شريحة المحاضرين والمحاورين --}}
+                                            @php
+                                                $sliceSpeakers = $event->speakers_list;
+                                                $sliceSpeakersCount = count($sliceSpeakers);
+                                            @endphp
                                             <div class="psc-slice slice-speaker">
                                                 <div class="slice-compact">
-                                                    @if($speakerImg)
-                                                        <img src="{{ $speakerImg }}" alt="{{ $event->speaker_name }}" class="slice-mini-avatar">
+                                                    @if($sliceSpeakersCount > 1)
+                                                        @if($speakerImg)
+                                                            <img src="{{ $speakerImg }}" alt="{{ $event->speakers_names_summary }}" class="slice-mini-avatar">
+                                                        @else
+                                                            <i class="fas fa-users slice-icon text-info"></i>
+                                                        @endif
+                                                        <span class="slice-label">المحاورون</span>
+                                                        <span class="slice-micro-val">{{ $sliceSpeakersCount }} متحدثين</span>
                                                     @else
-                                                        <i class="fas fa-user-tie slice-icon text-info"></i>
+                                                        @if($speakerImg)
+                                                            <img src="{{ $speakerImg }}" alt="{{ $event->speaker_name }}" class="slice-mini-avatar">
+                                                        @else
+                                                            <i class="fas fa-user-tie slice-icon text-info"></i>
+                                                        @endif
+                                                        <span class="slice-label">المحاضر</span>
+                                                        <span class="slice-micro-val text-truncate" style="max-width:45px;">{{ Str::limit($event->speaker_name ?: 'المدرب', 6) }}</span>
                                                     @endif
-                                                    <span class="slice-label">المحاضر</span>
-                                                    <span class="slice-micro-val text-truncate" style="max-width:45px;">{{ Str::limit($event->speaker_name ?: 'المدرب', 6) }}</span>
                                                 </div>
                                                 <div class="slice-expanded">
-                                                    <div class="slice-speaker-portrait">
-                                                        @if($speakerImg)
-                                                            <img src="{{ $speakerImg }}" alt="{{ $event->speaker_name }}" class="slice-avatar-img">
-                                                        @else
-                                                            <div class="slice-avatar-placeholder"><i class="fas fa-user-tie"></i></div>
-                                                        @endif
-                                                    </div>
-                                                    <div class="slice-speaker-name">{{ $event->speaker_name ?: 'نخبة من المدربين والخبراء' }}</div>
-                                                    <div class="slice-speaker-role">{{ $event->speaker_title ?: 'خبير ومحاضر معتمد' }}</div>
-                                                    <span class="slice-tag"><i class="fas fa-certificate text-warning me-1"></i> مدرب معتمد</span>
+                                                    @if($sliceSpeakersCount > 1)
+                                                        <div class="slice-multi-portraits">
+                                                            @foreach(array_slice($sliceSpeakers, 0, 5) as $sp)
+                                                                <div class="slice-multi-portrait-item" title="{{ $sp['name'] }}">
+                                                                    @if(!empty($sp['image_url']))
+                                                                        <img src="{{ $sp['image_url'] }}" alt="{{ $sp['name'] }}">
+                                                                    @else
+                                                                        <i class="fas fa-user-tie"></i>
+                                                                    @endif
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                        <div class="slice-speaker-name" style="font-size: 0.92rem;">{{ Str::limit($event->speakers_names_summary, 70) }}</div>
+                                                        <div class="slice-speaker-role">جلسة بمشاركة {{ $sliceSpeakersCount }} محاورين ومتحدثين</div>
+                                                        <span class="slice-tag"><i class="fas fa-users text-warning me-1"></i> نخبة المحاورين</span>
+                                                    @else
+                                                        <div class="slice-speaker-portrait">
+                                                            @if($speakerImg)
+                                                                <img src="{{ $speakerImg }}" alt="{{ $event->speaker_name }}" class="slice-avatar-img">
+                                                            @else
+                                                                <div class="slice-avatar-placeholder"><i class="fas fa-user-tie"></i></div>
+                                                            @endif
+                                                        </div>
+                                                        <div class="slice-speaker-name">{{ $event->speaker_name ?: 'نخبة من المدربين والخبراء' }}</div>
+                                                        <div class="slice-speaker-role">{{ $event->speaker_title ?: 'خبير ومحاضر معتمد' }}</div>
+                                                        <span class="slice-tag"><i class="fas fa-certificate text-warning me-1"></i> مدرب معتمد</span>
+                                                    @endif
                                                 </div>
                                             </div>
 

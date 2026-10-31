@@ -492,18 +492,37 @@
                                         </h5>
 
                                         <!-- Speaker info if present -->
-                                        @if($event->speaker_name)
+                                        @php $gradCardSpeakers = $event->speakers_list; @endphp
+                                        @if(count($gradCardSpeakers) > 1)
                                             <div class="d-flex align-items-center gap-2 mb-3 p-2 rounded-3 bg-light">
-                                                @if($event->speaker_image_url)
-                                                    <img src="{{ $event->speaker_image_url }}" alt="{{ $event->speaker_name }}" class="rounded-circle object-fit-cover flex-shrink-0" style="width: 38px; height: 38px; border: 1.5px solid #e2e8f0;">
+                                                <div class="d-flex align-items-center flex-shrink-0" style="padding-right: 4px;">
+                                                    @foreach(array_slice($gradCardSpeakers, 0, 5) as $gIdx => $sp)
+                                                        @if(!empty($sp['image_url']))
+                                                            <img src="{{ $sp['image_url'] }}" alt="{{ $sp['name'] }}" class="rounded-circle object-fit-cover" style="width: 32px; height: 32px; border: 2px solid #fff; margin-right: {{ $gIdx === 0 ? '0' : '-9px' }}; position: relative; z-index: {{ 10 - $gIdx }};">
+                                                        @else
+                                                            <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px; border: 2px solid #fff; margin-right: {{ $gIdx === 0 ? '0' : '-9px' }}; position: relative; z-index: {{ 10 - $gIdx }}; font-size: 0.72rem;">
+                                                                <i class="fas fa-user-tie"></i>
+                                                            </div>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                                <div class="text-truncate">
+                                                    <div class="fw-bold text-dark small text-truncate">{{ $event->speakers_names_summary }}</div>
+                                                    <div class="text-muted" style="font-size: 0.72rem;">{{ count($gradCardSpeakers) }} محاورين ومتحدثين</div>
+                                                </div>
+                                            </div>
+                                        @elseif(count($gradCardSpeakers) === 1)
+                                            <div class="d-flex align-items-center gap-2 mb-3 p-2 rounded-3 bg-light">
+                                                @if(!empty($gradCardSpeakers[0]['image_url']))
+                                                    <img src="{{ $gradCardSpeakers[0]['image_url'] }}" alt="{{ $gradCardSpeakers[0]['name'] }}" class="rounded-circle object-fit-cover flex-shrink-0" style="width: 38px; height: 38px; border: 1.5px solid #e2e8f0;">
                                                 @else
                                                     <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm" style="width: 38px; height: 38px;">
                                                         <i class="fas fa-user-tie"></i>
                                                     </div>
                                                 @endif
                                                 <div class="text-truncate">
-                                                    <div class="fw-bold text-dark small text-truncate">{{ $event->speaker_name }}</div>
-                                                    <div class="text-muted" style="font-size: 0.72rem;">{{ $event->speaker_title ?: 'محاضر ومدرب' }}</div>
+                                                    <div class="fw-bold text-dark small text-truncate">{{ $gradCardSpeakers[0]['name'] }}</div>
+                                                    <div class="text-muted" style="font-size: 0.72rem;">{{ $gradCardSpeakers[0]['title'] ?: 'محاضر ومدرب' }}</div>
                                                 </div>
                                             </div>
                                         @endif

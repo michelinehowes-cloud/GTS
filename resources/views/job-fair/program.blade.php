@@ -708,6 +708,108 @@
             line-height: 1.3;
         }
 
+        /* ── Multi-Speaker Panel Showcase inside Program Event Cards ── */
+        .program-panelists-strip {
+            background: linear-gradient(145deg, rgba(4, 24, 54, 0.72) 0%, rgba(10, 48, 96, 0.58) 100%);
+            border: 1px solid rgba(238, 202, 62, 0.35);
+            border-radius: 18px;
+            padding: 12px;
+            margin: 0.75rem 0 0.85rem;
+        }
+
+        .program-panelists-grid {
+            display: grid;
+            gap: 10px;
+            align-items: start;
+        }
+        .program-panelists-grid.p-count-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .program-panelists-grid.p-count-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .program-panelists-grid.p-count-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+        .program-panelists-grid.p-count-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; }
+        .program-panelists-grid.p-count-many { grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: 8px; }
+
+        .program-panelist-tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .program-panelist-photo-box {
+            width: 100%;
+            aspect-ratio: 1 / 1.08;
+            max-height: 115px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            border: 1.5px solid rgba(238, 202, 62, 0.55);
+            background: radial-gradient(circle at 50% 25%, rgba(56, 189, 248, 0.2), rgba(4, 22, 48, 0.92));
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+            margin-bottom: 6px;
+        }
+
+        .program-panelist-tile.is-mod .program-panelist-photo-box {
+            border-color: var(--gold);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4), 0 0 12px rgba(238, 202, 62, 0.28);
+        }
+
+        .program-panelist-photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 16%;
+            display: block;
+        }
+
+        .program-panelist-fallback {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            font-size: 1.5rem;
+        }
+
+        .program-panelist-role-tag {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            left: 4px;
+            background: rgba(5, 22, 48, 0.86);
+            color: var(--gold-lt);
+            font-size: 0.6rem;
+            font-weight: 800;
+            padding: 1px 4px;
+            border-radius: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .program-panelist-tile.is-mod .program-panelist-role-tag {
+            background: linear-gradient(135deg, #eeca3e, #f59e0b);
+            color: #051b37;
+        }
+
+        .program-panelist-name {
+            font-size: 0.76rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.25;
+            margin-bottom: 2px;
+        }
+
+        .program-panelist-title {
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.68);
+            line-height: 1.25;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
         @media (max-width: 576px) {
             .event-card-speaker-col {
                 flex: 0 0 110px;
@@ -715,6 +817,10 @@
             }
             .speaker-portrait-frame {
                 min-height: 175px;
+            }
+            .program-panelists-grid.p-count-4,
+            .program-panelists-grid.p-count-5 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
             }
         }
 
@@ -1331,11 +1437,23 @@
                 default     => 'status-open',
             };
             $isRegistered = in_array($event->id, $registeredEventIds);
+            $cardSpeakers = $event->speakers_list;
+            $cardSpeakersCount = count($cardSpeakers);
+            $searchableSpeakers = mb_strtolower(
+                collect($cardSpeakers)->map(fn($s) => ($s['name'] ?? '') . ' ' . ($s['title'] ?? ''))->implode(' ')
+            );
+            $panelGridClass = match(true) {
+                $cardSpeakersCount === 2 => 'p-count-2',
+                $cardSpeakersCount === 3 => 'p-count-3',
+                $cardSpeakersCount === 4 => 'p-count-4',
+                $cardSpeakersCount === 5 => 'p-count-5',
+                default => 'p-count-many',
+            };
         @endphp
         <div class="event-card event-item-card"
              data-title="{{ mb_strtolower($event->title) }}"
              data-type="{{ $event->type }}"
-             data-speaker="{{ mb_strtolower($event->speaker_name ?? '') }}"
+             data-speaker="{{ $searchableSpeakers }}"
              data-location="{{ mb_strtolower($event->location ?? '') }}"
              data-topics="{{ mb_strtolower($event->topics ?? '') }}">
 
@@ -1352,60 +1470,117 @@
 
                 <h3 class="event-card-title">{{ $event->title }}</h3>
 
-                {{-- 2-Column Body: Info on Right, Large Trainer Portrait on Left (matching drawn black box) --}}
-                <div class="event-card-body-row">
-                    {{-- Right Column (Main Info) --}}
-                    <div class="event-card-info-col">
-                        @if($event->speaker_name)
-                        <div class="event-speaker-badge-box">
-                            <div class="speaker-name-title">{{ $event->speaker_name }}</div>
-                            <div class="speaker-sub-title">{{ $event->speaker_title ?: 'خبير ومحاضر معتمد' }}</div>
+                @if($cardSpeakersCount > 1)
+                    {{-- Wide Multi-Speaker Showcase Strip inside Card (Displays all 3-5 Panelists Photos & Names) --}}
+                    <div class="program-panelists-strip">
+                        <div class="program-panelists-grid {{ $panelGridClass }}">
+                            @foreach($cardSpeakers as $sp)
+                                @php
+                                    $isMod = str_contains((string) ($sp['role'] ?? ''), 'مدير');
+                                @endphp
+                                <div class="program-panelist-tile {{ $isMod ? 'is-mod' : '' }}">
+                                    <div class="program-panelist-photo-box">
+                                        @if(!empty($sp['image_url']))
+                                            <img src="{{ $sp['image_url'] }}" alt="{{ $sp['name'] }}">
+                                        @else
+                                            <div class="program-panelist-fallback">
+                                                <i class="fas fa-user-tie"></i>
+                                            </div>
+                                        @endif
+                                        @if(!empty($sp['role']))
+                                            <span class="program-panelist-role-tag">{{ $sp['role'] }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="program-panelist-name">{{ $sp['name'] }}</div>
+                                    @if(!empty($sp['title']))
+                                        <div class="program-panelist-title">{{ $sp['title'] }}</div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <p class="event-card-desc">
+                        {{ $event->description }}
+                    </p>
+
+                    <div class="event-meta-list">
+                        <div class="event-meta-item">
+                            <i class="far fa-calendar-alt text-warning"></i>
+                            <span>{{ $event->start_time->format('Y-m-d') }} ({{ $event->start_time->locale('ar')->translatedFormat('l') }})</span>
+                        </div>
+                        <div class="event-meta-item">
+                            <i class="far fa-clock text-info"></i>
+                            <span>{{ $event->timing_text ?: ($event->start_time->format('H:i') . ' — ' . $event->end_time->format('H:i')) }}</span>
+                        </div>
+                        <div class="event-meta-item">
+                            <i class="fas fa-map-marker-alt text-danger"></i>
+                            <span>{{ $event->location ?: 'المدرج الرئيسي' }}</span>
+                        </div>
+                        @if($event->target_audience)
+                        <div class="event-meta-item">
+                            <i class="fas fa-users text-primary"></i>
+                            <span class="text-truncate">{{ $event->target_audience }}</span>
                         </div>
                         @endif
-
-                        <p class="event-card-desc">
-                            {{ $event->description }}
-                        </p>
-
-                        {{-- Event Meta --}}
-                        <div class="event-meta-list">
-                            <div class="event-meta-item">
-                                <i class="far fa-calendar-alt text-warning"></i>
-                                <span>{{ $event->start_time->format('Y-m-d') }} ({{ $event->start_time->locale('ar')->translatedFormat('l') }})</span>
-                            </div>
-                            <div class="event-meta-item">
-                                <i class="far fa-clock text-info"></i>
-                                <span>{{ $event->timing_text ?: ($event->start_time->format('H:i') . ' — ' . $event->end_time->format('H:i')) }}</span>
-                            </div>
-                            <div class="event-meta-item">
-                                <i class="fas fa-map-marker-alt text-danger"></i>
-                                <span>{{ $event->location ?: 'المدرج الرئيسي' }}</span>
-                            </div>
-                            @if($event->target_audience)
-                            <div class="event-meta-item">
-                                <i class="fas fa-users text-primary"></i>
-                                <span class="text-truncate">{{ $event->target_audience }}</span>
+                    </div>
+                @else
+                    {{-- 2-Column Body for Single Speaker: Info on Right, Large Trainer Portrait on Left --}}
+                    @php $singleSp = $cardSpeakers[0] ?? null; @endphp
+                    <div class="event-card-body-row">
+                        {{-- Right Column (Main Info) --}}
+                        <div class="event-card-info-col">
+                            @if($singleSp && !empty($singleSp['name']))
+                            <div class="event-speaker-badge-box">
+                                <div class="speaker-name-title">{{ $singleSp['name'] }}</div>
+                                <div class="speaker-sub-title">{{ $singleSp['title'] ?: 'خبير ومحاضر معتمد' }}</div>
                             </div>
                             @endif
-                        </div>
-                    </div>
 
-                    {{-- Left Column (Trainer Portrait Frame) --}}
-                    @if($event->speaker_name || $event->speaker_image_url)
-                    <div class="event-card-speaker-col">
-                        <div class="speaker-portrait-frame">
-                            @if($event->speaker_image_url)
-                                <img src="{{ $event->speaker_image_url }}" alt="{{ $event->speaker_name }}" class="speaker-portrait-img">
-                            @else
-                                <div class="speaker-portrait-placeholder">
-                                    <i class="fas fa-user-tie"></i>
-                                    <span>{{ $event->speaker_name }}</span>
+                            <p class="event-card-desc">
+                                {{ $event->description }}
+                            </p>
+
+                            {{-- Event Meta --}}
+                            <div class="event-meta-list">
+                                <div class="event-meta-item">
+                                    <i class="far fa-calendar-alt text-warning"></i>
+                                    <span>{{ $event->start_time->format('Y-m-d') }} ({{ $event->start_time->locale('ar')->translatedFormat('l') }})</span>
                                 </div>
-                            @endif
+                                <div class="event-meta-item">
+                                    <i class="far fa-clock text-info"></i>
+                                    <span>{{ $event->timing_text ?: ($event->start_time->format('H:i') . ' — ' . $event->end_time->format('H:i')) }}</span>
+                                </div>
+                                <div class="event-meta-item">
+                                    <i class="fas fa-map-marker-alt text-danger"></i>
+                                    <span>{{ $event->location ?: 'المدرج الرئيسي' }}</span>
+                                </div>
+                                @if($event->target_audience)
+                                <div class="event-meta-item">
+                                    <i class="fas fa-users text-primary"></i>
+                                    <span class="text-truncate">{{ $event->target_audience }}</span>
+                                </div>
+                                @endif
+                            </div>
                         </div>
+
+                        {{-- Left Column (Trainer Portrait Frame) --}}
+                        @if($singleSp && (!empty($singleSp['name']) || !empty($singleSp['image_url'])))
+                        <div class="event-card-speaker-col">
+                            <div class="speaker-portrait-frame">
+                                @if(!empty($singleSp['image_url']))
+                                    <img src="{{ $singleSp['image_url'] }}" alt="{{ $singleSp['name'] }}" class="speaker-portrait-img">
+                                @else
+                                    <div class="speaker-portrait-placeholder">
+                                        <i class="fas fa-user-tie"></i>
+                                        <span>{{ $singleSp['name'] }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        @endif
                     </div>
-                    @endif
-                </div>
+                @endif
             </div>
 
             {{-- Card Actions --}}

@@ -337,12 +337,13 @@ class JobFairController extends Controller
         }
 
         // تحقق من عدم التسجيل مسبقاً
-        $exists = JobFairRegistration::where('job_fair_id', $fair->id)
+        $existing = JobFairRegistration::where('job_fair_id', $fair->id)
             ->where('user_id', Auth::id())
-            ->exists();
+            ->first();
 
-        if ($exists) {
-            return back()->with('warning', 'أنت مسجل بالفعل في هذا المعرض.');
+        if ($existing) {
+            return redirect()->route('job-fair.my-ticket', $existing->id)
+                ->with('info', 'أنت مسجل بالفعل في هذا المعرض وهذه بطاقتك.');
         }
 
         $registration = JobFairRegistration::create([

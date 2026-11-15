@@ -361,13 +361,17 @@ class Prevent500ErrorsRegressionTest extends TestCase
             'is_active' => true,
             'is_approved' => true,
         ]);
-        $reg = JobFairRegistration::create([
-            'job_fair_id' => $fair->id,
-            'user_id' => $graduate->id,
-            'registration_number' => 'JF-2026-' . random_int(10000, 99999),
-            'qr_code' => 'QR-' . uniqid(),
-            'attended' => false,
-        ]);
+        $reg = JobFairRegistration::updateOrCreate(
+            [
+                'job_fair_id' => $fair->id,
+                'user_id' => $graduate->id,
+            ],
+            [
+                'registration_number' => 'JF-2026-' . random_int(10000, 99999),
+                'qr_code' => 'QR-' . uniqid(),
+                'attended' => false,
+            ]
+        );
 
         $scanResp = $this->actingAs($graduate)->get(route('graduate.job-fairs.company.scan', [$fair->id, $company->id]));
         $scanResp->assertStatus(200);

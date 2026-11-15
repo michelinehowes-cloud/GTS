@@ -51,6 +51,31 @@ class JobFair extends Model
         'is_projects_published' => 'boolean',
     ];
 
+    protected static function booted(): void
+    {
+        static::created(function (JobFair $fair) {
+            try {
+                if (\App\Services\JobFairAutoRegistrationService::isFairEligible($fair)) {
+                    \App\Services\JobFairAutoRegistrationService::syncFair($fair);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Auto-registration on JobFair created failed: ' . $e->getMessage());
+            }
+        });
+
+        static::updated(function (JobFair $fair) {
+            if ($fair->wasChanged(['status', 'event_date', 'end_time'])) {
+                try {
+                    if (\App\Services\JobFairAutoRegistrationService::isFairEligible($fair)) {
+                        \App\Services\JobFairAutoRegistrationService::syncFair($fair);
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Auto-registration on JobFair updated failed: ' . $e->getMessage());
+                }
+            }
+        });
+    }
+
     // ========== العلاقات ==========
 
     public function creator()

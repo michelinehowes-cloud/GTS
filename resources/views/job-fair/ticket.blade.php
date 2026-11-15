@@ -413,86 +413,67 @@ new QRCode(document.getElementById('qr-code'), {
     correctLevel: QRCode.CorrectLevel.H
 });
 
-// دالة حفظ البطاقة كصورة
+// دالة حفظ البطاقة كصورة بأبعاد متناسقة عالية الدقة للاستوديو والهواتف
 function downloadTicket() {
     const btn = document.getElementById('download-btn');
+    const ticketElement = document.querySelector('.ticket');
+    if (!ticketElement || !window.CardExportHelper) return;
+
     const originalText = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin ms-2"></i> جاري الحفظ...';
     btn.disabled = true;
 
-    // استخدام html2canvas لالتقاط صورة للبطاقة
-    const ticketElement = document.querySelector('.ticket');
-    
-    html2canvas(ticketElement, {
-        scale: 2, // جودة أعلى
-        useCORS: true, // للسماح بتحميل الصور الخارجية إن وجدت
-        backgroundColor: null, // للحفاظ على الشفافية لو وجدت
-        onclone: function(clonedDoc) {
-            // إصلاح مشكلة تداخل النصوص العربية عن طريق إزالة التصغير (Scale)
-            // من النسخة المستنسخة قبل التقاط الصورة
-            const clonedWrapper = clonedDoc.querySelector('.ticket-wrapper');
-            if (clonedWrapper) {
-                clonedWrapper.style.transform = 'none';
+    window.CardExportHelper.exportCardToPng({
+        element: ticketElement,
+        fileName: 'ticket_{{ $registration->registration_number }}.png',
+        shareTitle: 'تذكرة معرض التوظيف',
+        modalId: 'inAppTicketPreviewModal',
+        imgId: 'inAppTicketImg',
+        imgAlt: 'تذكرة معرض التوظيف',
+        width: 412,
+        minHeight: 780,
+        scale: 3,
+        customizeClone: function(clonedTicket) {
+            const header = clonedTicket.querySelector('.ticket-header');
+            if (header) {
+                header.style.flexShrink = '0';
             }
+            const separator = clonedTicket.querySelector('.ticket-separator');
+            if (separator) {
+                separator.style.flexShrink = '0';
+            }
+            const body = clonedTicket.querySelector('.ticket-body');
+            if (body) {
+                body.style.flex = '1 1 auto';
+                body.style.display = 'flex';
+                body.style.flexDirection = 'column';
+                body.style.justifyContent = 'space-between';
+                body.style.padding = '20px 24px 26px';
+            }
+            clonedTicket.querySelectorAll('.ticket-hole, .ticket-hole-right').forEach(function(hole) {
+                hole.style.background = '#e2e8f0';
+                hole.style.boxShadow = 'none';
+            });
+            const qrImg = clonedTicket.querySelector('#qr-code img');
+            if (qrImg) {
+                qrImg.style.width = '178px';
+                qrImg.style.height = '178px';
+            }
+            clonedTicket.querySelectorAll('img').forEach(function(img) {
+                if (img.style.objectFit === 'contain') {
+                    img.style.width = 'auto';
+                    img.style.height = 'auto';
+                }
+            });
         }
-    }).then(canvas => {
-        const fileName = `ticket_{{ $registration->registration_number }}.png`;
-        const ua = navigator.userAgent || '';
-        const unsafe = /FBAN|FBAV|FBIOS|FB_IAB|FBBV|Instagram|Messenger|Line\/|TikTok|BytedanceWebview|Twitter|Snapchat|Telegram|WhatsApp|; wv\)|\bWebView\b|iPad|iPhone|iPod/i.test(ua)
-            || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-            || !('download' in HTMLAnchorElement.prototype);
-
-        canvas.toBlob(async function(blob) {
-            try {
-                if (unsafe) {
-                    if (blob && typeof File !== 'undefined' && navigator.canShare) {
-                        const file = new File([blob], fileName, { type: 'image/png' });
-                        if (navigator.canShare({ files: [file] })) {
-                            try {
-                                await navigator.share({ files: [file], title: 'تذكرة معرض التوظيف' });
-                                return;
-                            } catch (e) {
-                                if (e && e.name === 'AbortError') return;
-                            }
-                        }
-                    }
-                    const dataUrl = canvas.toDataURL('image/png');
-                    let modal = document.getElementById('inAppTicketPreviewModal');
-                    if (!modal) {
-                        modal = document.createElement('div');
-                        modal.id = 'inAppTicketPreviewModal';
-                        modal.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;overflow-y:auto;';
-                        modal.innerHTML = '<div style="max-width:440px;width:100%;text-align:center;color:#fff;"><div style="background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.5);color:#a7f3d0;padding:10px 14px;border-radius:14px;font-weight:700;font-size:0.88rem;margin-bottom:12px;">اضغط مطولاً على صورة البطاقة أدناه واختر «حفظ الصورة»</div><img id="inAppTicketImg" src="" style="width:100%;max-height:72vh;object-fit:contain;border-radius:18px;background:#fff;padding:4px;" /><button type="button" onclick="this.closest(\'#inAppTicketPreviewModal\').style.display=\'none\'" style="margin-top:14px;width:100%;background:#fff;color:#0f172a;border:none;padding:11px;border-radius:12px;font-weight:800;">إغلاق</button></div>';
-                        document.body.appendChild(modal);
-                    }
-                    modal.querySelector('#inAppTicketImg').src = dataUrl;
-                    modal.style.display = 'flex';
-                    return;
-                }
-                if (blob && window.URL && URL.createObjectURL) {
-                    const blobUrl = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.download = fileName;
-                    link.href = blobUrl;
-                    link.style.display = 'none';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
-                }
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }, 'image/png');
     }).catch(err => {
-        console.error("Error generating ticket image: ", err);
-        alert("حدث خطأ أثناء حفظ البطاقة، يرجى المحاولة مرة أخرى.");
+        console.error('Error generating ticket image: ', err);
+        alert('حدث خطأ أثناء حفظ البطاقة، يرجى المحاولة مرة أخرى.');
+    }).finally(() => {
         btn.innerHTML = originalText;
         btn.disabled = false;
     });
 }
-
 // دالة لتعديل حجم البطاقة تلقائيا لتناسب الشاشة
 function fitTicketToScreen() {
     const wrapper = document.querySelector('.ticket-wrapper');
@@ -526,6 +507,7 @@ window.addEventListener('resize', fitTicketToScreen);
 setTimeout(fitTicketToScreen, 100);
 
 </script>
+@include('partials.card-export-helper')
 
 </body>
 </html>

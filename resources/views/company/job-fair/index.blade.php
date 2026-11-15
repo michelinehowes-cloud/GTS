@@ -16,11 +16,11 @@
         :badge="$fairs->count() > 0 ? $fairs->count() . ' ملتقى مشارك به' : null"
         badgeIcon="fas fa-handshake"
     >
-        <a href="{{ route('company.dashboard') }}" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+        <a href="{{ route('company.dashboard') }}" class="btn btn-light bg-white text-primary fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
             <i class="fas fa-home fs-6"></i>
             <span>لوحة التحكم</span>
         </a>
-        <a href="{{ route('job-opportunities.index') }}" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
+        <a href="{{ route('job-opportunities.index') }}" class="btn btn-warning text-dark fw-bold py-2 px-3 rounded-3 shadow-sm d-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0 text-nowrap" style="font-size: 0.88rem; transition: transform 0.2s ease;">
             <i class="fas fa-briefcase fs-6"></i>
             <span>إدارة الشواغر</span>
         </a>
@@ -52,7 +52,7 @@
                                 <span>جامعة طرابلس</span>
                             </p>
                             @if($isPublished)
-                                <span class="badge rounded-pill bg-success text-white px-2.5 py-1" style="font-size: 0.72rem;">
+                                <span class="badge rounded-pill bg-success text-white px-3 py-1" style="font-size: 0.72rem;">
                                     <i class="fas fa-check-circle me-1"></i> مشارك معتمد
                                 </span>
                             @else
@@ -78,7 +78,7 @@
                                 </span>
                                 <span class="badge-source">
                                     <i class="fas fa-map-marker-alt text-warning"></i>
-                                    <span>{{ Str::limit($fair->location ?: 'جامعة طرابلس', 18) }}</span>
+                                    <span>{{ Str::limit($fair->location ?: 'جامعة طرابلس', 32) }}</span>
                                 </span>
                                 @if($boothNumber)
                                     <span class="badge-seats">
@@ -112,18 +112,18 @@
                                 </a>
 
                                 <!-- أزرار سريعة ثانوية متناسقة -->
-                                <div class="d-flex gap-2">
-                                    <a href="{{ route('company.job-fairs.leads', $fair->id) }}" class="btn-sub-action flex-grow-1" title="عرض قائمة الخريجين المتقدمين لجناحكم">
+                                <div class="sub-actions-grid">
+                                    <a href="{{ route('company.job-fairs.leads', $fair->id) }}" class="btn-sub-action" title="عرض قائمة الخريجين المتقدمين لجناحكم">
                                         <i class="fas fa-users text-primary"></i>
                                         <span>الخريجين ({{ $leadsCount }})</span>
                                     </a>
 
-                                    <a href="{{ route('company.job-fairs.qr-booth', $fair->id) }}" target="_blank" class="btn-sub-action flex-grow-1" title="طباعة باركود وملصق الجناح الرسمي">
+                                    <a href="{{ route('company.job-fairs.qr-booth', $fair->id) }}" target="_blank" class="btn-sub-action" title="طباعة باركود وملصق الجناح الرسمي">
                                         <i class="fas fa-print text-dark"></i>
                                         <span>باركود الجناح</span>
                                     </a>
 
-                                    <button type="button" class="btn-sub-action btn-media-kit flex-grow-1" data-bs-toggle="modal" data-bs-target="#mediaKitModal{{ $fair->id }}" title="تحميل حزمة الهوية البصرية وشعارات المعرض">
+                                    <button type="button" class="btn-sub-action btn-media-kit" data-bs-toggle="modal" data-bs-target="#mediaKitModal{{ $fair->id }}" title="تحميل حزمة الهوية البصرية وشعارات المعرض">
                                         <i class="fas fa-photo-video text-warning"></i>
                                         <span>الهوية والأصول</span>
                                     </button>
@@ -327,6 +327,9 @@
     border-radius: 28px;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+    direction: rtl;
+    text-align: right;
     box-shadow: 0 10px 30px -6px rgba(13, 56, 130, 0.15), 0 4px 12px rgba(0, 0, 0, 0.05);
     transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
@@ -372,6 +375,9 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    align-items: stretch;
+    direction: rtl;
+    text-align: right;
     gap: 14px;
     position: relative;
     flex-grow: 1;
@@ -392,11 +398,31 @@
     width: fit-content;
 }
 
+div.uiverse-train-card {
+    overflow: hidden;
+    direction: rtl;
+    text-align: right;
+}
+
+div.uiverse-train-card .card-content {
+    align-items: stretch;
+    direction: rtl;
+    text-align: right;
+}
+
+div.uiverse-train-card .card-content .badge-tag {
+    align-self: flex-start;
+    margin-right: 0;
+    margin-left: auto;
+}
+
 .uiverse-train-card .card-content .card-title-main {
     font-size: 1.15rem;
     font-weight: 800;
     color: #0f172a;
     line-height: 1.45;
+    text-align: right;
+    direction: rtl;
     margin: 0;
     min-height: 48px;
     display: -webkit-box;
@@ -405,14 +431,67 @@
     overflow: hidden;
 }
 
-.uiverse-train-card .card-content .plain {
+div.uiverse-train-card .card-content .plain {
     display: flex;
     align-items: center;
+    justify-content: flex-start;
+    direction: rtl;
+    width: 100%;
     gap: 8px;
     margin: 0;
     padding-bottom: 8px;
     border-bottom: 1px dashed #e2e8f0;
     flex-wrap: wrap;
+}
+
+div.uiverse-train-card .card-content .description {
+    text-align: right;
+    direction: rtl;
+}
+
+.uiverse-train-card .card-content .badge-source {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+.uiverse-train-card .card-meta-pill {
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    direction: rtl;
+}
+
+.uiverse-train-card .sub-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    direction: rtl;
+}
+
+.uiverse-train-card .sub-actions-grid .btn-sub-action {
+    white-space: normal;
+    text-align: center;
+    justify-content: center;
+    line-height: 1.3;
+    min-height: 40px;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    padding: 8px 6px;
+}
+
+@media (max-width: 575.98px) {
+    .uiverse-train-card .card-content {
+        padding: 18px 16px;
+        gap: 12px;
+        border-radius: 20px;
+    }
+    .uiverse-train-card .sub-actions-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .uiverse-train-card .sub-actions-grid .btn-media-kit {
+        grid-column: 1 / -1;
+    }
 }
 
 .uiverse-train-card .card-content .plain > .badge-contract {

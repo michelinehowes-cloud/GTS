@@ -249,6 +249,56 @@
         90%  { top: 100%; opacity: 1; }
         100% { top: 100%; opacity: 0; }
     }
+
+    #target_job_opportunity {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-inline-start: 14px;
+        padding-inline-end: 2.5rem;
+        font-size: 0.9rem;
+        text-overflow: ellipsis;
+    }
+
+    .scanner-card {
+        overflow: hidden;
+        direction: rtl;
+        text-align: right;
+    }
+
+    .result-card {
+        direction: rtl;
+        text-align: right;
+    }
+
+    @media (max-width: 575.98px) {
+        .scanner-wrapper {
+            padding: 0.9rem 0.4rem 1.5rem;
+        }
+        .scanner-hero {
+            padding: 1.25rem 1rem;
+            border-radius: 16px;
+        }
+        .scanner-hero > div {
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .scanner-card {
+            padding: 1.15rem !important;
+            border-radius: 16px;
+        }
+        .btn-start-scan,
+        .btn-stop-scan {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #target_job_opportunity {
+            font-size: 0.84rem;
+            padding-inline-start: 12px;
+            padding-inline-end: 2.35rem;
+        }
+    }
 </style>
 @endpush
 
@@ -305,16 +355,16 @@
 
         {{-- Job Opportunity Selector --}}
         <div class="mb-4 p-3 rounded-3" style="background: #f8fafc; border: 1.5px solid #e2e8f0;">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-                <label for="target_job_opportunity" class="fw-bold text-dark small mb-0 d-flex align-items-center gap-1.5">
-                    <i class="fas fa-briefcase text-primary"></i>
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                <label for="target_job_opportunity" class="fw-bold text-dark small mb-0 d-flex align-items-center gap-2">
+                    <i class="fas fa-briefcase text-primary flex-shrink-0"></i>
                     <span>الوظيفة المتقدم عليها المرشح:</span>
                 </label>
                 <span class="badge bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded-pill" style="font-size: 0.72rem;">
                     تُسجل تلقائياً مع المسح
                 </span>
             </div>
-            <select id="target_job_opportunity" class="form-select form-select-sm fw-bold text-dark" style="border-radius: 10px; border-color: #cbd5e1; padding: 10px 14px; font-size: 0.9rem;">
+            <select id="target_job_opportunity" class="form-select form-select-sm fw-bold text-dark" style="border-radius: 10px; border-color: #cbd5e1;">
                 <option value="">💼 تقديم عام / بدون شاغر محدد</option>
                 @if(isset($opportunities) && $opportunities->count() > 0)
                     @foreach($opportunities as $opp)
@@ -324,8 +374,8 @@
                     @endforeach
                 @endif
             </select>
-            <div class="text-muted d-flex align-items-center gap-1 mt-1.5" style="font-size: 0.75rem;">
-                <i class="fas fa-info-circle text-info"></i>
+            <div class="text-muted d-flex align-items-start gap-2 mt-2" style="font-size: 0.75rem; line-height: 1.5;">
+                <i class="fas fa-info-circle text-info mt-1 flex-shrink-0"></i>
                 <span>يمكنك اختيار الوظيفة قبل المسح ليتم ربط المرشح بها مباشرة، أو تغييرها لكل خريج.</span>
             </div>
         </div>
@@ -369,7 +419,7 @@
 
         {{-- Result Area --}}
         <div id="result-container" class="mt-4">
-            <div id="result-success" class="result-card result-success d-none text-start px-4">
+            <div id="result-success" class="result-card result-success d-none px-3 px-sm-4">
                 <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
                     <div class="result-icon m-0"><i class="fas fa-check-circle"></i></div>
                     <div>
@@ -379,13 +429,13 @@
                 </div>
                 
                 <div class="row g-2 mb-3">
-                    <div class="col-12 mb-2 p-2.5 rounded-3 d-flex align-items-center justify-content-between" style="background:#e0f2fe; border:1px solid #bae6fd;">
+                    <div class="col-12 mb-2 p-2 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#e0f2fe; border:1px solid #bae6fd;">
                         <div class="d-flex align-items-center gap-2">
                             <i class="fas fa-briefcase text-primary"></i>
                             <span class="small text-muted">الوظيفة المتقدم عليها:</span>
                             <strong class="text-primary" id="result-job-title">تقديم عام</strong>
                         </div>
-                        <span class="badge bg-primary text-white rounded-pill px-2.5 py-1" style="font-size:0.72rem;">مسجلة</span>
+                        <span class="badge bg-primary text-white rounded-pill px-2 py-1" style="font-size:0.72rem;">مسجلة</span>
                     </div>
                     <div class="col-6">
                         <small class="text-muted d-block"><i class="fas fa-graduation-cap me-1"></i> التخصص</small>

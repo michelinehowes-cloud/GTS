@@ -68,10 +68,30 @@ class User extends Authenticatable
      */
     protected static function booted(): void
     {
+        static::created(function (User $user) {
+            try {
+                if (\App\Services\JobFairAutoRegistrationService::isGraduateEligible($user)) {
+                    \App\Services\JobFairAutoRegistrationService::syncGraduate($user);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Auto-registration on User created failed: ' . $e->getMessage());
+            }
+        });
+
         static::updated(function (User $user) {
             if ($user->isDirty('name') || $user->wasChanged('name')) {
                 \App\Models\Certificate::where('user_id', $user->id)
                     ->update(['recipient_name' => $user->name]);
+            }
+
+            if ($user->wasChanged(['role', 'is_approved', 'is_active'])) {
+                try {
+                    if (\App\Services\JobFairAutoRegistrationService::isGraduateEligible($user)) {
+                        \App\Services\JobFairAutoRegistrationService::syncGraduate($user);
+                    }
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Auto-registration on User updated failed: ' . $e->getMessage());
+                }
             }
         });
     }

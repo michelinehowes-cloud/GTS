@@ -44,15 +44,28 @@ class AppServiceProvider extends ServiceProvider
                 !\Illuminate\Support\Facades\Schema::hasColumn('trainings', 'start_time') ||
                 !\Illuminate\Support\Facades\Schema::hasColumn('job_fair_events', 'speakers');
 
-            if (!$needsMigrate && !$this->app->runningUnitTests() && !\Illuminate\Support\Facades\Cache::get('schema_500_fix_20261029_applied')) {
-                if (\Illuminate\Support\Facades\Schema::hasTable('migrations')) {
-                    $hasFixMigration = \Illuminate\Support\Facades\DB::table('migrations')
-                        ->where('migration', '2026_10_29_120000_fix_graduate_and_job_fair_columns_for_500_prevention')
-                        ->exists();
-                    if ($hasFixMigration) {
-                        \Illuminate\Support\Facades\Cache::put('schema_500_fix_20261029_applied', true, 86400);
+            if (!$needsMigrate && !$this->app->runningUnitTests() && \Illuminate\Support\Facades\Schema::hasTable('migrations')) {
+                $pendingChecks = [
+                    'schema_500_fix_20261029_applied' => '2026_10_29_120000_fix_graduate_and_job_fair_columns_for_500_prevention',
+                    'auto_register_graduates_20261115_applied' => '2026_11_15_120000_auto_register_graduates_in_active_job_fairs',
+                ];
+
+                $appliedMigrations = null;
+                foreach ($pendingChecks as $cacheKey => $migrationName) {
+                    if (\Illuminate\Support\Facades\Cache::get($cacheKey)) {
+                        continue;
+                    }
+
+                    $appliedMigrations ??= \Illuminate\Support\Facades\DB::table('migrations')
+                        ->whereIn('migration', array_values($pendingChecks))
+                        ->pluck('migration')
+                        ->all();
+
+                    if (in_array($migrationName, $appliedMigrations, true)) {
+                        \Illuminate\Support\Facades\Cache::put($cacheKey, true, 86400);
                     } else {
                         $needsMigrate = true;
+                        break;
                     }
                 }
             }
@@ -61,6 +74,7 @@ class AppServiceProvider extends ServiceProvider
                 \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
                 if (!$this->app->runningUnitTests()) {
                     \Illuminate\Support\Facades\Cache::put('schema_500_fix_20261029_applied', true, 86400);
+                    \Illuminate\Support\Facades\Cache::put('auto_register_graduates_20261115_applied', true, 86400);
                 }
             }
         } catch (\Throwable $e) {

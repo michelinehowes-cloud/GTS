@@ -42,13 +42,17 @@ class CardsLogosSeparationTest extends TestCase
             'created_by' => $admin->id,
         ]);
 
-        $reg = JobFairRegistration::create([
-            'job_fair_id' => $fair->id,
-            'user_id' => $user->id,
-            'registration_number' => 1001,
-            'qr_code' => 'TEST_QR_1001',
-            'status' => 'registered',
-        ]);
+        $reg = JobFairRegistration::updateOrCreate(
+            [
+                'job_fair_id' => $fair->id,
+                'user_id' => $user->id,
+            ],
+            [
+                'registration_number' => 1001,
+                'qr_code' => 'TEST_QR_1001',
+                'status' => 'registered',
+            ]
+        );
 
         $response = $this->actingAs($user)->get(route('graduate.id-card'));
 
@@ -96,13 +100,17 @@ class CardsLogosSeparationTest extends TestCase
             'created_by' => $admin->id,
         ]);
 
-        $reg = JobFairRegistration::create([
-            'job_fair_id' => $fair->id,
-            'user_id' => $user->id,
-            'registration_number' => 2002,
-            'qr_code' => 'TEST_QR_2002',
-            'status' => 'registered',
-        ]);
+        $reg = JobFairRegistration::updateOrCreate(
+            [
+                'job_fair_id' => $fair->id,
+                'user_id' => $user->id,
+            ],
+            [
+                'registration_number' => 2002,
+                'qr_code' => 'TEST_QR_2002',
+                'status' => 'registered',
+            ]
+        );
 
         $response = $this->actingAs($user)->get(route('job-fair.my-ticket', $reg->id));
 

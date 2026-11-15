@@ -17,16 +17,16 @@
         badge="هوية معتمدة"
         badgeIcon="fas fa-check-circle"
     >
-        <div class="d-flex align-items-center gap-2 flex-wrap">
-            <button onclick="downloadIdCard()" class="btn btn-warning text-dark fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center gap-2" id="download-btn">
+        <div class="d-flex align-items-stretch align-items-sm-center gap-2 flex-wrap w-100 w-lg-auto hero-card-actions">
+            <button onclick="downloadIdCard()" class="btn btn-warning text-dark fw-bold py-2 px-3 rounded-3 shadow-sm d-inline-flex align-items-center justify-content-center gap-2 flex-fill flex-lg-grow-0" id="download-btn">
                 <i class="fas fa-download"></i>
                 <span>حفظ كصورة (PNG)</span>
             </button>
-            <button onclick="window.print()" class="btn btn-light bg-white text-primary fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center gap-2">
+            <button onclick="window.print()" class="btn btn-light bg-white text-primary fw-bold py-2 px-3 rounded-3 shadow-sm d-inline-flex align-items-center justify-content-center gap-2 flex-fill flex-lg-grow-0">
                 <i class="fas fa-print"></i>
                 <span>طباعة البطاقة</span>
             </button>
-            <a href="{{ route('graduate.profile.public', $graduate->id) }}" target="_blank" class="btn btn-outline-light text-white fw-bold py-2.5 px-3.5 rounded-3 shadow-sm d-flex align-items-center gap-2">
+            <a href="{{ route('graduate.profile.public', $graduate->id) }}" target="_blank" class="btn btn-outline-light text-white fw-bold py-2 px-3 rounded-3 shadow-sm d-inline-flex align-items-center justify-content-center gap-2 flex-fill flex-lg-grow-0">
                 <i class="fas fa-external-link-alt"></i>
                 <span>الملف التعريفي العام ↗</span>
             </a>
@@ -43,34 +43,41 @@
     @if(isset($myRegistrations) && $myRegistrations->count() > 0)
     <div class="row justify-content-center mb-4">
         <div class="col-12 col-md-10 col-lg-8">
-            <div class="card border-0 rounded-4 shadow-sm bg-white p-3 p-md-3.5 border-end border-4 border-warning">
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2 pb-2 border-bottom">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="rounded-3 bg-warning bg-opacity-10 text-warning d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+            <div class="card border-0 rounded-4 shadow-sm bg-white p-3 p-md-4 border-end border-4 border-warning overflow-hidden">
+                <div class="d-flex align-items-start align-items-sm-center justify-content-between flex-wrap gap-2 mb-3 pb-2 border-bottom">
+                    <div class="d-flex align-items-center gap-2 flex-grow-1" style="min-width: 0;">
+                        <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px; background: #fef3c7;">
                             <i class="fas fa-ticket-alt fs-5 text-dark"></i>
                         </div>
-                        <div>
-                            <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.95rem;">بطاقات وتصاريح معارض التوظيف</h6>
-                            <small class="text-muted" style="font-size: 0.78rem;">تصدر للمسجلين بالمعرض بطاقة مستقلة تحمل شعار المكتب وشعار المعرض وشعار شركة الواحة</small>
+                        <div style="min-width: 0;">
+                            <h6 class="fw-bold mb-1 text-dark" style="font-size: 0.95rem;">بطاقات وتصاريح معارض التوظيف</h6>
+                            <small class="text-muted d-block lh-sm" style="font-size: 0.78rem;">تصدر للمسجلين بالمعرض بطاقة مستقلة تحمل شعار المكتب وشعار المعرض وشعار شركة الواحة</small>
                         </div>
                     </div>
-                    <span class="badge bg-warning bg-opacity-25 text-dark rounded-pill px-3 py-1.5 fw-bold" style="font-size: 0.78rem;">
+                    <span class="badge text-dark rounded-pill px-3 py-2 fw-bold flex-shrink-0" style="font-size: 0.78rem; background: #fef3c7; border: 1px solid #fde68a;">
                         <i class="fas fa-calendar-check text-success me-1"></i> {{ $myRegistrations->count() }} معرض نشط
                     </span>
                 </div>
 
-                <div class="d-flex flex-wrap align-items-center gap-2 pt-1">
+                <div class="d-flex flex-wrap gap-2 pt-1">
                     @foreach($myRegistrations as $reg)
                         <a href="{{ route('job-fair.my-ticket', $reg->id) }}"
                            target="_blank"
-                           class="btn btn-warning text-dark rounded-pill text-nowrap d-inline-flex align-items-center gap-2 px-3.5 py-2 fw-bold shadow-sm transition-all"
-                           style="font-size: 0.86rem;">
-                            <img src="{{ $reg->jobFair?->logo_url ?? asset('images/logo.jpg') }}" alt="{{ $reg->jobFair?->title ?? 'معرض التوظيف' }}" class="rounded-circle bg-white border" style="width: 22px; height: 22px; object-fit: contain; padding: 1px;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
-                            <span>عرض بطاقة {{ $reg->jobFair?->title ?? 'معرض التوظيف' }}</span>
-                            <span class="badge bg-dark text-white rounded-pill px-2 py-0.5" style="font-size: 0.7rem;">
-                                تذكرة #{{ $reg->registration_number }}
+                           class="btn btn-warning text-dark rounded-4 d-flex align-items-center justify-content-between gap-2 px-3 py-2 fw-bold shadow-sm fair-ticket-cta">
+                            <span class="d-flex align-items-center gap-2 flex-grow-1" style="min-width: 0; text-align: right;">
+                                <img src="{{ $reg->jobFair?->logo_url ?? asset('images/logo.jpg') }}" alt="{{ $reg->jobFair?->title ?? 'معرض التوظيف' }}" class="rounded-circle bg-white border flex-shrink-0" style="width: 30px; height: 30px; object-fit: contain; padding: 2px;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
+                                <span class="d-flex flex-column flex-grow-1" style="min-width: 0;">
+                                    <span class="fw-bold lh-sm" style="font-size: 0.88rem; word-break: break-word;">عرض بطاقة {{ $reg->jobFair?->title ?? 'معرض التوظيف' }}</span>
+                                    <span class="d-inline-flex flex-wrap align-items-center gap-1 mt-1">
+                                        <span class="badge bg-dark text-white rounded-pill px-2 py-1" style="font-size: 0.72rem;">
+                                            تذكرة #{{ $reg->registration_number }}
+                                        </span>
+                                    </span>
+                                </span>
                             </span>
-                            <i class="fas fa-external-link-alt ms-1" style="font-size: 0.75rem;"></i>
+                            <span class="rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width: 30px; height: 30px; background: rgba(15, 23, 42, 0.08);">
+                                <i class="fas fa-external-link-alt" style="font-size: 0.78rem;"></i>
+                            </span>
                         </a>
                     @endforeach
                 </div>
@@ -86,7 +93,7 @@
                 
                 <!-- الجزء العلوي من البطاقة (Header Banner) -->
                 <div class="p-4 text-center text-white position-relative" style="background: linear-gradient(135deg, #045db0 0%, #1e3a8a 100%);">
-                    <div class="d-flex align-items-center justify-content-center mb-2.5">
+                    <div class="d-flex align-items-center justify-content-center mb-3">
                         <!-- شعار مكتب تدريب الخريجين بجامعة طرابلس الدائم والوحيد على بطاقة الخريج -->
                         <img src="{{ asset('storage/logo.jpg') }}" alt="شعار مكتب الخريجين" class="rounded-circle border border-3 border-white shadow-sm" style="width: 72px; height: 72px; object-fit: cover; background: #ffffff;" onerror="this.src='{{ asset('images/logo.jpg') }}'">
                     </div>
@@ -94,49 +101,49 @@
                     <h4 class="fw-bold mb-1 text-white" style="font-size: 1.35rem; letter-spacing: normal !important; direction: rtl;">{{ $graduate->name }}</h4>
                     <p class="mb-2 text-white-50 small fw-bold">خريج معتمد — جامعة طرابلس</p>
 
-                    <span class="badge rounded-pill px-3 py-1.5 fw-bold" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); font-size: 0.75rem;">
+                    <span class="badge rounded-pill px-3 py-2 fw-bold" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.35); font-size: 0.75rem;">
                         <i class="fas fa-shield-check me-1 text-success"></i> هوية رقمية معتمدة — جامعة طرابلس
                     </span>
                 </div>
 
                 <!-- الجزء الأوسط - المعلومات الأكاديمية -->
-                <div class="card-body p-4 bg-white">
-                    <div class="row g-2.5 mb-3">
+                <div class="card-body p-3 p-sm-4 bg-white">
+                    <div class="row g-2 mb-3">
                         <!-- الرقم الجامعي فقط بدون كلمة الوطني -->
                         <div class="col-12">
-                            <div class="d-flex flex-column bg-light rounded-3 p-2.5 text-center border">
-                                <span class="text-muted small fw-bold mb-0.5" style="font-size: 0.78rem;">الرقم الجامعي</span>
+                            <div class="d-flex flex-column bg-light rounded-3 p-2 p-sm-3 text-center border">
+                                <span class="text-muted small fw-bold mb-1" style="font-size: 0.78rem;">الرقم الجامعي</span>
                                 <span class="text-dark fw-bold fs-5" dir="ltr">{{ $graduate->graduateData->university_id ?? $graduate->national_id ?? '---' }}</span>
                             </div>
                         </div>
 
                         <!-- الكلية -->
                         <div class="col-6">
-                            <div class="d-flex flex-column bg-light rounded-3 p-2.5 text-center border h-100">
-                                <span class="text-muted small fw-bold mb-0.5" style="font-size: 0.78rem;">الكلية</span>
-                                <span class="text-dark fw-bold" style="font-size: 0.88rem;">{{ $graduate->graduateData->faculty ?? $graduate->faculty ?? 'كلية تقنية المعلومات' }}</span>
+                            <div class="d-flex flex-column bg-light rounded-3 p-2 p-sm-3 text-center border h-100 justify-content-center">
+                                <span class="text-muted small fw-bold mb-1" style="font-size: 0.78rem;">الكلية</span>
+                                <span class="text-dark fw-bold lh-sm" style="font-size: 0.86rem;">{{ $graduate->graduateData->faculty ?? $graduate->faculty ?? 'كلية تقنية المعلومات' }}</span>
                             </div>
                         </div>
 
                         <!-- القسم / التخصص -->
                         <div class="col-6">
-                            <div class="d-flex flex-column bg-light rounded-3 p-2.5 text-center border h-100">
-                                <span class="text-muted small fw-bold mb-0.5" style="font-size: 0.78rem;">القسم / التخصص</span>
-                                <span class="text-dark fw-bold" style="font-size: 0.88rem;">{{ $graduate->graduateData->major ?? $graduate->graduateData->department ?? $graduate->major ?? 'هندسة البرمجيات' }}</span>
+                            <div class="d-flex flex-column bg-light rounded-3 p-2 p-sm-3 text-center border h-100 justify-content-center">
+                                <span class="text-muted small fw-bold mb-1" style="font-size: 0.78rem;">القسم / التخصص</span>
+                                <span class="text-dark fw-bold lh-sm" style="font-size: 0.86rem;">{{ $graduate->graduateData->major ?? $graduate->graduateData->department ?? $graduate->major ?? 'هندسة البرمجيات' }}</span>
                             </div>
                         </div>
 
                         <!-- المعدل وسنة التخرج إذا توفرا -->
                         @if($graduate->graduateData && ($graduate->graduateData->gpa || $graduate->graduateData->graduation_year))
                         <div class="col-6">
-                            <div class="d-flex flex-column bg-light rounded-3 p-2 text-center border h-100">
-                                <span class="text-muted small fw-bold mb-0.5" style="font-size: 0.75rem;">المعدل التراكمي</span>
+                            <div class="d-flex flex-column bg-light rounded-3 p-2 text-center border h-100 justify-content-center">
+                                <span class="text-muted small fw-bold mb-1" style="font-size: 0.75rem;">المعدل التراكمي</span>
                                 <span class="text-dark fw-bold" style="font-size: 0.88rem;" dir="ltr">{{ $graduate->graduateData->gpa ? $graduate->graduateData->gpa . '%' : '---' }}</span>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="d-flex flex-column bg-light rounded-3 p-2 text-center border h-100">
-                                <span class="text-muted small fw-bold mb-0.5" style="font-size: 0.75rem;">سنة التخرج</span>
+                            <div class="d-flex flex-column bg-light rounded-3 p-2 text-center border h-100 justify-content-center">
+                                <span class="text-muted small fw-bold mb-1" style="font-size: 0.75rem;">سنة التخرج</span>
                                 <span class="text-dark fw-bold" style="font-size: 0.88rem;">{{ $graduate->graduateData->graduation_year ?? '---' }}</span>
                             </div>
                         </div>
@@ -154,7 +161,7 @@
                             
                             <div id="qr-code" class="d-flex justify-content-center p-2"></div>
                         </div>
-                        <p class="text-muted small mt-2.5 fw-bold mb-0" style="font-size: 0.82rem;">
+                        <p class="text-muted small mt-3 fw-bold mb-0" style="font-size: 0.82rem;">
                             <i class="fas fa-qrcode me-1 text-primary"></i>
                             امسح الرمز للتحقق من هوية الخريج الرسمية المعتمدة
                         </p>
@@ -162,7 +169,7 @@
                 </div>
 
                 <!-- الجزء السفلي من البطاقة (Footer) -->
-                <div class="card-footer bg-light border-top text-center py-2.5">
+                <div class="card-footer bg-light border-top text-center py-2">
                     <small class="text-muted fw-bold" style="font-size: 0.78rem;">
                         <i class="fas fa-university me-1 text-primary"></i> مكتب تدريب الخريجين — جامعة طرابلس
                     </small>
@@ -177,6 +184,31 @@
     #id-card-container, #id-card-container * {
         letter-spacing: normal !important;
         word-spacing: normal !important;
+    }
+    .fair-ticket-cta {
+        width: 100%;
+        max-width: 100%;
+        height: auto !important;
+        min-height: 52px;
+        white-space: normal !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .fair-ticket-cta:hover {
+        transform: translateY(-1px);
+    }
+    @media (min-width: 768px) {
+        .fair-ticket-cta {
+            flex: 1 1 290px;
+            width: auto;
+        }
+    }
+    .hero-card-actions .btn {
+        white-space: nowrap;
+    }
+    @media (max-width: 575.98px) {
+        .hero-card-actions .btn {
+            font-size: 0.86rem;
+        }
     }
     @media print {
         body * {

@@ -1210,8 +1210,15 @@ document.addEventListener('DOMContentLoaded', function () {
         let graduateId = directGraduateId;
         let queryCode = rawCode ? rawCode.trim() : '';
 
+        // فحص ما إذا كان الرمز تذكرة زائر رسمي لمعرض التوظيف
+        const isVisitorCode = queryCode && (
+            /VIS-\d{4}-[A-Z0-9]+/i.test(queryCode) || 
+            /\/visitor-ticket\//i.test(queryCode) ||
+            /visitor/i.test(queryCode)
+        );
+
         // If not direct graduate ID, extract from standard QR patterns if applicable
-        if (!graduateId && queryCode) {
+        if (!graduateId && queryCode && !isVisitorCode) {
             const patterns = [
                 /\/graduate\/profile\/(\d+)/i,
                 /\/profile\/(\d+)/i,
@@ -1249,11 +1256,16 @@ document.addEventListener('DOMContentLoaded', function () {
             body: JSON.stringify(payload)
         })
         .then(async (response) => {
-            const data = await response.json();
+            let data = {};
+            try {
+                data = await response.json();
+            } catch (jsonErr) {
+                data = { success: false, message: 'حدث خطأ في استجابة الخادم أثناء معالجة الطلب.' };
+            }
             isProcessing = false;
             scanIndicator.style.display = 'none';
 
-            if (!response.ok || !data.success) {
+            if (!data.success) {
                 showResult('error', {
                     title: 'لم يتم العثور على تسجيل مطابق',
                     msg: data.message || 'تأكد من رقم التذكرة أو ابحث عن الخريج في دليل المسجلين.'

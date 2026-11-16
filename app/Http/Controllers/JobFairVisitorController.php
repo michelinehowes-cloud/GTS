@@ -155,15 +155,29 @@ class JobFairVisitorController extends Controller
     public function showTicket(Request $request, $ticketNumber)
     {
         // تطبيع رقم التذكرة (مسافات، علامات اتجاه النص RTL من واتساب/فيسبوك، أحرف صغيرة، ترميز URL)
-        $normalized = strtoupper(trim(rawurldecode((string) $ticketNumber)));
-        if (preg_match('/(VIS-\d{4}-[A-Z0-9]{4,10})/', $normalized, $matches)) {
-            $normalized = $matches[1];
+        $raw = trim((string) $ticketNumber);
+        $normalized = strtoupper(trim(rawurldecode($raw)));
+        if (preg_match('/(VIS-\d{4}-[A-Z0-9]{3,15})/i', $normalized, $matches)) {
+            $matchedTicket = strtoupper($matches[1]);
         } else {
-            $normalized = preg_replace('/[^A-Z0-9\-]/', '', $normalized);
+            $matchedTicket = preg_replace('/[^A-Z0-9\-]/', '', $normalized);
         }
 
+        $possibleTickets = array_values(array_filter(array_unique([
+            $raw,
+            $normalized,
+            $matchedTicket,
+            strtoupper($raw),
+            strtolower($raw),
+        ])));
+
         $visitor = JobFairVisitor::with('jobFair')
-            ->whereIn('ticket_number', array_values(array_unique([(string) $ticketNumber, $normalized])))
+            ->where(function($q) use ($possibleTickets) {
+                $q->whereIn('ticket_number', $possibleTickets);
+                foreach ($possibleTickets as $pt) {
+                    $q->orWhere('ticket_number', 'LIKE', $pt);
+                }
+            })
             ->first();
 
         if (!$visitor) {

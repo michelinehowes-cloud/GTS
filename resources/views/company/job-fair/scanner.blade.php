@@ -560,23 +560,30 @@ function onScanSuccess(decodedText) {
 function processQR(code) {
     hideAllResults();
 
-    let graduateId = null;
-    const patterns = [
-        /\/graduate\/profile\/(\d+)/i,   
-        /\/profile\/(\d+)/i,             
-        /profile[\/=](\d+)/i,            
-        /[&?]id=(\d+)/i,                 
-        /[\/\-_=](\d+)[\/\s]*$/,         
-        /^JF-\d+-(\d+)-/i,               
-        /^(\d+)$/,                        
-    ];
+    let cleanCode = (code || '').trim();
+    if (!cleanCode) return;
 
-    for (const pattern of patterns) {
-        const m = code.match(pattern);
-        if (m) { graduateId = m[1]; break; }
+    let graduateId = null;
+    const isVisitor = /VIS-\d{4}-[A-Z0-9]+/i.test(cleanCode) || /\/visitor-ticket\//i.test(cleanCode) || /visitor/i.test(cleanCode);
+
+    if (!isVisitor) {
+        const patterns = [
+            /\/graduate\/profile\/(\d+)/i,   
+            /\/profile\/(\d+)/i,             
+            /profile[\/=](\d+)/i,            
+            /[&?]id=(\d+)/i,                 
+            /[\/\-_=](\d+)[\/\s]*$/,         
+            /^JF-\d+-(\d+)-/i,               
+            /^(\d+)$/,                        
+        ];
+
+        for (const pattern of patterns) {
+            const m = cleanCode.match(pattern);
+            if (m) { graduateId = m[1]; break; }
+        }
     }
 
-    if (!graduateId) {
+    if (!graduateId && !isVisitor && !cleanCode) {
         showResultError("رمز QR غير صالح. تأكد من مسح البطاقة الصحيحة.");
         return;
     }
@@ -586,13 +593,26 @@ function processQR(code) {
 
     fetch(checkInUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+        headers: { 
+            'Content-Type': 'application/json', 
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        },
         body: JSON.stringify({ 
-            graduate_id: parseInt(graduateId),
+            graduate_id: graduateId ? parseInt(graduateId) : null,
+            code: cleanCode,
             job_opportunity_id: jobOpportunityId
         })
     })
-    .then(r => r.json())
+    .then(async r => {
+        let data = {};
+        try {
+            data = await r.json();
+        } catch (jsonErr) {
+            data = { success: false, message: 'حدث خطأ في استجابة الخادم أثناء معالجة الطلب.' };
+        }
+        return data;
+    })
     .then(data => {
         hideAllResults();
         if (!data.success) {

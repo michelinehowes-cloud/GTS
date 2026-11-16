@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\JobFair;
 use App\Models\JobFairVisit;
 use App\Models\JobFairRegistration;
+use App\Models\JobFairVisitor;
 use App\Models\JobOpportunity;
 use App\Models\Company;
 use App\Models\Nomination;
@@ -139,16 +140,155 @@ class CompanyJobFairController extends Controller
     public function storeVisit(Request $request, JobFair $fair)
     {
         $graduateId = $request->graduate_id;
+        $code = trim($request->code ?? '');
 
-        $registration = JobFairRegistration::where('user_id', $graduateId)
-            ->where('job_fair_id', $fair->id)
-            ->with('graduate')
-            ->first();
+        // التعرف على ما إذا كان الرمز يمثل تذكرة زائر (رقم تذكرة أو رابط بطاقة الزائر)
+        $visitorTicket = null;
+        $isVisitorCode = false;
+        if (!empty($code)) {
+            if (preg_match('/(VIS-\d{4}-[A-Z0-9]{3,15})/i', $code, $matches)) {
+                $visitorTicket = strtoupper($matches[1]);
+                $isVisitorCode = true;
+            } elseif (stripos($code, 'visitor-ticket') !== false) {
+                $isVisitorCode = true;
+                $parts = explode('/', rtrim(parse_url($code, PHP_URL_PATH) ?? $code, '/'));
+                $lastPart = end($parts);
+                if ($lastPart) {
+                    $visitorTicket = strtoupper(trim(rawurldecode($lastPart)));
+                }
+            }
+        }
+
+        if ($isVisitorCode) {
+            $graduateId = null;
+        }
+
+        $registration = null;
+
+        if ($graduateId) {
+            $registration = JobFairRegistration::where('user_id', $graduateId)
+                ->where('job_fair_id', $fair->id)
+                ->with('graduate')
+                ->first();
+        }
+
+        if (!$registration && !empty($code) && !$isVisitorCode) {
+            $registration = JobFairRegistration::where('job_fair_id', $fair->id)
+                ->where(function($q) use ($code) {
+                    $q->where('qr_code', $code)
+                      ->orWhere('registration_number', $code);
+                })
+                ->with('graduate')
+                ->first();
+        }
+
+        // في حال لم يُعثر على تسجيل خريج، التحقق من بطاقة زائر المعرض
+        $visitor = null;
+        if (!$registration && (!empty($code) || $visitorTicket)) {
+            $visitorQuery = JobFairVisitor::where('job_fair_id', $fair->id);
+            $visitorQuery->where(function($q) use ($code, $visitorTicket) {
+                if ($visitorTicket) {
+                    $q->where('ticket_number', $visitorTicket)
+                      ->orWhere('ticket_number', 'like', "%{$visitorTicket}%")
+                      ->orWhere('qr_code', 'like', "%{$visitorTicket}%");
+                }
+                if (!empty($code)) {
+                    $q->orWhere('ticket_number', $code)
+                      ->orWhere('qr_code', $code)
+                      ->orWhere('phone', $code)
+                      ->orWhere('email', $code);
+                }
+            });
+            $visitor = $visitorQuery->first();
+        }
+
+        if ($visitor) {
+            $visitorUser = null;
+            if (!empty($visitor->email)) {
+                $visitorUser = User::where('email', $visitor->email)->first();
+            }
+            if (!$visitorUser && !empty($visitor->phone)) {
+                $visitorUser = User::where('phone', $visitor->phone)->first();
+            }
+            if (!$visitorUser) {
+                $cleanTicket = strtolower(preg_replace('/[^a-z0-9]/i', '', $visitor->ticket_number));
+                $email = !empty($visitor->email) ? $visitor->email : ('vis_' . $cleanTicket . '@visitor.gto.com.ly');
+                $visitorUser = User::firstOrCreate(
+                    ['email' => $email],
+                    [
+                        'name' => $visitor->name,
+                        'role' => 'graduate',
+                        'phone' => $visitor->phone,
+                        'is_approved' => true,
+                        'is_active' => true,
+                        'password' => bcrypt(Str::random(16)),
+                    ]
+                );
+            }
+
+            GraduateData::firstOrCreate(
+                ['user_id' => $visitorUser->id],
+                [
+                    'name' => $visitor->name,
+                    'email' => $visitorUser->email,
+                    'phone' => $visitor->phone,
+                    'major' => $visitor->specialization ?: $visitor->visitor_type_label,
+                    'faculty' => $visitor->organization ?: ($visitor->city ?: 'زائر رسمي للمعرض'),
+                    'graduation_year' => (int) date('Y'),
+                    'added_by' => auth()->id() ?: $visitorUser->id,
+                ]
+            );
+
+            $registration = JobFairRegistration::firstOrCreate(
+                [
+                    'job_fair_id' => $fair->id,
+                    'user_id'     => $visitorUser->id,
+                ],
+                [
+                    'registration_number' => $visitor->ticket_number,
+                    'qr_code'             => $visitor->qr_code ?: route('job-fair.visitor.ticket', $visitor->ticket_number),
+                    'status'              => 'registered',
+                    'attended'            => true,
+                    'check_in_at'         => now(),
+                ]
+            );
+
+            $registration->load('graduate');
+
+            if (!$visitor->attended) {
+                $visitor->update(['attended' => true, 'check_in_at' => now()]);
+            }
+        }
+
+        // تسجيل فوري للخريج إذا كان مسجلاً بالمنظومة ولم يسبق إدراجه بالمعرض
+        if (!$registration && $graduateId) {
+            $userCandidate = User::find($graduateId);
+            if ($userCandidate && $userCandidate->role === 'graduate') {
+                $registration = \App\Services\JobFairAutoRegistrationService::ensureUserRegistered($fair, $userCandidate);
+                if (!$registration) {
+                    $registration = JobFairRegistration::firstOrCreate(
+                        [
+                            'job_fair_id' => $fair->id,
+                            'user_id'     => $userCandidate->id,
+                        ],
+                        [
+                            'registration_number' => JobFairRegistration::generateRegistrationNumber($fair->id),
+                            'qr_code'             => JobFairRegistration::generateQrCode($fair->id, $userCandidate->id),
+                            'status'              => 'registered',
+                            'attended'            => false,
+                        ]
+                    );
+                }
+                if ($registration) {
+                    $registration->load('graduate');
+                }
+            }
+        }
 
         if (!$registration) {
             return response()->json([
                 'success' => false,
-                'message' => 'الرمز غير صالح أو لم يسجل الخريج في هذا المعرض.'
+                'message' => 'الرمز غير صالح أو لم يسجل المرشح/الزائر في هذا المعرض.'
             ]);
         }
 

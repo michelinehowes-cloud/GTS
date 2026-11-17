@@ -399,5 +399,12 @@ class JobFairVisitorScanningTest extends TestCase
             'job_fair_id' => $fair->id,
             'user_id' => $unsyncedGradId,
         ]);
+
+        // المعرض الجاري (ongoing) لا يُعتبر منتهياً حتى بعد تاريخ البداية، وتظل بطاقته ظاهرة في الهوية الرقمية للخريج
+        $this->assertFalse($fair->fresh()->is_ended);
+        $this->assertTrue($fair->fresh()->is_active);
+        $this->actingAs($grad)->get(route('graduate.id-card'))
+            ->assertOk()
+            ->assertSee('عرض بطاقة ' . $fair->title);
     }
 }

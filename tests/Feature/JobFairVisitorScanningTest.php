@@ -321,7 +321,18 @@ class JobFairVisitorScanningTest extends TestCase
         $this->assertEquals(2, $stats['attended_graduates']);
         $this->assertEquals(1, $stats['attended_visitors']);
 
-        // صفحة تفاصيل المعرض وصفحة القائمة تعرضان عدد الخريجين (3) منفصلاً عن الزوار (2) وليس مجموعهما (5)
+        // إضافة تسجيل زائر في جدول التسجيلات (VIS-...) لا يجب أن يرفع عداد الخريجين المسجلين في index أو show
+        $visShadowUser = User::factory()->create(['role' => 'visitor']);
+        JobFairRegistration::create([
+            'job_fair_id' => $fair->id,
+            'user_id' => $visShadowUser->id,
+            'registration_number' => 'VIS-2026-ATT1',
+            'qr_code' => 'QR-VIS-ATT1',
+            'status' => 'attended',
+            'attended' => true,
+        ]);
+
+        // صفحة تفاصيل المعرض وصفحة القائمة تعرضان نفس عدد الخريجين (3) منفصلاً عن الزوار
         $showResp = $this->actingAs($admin)->get(route('job-fair.admin.show', $fair->id));
         $showResp->assertOk();
         $showStats = $showResp->viewData('stats');
@@ -331,6 +342,7 @@ class JobFairVisitorScanningTest extends TestCase
         $indexResp->assertOk();
         $indexFair = $indexResp->viewData('fairs')->firstWhere('id', $fair->id);
         $this->assertEquals(3, $indexFair->registrations_count);
+        $this->assertEquals($showStats['registered_graduates'], $indexFair->registrations_count);
     }
 
     public function test_scanning_visitors_at_gate_or_company_booth_does_not_inflate_graduate_users_count()

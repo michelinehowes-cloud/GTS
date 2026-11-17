@@ -144,11 +144,21 @@ class JobFair extends Model
     }
 
     /**
-     * عدد الخريجين المسجلين
+     * عدد الخريجين المسجلين (مستبعداً صفوف الزوار)
      */
     public function getRegistrationsCountAttribute(): int
     {
-        return $this->registrations()->count();
+        if (array_key_exists('registrations_count', $this->attributes)) {
+            return (int) $this->attributes['registrations_count'];
+        }
+
+        return $this->registrations()
+            ->where(function ($q) {
+                $q->where('registration_number', 'not like', 'VIS-%')
+                  ->orWhereNull('registration_number');
+            })
+            ->whereHas('graduate', fn ($g) => $g->where('role', 'graduate'))
+            ->count();
     }
 
     /**

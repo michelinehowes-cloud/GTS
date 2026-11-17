@@ -600,7 +600,7 @@ class JobFairController extends Controller
             'registrations' => fn ($q) => $q->where(function ($sub) {
                 $sub->where('registration_number', 'not like', 'VIS-%')
                     ->orWhereNull('registration_number');
-            }),
+            })->whereHas('graduate', fn ($g) => $g->where('role', 'graduate')),
             'companies',
         ])
         ->orderBy('event_date', 'desc')
@@ -1373,7 +1373,7 @@ class JobFairController extends Controller
             $registeredGraduates = $fair->registrations()->where(function($q) {
                 $q->where('registration_number', 'not like', 'VIS-%')
                   ->orWhereNull('registration_number');
-            })->count();
+            })->whereHas('graduate', fn ($g) => $g->where('role', 'graduate'))->count();
 
             $attendedGraduates = $fair->registrations()->where(function($q) use ($visitedGraduateIds) {
                 $q->where('attended', true)->orWhere('status', 'attended');
@@ -1383,7 +1383,7 @@ class JobFairController extends Controller
             })->where(function($q) {
                 $q->where('registration_number', 'not like', 'VIS-%')
                   ->orWhereNull('registration_number');
-            })->count();
+            })->whereHas('graduate', fn ($g) => $g->where('role', 'graduate'))->count();
         } catch (\Throwable $e) {}
 
         try { $totalCompanies = $fair->companies()->where('status', 'confirmed')->count(); } catch (\Throwable $e) {}

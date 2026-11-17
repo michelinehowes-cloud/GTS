@@ -168,6 +168,11 @@ class JobFair extends Model
             return true;
         }
 
+        // المعرض الذي حالته "جارٍ الآن" (ongoing) يظل نشطاً حتى يتم إنهاؤه يدوياً أو تحويله إلى completed
+        if ($this->status === 'ongoing') {
+            return false;
+        }
+
         if ($this->event_date) {
             $eventDate = Carbon::parse($this->event_date);
             $endDateTime = $this->end_time 

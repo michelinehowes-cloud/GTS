@@ -854,6 +854,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/job-fairs/{fair}/leads/export', [App\Http\Controllers\CompanyJobFairController::class, 'exportLeads'])->name('job-fairs.leads.export');
         Route::post('/job-fairs/visits/{visit}/outcome', [App\Http\Controllers\CompanyJobFairController::class, 'updateVisitOutcome'])->name('job-fairs.visit-outcome');
         Route::get('/job-fairs/{fair}/assets/{type}', [App\Http\Controllers\CompanyJobFairController::class, 'downloadAsset'])->name('job-fairs.download-asset');
+        
+        // مسارات استبيانات واستطلاعات الرأي للشركات
+        Route::get('/surveys', [App\Http\Controllers\Company\CompanySurveyController::class, 'index'])->name('surveys.index');
+        Route::get('/surveys/{survey}', [App\Http\Controllers\Company\CompanySurveyController::class, 'show'])->name('surveys.show');
+        Route::post('/surveys/{survey}', [App\Http\Controllers\Company\CompanySurveyController::class, 'store'])->name('surveys.store');
     });
 
 }); // نهاية مجموعة المسارات للمستخدمين المسجلين

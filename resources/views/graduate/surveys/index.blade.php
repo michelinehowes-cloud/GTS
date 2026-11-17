@@ -53,7 +53,7 @@
                                 @else نشاط وفعالية @endif
                             </span>
                             <small class="text-muted">
-                                <i class="far fa-clock me-1 text-warning"></i> ينتهي: {{ $survey->end_date->format('Y-m-d') }}
+                                <i class="far fa-clock me-1 text-warning"></i> ينتهي: {{ $survey->end_date ? $survey->end_date->format('Y-m-d') : 'مستمر' }}
                             </small>
                         </div>
 
@@ -78,7 +78,7 @@
 
                         <div class="card-footer bg-white p-3 border-top">
                             @if(in_array($survey->id, $answeredSurveyIds))
-                                @if(now()->isBefore($survey->end_date))
+                                @if(!$survey->end_date || now()->isBefore($survey->end_date))
                                     <a href="{{ route('graduate.surveys.show', $survey->id) }}" class="btn btn-outline-warning-modern btn-sm w-100">
                                         <i class="fas fa-edit me-1"></i> تعديل الإجابات
                                     </a>

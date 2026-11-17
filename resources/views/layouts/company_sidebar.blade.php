@@ -25,6 +25,14 @@
 </li>
 
 <li class="nav-item">
+    <a class="nav-link {{ request()->routeIs('company.surveys*') ? 'active' : '' }}" 
+       href="{{ route('company.surveys.index') }}">
+        <i class="fas fa-poll"></i>
+        الاستبيانات واستطلاعات الرأي
+    </a>
+</li>
+
+<li class="nav-item">
     <a class="nav-link {{ request()->routeIs('job-opportunities.create') ? 'active' : '' }}" 
        href="{{ route('job-opportunities.create') }}">
         <i class="fas fa-plus-circle"></i>

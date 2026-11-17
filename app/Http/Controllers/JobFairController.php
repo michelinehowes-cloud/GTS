@@ -486,6 +486,52 @@ class JobFairController extends Controller
                 'check_in_at' => $now,
             ]);
 
+            // مزامنة تسجيل الزائر في جدول التسجيلات ليظهر في سجل الحضور المباشر
+            try {
+                $cleanTicket = strtolower(preg_replace('/[^a-z0-9]/i', '', $visitor->ticket_number));
+                $email = !empty($visitor->email) ? $visitor->email : ('vis_' . $cleanTicket . '@visitor.gto.com.ly');
+                $visitorUser = User::firstOrCreate(
+                    ['email' => $email],
+                    [
+                        'name' => $visitor->name,
+                        'role' => 'graduate',
+                        'phone' => $visitor->phone,
+                        'is_approved' => true,
+                        'is_active' => true,
+                        'password' => bcrypt(\Illuminate\Support\Str::random(16)),
+                    ]
+                );
+
+                GraduateData::firstOrCreate(
+                    ['user_id' => $visitorUser->id],
+                    [
+                        'name' => $visitor->name,
+                        'email' => $visitorUser->email,
+                        'phone' => $visitor->phone,
+                        'major' => $visitor->specialization ?: $visitor->visitor_type_label,
+                        'faculty' => $visitor->organization ?: ($visitor->city ?: 'زائر رسمي للمعرض'),
+                        'graduation_year' => (int) date('Y'),
+                        'added_by' => auth()->id() ?: $visitorUser->id,
+                    ]
+                );
+
+                JobFairRegistration::firstOrCreate(
+                    [
+                        'job_fair_id' => $jobFairId,
+                        'user_id'     => $visitorUser->id,
+                    ],
+                    [
+                        'registration_number' => $visitor->ticket_number,
+                        'qr_code'             => $visitor->qr_code ?: route('job-fair.visitor.ticket', $visitor->ticket_number),
+                        'status'              => 'attended',
+                        'attended'            => true,
+                        'check_in_at'         => $now,
+                    ]
+                );
+            } catch (\Throwable $ve) {
+                \Illuminate\Support\Facades\Log::warning('Sync visitor registration on gate checkin: ' . $ve->getMessage());
+            }
+
             return response()->json([
                 'success'             => true,
                 'is_visitor'          => true,
@@ -1300,6 +1346,8 @@ class JobFairController extends Controller
 
         $totalRegistered = 0;
         $totalAttended = 0;
+        $registeredGraduates = 0;
+        $attendedGraduates = 0;
         $totalCompanies = 0;
         $totalVisitors = 0;
         $attendedVisitors = 0;
@@ -1308,15 +1356,34 @@ class JobFairController extends Controller
         $jobApplications = 0;
         $generalLeads = 0;
 
-        try { $totalRegistered = $fair->registrations()->count(); } catch (\Throwable $e) {}
-        try { $totalAttended = $fair->registrations()->where('attended', true)->count(); } catch (\Throwable $e) {}
+        try {
+            $registeredGraduates = $fair->registrations()->where(function($q) {
+                $q->where('registration_number', 'not like', 'VIS-%')
+                  ->orWhereNull('registration_number');
+            })->count();
+
+            $attendedGraduates = $fair->registrations()->where(function($q) {
+                $q->where('attended', true)->orWhere('status', 'attended');
+            })->where(function($q) {
+                $q->where('registration_number', 'not like', 'VIS-%')
+                  ->orWhereNull('registration_number');
+            })->count();
+        } catch (\Throwable $e) {}
+
         try { $totalCompanies = $fair->companies()->where('status', 'confirmed')->count(); } catch (\Throwable $e) {}
+
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('job_fair_visitors')) {
                 $totalVisitors = $fair->visitors()->count();
-                $attendedVisitors = $fair->visitors()->where('attended', true)->count();
+                $attendedVisitors = $fair->visitors()->where(function($q) {
+                    $q->where('attended', true)->orWhereNotNull('check_in_at');
+                })->count();
             }
         } catch (\Throwable $e) {}
+
+        // إجمالي الحضور الدقيق يشمل الخريجين والزوار الفعليين
+        $totalRegistered = $registeredGraduates + $totalVisitors;
+        $totalAttended = $attendedGraduates + $attendedVisitors;
         try {
             if (\Illuminate\Support\Facades\Schema::hasTable('job_fair_visits')) {
                 $totalLeads = JobFairVisit::where('job_fair_id', $fair->id)->count();
@@ -1329,15 +1396,17 @@ class JobFairController extends Controller
         try { $daysRemaining = $fair->days_remaining; } catch (\Throwable $e) {}
 
         return [
-            'total_registered'  => $totalRegistered,
-            'total_attended'    => $totalAttended,
-            'total_companies'   => $totalCompanies,
-            'total_visitors'    => $totalVisitors,
-            'attended_visitors' => $attendedVisitors,
-            'days_remaining'    => $daysRemaining,
-            'total_leads'       => $totalLeads,
-            'job_applications'  => $jobApplications,
-            'general_leads'     => $generalLeads,
+            'total_registered'    => $totalRegistered,
+            'total_attended'      => $totalAttended,
+            'registered_graduates'=> $registeredGraduates,
+            'attended_graduates'  => $attendedGraduates,
+            'total_visitors'      => $totalVisitors,
+            'attended_visitors'   => $attendedVisitors,
+            'total_companies'     => $totalCompanies,
+            'days_remaining'      => $daysRemaining,
+            'total_leads'         => $totalLeads,
+            'job_applications'    => $jobApplications,
+            'general_leads'       => $generalLeads,
         ];
     }
 

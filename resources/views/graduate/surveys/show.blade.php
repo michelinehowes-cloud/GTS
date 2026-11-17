@@ -21,7 +21,7 @@
                 <i class="fas fa-poll me-2"></i>{{ $survey->title }}
             </h2>
             <div class="text-muted small mt-1">
-                <i class="far fa-clock me-1 text-warning"></i> تاريخ الانتهاء: {{ $survey->end_date->format('Y-m-d') }}
+                <i class="far fa-clock me-1 text-warning"></i> تاريخ الانتهاء: {{ $survey->end_date ? $survey->end_date->format('Y-m-d') : 'مستمر' }}
             </div>
         </div>
         <a href="{{ route('graduate.surveys.index') }}" class="btn btn-outline-secondary">
@@ -43,7 +43,7 @@
                     @if(isset($existingResponse) && $existingResponse)
                         <div class="alert alert-info border-0 rounded-3 mt-3 mb-0">
                             <i class="fas fa-info-circle me-2"></i>
-                            <strong>تعديل الإجابات:</strong> لقد أجبت على هذا الاستبيان مسبقاً. يمكنك تعديل إجاباتك أدناه وحفظ التعديلات قبل انتهاء مدة الاستبيان ({{ $survey->end_date->format('Y-m-d') }}).
+                            <strong>تعديل الإجابات:</strong> لقد أجبت على هذا الاستبيان مسبقاً. يمكنك تعديل إجاباتك أدناه وحفظ التعديلات{{ $survey->end_date ? ' قبل انتهاء مدة الاستبيان (' . $survey->end_date->format('Y-m-d') . ')' : '' }}.
                         </div>
                     @endif
                 </div>

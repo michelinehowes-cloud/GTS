@@ -163,6 +163,8 @@ class SurveysVisibilityAndSubmissionTest extends TestCase
         $response = $this->actingAs($companyUser)->get(route('company.surveys.index'));
         $response->assertStatus(200);
         $response->assertSee('استبيان تقييم الشركات المشاركة 2026');
+        // علاقة الاستبيان بالمعرض تعمل (كانت تسبب خطأ 500 في MySQL)
+        $response->assertSee('خاص بمعرض');
         $response->assertDontSee('استبيان مخصص للخريجين الباحثين عن عمل');
 
         // صفحة عرض الاستبيان للشركة
@@ -181,5 +183,47 @@ class SurveysVisibilityAndSubmissionTest extends TestCase
             'user_id' => $companyUser->id,
             'participant_name' => 'شركة المدار الجديد',
         ]);
+    }
+
+    public function test_company_targeted_surveys_never_reach_graduates_in_list_or_direct_link()
+    {
+        $gradUser = User::factory()->create(['role' => 'graduate', 'is_active' => true, 'is_approved' => true]);
+
+        $base = [
+            'description' => 'وصف',
+            'is_active' => true,
+            'start_date' => now()->subDay(),
+            'end_date' => now()->addMonth(),
+            'questions' => [['question' => 'سؤال؟', 'type' => 'text']],
+        ];
+
+        // استبيانات موجهة للشركات بأنواع مختلفة (بما فيها معرض غير مرتبط بمعرض محدد)
+        $companyFair = Survey::create($base + ['title' => 'شركات - تقييم المعرض', 'target_audience' => 'companies', 'type' => 'job_fair']);
+        Survey::create($base + ['title' => 'شركات - استبيان عام', 'target_audience' => 'companies', 'type' => 'general']);
+        Survey::create($base + ['title' => 'شركات - تدريب', 'target_audience' => 'companies', 'type' => 'training']);
+        Survey::create($base + ['title' => 'منسقين - استبيان', 'target_audience' => 'training_coordinators', 'type' => 'general']);
+        // استبيان للجميع يظهر للخريج
+        Survey::create($base + ['title' => 'للجميع - رضا عام', 'target_audience' => 'all', 'type' => 'general']);
+
+        $response = $this->actingAs($gradUser)->get(route('graduate.surveys.index'));
+        $response->assertStatus(200);
+        $response->assertSee('للجميع - رضا عام');
+        $response->assertDontSee('شركات - تقييم المعرض');
+        $response->assertDontSee('شركات - استبيان عام');
+        $response->assertDontSee('شركات - تدريب');
+        $response->assertDontSee('منسقين - استبيان');
+
+        // الدخول بالرابط المباشر لاستبيان الشركات يُرفض
+        $this->actingAs($gradUser)->get(route('graduate.surveys.show', $companyFair->id))
+            ->assertRedirect(route('graduate.surveys.index'));
+
+        $this->actingAs($gradUser)->post(route('graduate.surveys.store', $companyFair->id), ['answers' => [0 => 'x']])
+            ->assertRedirect(route('graduate.surveys.index'));
+
+        $this->assertDatabaseMissing('survey_responses', ['survey_id' => $companyFair->id]);
+
+        // التحقق من عدم احتواء SQL علاقة jobFair على عمود type غير الموجود في جدول job_fairs (سبب خطأ 500 في MySQL)
+        $jobFairRelationSql = (new Survey())->jobFair()->toSql();
+        $this->assertStringNotContainsString('type', $jobFairRelationSql);
     }
 }

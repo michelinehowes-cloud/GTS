@@ -38,19 +38,60 @@ class Survey extends Model
         return $this->hasMany(SurveyResponse::class);
     }
 
+    // ملاحظة: نوع الاستبيان (type) عمود في جدول surveys وليس في الجداول المرتبطة،
+    // لذا لا يجوز إضافة where('type') على العلاقة (كان يسبب خطأ 500 في MySQL لعدم وجود العمود في job_fairs).
     public function training()
     {
-        return $this->belongsTo(Training::class, 'related_id')->where('type', 'training');
+        return $this->belongsTo(Training::class, 'related_id');
     }
 
     public function jobOpportunity()
     {
-        return $this->belongsTo(JobOpportunity::class, 'related_id')->where('type', 'job_opportunity');
+        return $this->belongsTo(JobOpportunity::class, 'related_id');
     }
 
     public function jobFair()
     {
-        return $this->belongsTo(JobFair::class, 'related_id')->where('type', 'job_fair');
+        return $this->belongsTo(JobFair::class, 'related_id');
+    }
+
+    /**
+     * القيم المقبولة للجمهور المستهدف لكل فئة (تشمل الصيغ العربية والمفرد احتياطاً)
+     */
+    public static function audienceValuesFor(string $audience): array
+    {
+        $all = ['all', 'الكل', 'الجميع'];
+
+        return match ($audience) {
+            'graduates' => array_merge($all, ['graduates', 'graduate', 'الخريجين', 'الخريجون']),
+            'companies' => array_merge($all, ['companies', 'company', 'الشركات']),
+            default     => $all,
+        };
+    }
+
+    /**
+     * تقييد الاستبيانات بحسب الجمهور المستهدف (graduates | companies)
+     */
+    public function scopeForAudience($query, string $audience)
+    {
+        $values = self::audienceValuesFor($audience);
+
+        return $query->where(function ($q) use ($values, $audience) {
+            $q->whereIn('target_audience', $values);
+            // الاستبيانات القديمة بدون جمهور محدد تُعتبر للخريجين فقط
+            if ($audience === 'graduates') {
+                $q->orWhereNull('target_audience')->orWhere('target_audience', '');
+            }
+        });
+    }
+
+    public function isForAudience(string $audience): bool
+    {
+        $target = trim((string) $this->target_audience);
+        if ($target === '') {
+            return $audience === 'graduates';
+        }
+        return in_array($target, self::audienceValuesFor($audience), true);
     }
 
     public function getRelatedEntityAttribute()

@@ -16,52 +16,37 @@ class CompanySurveyController extends Controller
         $user = Auth::user();
         $company = $user->company;
 
-        // معرفات معارض التوظيف التي تشارك فيها الشركة
-        $myFairIds = [];
-        if ($company) {
-            $myFairIds = JobFairCompany::where('company_id', $company->id)->pluck('job_fair_id')->toArray();
-        }
+        // معارض التوظيف التي تشارك فيها الشركة
+        $myFairIds = $company
+            ? JobFairCompany::where('company_id', $company->id)->pluck('job_fair_id')->toArray()
+            : [];
 
-        // الاستعلام الأساسي للاستبيانات النشطة
-        $baseQuery = Survey::where('is_active', true)
-            ->where(function ($q) {
-                $q->whereNull('start_date')->orWhereDate('start_date', '<=', now());
-            })
-            ->where(function ($q) {
-                $q->whereNull('end_date')->orWhereDate('end_date', '>=', now());
-            });
-
-        // 1. استبيانات عامة أو موجهة للشركات
-        $companySurveys = (clone $baseQuery)
-            ->where(function ($q) {
-                $q->whereIn('target_audience', ['companies', 'all']);
-            })
-            ->where(function ($q) {
-                $q->where('type', 'general')
-                  ->orWhereNull('type')
-                  ->orWhereNotIn('type', ['training', 'job_opportunity', 'job_fair']);
-            })
-            ->get();
-
-        // 2. استبيانات معارض التوظيف الخاصة بالشركات المشاركة
-        $fairSurveys = (clone $baseQuery)
-            ->where('type', 'job_fair')
-            ->where(function ($q) {
-                $q->whereIn('target_audience', ['companies', 'all'])
-                  ->orWhereNull('target_audience');
-            })
+        $surveys = Survey::query()
+            ->with('jobFair')
+            ->where('is_active', true)
+            ->where(fn ($q) => $q->whereNull('start_date')->orWhereDate('start_date', '<=', now()))
+            ->where(fn ($q) => $q->whereNull('end_date')->orWhereDate('end_date', '>=', now()))
+            // شرط أساسي: الاستبيان موجه للشركات أو للجميع فقط
+            ->forAudience('companies')
             ->where(function ($q) use ($myFairIds) {
-                if (!empty($myFairIds)) {
-                    $q->whereIn('related_id', $myFairIds)->orWhereNull('related_id');
-                } else {
-                    $q->whereNull('related_id');
-                }
+                // استبيانات عامة (غير مرتبطة بتدريب أو وظيفة أو معرض)
+                $q->whereNull('type')
+                  ->orWhereNotIn('type', ['training', 'job_opportunity', 'job_fair']);
+
+                // استبيانات المعارض: للمعارض المشاركة فيها أو غير المرتبطة بمعرض بعينه
+                $q->orWhere(function ($sub) use ($myFairIds) {
+                    $sub->where('type', 'job_fair')
+                        ->where(function ($r) use ($myFairIds) {
+                            $r->whereNull('related_id');
+                            if (!empty($myFairIds)) {
+                                $r->orWhereIn('related_id', $myFairIds);
+                            }
+                        });
+                });
             })
+            ->latest()
             ->get();
 
-        $surveys = $companySurveys->merge($fairSurveys)->unique('id');
-
-        // الردود السابقة
         $answeredSurveyIds = SurveyResponse::where('user_id', $user->id)
             ->pluck('survey_id')
             ->toArray();
@@ -71,14 +56,15 @@ class CompanySurveyController extends Controller
 
     public function show(Survey $survey)
     {
-        $user = Auth::user();
+        if ($redirect = $this->guard($survey)) {
+            return $redirect;
+        }
 
-        // التحقق من وجود رد سابق
         $existingResponse = SurveyResponse::where('survey_id', $survey->id)
-            ->where('user_id', $user->id)
+            ->where('user_id', Auth::id())
             ->first();
 
-        if ($existingResponse && $survey->end_date && now()->isAfter($survey->end_date)) {
+        if ($existingResponse && $survey->end_date && now()->isAfter($survey->end_date->copy()->endOfDay())) {
             return redirect()->route('company.surveys.index')
                 ->with('info', 'لقد انتهت مدة هذا الاستبيان ولا يمكن تعديل الإجابات.');
         }
@@ -88,6 +74,10 @@ class CompanySurveyController extends Controller
 
     public function store(Request $request, Survey $survey)
     {
+        if ($redirect = $this->guard($survey)) {
+            return $redirect;
+        }
+
         $request->validate([
             'answers' => 'required|array',
         ]);
@@ -101,7 +91,7 @@ class CompanySurveyController extends Controller
 
         if ($existingResponse) {
             $existingResponse->update([
-                'answers' => $request->answers,
+                'answers'      => $request->answers,
                 'submitted_at' => now(),
             ]);
 
@@ -112,7 +102,7 @@ class CompanySurveyController extends Controller
         SurveyResponse::create([
             'survey_id'         => $survey->id,
             'user_id'           => $user->id,
-            'participant_name'  => $company ? $company->name : $user->name,
+            'participant_name'  => $company?->name ?? $user->name,
             'participant_email' => $user->email,
             'answers'           => $request->answers,
             'submitted_at'      => now(),
@@ -120,5 +110,18 @@ class CompanySurveyController extends Controller
 
         return redirect()->route('company.surveys.index')
             ->with('success', 'تم تقديم إجابات الاستبيان بنجاح. نقدر تقييمكم وملاحظاتكم القيمة لتطوير الشراكة!');
+    }
+
+    /**
+     * منع الوصول لاستبيان غير موجه للشركات (مثلاً عبر الرابط المباشر)
+     */
+    private function guard(Survey $survey)
+    {
+        if (!$survey->isForAudience('companies') || !$survey->is_active) {
+            return redirect()->route('company.surveys.index')
+                ->with('info', 'هذا الاستبيان غير متاح لحساب الشركة.');
+        }
+
+        return null;
     }
 }

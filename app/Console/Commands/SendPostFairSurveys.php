@@ -57,7 +57,7 @@ class SendPostFairSurveys extends Command
                         'تقييم معرض التوظيف',
                         "شكراً لحضورك معرض {$fair->title}. نرجو منك تقييم المعرض لمساعدتنا على تحسين المعارض القادمة.",
                         'system',
-                        route('surveys.show', $fair->survey_id)
+                        route('graduate.surveys.show', $fair->survey_id)
                     );
                     $count++;
                 }
@@ -75,7 +75,7 @@ class SendPostFairSurveys extends Command
                         'تقييم معرض التوظيف (للشركات)',
                         "شكراً لمشاركة شركتكم في معرض {$fair->title}. نرجو منكم تقييم المعرض.",
                         'system',
-                        route('surveys.show', $fair->survey_id)
+                        route('company.surveys.show', $fair->survey_id)
                     );
                     $count++;
                 }

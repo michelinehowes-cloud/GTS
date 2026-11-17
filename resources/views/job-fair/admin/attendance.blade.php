@@ -373,7 +373,7 @@
                 </div>
                 <div>
                     <h2 class="fw-black mb-0 text-dark" id="stat-registered">{{ $stats['total_registered'] ?? 0 }}</h2>
-                    <small class="text-muted">خريج مسجل رسمياً</small>
+                    <small class="text-muted">{{ $stats['registered_graduates'] ?? 0 }} خريج + {{ $stats['total_visitors'] ?? 0 }} زائر</small>
                 </div>
             </div>
         </div>
@@ -389,7 +389,7 @@
                 </div>
                 <div>
                     <h2 class="fw-black mb-0 text-success" id="stat-attended">{{ $stats['total_attended'] ?? 0 }}</h2>
-                    <small class="text-muted">حاضر داخل المعرض الآن</small>
+                    <small class="text-muted">{{ $stats['attended_graduates'] ?? 0 }} خريج + {{ $stats['attended_visitors'] ?? 0 }} زائر</small>
                 </div>
             </div>
         </div>
@@ -405,7 +405,7 @@
                 </div>
                 <div>
                     <h2 class="fw-black mb-0 text-warning" id="stat-remaining">{{ $stats['remaining'] ?? 0 }}</h2>
-                    <small class="text-muted">خريج متوقع وصوله</small>
+                    <small class="text-muted">متوقع وصوله (خريجون وزوار)</small>
                 </div>
             </div>
         </div>

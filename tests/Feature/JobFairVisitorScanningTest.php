@@ -314,9 +314,90 @@ class JobFairVisitorScanningTest extends TestCase
         $response->assertStatus(200);
 
         $stats = $response->viewData('stats');
-        $this->assertEquals(5, $stats['total_registered'], 'إجمالي المسجلين يجب أن يجمع الخريجين (3) والزوار (2)');
+        $this->assertEquals(5, $stats['total_registered'], 'إجمالي المسجلين بالماسح يجب أن يجمع الخريجين (3) والزوار (2)');
+        $this->assertEquals(3, $stats['registered_graduates'], 'عدد الخريجين المسجلين يجب ألا يشمل الزوار');
+        $this->assertEquals(2, $stats['total_visitors']);
         $this->assertEquals(3, $stats['total_attended'], 'إجمالي الحضور يجب أن يجمع الخريجين الحاضرين بالبوابة والأجنحة (2) والزائر الحاضر (1)');
         $this->assertEquals(2, $stats['attended_graduates']);
         $this->assertEquals(1, $stats['attended_visitors']);
+
+        // صفحة تفاصيل المعرض وصفحة القائمة تعرضان عدد الخريجين (3) منفصلاً عن الزوار (2) وليس مجموعهما (5)
+        $showResp = $this->actingAs($admin)->get(route('job-fair.admin.show', $fair->id));
+        $showResp->assertOk();
+        $showStats = $showResp->viewData('stats');
+        $this->assertEquals(3, $showStats['registered_graduates']);
+
+        $indexResp = $this->actingAs($admin)->get(route('job-fair.admin.index'));
+        $indexResp->assertOk();
+        $indexFair = $indexResp->viewData('fairs')->firstWhere('id', $fair->id);
+        $this->assertEquals(3, $indexFair->registrations_count);
+    }
+
+    public function test_scanning_visitors_at_gate_or_company_booth_does_not_inflate_graduate_users_count()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $companyUser = User::factory()->create(['role' => 'company', 'is_active' => true, 'is_approved' => true]);
+        Company::create([
+            'user_id' => $companyUser->id,
+            'name' => 'شركة اختبار',
+            'email' => $companyUser->email,
+            'is_approved' => true,
+            'partnership_status' => 'active',
+        ]);
+
+        $grad = User::factory()->create(['role' => 'graduate', 'is_active' => true, 'is_approved' => true]);
+        $fair = JobFair::create([
+            'title' => 'معرض 2026',
+            'status' => 'ongoing',
+            'event_date' => now()->subDay(),
+            'end_time' => '15:00:00',
+            'location' => 'طرابلس',
+            'created_by' => $admin->id,
+        ]);
+
+        $v1 = JobFairVisitor::create([
+            'job_fair_id' => $fair->id,
+            'name' => 'زائر بوابة',
+            'phone' => '0911111111',
+            'ticket_number' => 'VIS-2026-GT01',
+            'attended' => false,
+        ]);
+
+        $v2 = JobFairVisitor::create([
+            'job_fair_id' => $fair->id,
+            'name' => 'زائر شركة',
+            'phone' => '0922222222',
+            'ticket_number' => 'VIS-2026-CP02',
+            'attended' => false,
+        ]);
+
+        $this->actingAs($admin)->postJson(route('job-fair.admin.check-in'), [
+            'job_fair_id' => $fair->id,
+            'code' => 'VIS-2026-GT01',
+        ])->assertOk()->assertJson(['success' => true]);
+
+        $this->actingAs($companyUser)->postJson(route('company.job-fairs.store-visit', $fair->id), [
+            'code' => 'VIS-2026-CP02',
+        ])->assertOk()->assertJson(['success' => true]);
+
+        // عدد الخريجين الحقيقي في جدول users يجب أن يظل 1 فقط (الخريج الأصلي) ولا يزيد بالزوار
+        $this->assertEquals(1, User::where('role', 'graduate')->count());
+
+        // المعرض المستمر (ongoing) يظل مؤهلاً لمزامنة الخريجين الجدد حتى بعد مرور وقت انتهاء اليوم الأول
+        $unsyncedGradId = \Illuminate\Support\Facades\DB::table('users')->insertGetId([
+            'name' => 'خريج مستورد غير مزامن',
+            'email' => 'unsynced_grad@example.com',
+            'password' => bcrypt('password123'),
+            'role' => 'graduate',
+            'is_approved' => 1,
+            'is_active' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $this->artisan('jobfair:sync-graduates', ['--fair' => $fair->id])->assertExitCode(0);
+        $this->assertDatabaseHas('job_fair_registrations', [
+            'job_fair_id' => $fair->id,
+            'user_id' => $unsyncedGradId,
+        ]);
     }
 }

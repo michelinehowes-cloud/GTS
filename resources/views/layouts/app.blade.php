@@ -1486,6 +1486,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('company.surveys*') ? 'active' : '' }}"
+                                href="{{ route('company.surveys.index') }}">
+                                <i class="fas fa-poll"></i>
+                                الاستبيانات
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('messages.*') ? 'active' : '' }}"
                                 href="{{ route('messages.index') }}">
                                 <i class="fas fa-envelope"></i>

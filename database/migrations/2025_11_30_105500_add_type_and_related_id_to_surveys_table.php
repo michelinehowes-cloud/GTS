@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::table('surveys', function (Blueprint $table) {
             // إضافة نوع الاستبيان
-            $table->enum('type', ['general', 'training', 'job_opportunity', 'activity'])->default('general')->after('target_audience');
+            $table->string('type', 50)->default('general')->after('target_audience');
 
             // إضافة المعرف المرتبط (للتدريب أو الوظيفة)
             $table->unsignedBigInteger('related_id')->nullable()->after('type');

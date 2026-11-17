@@ -50,6 +50,14 @@
 </li>
 
 <li class="nav-item">
+    <a class="nav-link {{ request()->routeIs('graduate.surveys*') ? 'active' : '' }}"
+        href="{{ route('graduate.surveys.index') }}">
+        <i class="fas fa-fw fa-poll"></i>
+        <span>الاستبيانات واستطلاعات الرأي</span>
+    </a>
+</li>
+
+<li class="nav-item">
     <a class="nav-link {{ request()->routeIs('messages.*') ? 'active' : '' }}"
         href="{{ route('messages.index') }}"
         onclick="if(window.openMessagesDrawer){window.openMessagesDrawer(); return false;}">

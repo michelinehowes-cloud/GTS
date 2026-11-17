@@ -303,6 +303,16 @@ class JobFairVisitorController extends Controller
             'check_in_at' => $newAttended ? now() : null,
         ]);
 
+        try {
+            \App\Models\JobFairRegistration::where('job_fair_id', $visitor->job_fair_id)
+                ->where('registration_number', $visitor->ticket_number)
+                ->update([
+                    'attended' => $newAttended,
+                    'status'   => $newAttended ? 'attended' : 'registered',
+                    'check_in_at' => $newAttended ? now() : null,
+                ]);
+        } catch (\Throwable $e) {}
+
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'success' => true,

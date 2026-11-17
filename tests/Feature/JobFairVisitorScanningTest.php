@@ -237,4 +237,68 @@ class JobFairVisitorScanningTest extends TestCase
         $response->assertSee('VIS-2026-SH444');
         $response->assertSee('بطاقة زائر المعرض');
     }
+
+    public function test_fair_stats_accurately_counts_both_graduates_and_visitors_attendance()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $fair = JobFair::create([
+            'title' => 'معرض التوظيف السنوي 2026',
+            'status' => 'published',
+            'event_date' => now()->addDays(2),
+            'location' => 'جامعة طرابلس',
+            'created_by' => $admin->id,
+        ]);
+
+        // 1. خريج مسجل وحاضر
+        $gradUser = User::factory()->create(['role' => 'graduate']);
+        JobFairRegistration::updateOrCreate(
+            ['job_fair_id' => $fair->id, 'user_id' => $gradUser->id],
+            [
+                'registration_number' => 'JF-2026-001',
+                'qr_code' => 'QR-JF-001',
+                'status' => 'attended',
+                'attended' => true,
+            ]
+        );
+
+        // 2. خريج مسجل ولم يحضر
+        $absentGrad = User::factory()->create(['role' => 'graduate']);
+        JobFairRegistration::updateOrCreate(
+            ['job_fair_id' => $fair->id, 'user_id' => $absentGrad->id],
+            [
+                'registration_number' => 'JF-2026-002',
+                'qr_code' => 'QR-JF-002',
+                'status' => 'registered',
+                'attended' => false,
+            ]
+        );
+
+        // 3. زائر حاضر
+        JobFairVisitor::create([
+            'job_fair_id' => $fair->id,
+            'name' => 'زائر حاضر',
+            'phone' => '0910000001',
+            'ticket_number' => 'VIS-2026-ATT1',
+            'attended' => true,
+            'check_in_at' => now(),
+        ]);
+
+        // 4. زائر مسجل ولم يحضر
+        JobFairVisitor::create([
+            'job_fair_id' => $fair->id,
+            'name' => 'زائر غائب',
+            'phone' => '0910000002',
+            'ticket_number' => 'VIS-2026-ABS2',
+            'attended' => false,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('job-fair.admin.attendance', $fair->id));
+        $response->assertStatus(200);
+
+        $stats = $response->viewData('stats');
+        $this->assertEquals(4, $stats['total_registered'], 'إجمالي المسجلين يجب أن يجمع الخريجين (2) والزوار (2)');
+        $this->assertEquals(2, $stats['total_attended'], 'إجمالي الحضور يجب أن يجمع الخريج الحاضر (1) والزائر الحاضر (1)');
+        $this->assertEquals(1, $stats['attended_graduates']);
+        $this->assertEquals(1, $stats['attended_visitors']);
+    }
 }

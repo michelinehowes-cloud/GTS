@@ -293,6 +293,16 @@ class CompanyJobFairController extends Controller
         }
 
         $graduate = $registration->graduate;
+
+        // توثيق حضور الخريج فور تفاعله ومسحه داخل أجنحة الشركات لضمان دقة إحصائيات المعرض
+        if ($registration && !$registration->attended) {
+            $registration->update([
+                'attended'    => true,
+                'check_in_at' => $registration->check_in_at ?: now(),
+                'status'      => 'attended',
+            ]);
+        }
+
         $company = auth()->user()->company;
 
         if (!$company) {

@@ -745,9 +745,12 @@ class JobFairController extends Controller
         
         // جلب أحدث الحضور
         $recentCheckins = JobFairRegistration::where('job_fair_id', $fair->id)
-            ->where('status', 'attended')
+            ->where(function ($q) {
+                $q->where('attended', true)->orWhere('status', 'attended');
+            })
             ->with('graduate')
-            ->orderBy('updated_at', 'desc')
+            ->orderByDesc('check_in_at')
+            ->orderByDesc('updated_at')
             ->take(10)
             ->get();
             
@@ -756,7 +759,10 @@ class JobFairController extends Controller
             ->join('users', 'job_fair_registrations.user_id', '=', 'users.id')
             ->select('users.major', \DB::raw('count(*) as total'))
             ->where('job_fair_registrations.job_fair_id', $fair->id)
-            ->where('job_fair_registrations.status', 'attended')
+            ->where(function ($q) {
+                $q->where('job_fair_registrations.attended', true)
+                  ->orWhere('job_fair_registrations.status', 'attended');
+            })
             ->whereNotNull('users.major')
             ->groupBy('users.major')
             ->orderByDesc('total')
@@ -1357,13 +1363,24 @@ class JobFairController extends Controller
         $generalLeads = 0;
 
         try {
+            $visitedGraduateIds = [];
+            if (\Illuminate\Support\Facades\Schema::hasTable('job_fair_visits')) {
+                $visitedGraduateIds = JobFairVisit::where('job_fair_id', $fair->id)
+                    ->distinct()
+                    ->pluck('graduate_id')
+                    ->toArray();
+            }
+
             $registeredGraduates = $fair->registrations()->where(function($q) {
                 $q->where('registration_number', 'not like', 'VIS-%')
                   ->orWhereNull('registration_number');
             })->count();
 
-            $attendedGraduates = $fair->registrations()->where(function($q) {
+            $attendedGraduates = $fair->registrations()->where(function($q) use ($visitedGraduateIds) {
                 $q->where('attended', true)->orWhere('status', 'attended');
+                if (!empty($visitedGraduateIds)) {
+                    $q->orWhereIn('user_id', $visitedGraduateIds);
+                }
             })->where(function($q) {
                 $q->where('registration_number', 'not like', 'VIS-%')
                   ->orWhereNull('registration_number');

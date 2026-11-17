@@ -51,9 +51,6 @@
 
             <form action="{{ route('graduate.surveys.store', $survey->id) }}" method="POST">
                 @csrf
-                @php
-                    $previousAnswers = isset($existingResponse) ? $existingResponse->answers : [];
-                @endphp
 
                 <div class="card-modern mb-4">
                     <div class="card-header bg-white py-3 border-bottom">
@@ -62,106 +59,7 @@
                         </h5>
                     </div>
                     <div class="card-body p-4">
-                        @foreach($survey->questions as $index => $question)
-                            <div class="mb-4 p-4 rounded-3 bg-light border">
-                                <label class="form-label-modern fw-bold mb-3 d-flex align-items-center">
-                                    <span class="badge bg-primary rounded-circle p-2 me-2" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;">
-                                        {{ $index + 1 }}
-                                    </span>
-                                    <span class="fs-6">{{ $question['question'] }}</span>
-                                    @if(isset($question['required']) && $question['required'])
-                                        <span class="text-danger ms-1">*</span>
-                                    @endif
-                                </label>
-
-                                @if($question['type'] === 'text')
-                                    <input type="text" name="answers[{{ $index }}]" class="form-control-modern bg-white" 
-                                        value="{{ $previousAnswers[$index] ?? '' }}"
-                                        placeholder="اكتب إجابتك هنا..."
-                                        {{ isset($question['required']) && $question['required'] ? 'required' : '' }}>
-                                
-                                @elseif($question['type'] === 'textarea')
-                                    <textarea name="answers[{{ $index }}]" class="form-control-modern bg-white" rows="3"
-                                        placeholder="اكتب إجابتك التفصيلية هنا..."
-                                        {{ isset($question['required']) && $question['required'] ? 'required' : '' }}>{{ $previousAnswers[$index] ?? '' }}</textarea>
-                                
-                                @elseif($question['type'] === 'radio')
-                                    <div class="ps-2">
-                                        @foreach($question['options'] as $option)
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="radio" name="answers[{{ $index }}]" 
-                                                    id="q{{ $index }}_opt{{ $loop->index }}" value="{{ $option }}"
-                                                    {{ isset($previousAnswers[$index]) && $previousAnswers[$index] == $option ? 'checked' : '' }}
-                                                    {{ isset($question['required']) && $question['required'] ? 'required' : '' }}>
-                                                <label class="form-check-label text-dark" for="q{{ $index }}_opt{{ $loop->index }}">
-                                                    {{ $option }}
-                                                </label>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                
-                                @elseif($question['type'] === 'checkbox')
-                                    <div class="ps-2">
-                                        @foreach($question['options'] as $option)
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" name="answers[{{ $index }}][]" 
-                                                    id="q{{ $index }}_opt{{ $loop->index }}" value="{{ $option }}"
-                                                    {{ isset($previousAnswers[$index]) && is_array($previousAnswers[$index]) && in_array($option, $previousAnswers[$index]) ? 'checked' : '' }}>
-                                                <label class="form-check-label text-dark" for="q{{ $index }}_opt{{ $loop->index }}">
-                                                    {{ $option }}
-                                                </label>
-                                            </div>
-                                        @endforeach
-                                    </div>
-
-                                @elseif($question['type'] === 'select')
-                                    <select name="answers[{{ $index }}]" class="form-select-modern bg-white"
-                                        {{ isset($question['required']) && $question['required'] ? 'required' : '' }}>
-                                        <option value="" {{ !isset($previousAnswers[$index]) ? 'selected' : '' }} disabled>اختر إجابة من القائمة...</option>
-                                        @foreach($question['options'] as $option)
-                                            <option value="{{ $option }}" {{ isset($previousAnswers[$index]) && $previousAnswers[$index] == $option ? 'selected' : '' }}>{{ $option }}</option>
-                                        @endforeach
-                                    </select>
-                                
-                                @elseif($question['type'] === 'rating')
-                                    @php
-                                        $maxRating = $question['max_rating'] ?? 5;
-                                        $currentRating = $previousAnswers[$index] ?? '';
-                                    @endphp
-                                    <div class="rating-stars bg-white p-3 rounded-3 border" data-question-index="{{ $index }}">
-                                        <input type="hidden" name="answers[{{ $index }}]" id="rating_{{ $index }}" value="{{ $currentRating }}" 
-                                            {{ isset($question['required']) && $question['required'] ? 'required' : '' }}>
-                                        <div class="d-flex gap-2 align-items-center flex-wrap">
-                                            @for($i = 1; $i <= $maxRating; $i++)
-                                                <span class="star" data-rating="{{ $i }}" style="font-size: 2.2rem; cursor: pointer; color: {{ $currentRating && $i <= $currentRating ? '#ffc107' : '#ddd' }}; user-select: none;">
-                                                    ★
-                                                </span>
-                                            @endfor
-                                            <span class="rating-display ms-3 fw-bold {{ $currentRating ? 'text-warning' : 'text-muted' }}">
-                                                {{ $currentRating ? $currentRating . ($currentRating == 1 ? ' نجمة' : ' نجوم') : 'لم يتم التقييم بعد' }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                
-                                @elseif($question['type'] === 'date')
-                                    <input type="date" name="answers[{{ $index }}]" class="form-control-modern bg-white" 
-                                        value="{{ $previousAnswers[$index] ?? '' }}"
-                                        {{ isset($question['required']) && $question['required'] ? 'required' : '' }}>
-                                
-                                @elseif($question['type'] === 'email')
-                                    <input type="email" name="answers[{{ $index }}]" class="form-control-modern bg-white" 
-                                        value="{{ $previousAnswers[$index] ?? '' }}"
-                                        placeholder="example@domain.com"
-                                        {{ isset($question['required']) && $question['required'] ? 'required' : '' }}>
-                                
-                                @elseif($question['type'] === 'number')
-                                    <input type="number" name="answers[{{ $index }}]" class="form-control-modern bg-white" 
-                                        value="{{ $previousAnswers[$index] ?? '' }}"
-                                        placeholder="أدخل رقماً..."
-                                        {{ isset($question['required']) && $question['required'] ? 'required' : '' }}>
-                                @endif
-                            </div>
-                        @endforeach
+                        @include('partials.survey-questions', ['survey' => $survey, 'existingResponse' => $existingResponse ?? null])
 
                         <div class="d-flex gap-3 mt-4">
                             <button type="submit" class="btn btn-primary-modern px-5 py-2">

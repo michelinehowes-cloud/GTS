@@ -50,6 +50,7 @@
                                 @if($survey->type == 'general') استبيان عام
                                 @elseif($survey->type == 'training') برنامج تدريبي
                                 @elseif($survey->type == 'job_opportunity') فرصة عمل
+                                @elseif($survey->type == 'job_fair') معرض التوظيف
                                 @else نشاط وفعالية @endif
                             </span>
                             <small class="text-muted">
@@ -73,12 +74,17 @@
                                     <i class="fas fa-briefcase text-success me-1"></i>
                                     مرتبط بـ: <strong class="text-dark">{{ $survey->jobOpportunity->title }}</strong>
                                 </div>
+                            @elseif($survey->type == 'job_fair' && $survey->jobFair)
+                                <div class="p-2 bg-light rounded-3 small mb-2 text-muted">
+                                    <i class="fas fa-calendar-check text-primary me-1"></i>
+                                    مرتبط بـ: <strong class="text-dark">{{ $survey->jobFair->title }}</strong>
+                                </div>
                             @endif
                         </div>
 
                         <div class="card-footer bg-white p-3 border-top">
                             @if(in_array($survey->id, $answeredSurveyIds))
-                                @if(!$survey->end_date || now()->isBefore($survey->end_date))
+                                @if(!$survey->end_date || now()->lte($survey->end_date->copy()->endOfDay()))
                                     <a href="{{ route('graduate.surveys.show', $survey->id) }}" class="btn btn-outline-warning-modern btn-sm w-100">
                                         <i class="fas fa-edit me-1"></i> تعديل الإجابات
                                     </a>

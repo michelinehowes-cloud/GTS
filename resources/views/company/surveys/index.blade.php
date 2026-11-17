@@ -45,7 +45,7 @@
             @foreach($surveys as $survey)
                 @php
                     $isAnswered = in_array($survey->id, $answeredSurveyIds);
-                    $canEdit = !$survey->end_date || now()->isBefore($survey->end_date);
+                    $canEdit = !$survey->end_date || now()->lte($survey->end_date->copy()->endOfDay());
                 @endphp
                 <div class="col-md-6 col-xl-4 d-flex">
                     <div class="card-modern w-100 d-flex flex-column border-0 rounded-4 shadow-sm bg-white overflow-hidden">

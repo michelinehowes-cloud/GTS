@@ -292,13 +292,31 @@ class JobFairVisitorScanningTest extends TestCase
             'attended' => false,
         ]);
 
+        // 5. خريج زار جناح شركة فقط (مسجل في job_fair_visits ولم يمر على ماسح البوابة)
+        $companyUser = User::factory()->create(['role' => 'company']);
+        $boothGrad = User::factory()->create(['role' => 'graduate']);
+        JobFairRegistration::updateOrCreate(
+            ['job_fair_id' => $fair->id, 'user_id' => $boothGrad->id],
+            [
+                'registration_number' => 'JF-2026-003',
+                'qr_code' => 'QR-JF-003',
+                'status' => 'registered',
+                'attended' => false,
+            ]
+        );
+        JobFairVisit::create([
+            'job_fair_id' => $fair->id,
+            'company_id' => $companyUser->id,
+            'graduate_id' => $boothGrad->id,
+        ]);
+
         $response = $this->actingAs($admin)->get(route('job-fair.admin.attendance', $fair->id));
         $response->assertStatus(200);
 
         $stats = $response->viewData('stats');
-        $this->assertEquals(4, $stats['total_registered'], 'إجمالي المسجلين يجب أن يجمع الخريجين (2) والزوار (2)');
-        $this->assertEquals(2, $stats['total_attended'], 'إجمالي الحضور يجب أن يجمع الخريج الحاضر (1) والزائر الحاضر (1)');
-        $this->assertEquals(1, $stats['attended_graduates']);
+        $this->assertEquals(5, $stats['total_registered'], 'إجمالي المسجلين يجب أن يجمع الخريجين (3) والزوار (2)');
+        $this->assertEquals(3, $stats['total_attended'], 'إجمالي الحضور يجب أن يجمع الخريجين الحاضرين بالبوابة والأجنحة (2) والزائر الحاضر (1)');
+        $this->assertEquals(2, $stats['attended_graduates']);
         $this->assertEquals(1, $stats['attended_visitors']);
     }
 }

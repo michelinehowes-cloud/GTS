@@ -108,9 +108,10 @@
         @include('components.stat-card', [
             'col' => 'col-6 col-md-4 col-xl',
             'title' => 'خريج مسجل',
-            'value' => $stats['total_registered'] ?? 0,
+            'value' => $stats['registered_graduates'] ?? 0,
             'icon' => 'fas fa-user-graduate',
-            'color' => 'primary'
+            'color' => 'primary',
+            'description' => ($stats['total_system_graduates'] ?? 0) > 0 ? 'إجمالي بيانات الخريجين: ' . number_format($stats['total_system_graduates']) : null,
         ])
         @include('components.stat-card', [
             'col' => 'col-6 col-md-4 col-xl',
@@ -126,7 +127,8 @@
             'title' => 'حضروا المعرض',
             'value' => $stats['total_attended'] ?? 0,
             'icon' => 'fas fa-user-check',
-            'color' => 'success'
+            'color' => 'success',
+            'description' => ($stats['attended_graduates'] ?? 0) . ' خريج + ' . ($stats['attended_visitors'] ?? 0) . ' زائر',
         ])
         @include('components.stat-card', [
             'col' => 'col-6 col-md-4 col-xl',
@@ -390,7 +392,7 @@
                     <h5 class="fw-bold mb-0 text-dark fs-6">
                         <i class="fas fa-user-graduate me-2 text-primary"></i>الخريجون المسجلون
                     </h5>
-                    <span class="badge bg-primary rounded-pill px-2 py-1">{{ $stats['total_registered'] ?? 0 }}</span>
+                    <span class="badge bg-primary rounded-pill px-2 py-1">{{ $stats['registered_graduates'] ?? 0 }}</span>
                 </div>
 
                 @if($registrations->isEmpty())

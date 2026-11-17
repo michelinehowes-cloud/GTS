@@ -6354,7 +6354,7 @@
                     <div class="col-12">
                         <div class="hero-stats" style="max-width: 900px; margin: 0 auto;">
                             <div class="hero-stat">
-                                <div class="hero-stat-num">{{ $stats['total_registered'] ?? 0 }}</div>
+                                <div class="hero-stat-num">{{ $stats['registered_graduates'] ?? 0 }}</div>
                                 <div class="hero-stat-lbl">خريج مسجّل</div>
                             </div>
                             <div class="hero-stat-divider"></div>

@@ -55,7 +55,11 @@ class JobFairAutoRegistrationService
             return false;
         }
 
-        return in_array($fair->status, ['published', 'ongoing'], true) && !$fair->is_ended;
+        if ($fair->status === 'ongoing') {
+            return true;
+        }
+
+        return $fair->status === 'published' && !$fair->is_ended;
     }
 
     /**
@@ -71,7 +75,7 @@ class JobFairAutoRegistrationService
             ->whereIn('status', ['published', 'ongoing'])
             ->orderBy('id')
             ->get()
-            ->filter(fn (JobFair $fair) => !$fair->is_ended)
+            ->filter(fn (JobFair $fair) => static::isFairEligible($fair))
             ->values();
     }
 
@@ -184,7 +188,9 @@ class JobFairAutoRegistrationService
         $graduateIds = User::query()
             ->where('role', 'graduate')
             ->where('is_approved', true)
-            ->where('is_active', true)
+            ->where(function ($query) {
+                $query->where('is_active', true)->orWhereNull('is_active');
+            })
             ->whereNotIn('id', function ($query) use ($fair) {
                 $query->select('user_id')
                     ->from('job_fair_registrations')

@@ -217,7 +217,7 @@ class CompanyJobFairController extends Controller
                     ['email' => $email],
                     [
                         'name' => $visitor->name,
-                        'role' => 'graduate',
+                        'role' => 'visitor',
                         'phone' => $visitor->phone,
                         'is_approved' => true,
                         'is_active' => true,
@@ -235,6 +235,7 @@ class CompanyJobFairController extends Controller
                     'major' => $visitor->specialization ?: $visitor->visitor_type_label,
                     'faculty' => $visitor->organization ?: ($visitor->city ?: 'زائر رسمي للمعرض'),
                     'graduation_year' => (int) date('Y'),
+                    'is_active' => $visitorUser->role === 'graduate',
                     'added_by' => auth()->id() ?: $visitorUser->id,
                 ]
             );

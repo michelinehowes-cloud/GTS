@@ -20,9 +20,9 @@
                 <div class="d-flex align-items-start justify-content-between gap-2">
                     <div class="flex-grow-1">
                         <div class="kpi-metric-title">إجمالي الحضور الفعلي</div>
-                        <div class="kpi-metric-value">{{ $stats['attended'] ?? 0 }}</div>
+                        <div class="kpi-metric-value">{{ $stats['total_attended'] ?? $stats['attended'] ?? 0 }}</div>
                         <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1" style="font-size: 0.72rem; font-weight: 600;">
-                            <i class="fas fa-id-badge me-1"></i>حضور فعلي بالقاعة
+                            <i class="fas fa-id-badge me-1"></i>{{ $stats['attended_graduates'] ?? 0 }} خريج + {{ $stats['attended_visitors'] ?? 0 }} زائر
                         </span>
                     </div>
                     <div class="kpi-metric-icon" style="background: rgba(37,99,235,0.1); color: #2563eb;">
@@ -38,9 +38,9 @@
                 <div class="d-flex align-items-start justify-content-between gap-2">
                     <div class="flex-grow-1">
                         <div class="kpi-metric-title">إجمالي الخريجين المسجلين</div>
-                        <div class="kpi-metric-value">{{ $stats['total_registrations'] ?? 0 }}</div>
+                        <div class="kpi-metric-value">{{ $stats['registered_graduates'] ?? $stats['total_registrations'] ?? 0 }}</div>
                         <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1" style="font-size: 0.72rem; font-weight: 600;">
-                            <i class="fas fa-users me-1"></i>تسجيل مسبق بالمعرض
+                            <i class="fas fa-users me-1"></i>زوار المعرض: {{ $stats['total_visitors'] ?? 0 }}
                         </span>
                     </div>
                     <div class="kpi-metric-icon" style="background: rgba(16,185,129,0.1); color: #10b981;">

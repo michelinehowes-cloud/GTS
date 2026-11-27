@@ -257,19 +257,19 @@
                         $isCompanyApproved = $company->is_approved && $company->partnership_status === 'active';
                     @endphp
                     <div class="company-mobile-card">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                            <div class="d-flex align-items-center gap-2" style="min-width: 0; flex: 1 1 auto;">
                                 <div class="rounded-circle bg-light text-primary d-flex align-items-center justify-content-center fw-bold flex-shrink-0" style="width: 40px; height: 40px; font-size: 1.1rem;">
                                     {{ mb_substr($company->name, 0, 1) }}
                                 </div>
-                                <div>
-                                    <h6 class="fw-bold text-dark mb-0 fs-6">{{ $company->name }}</h6>
-                                    <span class="badge bg-light text-info fw-normal" style="font-size: 0.72rem;">
+                                <div style="min-width: 0;">
+                                    <h6 class="fw-bold text-dark mb-0 fs-6 text-break">{{ $company->name }}</h6>
+                                    <span class="badge bg-light text-info fw-normal text-wrap text-start" style="font-size: 0.72rem; line-height: 1.4;">
                                         {{ $company->industry ?? 'غير محدد' }}
                                     </span>
                                 </div>
                             </div>
-                            <span class="badge rounded-pill {{ $isCompanyApproved ? 'bg-success text-white' : 'bg-warning text-dark' }}" style="font-size: 0.7rem;">
+                            <span class="badge rounded-pill flex-shrink-0 {{ $isCompanyApproved ? 'bg-success text-white' : 'bg-warning text-dark' }}" style="font-size: 0.7rem;">
                                 {{ $isCompanyApproved ? 'معتمدة' : 'قيد المراجعة' }}
                             </span>
                         </div>
@@ -277,7 +277,7 @@
                         <div class="d-flex flex-column gap-1 my-2 py-2 border-top border-bottom border-light small text-muted">
                             <div>
                                 <i class="fas fa-envelope me-1 text-primary"></i>
-                                <a href="mailto:{{ $company->email }}" class="text-decoration-none text-muted">{{ $company->email }}</a>
+                                <a href="mailto:{{ $company->email }}" class="text-decoration-none text-muted text-break">{{ $company->email }}</a>
                             </div>
                             @if($company->address)
                             <div>

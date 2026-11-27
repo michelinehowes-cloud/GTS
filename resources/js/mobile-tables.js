@@ -8,7 +8,8 @@
  * Opt out: add class "no-mobile-cards" to the table or its .table-responsive wrapper.
  */
 
-const ACTION_HINT = /إجراء|اجراء|الإجراءات|العمليات|إدارة الحساب|التحكم|actions?/i;
+const INDEX_LABEL = /^(#|م|ت|ر|رقم|الرقم|no\.?|)$/i;
+const ACTION_HINT =/إجراء|اجراء|الإجراءات|العمليات|إدارة الحساب|التحكم|actions?/i;
 
 function headerLabels(table) {
     const headRow = table.tHead && table.tHead.rows[table.tHead.rows.length - 1];
@@ -44,12 +45,24 @@ function labelRows(table, labels) {
             }
 
             let col = 0;
+            let titleAssigned = false;
             for (let i = 0; i < cells.length; i++) {
                 const cell = cells[i];
                 const label = labels[col] || '';
                 cell.setAttribute('data-label', label);
 
-                if (i === 0) cell.classList.add('mobile-card-title');
+                // A leading "#" / row-number column is hidden on cards; the next cell becomes the title
+                if (i === 0 && INDEX_LABEL.test(label) && /^\s*\d+\s*$/.test(cell.textContent)
+                    && !cell.querySelector('input, button, a, img, select')) {
+                    cell.classList.add('mobile-card-index');
+                    col += cell.colSpan || 1;
+                    continue;
+                }
+
+                if (!titleAssigned) {
+                    cell.classList.add('mobile-card-title');
+                    titleAssigned = true;
+                }
                 const isLast = i === cells.length - 1;
                 const hasButtons = cell.querySelector('.btn, button, form') !== null;
                 if ((ACTION_HINT.test(label) || (isLast && label === '')) && hasButtons) {

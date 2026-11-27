@@ -36,6 +36,20 @@
         box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
     }
 
+    /* Pages often fix row/cell heights for the desktop table (e.g. height: 50px); in a card that makes
+       content spill over the next line, so heights are always automatic here. */
+    table.table-mobile-cards > tbody > tr,
+    table.table-mobile-cards > tbody > tr > td {
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+    }
+
+    /* The "#" row-number column adds nothing on a card */
+    table.table-mobile-cards > tbody > tr > td.mobile-card-index {
+        display: none !important;
+    }
+
     table.table-mobile-cards > tbody > tr > td {
         display: flex;
         align-items: center;
@@ -111,5 +125,22 @@
     html[data-theme='dark'] table.table-mobile-cards > tbody > tr > td::before,
     html[data-bs-theme='dark'] table.table-mobile-cards > tbody > tr > td::before {
         color: var(--dm-text-muted, #94a3b8);
+    }
+}
+
+/*
+ * Phones: long text (company names, activity badges, e-mails, addresses) wraps inside its card
+ * instead of spilling past the card edge.
+ */
+@media (max-width: 576px) {
+    .main-content .card,
+    .main-content [class*="-card"] {
+        overflow-wrap: anywhere;
+    }
+
+    .main-content .badge {
+        white-space: normal;
+        line-height: 1.4;
+        max-width: 100%;
     }
 }

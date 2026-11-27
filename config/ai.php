@@ -34,5 +34,34 @@ return [
     'temperature' => (float) ($storedAi['AI_TEMPERATURE'] ?? env('AI_TEMPERATURE', 0.3)),
 
     'max_tokens' => (int) ($storedAi['AI_MAX_TOKENS'] ?? env('AI_MAX_TOKENS', 2048)),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Agent loop
+    |--------------------------------------------------------------------------
+    | The model may call several tools in a row (up to max_steps) and sees each
+    | result before answering. history_messages = how much of the conversation
+    | it remembers.
+    */
+    'agent' => [
+        'max_steps' => (int) env('AI_AGENT_MAX_STEPS', 5),
+        'history_messages' => (int) env('AI_HISTORY_MESSAGES', 20),
+        'history_message_chars' => 2000,
+        'max_tool_result_chars' => 12000,
+        'request_timeout' => 90,
+        // Gemini 3 thinking depth: low (fast) | high (slower, deeper). Empty = provider default.
+        'gemini_thinking_level' => env('AI_GEMINI_THINKING', 'low'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Usage limits (protect the API budget)
+    |--------------------------------------------------------------------------
+    */
+    'rate_limits' => [
+        'per_minute' => (int) env('AI_RATE_PER_MINUTE', 15),
+        'per_day' => (int) env('AI_RATE_PER_DAY', 150),
+        'per_day_admin' => (int) env('AI_RATE_PER_DAY_ADMIN', 400),
+    ],
 ];
 

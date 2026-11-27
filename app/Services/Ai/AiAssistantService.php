@@ -24,13 +24,20 @@ use Illuminate\Support\Str;
 class AiAssistantService
 {
     /**
-     * Process user chat message and return AI Assistant response
+     * Process a user chat message and return the assistant's response.
+     *
+     * @param callable|null $onEvent  receives live events while the answer is produced:
+     *                                ('status', ['label' => ...]) when a tool runs,
+     *                                ('delta', ['text' => ...]) for streamed text,
+     *                                ('replace', ['content' => ...]) when the final text differs from the streamed one.
      */
-    public function chat(User $user, string $sessionId, string $userMessage): array
+    public function chat(User $user, string $sessionId, string $userMessage, ?callable $onEvent = null): array
     {
         $userMessage = trim($userMessage);
 
-        // 1. Save user message to chat history
+        // 1. Conversation so far (loaded before saving the new message, so it is not sent twice)
+        $history = $this->recentHistory($user, $sessionId);
+
         AiChatMessage::create([
             'user_id' => $user->id,
             'session_id' => $sessionId,
@@ -38,47 +45,28 @@ class AiAssistantService
             'content' => $userMessage,
         ]);
 
-        // 2. Fetch authorized tools for this user
+        // 2. Tools this user is allowed to use
         $authorizedTools = AiToolRegistry::getAuthorizedTools($user);
 
-        // 3. Provider Resolution & Autonomous AI Dispatch (Groq LLaMA / Gemini / Local Engine)
-        $aiSettings = \App\Http\Controllers\AdminAiSettingsController::getAiSettings();
-        $configuredProvider = strtolower($aiSettings['provider'] ?: config('ai.provider', 'auto'));
-        $geminiKey = $aiSettings['gemini_api_key'] ?: config('ai.gemini_api_key', '');
-        $groqKey = $aiSettings['groq_api_key'] ?: config('ai.groq_api_key', '');
-        $generalKey = config('ai.api_key') ?: env('AI_API_KEY', '');
-
-        // Auto-detect provider if generic AI_API_KEY is supplied
-        if (!empty($generalKey)) {
-            if (str_starts_with($generalKey, 'gsk_')) {
-                $groqKey = $groqKey ?: $generalKey;
-            } elseif (str_starts_with($generalKey, 'AIza')) {
-                $geminiKey = $geminiKey ?: $generalKey;
-            }
-        }
-
+        // 3. Providers in order of preference, each running the multi-step agent loop
         $response = null;
-
-        // Try Groq (LLaMA 3.3 70B) first if selected or if Groq key is present
-        if ($configuredProvider === 'groq' || ($configuredProvider === 'auto' && !empty($groqKey))) {
-            if (!empty($groqKey)) {
-                $response = $this->callGroqApi($user, $sessionId, $userMessage, $authorizedTools, $groqKey);
+        $runner = new AiAgentRunner($this, $onEvent);
+        foreach ($this->resolveProviders() as [$provider, $apiKey]) {
+            $response = $runner->run($provider, $apiKey, $user, $history, $userMessage, $authorizedTools);
+            if ($response) {
+                break;
             }
         }
 
-        // Try Gemini if Groq was not used or failed
-        if (!$response && ($configuredProvider === 'gemini' || $configuredProvider === 'auto' || !empty($geminiKey))) {
-            if (!empty($geminiKey)) {
-                $response = $this->callGeminiApi($user, $sessionId, $userMessage, $authorizedTools, $geminiKey);
-            }
-        }
-
-        // Fallback to intelligent local engine if API not configured or failed
+        // 4. Offline fallback when no provider is configured or all failed
         if (!$response) {
             $response = $this->callLocalEngine($user, $sessionId, $userMessage, $authorizedTools);
+            if ($onEvent) {
+                $onEvent('replace', ['content' => $response['content']]);
+            }
         }
 
-        // 4. Save assistant response to chat history
+        // 5. Save the assistant's answer
         AiChatMessage::create([
             'user_id' => $user->id,
             'session_id' => $sessionId,
@@ -99,6 +87,65 @@ class AiAssistantService
             'action_proposal' => $response['action_proposal'] ?? null,
             'tool_executed' => $response['tool_executed'] ?? null,
         ];
+    }
+
+    /**
+     * Last N messages of this conversation (oldest first), each trimmed to keep the prompt small.
+     */
+    protected function recentHistory(User $user, string $sessionId): array
+    {
+        $limit = (int) config('ai.agent.history_messages', 20);
+        $maxChars = (int) config('ai.agent.history_message_chars', 2000);
+
+        return AiChatMessage::where('user_id', $user->id)
+            ->where('session_id', $sessionId)
+            ->whereIn('role', ['user', 'assistant'])
+            ->orderBy('id', 'desc')
+            ->limit($limit)
+            ->get(['role', 'content'])
+            ->reverse()
+            ->filter(fn ($m) => trim((string) $m->content) !== '')
+            ->map(fn ($m) => [
+                'role' => $m->role,
+                'content' => mb_strlen($m->content) > $maxChars ? mb_substr($m->content, 0, $maxChars) . ' …' : $m->content,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Configured AI providers in the order they should be tried: [[provider, apiKey], ...]
+     */
+    protected function resolveProviders(): array
+    {
+        $aiSettings = \App\Http\Controllers\AdminAiSettingsController::getAiSettings();
+        $configured = strtolower($aiSettings['provider'] ?: config('ai.provider', 'auto'));
+        $geminiKey = $aiSettings['gemini_api_key'] ?: config('ai.gemini_api_key', '');
+        $groqKey = $aiSettings['groq_api_key'] ?: config('ai.groq_api_key', '');
+        $generalKey = config('ai.api_key', '');
+
+        // A generic AI_API_KEY is recognised by its prefix
+        if (!empty($generalKey)) {
+            if (str_starts_with($generalKey, 'gsk_')) {
+                $groqKey = $groqKey ?: $generalKey;
+            } elseif (str_starts_with($generalKey, 'AIza')) {
+                $geminiKey = $geminiKey ?: $generalKey;
+            }
+        }
+
+        $providers = [];
+        if ($configured === 'local') {
+            return $providers;
+        }
+        if ($configured === 'gemini') {
+            if ($geminiKey) $providers[] = ['gemini', $geminiKey];
+            if ($groqKey) $providers[] = ['groq', $groqKey];
+        } else {
+            if ($groqKey) $providers[] = ['groq', $groqKey];
+            if ($geminiKey) $providers[] = ['gemini', $geminiKey];
+        }
+
+        return $providers;
     }
 
     /**
@@ -1024,7 +1071,7 @@ class AiAssistantService
     /**
      * Build unified system instruction with real user & graduate profile context
      */
-    protected function buildSystemInstruction(User $user): string
+    public function buildSystemInstruction(User $user): string
     {
         $roleArabic = $user->role_arabic ?? $user->role;
         $instruction = "أنت 'المساعد الذكي لمكتب تدريب وتأهيل الخريجين بجامعة طرابلس'.\n" .
@@ -1086,288 +1133,6 @@ class AiAssistantService
         }
 
         return $instruction;
-    }
-
-    /**
-     * Call Google Gemini API with Function Calling
-     */
-    protected function callGeminiApi(User $user, string $sessionId, string $userMessage, array $authorizedTools, string $apiKey): ?array
-    {
-        try {
-            $model = config('ai.gemini_model', config('ai.model', 'gemini-3.6-flash'));
-            $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
-
-            // Format tools for Gemini API schema
-            $geminiTools = [];
-            if (!empty($authorizedTools)) {
-                $functionDeclarations = [];
-                foreach ($authorizedTools as $tool) {
-                    $functionDeclarations[] = [
-                        'name' => $tool['name'],
-                        'description' => $tool['description'],
-                        'parameters' => $tool['parameters'],
-                    ];
-                }
-                $geminiTools = [
-                    ['functionDeclarations' => $functionDeclarations]
-                ];
-            }
-
-            // Build system instructions with real profile
-            $systemInstruction = $this->buildSystemInstruction($user);
-
-            // Load recent chat history
-            $history = AiChatMessage::where('user_id', $user->id)
-                ->where('session_id', $sessionId)
-                ->orderBy('id', 'desc')
-                ->limit(6)
-                ->get()
-                ->reverse();
-
-            $contents = [];
-            foreach ($history as $msg) {
-                if ($msg->role === 'user') {
-                    $contents[] = ['role' => 'user', 'parts' => [['text' => $msg->content]]];
-                } elseif ($msg->role === 'assistant') {
-                    $contents[] = ['role' => 'model', 'parts' => [['text' => $msg->content]]];
-                }
-            }
-
-            // Add current message
-            $contents[] = ['role' => 'user', 'parts' => [['text' => $userMessage]]];
-
-            $payload = [
-                'systemInstruction' => [
-                    'parts' => [['text' => $systemInstruction]]
-                ],
-                'contents' => $contents,
-                'generationConfig' => [
-                    'temperature' => config('ai.temperature', 0.4),
-                    'maxOutputTokens' => config('ai.max_tokens', 2048),
-                ]
-            ];
-
-            if (!empty($geminiTools)) {
-                $payload['tools'] = $geminiTools;
-            }
-
-            $response = Http::timeout(25)->post($url, $payload);
-
-            if (!$response->successful()) {
-                Log::warning('Gemini API Error: ' . $response->body());
-                return null;
-            }
-
-            $data = $response->json();
-            $candidates = $data['candidates'][0] ?? null;
-            if (!$candidates) return null;
-
-            $part = $candidates['content']['parts'][0] ?? null;
-            if (!$part) return null;
-
-            // Check if model called a function
-            if (isset($part['functionCall'])) {
-                $fnCall = $part['functionCall'];
-                $toolName = $fnCall['name'];
-                $arguments = $fnCall['args'] ?? [];
-
-                // Execute tool
-                $toolResult = AiToolRegistry::executeTool($user, $toolName, $arguments);
-
-                $actionProposal = null;
-                if (isset($toolResult['status']) && $toolResult['status'] === 'proposal') {
-                    $actionProposal = $toolResult;
-                }
-
-                // Format rich conversational report directly from tool execution
-                $finalText = $this->formatToolResultFallback($toolName, $toolResult, $user);
-
-                return [
-                    'content' => $finalText,
-                    'tool_calls' => [$toolName => $arguments],
-                    'tool_results' => $toolResult,
-                    'tool_executed' => $toolName,
-                    'action_proposal' => $actionProposal,
-                ];
-            }
-
-            return [
-                'content' => $part['text'] ?? 'مرحباً، كيف يمكنني مساعدتك اليوم؟',
-                'tool_calls' => null,
-                'tool_results' => null,
-            ];
-        } catch (\Throwable $e) {
-            Log::error('AI Service Gemini Exception: ' . $e->getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Call Groq Cloud API with LLaMA 3.3 / LLaMA 3.1 & Tool Calling
-     */
-    protected function callGroqApi(User $user, string $sessionId, string $userMessage, array $authorizedTools, string $apiKey): ?array
-    {
-        try {
-            $model = config('ai.groq_model', 'llama-3.3-70b-versatile');
-            $url = 'https://api.groq.com/openai/v1/chat/completions';
-
-            // Format tools for Groq / OpenAI specification
-            $groqTools = [];
-            if (!empty($authorizedTools)) {
-                foreach ($authorizedTools as $tool) {
-                    $groqTools[] = [
-                        'type' => 'function',
-                        'function' => [
-                            'name' => $tool['name'],
-                            'description' => $tool['description'],
-                            'parameters' => (object) ($tool['parameters'] ?? new \stdClass()),
-                        ],
-                    ];
-                }
-            }
-
-            // Build system instructions with real profile
-            $systemInstruction = $this->buildSystemInstruction($user);
-
-            // Load recent chat history
-            $history = AiChatMessage::where('user_id', $user->id)
-                ->where('session_id', $sessionId)
-                ->orderBy('id', 'desc')
-                ->limit(6)
-                ->get()
-                ->reverse();
-
-            $messages = [
-                ['role' => 'system', 'content' => $systemInstruction]
-            ];
-
-            foreach ($history as $msg) {
-                $messages[] = [
-                    'role' => $msg->role === 'assistant' ? 'assistant' : 'user',
-                    'content' => $msg->content,
-                ];
-            }
-
-            // Current user message
-            $messages[] = ['role' => 'user', 'content' => $userMessage];
-
-            $payload = [
-                'model' => $model,
-                'messages' => $messages,
-                'temperature' => config('ai.temperature', 0.3),
-                'max_tokens' => config('ai.max_tokens', 2048),
-            ];
-
-            if (!empty($groqTools)) {
-                $payload['tools'] = $groqTools;
-                $payload['tool_choice'] = 'auto';
-            }
-
-            $response = Http::timeout(25)->withToken($apiKey)->post($url, $payload);
-
-            if (!$response->successful()) {
-                Log::warning('Groq API Error (' . $response->status() . '): ' . $response->body());
-
-                // إذا كان الخطأ 404 (النموذج غير موجود أو محذوف)، نحاول تلقائياً مع النماذج البديلة المتاحة
-                if ($response->status() === 404) {
-                    $fallbackModels = ['llama-3.1-8b-instant', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'mixtral-8x7b-32768'];
-                    foreach ($fallbackModels as $altModel) {
-                        if ($altModel === $model) continue;
-                        $payload['model'] = $altModel;
-                        $altResp = Http::timeout(20)->withToken($apiKey)->post($url, $payload);
-                        if ($altResp->successful()) {
-                            $response = $altResp;
-                            Log::info("Groq successfully fell back to model: {$altModel}");
-                            break;
-                        }
-                    }
-                }
-
-                if (!$response->successful()) {
-                    return null;
-                }
-            }
-
-            $data = $response->json();
-            $choice = $data['choices'][0]['message'] ?? null;
-            if (!$choice) return null;
-
-            // Check if model invoked tool calls
-            if (!empty($choice['tool_calls'])) {
-                $toolCall = $choice['tool_calls'][0];
-                $toolName = $toolCall['function']['name'] ?? '';
-                $rawArgs = $toolCall['function']['arguments'] ?? '{}';
-                $arguments = is_string($rawArgs) ? json_decode($rawArgs, true) : $rawArgs;
-                $arguments = is_array($arguments) ? $arguments : [];
-
-                // Execute tool
-                $toolResult = AiToolRegistry::executeTool($user, $toolName, $arguments);
-
-                $actionProposal = null;
-                if (isset($toolResult['status']) && $toolResult['status'] === 'proposal') {
-                    $actionProposal = $toolResult;
-                }
-
-                // Append assistant tool call and tool result back to message thread
-                $messages[] = $choice;
-                $messages[] = [
-                    'role' => 'tool',
-                    'tool_call_id' => $toolCall['id'],
-                    'name' => $toolName,
-                    'content' => json_encode($toolResult, JSON_UNESCAPED_UNICODE),
-                ];
-
-                $secondPayload = [
-                    'model' => $model,
-                    'messages' => $messages,
-                    'temperature' => config('ai.temperature', 0.3),
-                    'max_tokens' => config('ai.max_tokens', 2048),
-                ];
-
-                // الأدوات التي تحتوي على بطاقات تفاعلية وأزرار تقديم منسقة
-                $structuredUiTools = [
-                    'search_job_opportunities', 
-                    'search_trainings', 
-                    'get_my_applications', 
-                    'get_my_profile', 
-                    'get_system_statistics', 
-                    'search_partner_companies',
-                    'get_platform_summary',
-                    'list_graduates_for_counselor'
-                ];
-
-                if (in_array($toolName, $structuredUiTools) && isset($toolResult['status']) && $toolResult['status'] === 'success') {
-                    $finalText = $this->formatToolResultFallback($toolName, $toolResult, $user);
-                } else {
-                    $secondResponse = Http::timeout(20)->withToken($apiKey)->post($url, $secondPayload);
-                    $finalText = '';
-                    if ($secondResponse->successful()) {
-                        $finalText = $secondResponse->json()['choices'][0]['message']['content'] ?? '';
-                    }
-
-                    if (empty($finalText)) {
-                        $finalText = $this->formatToolResultFallback($toolName, $toolResult, $user);
-                    }
-                }
-
-                return [
-                    'content' => $finalText,
-                    'tool_calls' => [$toolName => $arguments],
-                    'tool_results' => $toolResult,
-                    'tool_executed' => $toolName,
-                    'action_proposal' => $actionProposal,
-                ];
-            }
-
-            return [
-                'content' => $choice['content'] ?? 'مرحباً، كيف يمكنني مساعدتك اليوم؟',
-                'tool_calls' => null,
-                'tool_results' => null,
-            ];
-        } catch (\Throwable $e) {
-            Log::error('AI Service Groq Exception: ' . $e->getMessage());
-            return null;
-        }
     }
 
     /**
@@ -3673,7 +3438,7 @@ class AiAssistantService
     /**
      * Comprehensive, rich Arabic formatter for tool results
      */
-    protected function formatToolResultFallback(string $toolName, array $result, ?User $user = null): string
+    public function formatToolResultFallback(string $toolName, array $result, ?User $user = null): string
     {
         if (isset($result['status']) && $result['status'] === 'proposal') {
             return $result['message'] ?? 'تم تجهيز الإجراء المقترح بنجاح.';

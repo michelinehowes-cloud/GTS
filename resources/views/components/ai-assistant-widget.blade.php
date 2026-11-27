@@ -642,6 +642,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (actionProposal) {
             attachProposalListeners();
         }
+        return msgDiv;
     }
 
     // Attach Proposal Action Listeners
@@ -727,9 +728,41 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Send message to server
+    // Send message to server: stream the answer as it is written (falls back to a single JSON reply)
+    function finishWaiting() {
+        typingIndicator.classList.add('d-none');
+        chatInput.disabled = false;
+        sendBtn.disabled = false;
+        isWaitingResponse = false;
+        chatInput.focus();
+    }
+
+    function rememberSession(id) {
+        if (id && id !== sessionId) {
+            sessionId = id;
+            localStorage.setItem(SESSION_STORAGE_KEY, sessionId);
+        }
+    }
+
+    function sendMessageJson(messageText) {
+        return fetch('{{ route("ai-assistant.chat") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getCsrfToken(), 'Accept': 'application/json' },
+            body: JSON.stringify({ message: messageText, session_id: sessionId })
+        })
+        .then(res => res.json())
+        .then(data => {
+            finishWaiting();
+            rememberSession(data.session_id);
+            appendMessage('assistant', data.content || data.message || 'عذراً، لم أتمكن من معالجة الطلب حالياً.', data.tool_executed, data.action_proposal);
+        })
+        .catch(() => {
+            finishWaiting();
+            appendMessage('assistant', 'عذراً، تعذر الاتصال بالخادم. يرجى المحاولة مرة أخرى.');
+        });
+    }
+
     function sendMessage(messageText) {
-        // Render user message immediately
         appendMessage('user', messageText);
         chatInput.value = '';
         chatInput.disabled = true;
@@ -738,42 +771,109 @@ document.addEventListener('DOMContentLoaded', function() {
         typingIndicator.classList.remove('d-none');
         scrollToBottom();
 
-        fetch('{{ route("ai-assistant.chat") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': getCsrfToken()
-            },
-            body: JSON.stringify({
-                message: messageText,
-                session_id: sessionId
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            typingIndicator.classList.add('d-none');
-            chatInput.disabled = false;
-            sendBtn.disabled = false;
-            isWaitingResponse = false;
-            chatInput.focus();
+        if (!window.ReadableStream || !window.TextDecoder) {
+            return sendMessageJson(messageText);
+        }
 
-            if (data.session_id && data.session_id !== sessionId) {
-                sessionId = data.session_id;
-                localStorage.setItem(SESSION_STORAGE_KEY, sessionId);
+        let liveDiv = null;      // the assistant bubble being written
+        let liveText = '';       // streamed text so far
+        let liveStatus = '';     // current step ("يبحث في فرص العمل…")
+        let finished = false;
+
+        function renderLive(contentOverride) {
+            if (!liveDiv) {
+                typingIndicator.classList.add('d-none');
+                liveDiv = appendMessage('assistant', '');
             }
+            const body = liveDiv.querySelector('.ai-bubble > div:last-child') || liveDiv.querySelector('.ai-bubble');
+            const statusHtml = liveStatus
+                ? `<div class="ai-live-status small text-primary mb-1"><span class="spinner-border spinner-border-sm me-1" style="width:.7rem;height:.7rem;"></span>${liveStatus}</div>`
+                : '';
+            body.innerHTML = statusHtml + parseMarkdown(contentOverride !== undefined ? contentOverride : liveText);
+            scrollToBottom();
+        }
 
-            if (data.status === 'success' || data.content) {
+        function handleEvent(event, data) {
+            if (event === 'status') {
+                liveStatus = data.label || '';
+                renderLive();
+            } else if (event === 'delta') {
+                liveStatus = '';
+                liveText += data.text || '';
+                renderLive();
+            } else if (event === 'replace') {
+                liveStatus = '';
+                liveText = data.content || '';
+                renderLive();
+            } else if (event === 'done') {
+                finished = true;
+                rememberSession(data.session_id);
+                if (liveDiv) liveDiv.remove();
+                finishWaiting();
                 appendMessage('assistant', data.content, data.tool_executed, data.action_proposal);
-            } else {
-                appendMessage('assistant', data.message || 'عذراً، لم أتمكن من معالجة الطلب حالياً.');
+            } else if (event === 'error') {
+                finished = true;
+                if (liveDiv) liveDiv.remove();
+                finishWaiting();
+                appendMessage('assistant', data.content || 'عذراً، حدث خطأ أثناء معالجة طلبك.');
+            }
+        }
+
+        fetch('{{ route("ai-assistant.stream") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getCsrfToken(), 'Accept': 'text/event-stream' },
+            body: JSON.stringify({ message: messageText, session_id: sessionId })
+        })
+        .then(async res => {
+            const type = res.headers.get('content-type') || '';
+            if (!res.ok || !res.body || type.indexOf('text/event-stream') === -1) {
+                // Rate limit / validation messages come back as JSON
+                const data = await res.json().catch(() => ({}));
+                finished = true;
+                finishWaiting();
+                appendMessage('assistant', data.content || data.message || 'عذراً، لم أتمكن من معالجة الطلب حالياً.');
+                return;
+            }
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+                let sep;
+                buffer = buffer.replace(/\r\n/g, '\n');
+                while ((sep = buffer.indexOf('\n\n')) !== -1) {
+                    const block = buffer.slice(0, sep);
+                    buffer = buffer.slice(sep + 2);
+                    let event = 'message', dataLine = '';
+                    block.split('\n').forEach(line => {
+                        if (line.startsWith('event:')) event = line.slice(6).trim();
+                        else if (line.startsWith('data:')) dataLine += line.slice(5).trim();
+                    });
+                    if (!dataLine) continue;
+                    try { handleEvent(event, JSON.parse(dataLine)); } catch (e) { /* ignore malformed block */ }
+                }
+            }
+
+            if (!finished) {
+                // Stream closed without a final event: keep what arrived
+                if (liveDiv) liveDiv.remove();
+                finishWaiting();
+                appendMessage('assistant', liveText || 'عذراً، انقطع الاتصال قبل اكتمال الرد. يرجى المحاولة مرة أخرى.');
             }
         })
-        .catch(err => {
-            typingIndicator.classList.add('d-none');
-            chatInput.disabled = false;
-            sendBtn.disabled = false;
-            isWaitingResponse = false;
-            appendMessage('assistant', 'عذراً، تعذر الاتصال بالخادم. يرجى المحاولة مرة أخرى.');
+        .catch(() => {
+            if (finished) return;
+            if (liveDiv) {
+                liveDiv.remove();
+                finishWaiting();
+                appendMessage('assistant', liveText || 'عذراً، تعذر الاتصال بالخادم. يرجى المحاولة مرة أخرى.');
+            } else {
+                // Streaming not available on this connection: try the regular request once
+                sendMessageJson(messageText);
+            }
         });
     }
 

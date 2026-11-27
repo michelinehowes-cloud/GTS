@@ -1,4 +1,8 @@
 {
+  "node_modules/pdfjs-dist/build/pdf.worker.min.js": {
+    "file": "assets/pdf.worker.min-feabdf30.js",
+    "src": "node_modules/pdfjs-dist/build/pdf.worker.min.js"
+  },
   "resources/js/advanced-reports.js": {
     "file": "assets/advanced-reports-12de9e5c.js",
     "isDynamicEntry": true,
@@ -6,11 +10,20 @@
   },
   "resources/js/app.js": {
     "dynamicImports": [
+      "resources/js/cv-reader.js",
       "resources/js/advanced-reports.js"
     ],
-    "file": "assets/app-ab1e34e6.js",
+    "file": "assets/app-ab5a4dd2.js",
     "isEntry": true,
     "src": "resources/js/app.js"
+  },
+  "resources/js/cv-reader.js": {
+    "assets": [
+      "assets/pdf.worker.min-feabdf30.js"
+    ],
+    "file": "assets/cv-reader-deb07728.js",
+    "isDynamicEntry": true,
+    "src": "resources/js/cv-reader.js"
   },
   "resources/sass/app.scss": {
     "file": "assets/app-853d7eeb.css",

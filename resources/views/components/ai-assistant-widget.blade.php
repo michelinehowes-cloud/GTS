@@ -7,6 +7,7 @@
     $quickPrompts = [];
     if ($userRole === 'graduate') {
         $quickPrompts = [
+            'حلّل ملفي الشخصي واقترح وظائف ودورات تناسبني',
             'سجلني في دورة الذكاء الاصطناعي',
             'ما هي أحدث البرامج التدريبية المتاحة لي؟',
             'ابحث لي عن فرص توظيف نشطة',
@@ -15,6 +16,7 @@
         ];
     } elseif ($userRole === 'evaluation_followup') {
         $quickPrompts = [
+            'حلّل مؤشرات التدريب والاستبيانات واقترح تحسينات',
             'صغ استبيان تقييم دورة تدريبية',
             'اكتب لي تقرير التقييم والمتابعة ومؤشرات الجودة',
             'عرض ملخص الاستبيانات النشطة ونسب الاستجابة',
@@ -22,6 +24,7 @@
         ];
     } elseif ($userRole === 'career_guidance_officer') {
         $quickPrompts = [
+            'حلّل جاهزية الخريجين لسوق العمل واقترح خطة إرشاد',
             'ابحث عن خريجي تقنية المعلومات بمعدل 85% فما فوق',
             'أضف وظيفة جديدة لخريجي الهندسة',
             'اكتب لي تقرير الإرشاد المهني والجاهزية',
@@ -37,6 +40,7 @@
         ];
     } elseif ($userRole === 'training_coordinator') {
         $quickPrompts = [
+            'حلّل الإقبال على البرامج واقترح برامج جديدة مطلوبة',
             'اقترح وصغ مسودة دورة تدريبية جديدة في الذكاء الاصطناعي',
             'اكتب لي تقرير التدريب ونسب شغل المقاعد',
             'عرض ملخص إحصائيات البرامج التدريبية',
@@ -44,6 +48,7 @@
         ];
     } elseif ($userRole === 'partnership_officer') {
         $quickPrompts = [
+            'حلّل سوق العمل واقترح قطاعات وشركات نستهدفها',
             'أضف شركة جديدة شريكة',
             'عرض قائمة الشركات الشريكة المعتمدة',
             'اكتب لي تقرير الشراكات وسوق العمل',
@@ -52,6 +57,7 @@
         ];
     } elseif ($userRole === 'company') {
         $quickPrompts = [
+            'حلّل المرشحين لوظائفنا ورتّبهم حسب الملاءمة',
             'عرض المرشحين لوظائف شركتنا',
             'أضف وظيفة جديدة لشركتنا',
             'ابحث عن خريجين متميزين في تقنية المعلومات',
@@ -60,6 +66,7 @@
         ];
     } elseif ($userRole === 'admin') {
         $quickPrompts = [
+            'قارن التدريب بفرص العمل وأعطني 3 توصيات',
             'اكتب لي تقرير تنفيذي شامل للجامعة',
             'صغ استبيان تقييم ومتابعة جديد',
             'ابحث عن خريجي تقنية المعلومات بمعدل أعلى من 80%',
@@ -244,7 +251,20 @@
 
     <!-- Input Box -->
     <div class="ai-panel-footer p-2 bg-white border-top">
+        <!-- Attached file chip (shown after choosing a PDF) -->
+        <div id="ai-attachment-chip" class="d-none align-items-center gap-2 mb-2 px-2 py-1 rounded-3" style="background:#eef4ff; border:1px solid #c7d7f5; font-size:0.8rem;">
+            <i class="fas fa-file-pdf text-danger"></i>
+            <span id="ai-attachment-name" class="text-truncate flex-grow-1" style="min-width:0;"></span>
+            <button type="button" id="ai-attachment-remove" class="btn btn-sm p-0 text-muted" title="إزالة الملف"><i class="fas fa-times"></i></button>
+        </div>
         <form id="ai-chat-form" class="d-flex align-items-center gap-2 m-0" onsubmit="return false;">
+            <input type="file" id="ai-file-input" accept="application/pdf,.pdf" class="d-none">
+            <button type="button" id="ai-attach-btn" class="btn btn-sm ai-tool-btn flex-shrink-0" title="إرفاق سيرة ذاتية (PDF) لتحليلها">
+                <i class="fas fa-paperclip"></i>
+            </button>
+            <button type="button" id="ai-mic-btn" class="btn btn-sm ai-tool-btn flex-shrink-0 d-none" title="التحدث بدل الكتابة">
+                <i class="fas fa-microphone"></i>
+            </button>
             <input type="text" id="ai-chat-input" class="form-control form-control-sm rounded-pill px-3"
                    placeholder="اكتب استفسارك أو طلبك هنا..."
                    style="border: 1px solid #cbd5e1; font-size: 0.86rem;" autocomplete="off" />
@@ -265,6 +285,36 @@
     #ai-assistant-fab:hover {
         transform: scale(1.08);
     }
+    .ai-tool-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 1px solid #cbd5e1;
+        color: #0d3882;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
+    .ai-tool-btn:hover { background: #eef4ff; }
+    .ai-tool-btn.listening { background: #dc3545; border-color: #dc3545; color: #fff; animation: aiPulse 1.2s infinite; }
+    @keyframes aiPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(220,53,69,.45); } 50% { box-shadow: 0 0 0 6px rgba(220,53,69,0); } }
+
+    .ai-msg-actions { display: flex; gap: 4px; margin-top: 6px; opacity: .75; }
+    .ai-msg-actions:hover { opacity: 1; }
+    .ai-msg-action {
+        border: 0;
+        background: transparent;
+        color: #64748b;
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        border-radius: 6px;
+    }
+    .ai-msg-action:hover { background: #f1f5f9; color: #0d3882; }
+    .ai-msg-action.active-up { color: #16a34a; }
+    .ai-msg-action.active-down { color: #dc2626; }
+
     .ai-prompt-chip:hover {
         background-color: #0d3882 !important;
         color: #ffffff !important;
@@ -436,13 +486,149 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // ---------- Attached CV (PDF read in the browser; only its text is sent) ----------
+    let pendingAttachment = null; // { name, text }
+    const fileInput = document.getElementById('ai-file-input');
+    const attachBtn = document.getElementById('ai-attach-btn');
+    const attachChip = document.getElementById('ai-attachment-chip');
+    const attachName = document.getElementById('ai-attachment-name');
+    const attachRemove = document.getElementById('ai-attachment-remove');
+
+    function setAttachment(att) {
+        pendingAttachment = att;
+        if (att) {
+            attachName.textContent = att.name + (att.pages ? ` — ${att.pages} صفحة` : '');
+            attachChip.classList.remove('d-none');
+            attachChip.classList.add('d-flex');
+            if (!chatInput.value.trim()) chatInput.value = 'حلّل سيرتي الذاتية واقترح وظائف تناسبني';
+        } else {
+            attachChip.classList.add('d-none');
+            attachChip.classList.remove('d-flex');
+            fileInput.value = '';
+        }
+    }
+
+    if (attachBtn && fileInput) {
+        attachBtn.addEventListener('click', () => !isWaitingResponse && fileInput.click());
+        attachRemove.addEventListener('click', () => setAttachment(null));
+        fileInput.addEventListener('change', async function () {
+            const file = this.files && this.files[0];
+            if (!file) return;
+            if (file.type !== 'application/pdf' && !/\.pdf$/i.test(file.name)) {
+                appendMessage('assistant', 'يرجى اختيار ملف بصيغة **PDF**.');
+                return setAttachment(null);
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                appendMessage('assistant', 'حجم الملف أكبر من **5 ميغابايت**. يرجى اختيار ملف أصغر.');
+                return setAttachment(null);
+            }
+            attachBtn.disabled = true;
+            attachBtn.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:.8rem;height:.8rem;"></span>';
+            try {
+                if (!window.loadCvReader) throw new Error('reader unavailable');
+                const { extractPdfText } = await window.loadCvReader();
+                const result = await extractPdfText(file);
+                if (!result.text || result.text.replace(/\s/g, '').length < 80) {
+                    appendMessage('assistant', 'لم أتمكن من قراءة نص من هذا الملف. يبدو أنه **صورة ممسوحة ضوئياً**؛ يرجى إرفاق نسخة PDF نصية (مُصدّرة من Word مثلاً).');
+                    setAttachment(null);
+                } else {
+                    setAttachment({ name: file.name, text: result.text, pages: result.pages });
+                    chatInput.focus();
+                }
+            } catch (err) {
+                console.warn('PDF read failed:', err);
+                appendMessage('assistant', 'تعذّرت قراءة الملف. تأكد أنه ملف PDF سليم وغير محمي بكلمة مرور.');
+                setAttachment(null);
+            } finally {
+                attachBtn.disabled = false;
+                attachBtn.innerHTML = '<i class="fas fa-paperclip"></i>';
+            }
+        });
+    }
+
+    // ---------- Voice input (browsers with speech recognition, e.g. Chrome) ----------
+    const micBtn = document.getElementById('ai-mic-btn');
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (micBtn && SpeechRec) {
+        micBtn.classList.remove('d-none');
+        let recognition = null;
+        micBtn.addEventListener('click', function () {
+            if (recognition) { recognition.stop(); return; }
+            recognition = new SpeechRec();
+            recognition.lang = 'ar-LY';
+            recognition.interimResults = true;
+            recognition.continuous = false;
+            const base = chatInput.value ? chatInput.value.trim() + ' ' : '';
+            recognition.onresult = (e) => {
+                let said = '';
+                for (let i = 0; i < e.results.length; i++) said += e.results[i][0].transcript;
+                chatInput.value = base + said;
+            };
+            recognition.onerror = (e) => {
+                if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+                    appendMessage('assistant', 'لم يُسمح باستخدام الميكروفون. يمكنك تفعيله من إعدادات المتصفح.');
+                }
+            };
+            recognition.onend = () => {
+                micBtn.classList.remove('listening');
+                recognition = null;
+                chatInput.focus();
+            };
+            micBtn.classList.add('listening');
+            recognition.start();
+        });
+    }
+
+    // ---------- Copy / rate replies ----------
+    messagesContainer.addEventListener('click', function (e) {
+        const copyBtn = e.target.closest('.ai-copy-btn');
+        if (copyBtn) {
+            const msg = copyBtn.closest('.ai-msg');
+            const raw = (msg && msg.dataset.rawContent) || (msg ? msg.querySelector('.ai-bubble').innerText : '');
+            const done = () => {
+                copyBtn.innerHTML = '<i class="fas fa-check text-success"></i>';
+                setTimeout(() => copyBtn.innerHTML = '<i class="far fa-copy"></i>', 1500);
+            };
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(raw).then(done).catch(() => {});
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = raw; document.body.appendChild(ta); ta.select();
+                try { document.execCommand('copy'); done(); } catch (err) {}
+                ta.remove();
+            }
+            return;
+        }
+
+        const fbBtn = e.target.closest('.ai-fb-btn');
+        if (fbBtn) {
+            const bar = fbBtn.closest('.ai-msg-actions');
+            const value = fbBtn.dataset.value;
+            bar.querySelectorAll('.ai-fb-btn').forEach(b => {
+                const on = b === fbBtn;
+                b.classList.toggle('active-up', on && value === 'up');
+                b.classList.toggle('active-down', on && value === 'down');
+                const icon = b.querySelector('i');
+                icon.classList.toggle('fas', on);
+                icon.classList.toggle('far', !on);
+            });
+            fetch('{{ route("ai-assistant.feedback") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getCsrfToken(), 'Accept': 'application/json' },
+                body: JSON.stringify({ message_id: parseInt(bar.dataset.messageId, 10), value })
+            }).catch(() => {});
+        }
+    });
+
     // Form submit
     if (chatForm) {
         chatForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const text = chatInput.value.trim();
             if (text && !isWaitingResponse) {
-                sendMessage(text);
+                const att = pendingAttachment;
+                setAttachment(null);
+                sendMessage(text, att);
             }
         });
     }
@@ -555,7 +741,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Append Message to UI
-    function appendMessage(role, content, toolExecuted = null, actionProposal = null) {
+    function appendMessage(role, content, toolExecuted = null, actionProposal = null, messageId = null, feedback = null) {
         const msgDiv = document.createElement('div');
         msgDiv.className = `ai-msg ai-msg-${role} d-flex gap-2`;
 
@@ -632,9 +818,23 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }
 
+        // Copy / rate actions under saved assistant replies
+        if (role === 'assistant' && messageId) {
+            const fb = feedback && feedback.value ? feedback.value : '';
+            bubbleHtml += `
+                <div class="ai-msg-actions" data-message-id="${messageId}">
+                    <button type="button" class="ai-msg-action ai-copy-btn" title="نسخ الرد"><i class="far fa-copy"></i></button>
+                    <button type="button" class="ai-msg-action ai-fb-btn ${fb === 'up' ? 'active-up' : ''}" data-value="up" title="رد مفيد"><i class="${fb === 'up' ? 'fas' : 'far'} fa-thumbs-up"></i></button>
+                    <button type="button" class="ai-msg-action ai-fb-btn ${fb === 'down' ? 'active-down' : ''}" data-value="down" title="رد غير مفيد"><i class="${fb === 'down' ? 'fas' : 'far'} fa-thumbs-down"></i></button>
+                </div>`;
+        }
+
         bubbleHtml += `</div>`;
 
         msgDiv.innerHTML = avatarHtml + bubbleHtml;
+        if (role === 'assistant' && messageId) {
+            msgDiv.dataset.rawContent = content || '';
+        }
         messagesContainer.appendChild(msgDiv);
         scrollToBottom();
 
@@ -744,17 +944,31 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function sendMessageJson(messageText) {
+    function requestBody(messageText, attachment) {
+        const body = { message: messageText, session_id: sessionId };
+        if (attachment) {
+            body.attachment_text = attachment.text;
+            body.attachment_name = attachment.name;
+        }
+        return JSON.stringify(body);
+    }
+
+    function userBubbleText(messageText, attachment) {
+        return attachment ? `📎 **${attachment.name}**
+${messageText}` : messageText;
+    }
+
+    function sendMessageJson(messageText, attachment = null) {
         return fetch('{{ route("ai-assistant.chat") }}', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getCsrfToken(), 'Accept': 'application/json' },
-            body: JSON.stringify({ message: messageText, session_id: sessionId })
+            body: requestBody(messageText, attachment)
         })
         .then(res => res.json())
         .then(data => {
             finishWaiting();
             rememberSession(data.session_id);
-            appendMessage('assistant', data.content || data.message || 'عذراً، لم أتمكن من معالجة الطلب حالياً.', data.tool_executed, data.action_proposal);
+            appendMessage('assistant', data.content || data.message || 'عذراً، لم أتمكن من معالجة الطلب حالياً.', data.tool_executed, data.action_proposal, data.message_id);
         })
         .catch(() => {
             finishWaiting();
@@ -762,8 +976,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function sendMessage(messageText) {
-        appendMessage('user', messageText);
+    function sendMessage(messageText, attachment = null) {
+        appendMessage('user', userBubbleText(messageText, attachment));
         chatInput.value = '';
         chatInput.disabled = true;
         sendBtn.disabled = true;
@@ -772,7 +986,7 @@ document.addEventListener('DOMContentLoaded', function() {
         scrollToBottom();
 
         if (!window.ReadableStream || !window.TextDecoder) {
-            return sendMessageJson(messageText);
+            return sendMessageJson(messageText, attachment);
         }
 
         let liveDiv = null;      // the assistant bubble being written
@@ -810,7 +1024,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 rememberSession(data.session_id);
                 if (liveDiv) liveDiv.remove();
                 finishWaiting();
-                appendMessage('assistant', data.content, data.tool_executed, data.action_proposal);
+                appendMessage('assistant', data.content, data.tool_executed, data.action_proposal, data.message_id);
             } else if (event === 'error') {
                 finished = true;
                 if (liveDiv) liveDiv.remove();
@@ -822,7 +1036,7 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch('{{ route("ai-assistant.stream") }}', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getCsrfToken(), 'Accept': 'text/event-stream' },
-            body: JSON.stringify({ message: messageText, session_id: sessionId })
+            body: requestBody(messageText, attachment)
         })
         .then(async res => {
             const type = res.headers.get('content-type') || '';
@@ -872,7 +1086,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 appendMessage('assistant', liveText || 'عذراً، تعذر الاتصال بالخادم. يرجى المحاولة مرة أخرى.');
             } else {
                 // Streaming not available on this connection: try the regular request once
-                sendMessageJson(messageText);
+                sendMessageJson(messageText, attachment);
             }
         });
     }
@@ -892,7 +1106,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         const meta = msg.meta_data || {};
                         const actionProp = meta.action_proposal || (meta.type ? meta : null);
                         const toolExec = meta.tool_executed || null;
-                        appendMessage(msg.role, msg.content, toolExec, actionProp);
+                        const shown = (msg.role === 'user' && meta.attachment && meta.attachment.name)
+                            ? userBubbleText(msg.content, meta.attachment)
+                            : msg.content;
+                        appendMessage(msg.role, shown, toolExec, actionProp, msg.role === 'assistant' ? msg.id : null, meta.feedback || null);
                     });
                     scrollToBottom();
                 }

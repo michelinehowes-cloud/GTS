@@ -288,6 +288,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('ai-assistant')->name('ai-assistant.')->group(function () {
         Route::post('/chat', [App\Http\Controllers\AiAssistantController::class, 'chat'])->name('chat');
         Route::post('/stream', [App\Http\Controllers\AiAssistantController::class, 'stream'])->name('stream');
+        Route::post('/feedback', [App\Http\Controllers\AiAssistantController::class, 'feedback'])->name('feedback');
         Route::post('/confirm-action', [App\Http\Controllers\AiAssistantController::class, 'confirmAction'])->name('confirm-action');
         Route::get('/history', [App\Http\Controllers\AiAssistantController::class, 'history'])->name('history');
         Route::delete('/history', [App\Http\Controllers\AiAssistantController::class, 'clearHistory'])->name('clear-history');

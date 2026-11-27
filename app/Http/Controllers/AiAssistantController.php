@@ -54,10 +54,7 @@ class AiAssistantController extends Controller
      */
     public function stream(Request $request)
     {
-        $validated = $request->validate([
-            'message' => 'required|string|max:2000',
-            'session_id' => 'nullable|string|max:100',
-        ]);
+        $validated = $request->validate($this->messageRules());
 
         $user = $request->user();
         if ($limitMessage = $this->checkUsageLimits($user)) {
@@ -66,8 +63,9 @@ class AiAssistantController extends Controller
 
         $sessionId = $validated['session_id'] ?? session()->getId();
         $message = $validated['message'];
+        [$modelMessage, $userMeta] = $this->withAttachment($validated);
 
-        return response()->stream(function () use ($user, $sessionId, $message) {
+        return response()->stream(function () use ($user, $sessionId, $message, $modelMessage, $userMeta) {
             // Push every event to the browser immediately (skipped under PHPUnit, which owns the output buffers)
             $live = !app()->runningUnitTests();
             if ($live) {
@@ -93,7 +91,7 @@ class AiAssistantController extends Controller
             }
 
             try {
-                $result = $this->aiService->chat($user, $sessionId, $message, $send);
+                $result = $this->aiService->chat($user, $sessionId, $message, $send, $modelMessage, $userMeta);
                 $send('done', $result);
             } catch (\Throwable $e) {
                 \Log::error('AI Assistant Stream Error: ' . $e->getMessage(), ['user_id' => $user->id]);
@@ -107,15 +105,83 @@ class AiAssistantController extends Controller
         ]);
     }
 
+    protected function messageRules(): array
+    {
+        return [
+            'message' => 'required|string|max:2000',
+            'session_id' => 'nullable|string|max:100',
+            // Text extracted in the browser from an attached PDF (the file itself is never uploaded)
+            'attachment_text' => 'nullable|string|max:20000',
+            'attachment_name' => 'nullable|string|max:150',
+        ];
+    }
+
+    /**
+     * When a CV is attached, the model receives its text plus analysis instructions,
+     * while the conversation shows and stores only the short message and the file name.
+     *
+     * @return array{0: ?string, 1: array}  [message for the model, metadata saved with the user's message]
+     */
+    protected function withAttachment(array $validated): array
+    {
+        $text = trim((string) ($validated['attachment_text'] ?? ''));
+        if ($text === '') {
+            return [null, []];
+        }
+
+        $name = trim((string) ($validated['attachment_name'] ?? 'cv.pdf'));
+        $modelMessage = $validated['message'] . "\n\n" .
+            "[ملف مرفق: {$name} — النص المستخرج من السيرة الذاتية]\n" .
+            "-----\n{$text}\n-----\n\n" .
+            "المطلوب: حلّل هذه السيرة الذاتية بدقة اعتماداً على نصها فقط:\n" .
+            "1. ملخص قصير لصاحبها (التخصص، المؤهل، سنوات الخبرة التقريبية).\n" .
+            "2. أبرز المهارات التقنية والشخصية الظاهرة فيها.\n" .
+            "3. نقاط القوة، والنواقص أو الأخطاء التي تضعف السيرة.\n" .
+            "4. استخدم أداة البحث عن فرص العمل (إن كانت متاحة لك) للعثور على الفرص الأنسب، واذكر لماذا تناسبه كل فرصة.\n" .
+            "5. توصيات محددة وعملية لتحسين السيرة الذاتية.\n" .
+            "لا تخترع معلومات غير موجودة في النص.";
+
+        return [$modelMessage, ['attachment' => ['name' => $name, 'chars' => mb_strlen($text)]]];
+    }
+
+    /**
+     * Save the user's rating (👍 / 👎) of one assistant reply, for later review.
+     */
+    public function feedback(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'message_id' => 'required|integer',
+            'value' => 'required|in:up,down',
+            'comment' => 'nullable|string|max:500',
+        ]);
+
+        $message = AiChatMessage::where('id', $validated['message_id'])
+            ->where('user_id', $request->user()->id)
+            ->where('role', 'assistant')
+            ->first();
+
+        if (!$message) {
+            return response()->json(['status' => 'not_found'], 404);
+        }
+
+        $meta = $message->meta_data ?? [];
+        $meta['feedback'] = [
+            'value' => $validated['value'],
+            'comment' => $validated['comment'] ?? null,
+            'at' => now()->toIso8601String(),
+        ];
+        $message->meta_data = $meta;
+        $message->save();
+
+        return response()->json(['status' => 'success']);
+    }
+
     /**
      * Handle incoming chat message from user (non-streaming JSON; used as a fallback by the widget)
      */
     public function chat(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'message' => 'required|string|max:2000',
-            'session_id' => 'nullable|string|max:100',
-        ]);
+        $validated = $request->validate($this->messageRules());
 
         $user = $request->user();
         if ($limitMessage = $this->checkUsageLimits($user)) {
@@ -125,7 +191,8 @@ class AiAssistantController extends Controller
         $sessionId = $validated['session_id'] ?? session()->getId();
 
         try {
-            $response = $this->aiService->chat($user, $sessionId, $validated['message']);
+            [$modelMessage, $userMeta] = $this->withAttachment($validated);
+            $response = $this->aiService->chat($user, $sessionId, $validated['message'], null, $modelMessage, $userMeta);
             return response()->json($response);
         } catch (\Throwable $e) {
             \Log::error('AI Assistant Chat Error: ' . $e->getMessage(), [

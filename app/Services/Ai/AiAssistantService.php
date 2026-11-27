@@ -30,8 +30,11 @@ class AiAssistantService
      *                                ('status', ['label' => ...]) when a tool runs,
      *                                ('delta', ['text' => ...]) for streamed text,
      *                                ('replace', ['content' => ...]) when the final text differs from the streamed one.
+     * @param string|null   $modelMessage  what the model receives when it differs from what is shown/saved
+     *                                     (e.g. the extracted text of an attached CV); defaults to $userMessage
+     * @param array         $userMeta      extra data saved with the user's message (e.g. the attachment name)
      */
-    public function chat(User $user, string $sessionId, string $userMessage, ?callable $onEvent = null): array
+    public function chat(User $user, string $sessionId, string $userMessage, ?callable $onEvent = null, ?string $modelMessage = null, array $userMeta = []): array
     {
         $userMessage = trim($userMessage);
 
@@ -43,6 +46,7 @@ class AiAssistantService
             'session_id' => $sessionId,
             'role' => 'user',
             'content' => $userMessage,
+            'meta_data' => $userMeta ?: null,
         ]);
 
         // 2. Tools this user is allowed to use
@@ -52,7 +56,7 @@ class AiAssistantService
         $response = null;
         $runner = new AiAgentRunner($this, $onEvent);
         foreach ($this->resolveProviders() as [$provider, $apiKey]) {
-            $response = $runner->run($provider, $apiKey, $user, $history, $userMessage, $authorizedTools);
+            $response = $runner->run($provider, $apiKey, $user, $history, $modelMessage ?? $userMessage, $authorizedTools);
             if ($response) {
                 break;
             }
@@ -67,7 +71,7 @@ class AiAssistantService
         }
 
         // 5. Save the assistant's answer
-        AiChatMessage::create([
+        $saved = AiChatMessage::create([
             'user_id' => $user->id,
             'session_id' => $sessionId,
             'role' => 'assistant',
@@ -83,6 +87,7 @@ class AiAssistantService
         return [
             'status' => 'success',
             'session_id' => $sessionId,
+            'message_id' => $saved->id,
             'content' => $response['content'],
             'action_proposal' => $response['action_proposal'] ?? null,
             'tool_executed' => $response['tool_executed'] ?? null,

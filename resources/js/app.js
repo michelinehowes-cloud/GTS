@@ -12,6 +12,9 @@ import './mobile-tables'; // Tables become stacked cards on phones
 // Make Sortable globally available for inline scripts
 window.Sortable = Sortable;
 
+// PDF reader for the AI assistant's CV analysis, loaded only when a file is attached
+window.loadCvReader = () => import('./cv-reader');
+
 // Load the advanced-reports charts (and Chart.js) only on pages that need them
 const ADVANCED_REPORT_CHART_IDS = ['majorsChart', 'employmentChart', 'nominationsChart', 'monthlyPerformanceChart', 'successByMajorChart', 'opportunitiesChart'];
 function loadAdvancedReportsIfNeeded() {

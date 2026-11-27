@@ -1,0 +1,115 @@
+/*
+ * Mobile card layout for data tables.
+ * On phones, tables marked by resources/js/mobile-tables.js turn into stacked cards:
+ * each row becomes a card and each cell shows its column title next to its value.
+ * Opt out per table with class "no-mobile-cards" (on the table or its .table-responsive wrapper).
+ */
+@media (max-width: 576px) {
+    .table-responsive:has(> .table-mobile-cards) {
+        overflow-x: visible;
+    }
+
+    table.table-mobile-cards,
+    table.table-mobile-cards > tbody,
+    table.table-mobile-cards > tbody > tr,
+    table.table-mobile-cards > tbody > tr > td {
+        display: block;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    table.table-mobile-cards {
+        border: 0;
+        background: transparent;
+    }
+
+    table.table-mobile-cards > thead {
+        display: none;
+    }
+
+    table.table-mobile-cards > tbody > tr {
+        margin-bottom: 0.75rem;
+        padding: 0.5rem 0.85rem;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+    }
+
+    table.table-mobile-cards > tbody > tr > td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.35rem 0.75rem;
+        padding: 0.55rem 0 !important;
+        border: 0 !important;
+        border-bottom: 1px dashed rgba(15, 23, 42, 0.08) !important;
+        background: transparent !important;
+        text-align: start !important;
+        white-space: normal !important;
+        box-shadow: none !important;
+    }
+
+    table.table-mobile-cards > tbody > tr > td:last-child {
+        border-bottom: 0 !important;
+    }
+
+    table.table-mobile-cards > tbody > tr > td[data-label]:not([data-label=""])::before {
+        content: attr(data-label);
+        flex-shrink: 0;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #64748b;
+    }
+
+    /* First cell (usually the name / main info) reads as the card title */
+    table.table-mobile-cards > tbody > tr > td.mobile-card-title {
+        justify-content: flex-start;
+        font-weight: 600;
+    }
+
+    table.table-mobile-cards > tbody > tr > td.mobile-card-title::before {
+        display: none;
+    }
+
+    /* Action buttons: full row, comfortable tap targets */
+    table.table-mobile-cards > tbody > tr > td.mobile-card-actions {
+        justify-content: flex-start;
+        padding-top: 0.75rem !important;
+    }
+
+    table.table-mobile-cards > tbody > tr > td.mobile-card-actions::before {
+        display: none;
+    }
+
+    table.table-mobile-cards > tbody > tr > td.mobile-card-actions .btn,
+    table.table-mobile-cards > tbody > tr > td.mobile-card-actions a.btn {
+        min-width: 40px;
+        min-height: 40px;
+    }
+
+    /* Empty-state row ("no results") stays a single centered card */
+    table.table-mobile-cards > tbody > tr.mobile-card-empty > td {
+        justify-content: center;
+        text-align: center !important;
+    }
+
+    /* Dark mode */
+    html[data-theme='dark'] table.table-mobile-cards > tbody > tr,
+    html[data-bs-theme='dark'] table.table-mobile-cards > tbody > tr {
+        background: var(--dm-bg-surface, #111827);
+        border-color: var(--dm-border, rgba(255, 255, 255, 0.08));
+        box-shadow: none;
+    }
+
+    html[data-theme='dark'] table.table-mobile-cards > tbody > tr > td,
+    html[data-bs-theme='dark'] table.table-mobile-cards > tbody > tr > td {
+        border-bottom-color: var(--dm-border, rgba(255, 255, 255, 0.08)) !important;
+    }
+
+    html[data-theme='dark'] table.table-mobile-cards > tbody > tr > td::before,
+    html[data-bs-theme='dark'] table.table-mobile-cards > tbody > tr > td::before {
+        color: var(--dm-text-muted, #94a3b8);
+    }
+}

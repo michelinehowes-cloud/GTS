@@ -16,7 +16,6 @@
 @import '../css/enhanced-features.css';
 
 // UI Enhancements
-@import '../css/ui-enhancements.css';
 @import '../css/premium-ui.css';
 @import '../css/bento-dashboard.css';
 
@@ -31,6 +30,9 @@
 
 // Hide Extra Buttons
 @import '../css/hide-extra-buttons.css';
+
+// Mobile: tables become stacked cards on phones
+@import '../css/mobile-tables.css';
 
 /* Sidebar and Layout Styles */
 :root {

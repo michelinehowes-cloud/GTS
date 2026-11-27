@@ -21,6 +21,19 @@
              data-error-callback="onTurnstileError_{{ $funcSuffix }}"
              @if($action) data-action="{{ $action }}" @endif>
         </div>
+        <script>
+            // The "flexible" widget needs at least 300px; on narrow phones use the compact widget so it never overflows the card.
+            (function () {
+                var wrap = document.getElementById('wrap-{{ $funcSuffix }}');
+                var widget = document.getElementById('widget-{{ $funcSuffix }}');
+                if (!wrap || !widget) return;
+                // The wrapper may still be hidden (e.g. inside a closed login modal); fall back to the screen width.
+                var available = wrap.clientWidth > 0 ? wrap.clientWidth : window.innerWidth - 80;
+                if (available < 300) {
+                    widget.setAttribute('data-size', 'compact');
+                }
+            })();
+        </script>
         <div id="turnstile-msg-{{ $funcSuffix }}"></div>
         @error('cf-turnstile-response')
             <div class="text-danger small mt-1 fw-bold text-center">

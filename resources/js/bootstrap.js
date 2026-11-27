@@ -1,4 +1,5 @@
-import 'bootstrap';
+// Bootstrap JS is loaded once via <script> in layouts/app.blade.php (window.bootstrap).
+// Importing it here too registered every data-bs-* handler twice.
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests

@@ -1,0 +1,93 @@
+/* Extracted from resources/views/layouts/app.blade.php so browsers can cache it. */
+        /* Notifications & Messages Drawer Styling */
+        .notif-drawer-item {
+            padding: 0.85rem 1.15rem;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #ffffff;
+            border-right: 4px solid transparent;
+            text-decoration: none;
+        }
+        .notif-drawer-item.is-unread {
+            background-color: #f0f7ff !important;
+            border-right: 4px solid #0d3882 !important;
+        }
+        .notif-drawer-item:hover {
+            background-color: #f8fafc !important;
+        }
+        .notif-drawer-item .notif-title {
+            color: #0f172a !important;
+            font-weight: 700;
+            font-size: 0.88rem;
+            margin-bottom: 2px;
+        }
+        .notif-drawer-item .notif-message {
+            color: #475569 !important;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            margin-bottom: 0;
+        }
+        .notif-drawer-item .notif-time {
+            color: #94a3b8 !important;
+            font-size: 0.72rem;
+            white-space: nowrap;
+        }
+        .notif-check-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 1.5px solid #10b981;
+            color: #059669;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            flex-shrink: 0;
+            margin-inline-start: 4px;
+        }
+        .notif-check-btn:hover {
+            background: #10b981;
+            color: #ffffff;
+            transform: scale(1.08);
+            box-shadow: 0 3px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Dark mode support for drawers */
+        html[data-theme='dark'] #notifDrawerPanel,
+        body.dark-mode #notifDrawerPanel,
+        html[data-theme='dark'] #msgDrawerPanel,
+        body.dark-mode #msgDrawerPanel {
+            background: #1e293b !important;
+            color: #cbd5e1 !important;
+        }
+        html[data-theme='dark'] .notif-drawer-item,
+        body.dark-mode .notif-drawer-item {
+            background: #1e293b !important;
+            border-bottom-color: #334155 !important;
+        }
+        html[data-theme='dark'] .notif-drawer-item.is-unread,
+        body.dark-mode .notif-drawer-item.is-unread {
+            background: #172554 !important;
+            border-right-color: #3b82f6 !important;
+        }
+        html[data-theme='dark'] .notif-drawer-item .notif-title,
+        body.dark-mode .notif-drawer-item .notif-title {
+            color: #f1f5f9 !important;
+        }
+        html[data-theme='dark'] .notif-drawer-item .notif-message,
+        body.dark-mode .notif-drawer-item .notif-message {
+            color: #94a3b8 !important;
+        }
+        html[data-theme='dark'] #notifDrawerPanel div[style*="background:#f8fafc"],
+        body.dark-mode #notifDrawerPanel div[style*="background:#f8fafc"],
+        html[data-theme='dark'] #msgDrawerPanel div[style*="background:#f8fafc"],
+        body.dark-mode #msgDrawerPanel div[style*="background:#f8fafc"] {
+            background: #0f172a !important;
+        }

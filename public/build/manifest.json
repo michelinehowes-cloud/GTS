@@ -1,11 +1,19 @@
 {
+  "resources/js/advanced-reports.js": {
+    "file": "assets/advanced-reports-12de9e5c.js",
+    "isDynamicEntry": true,
+    "src": "resources/js/advanced-reports.js"
+  },
   "resources/js/app.js": {
-    "file": "assets/app-310bf95b.js",
+    "dynamicImports": [
+      "resources/js/advanced-reports.js"
+    ],
+    "file": "assets/app-f1511cfa.js",
     "isEntry": true,
     "src": "resources/js/app.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-1a452683.css",
+    "file": "assets/app-cbe3a2ec.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }

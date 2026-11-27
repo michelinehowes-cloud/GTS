@@ -157,6 +157,13 @@ class AiAgentRunner
             $state->addText($textParts);
 
             if (empty($callParts)) {
+                if (trim($textParts) === '') {
+                    Log::warning('AI agent: empty answer from gemini', [
+                        'model' => $model,
+                        'step' => $step,
+                        'tools_run' => array_column($state->tools, 'name'),
+                    ]);
+                }
                 break;
             }
 
@@ -209,14 +216,23 @@ class AiAgentRunner
         $state = new AgentState();
         $maxSteps = max(1, (int) config('ai.agent.max_steps', 5));
 
+        // Reasoning models (gpt-oss, qwen3...) "think" before answering and that thinking counts against
+        // max_tokens; with a small budget they can spend it all and return an empty answer.
+        $isReasoningModel = (bool) preg_match('/gpt-oss|qwen3|deepseek-r1|reason/i', $model);
+
         for ($step = 1; $step <= $maxSteps; $step++) {
             $payload = [
                 'model' => $model,
                 'messages' => $messages,
                 'temperature' => config('ai.temperature', 0.3),
-                'max_tokens' => config('ai.max_tokens', 2048),
+                'max_tokens' => $isReasoningModel
+                    ? max((int) config('ai.max_tokens', 2048), (int) config('ai.agent.reasoning_min_tokens', 4096))
+                    : (int) config('ai.max_tokens', 2048),
                 'stream' => true,
             ];
+            if ($isReasoningModel && str_contains($model, 'gpt-oss')) {
+                $payload['reasoning_effort'] = config('ai.agent.groq_reasoning_effort', 'low');
+            }
             if (!empty($groqTools)) {
                 $payload['tools'] = $groqTools;
                 $payload['tool_choice'] = $step === $maxSteps ? 'none' : 'auto';
@@ -224,7 +240,9 @@ class AiAgentRunner
 
             $text = '';
             $calls = [];
-            $ok = $this->streamSse($url, $payload, $apiKey, function (array $chunk) use (&$text, &$calls) {
+            $finishReason = null;
+            $ok = $this->streamSse($url, $payload, $apiKey, function (array $chunk) use (&$text, &$calls, &$finishReason) {
+                $finishReason = $chunk['choices'][0]['finish_reason'] ?? $finishReason;
                 $delta = $chunk['choices'][0]['delta'] ?? [];
                 if (isset($delta['content']) && $delta['content'] !== '') {
                     $text .= $delta['content'];
@@ -245,12 +263,20 @@ class AiAgentRunner
             $state->addText($text);
 
             if (empty($calls)) {
+                if (trim($text) === '') {
+                    Log::warning('AI agent: empty answer from groq', [
+                        'model' => $model,
+                        'step' => $step,
+                        'finish_reason' => $finishReason,
+                        'tools_run' => array_column($state->tools, 'name'),
+                    ]);
+                }
                 break;
             }
 
             $messages[] = [
                 'role' => 'assistant',
-                'content' => $text !== '' ? $text : null,
+                'content' => $text,
                 'tool_calls' => array_values(array_map(fn ($c) => [
                     'id' => $c['id'],
                     'type' => 'function',

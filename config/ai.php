@@ -51,6 +51,9 @@ return [
         'request_timeout' => 90,
         // Gemini 3 thinking depth: low (fast) | high (slower, deeper). Empty = provider default.
         'gemini_thinking_level' => env('AI_GEMINI_THINKING', 'low'),
+        // Groq gpt-oss reasoning effort (low | medium | high) and the minimum answer budget for reasoning models
+        'groq_reasoning_effort' => env('AI_GROQ_REASONING', 'low'),
+        'reasoning_min_tokens' => 4096,
     ],
 
     /*

@@ -133,6 +133,18 @@ class AiAgentLoopTest extends TestCase
     }
 
     /** @test */
+    public function reasoning_models_get_low_effort_and_enough_tokens_to_answer()
+    {
+        config(['ai.groq_model' => 'openai/gpt-oss-120b', 'ai.max_tokens' => 2048]);
+        Http::fake(['api.groq.com/*' => Http::response($this->sse(['choices' => [['delta' => ['content' => 'جواب']]]]), 200)]);
+
+        $runner = new AiAgentRunner(app(AiAssistantService::class));
+        $runner->run('groq', 'test-key', $this->admin(), [], 'سؤال', []);
+
+        Http::assertSent(fn (Request $r) => $r['reasoning_effort'] === 'low' && $r['max_tokens'] >= 4096);
+    }
+
+    /** @test */
     public function provider_failure_returns_null_so_the_next_provider_or_offline_engine_is_used()
     {
         Http::fake(['api.groq.com/*' => Http::response(['error' => 'down'], 500)]);

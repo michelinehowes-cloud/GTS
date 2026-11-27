@@ -85,6 +85,39 @@ fi
 
 changed() { [ "$OLD_HEAD" != "$NEW_HEAD" ] && ! git diff --quiet "$OLD_HEAD" "$NEW_HEAD" -- "$@"; }
 
+# Go back to the previous commit when the new code cannot run (e.g. its libraries cannot be installed)
+rollback() {
+    if [ "$OLD_HEAD" != "$NEW_HEAD" ]; then
+        git reset --hard "$OLD_HEAD" >/dev/null
+        red "Rolled back to the previous version ($(git rev-parse --short HEAD)); the site keeps running it."
+    fi
+}
+
+# Composer: on PATH, or installed in the home folder / project (shared hosting usually has none)
+COMPOSER_CMD=""
+if command -v composer >/dev/null 2>&1; then
+    COMPOSER_CMD="composer"
+else
+    for candidate in "$HOME/bin/composer" "$HOME/composer.phar" "$HOME/bin/composer.phar" "$CORE_DIR/composer.phar"; do
+        if [ -f "$candidate" ]; then COMPOSER_CMD="php $candidate"; break; fi
+    done
+fi
+
+# PHP libraries must match composer.lock: after a change to it, or when vendor/ is older than it
+NEED_COMPOSER=0
+if changed composer.lock; then
+    NEED_COMPOSER=1
+elif [ -n "$COMPOSER_CMD" ] && { [ ! -f vendor/composer/installed.json ] || [ composer.lock -nt vendor/composer/installed.json ]; }; then
+    # vendor/ may be stale even when this pull did not touch composer.lock (e.g. code pulled by hand)
+    NEED_COMPOSER=1
+fi
+if [ "$NEED_COMPOSER" = "1" ] && [ -z "$COMPOSER_CMD" ]; then
+    red "This update changes the PHP libraries (composer.lock) but Composer is not installed on this server."
+    rollback
+    red "Install Composer once (see the instructions in this project's README or ask the developer), then run: bash deploy.sh"
+    exit 1
+fi
+
 # ---------------------------------------------------------------------------
 step "3/6 Copying public files to $PUBLIC_HTML"
 # Everything under public/ except the entry point and server config that public_html keeps its own copy of.
@@ -107,14 +140,17 @@ green "Public files copied (index.php and .htaccess in public_html left as they 
 
 # ---------------------------------------------------------------------------
 step "4/6 PHP dependencies"
-if changed composer.lock; then
-    if command -v composer >/dev/null 2>&1; then
-        composer install --no-dev --optimize-autoloader --no-interaction
-    else
-        yellow "composer.lock changed but composer is not installed here. Run 'composer install --no-dev' manually."
+if [ "$NEED_COMPOSER" = "1" ]; then
+    if ! $COMPOSER_CMD install --no-dev --optimize-autoloader --no-interaction; then
+        red "composer install failed."
+        rollback
+        # Put the libraries of the previous version back
+        $COMPOSER_CMD install --no-dev --optimize-autoloader --no-interaction >/dev/null 2>&1 || true
+        php artisan optimize:clear >/dev/null 2>&1 || true
+        exit 1
     fi
 else
-    green "composer.lock unchanged, skipping."
+    green "PHP libraries already match composer.lock, skipping."
 fi
 
 # ---------------------------------------------------------------------------

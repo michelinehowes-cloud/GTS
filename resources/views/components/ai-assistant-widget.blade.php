@@ -549,7 +549,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // ---------- Voice input (browsers with speech recognition, e.g. Chrome) ----------
     const micBtn = document.getElementById('ai-mic-btn');
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (micBtn && SpeechRec) {
+    // Inside the Android app (Capacitor WebView) speech recognition is not available without a native plugin
+    const inNativeApp = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+    if (micBtn && SpeechRec && !inNativeApp && window.isSecureContext) {
         micBtn.classList.remove('d-none');
         let recognition = null;
         micBtn.addEventListener('click', function () {
@@ -565,8 +567,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 chatInput.value = base + said;
             };
             recognition.onerror = (e) => {
-                if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-                    appendMessage('assistant', 'لم يُسمح باستخدام الميكروفون. يمكنك تفعيله من إعدادات المتصفح.');
+                const messages = {
+                    'not-allowed': 'لم يُسمح باستخدام الميكروفون. اضغط على أيقونة القفل 🔒 بجانب عنوان الموقع، واسمح بالميكروفون، ثم أعد تحميل الصفحة.',
+                    'service-not-allowed': 'خدمة التعرّف على الصوت غير متاحة في هذا المتصفح. جرّب متصفح Google Chrome.',
+                    'audio-capture': 'لم يُعثر على ميكروفون متصل بالجهاز.',
+                    'network': 'التعرّف على الصوت يحتاج اتصالاً بالإنترنت. تحقق من الاتصال وحاول مرة أخرى.',
+                    'language-not-supported': 'اللغة العربية غير مدعومة للتعرّف على الصوت في هذا المتصفح.',
+                };
+                if (messages[e.error]) {
+                    appendMessage('assistant', messages[e.error]);
                 }
             };
             recognition.onend = () => {

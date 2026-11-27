@@ -34,7 +34,7 @@ class SecurityHeadersMiddleware
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
         $response->headers->set('X-XSS-Protection', '1; mode=block');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
-        $response->headers->set('Permissions-Policy', 'geolocation=(), camera=(self), microphone=(), payment=()');
+        $response->headers->set('Permissions-Policy', 'geolocation=(), camera=(self), microphone=(self), payment=()');
 
         // 3. فرض اتصال آمن مشفر HSTS في بيئة الإنتاج و HTTPS
         if ($isHttps) {

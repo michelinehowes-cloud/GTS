@@ -17,7 +17,7 @@ class SecurityHeadersTest extends TestCase
         $response->assertHeader('X-Frame-Options', 'SAMEORIGIN');
         $response->assertHeader('X-XSS-Protection', '1; mode=block');
         $response->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-        $response->assertHeader('Permissions-Policy', 'geolocation=(), camera=(self), microphone=(), payment=()');
+        $response->assertHeader('Permissions-Policy', 'geolocation=(), camera=(self), microphone=(self), payment=()');
         
         // التحقق من وجود سياسة أمان المحتوى CSP
         $this->assertTrue($response->headers->has('Content-Security-Policy'));

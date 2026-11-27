@@ -1,0 +1,48 @@
+/*
+ * Unified type scale for data tables.
+ * Pages set many slightly different inline sizes (0.72rem, 0.74rem, 0.75rem, 0.76rem, 0.78rem...),
+ * which made tables small and uneven. These rules give every table the same readable scale.
+ * (!important is needed to win over inline style="font-size: ..." attributes.)
+ */
+
+.main-content table.table > thead > tr > th {
+    font-size: 0.88rem !important;
+    font-weight: 700 !important;
+}
+
+.main-content table.table > tbody > tr > td {
+    font-size: 0.92rem !important;
+}
+
+/* Main text in a cell: names, links, bold values */
+.main-content table.table > tbody > tr > td .fw-bold:not(.badge),
+.main-content table.table > tbody > tr > td a:not(.btn):not(.badge),
+.main-content table.table > tbody > tr > td strong {
+    font-size: 0.92rem !important;
+}
+
+/* Secondary text: e-mails, notes, sub-lines */
+.main-content table.table > tbody > tr > td .text-muted:not(.badge),
+.main-content table.table > tbody > tr > td small,
+.main-content table.table > tbody > tr > td .small:not(.badge),
+.main-content table.table > tbody > tr > td .text-secondary:not(.badge) {
+    font-size: 0.84rem !important;
+}
+
+/* Dates and codes */
+.main-content table.table > tbody > tr > td .font-monospace {
+    font-size: 0.85rem !important;
+}
+
+/* Status / role / count badges */
+.main-content table.table > tbody > tr > td .badge {
+    font-size: 0.8rem !important;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+/* Small action buttons keep comfortable icons */
+.main-content table.table > tbody > tr > td .btn-sm,
+.main-content table.table > tbody > tr > td .action-circle-btn {
+    font-size: 0.85rem !important;
+}

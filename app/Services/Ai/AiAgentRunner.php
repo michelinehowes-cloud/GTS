@@ -52,6 +52,9 @@ class AiAgentRunner
 
     protected bool $emittedText = false;
 
+    /** The current question (used to tailor the instructions) */
+    protected string $currentMessage = '';
+
     public function __construct(AiAssistantService $service, ?callable $onEvent = null)
     {
         $this->service = $service;
@@ -65,6 +68,10 @@ class AiAgentRunner
     public function run(string $provider, string $apiKey, User $user, array $history, string $userMessage, array $tools): ?array
     {
         $this->emittedText = false;
+        $this->currentMessage = $userMessage;
+
+        // Send only the tools relevant to this question: keeps requests within free-tier token limits
+        $tools = AiToolSelector::select($tools, $userMessage, $history, (int) config('ai.agent.max_tools', 12));
 
         try {
             return $provider === 'gemini'
@@ -361,7 +368,7 @@ class AiAgentRunner
 
     protected function systemInstruction(User $user): string
     {
-        return $this->service->buildSystemInstruction($user) . "\n" .
+        return $this->service->buildSystemInstruction($user, $this->currentMessage) . "\n" .
             "قواعد التفكير والأدوات:\n" .
             "• يمكنك استدعاء عدة أدوات متتالية قبل الإجابة، وسترى نتيجة كل أداة. اجمع ما تحتاجه ثم حلّل وقارن وقدّم توصيات واضحة مبنية على الأرقام الفعلية.\n" .
             "• لا تخترع أرقاماً أو أسماء غير موجودة في نتائج الأدوات. إذا كانت البيانات ناقصة فقل ذلك بوضوح.\n" .
@@ -413,6 +420,23 @@ class AiAgentRunner
                     Log::info("Groq fell back to model {$alt}");
                     break;
                 }
+            }
+        }
+
+        // Per-minute token limit: wait briefly and retry once when the provider says it is a short wait
+        if ($response->status() === 429) {
+            $wait = null;
+            if (preg_match('/try again in ([\d.]+)s/i', (string) $response->body(), $m)) {
+                $wait = (float) $m[1];
+            } elseif ($response->header('retry-after')) {
+                $wait = (float) $response->header('retry-after');
+            }
+            if ($wait !== null && $wait <= (float) config('ai.agent.max_rate_limit_wait', 12)) {
+                $this->emit('status', ['tool' => null, 'label' => 'الخدمة مشغولة لحظياً، إعادة المحاولة…']);
+                if (!app()->runningUnitTests()) {
+                    usleep((int) (($wait + 0.5) * 1000000));
+                }
+                $response = $request->post($url, $payload);
             }
         }
 

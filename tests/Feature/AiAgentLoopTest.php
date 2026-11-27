@@ -145,6 +145,46 @@ class AiAgentLoopTest extends TestCase
     }
 
     /** @test */
+    public function only_tools_relevant_to_the_question_are_sent()
+    {
+        $admin = $this->admin();
+        $all = \App\Services\Ai\AiToolRegistry::getAuthorizedTools($admin);
+        $this->assertGreaterThan(12, count($all));
+
+        $picked = array_column(\App\Services\Ai\AiToolSelector::select($all, 'قارن بين إحصائيات التدريب وفرص العمل', [], 12), 'name');
+        $this->assertCount(12, $picked);
+        $this->assertContains('get_trainings_statistics', $picked);
+        $this->assertContains('get_jobs_statistics', $picked);
+
+        $news = array_column(\App\Services\Ai\AiToolSelector::select($all, 'صغ لي خبراً صحفياً رسمياً', [], 12), 'name');
+        $this->assertContains('draft_news_article', $news);
+    }
+
+    /** @test */
+    public function a_short_per_minute_limit_is_waited_out_and_retried_once()
+    {
+        Http::fakeSequence('api.groq.com/*')
+            ->push(['error' => ['message' => 'Rate limit reached ... Please try again in 2.5s.']], 429)
+            ->push($this->sse(['choices' => [['delta' => ['content' => 'تم بعد إعادة المحاولة']]]]));
+
+        $runner = new AiAgentRunner(app(AiAssistantService::class));
+        $result = $runner->run('groq', 'test-key', $this->admin(), [], 'سؤال', []);
+
+        $this->assertSame('تم بعد إعادة المحاولة', $result['content']);
+        Http::assertSentCount(2);
+    }
+
+    /** @test */
+    public function a_long_per_minute_limit_is_not_waited_out()
+    {
+        Http::fake(['api.groq.com/*' => Http::response(['error' => ['message' => 'Please try again in 48.15s.']], 429)]);
+
+        $runner = new AiAgentRunner(app(AiAssistantService::class));
+        $this->assertNull($runner->run('groq', 'test-key', $this->admin(), [], 'سؤال', []));
+        Http::assertSentCount(1);
+    }
+
+    /** @test */
     public function provider_failure_returns_null_so_the_next_provider_or_offline_engine_is_used()
     {
         Http::fake(['api.groq.com/*' => Http::response(['error' => 'down'], 500)]);

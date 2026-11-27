@@ -25,3 +25,20 @@ fix_cert_names.php
 /public/downloads/*.apk
 
 
+
+# Deployment packages, database dumps and logs
+/deploy_artifacts/*.zip
+/deploy_artifacts/.env
+*.sql
+/storage/logs/*.log
+
+# Local AI-assistant notes and one-off scripts
+/.agent
+/.continue
+/.gemini
+/FIXES_PDF_EXPORT.md
+/UI_ENHANCEMENTS_README.md
+/manual_seed.php
+/check_notifications.php
+/run_seed.bat
+/public/images/about-us.png

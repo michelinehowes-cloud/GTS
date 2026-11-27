@@ -4,7 +4,13 @@
     'action' => null,
 ])
 
-@if(config('security.turnstile.enabled', false) && !empty(config('security.turnstile.site_key')) && !empty(config('security.turnstile.secret_key')))
+@php
+    // يظهر الكاشف (ويُحمَّل سكربت Cloudflare) فقط عند الاشتباه؛ المستخدم العادي لا يراه إطلاقاً.
+    $challengeNeeded = $action
+        ? app(\App\Services\SecurityService::class)->challengeRequired($action, request(), old('email'))
+        : true;
+@endphp
+@if($challengeNeeded && config('security.turnstile.enabled', false) && !empty(config('security.turnstile.site_key')) && !empty(config('security.turnstile.secret_key')))
     @php
         $siteKey = config('security.turnstile.site_key');
         $funcSuffix = 'ts_' . substr(md5($action . '_' . uniqid()), 0, 8);

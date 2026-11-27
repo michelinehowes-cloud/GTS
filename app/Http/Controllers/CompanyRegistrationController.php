@@ -43,14 +43,17 @@ class CompanyRegistrationController extends Controller
             ]);
         }
 
-        // 2. التحقق من كاشف الروبوتات (Cloudflare Turnstile)
-        $turnstile = $securityService->verifyTurnstile($request->input('cf-turnstile-response'), $request->ip());
+        // 2. التحقق من كاشف الروبوتات (Cloudflare Turnstile) فقط عند الاشتباه (إرسالات متكررة من نفس الجهاز)
+        $turnstile = $securityService->verifyChallenge('register_company', $request);
         if (!$turnstile['success']) {
             return back()->withInput()->withErrors([
                 'cf-turnstile-response' => $turnstile['message'],
                 'security' => $turnstile['message'],
             ]);
         }
+
+        // كل إرسال يُحتسب؛ بعد 3 إرسالات خلال ساعة من نفس الجهاز يظهر كاشف Cloudflare
+        $securityService->recordChallengeHit('register_company', $request);
 
         // 3. تقييد معدل طلبات تسجيل الشركات للحماية من هجمات الإغراق
         $throttleKey = 'register-company|' . $request->ip();

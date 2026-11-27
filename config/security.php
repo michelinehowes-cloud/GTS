@@ -33,6 +33,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Adaptive Challenge (show Turnstile only when suspicious)
+    |--------------------------------------------------------------------------
+    |
+    | Normal users never see the Cloudflare widget. It appears only after
+    | `threshold` failed logins / form submissions from the same IP (or for the
+    | same account) within `decay_minutes`, or when the honeypot time token is
+    | missing or tampered with.
+    |
+    */
+    'challenge' => [
+        'actions' => [
+            'login' => ['threshold' => 3, 'decay_minutes' => 15],
+            'forgot_password' => ['threshold' => 3, 'decay_minutes' => 60],
+            'register_graduate' => ['threshold' => 3, 'decay_minutes' => 60],
+            'register_company' => ['threshold' => 3, 'decay_minutes' => 60],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Honeypot Bot Trap Configuration
     |--------------------------------------------------------------------------
     |

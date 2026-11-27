@@ -36,8 +36,8 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
-        // 2. التحقق من كاشف الروبوتات (Cloudflare Turnstile)
-        $turnstile = $securityService->verifyTurnstile($request->input('cf-turnstile-response'), $request->ip());
+        // 2. التحقق من كاشف الروبوتات (Cloudflare Turnstile) فقط عند الاشتباه (بعد محاولات فاشلة متكررة)
+        $turnstile = $securityService->verifyChallenge('login', $request, (string) $request->input('email'));
         if (!$turnstile['success']) {
             \App\Models\AuditLog::logAction(
                 'security_turnstile_failed',
@@ -164,13 +164,15 @@ class AuthenticatedSessionController extends Controller
 
             // إتمام تسجيل الدخول بنجاح وتصفير عداد المحاولات
             \Illuminate\Support\Facades\RateLimiter::clear($throttleKey);
+            $securityService->clearChallenge('login', $request, (string) $request->input('email'));
             Auth::login($user, $request->boolean('remember'));
             $request->session()->regenerate();
             return redirect()->intended('/dashboard');
         }
 
-        // تسجيل محاولة فاشلة في عداد الحماية
+        // تسجيل محاولة فاشلة في عداد الحماية (وبعد 3 محاولات يظهر كاشف Cloudflare)
         \Illuminate\Support\Facades\RateLimiter::hit($throttleKey, 60);
+        $securityService->recordChallengeHit('login', $request, (string) $request->input('email'));
 
         // إذا فشل تسجيل الدخول
         return back()->withInput($request->only('email'))->withErrors([

@@ -29,11 +29,14 @@ class CodePasswordResetController extends Controller
             return redirect('/?open_forgot=1')->withErrors(['email' => $honeypot['message']])->withInput();
         }
 
-        // 2. التحقق من كاشف الروبوتات (Cloudflare Turnstile)
-        $turnstile = $securityService->verifyTurnstile($request->input('cf-turnstile-response'), $request->ip());
+        // 2. التحقق من كاشف الروبوتات (Cloudflare Turnstile) فقط عند الاشتباه (إرسالات متكررة من نفس الجهاز)
+        $turnstile = $securityService->verifyChallenge('forgot_password', $request);
         if (!$turnstile['success']) {
             return redirect('/?open_forgot=1')->withErrors(['cf-turnstile-response' => $turnstile['message'], 'email' => $turnstile['message']])->withInput();
         }
+
+        // كل إرسال يُحتسب؛ بعد 3 إرسالات خلال ساعة من نفس الجهاز يظهر كاشف Cloudflare
+        $securityService->recordChallengeHit('forgot_password', $request);
 
         // 3. تقييد معدل طلبات استعادة كلمة المرور
         $throttleKey = 'pwd-reset|' . $request->ip();

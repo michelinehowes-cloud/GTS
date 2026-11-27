@@ -12,7 +12,14 @@ const ACTION_HINT = /إجراء|اجراء|الإجراءات|العمليات|�
 
 function headerLabels(table) {
     const headRow = table.tHead && table.tHead.rows[table.tHead.rows.length - 1];
-    if (!headRow) return null;
+    if (!headRow) {
+        // Header-less list tables (e.g. dashboard widgets): cards without column labels
+        const firstRow = table.tBodies[0] && table.tBodies[0].rows[0];
+        if (!firstRow) return null;
+        let columns = 0;
+        for (const cell of firstRow.cells) columns += cell.colSpan || 1;
+        return new Array(columns).fill('');
+    }
 
     const labels = [];
     for (const th of headRow.cells) {

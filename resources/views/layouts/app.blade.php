@@ -32,7 +32,7 @@
         })();
     </script>
 
-    <link href="{{ asset('css/app-layout.css') }}?v={{ filemtime(public_path('css/app-layout.css')) }}" rel="stylesheet">
+    <link href="{{ asset('css/app-layout.css') }}?v={{ @filemtime(public_path('css/app-layout.css')) ?: '1' }}" rel="stylesheet">
     @stack('styles')
 </head>
 
@@ -990,12 +990,12 @@
     </div>
     @endauth
 
-    <link href="{{ asset('css/app-layout-2.css') }}?v={{ filemtime(public_path('css/app-layout-2.css')) }}" rel="stylesheet">
+    <link href="{{ asset('css/app-layout-2.css') }}?v={{ @filemtime(public_path('css/app-layout-2.css')) ?: '1' }}" rel="stylesheet">
 
     <!-- Bootstrap 5 Bundle JS (enables modals, dropdowns, tooltips globally) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script src="{{ asset('js/app-layout.js') }}?v={{ filemtime(public_path('js/app-layout.js')) }}"></script>
+    <script src="{{ asset('js/app-layout.js') }}?v={{ @filemtime(public_path('js/app-layout.js')) ?: '1' }}"></script>
 
     <!-- Simple Dark Mode Script -->
     <script src="{{ asset('js/simple-dark-mode.js') }}"></script>
@@ -1010,7 +1010,7 @@
     <!-- ============================================================ -->
     <!-- دوال الدرج المنزلق للإشعارات والرسائل -->
     <!-- ============================================================ -->
-    <script src="{{ asset('js/app-layout-2.js') }}?v={{ filemtime(public_path('js/app-layout-2.js')) }}"></script>
+    <script src="{{ asset('js/app-layout-2.js') }}?v={{ @filemtime(public_path('js/app-layout-2.js')) ?: '1' }}"></script>
 
     @include('partials.loading-wave-overlay')
 </body>

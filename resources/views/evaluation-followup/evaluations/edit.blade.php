@@ -109,7 +109,7 @@
                                             if (empty($contentData) && $evaluation->training) {
                                                 $start = \Carbon\Carbon::parse($evaluation->training->start_date);
                                                 $end = \Carbon\Carbon::parse($evaluation->training->end_date);
-                                                $diffDays = $start->diffInDays($end) + 1;
+                                                $diffDays = (int) abs($start->diffInDays($end)) + 1;
                                                 if ($diffDays > 1) {
                                                     for($i=1; $i<=$diffDays; $i++) {
                                                         $contentData["day_$i"] = [];

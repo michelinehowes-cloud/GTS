@@ -140,7 +140,7 @@ class JobFair extends Model
      */
     public function getDaysRemainingAttribute(): int
     {
-        return max(0, Carbon::today()->diffInDays($this->event_date, false));
+        return max(0, (int) Carbon::today()->diffInDays($this->event_date, false));
     }
 
     /**

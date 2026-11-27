@@ -6204,7 +6204,7 @@
                             @php
                                 $fairTime = $fair->start_time ?: '09:00:00';
                                 $eventTargetCarbon = \Carbon\Carbon::parse($fair->event_date->format('Y-m-d') . ' ' . substr($fairTime, 0, 5) . ':00');
-                                $diffSecs = max(0, \Carbon\Carbon::now()->diffInSeconds($eventTargetCarbon, false));
+                                $diffSecs = max(0, (int) \Carbon\Carbon::now()->diffInSeconds($eventTargetCarbon, false));
                                 $initD = floor($diffSecs / 86400);
                                 $initH = floor(($diffSecs % 86400) / 3600);
                                 $initM = floor(($diffSecs % 3600) / 60);

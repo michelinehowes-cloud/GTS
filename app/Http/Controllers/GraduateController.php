@@ -83,7 +83,7 @@ class GraduateController extends Controller
 
             $startDate = \Carbon\Carbon::parse($t->start_date);
             $endDate = $t->end_date ? \Carbon\Carbon::parse($t->end_date) : null;
-            $durationDays = $endDate ? $startDate->diffInDays($endDate) : 0;
+            $durationDays = $endDate ? (int) abs($startDate->diffInDays($endDate)) : 0;
 
             $allowedDays = $t->training_days_of_week;
             $hasSpecificDays = is_array($allowedDays) && count($allowedDays) > 0 && count($allowedDays) < 7;
@@ -228,8 +228,8 @@ class GraduateController extends Controller
                     } elseif ($now > $end) {
                         $progress = 100;
                     } else {
-                        $totalDuration = $start->diffInDays($end);
-                        $daysPassed = $start->diffInDays($now);
+                        $totalDuration = (int) abs($start->diffInDays($end));
+                        $daysPassed = (int) abs($start->diffInDays($now));
                         $progress = $totalDuration > 0 ? ($daysPassed / $totalDuration) * 100 : 0;
                     }
                 }

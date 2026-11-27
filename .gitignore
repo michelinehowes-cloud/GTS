@@ -45,3 +45,4 @@ fix_cert_names.php
 
 # Firebase server key (never commit)
 /storage/app/firebase-service-account.json
+/.phpunit.cache

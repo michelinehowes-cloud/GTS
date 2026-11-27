@@ -42,3 +42,6 @@ fix_cert_names.php
 /check_notifications.php
 /run_seed.bat
 /public/images/about-us.png
+
+# Firebase server key (never commit)
+/storage/app/firebase-service-account.json

@@ -27,6 +27,16 @@ class NotificationService
             $this->sendWhatsappNotification($notification);
         }
 
+        // إشعار فوري على هاتف المستخدم (تطبيق الأندرويد) — يُرسل بعد اكتمال الصفحة
+        if (!empty($data['user_id'])) {
+            $extra = is_array($data['data'] ?? null) ? $data['data'] : [];
+            PushService::toUsers([(int) $data['user_id']], (string) ($data['title'] ?? ''), (string) ($data['message'] ?? ''), [
+                'notification_id' => $notification->id,
+                // Tapping the notification opens its own link, or the notification itself
+                'url' => $extra['url'] ?? $extra['link'] ?? '/notifications/' . $notification->id,
+            ]);
+        }
+
         return $notification;
     }
 
@@ -77,6 +87,12 @@ class NotificationService
             foreach (array_chunk($dataToInsert, 500) as $chunk) {
                 Notification::insert($chunk);
             }
+
+            // إشعار فوري على هواتف المستخدمين — يُرسل بعد اكتمال الصفحة حتى لا يبطئها
+            PushService::toUsers($users->pluck('id')->all(), $title, $message, [
+                'url' => $options['data']['url'] ?? '/notifications',
+            ]);
+
             return collect();
         }
 

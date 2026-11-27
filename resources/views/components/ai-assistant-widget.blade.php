@@ -588,6 +588,59 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // ---------- Voice input inside the Android app (native speech recognition plugin) ----------
+    const NativeSpeech = inNativeApp && window.Capacitor.Plugins && window.Capacitor.Plugins.SpeechRecognition;
+    if (micBtn && NativeSpeech) {
+        NativeSpeech.available().then(function (res) {
+            if (!res || !res.available) return; // no speech service on this phone: keep the button hidden
+            micBtn.classList.remove('d-none');
+            let listening = false;
+            let handles = [];
+            let base = '';
+
+            async function cleanup() {
+                listening = false;
+                micBtn.classList.remove('listening');
+                for (const h of handles) { try { await h.remove(); } catch (e) {} }
+                handles = [];
+                chatInput.focus();
+            }
+
+            micBtn.addEventListener('click', async function () {
+                if (listening) {
+                    try { await NativeSpeech.stop(); } catch (e) {}
+                    return cleanup();
+                }
+                try {
+                    const perm = await NativeSpeech.requestPermissions();
+                    if (perm && perm.speechRecognition && perm.speechRecognition !== 'granted') {
+                        appendMessage('assistant', 'لم يُسمح باستخدام الميكروفون. يمكنك السماح به من إعدادات الهاتف ← التطبيقات ← مكتب تدريب الخريجين ← الأذونات.');
+                        return;
+                    }
+                    base = chatInput.value ? chatInput.value.trim() + ' ' : '';
+                    listening = true;
+                    micBtn.classList.add('listening');
+                    // Text appears in the input while the user speaks
+                    handles.push(await NativeSpeech.addListener('partialResults', function (data) {
+                        if (data && data.matches && data.matches[0]) chatInput.value = base + data.matches[0];
+                    }));
+                    // Listening ends by itself after a pause in speech
+                    handles.push(await NativeSpeech.addListener('listeningState', function (data) {
+                        if (data && data.status === 'stopped') cleanup();
+                    }));
+                    // With partialResults the call returns right away; results arrive through the listeners
+                    await NativeSpeech.start({ language: 'ar-LY', maxResults: 1, partialResults: true, popup: false });
+                } catch (err) {
+                    cleanup();
+                    const msg = String((err && err.message) || err || '');
+                    if (!/cancel|no match/i.test(msg)) {
+                        appendMessage('assistant', 'تعذّر التعرّف على الصوت. تأكد من الاتصال بالإنترنت ومن تثبيت تطبيق Google على الهاتف، ثم حاول مرة أخرى.');
+                    }
+                }
+            });
+        }).catch(function () {});
+    }
+
     // ---------- Copy / rate replies ----------
     messagesContainer.addEventListener('click', function (e) {
         const copyBtn = e.target.closest('.ai-copy-btn');

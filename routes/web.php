@@ -284,6 +284,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\StaffDashboardController::class, 'index'])->name('dashboard');
     });
 
+    // ==================== 📱 تسجيل هاتف المستخدم للإشعارات الفورية (تطبيق الأندرويد) ====================
+    Route::post('/device-tokens', [App\Http\Controllers\DeviceTokenController::class, 'store'])->name('device-tokens.store');
+
     // ==================== 🤖 المساعد الذكي (AI Assistant / Copilot) ====================
     Route::prefix('ai-assistant')->name('ai-assistant.')->group(function () {
         Route::post('/chat', [App\Http\Controllers\AiAssistantController::class, 'chat'])->name('chat');

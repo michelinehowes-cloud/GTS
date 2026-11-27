@@ -294,3 +294,40 @@
         }
     }, true);
 })();
+
+/* Push notifications inside the Android app (Capacitor PushNotifications plugin + Firebase) */
+(function () {
+    var cap = window.Capacitor;
+    if (!cap || !cap.isNativePlatform || !cap.isNativePlatform() || !cap.Plugins || !cap.Plugins.PushNotifications) return;
+    if (!document.querySelector('meta[name="user-role"]')) return; // only for logged-in users
+    var Push = cap.Plugins.PushNotifications;
+    var csrf = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+
+    Push.addListener('registration', function (t) {
+        if (!t || !t.value) return;
+        // Send once per login session (the server unlinks the phone on logout)
+        if (sessionStorage.getItem('gto_push_token') === t.value) return;
+        fetch('/device-tokens', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+            body: JSON.stringify({ token: t.value, platform: 'android' })
+        }).then(function (r) { if (r.ok) sessionStorage.setItem('gto_push_token', t.value); }).catch(function () {});
+    });
+
+    // Tapping a notification opens the related page
+    Push.addListener('pushNotificationActionPerformed', function (action) {
+        var url = action && action.notification && action.notification.data && action.notification.data.url;
+        if (url && url.charAt(0) === '/') window.location.href = url;
+    });
+
+    // Android 8+: a channel for the notifications (matches channel_id "general" sent by the server)
+    if (Push.createChannel) {
+        Push.createChannel({ id: 'general', name: 'إشعارات المنصة', importance: 4, sound: 'default' }).catch(function () {});
+    }
+
+    Push.checkPermissions().then(function (p) {
+        return p.receive === 'prompt' || p.receive === 'prompt-with-rationale' ? Push.requestPermissions() : p;
+    }).then(function (p) {
+        if (p && p.receive === 'granted') Push.register();
+    }).catch(function () {});
+})();

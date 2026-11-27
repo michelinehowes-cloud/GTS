@@ -185,6 +185,11 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request)
     {
+        // Stop push notifications to this phone for the user who is logging out (shared phones)
+        if ($deviceToken = $request->session()->get('device_token')) {
+            \App\Models\DeviceToken::where('token_hash', \App\Models\DeviceToken::hashOf($deviceToken))->delete();
+        }
+
         if (Auth::guard('web')->check() || Auth::check()) {
             Auth::guard('web')->logout();
         }

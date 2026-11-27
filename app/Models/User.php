@@ -10,6 +10,22 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, \App\Traits\Auditable;
 
+    /**
+     * أدوار لا تملك صلاحية الدخول إلى المنصة إطلاقاً.
+     * حسابات "visitor" تُنشأ تلقائياً عند مسح بطاقة زائر المعرض لربط الحضور فقط.
+     */
+    public const NON_LOGIN_ROLES = ['visitor'];
+
+    /**
+     * أدوار ليست من موظفي النظام (تُستبعد من قائمة إدارة الموظفين).
+     */
+    public const NON_STAFF_ROLES = ['graduate', 'company', 'visitor'];
+
+    public function canLogin(): bool
+    {
+        return !in_array($this->role, self::NON_LOGIN_ROLES, true);
+    }
+
     protected $fillable = [
         'name',
         'email',

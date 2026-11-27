@@ -9,7 +9,6 @@ New-Item -ItemType Directory -Force -Path $staging | Out-Null
 
 Copy-Item -Recurse "$baseDir\public\*" "$staging\"
 Copy-Item "$deployDir\index.php" "$staging\index.php" -Force
-Copy-Item "$deployDir\setup_helper.php" "$staging\setup_helper.php" -Force
 
 # Create gts_public_html.zip with tar
 $zipPath = "$deployDir\gts_public_html.zip"

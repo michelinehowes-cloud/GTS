@@ -125,6 +125,14 @@ class AuthenticatedSessionController extends Controller
         }
 
         if ($user && $isPasswordValid) {
+            // حسابات زوار المعرض لا تملك صلاحية الدخول إلى المنصة
+            if (!$user->canLogin()) {
+                \Illuminate\Support\Facades\RateLimiter::hit($throttleKey, 60);
+                return back()->withInput($request->only('email'))->withErrors([
+                    'email' => 'هذا الحساب لا يملك صلاحية الدخول إلى المنصة.',
+                ]);
+            }
+
             // التحقق من حالة الحساب
             if (!$user->is_active) {
                 \Illuminate\Support\Facades\RateLimiter::hit($throttleKey, 60);

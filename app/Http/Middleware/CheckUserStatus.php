@@ -20,13 +20,15 @@ class CheckUserStatus
         if (Auth::check()) {
             $user = Auth::user();
 
-            if (!$user->is_active) {
+            if (!$user->canLogin() || !$user->is_active) {
                 Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
 
                 return redirect()->route('login')->withErrors([
-                    'email' => 'تم تجميد حسابك. يرجى التواصل مع الإدارة.',
+                    'email' => $user->canLogin()
+                        ? 'تم تجميد حسابك. يرجى التواصل مع الإدارة.'
+                        : 'هذا الحساب لا يملك صلاحية الدخول إلى المنصة.',
                 ]);
             }
 

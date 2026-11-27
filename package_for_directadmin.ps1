@@ -17,8 +17,6 @@ Write-Host ">>> Assembling public_html files..." -ForegroundColor Yellow
 Copy-Item -Recurse "$baseDir\public\*" "$tempDir\public_html\"
 # Replace index.php with the DirectAdmin version
 Copy-Item "$deployDir\index.php" "$tempDir\public_html\index.php" -Force
-# Add setup_helper.php
-Copy-Item "$deployDir\setup_helper.php" "$tempDir\public_html\setup_helper.php" -Force
 
 # 2. Prepare core folder
 Write-Host ">>> Assembling core Laravel files..." -ForegroundColor Yellow

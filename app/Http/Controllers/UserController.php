@@ -23,7 +23,7 @@ class UserController extends Controller
         }
 
         $query = User::with('permissions')
-            ->whereNotIn('role', ['graduate', 'company']);
+            ->whereNotIn('role', User::NON_STAFF_ROLES);
 
         // فلترة بالبحث (الاسم، البريد، الهاتف)
         if ($request->filled('search')) {
@@ -51,8 +51,8 @@ class UserController extends Controller
 
         // إحصائيات لوحة الموظفين
         $statistics = [
-            'total_staff' => User::whereNotIn('role', ['graduate', 'company'])->count(),
-            'active_staff' => User::whereNotIn('role', ['graduate', 'company'])->where('is_active', true)->count(),
+            'total_staff' => User::whereNotIn('role', User::NON_STAFF_ROLES)->count(),
+            'active_staff' => User::whereNotIn('role', User::NON_STAFF_ROLES)->where('is_active', true)->count(),
             'custom_staff' => User::where('role', 'staff')->count(),
             'admins' => User::where('role', 'admin')->count(),
         ];

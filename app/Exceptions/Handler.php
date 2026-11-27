@@ -44,7 +44,10 @@ class Handler extends ExceptionHandler
     public function register()
     {
         $this->reportable(function (Throwable $e) {
-            //
+            // E-mail the administrator about real server errors (not 404/403/validation, which are not reported here)
+            if (!$this->isHttpException($e) || $e->getStatusCode() >= 500) {
+                \App\Services\AlertService::exception($e);
+            }
         });
 
         // التعامل الذكي مع انتهاء صلاحية الجلسة أو الرمز المميز CSRF دون إظهار صفحة 419 المزعجة

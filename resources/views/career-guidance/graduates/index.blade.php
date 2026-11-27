@@ -246,8 +246,8 @@
                         <thead>
                             <tr>
                                 <th class="text-center" style="width: 45px;">#</th>
-                                <th style="min-width: 210px;">الخريج</th>
-                                <th style="min-width: 180px;">التخصص والكلية</th>
+                                <th style="min-width: 180px;">الخريج</th>
+                                <th style="min-width: 140px;">التخصص والكلية</th>
                                 <th class="text-center" style="width: 120px;">سنة التخرج والمعدل</th>
                                 <th class="text-center" style="width: 110px;">حالة التوظيف</th>
                                 <th class="text-center" style="width: 95px;">حالة الحساب</th>
@@ -293,7 +293,7 @@
                                                     </span>
                                                 @endif
                                             </div>
-                                            <div class="graduate-meta d-flex align-items-center gap-2 text-nowrap mt-0.5" style="font-size: 0.74rem; color: #64748b;">
+                                            <div class="graduate-meta d-flex align-items-center flex-wrap gap-1 column-gap-2 mt-0.5" style="font-size: 0.74rem; color: #64748b;">
                                                 @if($gPhone)
                                                     <a href="tel:{{ $gPhone }}" class="text-success text-decoration-none fw-semibold" dir="ltr" title="اتصال">
                                                         <i class="fas fa-phone-alt me-1 text-muted" style="font-size: 0.68rem;"></i>{{ $gPhone }}
@@ -311,10 +311,10 @@
                                 </td>
                                 <td>
                                     @if($gMajor)
-                                        <div class="fw-bold text-dark text-truncate" style="font-size: 0.85rem; max-width: 190px;" title="{{ $gMajor }}">
+                                        <div class="fw-bold text-dark text-truncate" style="font-size: 0.85rem; max-width: 150px;" title="{{ $gMajor }}">
                                             {{ $gMajor }}
                                         </div>
-                                        <div class="text-muted text-truncate" style="font-size: 0.74rem; max-width: 190px;" title="{{ $gFaculty ?? $gUniversity }}">
+                                        <div class="text-muted text-truncate" style="font-size: 0.74rem; max-width: 150px;" title="{{ $gFaculty ?? $gUniversity }}">
                                             <i class="fas fa-university text-secondary me-1" style="font-size: 0.68rem;"></i>{{ $gFaculty ?? $gUniversity }}
                                         </div>
                                     @else
@@ -666,13 +666,13 @@
         color: #475569;
         font-size: 0.82rem;
         font-weight: 700;
-        padding: 10px 12px;
+        padding: 10px 8px;
         border-bottom: 2px solid #e2e8f0;
         white-space: nowrap;
         vertical-align: middle;
     }
     .premium-graduates-table tbody td {
-        padding: 8px 12px;
+        padding: 8px 8px;
         border-bottom: 1px solid #f1f5f9;
         vertical-align: middle;
         background-color: #ffffff;
@@ -697,6 +697,10 @@
         align-items: center;
         justify-content: center;
         box-shadow: 0 1px 3px rgba(2, 132, 199, 0.2);
+    }
+    /* Keep the graduate column compact: long names are truncated (full name in the tooltip) */
+    .premium-graduates-table .graduate-details {
+        max-width: 165px;
     }
     .graduate-name {
         font-weight: 700;

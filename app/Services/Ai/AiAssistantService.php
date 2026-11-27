@@ -55,7 +55,8 @@ class AiAssistantService
         // 3. Providers in order of preference, each running the multi-step agent loop
         $response = null;
         $runner = new AiAgentRunner($this, $onEvent);
-        foreach ($this->resolveProviders() as [$provider, $apiKey]) {
+        $providers = $this->resolveProviders();
+        foreach ($providers as [$provider, $apiKey]) {
             $response = $runner->run($provider, $apiKey, $user, $history, $modelMessage ?? $userMessage, $authorizedTools);
             if ($response) {
                 break;
@@ -64,6 +65,16 @@ class AiAssistantService
 
         // 4. Offline fallback when no provider is configured or all failed
         if (!$response) {
+            if (!empty($providers)) {
+                \App\Services\AlertService::notify(
+                    'ai-providers-down',
+                    'المساعد الذكي لا يصل إلى خدمة الذكاء الاصطناعي',
+                    "فشلت كل خدمات الذكاء الاصطناعي المضبوطة (" . implode('، ', array_column($providers, 0)) . ")، " .
+                    "فيرد المساعد الآن بالإجابات الاحتياطية الجاهزة بدل التحليل.\n\n" .
+                    "الأسباب الشائعة: تجاوز حد الاستخدام في الدقيقة (429)، أو مفتاح API غير صالح (401)، أو انقطاع الخدمة.\n" .
+                    "السبب الدقيق مسجّل في storage/logs/ai-*.log على الخادم."
+                );
+            }
             $response = $this->callLocalEngine($user, $sessionId, $userMessage, $authorizedTools);
             if ($onEvent) {
                 $onEvent('replace', ['content' => $response['content']]);

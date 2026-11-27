@@ -165,7 +165,7 @@ class AiAgentRunner
 
             if (empty($callParts)) {
                 if (trim($textParts) === '') {
-                    Log::warning('AI agent: empty answer from gemini', [
+                    Log::channel('ai')->warning('AI agent: empty answer from gemini', [
                         'model' => $model,
                         'step' => $step,
                         'tools_run' => array_column($state->tools, 'name'),
@@ -271,7 +271,7 @@ class AiAgentRunner
 
             if (empty($calls)) {
                 if (trim($text) === '') {
-                    Log::warning('AI agent: empty answer from groq', [
+                    Log::channel('ai')->warning('AI agent: empty answer from groq', [
                         'model' => $model,
                         'step' => $step,
                         'finish_reason' => $finishReason,
@@ -417,7 +417,7 @@ class AiAgentRunner
                 $payload['model'] = $alt;
                 $response = $request->post($url, $payload);
                 if ($response->successful()) {
-                    Log::info("Groq fell back to model {$alt}");
+                    Log::channel('ai')->info("Groq fell back to model {$alt}");
                     break;
                 }
             }
@@ -441,7 +441,7 @@ class AiAgentRunner
         }
 
         if (!$response->successful()) {
-            Log::warning('AI provider error (' . $response->status() . '): ' . mb_substr((string) $response->body(), 0, 500));
+            Log::channel('ai')->warning('AI provider error (' . $response->status() . '): ' . mb_substr((string) $response->body(), 0, 500));
             return false;
         }
 

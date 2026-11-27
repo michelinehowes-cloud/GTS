@@ -70,6 +70,15 @@ return [
             'days' => 14,
         ],
 
+        // AI assistant diagnostics (provider errors, rate limits, empty answers).
+        // Always keeps warnings, whatever LOG_LEVEL is, so problems like Groq's 429 are never lost.
+        'ai' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/ai.log'),
+            'level' => 'info',
+            'days' => 30,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

@@ -5767,6 +5767,21 @@
     </script>
 
     @include('partials.loading-wave-overlay')
+
+    <script>
+        // Offline page + ID card without internet (public/sw.js)
+        if ('serviceWorker' in navigator && window.isSecureContext) {
+            navigator.serviceWorker.register('/sw.js').then(function () {
+                @guest
+                // Visitor is logged out: remove any saved ID card from this device
+                if (navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage('clear-private');
+                if (window.caches) caches.keys().then(function (keys) {
+                    keys.filter(function (k) { return k.indexOf('gto-private-') === 0; }).forEach(function (k) { caches.delete(k); });
+                });
+                @endguest
+            }).catch(function () {});
+        }
+    </script>
 </body>
 
 </html>

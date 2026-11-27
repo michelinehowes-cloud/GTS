@@ -75,7 +75,7 @@
 
             <!-- Action Buttons Slot -->
             <div class="col-12 col-xl-6 col-lg-6 text-lg-start">
-                <div class="d-flex gap-2 justify-content-start justify-content-lg-end flex-wrap align-items-center">
+                <div class="hero-actions d-flex gap-2 justify-content-start justify-content-lg-end flex-wrap align-items-center">
                     @auth
                     <!-- Desktop Notifications, Messages, Dark Mode & Admin AI Management -->
                     <div class="d-none d-md-flex gap-2 align-items-center me-3">

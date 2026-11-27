@@ -277,3 +277,20 @@
     window.closeMessagesDrawer = closeMessagesDrawer;
     window.loadNotificationsInDrawer = loadNotificationsInDrawer;
     window.loadMessagesInDrawer = loadMessagesInDrawer;
+
+/* Service worker: offline page + graduate ID card without internet (see public/sw.js) */
+(function () {
+    if (!('serviceWorker' in navigator) || !window.isSecureContext) return;
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/sw.js').catch(function (err) {
+            console.warn('Service worker registration failed:', err);
+        });
+    });
+    // Remove the saved ID card from this device when the user logs out
+    document.addEventListener('submit', function (e) {
+        var action = (e.target && e.target.getAttribute('action')) || '';
+        if (/\/logout(\?|$)/.test(action) && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage('clear-private');
+        }
+    }, true);
+})();

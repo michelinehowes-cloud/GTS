@@ -49,55 +49,53 @@
     <!-- الشريط الجانبي -->
     <nav class="sidebar" id="sidebar">
         <div class="position-sticky sidebar-content">
-            <div class="sidebar-header">
+            @php
+                $sidebarRoleLabels = [
+                    'admin' => 'لوحة تحكم المدير العام',
+                    'staff' => 'لوحة الموظف (صلاحيات مخصصة)',
+                    'training_coordinator' => 'لوحة التدريب والتأهيل',
+                    'placement_coordinator' => 'لوحة التوظيف والمتابعة',
+                    'graduate' => 'منصة الخريجين',
+                    'evaluation_followup' => 'لوحة تحكم التقييم والمتابعة',
+                    'career_guidance_officer' => 'مسؤول الإرشاد المهني',
+                    'partnership_officer' => 'مسؤول الشراكات والتوظيف',
+                    'company' => 'لوحة تحكم الشركة',
+                    'media_officer' => 'لوحة تحكم الميديا',
+                ];
+                $sidebarRoleLabel = auth()->check() ? ($sidebarRoleLabels[auth()->user()->role] ?? '') : '';
+            @endphp
+            <div class="sidebar-header sidebar-header-compact">
                 <!-- زر إغلاق الشريط الجانبي للموبايل -->
                 <button type="button" class="btn btn-sm text-white rounded-circle d-md-none border-0 sidebar-mobile-close" onclick="window.closeMobileSidebar ? window.closeMobileSidebar() : null" title="إغلاق القائمة">
                     <i class="fas fa-times"></i>
                 </button>
 
-                <!-- زر تصغير الشريط الجانبي للديسكتوب فقط -->
+                <div class="sidebar-brand">
+                    <div class="sidebar-brand-logo">
+                        <img src="{{ asset('images/office_logo_white.png') }}" alt="شعار مكتب الخريجين"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <span class="sidebar-brand-fallback"><i class="fas fa-graduation-cap"></i></span>
+                    </div>
+                    <div class="sidebar-brand-text">
+                        <div class="sidebar-brand-title">مكتب تدريب الخريجين</div>
+                        <div class="sidebar-brand-subtitle">جامعة طرابلس</div>
+                    </div>
+                </div>
+
+                <!-- زر تصغير الشريط الجانبي إلى شريط أيقونات (الديسكتوب فقط) -->
                 <button class="toggle-sidebar d-none d-md-flex" id="toggleSidebar" title="تصغير القائمة الجانبية">
                     <i class="fas fa-chevron-right"></i>
                 </button>
-                <div class="logo-container">
-                    <div class="university-logo d-flex align-items-center justify-content-center mx-auto">
-                        <img src="{{ asset('images/office_logo_white.png') }}" alt="شعار مكتب الخريجين" class="logo-img"
-                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="d-none align-items-center justify-content-center w-100 h-100">
-                            <i class="fas fa-graduation-cap" style="font-size: 2rem; color: #045db0;"></i>
-                        </div>
-                    </div>
-                    <div class="logo-text">مكتب تدريب الخريجين</div>
-                    <div class="logo-subtext">جامعة طرابلس</div>
-                </div>
-
-                <!-- عرض نوع لوحة التحكم -->
-                <small class="text-light opacity-85 mt-2 d-block">
-                    @auth
-                        @if(auth()->user()->role == 'admin')
-                            لوحة تحكم المدير العام
-                        @elseif(auth()->user()->role == 'staff')
-                            لوحة الموظف (صلاحيات مخصصة)
-                        @elseif(auth()->user()->role == 'training_coordinator')
-                            لوحة التدريب والتأهيل
-                        @elseif(auth()->user()->role == 'placement_coordinator')
-                            لوحة التوظيف والمتابعة
-                        @elseif(auth()->user()->role == 'graduate')
-                            منصة الخريجين
-                        @elseif(auth()->user()->role == 'evaluation_followup')
-                            لوحة تحكم التقييم والمتابعة
-                        @elseif(auth()->user()->role == 'career_guidance_officer')
-                            مسؤول الإرشاد المهني
-                        @elseif(auth()->user()->role == 'partnership_officer')
-                            مسؤول الشراكات والتوظيف
-                        @elseif(auth()->user()->role == 'company')
-                            لوحة تحكم الشركة
-                        @elseif(auth()->user()->role == 'media_officer')
-                            لوحة تحكم الميديا
-                        @endif
-                    @endauth
-                </small>
             </div>
+
+            @auth
+            <!-- البحث السريع في القائمة -->
+            <div class="sidebar-search">
+                <i class="fas fa-search sidebar-search-icon"></i>
+                <input type="search" id="sidebarSearch" class="sidebar-search-input" placeholder="ابحث في القائمة..." autocomplete="off" aria-label="البحث في القائمة الجانبية">
+            </div>
+            <div class="sidebar-search-empty" id="sidebarSearchEmpty" hidden>لا توجد نتائج مطابقة</div>
+            @endauth
 
             <ul class="nav flex-column mt-3">
                 @auth
@@ -799,23 +797,6 @@
 
 
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="javascript:void(0)" onclick="toggleDarkMode(event)"
-                            id="darkModeMenuToggle" style="cursor: pointer;">
-                            <i class="fas fa-moon"></i>
-                            الوضع الليلي
-                        </a>
-                    </li>
-                    <li class="nav-item mt-2 pt-2 border-top border-light">
-                        <a class="nav-link text-warning fw-bold" href="#"
-                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            <i class="fas fa-sign-out-alt"></i>
-                            تسجيل الخروج
-                        </a>
-                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                            @csrf
-                        </form>
-                    </li>
                 @else
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('login') }}">
@@ -833,6 +814,31 @@
 
             </ul>
         </div>
+
+        @auth
+        <!-- بطاقة المستخدم الثابتة أسفل الشريط الجانبي -->
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="sidebar-user-avatar">{{ mb_substr(auth()->user()->name, 0, 1) }}</div>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-name" title="{{ auth()->user()->name }}">{{ auth()->user()->name }}</div>
+                    <div class="sidebar-user-role">{{ $sidebarRoleLabel }}</div>
+                </div>
+            </div>
+            <div class="sidebar-footer-actions">
+                <button type="button" class="sidebar-footer-btn" id="darkModeMenuToggle" onclick="toggleDarkMode(event)" title="الوضع الليلي">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button type="button" class="sidebar-footer-btn sidebar-logout-btn" title="تسجيل الخروج"
+                    onclick="document.getElementById('logout-form').submit();">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                @csrf
+            </form>
+        </div>
+        @endauth
     </nav>
 
     <!-- زر إظهار القائمة الجانبية العائم عند الإخفاء (فقط في الديسكتوب) -->
@@ -991,6 +997,7 @@
     @endauth
 
     <link href="{{ asset('css/app-layout-2.css') }}?v={{ @filemtime(public_path('css/app-layout-2.css')) ?: '1' }}" rel="stylesheet">
+    <link href="{{ asset('css/sidebar.css') }}?v={{ @filemtime(public_path('css/sidebar.css')) ?: '1' }}" rel="stylesheet">
 
     <!-- Bootstrap 5 Bundle JS (enables modals, dropdowns, tooltips globally) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -1011,6 +1018,7 @@
     <!-- دوال الدرج المنزلق للإشعارات والرسائل -->
     <!-- ============================================================ -->
     <script src="{{ asset('js/app-layout-2.js') }}?v={{ @filemtime(public_path('js/app-layout-2.js')) ?: '1' }}"></script>
+    <script src="{{ asset('js/sidebar.js') }}?v={{ @filemtime(public_path('js/sidebar.js')) ?: '1' }}"></script>
 
     @include('partials.loading-wave-overlay')
 </body>

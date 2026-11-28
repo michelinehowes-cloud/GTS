@@ -1471,7 +1471,7 @@
                     <a href="{{ route('graduate.register') }}" class="nav-btn nav-btn-gold">
                         <i class="fas fa-user-plus"></i>سجّل كخريج
                     </a>
-                    @if($fair)
+                    @if($fair && $fair->visitor_registration_open)
                         <a href="{{ route('job-fair.public', $fair->id) }}#visitor-register" class="nav-btn nav-btn-visitor">
                             <i class="fas fa-id-badge"></i>سجّل كزائر
                         </a>

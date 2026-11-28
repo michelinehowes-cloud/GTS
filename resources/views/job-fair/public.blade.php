@@ -6099,7 +6099,7 @@
                 <a href="{{ route('graduate.register') }}" class="nav-btn nav-btn-gold d-none d-sm-inline-flex">
                     <i class="fas fa-user-plus me-1"></i>سجّل كخريج
                 </a>
-                @if(isset($fair) && $fair)
+                @if(isset($fair) && $fair && $fair->visitor_registration_open)
                     <button type="button" class="nav-btn nav-btn-visitor d-none d-md-inline-flex" data-bs-toggle="modal"
                         data-bs-target="#visitorRegisterModal">
                         <i class="fas fa-id-badge"></i>
@@ -6316,7 +6316,7 @@
                                 @endif
                             @endauth
 
-                            @if(isset($fair) && $fair)
+                            @if(isset($fair) && $fair && $fair->visitor_registration_open)
                                 <button type="button" class="nav-btn nav-btn-visitor" data-bs-toggle="modal"
                                     data-bs-target="#visitorRegisterModal">
                                     <i class="fas fa-id-badge"></i>
@@ -8461,6 +8461,7 @@
 
             // فتح نموذج تسجيل الزائر تلقائياً عند الدخول بالرابط الحامل لـ #visitor-register
             function checkVisitorModalHash() {
+                @if(!($fair && $fair->visitor_registration_open)) return; @endif
                 if (window.location.hash === '#visitor-register' || window.location.hash === '#register-visitor') {
                     const modalEl = document.getElementById('visitorRegisterModal');
                     if (modalEl) {

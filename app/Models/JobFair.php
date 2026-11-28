@@ -300,6 +300,14 @@ class JobFair extends Model
     }
 
     /**
+     * هل تسجيل الزوار (العامة) متاح؟ مفتوح ما دام المعرض منشوراً أو جارياً ولم ينتهِ أو يُلغَ.
+     */
+    public function getVisitorRegistrationOpenAttribute(): bool
+    {
+        return !$this->is_ended && in_array($this->status, ['published', 'ongoing']);
+    }
+
+    /**
      * هل التسجيل لا يزال متاحاً؟
      */
     public function getCanRegisterAttribute(): bool

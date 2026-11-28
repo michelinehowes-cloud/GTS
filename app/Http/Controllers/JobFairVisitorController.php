@@ -99,6 +99,23 @@ class JobFairVisitorController extends Controller
                 ->with('info', 'تم تحديث بياناتك، إليك بطاقتك الرقمية الرسمية.');
         }
 
+        // لا تسجيل لزوار جدد بعد انتهاء المعرض أو إلغائه (الزائر المسجّل سابقاً يبقى قادراً على فتح بطاقته أعلاه)
+        if (!$fair->visitor_registration_open) {
+            $message = $fair->status === 'cancelled'
+                ? 'عذراً، تم إلغاء هذا المعرض ولم يعد التسجيل متاحاً.'
+                : 'عذراً، انتهى المعرض وأُغلق تسجيل الزوار.';
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $message,
+                    'errors' => ['fair' => [$message]],
+                ], 422);
+            }
+
+            return back()->withInput()->withErrors(['fair' => $message]);
+        }
+
         // توليد رقم تذكرة فريد
         $year = $fair->event_date ? (Carbon::parse($fair->event_date)->year ?: (int) date('Y')) : (int) date('Y');
         $random = strtoupper(Str::random(5));

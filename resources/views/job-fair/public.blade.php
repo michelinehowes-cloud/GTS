@@ -6199,11 +6199,15 @@
                             </span>
                         </div>
 
-                        {{-- Countdown --}}
-                        @if($fair->is_upcoming)
+                        {{-- Fair state: countdown (not started) / ended or cancelled / ongoing --}}
+                        @php
+                            $fairTime = $fair->start_time ?: '09:00:00';
+                            $eventTargetCarbon = \Carbon\Carbon::parse($fair->event_date->format('Y-m-d') . ' ' . substr($fairTime, 0, 5) . ':00');
+                            $fairEnded = $fair->is_ended; // status completed/cancelled, or its time has passed
+                            $fairNotStarted = !$fairEnded && $fair->status !== 'ongoing' && \Carbon\Carbon::now()->lt($eventTargetCarbon);
+                        @endphp
+                        @if($fairNotStarted)
                             @php
-                                $fairTime = $fair->start_time ?: '09:00:00';
-                                $eventTargetCarbon = \Carbon\Carbon::parse($fair->event_date->format('Y-m-d') . ' ' . substr($fairTime, 0, 5) . ':00');
                                 $diffSecs = max(0, (int) \Carbon\Carbon::now()->diffInSeconds($eventTargetCarbon, false));
                                 $initD = floor($diffSecs / 86400);
                                 $initH = floor(($diffSecs % 86400) / 3600);
@@ -6263,6 +6267,22 @@
                                     setInterval(tick, 1000);
                                 })();
                             </script>
+                        @elseif($fairEnded)
+                            <div class="d-flex justify-content-lg-start justify-content-center mb-4">
+                                @if($fair->status === 'cancelled')
+                                    <span
+                                        style="background: rgba(239,68,68,0.18); border: 1.5px solid rgba(239,68,68,0.5); color: #FCA5A5; padding: 10px 28px; border-radius: 50px; font-weight: 700; font-size: 1rem">
+                                        <i class="fas fa-ban me-2"></i>
+                                        تم إلغاء هذا المعرض
+                                    </span>
+                                @else
+                                    <span
+                                        style="background: rgba(255,255,255,0.14); border: 1.5px solid rgba(255,255,255,0.35); color: #E2E8F0; padding: 10px 28px; border-radius: 50px; font-weight: 700; font-size: 1rem">
+                                        <i class="fas fa-flag-checkered me-2"></i>
+                                        اختُتم المعرض — شكراً لكل من شارك
+                                    </span>
+                                @endif
+                            </div>
                         @else
                             <div class="d-flex justify-content-lg-start justify-content-center mb-4">
                                 <span
@@ -6374,7 +6394,7 @@
                                     <div class="hero-stat-lbl">حضور الفعالية</div>
                                 </div>
                             @endif
-                            @if($fair->is_upcoming)
+                            @if($fairNotStarted)
                                 <div class="hero-stat-divider"></div>
                                 <div class="hero-stat">
                                     <div class="hero-stat-num">{{ $stats['days_remaining'] ?? 0 }}</div>

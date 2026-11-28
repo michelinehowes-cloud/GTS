@@ -491,66 +491,6 @@
     </div>
 </div>
 
-{{-- معالج مباشر وموثوق لفتح وإغلاق القوائم المنسدلة في الشريط العلوي دون الاعتماد حصراً على Data API --}}
-<script>
-(function() {
-    function setupJobFairDropdowns() {
-        document.querySelectorAll('.job-fair-detail-hero .dropdown-toggle').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                const parent = this.closest('.dropdown');
-                const menu = parent ? parent.querySelector('.dropdown-menu') : null;
-                if (!menu) return;
-
-                const willOpen = !menu.classList.contains('show');
-
-                // إغلاق كل القوائم المفتوحة الأخرى أولاً
-                document.querySelectorAll('.job-fair-detail-hero .dropdown-menu.show').forEach(function(openMenu) {
-                    openMenu.classList.remove('show');
-                    const toggleBtn = openMenu.closest('.dropdown')?.querySelector('.dropdown-toggle');
-                    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
-                });
-
-                if (willOpen) {
-                    menu.classList.add('show');
-                    this.setAttribute('aria-expanded', 'true');
-                    if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
-                        try {
-                            const inst = bootstrap.Dropdown.getOrCreateInstance(this);
-                            inst.show();
-                        } catch(err) {}
-                    }
-                } else {
-                    menu.classList.remove('show');
-                    this.setAttribute('aria-expanded', 'false');
-                    if (typeof bootstrap !== 'undefined' && bootstrap.Dropdown) {
-                        try {
-                            const inst = bootstrap.Dropdown.getInstance(this);
-                            if (inst) inst.hide();
-                        } catch(err) {}
-                    }
-                }
-            });
-        });
-
-        // إغلاق القوائم عند النقر في أي مكان آخر بالصفحة
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.job-fair-detail-hero .dropdown')) {
-                document.querySelectorAll('.job-fair-detail-hero .dropdown-menu.show').forEach(function(openMenu) {
-                    openMenu.classList.remove('show');
-                    const toggleBtn = openMenu.closest('.dropdown')?.querySelector('.dropdown-toggle');
-                    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
-                });
-            }
-        });
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupJobFairDropdowns);
-    } else {
-        setupJobFairDropdowns();
-    }
-})();
-</script>
+{{-- The header dropdowns (sections / options) are handled by Bootstrap's own data-bs-toggle="dropdown".
+     A manual click handler used to live here as a workaround for Bootstrap being loaded twice;
+     with Bootstrap loaded once it toggled the menu a second time and closed it immediately. --}}
